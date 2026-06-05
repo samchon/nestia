@@ -119,6 +119,19 @@ func runBuild(args []string) int {
 	typiaTransform := nestiaTypiaNodeTransform(prog, readTypiaPluginOptions(cwd, *tsconfigPath), addDiagnostic)
 	coreTransform := nestiaCoreNodeTransform(prog, plan, addDiagnostic)
 
+	// Statically linked contributors (e.g. the @nestia/sdk OperationMetadata
+	// pass) run their per-file emit transformer in the same EmitContext after
+	// typia and core, mirroring the `transform` subcommand. Without this the
+	// build/emit path silently drops a contributor that opted in through its own
+	// flag (NESTIA_SDK_TRANSFORM) rather than the ttsc linked-plugin registry, so
+	// its metadata never reaches the emitted JavaScript.
+	contributorTransforms, contributorDiags := collectContributorEmitTransforms(prog, plan)
+	if len(contributorDiags) > 0 {
+		WriteTypiaTransformDiagnostics(stderr, contributorDiags, cwd)
+		return 3
+	}
+	transforms := append([]driver.PluginTransform{typiaTransform, coreTransform}, contributorTransforms...)
+
 	emitted := []string{}
 	writeFile := shimcompiler.WriteFile(func(fileName, text string, data *shimcompiler.WriteFileData) error {
 		_ = data
@@ -137,21 +150,14 @@ func runBuild(args []string) int {
 		if profile {
 			started = time.Now()
 		}
-		dts := prog.TSProgram.Emit(context.Background(), shimcompiler.EmitOptions{
-			EmitOnly:  shimcompiler.EmitOnlyDts,
-			WriteFile: writeFile,
-		})
+		emitDeclarations(prog, writeFile)
 		profileBuildStep(profile, "declaration-emit", started)
-		if dts != nil && dts.EmitSkipped {
-			fmt.Fprintln(stderr, "ttsc-nestia build: declaration emit skipped")
-			return 3
-		}
 	}
 
 	if profile {
 		started = time.Now()
 	}
-	eDiags, err := prog.EmitWithPluginTransformers([]driver.PluginTransform{typiaTransform, coreTransform}, writeFile)
+	eDiags, err := prog.EmitWithPluginTransformers(transforms, writeFile)
 	profileBuildStep(profile, "emit-total", started)
 	if err != nil {
 		fmt.Fprintf(stderr, "ttsc-nestia build: emit failed: %v\n", err)
@@ -191,6 +197,27 @@ func runBuild(args []string) int {
 	}
 	profileBuildStep(profile, "total", totalStarted)
 	return 0
+}
+
+// emitDeclarations runs tsgo's standard declaration emitter for the program.
+// tsgo's MarkLinkedReferences pass can nil-panic on some cross-module reference
+// shapes (e.g. a nestia.config.ts that calls NestFactory.create, compiled by the
+// SDK config loader only to be require()d). The .js the caller needs is emitted
+// separately by EmitWithPluginTransformers, so recover and skip the .d.ts for
+// this run instead of aborting the whole build.
+func emitDeclarations(prog *driver.Program, writeFile shimcompiler.WriteFile) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Fprintf(stderr, "ttsc-nestia build: declaration emit skipped (%v)\n", r)
+		}
+	}()
+	dts := prog.TSProgram.Emit(context.Background(), shimcompiler.EmitOptions{
+		EmitOnly:  shimcompiler.EmitOnlyDts,
+		WriteFile: writeFile,
+	})
+	if dts != nil && dts.EmitSkipped {
+		fmt.Fprintln(stderr, "ttsc-nestia build: declaration emit skipped")
+	}
 }
 
 func runCheck(args []string) int {

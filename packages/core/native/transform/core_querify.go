@@ -5,6 +5,7 @@ import (
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimchecker "github.com/microsoft/typescript-go/shim/checker"
+	shimprinter "github.com/microsoft/typescript-go/shim/printer"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 	nativecontext "github.com/samchon/typia/packages/typia/native/core/context"
 	nativefactories "github.com/samchon/typia/packages/typia/native/core/factories"
@@ -13,7 +14,7 @@ import (
 	schemametadata "github.com/samchon/typia/packages/typia/native/core/schemas/metadata"
 )
 
-func nestiaCoreHttpQuerifyProgrammer(prog *driver.Program, typ *shimchecker.Type) *shimast.Node {
+func nestiaCoreHttpQuerifyProgrammer(prog *driver.Program, ec *shimprinter.EmitContext, typ *shimchecker.Type) *shimast.Node {
 	collection := schemametadata.NewMetadataCollection()
 	result := nativefactories.MetadataFactory.Analyze(nativefactories.MetadataFactory_IProps{
 		Checker: prog.Checker,
@@ -62,7 +63,7 @@ func nestiaCoreHttpQuerifyProgrammer(prog *driver.Program, typ *shimchecker.Type
 				continue
 			}
 			statements = append(statements, nestiaCoreFactory.NewExpressionStatement(
-				nestiaCoreHttpQuerifyDecode(key, property.Value),
+				nestiaCoreHttpQuerifyDecode(key, property.Value, ec),
 			))
 		}
 	}
@@ -80,8 +81,8 @@ func nestiaCoreHttpQuerifyProgrammer(prog *driver.Program, typ *shimchecker.Type
 	)
 }
 
-func nestiaCoreHttpAssertQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
-	context := nestiaCoreTypiaContext(prog, importer, false, false, false)
+func nestiaCoreHttpAssertQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+	context := nestiaCoreTypiaContext(prog, importer, ec, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	return nestiaCoreQueryWrapperArrow([]*shimast.Node{
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
@@ -96,14 +97,14 @@ func nestiaCoreHttpAssertQuerifyProgrammer(prog *driver.Program, importer *nativ
 		}),
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name:  "stringify",
-			Value: nestiaCoreHttpQuerifyProgrammer(prog, typ),
+			Value: nestiaCoreHttpQuerifyProgrammer(prog, ec, typ),
 		}),
 		nestiaCoreFactory.NewReturnStatement(nestiaCoreCall("stringify", nestiaCoreCall("assert", nestiaCoreFactory.NewIdentifier("input")))),
 	})
 }
 
-func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
-	context := nestiaCoreTypiaContext(prog, importer, false, false, false)
+func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+	context := nestiaCoreTypiaContext(prog, importer, ec, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	return nestiaCoreQueryWrapperArrow([]*shimast.Node{
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
@@ -118,7 +119,7 @@ func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, importer *nativecon
 		}),
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name:  "stringify",
-			Value: nestiaCoreHttpQuerifyProgrammer(prog, typ),
+			Value: nestiaCoreHttpQuerifyProgrammer(prog, ec, typ),
 		}),
 		nestiaCoreFactory.NewReturnStatement(nestiaCoreFactory.NewConditionalExpression(
 			nestiaCoreCall("is", nestiaCoreFactory.NewIdentifier("input")),
@@ -130,8 +131,8 @@ func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, importer *nativecon
 	})
 }
 
-func nestiaCoreHttpValidateQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
-	context := nestiaCoreTypiaContext(prog, importer, true, false, false)
+func nestiaCoreHttpValidateQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+	context := nestiaCoreTypiaContext(prog, importer, ec, true, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	return nestiaCoreQueryWrapperArrow([]*shimast.Node{
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
@@ -146,7 +147,7 @@ func nestiaCoreHttpValidateQuerifyProgrammer(prog *driver.Program, importer *nat
 		}),
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name:  "query",
-			Value: nestiaCoreHttpQuerifyProgrammer(prog, typ),
+			Value: nestiaCoreHttpQuerifyProgrammer(prog, ec, typ),
 		}),
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name:  "output",
@@ -173,11 +174,12 @@ func nestiaCoreQueryWrapperArrow(statements []*shimast.Node) *shimast.Node {
 	)
 }
 
-func nestiaCoreHttpQuerifyDecode(key string, value *schemametadata.MetadataSchema) *shimast.Node {
+func nestiaCoreHttpQuerifyDecode(key string, value *schemametadata.MetadataSchema, ec *shimprinter.EmitContext) *shimast.Node {
 	if len(value.Arrays) != 0 {
 		return nestiaCoreFactory.NewCallExpression(
 			nativefactories.IdentifierFactory.Access(
-				nativefactories.IdentifierFactory.Access(nestiaCoreFactory.NewIdentifier("input"), key),
+				ec,
+				nativefactories.IdentifierFactory.Access(ec, nestiaCoreFactory.NewIdentifier("input"), key),
 				"forEach",
 			),
 			nil,
@@ -192,7 +194,7 @@ func nestiaCoreHttpQuerifyDecode(key string, value *schemametadata.MetadataSchem
 					nil,
 					nil,
 					nestiaCoreFactory.NewToken(shimast.KindEqualsGreaterThanToken),
-					nestiaCoreHttpQuerifyAppend(key, nestiaCoreFactory.NewIdentifier("elem")),
+					nestiaCoreHttpQuerifyAppend(key, nestiaCoreFactory.NewIdentifier("elem"), ec),
 				),
 			}),
 			shimast.NodeFlagsNone,
@@ -200,13 +202,14 @@ func nestiaCoreHttpQuerifyDecode(key string, value *schemametadata.MetadataSchem
 	}
 	return nestiaCoreHttpQuerifyAppend(
 		key,
-		nativefactories.IdentifierFactory.Access(nestiaCoreFactory.NewIdentifier("input"), key),
+		nativefactories.IdentifierFactory.Access(ec, nestiaCoreFactory.NewIdentifier("input"), key),
+		ec,
 	)
 }
 
-func nestiaCoreHttpQuerifyAppend(key string, elem *shimast.Node) *shimast.Node {
+func nestiaCoreHttpQuerifyAppend(key string, elem *shimast.Node, ec *shimprinter.EmitContext) *shimast.Node {
 	return nestiaCoreFactory.NewCallExpression(
-		nativefactories.IdentifierFactory.Access(nestiaCoreFactory.NewIdentifier("output"), "append"),
+		nativefactories.IdentifierFactory.Access(ec, nestiaCoreFactory.NewIdentifier("output"), "append"),
 		nil,
 		nil,
 		nestiaCoreFactory.NewNodeList([]*shimast.Node{

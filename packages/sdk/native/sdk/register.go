@@ -116,11 +116,40 @@ func EmitTransform(prog *driver.Program) (driver.PluginTransform, []transform.Di
 		// NewGeneratedNameForNode binds them to the same alias tsgo's
 		// module-transform emits for the require.
 		modSpec := ec.Factory.NewStringLiteral(sdkMetadataModule, shimast.TokenFlagsNone)
+		// Sites were collected from the parse-tree program, so site.Method is an
+		// original method node. By the time this contributor runs, typia and core
+		// have already rebuilt every decorated method into a synthetic copy with a
+		// fresh modifier list, and the original node is no longer in the emitted
+		// tree. Map each original method to its synthetic counterpart (via the
+		// emit context's original link) so the injected decorator lands on the
+		// node that is actually printed; fall back to the original when the method
+		// was untouched.
+		synthByOriginal := map[*shimast.Node]*shimast.Node{}
+		var collect func(node *shimast.Node)
+		collect = func(node *shimast.Node) {
+			if node == nil {
+				return
+			}
+			if node.Kind == shimast.KindMethodDeclaration {
+				if original := ec.MostOriginal(node); original != nil {
+					synthByOriginal[original] = node
+				}
+			}
+			node.ForEachChild(func(child *shimast.Node) bool {
+				collect(child)
+				return false
+			})
+		}
+		collect(sf.AsNode())
 		for _, site := range fileSites {
 			if site.Method == nil {
 				continue
 			}
-			injectOperationMetadataDecoratorEC(ec, modSpec, site.Method, site.Metadata)
+			method := site.Method
+			if synth, ok := synthByOriginal[site.Method]; ok {
+				method = synth
+			}
+			injectOperationMetadataDecoratorEC(ec, modSpec, method, site.Metadata)
 		}
 		injectOperationMetadataImportEC(ec, modSpec, sf)
 		return sf

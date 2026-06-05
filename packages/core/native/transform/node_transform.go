@@ -47,6 +47,7 @@ func nestiaCoreNodeTransform(
 		importer.SetEmitContext(ec)
 		state := newNestiaCoreTransformState(prog, options)
 		state.importer = importer
+		state.ec = ec
 
 		replacements := map[*shimast.Node]*shimast.CallExpression{}
 		context := newNestiaCoreFileContext(sf)
@@ -60,25 +61,40 @@ func nestiaCoreNodeTransform(
 			return sf
 		}
 
-		factory := nestiaCoreFactory
+		// Traverse with the emit EmitContext, not a standalone factory: every
+		// ancestor node the visitor recreates to hold a rebuilt decorator call
+		// gets an `original` link back to its parse-tree node, so tsgo's emit
+		// resolver can recover the binder symbol when it marks linked references.
+		// A plain factory drops that link, so tsgo's MarkLinkedReferences pass
+		// nil-panics (and exported namespaces silently vanish). Mirrors typia's
+		// FileTransformer emit-context traversal.
 		var visitor *shimast.NodeVisitor
-		visitor = shimast.NewNodeVisitor(func(node *shimast.Node) *shimast.Node {
+		visitor = ec.NewNodeVisitor(func(node *shimast.Node) *shimast.Node {
 			if node == nil {
 				return nil
 			}
 			if node.Kind == shimast.KindCallExpression {
 				if updated, ok := replacements[node]; ok {
-					return updated.AsNode()
+					// Link the rebuilt decorator call back to its parse-tree node and
+					// keep visiting it through the emit EmitContext (like typia's
+					// FileTransformer returns visitor.VisitEachChild(next)). Visiting
+					// the substituted subtree is what wires the injected validator
+					// nodes' parents and original links, so tsgo's emit resolver can
+					// recover their binder symbols when it marks linked references —
+					// returning the node raw leaves that subtree untracked and the
+					// resolver nil-panics.
+					ec.SetOriginal(updated.AsNode(), node)
+					return visitor.VisitEachChild(updated.AsNode())
 				}
 			}
 			return visitor.VisitEachChild(node)
-		}, factory, shimast.NodeVisitorHooks{})
+		})
 		visited := visitor.VisitNode(sf.AsNode())
 		if visited == nil {
 			return sf
 		}
 		result := visited.AsSourceFile()
-		result = nestiaCoreInjectImports(result, importer.ToStatements())
+		result = nestiaCoreInjectImports(result, importer.ToStatements(), ec)
 		// The node path prints through tsgo's printer, which dereferences the
 		// conditional ?/: operator tokens typia's programmers leave nil; the
 		// legacy text path filled them via normalizeNestiaSyntheticTokens before
@@ -147,10 +163,15 @@ func nestiaCoreCollectParameterReplacements(
 	if len(candidates) == 0 {
 		return
 	}
-	typ := state.prog.Checker.GetTypeAtLocation(node)
+	typ := state.prog.Checker.GetTypeAtLocation(nestiaCoreOriginalNode(state.ec, node))
 	for _, candidate := range candidates {
-		modulo := nestiaCoreModuloNode(candidate.call.Expression)
-		nodes, ok, err := nestiaCoreParameterArgumentNodes(state.prog, state.importer, state.options, candidate.call, modulo, candidate.kind, typ)
+		// Hand typia the real callee node (e.g. `core.TypedBody`) as the modulo,
+		// mirroring typia's own transformer (props.Expression.Expression). typia's
+		// programmers read its source-span text via GetTextOfNode for the error
+		// method label; a synthesized identifier has no source span and nil-panics,
+		// so map back to the parse-tree callee when typia rebuilt this decorator.
+		modulo := nestiaCoreOriginalNode(state.ec, candidate.call.Expression)
+		nodes, ok, err := nestiaCoreParameterArgumentNodes(state.prog, state.importer, state.ec, state.options, candidate.call, modulo, candidate.kind, typ)
 		if err != nil {
 			addDiagnostic(nestiaCoreDiagnostic(nestiaCoreSiteFor(context.file, candidate.call, candidate.kind, candidate.segments), err.Error()))
 			continue
@@ -158,7 +179,7 @@ func nestiaCoreCollectParameterReplacements(
 		if !ok {
 			continue
 		}
-		replacements[candidate.call.AsNode()] = nestiaCoreAppendArgumentNodes(candidate.call, nodes)
+		replacements[candidate.call.AsNode()] = nestiaCoreAppendArgumentNodes(candidate.call, nodes, state.ec)
 	}
 }
 
@@ -188,6 +209,15 @@ func nestiaCoreCollectMethodReplacements(
 		if nestiaCoreDecoratorReference(state.prog, context, decorator, segments, canonical) == false {
 			continue
 		}
+		// @WebSocketRoute carries no injected validator (it is not a method kind),
+		// but its acceptor/driver parameter shapes are validated here, mirroring the
+		// legacy visitNestiaCoreNode path. Validate against the parse-tree method so
+		// parameter type text resolves even when typia rebuilt this method.
+		if len(canonical) != 0 && canonical[len(canonical)-1] == "WebSocketRoute" {
+			for _, diag := range validateNestiaCoreWebSocketRoute(state.prog, context, nestiaCoreOriginalNode(state.ec, node), call, canonical) {
+				addDiagnostic(diag)
+			}
+		}
 		kind := nestiaCoreMethodKind(canonical)
 		if kind == "" || nestiaCoreShouldSkipMethodDecorator(state.prog, call) {
 			continue
@@ -197,24 +227,45 @@ func nestiaCoreCollectMethodReplacements(
 	if len(candidates) == 0 {
 		return
 	}
-	typ := NestiaCoreMethodReturnType(state.prog, node)
+	typ := NestiaCoreMethodReturnType(state.prog, nestiaCoreOriginalNode(state.ec, node))
 	if typ == nil {
 		return
 	}
 	for _, candidate := range candidates {
-		modulo := nestiaCoreModuloNode(candidate.call.Expression)
-		generated, err := nestiaCoreMethodArgumentNode(state.prog, state.importer, state.options, modulo, candidate.kind, typ)
+		// Real callee node as modulo (see nestiaCoreCollectParameterReplacements).
+		modulo := nestiaCoreOriginalNode(state.ec, candidate.call.Expression)
+		generated, err := nestiaCoreMethodArgumentNode(state.prog, state.importer, state.ec, state.options, modulo, candidate.kind, typ)
 		if err != nil {
 			addDiagnostic(nestiaCoreDiagnostic(nestiaCoreSiteFor(context.file, candidate.call, candidate.kind, candidate.segments), err.Error()))
 			continue
 		}
-		replacements[candidate.call.AsNode()] = nestiaCoreAppendArgumentNodes(candidate.call, []*shimast.Node{generated})
+		replacements[candidate.call.AsNode()] = nestiaCoreAppendArgumentNodes(candidate.call, []*shimast.Node{generated}, state.ec)
 	}
+}
+
+// nestiaCoreOriginalNode returns the parse-tree node a (possibly synthetic) node
+// was rebuilt from, so checker queries that need binder symbols or types resolve
+// against the original. core runs after typia in the shared emit pass: when typia
+// lowers a `typia.random<T>()` call that sits in a decorator argument or method
+// body, it rebuilds the enclosing method (and its parameters) into synthetic
+// nodes that carry no binder symbol. GetSignatureFromDeclaration /
+// GetTypeAtLocation then nil-panic on them, and GetTextOfNode on a synthetic
+// callee has no source span. ec.MostOriginal walks the original-link chain back
+// to the parse node; it is a no-op for nodes core sees before typia touched them.
+func nestiaCoreOriginalNode(ec *shimprinter.EmitContext, node *shimast.Node) *shimast.Node {
+	if ec == nil || node == nil {
+		return node
+	}
+	if original := ec.MostOriginal(node); original != nil {
+		return original
+	}
+	return node
 }
 
 // nestiaCoreAppendArgumentNodes rebuilds a decorator call with the generated
 // validator nodes appended after its original arguments.
-func nestiaCoreAppendArgumentNodes(call *shimast.CallExpression, appended []*shimast.Node) *shimast.CallExpression {
+func nestiaCoreAppendArgumentNodes(call *shimast.CallExpression, appended []*shimast.Node, ec *shimprinter.EmitContext) *shimast.CallExpression {
+	f := nativecontext.EmitFactoryOf(nestiaCoreFactory, ec)
 	existing := []*shimast.Node{}
 	if call.Arguments != nil {
 		existing = append(existing, call.Arguments.Nodes...)
@@ -222,11 +273,11 @@ func nestiaCoreAppendArgumentNodes(call *shimast.CallExpression, appended []*shi
 	args := make([]*shimast.Node, 0, len(existing)+len(appended))
 	args = append(args, existing...)
 	args = append(args, appended...)
-	updated := nestiaCoreFactory.NewCallExpression(
+	updated := f.NewCallExpression(
 		call.Expression,
 		call.QuestionDotToken,
 		call.TypeArguments,
-		nestiaCoreFactory.NewNodeList(args),
+		f.NewNodeList(args),
 		call.AsNode().Flags,
 	)
 	return updated.AsCallExpression()
@@ -235,10 +286,11 @@ func nestiaCoreAppendArgumentNodes(call *shimast.CallExpression, appended []*shi
 // nestiaCoreInjectImports prepends the importer's namespace-import statements
 // after any leading "use ..." prologue, mirroring typia's
 // fileTransformer_inject_imports.
-func nestiaCoreInjectImports(file *shimast.SourceFile, imports []*shimast.Node) *shimast.SourceFile {
+func nestiaCoreInjectImports(file *shimast.SourceFile, imports []*shimast.Node, ec *shimprinter.EmitContext) *shimast.SourceFile {
 	if file == nil || len(imports) == 0 {
 		return file
 	}
+	f := nativecontext.EmitFactoryOf(nestiaCoreFactory, ec)
 	index := 0
 	for ; index < len(file.Statements.Nodes); index++ {
 		stmt := file.Statements.Nodes[index]
@@ -257,9 +309,9 @@ func nestiaCoreInjectImports(file *shimast.SourceFile, imports []*shimast.Node) 
 	nodes = append(nodes, file.Statements.Nodes[:index]...)
 	nodes = append(nodes, imports...)
 	nodes = append(nodes, file.Statements.Nodes[index:]...)
-	return nestiaCoreFactory.UpdateSourceFile(
+	return f.UpdateSourceFile(
 		file,
-		nestiaCoreFactory.NewNodeList(nodes),
+		f.NewNodeList(nodes),
 		file.EndOfFileToken,
 	).AsSourceFile()
 }

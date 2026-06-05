@@ -112,8 +112,8 @@ func TestSDKNativeBuildInjectsOperationMetadata(t *testing.T) {
 	for _, expected := range []string{
 		`const __OperationMetadata = __importStar(require("@nestia/sdk"));`,
 		`__OperationMetadata.OperationMetadata(`,
-		`core_1.default.TypedRoute.Put(":id", ({`,
-		`core_1.default.TypedBody(({`,
+		`core_1.default.TypedRoute.Put(":id", {`,
+		`core_1.default.TypedBody({`,
 	} {
 		if !strings.Contains(text, expected) {
 			t.Fatalf("emitted JavaScript is missing %q\n%s", expected, text)

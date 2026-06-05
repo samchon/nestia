@@ -90,6 +90,11 @@ export namespace NestiaConfigLoader {
         noUnusedLocals: false,
         noUnusedParameters: false,
         ...nodeAmbientCompilerOptions(projectRoot, props.compilerOptions),
+        // The wrapper compiles the config file only to require() its JS; .d.ts
+        // is never read, and tsgo's declaration emitter can nil-panic on a
+        // config that calls into Nest. Force it off regardless of the project.
+        declaration: false,
+        declarationMap: false,
         outDir: outputRoot,
         plugins: materializePlugins(props.compilerOptions.plugins),
         rootDir: projectRoot,

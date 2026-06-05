@@ -61,15 +61,15 @@ func TestCoreNativeTransformInjectsDecoratorArguments(t *testing.T) {
 	}
 	text := string(out)
 	for _, expected := range []string{
-		`@core.TypedRoute.Post(({`,
-		`@core.TypedRoute.Put(":id", ({`,
-		`@core.TypedParam("id", ((input) =>`,
+		`@core.TypedRoute.Post({`,
+		`@core.TypedRoute.Put(":id", {`,
+		`@core.TypedParam("id", (input: string)`,
 		// TypedParam's third argument is the `validate?: boolean` flag from
 		// packages/core/src/decorators/TypedParam.ts; when validate-family
 		// modes are active the transform appends `true` so the runtime emits
 		// the detailed report shape.
-		`}), true)`,
-		`@core.TypedBody(({`,
+		`}, true)`,
+		`@core.TypedBody({`,
 		`_validateReport`,
 	} {
 		if !strings.Contains(text, expected) {
@@ -97,7 +97,7 @@ func TestCoreNativeTransformUsesValidateLogStringifier(t *testing.T) {
 	}
 	text := string(out)
 	for _, expected := range []string{
-		`@core.TypedRoute.Post(({`,
+		`@core.TypedRoute.Post({`,
 		`type: "validate.log"`,
 		`validate: (() =>`,
 	} {
@@ -242,8 +242,8 @@ func TestCoreNativeTransformAppliesJSDocTypeTagsToTypedQuery(t *testing.T) {
 	}
 	text := string(out)
 	for _, expected := range []string{
-		`__typia_transform__isTypeUint32(input.page)`,
-		`__typia_transform__isTypeUint32(input.limit)`,
+		`._isTypeUint32(input.page)`,
+		`._isTypeUint32(input.limit)`,
 	} {
 		if !strings.Contains(text, expected) {
 			t.Fatalf("transformed source is missing %q\n%s", expected, text)
@@ -365,7 +365,7 @@ func TestCoreNativeTransformInjectsFormDataFileOptions(t *testing.T) {
 	}
 	text := string(out)
 	for _, expected := range []string{
-		`@core.TypedFormData.Body(() => Multer(), ({`,
+		`@core.TypedFormData.Body(() => Multer(), {`,
 		`name: "blob"`,
 		`name: "blobs"`,
 		`name: "file"`,
@@ -425,10 +425,10 @@ func TestCoreNativeTransformUsesQuerifyForTypedQueryRoute(t *testing.T) {
 	}
 	text := string(out)
 	for _, expected := range []string{
-		`@TypedQuery.Post("body", ({`,
+		`@TypedQuery.Post("body", {`,
 		`const output = new URLSearchParams();`,
 		`output.append("limit", input.limit);`,
-		`input.values.forEach((elem) => output.append("values", elem));`,
+		`input.values.forEach((elem: any) => output.append("values", elem));`,
 		`return stringify(assert(input));`,
 	} {
 		if !strings.Contains(text, expected) {

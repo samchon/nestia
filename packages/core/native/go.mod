@@ -9,7 +9,7 @@ require (
 	github.com/microsoft/typescript-go/shim/printer v0.0.0
 	github.com/microsoft/typescript-go/shim/scanner v0.0.0
 	github.com/samchon/ttsc/packages/ttsc v0.0.0
-	github.com/samchon/typia/packages/typia/native v0.0.0-20260605010728-ccaf86526137
+	github.com/samchon/typia/packages/typia/native v0.0.0-20260605060028-1dfa7ca6193e
 )
 
 require (
