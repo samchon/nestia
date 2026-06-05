@@ -22,7 +22,7 @@ Downstream projects (`@agentica`, `@autobe`) build on this stack but are not par
 
 A single Go binary under `packages/core/native` performs the compile-time transform that injects validators, stringifiers, and SDK metadata. Both `@nestia/core` and `@nestia/sdk` register that binary through their `ttsc` plugin manifests; the typia transform is composed in.
 
-The `transform.ts` files in `@nestia/core` and `@nestia/sdk` are plugin descriptors, not transformers — there is no TypeScript-side transform anymore. Consumers reach the binary through `ttsc` / `ttsx` and the published descriptors. Inside the repo, `tests/run-with-ttsc-env.cjs` wires the Go binary and the `ttsc` cache directory into every test workspace.
+The `transform.ts` files in `@nestia/core` and `@nestia/sdk` are plugin descriptors, not transformers — there is no TypeScript-side transform anymore. Consumers reach the binary through `ttsc` / `ttsx` and the published descriptors. Inside the repo, each test workspace's `start` script uses `cross-env` to set `TTSC_GO_BINARY`, pin `TTSC_CACHE_DIR` (so the Go source-plugin build is reused across suites), and carry the required `NODE_OPTIONS`.
 
 ### 1.3. Layout
 
@@ -42,7 +42,7 @@ pnpm build
 pnpm test
 ```
 
-`pnpm test` builds, then runs each test workspace through `tests/run-with-ttsc-env.cjs`. It needs `go` on `PATH` (or `TTSC_GO_BINARY`).
+`pnpm test` builds, then runs each test workspace's `start` script (which sets the `ttsc` env via `cross-env`). It needs `go` on `PATH` (or `TTSC_GO_BINARY`).
 
 ## 2. Development
 

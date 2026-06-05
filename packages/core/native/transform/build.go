@@ -1,6 +1,7 @@
 package transform
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -101,48 +102,13 @@ func runBuild(args []string) int {
 		return 0
 	}
 
-	rewrites := newNativeRewriteSet()
-	if profile {
-		started = time.Now()
-	}
-	sites, recognized, transformDiags := collectTypiaRewrites(
-		prog,
-		cwd,
-		shouldEmit,
-		*quiet,
-		"",
-		rewrites,
-		readTypiaPluginOptions(cwd, *tsconfigPath),
-	)
-	profileBuildStepCount(profile, "typia-rewrites", started, rewrites.Len())
-	if len(transformDiags) > 0 {
-		WriteTypiaTransformDiagnostics(stderr, transformDiags, cwd)
-		return 3
-	}
-	beforeCore := rewrites.Len()
-	if profile {
-		started = time.Now()
-	}
-	coreDiags := collectNestiaCoreBuildRewrites(prog, plan, rewrites)
-	profileBuildStepCount(profile, "core-rewrites", started, rewrites.Len()-beforeCore)
-	if len(coreDiags) > 0 {
-		WriteTypiaTransformDiagnostics(stderr, coreDiags, cwd)
-		return 3
-	}
-	if profile {
-		started = time.Now()
-	}
-	contributorRewriters, contributorDiags := collectContributorBuildOutputRewriters(prog, plan)
-	contributorCount := 0
-	for _, rewriter := range contributorRewriters {
-		if rewriter.Len != nil {
-			contributorCount += rewriter.Len()
-		}
-	}
-	profileBuildStepCount(profile, "contributor-rewrites", started, contributorCount)
-	if len(contributorDiags) > 0 {
-		WriteTypiaTransformDiagnostics(stderr, contributorDiags, cwd)
-		return 3
+	// AST-integration emit: typia's per-file transformer and @nestia/core's own
+	// per-file transformer both run inside tsgo's emit pipeline (sharing the
+	// EmitContext), so they return AST and tsgo's module-transform aliases the
+	// namespace imports they inject. No text-splice RewriteSet, no cleanup pass.
+	transformDiags := []Diagnostic{}
+	addDiagnostic := func(diag Diagnostic) {
+		transformDiags = append(transformDiags, diag)
 	}
 	if profile {
 		started = time.Now()
@@ -150,55 +116,55 @@ func runBuild(args []string) int {
 	newPathsRewriter(prog).applyAll(prog.SourceFiles())
 	profileBuildStep(profile, "paths-rewrite", started)
 
-	cursors := map[string]int{}
-	var nativePatchElapsed time.Duration
-	var cleanupElapsed time.Duration
-	var writeElapsed time.Duration
+	typiaTransform := nestiaTypiaNodeTransform(prog, readTypiaPluginOptions(cwd, *tsconfigPath), addDiagnostic)
+	coreTransform := nestiaCoreNodeTransform(prog, plan, addDiagnostic)
+
+	// Statically linked contributors (e.g. the @nestia/sdk OperationMetadata
+	// pass) run their per-file emit transformer in the same EmitContext after
+	// typia and core, mirroring the `transform` subcommand. Without this the
+	// build/emit path silently drops a contributor that opted in through its own
+	// flag (NESTIA_SDK_TRANSFORM) rather than the ttsc linked-plugin registry, so
+	// its metadata never reaches the emitted JavaScript.
+	contributorTransforms, contributorDiags := collectContributorEmitTransforms(prog, plan)
+	if len(contributorDiags) > 0 {
+		WriteTypiaTransformDiagnostics(stderr, contributorDiags, cwd)
+		return 3
+	}
+	transforms := append([]driver.PluginTransform{typiaTransform, coreTransform}, contributorTransforms...)
+
+	emitted := []string{}
 	writeFile := shimcompiler.WriteFile(func(fileName, text string, data *shimcompiler.WriteFileData) error {
 		_ = data
-		var patchStarted time.Time
-		if profile {
-			patchStarted = time.Now()
-		}
-		patched, err := rewrites.Apply(fileName, text, cursors)
-		if profile {
-			nativePatchElapsed += time.Since(patchStarted)
-		}
-		if err != nil {
-			return err
-		}
-		for _, rewriter := range contributorRewriters {
-			if rewriter.Apply == nil {
-				continue
-			}
-			patched, err = rewriter.Apply(fileName, patched)
-			if err != nil {
-				return err
-			}
-		}
-		if profile {
-			patchStarted = time.Now()
-		}
-		patched = cleanupTransformedTextWithRuntimeAliases(patched, rewrites.RuntimeAliasesForOutput(fileName))
-		if profile {
-			cleanupElapsed += time.Since(patchStarted)
-			patchStarted = time.Now()
-			defer func() {
-				writeElapsed += time.Since(patchStarted)
-			}()
-		}
-		return driver.DefaultWriteFile(fileName, patched)
+		emitted = append(emitted, fileName)
+		return driver.DefaultWriteFile(fileName, text)
 	})
+
+	// Declaration emit: ttsc delegates the whole emit of a transform-plugin
+	// package to this host, but EmitWithPluginTransformers writes only .js. A
+	// library package (e.g. @nestia/core itself) ships .d.ts, so emit the
+	// declarations here with tsgo's standard declaration emitter. The typia /
+	// core runtime transforms never change the public type surface, so the
+	// declarations are taken from the pristine program — done before the JS
+	// transform runs so it reads the un-mutated AST.
+	if prog.ParsedConfig.ParsedConfig.CompilerOptions.Declaration.IsTrue() {
+		if profile {
+			started = time.Now()
+		}
+		emitDeclarations(prog, writeFile)
+		profileBuildStep(profile, "declaration-emit", started)
+	}
+
 	if profile {
 		started = time.Now()
 	}
-	res, eDiags, err := prog.EmitAllRaw(writeFile)
+	eDiags, err := prog.EmitWithPluginTransformers(transforms, writeFile)
 	profileBuildStep(profile, "emit-total", started)
-	profileBuildDuration(profile, "emit-native-patch", nativePatchElapsed)
-	profileBuildDuration(profile, "emit-cleanup", cleanupElapsed)
-	profileBuildDuration(profile, "emit-write", writeElapsed)
 	if err != nil {
 		fmt.Fprintf(stderr, "ttsc-nestia build: emit failed: %v\n", err)
+		return 3
+	}
+	if len(transformDiags) > 0 {
+		WriteTypiaTransformDiagnostics(stderr, transformDiags, cwd)
 		return 3
 	}
 	emitHasError := false
@@ -212,7 +178,7 @@ func runBuild(args []string) int {
 		return 3
 	}
 	if *manifestPath != "" {
-		data, err := json.Marshal(res.EmittedFiles)
+		data, err := json.Marshal(emitted)
 		if err != nil {
 			fmt.Fprintf(stderr, "ttsc-nestia build: manifest marshal failed: %v\n", err)
 			return 3
@@ -227,10 +193,31 @@ func runBuild(args []string) int {
 		}
 	}
 	if !*quiet {
-		fmt.Fprintf(stdout, "// ttsc-nestia build: typia recognized=%d total=%d rewrites=%d\n", recognized, sites, rewrites.Len())
+		fmt.Fprintf(stdout, "// ttsc-nestia build: emitted=%d files\n", len(emitted))
 	}
 	profileBuildStep(profile, "total", totalStarted)
 	return 0
+}
+
+// emitDeclarations runs tsgo's standard declaration emitter for the program.
+// tsgo's MarkLinkedReferences pass can nil-panic on some cross-module reference
+// shapes (e.g. a nestia.config.ts that calls NestFactory.create, compiled by the
+// SDK config loader only to be require()d). The .js the caller needs is emitted
+// separately by EmitWithPluginTransformers, so recover and skip the .d.ts for
+// this run instead of aborting the whole build.
+func emitDeclarations(prog *driver.Program, writeFile shimcompiler.WriteFile) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Fprintf(stderr, "ttsc-nestia build: declaration emit skipped (%v)\n", r)
+		}
+	}()
+	dts := prog.TSProgram.Emit(context.Background(), shimcompiler.EmitOptions{
+		EmitOnly:  shimcompiler.EmitOnlyDts,
+		WriteFile: writeFile,
+	})
+	if dts != nil && dts.EmitSkipped {
+		fmt.Fprintln(stderr, "ttsc-nestia build: declaration emit skipped")
+	}
 }
 
 func runCheck(args []string) int {
@@ -328,57 +315,6 @@ func NewDiagnostic(site typiaadapter.CallSite, message string) Diagnostic {
 		Code:    "typia." + site.Module + "." + site.Method,
 		Message: message,
 	}
-}
-
-func collectTypiaRewrites(
-	prog *driver.Program,
-	cwd string,
-	emit bool,
-	quiet bool,
-	onlyFile string,
-	rewrites *nativeRewriteSet,
-	pluginOptions typiaadapter.PluginOptions,
-) (int, int, []Diagnostic) {
-	sites := collectNestiaTypiaCallSites(prog.SourceFiles(), prog.Checker)
-	recognized := 0
-	diagnostics := []Diagnostic{}
-	for _, site := range sites {
-		if onlyFile != "" && filepath.ToSlash(site.FilePath) != filepath.ToSlash(onlyFile) {
-			continue
-		}
-		rel := site.FilePath
-		if abs, err := filepath.Rel(cwd, rel); err == nil {
-			rel = abs
-		}
-		if reason := typiaadapter.UnsupportedReason(site); reason != "" {
-			diagnostics = append(diagnostics, NewDiagnostic(site, reason))
-			continue
-		}
-		expr, handled, err := typiaadapter.EmitCallWithOptions(prog, site, pluginOptions)
-		if !handled {
-			diagnostics = append(diagnostics, NewDiagnostic(site, "method not covered"))
-			continue
-		}
-		if err != nil {
-			diagnostics = append(diagnostics, NewDiagnostic(site, err.Error()))
-			continue
-		}
-		expr = parenthesizeTypiaReplacement(site, expr)
-		rewrites.Add(nativeRewrite{
-			FilePath:      site.FilePath,
-			RootName:      site.RootName,
-			Namespaces:    site.Namespaces,
-			Method:        site.Method,
-			Replacement:   expr,
-			ConsumeParens: true,
-			SourceStart:   typiaBuildRewriteSortKey(site),
-		})
-		if !emit && !quiet {
-			fmt.Fprintf(stdout, "%s: typia.%s<T> -> %s\n", rel, site.Method, expr)
-		}
-		recognized++
-	}
-	return len(sites), recognized, diagnostics
 }
 
 func typiaBuildRewriteSortKey(site typiaadapter.CallSite) int {

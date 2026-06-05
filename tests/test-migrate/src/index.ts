@@ -63,8 +63,6 @@ const generateSwagger = (): Promise<number> =>
   measure("fixture-swagger")(() => {
     spawn(FIXTURE, [
       NODE,
-      path.join(TEST_ROOT, "..", "run-with-ttsc-env.cjs"),
-      NODE,
       path.join(ROOT, "packages", "cli", "bin", "index.js"),
       "swagger",
       "--project",

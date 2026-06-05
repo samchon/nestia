@@ -6,8 +6,34 @@ import (
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimchecker "github.com/microsoft/typescript-go/shim/checker"
+	shimprinter "github.com/microsoft/typescript-go/shim/printer"
+	"github.com/samchon/ttsc/packages/ttsc/driver"
 	typiaadapter "github.com/samchon/typia/packages/typia/native/adapter"
+	nativecontext "github.com/samchon/typia/packages/typia/native/core/context"
+	nativetransform "github.com/samchon/typia/packages/typia/native/transform"
 )
+
+// nestiaTypiaNodeTransform wraps typia's per-file AST transformer as a ttsc
+// PluginTransform. typia owns its call-site detection and (in ec mode) injects
+// the namespace imports tsgo's module-transform aliases, so @nestia/core simply
+// runs it alongside its own decorator transform inside the same emit pipeline.
+// A recovered typia transform error is reported as a diagnostic.
+func nestiaTypiaNodeTransform(
+	prog *driver.Program,
+	pluginOptions typiaadapter.PluginOptions,
+	addDiagnostic func(Diagnostic),
+) driver.PluginTransform {
+	transformOptions := pluginOptions.TransformOptions()
+	extras := nativecontext.ITypiaContext_Extras{
+		AddDiagnostic: func(diag *shimast.Diagnostic) int {
+			addDiagnostic(Diagnostic{Code: "typia.transform", Message: "typia transform error"})
+			return 1
+		},
+	}
+	return func(ec *shimprinter.EmitContext, sf *shimast.SourceFile) *shimast.SourceFile {
+		return nativetransform.Transform(prog, &transformOptions, extras, ec)(sf)
+	}
+}
 
 type nestiaTypiaImportRoot struct {
 	module string

@@ -18,13 +18,13 @@ export const test_no_duplicate_schemas = async () => {
   const swagger = JSON.parse(
     await fs.promises.readFile(`${__dirname}/../../../swagger.json`, "utf8"),
   );
-  // typia unfolds the generic argument into the alias name when cloning
-  // `Exception.Unauthorized = IBody<"UNAUTHORIZED">` — the SDK + Swagger
-  // chain both agree on `UnauthorizedUNAUTHORIZED`. The point of this
-  // fixture is that *no name appears twice*; the canonical-set check
-  // catches the duplicate-schema regression that motivated the dir name.
+  // `Exception.Unauthorized = IBody<"UNAUTHORIZED">` collapses to the single
+  // alias name `Exception.Unauthorized` (it no longer unfolds the literal
+  // generic argument into the schema key). The point of this fixture is that
+  // *no name appears twice*; the canonical-set check catches the
+  // duplicate-schema regression that motivated the dir name.
   const expected = [
-    "Exception.UnauthorizedUNAUTHORIZED",
+    "Exception.Unauthorized",
     "IAuth.IAccount",
     "IUser.IProfile",
   ];

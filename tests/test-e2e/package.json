@@ -4,7 +4,7 @@
   "version": "12.0.0-dev.20260601.1",
   "scripts": {
     "dev": "ttsc --watch",
-    "start": "node ../run-with-ttsc-env.cjs ttsx -P tsconfig.json src/index.ts"
+    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx src/index.ts"
   },
   "dependencies": {
     "@nestia/e2e": "workspace:^",
@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:utils",
+    "cross-env": "catalog:utils",
     "ttsc": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"

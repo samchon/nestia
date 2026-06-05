@@ -3,7 +3,7 @@
   "name": "@nestia/test-transform-options",
   "version": "12.0.0-dev.20260601.1",
   "scripts": {
-    "start": "node ../run-with-ttsc-env.cjs node start.js"
+    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node start.js"
   },
   "dependencies": {
     "@nestia/core": "workspace:^",
@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:utils",
+    "cross-env": "catalog:utils",
     "rimraf": "catalog:utils",
     "ttsc": "catalog:typescript"
   },

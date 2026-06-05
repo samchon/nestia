@@ -1,6 +1,3 @@
-import fs from "fs";
-import path from "path";
-
 import { Creator } from "../../typings/Creator";
 import { SourceFinder } from "../../utils/SourceFinder";
 
@@ -29,13 +26,21 @@ export const load_controllers = async (
   const controllers: Creator<object>[] = await mount(sources);
   if (controllers.length !== 0 || isTsNode === true) return controllers;
 
-  const runtimeRoot: string | null = findTtsxRuntimeRoot();
-  if (runtimeRoot === null) return controllers;
+  // No compiled `.js` controllers were found. Under `ttsx`, the project runs
+  // straight from its TypeScript sources: `__dirname` still points at the
+  // source tree (the runtime hooks serve the emitted JS under the source
+  // URLs), so the controllers on disk are `.ts`, not `.js`. Detect that
+  // source-run context and retry with the TypeScript filter — `import()` of
+  // each `.ts` file is then served as the transformed emit by the hooks.
+  if (!isTsxRuntime()) return controllers;
 
+  const tsFilter = (file: string) =>
+    file.substring(file.length - 3) === ".ts" &&
+    file.substring(file.length - 5) !== ".d.ts";
   const fallback: string[] = await SourceFinder.find({
-    include: include.map((p) => resolveRuntimePattern(runtimeRoot, p)),
-    exclude: exclude.map((p) => resolveRuntimePattern(runtimeRoot, p)),
-    filter,
+    include,
+    exclude,
+    filter: tsFilter,
   });
   return fallback.length === 0 ? controllers : mount(fallback);
 };
@@ -54,23 +59,19 @@ async function mount(sources: string[]): Promise<any[]> {
   return controllers;
 }
 
-function findTtsxRuntimeRoot(): string | null {
-  const entry: string | undefined = process.argv[1];
-  if (entry === undefined) return null;
-
-  let current: string = path.resolve(entry);
-  if (fs.existsSync(current) && fs.statSync(current).isFile())
-    current = path.dirname(current);
-  while (true) {
-    if (fs.existsSync(path.join(current, ".ttsx.tsconfig.json")))
-      return current;
-    const parent: string = path.dirname(current);
-    if (parent === current) return null;
-    current = parent;
-  }
-}
-
-function resolveRuntimePattern(runtimeRoot: string, pattern: string): string {
-  if (path.isAbsolute(pattern)) return pattern;
-  return path.resolve(runtimeRoot, pattern);
+/**
+ * Whether the process is running from TypeScript source under `ttsx`.
+ *
+ * `ttsx` runs a TypeScript entry from source: it builds the owning project to
+ * a temporary directory and installs runtime module hooks that serve that emit
+ * under the original source URLs, exporting the manifest path through
+ * `TTSX_RUNTIME_MANIFEST`. Its presence is the reliable signal that the
+ * controllers on disk are `.ts` (the `.js` glob will be empty) yet `import()`
+ * of those `.ts` files resolves to transformed JavaScript.
+ */
+function isTsxRuntime(): boolean {
+  return (
+    typeof process.env.TTSX_RUNTIME_MANIFEST === "string" &&
+    process.env.TTSX_RUNTIME_MANIFEST.length !== 0
+  );
 }

@@ -14,9 +14,11 @@ type BuildOutputRewriter struct {
 
 type buildOutputRewriteCollector func(*driver.Program, plugin.Plan) (*BuildOutputRewriter, []Diagnostic)
 type sourceRewriteCollector func(*driver.Program, plugin.Plan, string) (map[string][]SourceRewrite, []Diagnostic)
+type emitTransformCollector func(*driver.Program, plugin.Plan) (driver.PluginTransform, []Diagnostic)
 
 var buildOutputRewriteCollectors []buildOutputRewriteCollector
 var sourceRewriteCollectors []sourceRewriteCollector
+var emitTransformCollectors []emitTransformCollector
 
 // RegisterBuildOutputRewriteCollector registers a statically linked
 // contributor's emitted-JavaScript rewrite pass.
@@ -31,6 +33,17 @@ func RegisterBuildOutputRewriteCollector(collector buildOutputRewriteCollector) 
 func RegisterSourceRewriteCollector(collector sourceRewriteCollector) {
 	if collector != nil {
 		sourceRewriteCollectors = append(sourceRewriteCollectors, collector)
+	}
+}
+
+// RegisterEmitTransformCollector registers a statically linked contributor's
+// emit-phase AST transformer. The `transform` subcommand runs these inside the
+// shared EmitContext alongside the typia and core node transforms, so a linked
+// contributor (e.g. @nestia/sdk) participates in the node-path source-to-source
+// output the same way its source-rewrite collector did on the legacy text path.
+func RegisterEmitTransformCollector(collector emitTransformCollector) {
+	if collector != nil {
+		emitTransformCollectors = append(emitTransformCollectors, collector)
 	}
 }
 
@@ -65,4 +78,20 @@ func collectContributorSourceRewriteMap(
 		}
 	}
 	return output, diagnostics
+}
+
+func collectContributorEmitTransforms(
+	prog *driver.Program,
+	plan plugin.Plan,
+) ([]driver.PluginTransform, []Diagnostic) {
+	transforms := []driver.PluginTransform{}
+	diagnostics := []Diagnostic{}
+	for _, collector := range emitTransformCollectors {
+		t, diags := collector(prog, plan)
+		diagnostics = append(diagnostics, diags...)
+		if t != nil {
+			transforms = append(transforms, t)
+		}
+	}
+	return transforms, diagnostics
 }

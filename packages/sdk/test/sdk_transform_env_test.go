@@ -78,10 +78,14 @@ func TestSDKTransformEnvActivatesContributorMetadata(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := string(js)
+	// AST-integration emit: the contributor injects a namespace import whose
+	// alias tsgo's module-transform generates (so the binding name is not the
+	// legacy fixed `__OperationMetadata`), and the decorator argument is no longer
+	// wrapped in the extra text-splice parentheses.
 	for _, expected := range []string{
-		`const __OperationMetadata = require("@nestia/sdk");`,
-		`__OperationMetadata.OperationMetadata(`,
-		`core_1.default.TypedRoute.Put(":id", ({`,
+		`__importStar(require("@nestia/sdk"))`,
+		`.OperationMetadata(`,
+		`core_1.default.TypedRoute.Put(":id", {`,
 	} {
 		if !strings.Contains(text, expected) {
 			t.Fatalf("emitted JavaScript is missing %q\n%s", expected, text)
