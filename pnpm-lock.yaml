@@ -79,6 +79,9 @@ catalogs:
     '@types/uuid':
       specifier: ^11.0.0
       version: 11.0.0
+    cross-env:
+      specifier: ^10.1.0
+      version: 10.1.0
     rimraf:
       specifier: ^6.1.3
       version: 6.1.3
@@ -102,6 +105,9 @@ importers:
       bumpp:
         specifier: ^10.4.1
         version: 10.4.1
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
       prettier:
         specifier: catalog:typescript
         version: 3.8.3
@@ -604,7 +610,7 @@ importers:
         specifier: catalog:utils
         version: 11.0.0
       cross-env:
-        specifier: ^10.1.0
+        specifier: catalog:utils
         version: 10.1.0
       nestia:
         specifier: workspace:^
@@ -628,6 +634,9 @@ importers:
       '@types/node':
         specifier: catalog:utils
         version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
       ttsc:
         specifier: catalog:typescript
         version: 0.15.1
@@ -722,6 +731,9 @@ importers:
       '@typescript/native-preview':
         specifier: catalog:typescript
         version: 7.0.0-dev.20260518.1
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
       nestia:
         specifier: workspace:^
         version: link:../../packages/cli
@@ -807,6 +819,9 @@ importers:
       chalk:
         specifier: 4.1.2
         version: 4.1.2
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
       nestia:
         specifier: workspace:^
         version: link:../../packages/cli
@@ -832,6 +847,9 @@ importers:
       '@types/node':
         specifier: catalog:utils
         version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
       rimraf:
         specifier: catalog:utils
         version: 6.1.3

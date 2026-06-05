@@ -4,8 +4,8 @@
   "version": "12.0.0-dev.20260601.1",
   "scripts": {
     "dev": "ttsc --watch",
-    "fixture": "node -e \"require('fs').mkdirSync('.generated',{recursive:true})\" && cd fixture && node ../../run-with-ttsc-env.cjs node ../../../packages/cli/bin/index.js swagger --project tsconfig.json",
-    "start": "node ../run-with-ttsc-env.cjs ttsx -P tsconfig.json src/index.ts"
+    "fixture": "node -e \"require('fs').mkdirSync('.generated',{recursive:true})\" && cd fixture && cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node ../../../packages/cli/bin/index.js swagger --project tsconfig.json",
+    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx src/index.ts"
   },
   "dependencies": {
     "@nestia/benchmark": "workspace:^",
@@ -39,6 +39,7 @@
     "@types/multer": "^1.4.12",
     "@types/node": "catalog:utils",
     "@typescript/native-preview": "catalog:typescript",
+    "cross-env": "catalog:utils",
     "nestia": "workspace:^",
     "ttsc": "catalog:typescript"
   },
