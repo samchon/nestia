@@ -5,6 +5,15 @@
     "moduleResolution": "bundler",
     "rootDir": "src",
     "outDir": "lib",
+    "plugins": [
+      {
+        "transform": "typia/lib/transform",
+        "enabled": false,
+      },
+      {
+        "transform": "@nestia/core/native/transform.cjs",
+      },
+    ],
   },
   "include": ["src"],
 }
