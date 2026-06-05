@@ -260,7 +260,18 @@ const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
     await runNode(
       cwd,
       TTSX_BIN,
-      ["-P", project, "-r", "@nestjs/platform-express", "src/test/index.ts"],
+      [
+        "-P",
+        project,
+        // Rescue tsgo's `@api`-alias emit (`require("../../../api/index.js")`)
+        // back to the `.ts` source under ttsx's CommonJS load path; ttsc only
+        // rescues that `.js` -> `.ts` mismatch on its ESM resolve hook.
+        "-r",
+        path.join(__dirname, "ttsx-cjs-extension-rescue.cjs"),
+        "-r",
+        "@nestjs/platform-express",
+        "src/test/index.ts",
+      ],
       stdio,
       {
         NODE_OPTIONS: nodeOptions,
