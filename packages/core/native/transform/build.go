@@ -266,57 +266,6 @@ func NewDiagnostic(site typiaadapter.CallSite, message string) Diagnostic {
 	}
 }
 
-func collectTypiaRewrites(
-	prog *driver.Program,
-	cwd string,
-	emit bool,
-	quiet bool,
-	onlyFile string,
-	rewrites *nativeRewriteSet,
-	pluginOptions typiaadapter.PluginOptions,
-) (int, int, []Diagnostic) {
-	sites := collectNestiaTypiaCallSites(prog.SourceFiles(), prog.Checker)
-	recognized := 0
-	diagnostics := []Diagnostic{}
-	for _, site := range sites {
-		if onlyFile != "" && filepath.ToSlash(site.FilePath) != filepath.ToSlash(onlyFile) {
-			continue
-		}
-		rel := site.FilePath
-		if abs, err := filepath.Rel(cwd, rel); err == nil {
-			rel = abs
-		}
-		if reason := typiaadapter.UnsupportedReason(site); reason != "" {
-			diagnostics = append(diagnostics, NewDiagnostic(site, reason))
-			continue
-		}
-		expr, handled, err := typiaadapter.EmitCallWithOptions(prog, site, pluginOptions)
-		if !handled {
-			diagnostics = append(diagnostics, NewDiagnostic(site, "method not covered"))
-			continue
-		}
-		if err != nil {
-			diagnostics = append(diagnostics, NewDiagnostic(site, err.Error()))
-			continue
-		}
-		expr = parenthesizeTypiaReplacement(site, expr)
-		rewrites.Add(nativeRewrite{
-			FilePath:      site.FilePath,
-			RootName:      site.RootName,
-			Namespaces:    site.Namespaces,
-			Method:        site.Method,
-			Replacement:   expr,
-			ConsumeParens: true,
-			SourceStart:   typiaBuildRewriteSortKey(site),
-		})
-		if !emit && !quiet {
-			fmt.Fprintf(stdout, "%s: typia.%s<T> -> %s\n", rel, site.Method, expr)
-		}
-		recognized++
-	}
-	return len(sites), recognized, diagnostics
-}
-
 func typiaBuildRewriteSortKey(site typiaadapter.CallSite) int {
 	node := site.Call.AsNode()
 	if node == nil {

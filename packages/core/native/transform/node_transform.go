@@ -5,7 +5,7 @@ import (
 	shimprinter "github.com/microsoft/typescript-go/shim/printer"
 	"github.com/samchon/nestia/packages/core/native/plugin"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
-	nativeprogrammers "github.com/samchon/typia/packages/typia/native/core/programmers"
+	nativecontext "github.com/samchon/typia/packages/typia/native/core/context"
 )
 
 // nestiaCoreNodeTransform builds the @nestia/core AST-integration transformer for
@@ -40,7 +40,7 @@ func nestiaCoreNodeTransform(
 			strictReported = true
 			addDiagnostic(nestiaCoreGlobalDiagnostic("@nestia/core", "strict mode is required."))
 		}
-		importer := nativeprogrammers.NewImportProgrammer(nativeprogrammers.ImportProgrammer_IOptions{
+		importer := nativecontext.NewImportProgrammer(nativecontext.ImportProgrammer_IOptions{
 			InternalPrefix: "typia_transform_",
 			Runtime:        "typia",
 		})

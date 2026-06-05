@@ -8,7 +8,7 @@ require (
 	github.com/microsoft/typescript-go/shim/scanner v0.0.0
 	github.com/samchon/nestia/packages/core/native v0.0.0
 	github.com/samchon/ttsc/packages/ttsc v0.0.0
-	github.com/samchon/typia/packages/typia/native v0.0.0-20260520144235-368b47d0ea16
+	github.com/samchon/typia/packages/typia/native v0.0.0-20260605010728-ccaf86526137
 )
 
 require (

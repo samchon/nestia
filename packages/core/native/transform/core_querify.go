@@ -6,6 +6,7 @@ import (
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimchecker "github.com/microsoft/typescript-go/shim/checker"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
+	nativecontext "github.com/samchon/typia/packages/typia/native/core/context"
 	nativefactories "github.com/samchon/typia/packages/typia/native/core/factories"
 	nativeprogrammers "github.com/samchon/typia/packages/typia/native/core/programmers"
 	nativehttp "github.com/samchon/typia/packages/typia/native/core/programmers/http"
@@ -79,7 +80,7 @@ func nestiaCoreHttpQuerifyProgrammer(prog *driver.Program, typ *shimchecker.Type
 	)
 }
 
-func nestiaCoreHttpAssertQuerifyProgrammer(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+func nestiaCoreHttpAssertQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	context := nestiaCoreTypiaContext(prog, importer, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	return nestiaCoreQueryWrapperArrow([]*shimast.Node{
@@ -101,7 +102,7 @@ func nestiaCoreHttpAssertQuerifyProgrammer(prog *driver.Program, importer *nativ
 	})
 }
 
-func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	context := nestiaCoreTypiaContext(prog, importer, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	return nestiaCoreQueryWrapperArrow([]*shimast.Node{
@@ -129,7 +130,7 @@ func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, importer *nativepro
 	})
 }
 
-func nestiaCoreHttpValidateQuerifyProgrammer(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+func nestiaCoreHttpValidateQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	context := nestiaCoreTypiaContext(prog, importer, true, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	return nestiaCoreQueryWrapperArrow([]*shimast.Node{

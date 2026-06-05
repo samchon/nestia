@@ -11,9 +11,10 @@ import (
 	"sort"
 	"strings"
 
+	shimast "github.com/microsoft/typescript-go/shim/ast"
+	shimprinter "github.com/microsoft/typescript-go/shim/printer"
 	"github.com/samchon/nestia/packages/core/native/plugin"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
-	typiaadapter "github.com/samchon/typia/packages/typia/native/adapter"
 )
 
 type transformProjectOutput struct {
@@ -57,7 +58,7 @@ func runTransform(args []string) int {
 		return 2
 	}
 	prog, diags, err := driver.LoadProgram(cwd, *tsconfigPath, driver.LoadProgramOptions{
-		ForceNoEmit: true,
+		ForceEmit: true,
 	})
 	if err != nil {
 		fmt.Fprintf(stderr, "ttsc-nestia transform: %v\n", err)
@@ -69,12 +70,31 @@ func runTransform(args []string) int {
 	}
 	defer prog.Close()
 
+	// AST-integration source-to-source: typia's, core's, and any linked
+	// contributor's per-file node transformers run inside one shared EmitContext
+	// and the result SourceFile is printed back as TypeScript (no JS script
+	// transformers), mirroring typia's `transform` subcommand. Injected namespace
+	// imports stay as ES imports the caller can type-strip per file, so there is
+	// no text-splice RewriteSet.
+	transformDiags := []Diagnostic{}
+	addDiagnostic := func(diag Diagnostic) {
+		transformDiags = append(transformDiags, diag)
+	}
+	typiaTransform := nestiaTypiaNodeTransform(prog, readTypiaPluginOptions(cwd, *tsconfigPath), addDiagnostic)
+	coreTransform := nestiaCoreNodeTransform(prog, plan, addDiagnostic)
+	contributorTransforms, contributorDiags := collectContributorEmitTransforms(prog, plan)
+	if len(contributorDiags) > 0 {
+		WriteTypiaTransformDiagnostics(stderr, contributorDiags, cwd)
+		return 3
+	}
+	transforms := append([]driver.PluginTransform{typiaTransform, coreTransform}, contributorTransforms...)
+
 	if *file == "" {
 		if *out != "" {
 			fmt.Fprintln(stderr, "ttsc-nestia transform: --out requires --file")
 			return 2
 		}
-		return runTransformProject(prog, cwd, *tsconfigPath, plan)
+		return runTransformProject(prog, cwd, transforms, &transformDiags)
 	}
 
 	absFile := *file
@@ -87,100 +107,36 @@ func runTransform(args []string) int {
 		fmt.Fprintf(stderr, "ttsc-nestia transform: source file is not in program: %s\n", absFile)
 		return 2
 	}
-	rewrites, diagnostics := collectTypiaSourceRewrites(
-		prog,
-		cwd,
-		absFile,
-		readTypiaPluginOptions(cwd, *tsconfigPath),
-	)
-	if len(diagnostics) > 0 {
-		WriteTypiaTransformDiagnostics(stderr, diagnostics, cwd)
+	text := transformFileToTypeScript(prog, transforms, target)
+	if len(transformDiags) > 0 {
+		WriteTypiaTransformDiagnostics(stderr, transformDiags, cwd)
 		return 3
 	}
-	coreRewriteMap, coreDiagnostics := collectNestiaCoreSourceRewriteMap(prog, plan, absFile)
-	if len(coreDiagnostics) > 0 {
-		WriteTypiaTransformDiagnostics(stderr, coreDiagnostics, cwd)
-		return 3
-	}
-	rewrites = append(rewrites, coreRewriteMap[filepath.ToSlash(absFile)]...)
-	contributorRewriteMap, contributorDiagnostics := collectContributorSourceRewriteMap(prog, plan, absFile)
-	if len(contributorDiagnostics) > 0 {
-		WriteTypiaTransformDiagnostics(stderr, contributorDiagnostics, cwd)
-		return 3
-	}
-	rewrites = append(rewrites, contributorRewriteMap[filepath.ToSlash(absFile)]...)
-	source, ok := SourceFileText(target)
-	if !ok {
-		fmt.Fprintf(stderr, "ttsc-nestia transform: source text is unavailable for %s\n", absFile)
-		return 3
-	}
-	source, err = ApplySourceRewrites(source, rewrites)
-	if err != nil {
-		fmt.Fprintf(stderr, "ttsc-nestia transform: source rewrite: %v\n", err)
-		return 3
-	}
-	source = cleanupTypeScriptTransformText(source)
-	if *out == "" {
-		if _, err := bytes.NewBufferString(source).WriteTo(stdout); err != nil {
-			fmt.Fprintf(stderr, "ttsc-nestia transform: write stdout: %v\n", err)
-			return 3
-		}
-		return 0
-	}
-	if dir := filepath.Dir(*out); dir != "" {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			fmt.Fprintf(stderr, "ttsc-nestia transform: mkdir: %v\n", err)
-			return 3
-		}
-	}
-	if err := os.WriteFile(*out, []byte(source), 0o644); err != nil {
-		fmt.Fprintf(stderr, "ttsc-nestia transform: write %s: %v\n", *out, err)
-		return 3
-	}
-	return 0
+	return writeSingleOutput(text, *out)
 }
 
-func runTransformProject(prog *driver.Program, cwd string, tsconfigPath string, plan plugin.Plan) int {
-	rewrites, diags := collectTypiaSourceRewriteMap(
-		prog,
-		readTypiaPluginOptions(cwd, tsconfigPath),
-	)
-	coreRewriteMap, coreDiags := collectNestiaCoreSourceRewriteMap(prog, plan, "")
-	for file, entries := range coreRewriteMap {
-		rewrites[file] = append(rewrites[file], entries...)
-	}
-	contributorRewriteMap, contributorDiags := collectContributorSourceRewriteMap(prog, plan, "")
-	for file, entries := range contributorRewriteMap {
-		rewrites[file] = append(rewrites[file], entries...)
-	}
-	diags = append(diags, coreDiags...)
-	diags = append(diags, contributorDiags...)
+func runTransformProject(
+	prog *driver.Program,
+	cwd string,
+	transforms []driver.PluginTransform,
+	transformDiags *[]Diagnostic,
+) int {
 	output := transformProjectOutput{
-		Diagnostics: make([]transformCompilerDiagnostic, 0, len(diags)),
+		Diagnostics: []transformCompilerDiagnostic{},
 		TypeScript:  map[string]string{},
 	}
-	for _, diag := range diags {
-		output.Diagnostics = append(output.Diagnostics, transformDiagnosticToCompilerDiagnostic(diag))
+	for _, sf := range prog.SourceFiles() {
+		if sf.IsDeclarationFile {
+			continue
+		}
+		key := sourceFileKey(cwd, filepath.ToSlash(sf.FileName()))
+		if filepath.IsAbs(key) || key == ".." || strings.HasPrefix(key, "../") {
+			continue
+		}
+		output.TypeScript[key] = transformFileToTypeScript(prog, transforms, sf)
 	}
-	for _, file := range prog.SourceFiles() {
-		filename := filepath.ToSlash(file.FileName())
-		source, ok := SourceFileText(file)
-		if !ok {
-			output.Diagnostics = append(
-				output.Diagnostics,
-				newTransformCompilerDiagnostic(filename, "nestia.transform", "source text is unavailable"),
-			)
-			continue
-		}
-		transformed, err := ApplySourceRewrites(source, rewrites[filename])
-		if err != nil {
-			output.Diagnostics = append(
-				output.Diagnostics,
-				newTransformCompilerDiagnostic(filename, "typia.transform", err.Error()),
-			)
-			continue
-		}
-		output.TypeScript[sourceFileKey(cwd, filename)] = cleanupTypeScriptTransformText(transformed)
+	for _, diag := range *transformDiags {
+		output.Diagnostics = append(output.Diagnostics, transformDiagnosticToCompilerDiagnostic(diag))
 	}
 	if err := json.NewEncoder(stdout).Encode(output); err != nil {
 		fmt.Fprintf(stderr, "ttsc-nestia transform: encode output: %v\n", err)
@@ -192,81 +148,58 @@ func runTransformProject(prog *driver.Program, cwd string, tsconfigPath string, 
 	return 0
 }
 
+// transformFileToTypeScript runs nestia's node transformers on one source file
+// in a fresh EmitContext and prints the result as TypeScript. It deliberately
+// skips the JS script transformers (type-erase, module-transform): the caller
+// wants TS, so the namespace imports the transformers inject stay as ES imports.
+func transformFileToTypeScript(
+	prog *driver.Program,
+	transforms []driver.PluginTransform,
+	sf *shimast.SourceFile,
+) string {
+	options := prog.TSProgram.Options()
+	ec := shimprinter.NewEmitContext()
+	result := sf
+	for _, t := range transforms {
+		if t == nil {
+			continue
+		}
+		if next := t(ec, result); next != nil {
+			result = next
+		}
+	}
+	shimast.SetParentInChildrenUnset(result.AsNode())
+	writer := shimprinter.NewTextWriter(options.NewLine.GetNewLineCharacter(), 0)
+	printer := shimprinter.NewPrinter(shimprinter.PrinterOptions{NewLine: options.NewLine}, shimprinter.PrintHandlers{}, ec)
+	printer.Write(result.AsNode(), result, writer, nil)
+	return writer.String()
+}
+
+func writeSingleOutput(text, outPath string) int {
+	if outPath == "" {
+		if _, err := bytes.NewReader([]byte(text)).WriteTo(stdout); err != nil {
+			fmt.Fprintf(stderr, "ttsc-nestia transform: write stdout: %v\n", err)
+			return 3
+		}
+		return 0
+	}
+	if dir := filepath.Dir(outPath); dir != "" {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			fmt.Fprintf(stderr, "ttsc-nestia transform: mkdir: %v\n", err)
+			return 3
+		}
+	}
+	if err := os.WriteFile(outPath, []byte(text), 0o644); err != nil {
+		fmt.Fprintf(stderr, "ttsc-nestia transform: write %s: %v\n", outPath, err)
+		return 3
+	}
+	return 0
+}
+
 type SourceRewrite struct {
 	start       int
 	end         int
 	replacement string
-}
-
-func collectTypiaSourceRewrites(
-	prog *driver.Program,
-	cwd string,
-	onlyFile string,
-	pluginOptions typiaadapter.PluginOptions,
-) ([]SourceRewrite, []Diagnostic) {
-	sites := collectNestiaTypiaCallSites(prog.SourceFiles(), prog.Checker)
-	rewrites := []SourceRewrite{}
-	diagnostics := []Diagnostic{}
-	for _, site := range sites {
-		if filepath.ToSlash(site.FilePath) != filepath.ToSlash(onlyFile) {
-			continue
-		}
-		if reason := typiaadapter.UnsupportedReason(site); reason != "" {
-			diagnostics = append(diagnostics, NewDiagnostic(site, reason))
-			continue
-		}
-		expr, handled, err := typiaadapter.EmitCallWithOptionsPreservingTypes(prog, site, pluginOptions)
-		if !handled {
-			diagnostics = append(diagnostics, NewDiagnostic(site, "method not covered"))
-			continue
-		}
-		if err != nil {
-			diagnostics = append(diagnostics, NewDiagnostic(site, err.Error()))
-			continue
-		}
-		expr = parenthesizeTypiaReplacement(site, expr)
-		node := site.Call.AsNode()
-		rewrites = append(rewrites, SourceRewrite{
-			start:       node.Pos(),
-			end:         node.End(),
-			replacement: expr,
-		})
-		_ = cwd
-	}
-	return rewrites, diagnostics
-}
-
-func collectTypiaSourceRewriteMap(
-	prog *driver.Program,
-	pluginOptions typiaadapter.PluginOptions,
-) (map[string][]SourceRewrite, []Diagnostic) {
-	sites := collectNestiaTypiaCallSites(prog.SourceFiles(), prog.Checker)
-	rewrites := map[string][]SourceRewrite{}
-	diagnostics := []Diagnostic{}
-	for _, site := range sites {
-		file := filepath.ToSlash(site.FilePath)
-		if reason := typiaadapter.UnsupportedReason(site); reason != "" {
-			diagnostics = append(diagnostics, NewDiagnostic(site, reason))
-			continue
-		}
-		expr, handled, err := typiaadapter.EmitCallWithOptionsPreservingTypes(prog, site, pluginOptions)
-		if !handled {
-			diagnostics = append(diagnostics, NewDiagnostic(site, "method not covered"))
-			continue
-		}
-		if err != nil {
-			diagnostics = append(diagnostics, NewDiagnostic(site, err.Error()))
-			continue
-		}
-		expr = parenthesizeTypiaReplacement(site, expr)
-		node := site.Call.AsNode()
-		rewrites[file] = append(rewrites[file], SourceRewrite{
-			start:       node.Pos(),
-			end:         node.End(),
-			replacement: expr,
-		})
-	}
-	return rewrites, diagnostics
 }
 
 func ApplySourceRewrites(source string, rewrites []SourceRewrite) (string, error) {

@@ -36,6 +36,7 @@ func init() {
 	driver.RegisterPlugin(linkedPlugin{})
 	transform.RegisterBuildOutputRewriteCollector(collectSDKBuildOutputRewriter)
 	transform.RegisterSourceRewriteCollector(collectSDKSourceRewriteMap)
+	transform.RegisterEmitTransformCollector(collectSDKEmitTransform)
 }
 
 type linkedPlugin struct{}
@@ -124,6 +125,20 @@ func EmitTransform(prog *driver.Program) (driver.PluginTransform, []transform.Di
 		injectOperationMetadataImportEC(ec, modSpec, sf)
 		return sf
 	}, nil
+}
+
+// collectSDKEmitTransform exposes EmitTransform to the core `transform`
+// subcommand's contributor registry, the node-path twin of
+// collectSDKSourceRewriteMap. It is gated by the same NESTIA_SDK_TRANSFORM flag
+// so the SDK metadata pass only participates when the caller opts in.
+func collectSDKEmitTransform(
+	prog *driver.Program,
+	_ plugin.Plan,
+) (driver.PluginTransform, []transform.Diagnostic) {
+	if shouldRunSDKContributorTransform() == false {
+		return nil, nil
+	}
+	return EmitTransform(prog)
 }
 
 func collectSDKBuildOutputRewriter(

@@ -10,11 +10,11 @@ catalogs:
     '@nestjs/platform-express': ^11.1.6
     '@nestjs/platform-fastify': ^11.1.6
   samchon:
-    '@typia/interface': 13.0.0-dev.20260601.1
-    '@typia/utils': 13.0.0-dev.20260601.1
+    '@typia/interface': 13.0.0-dev.20260604.1
+    '@typia/utils': 13.0.0-dev.20260604.1
     tgrid: ^1.2.1
     tstl: ^3.0.0
-    typia: 13.0.0-dev.20260601.1
+    typia: 13.0.0-dev.20260604.1
   utils:
     '@types/node': ^25.3.3
     '@types/uuid': ^11.0.0
@@ -25,7 +25,7 @@ catalogs:
     '@trivago/prettier-plugin-sort-imports': ^4.3.0
     prettier: ^3.8.1
     prettier-plugin-jsdoc: ^1.8.0
-    ttsc: ^0.14.1
+    ttsc: ^0.15.0
   rollup:
     rollup: ^4.56.0
     rollup-plugin-auto-external: ^2.0.0

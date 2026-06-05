@@ -4,9 +4,12 @@
 전환" 작업을 **이어받아 완성**하기 위한 자족 지침이다. 브랜치는
 `feat/native-ttsx-integration` (이 PR의 head).
 
-typia 작업 브랜치가 이번 세션에 더 진화했다. 핵심은 `ImportProgrammer`가
-`core/programmers`에서 `core/context`로 이동한 것이다. 그래서 go.mod 버전 bump만으로는
-부족하고 nestia 코드의 import 경로도 같이 고쳐야 한다.
+typia의 AST-integration 작업은 **이미 master로 머지됐다**(merge commit
+`ccaf86526137e063993c24d358f6b82c3bc1a046`, PR #1884). 그 변경의 핵심은
+`ImportProgrammer`가 `core/programmers`에서 `core/context`로 이동한 것이다. 그래서
+go.mod 버전 bump만으로는 부족하고 nestia 코드의 import 경로도 같이 고쳐야 한다.
+아래의 모든 "typia 작업 브랜치 `feat/native-ttsx-integration`" 언급은 이제
+**typia `master`(위 머지 커밋 이상)**로 읽으면 된다.
 
 ## 1. 지금까지 된 것
 
@@ -48,34 +51,34 @@ override로 갈아끼우며 typia(go module)는 안 바꾼다.
 
 ### 3-1. typia 안정 확인
 
-- typia 작업 브랜치: `/home/samchon/github/samchon/typia` `feat/native-ttsx-integration`.
-  현재 HEAD: `2f6d664764774fc96dee8d2271d40e2b7fd9c2e6`.
-- typia.yml CI가 green인지 확인 (`gh run list --workflow typia.yml`). typia에 미해결 버그가 있으면
-  그게 green이 된 뒤 그 커밋을 의존하는 게 안전하다.
-- typia가 API를 제공하는지 확인 (모두 확인됨):
+- typia: `/home/samchon/github/samchon/typia` `master` (머지 커밋 `ccaf86526` 이상).
+  AST-integration이 이미 master에 있으므로 작업 브랜치를 쓸 필요 없다.
+- typia master는 이미 머지·green이다(PR #1884). 그 커밋을 의존하면 된다.
+- typia가 API를 제공하는지 확인 (master에서 모두 확인됨):
   - `ImportProgrammer`는 이제 **context 패키지**에 있다:
-    `git -C ../typia show feat/native-ttsx-integration:packages/typia/native/core/context/ImportProgrammer.go | grep -n "func NewImportProgrammer\|func (p \*ImportProgrammer) SetEmitContext"`
+    `git -C ../typia show master:packages/typia/native/core/context/ImportProgrammer.go | grep -n "func NewImportProgrammer\|func (p \*ImportProgrammer) SetEmitContext"`
     (생성자 `NewImportProgrammer`, 메서드 `SetEmitContext`, 타입 `ImportProgrammer` / `ImportProgrammer_IOptions` 모두 패키지 `context`).
   - `transform.Transform`은 4-arg:
-    `git -C ../typia show feat/native-ttsx-integration:packages/typia/native/transform/transform.go | grep -n "func Transform"`
+    `git -C ../typia show master:packages/typia/native/transform/transform.go | grep -n "func Transform"`
     → `func Transform(program *driver.Program, options *nativecontext.ITransformOptions, extras nativecontext.ITypiaContext_Extras, ec *shimprinter.EmitContext) TransformFactory`.
   - `AssertProgrammer` / `IsProgrammer` / `ValidateProgrammer` 등 **검증기 프로그래머는 여전히
     core/programmers에 남아 있다**. 이동한 것은 `ImportProgrammer` 한 묶음뿐이다.
 
 ### 3-2. nestia go.mod의 typia 의존을 최신으로 올린다
 
-typia 작업 브랜치는 npm/go publish가 안 됐으므로 **커밋 pseudo-version**으로 받는다.
-typia 최신 커밋 해시 확인: `git -C ../typia rev-parse feat/native-ttsx-integration`.
+typia native는 Go 서브모듈이라 npm 버전과 별개로 **커밋 pseudo-version**으로 받는다.
+이제 master에 머지됐으므로 master 커밋을 pin한다(머지 커밋 `ccaf86526` 또는 그 이상,
+`git -C ../typia rev-parse origin/master`로 확인).
 ```
 cd packages/core/native
 GOFLAGS=-mod=mod GOPROXY=https://proxy.golang.org,direct \
-  go get github.com/samchon/typia/packages/typia/native@<해시 또는 feat/native-ttsx-integration>
+  go get github.com/samchon/typia/packages/typia/native@master
 cd ../../sdk/native
 GOFLAGS=-mod=mod GOPROXY=https://proxy.golang.org,direct \
-  go get github.com/samchon/typia/packages/typia/native@<해시 또는 feat/native-ttsx-integration>
+  go get github.com/samchon/typia/packages/typia/native@master
 ```
-(GOPROXY가 github 접근 가능해야 한다. 네트워크가 막혀 있으면 typia를 먼저 publish하거나,
-nestia.yml에 "typia 작업 브랜치 clone + go.mod replace" 단계를 추가하는 방향으로 — 아래 3-6 참고.)
+(GOPROXY가 github 접근 가능해야 한다. 네트워크가 막혀 있으면 nestia.yml에
+"typia master clone + go.mod replace" 단계를 추가하는 방향으로 — 아래 3-6 참고.)
 
 ### 3-3. nestia 코드 수정: ImportProgrammer 패키지 이동 반영 (core 전용, sdk는 없음)
 
@@ -145,8 +148,9 @@ go.work(로컬 전환)는 커밋하지 않는다.
 ttsc 레포에 커밋을 푸시하면(또는 nestia.yml run을 rerun하면) nestia.yml이 다시 돈다.
 `gh run list --workflow nestia.yml`로 모든 job(sdk/go/e2e/transform-options/migrate)이 green인지 확인한다.
 만약 3-2의 GOPROXY 네트워크가 막혀 go.mod 버전 업이 불가능하면, `ttsc/.github/workflows/nestia.yml`에
-typia 작업 브랜치를 clone하고 nestia go.mod를 그 경로로 replace하는 단계를 추가한다
-(typia.yml이 typia를 ttsc 옆에 clone하는 패턴 참고). 이건 임시이며 typia/nestia 정식 merge 시 되돌린다.
+typia `master`를 clone하고 nestia go.mod를 그 경로로 replace하는 단계를 추가한다
+(typia.yml이 typia를 ttsc 옆에 clone하는 패턴 참고). 이건 임시이며 nestia 정식 merge 시 되돌린다.
+(typia 쪽은 이미 master 머지 완료.)
 
 ## 4. (선택, CI green 이후) 텍스트 경로 미사용 코드 삭제
 
