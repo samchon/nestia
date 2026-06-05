@@ -1,6 +1,7 @@
 package transform
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -124,6 +125,29 @@ func runBuild(args []string) int {
 		emitted = append(emitted, fileName)
 		return driver.DefaultWriteFile(fileName, text)
 	})
+
+	// Declaration emit: ttsc delegates the whole emit of a transform-plugin
+	// package to this host, but EmitWithPluginTransformers writes only .js. A
+	// library package (e.g. @nestia/core itself) ships .d.ts, so emit the
+	// declarations here with tsgo's standard declaration emitter. The typia /
+	// core runtime transforms never change the public type surface, so the
+	// declarations are taken from the pristine program — done before the JS
+	// transform runs so it reads the un-mutated AST.
+	if prog.ParsedConfig.ParsedConfig.CompilerOptions.Declaration.IsTrue() {
+		if profile {
+			started = time.Now()
+		}
+		dts := prog.TSProgram.Emit(context.Background(), shimcompiler.EmitOptions{
+			EmitOnly:  shimcompiler.EmitOnlyDts,
+			WriteFile: writeFile,
+		})
+		profileBuildStep(profile, "declaration-emit", started)
+		if dts != nil && dts.EmitSkipped {
+			fmt.Fprintln(stderr, "ttsc-nestia build: declaration emit skipped")
+			return 3
+		}
+	}
+
 	if profile {
 		started = time.Now()
 	}
