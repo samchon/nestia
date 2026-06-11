@@ -3,9 +3,12 @@ on:
   pull_request:
     paths:
       - '.github/workflows/test.yml'
+      - 'packages/*/native/**'
       - 'packages/*/src/**'
+      - 'packages/*/test/**'
       - 'packages/*/package.json'
       - 'packages/*/tsconfig.json'
+      - 'tests/test-*/**'
       - 'tests/*/src/**'
       - 'tests/*/tsconfig.json'
       - 'tests/*/package.json'
