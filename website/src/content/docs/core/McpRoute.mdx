@@ -9,7 +9,6 @@ import { Callout, Tabs } from "nextra/components";
 
 ```typescript filename="@nestia/core" showLineNumbers
 export function McpRoute(name: string): MethodDecorator;
-export function McpRoute(config: McpRoute.IConfig): MethodDecorator;
 
 export namespace McpRoute {
   export function Params(): ParameterDecorator;
@@ -72,14 +71,14 @@ export interface ICalcResult {
 
 @Controller()
 export class CalculatorController {
-  @core.McpRoute({ name: "add" })
+  @core.McpRoute("add")
   public async add(
     @core.McpRoute.Params() params: ICalcInput,
   ): Promise<ICalcResult> {
     return { result: params.a + params.b };
   }
 
-  @core.McpRoute({ name: "notify" })
+  @core.McpRoute("notify")
   public async notify(
     @core.McpRoute.Params() params: { message: string },
   ): Promise<void> {

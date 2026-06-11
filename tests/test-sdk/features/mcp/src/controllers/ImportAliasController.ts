@@ -17,7 +17,7 @@ export interface CallToolResult {
 @Controller()
 export class ImportAliasController {
   /** Echo a client-like DTO to exercise generated import aliasing. */
-  @core.McpRoute({ name: "echo_client" })
+  @core.McpRoute("echo_client")
   public async echoClient(
     @core.McpRoute.Params() params: Client,
   ): Promise<CallToolResult> {

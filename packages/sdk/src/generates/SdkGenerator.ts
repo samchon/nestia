@@ -66,6 +66,7 @@ export namespace SdkGenerator {
   ): IReflectOperationError[] => {
     const errors: IReflectOperationError[] = [];
     validateMcpDuplicates(errors)(app.routes);
+    validateMcpAccessors(errors)(app.routes);
     if (app.project.config.clone === true) return errors;
     for (const route of app.routes)
       if (route.protocol === "http")
@@ -98,6 +99,32 @@ export namespace SdkGenerator {
               from: `@McpRoute(${JSON.stringify(toolName)})`,
               contents: [
                 `Duplicate MCP tool name ${JSON.stringify(toolName)} is not allowed.`,
+              ],
+            });
+    };
+
+  const validateMcpAccessors =
+    (errors: IReflectOperationError[]) =>
+    (routes: ITypedApplication["routes"]): void => {
+      const dict: Map<string, ITypedMcpRoute[]> = new Map();
+      for (const route of routes)
+        if (route.protocol === "mcp") {
+          const accessor = route.accessor.join(".");
+          const array = dict.get(accessor) ?? [];
+          array.push(route);
+          dict.set(accessor, array);
+        }
+
+      for (const [accessor, list] of dict)
+        if (list.length > 1)
+          for (const route of list)
+            errors.push({
+              file: route.controller.file,
+              class: route.controller.class.name,
+              function: route.function.name || route.name,
+              from: `@McpRoute(${JSON.stringify(route.toolName)})`,
+              contents: [
+                `MCP tool name ${JSON.stringify(route.toolName)} conflicts on generated SDK accessor "api.functional.${accessor}".`,
               ],
             });
     };

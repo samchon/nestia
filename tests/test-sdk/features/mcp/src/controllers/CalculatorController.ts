@@ -23,7 +23,7 @@ export interface INotifyInput {
 @Controller()
 export class CalculatorController {
   /** Return the sum of two numbers. */
-  @core.McpRoute({ name: "add" })
+  @core.McpRoute("add")
   public async add(
     @core.McpRoute.Params() params: ICalcInput,
   ): Promise<ICalcResult> {
@@ -31,7 +31,7 @@ export class CalculatorController {
   }
 
   /** Return the difference a - b. */
-  @core.McpRoute({ name: "subtract" })
+  @core.McpRoute("subtract")
   public async subtract(
     @core.McpRoute.Params() params: ICalcInput,
   ): Promise<ICalcResult> {
@@ -39,7 +39,7 @@ export class CalculatorController {
   }
 
   /** Return a / b. Throws on division by zero. */
-  @core.McpRoute({ name: "divide" })
+  @core.McpRoute("divide")
   public async divide(
     @core.McpRoute.Params() params: ICalcInput,
   ): Promise<ICalcResult> {
@@ -49,7 +49,7 @@ export class CalculatorController {
   }
 
   /** Accept a notification without returning content. */
-  @core.McpRoute({ name: "notify" })
+  @core.McpRoute("notify")
   public async notify(
     @core.McpRoute.Params() params: INotifyInput,
   ): Promise<void> {

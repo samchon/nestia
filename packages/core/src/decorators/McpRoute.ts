@@ -14,19 +14,20 @@ import { validate_request_body } from "./internal/validate_request_body";
  * The public form takes only the tool's `name` (string). Human-readable
  * `description` and `title` are read from the method's JSDoc:
  *
- * - `description` — the JSDoc comment body.
- * - `title` — the value of an optional `@title` JSDoc tag.
+ * - `description`: the JSDoc comment body.
+ * - `title`: the value of an optional `@title` JSDoc tag.
  *
  * For type-safe tool inputs, decorate exactly one parameter of the method with
- * {@link McpRoute.Params}. The parameter type `T` is analyzed at compile time
- * by the nestia transformer, which generates both a runtime validator (powered
- * by typia) and the JSON Schema attached to `inputSchema` in `tools/list`
+ * {@link McpRoute.Params}. The parameter type `T` is analyzed at compile time by
+ * the nestia transformer, which generates both a runtime validator (powered by
+ * typia) and the JSON Schema attached to `inputSchema` in `tools/list`
  * responses.
  *
  * For the MCP endpoint to actually be served, you must call
  * {@link McpAdaptor.upgrade} on the {@link INestApplication} instance at
  * bootstrap. The decorator alone only stores reflection metadata.
  *
+ * @author wildduck - https://github.com/wildduck2
  * @example
  *   ```typescript
  *   import core from "@nestia/core";
@@ -47,15 +48,12 @@ import { validate_request_body } from "./internal/validate_request_body";
  *   }
  *   ```;
  *
- * @author wildduck - https://github.com/wildduck2
  * @param name Unique tool identifier exposed to MCP clients via `tools/list`.
  * @returns Method decorator.
  */
 export function McpRoute(name: string): MethodDecorator;
 
-/**
- * @internal
- */
+/** @internal */
 export function McpRoute(config: McpRoute.IConfig): MethodDecorator;
 
 export function McpRoute(input: string | McpRoute.IConfig): MethodDecorator {
@@ -86,7 +84,7 @@ export namespace McpRoute {
   /**
    * Configuration object emitted by the nestia transformer at compile time.
    *
-   * Users do not write this directly — they call `@McpRoute("name")` and the
+   * Users do not write this directly; they call `@McpRoute("name")` and the
    * transformer rewrites the call to `@McpRoute({ name, description, title,
    * inputSchema, ... })` after parsing the method's JSDoc and analyzing the
    * `@McpRoute.Params<T>()` parameter type.
@@ -111,11 +109,11 @@ export namespace McpRoute {
    * error with structured diagnostics, giving the LLM precise feedback to
    * self-correct.
    *
-   * MCP tools accept exactly one arguments object — applying this decorator
-   * more than once on a single method is a compile-time error. The decorated
-   * type `T` must be an object type without dynamic properties (no
-   * `Record<string, X>`, no index signatures); the nestia transformer enforces
-   * this through `LlmSchemaProgrammer.validate`.
+   * MCP tools accept exactly one arguments object; applying this decorator more
+   * than once on a single method is a compile-time error. The decorated type
+   * `T` must be an object type without dynamic properties (no `Record<string,
+   * X>`, no index signatures); the nestia transformer enforces this through
+   * `LlmSchemaProgrammer.validate`.
    *
    * @author wildduck - https://github.com/wildduck2
    * @param validator Optional custom validator. Default is `typia.assert()`.
