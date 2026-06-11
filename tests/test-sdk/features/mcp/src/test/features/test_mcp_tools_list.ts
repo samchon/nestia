@@ -7,6 +7,19 @@ export interface IConnection {
   path: string;
 }
 
+/**
+ * Verifies the MCP `tools/list` response exposes every transformed tool with
+ * generated input schemas.
+ *
+ * This locks the runtime reflection path from transformed `@McpRoute` metadata
+ * through `McpAdaptor.upgrade()`. A regression in JSDoc extraction or schema
+ * injection would still compile but would leave the MCP client with incomplete
+ * tool descriptions.
+ *
+ * 1. Connect an MCP SDK client to the test transport.
+ * 2. List available tools through the MCP protocol.
+ * 3. Assert tool names, weather description, and generated object schema.
+ */
 export const test_mcp_tools_list = async (
   connection: IConnection,
 ): Promise<void> => {
@@ -18,13 +31,15 @@ export const test_mcp_tools_list = async (
   );
   try {
     const { tools } = await client.listTools();
-    TestValidator.equals("tool count", tools.length, 4);
+    TestValidator.equals("tool count", tools.length, 6);
 
     const names: string[] = tools.map((t) => t.name).sort();
     TestValidator.equals("tool names", names, [
       "add",
       "divide",
+      "echo_client",
       "get_weather",
+      "notify",
       "subtract",
     ]);
 

@@ -204,9 +204,10 @@ const assertGeneratedImportsAreExtensionless = (cwd) => {
         const matcher =
           /\b(?:from|export\s+(?:type\s+)?(?:\*|\{[^}]*\})\s+from)\s+["']([^"']+\.(?:[cm]?js|jsx|[cm]?ts|tsx))["']/g;
         for (const match of content.matchAll(matcher))
-          failures.push(
-            `${path.relative(cwd, next)} imports ${JSON.stringify(match[1])}`,
-          );
+          if (match[1].startsWith(".") || path.isAbsolute(match[1]))
+            failures.push(
+              `${path.relative(cwd, next)} imports ${JSON.stringify(match[1])}`,
+            );
       }
     }
   };
@@ -243,20 +244,6 @@ const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
     "utf8",
   );
   try {
-    // ttsc materializes each fixture's `nestia.config.ts` under
-    // `<feature>/node_modules/.cache/ttsc/ttsx/project/<id>/fs/...`, which
-    // Node 24's built-in `--experimental-strip-types` refuses to strip
-    // (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING). The local loader
-    // (a test-only devDep on `typescript`) intercepts just those config
-    // files and transpiles them with `ts.transpileModule`. Once ttsc
-    // materializes its caches outside `node_modules/`, the loader and
-    // its devDep both go away.
-    const nodeOptions = [
-      process.env.NODE_OPTIONS ?? "",
-      `--loader=${path.join(__dirname, "config-ts-loader.mjs")}`,
-    ]
-      .filter(Boolean)
-      .join(" ");
     await runNode(
       cwd,
       TTSX_BIN,
@@ -274,7 +261,7 @@ const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
       ],
       stdio,
       {
-        NODE_OPTIONS: nodeOptions,
+        NODE_OPTIONS: process.env.NODE_OPTIONS ?? "",
         TEST_SDK_PORT: String(port),
       },
     );

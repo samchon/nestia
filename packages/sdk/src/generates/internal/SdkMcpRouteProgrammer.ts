@@ -1,4 +1,9 @@
-import ts from "typescript";
+import {
+  Node,
+  NodeFlags,
+  SyntaxKind,
+  TypeScriptFactory,
+} from "@nestia/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedMcpRoute } from "../../structures/ITypedMcpRoute";
@@ -8,23 +13,16 @@ import { ImportDictionary } from "./ImportDictionary";
 /**
  * Emits a typed client wrapper for an MCP tool.
  *
- * Output mirrors `SdkHttpRouteProgrammer` conventions: a top-level async
- * function paired with a namespace that exposes `Input`, `Output`, and
- * `METADATA`. The output type is wrapped in `Primitive<T>` from typia — MCP
- * round-trips values through JSON, which matches the semantics of `Primitive`.
+ * Object output types are wrapped in `Primitive<T>` because MCP round-trips
+ * values through JSON. Void MCP tools return `Promise<void>`.
  *
- * The response is typed via `CallToolResult` from `@modelcontextprotocol/sdk`
- * and narrowed structurally (`isError === true`, `type === "text"`) rather than
- * asserted with `as any`. The single unavoidable cast is on the `arguments`
- * field of `client.callTool(...)`, which the MCP SDK types as `Record<string,
- * unknown> | undefined`; a user interface without an index signature is not
- * structurally assignable to that record.
+ * @author wildduck - https://github.com/wildduck2
  */
 export namespace SdkMcpRouteProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedMcpRoute): ts.Statement[] => [
+    (route: ITypedMcpRoute): Node[] => [
       FilePrinter.description(
         writeFunction(project)(importer)(route),
         writeDescription(route),
@@ -32,19 +30,17 @@ export namespace SdkMcpRouteProgrammer {
       writeNamespace(project)(importer)(route),
     ];
 
-  /* ---------------------------------------------------------
-    FUNCTION
-  --------------------------------------------------------- */
   const writeFunction =
     (_project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedMcpRoute): ts.FunctionDeclaration => {
-      const clientType = ts.factory.createTypeReferenceNode(
+    (route: ITypedMcpRoute): Node => {
+      const clientType = TypeScriptFactory.createTypeReferenceNode(
         importer.external({
           declaration: true,
           file: "@modelcontextprotocol/sdk/client/index.js",
           type: "element",
           name: "Client",
+          alias: "McpClient",
         }),
       );
       const callToolResultTypeName = importer.external({
@@ -52,9 +48,10 @@ export namespace SdkMcpRouteProgrammer {
         file: "@modelcontextprotocol/sdk/types.js",
         type: "element",
         name: "CallToolResult",
+        alias: "McpCallToolResult",
       });
-      // Register Primitive import so Output type resolves.
-      if (route.returnType !== null)
+      const isVoid = isVoidReturn(route);
+      if (!isVoid)
         importer.external({
           declaration: true,
           file: "typia",
@@ -62,89 +59,84 @@ export namespace SdkMcpRouteProgrammer {
           name: "Primitive",
         });
 
-      const inputRef: ts.TypeNode = route.input
-        ? ts.factory.createTypeReferenceNode(`${route.name}.Input`)
-        : ts.factory.createTypeLiteralNode([]);
-      const outputRef: ts.TypeNode = ts.factory.createTypeReferenceNode(
+      const inputRef: Node = route.input
+        ? TypeScriptFactory.createTypeReferenceNode(`${route.name}.Input`)
+        : TypeScriptFactory.createTypeLiteralNode([]);
+      const outputRef: Node = TypeScriptFactory.createTypeReferenceNode(
         `${route.name}.Output`,
       );
 
-      const params: ts.ParameterDeclaration[] = [
-        ts.factory.createParameterDeclaration(
+      const params: Node[] = [
+        TypeScriptFactory.createParameterDeclaration(
           undefined,
           undefined,
           "client",
           undefined,
           clientType,
+          undefined,
         ),
       ];
-      if (route.input) {
+      if (route.input)
         params.push(
-          ts.factory.createParameterDeclaration(
+          TypeScriptFactory.createParameterDeclaration(
             undefined,
             undefined,
             "args",
             undefined,
             inputRef,
+            undefined,
           ),
         );
-      }
 
-      const toolNameExpr = ts.factory.createPropertyAccessExpression(
-        ts.factory.createPropertyAccessExpression(
-          ts.factory.createIdentifier(route.name),
+      const toolNameExpr = TypeScriptFactory.createPropertyAccessExpression(
+        TypeScriptFactory.createPropertyAccessExpression(
+          TypeScriptFactory.createIdentifier(route.name),
           "METADATA",
         ),
         "tool",
       );
 
-      const callToolParams: ts.ObjectLiteralElementLike[] = [
-        ts.factory.createPropertyAssignment("name", toolNameExpr),
+      const callToolParams: Node[] = [
+        TypeScriptFactory.createPropertyAssignment("name", toolNameExpr),
       ];
-      if (route.input) {
+      if (route.input)
         callToolParams.push(
-          ts.factory.createPropertyAssignment(
+          TypeScriptFactory.createPropertyAssignment(
             "arguments",
-            ts.factory.createAsExpression(
-              ts.factory.createAsExpression(
-                ts.factory.createIdentifier("args"),
-                ts.factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword),
+            TypeScriptFactory.createAsExpression(
+              TypeScriptFactory.createAsExpression(
+                TypeScriptFactory.createIdentifier("args"),
+                TypeScriptFactory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
               ),
-              ts.factory.createTypeReferenceNode("Record", [
-                ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-                ts.factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword),
+              TypeScriptFactory.createTypeReferenceNode("Record", [
+                TypeScriptFactory.createKeywordTypeNode(
+                  SyntaxKind.StringKeyword,
+                ),
+                TypeScriptFactory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
               ]),
             ),
           ),
         );
-      }
 
-      const body = ts.factory.createBlock(
+      const body = TypeScriptFactory.createBlock(
         [
-          // const raw = await client.callTool({ ... });
-          // NOTE: callTool returns `CallToolResult | CompatibilityCallToolResult`
-          //       (the pre-2024-11-05 compat variant has `toolResult`, no
-          //       `content`). TypeScript cannot narrow the union structurally
-          //       because both variants carry an `[x: string]: unknown` index
-          //       signature. Branch at runtime, then cast to CallToolResult
-          //       once for the modern path.
-          ts.factory.createVariableStatement(
+          TypeScriptFactory.createVariableStatement(
             undefined,
-            ts.factory.createVariableDeclarationList(
+            TypeScriptFactory.createVariableDeclarationList(
               [
-                ts.factory.createVariableDeclaration(
+                TypeScriptFactory.createVariableDeclaration(
                   "raw",
                   undefined,
                   undefined,
-                  ts.factory.createAwaitExpression(
-                    ts.factory.createCallExpression(
-                      ts.factory.createPropertyAccessExpression(
-                        ts.factory.createIdentifier("client"),
+                  TypeScriptFactory.createAwaitExpression(
+                    TypeScriptFactory.createCallExpression(
+                      TypeScriptFactory.createPropertyAccessExpression(
+                        TypeScriptFactory.createIdentifier("client"),
                         "callTool",
                       ),
                       undefined,
                       [
-                        ts.factory.createObjectLiteralExpression(
+                        TypeScriptFactory.createObjectLiteralExpression(
                           callToolParams,
                           true,
                         ),
@@ -153,282 +145,262 @@ export namespace SdkMcpRouteProgrammer {
                   ),
                 ),
               ],
-              ts.NodeFlags.Const,
+              NodeFlags.Const,
             ),
           ),
-          // if ("toolResult" in raw) throw ...;
-          ts.factory.createIfStatement(
-            ts.factory.createBinaryExpression(
-              ts.factory.createStringLiteral("toolResult"),
-              ts.factory.createToken(ts.SyntaxKind.InKeyword),
-              ts.factory.createIdentifier("raw"),
-            ),
-            ts.factory.createThrowStatement(
-              ts.factory.createNewExpression(
-                ts.factory.createIdentifier("Error"),
-                undefined,
-                [
-                  ts.factory.createTemplateExpression(
-                    ts.factory.createTemplateHead('MCP tool "'),
-                    [
-                      ts.factory.createTemplateSpan(
-                        toolNameExpr,
-                        ts.factory.createTemplateTail(
-                          '" returned a legacy (pre-2024-11-05) compatibility result',
-                        ),
-                      ),
-                    ],
+          TypeScriptFactory.createIfStatement(
+            TypeScriptFactory.createCallExpression(
+              TypeScriptFactory.createPropertyAccessExpression(
+                TypeScriptFactory.createPropertyAccessExpression(
+                  TypeScriptFactory.createPropertyAccessExpression(
+                    TypeScriptFactory.createIdentifier("Object"),
+                    "prototype",
                   ),
-                ],
+                  "hasOwnProperty",
+                ),
+                "call",
               ),
+              undefined,
+              [
+                TypeScriptFactory.createIdentifier("raw"),
+                TypeScriptFactory.createStringLiteral("toolResult"),
+              ],
+            ),
+            throwToolError(
+              toolNameExpr,
+              '" returned a legacy (pre-2024-11-05) compatibility result',
             ),
           ),
-          // const result: CallToolResult = raw;
-          //   Safe: preceding branch rejected the compat variant.
-          ts.factory.createVariableStatement(
+          TypeScriptFactory.createVariableStatement(
             undefined,
-            ts.factory.createVariableDeclarationList(
+            TypeScriptFactory.createVariableDeclarationList(
               [
-                ts.factory.createVariableDeclaration(
+                TypeScriptFactory.createVariableDeclaration(
                   "result",
                   undefined,
-                  ts.factory.createTypeReferenceNode(callToolResultTypeName),
-                  ts.factory.createAsExpression(
-                    ts.factory.createIdentifier("raw"),
-                    ts.factory.createTypeReferenceNode(callToolResultTypeName),
+                  TypeScriptFactory.createTypeReferenceNode(
+                    callToolResultTypeName,
+                  ),
+                  TypeScriptFactory.createAsExpression(
+                    TypeScriptFactory.createIdentifier("raw"),
+                    TypeScriptFactory.createTypeReferenceNode(
+                      callToolResultTypeName,
+                    ),
                   ),
                 ),
               ],
-              ts.NodeFlags.Const,
+              NodeFlags.Const,
             ),
           ),
-          // if (result.isError === true) throw ...;
-          ts.factory.createIfStatement(
-            ts.factory.createBinaryExpression(
-              ts.factory.createPropertyAccessExpression(
-                ts.factory.createIdentifier("result"),
+          TypeScriptFactory.createIfStatement(
+            TypeScriptFactory.createBinaryExpression(
+              TypeScriptFactory.createPropertyAccessExpression(
+                TypeScriptFactory.createIdentifier("result"),
                 "isError",
               ),
-              ts.factory.createToken(ts.SyntaxKind.EqualsEqualsEqualsToken),
-              ts.factory.createTrue(),
+              TypeScriptFactory.createToken(SyntaxKind.EqualsEqualsEqualsToken),
+              TypeScriptFactory.createTrue(),
             ),
-            ts.factory.createThrowStatement(
-              ts.factory.createNewExpression(
-                ts.factory.createIdentifier("Error"),
-                undefined,
-                [
-                  ts.factory.createTemplateExpression(
-                    ts.factory.createTemplateHead('MCP tool "'),
-                    [
-                      ts.factory.createTemplateSpan(
-                        toolNameExpr,
-                        ts.factory.createTemplateTail('" returned isError'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            throwToolError(toolNameExpr, '" returned isError'),
           ),
-          // const first = result.content[0];
-          ts.factory.createVariableStatement(
-            undefined,
-            ts.factory.createVariableDeclarationList(
-              [
-                ts.factory.createVariableDeclaration(
-                  "first",
+          ...(isVoid
+            ? [TypeScriptFactory.createReturnStatement()]
+            : [
+                TypeScriptFactory.createVariableStatement(
                   undefined,
-                  undefined,
-                  ts.factory.createElementAccessExpression(
-                    ts.factory.createPropertyAccessExpression(
-                      ts.factory.createIdentifier("result"),
-                      "content",
-                    ),
-                    ts.factory.createNumericLiteral(0),
-                  ),
-                ),
-              ],
-              ts.NodeFlags.Const,
-            ),
-          ),
-          ts.factory.createIfStatement(
-            ts.factory.createBinaryExpression(
-              ts.factory.createBinaryExpression(
-                ts.factory.createIdentifier("first"),
-                ts.factory.createToken(ts.SyntaxKind.EqualsEqualsEqualsToken),
-                ts.factory.createIdentifier("undefined"),
-              ),
-              ts.factory.createToken(ts.SyntaxKind.BarBarToken),
-              ts.factory.createBinaryExpression(
-                ts.factory.createPropertyAccessExpression(
-                  ts.factory.createIdentifier("first"),
-                  "type",
-                ),
-                ts.factory.createToken(
-                  ts.SyntaxKind.ExclamationEqualsEqualsToken,
-                ),
-                ts.factory.createStringLiteral("text"),
-              ),
-            ),
-            ts.factory.createThrowStatement(
-              ts.factory.createNewExpression(
-                ts.factory.createIdentifier("Error"),
-                undefined,
-                [
-                  ts.factory.createTemplateExpression(
-                    ts.factory.createTemplateHead('MCP tool "'),
+                  TypeScriptFactory.createVariableDeclarationList(
                     [
-                      ts.factory.createTemplateSpan(
-                        toolNameExpr,
-                        ts.factory.createTemplateTail(
-                          '" returned no text content',
+                      TypeScriptFactory.createVariableDeclaration(
+                        "first",
+                        undefined,
+                        undefined,
+                        TypeScriptFactory.createCallExpression(
+                          TypeScriptFactory.createPropertyAccessExpression(
+                            TypeScriptFactory.createPropertyAccessExpression(
+                              TypeScriptFactory.createIdentifier("result"),
+                              "content",
+                            ),
+                            "find",
+                          ),
+                          undefined,
+                          [
+                            TypeScriptFactory.createArrowFunction(
+                              undefined,
+                              undefined,
+                              [],
+                              undefined,
+                              undefined,
+                              TypeScriptFactory.createTrue(),
+                            ),
+                          ],
                         ),
                       ),
                     ],
+                    NodeFlags.Const,
                   ),
-                ],
-              ),
-            ),
-          ),
-          ts.factory.createReturnStatement(
-            ts.factory.createAsExpression(
-              ts.factory.createCallExpression(
-                ts.factory.createPropertyAccessExpression(
-                  ts.factory.createIdentifier("JSON"),
-                  "parse",
                 ),
-                undefined,
-                [
-                  ts.factory.createPropertyAccessExpression(
-                    ts.factory.createIdentifier("first"),
-                    "text",
+                TypeScriptFactory.createIfStatement(
+                  TypeScriptFactory.createBinaryExpression(
+                    TypeScriptFactory.createIdentifier("first"),
+                    TypeScriptFactory.createToken(
+                      SyntaxKind.EqualsEqualsEqualsToken,
+                    ),
+                    TypeScriptFactory.createIdentifier("undefined"),
                   ),
-                ],
-              ),
-              outputRef,
-            ),
-          ),
+                  throwToolError(toolNameExpr, '" returned no text content'),
+                ),
+                TypeScriptFactory.createIfStatement(
+                  TypeScriptFactory.createBinaryExpression(
+                    TypeScriptFactory.createPropertyAccessExpression(
+                      TypeScriptFactory.createIdentifier("first"),
+                      "type",
+                    ),
+                    TypeScriptFactory.createToken(
+                      SyntaxKind.EqualsEqualsEqualsToken,
+                    ),
+                    TypeScriptFactory.createStringLiteral("text"),
+                  ),
+                  TypeScriptFactory.createReturnStatement(
+                    TypeScriptFactory.createAsExpression(
+                      TypeScriptFactory.createCallExpression(
+                        TypeScriptFactory.createPropertyAccessExpression(
+                          TypeScriptFactory.createIdentifier("JSON"),
+                          "parse",
+                        ),
+                        undefined,
+                        [
+                          TypeScriptFactory.createPropertyAccessExpression(
+                            TypeScriptFactory.createIdentifier("first"),
+                            "text",
+                          ),
+                        ],
+                      ),
+                      outputRef,
+                    ),
+                  ),
+                ),
+                throwToolError(toolNameExpr, '" returned no text content'),
+              ]),
         ],
         true,
       );
 
-      return ts.factory.createFunctionDeclaration(
+      return TypeScriptFactory.createFunctionDeclaration(
         [
-          ts.factory.createModifier(ts.SyntaxKind.ExportKeyword),
-          ts.factory.createModifier(ts.SyntaxKind.AsyncKeyword),
+          TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword),
+          TypeScriptFactory.createModifier(SyntaxKind.AsyncKeyword),
         ],
         undefined,
         route.name,
         undefined,
         params,
-        ts.factory.createTypeReferenceNode("Promise", [outputRef]),
+        TypeScriptFactory.createTypeReferenceNode("Promise", [outputRef]),
         body,
       );
     };
 
-  /* ---------------------------------------------------------
-    NAMESPACE
-  --------------------------------------------------------- */
   const writeNamespace =
     (_project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedMcpRoute): ts.ModuleDeclaration => {
-      const statements: ts.Statement[] = [];
+    (route: ITypedMcpRoute): Node => {
+      const statements: Node[] = [];
 
-      // Input type alias
-      if (route.input) {
+      if (route.input)
         statements.push(
-          ts.factory.createTypeAliasDeclaration(
-            [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+          TypeScriptFactory.createTypeAliasDeclaration(
+            [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
             "Input",
             undefined,
-            ts.factory.createTypeReferenceNode(route.input.type.name),
+            TypeScriptFactory.createTypeReferenceNode(route.input.type.name),
           ),
         );
-      }
 
-      // Output type alias = Primitive<ReturnType>
-      const primitiveName = importer.external({
-        declaration: true,
-        file: "typia",
-        type: "element",
-        name: "Primitive",
-      });
-      const outputInner: ts.TypeNode = route.returnType
-        ? ts.factory.createTypeReferenceNode(
-            unwrapPromise(route.returnType.name),
-          )
-        : ts.factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword);
+      const outputType: Node =
+        !isVoidReturn(route) && route.returnType !== null
+          ? TypeScriptFactory.createTypeReferenceNode(
+              importer.external({
+                declaration: true,
+                file: "typia",
+                type: "element",
+                name: "Primitive",
+              }),
+              [
+                TypeScriptFactory.createTypeReferenceNode(
+                  unwrapPromise(route.returnType.name),
+                ),
+              ],
+            )
+          : TypeScriptFactory.createKeywordTypeNode(SyntaxKind.VoidKeyword);
       statements.push(
-        ts.factory.createTypeAliasDeclaration(
-          [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+        TypeScriptFactory.createTypeAliasDeclaration(
+          [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
           "Output",
           undefined,
-          ts.factory.createTypeReferenceNode(primitiveName, [outputInner]),
+          outputType,
         ),
       );
 
-      // METADATA const
-      const metadataProps: ts.ObjectLiteralElementLike[] = [
-        ts.factory.createPropertyAssignment(
-          "protocol",
-          ts.factory.createStringLiteral("mcp"),
-        ),
-        ts.factory.createPropertyAssignment(
-          "tool",
-          ts.factory.createStringLiteral(route.toolName),
-        ),
-        ts.factory.createPropertyAssignment(
-          "title",
-          route.title === null
-            ? ts.factory.createNull()
-            : ts.factory.createStringLiteral(route.title),
-        ),
-        ts.factory.createPropertyAssignment(
-          "description",
-          route.toolDescription === null
-            ? ts.factory.createNull()
-            : ts.factory.createStringLiteral(route.toolDescription),
-        ),
-      ];
       statements.push(
-        ts.factory.createVariableStatement(
-          [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-          ts.factory.createVariableDeclarationList(
+        TypeScriptFactory.createVariableStatement(
+          [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
+          TypeScriptFactory.createVariableDeclarationList(
             [
-              ts.factory.createVariableDeclaration(
+              TypeScriptFactory.createVariableDeclaration(
                 "METADATA",
                 undefined,
                 undefined,
-                ts.factory.createAsExpression(
-                  ts.factory.createObjectLiteralExpression(metadataProps, true),
-                  ts.factory.createTypeReferenceNode("const"),
+                TypeScriptFactory.createAsExpression(
+                  TypeScriptFactory.createObjectLiteralExpression(
+                    [
+                      TypeScriptFactory.createPropertyAssignment(
+                        "protocol",
+                        TypeScriptFactory.createStringLiteral("mcp"),
+                      ),
+                      TypeScriptFactory.createPropertyAssignment(
+                        "tool",
+                        TypeScriptFactory.createStringLiteral(route.toolName),
+                      ),
+                      TypeScriptFactory.createPropertyAssignment(
+                        "title",
+                        route.title === null
+                          ? TypeScriptFactory.createNull()
+                          : TypeScriptFactory.createStringLiteral(route.title),
+                      ),
+                      TypeScriptFactory.createPropertyAssignment(
+                        "description",
+                        route.toolDescription === null
+                          ? TypeScriptFactory.createNull()
+                          : TypeScriptFactory.createStringLiteral(
+                              route.toolDescription,
+                            ),
+                      ),
+                    ],
+                    true,
+                  ),
+                  TypeScriptFactory.createTypeReferenceNode("const"),
                 ),
               ),
             ],
-            ts.NodeFlags.Const,
+            NodeFlags.Const,
           ),
         ),
       );
 
-      return ts.factory.createModuleDeclaration(
-        [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-        ts.factory.createIdentifier(route.name),
-        ts.factory.createModuleBlock(statements),
-        ts.NodeFlags.Namespace,
+      return TypeScriptFactory.createModuleDeclaration(
+        [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
+        TypeScriptFactory.createIdentifier(route.name),
+        TypeScriptFactory.createModuleBlock(statements),
+        NodeFlags.Namespace,
       );
     };
 
-  /* ---------------------------------------------------------
-    DESCRIPTION
-  --------------------------------------------------------- */
   const writeDescription = (route: ITypedMcpRoute): string => {
     const lines: string[] = [];
     if (route.toolDescription) lines.push(...route.toolDescription.split("\n"));
     else if (route.description) lines.push(...route.description.split("\n"));
     if (lines.length) lines.push("");
     lines.push(
-      `@controller ${route.controller.class.name}.${route.name}`,
+      `@controller ${route.controller.class.name}.${route.function.name || route.name}`,
       `@tool ${route.toolName}`,
       `@accessor ${["api", "functional", ...route.accessor].join(".")}`,
       `@protocol mcp`,
@@ -441,4 +413,30 @@ export namespace SdkMcpRouteProgrammer {
     const m = /^Promise<(.+)>$/.exec(name);
     return m ? m[1]! : name;
   };
+
+  const isVoidReturn = (route: ITypedMcpRoute): boolean =>
+    route.returnType === null ||
+    isVoidName(unwrapPromise(route.returnType.name));
+
+  const isVoidName = (name: string): boolean =>
+    name === "void" || name === "undefined";
+
+  const throwToolError = (toolNameExpr: Node, suffix: string): Node =>
+    TypeScriptFactory.createThrowStatement(
+      TypeScriptFactory.createNewExpression(
+        TypeScriptFactory.createIdentifier("Error"),
+        undefined,
+        [
+          TypeScriptFactory.createTemplateExpression(
+            TypeScriptFactory.createTemplateHead('MCP tool "'),
+            [
+              TypeScriptFactory.createTemplateSpan(
+                toolNameExpr,
+                TypeScriptFactory.createTemplateTail(suffix),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
 }

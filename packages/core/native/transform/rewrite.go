@@ -16,6 +16,7 @@ type nativeRewrite struct {
 	Replacement                string
 	ConsumeParens              bool
 	AppendArguments            []string
+	ReplaceArguments           bool
 	TargetExpressionCandidates []string
 	SourceStart                int
 	ExpectedArgumentCount      *int
@@ -333,6 +334,11 @@ func spliceNativeCall(text string, r nativeRewrite) (string, bool, error) {
 			if r.ExpectedArgumentsText != "" && compactNativeArgumentText(current) != compactNativeArgumentText(r.ExpectedArgumentsText) {
 				searchFrom = advanceNativeSearch(searchFrom, hit)
 				continue
+			}
+			if r.ReplaceArguments {
+				next := strings.Join(r.AppendArguments, ", ")
+				replaced := text[:hit.paren+1] + next + text[closePos:]
+				return replaced, true, nil
 			}
 			if len(r.AppendArguments) != 0 {
 				next := strings.Join(r.AppendArguments, ", ")

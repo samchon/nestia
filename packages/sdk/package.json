@@ -70,6 +70,7 @@
     "@nestia/core": "workspace:^"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "catalog:modelcontextprotocol",
     "@nestjs/common": "catalog:nestjs",
     "@nestjs/core": "catalog:nestjs",
     "@typescript/native-preview": "catalog:typescript",

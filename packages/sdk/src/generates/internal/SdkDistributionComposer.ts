@@ -7,6 +7,7 @@ import { INestiaConfig } from "../../INestiaConfig";
 export namespace SdkDistributionComposer {
   export const compose = async (props: {
     config: INestiaConfig;
+    mcp: boolean;
     websocket: boolean;
   }) => {
     if (!fs.existsSync(props.config.distribute!))
@@ -33,6 +34,8 @@ export namespace SdkDistributionComposer {
     execute("npm install --save-dev rimraf");
     execute(`npm install --save @nestia/fetcher@${v.version}`);
     execute(`npm install --save typia@${v.typia}`);
+    if (props.mcp && v.mcp !== undefined)
+      execute(`npm install --save @modelcontextprotocol/sdk@${v.mcp}`);
     if (props.websocket && v.tgrid !== undefined)
       execute(`npm install --save tgrid@${v.tgrid}`);
     execute("npx typia setup --manager npm");
@@ -97,13 +100,16 @@ export namespace SdkDistributionComposer {
       const value: string | undefined =
         key === "version" ? json.version : dependencies[key];
       if (typeof value !== "string" || value.length === 0)
-        throw new Error(`Unable to resolve ${key} version for SDK distribution.`);
+        throw new Error(
+          `Unable to resolve ${key} version for SDK distribution.`,
+        );
       return value;
     };
     return {
       version: required("version"),
       typia: required("typia"),
       tgrid: opts.websocket ? dependencies.tgrid : undefined,
+      mcp: dependencies["@modelcontextprotocol/sdk"],
     };
   };
 }
@@ -112,5 +118,6 @@ interface IDependencies {
   version: string;
   typia: string;
   tgrid: string | undefined;
+  mcp: string | undefined;
 }
 const BUNDLE = __dirname + "/../../../assets/bundle/distribute";

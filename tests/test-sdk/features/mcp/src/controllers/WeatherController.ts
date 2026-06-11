@@ -17,14 +17,19 @@ export interface IWeatherResult {
   conditions: string;
 }
 
+/**
+ * MCP tool fixture exercising nested input types so the typia to JSON Schema
+ * pipeline is hit with non-trivial structure.
+ *
+ * @author wildduck - https://github.com/wildduck2
+ */
 @Controller()
 export class WeatherController {
-  @core.McpRoute({
-    name: "get_weather",
-    description:
-      "Return the current weather for a named location. " +
-      "Optional coords object exercises nested JSON Schema generation.",
-  })
+  /**
+   * Return the current weather for a named location. Optional coords object
+   * exercises nested JSON Schema generation.
+   */
+  @core.McpRoute("get_weather")
   public async get(
     @core.McpRoute.Params() params: IWeatherInput,
   ): Promise<IWeatherResult> {

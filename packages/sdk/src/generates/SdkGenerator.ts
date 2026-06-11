@@ -6,6 +6,7 @@ import { IReflectOperationError } from "../structures/IReflectOperationError";
 import { IReflectType } from "../structures/IReflectType";
 import { ITypedApplication } from "../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
+import { ITypedMcpRoute } from "../structures/ITypedMcpRoute";
 import { CloneGenerator } from "./CloneGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
@@ -45,6 +46,7 @@ export namespace SdkGenerator {
     if (app.project.config.distribute !== undefined)
       await SdkDistributionComposer.compose({
         config: app.project.config,
+        mcp: app.routes.some((r) => r.protocol === "mcp"),
         websocket: app.routes.some((r) => r.protocol === "websocket"),
       });
   };
@@ -53,6 +55,8 @@ export namespace SdkGenerator {
     app: ITypedApplication,
   ): IReflectOperationError[] => {
     const errors: IReflectOperationError[] = [];
+    validateMcpDuplicates(errors)(app.routes);
+    validateMcpAccessors(errors)(app.routes);
     if (app.project.config.clone === true) return errors;
     for (const route of app.routes)
       if (route.protocol === "http")
@@ -63,6 +67,57 @@ export namespace SdkGenerator {
         });
     return errors;
   };
+
+  const validateMcpDuplicates =
+    (errors: IReflectOperationError[]) =>
+    (routes: ITypedApplication["routes"]): void => {
+      const dict: Map<string, ITypedMcpRoute[]> = new Map();
+      for (const route of routes)
+        if (route.protocol === "mcp") {
+          const array = dict.get(route.toolName) ?? [];
+          array.push(route);
+          dict.set(route.toolName, array);
+        }
+
+      for (const [toolName, list] of dict)
+        if (list.length > 1)
+          for (const route of list)
+            errors.push({
+              file: route.controller.file,
+              class: route.controller.class.name,
+              function: route.function.name || route.name,
+              from: `@McpRoute(${JSON.stringify(toolName)})`,
+              contents: [
+                `Duplicate MCP tool name ${JSON.stringify(toolName)} is not allowed.`,
+              ],
+            });
+    };
+
+  const validateMcpAccessors =
+    (errors: IReflectOperationError[]) =>
+    (routes: ITypedApplication["routes"]): void => {
+      const dict: Map<string, ITypedMcpRoute[]> = new Map();
+      for (const route of routes)
+        if (route.protocol === "mcp") {
+          const accessor = route.accessor.join(".");
+          const array = dict.get(accessor) ?? [];
+          array.push(route);
+          dict.set(accessor, array);
+        }
+
+      for (const [accessor, list] of dict)
+        if (list.length > 1)
+          for (const route of list)
+            errors.push({
+              file: route.controller.file,
+              class: route.controller.class.name,
+              function: route.function.name || route.name,
+              from: `@McpRoute(${JSON.stringify(route.toolName)})`,
+              contents: [
+                `MCP tool name ${JSON.stringify(route.toolName)} conflicts on generated SDK accessor "api.functional.${accessor}".`,
+              ],
+            });
+    };
 
   const validateImplicit = (props: {
     config: INestiaConfig;

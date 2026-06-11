@@ -219,7 +219,14 @@ func nestiaCoreCollectMethodReplacements(
 			}
 		}
 		kind := nestiaCoreMethodKind(canonical)
-		if kind == "" || nestiaCoreShouldSkipMethodDecorator(state.prog, call) {
+		if kind == "" {
+			continue
+		}
+		if kind == "McpRoute" {
+			if nestiaCoreMcpRouteAlreadyTransformed(call) {
+				continue
+			}
+		} else if nestiaCoreShouldSkipMethodDecorator(state.prog, call) {
 			continue
 		}
 		candidates = append(candidates, candidate{call: call, segments: segments, kind: kind})
@@ -232,6 +239,15 @@ func nestiaCoreCollectMethodReplacements(
 		return
 	}
 	for _, candidate := range candidates {
+		if candidate.kind == "McpRoute" {
+			generated, err := nestiaCoreMcpRouteArgumentNode(state.prog, state.importer, state.ec, state.options, context.file, nestiaCoreOriginalNode(state.ec, node), candidate.call, typ)
+			if err != nil {
+				addDiagnostic(nestiaCoreDiagnostic(nestiaCoreSiteFor(context.file, candidate.call, candidate.kind, candidate.segments), err.Error()))
+				continue
+			}
+			replacements[candidate.call.AsNode()] = nestiaCoreReplaceArgumentNodes(candidate.call, []*shimast.Node{generated}, state.ec)
+			continue
+		}
 		// Real callee node as modulo (see nestiaCoreCollectParameterReplacements).
 		modulo := nestiaCoreOriginalNode(state.ec, candidate.call.Expression)
 		generated, err := nestiaCoreMethodArgumentNode(state.prog, state.importer, state.ec, state.options, modulo, candidate.kind, typ)
@@ -260,6 +276,20 @@ func nestiaCoreOriginalNode(ec *shimprinter.EmitContext, node *shimast.Node) *sh
 		return original
 	}
 	return node
+}
+
+// nestiaCoreReplaceArgumentNodes rebuilds a decorator call with the generated
+// nodes replacing every original argument.
+func nestiaCoreReplaceArgumentNodes(call *shimast.CallExpression, replacements []*shimast.Node, ec *shimprinter.EmitContext) *shimast.CallExpression {
+	f := nativecontext.EmitFactoryOf(nestiaCoreFactory, ec)
+	updated := f.NewCallExpression(
+		call.Expression,
+		call.QuestionDotToken,
+		call.TypeArguments,
+		f.NewNodeList(replacements),
+		call.AsNode().Flags,
+	)
+	return updated.AsCallExpression()
 }
 
 // nestiaCoreAppendArgumentNodes rebuilds a decorator call with the generated

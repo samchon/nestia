@@ -4,13 +4,20 @@ import { NestFactory } from "@nestjs/core";
 import { Singleton } from "tstl";
 
 import { CalculatorController } from "./controllers/CalculatorController";
+import { ImportAliasController } from "./controllers/ImportAliasController";
 import { WeatherController } from "./controllers/WeatherController";
 
 @Module({
-  controllers: [CalculatorController, WeatherController],
+  controllers: [CalculatorController, ImportAliasController, WeatherController],
 })
 class McpModule {}
 
+/**
+ * NestJS test backend that boots the MCP feature's controllers and mounts the
+ * MCP transport at `/mcp` on port 37000.
+ *
+ * @author wildduck - https://github.com/wildduck2
+ */
 export class Backend {
   public readonly application: Singleton<Promise<INestApplication>> =
     new Singleton(async () => {
