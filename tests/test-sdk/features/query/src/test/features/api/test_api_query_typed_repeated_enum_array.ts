@@ -23,7 +23,10 @@ export const test_api_query_typed_repeated_enum_array = async (
     sellingType: ["COMPANY", "KENNITALA"],
   };
   const result: IBusinessListingFilters =
-    await api.functional.query.typed_enum_array(connection, input);
+    await api.functional.query.typed_enum_array.typedEnumArray(
+      connection,
+      input,
+    );
 
   typia.assertEquals(result);
   TestValidator.equals("typed repeated enum array", input, result);
