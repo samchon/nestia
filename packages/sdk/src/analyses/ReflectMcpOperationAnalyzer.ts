@@ -44,13 +44,17 @@ export namespace ReflectMcpOperationAnalyzer {
       ) ?? []) as IReflectMcpOperationParameter.IPreconfigured[]
     ).sort((a, b) => a.index - b.index);
 
-    if (preconfigured.length > 1)
+    if (preconfigured.length !== 1)
       errors.push(
-        "@McpRoute tools may declare at most one @McpRoute.Params() parameter.",
+        "@McpRoute tools must declare exactly one @McpRoute.Params() parameter.",
       );
-    if (ctx.function.length > 1)
+    if (ctx.metadata.parameters.length !== 1)
       errors.push(
-        "@McpRoute tools must have 0 or 1 parameters (the MCP arguments object).",
+        "@McpRoute tools must have exactly one parameter (the MCP arguments object).",
+      );
+    else if (preconfigured[0]?.index !== 0)
+      errors.push(
+        "@McpRoute tools must decorate their only parameter with @McpRoute.Params().",
       );
 
     const imports: IReflectImport[] = [];

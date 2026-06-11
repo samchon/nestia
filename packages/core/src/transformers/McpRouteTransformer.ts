@@ -15,7 +15,7 @@ import { McpRouteReturnProgrammer } from "../programmers/McpRouteReturnProgramme
  *    downstream consumers — runtime adaptor + SDK reflection — only ever see
  *    the rich object shape.
  * 2. Enforce MCP-spec constraints by delegating to typia validators:
- *    - exactly one `@McpRoute.Params()` parameter (or zero);
+ *    - exactly one `@McpRoute.Params()` parameter;
  *    - parameter type is an object without dynamic properties
  *      ({@link McpRouteProgrammer});
  *    - return type is `void` or a single object without dynamic properties
@@ -59,28 +59,14 @@ export namespace McpRouteTransformer {
     )
       return props.decorator;
 
-    enforceSingleParams(props);
+    enforceParams(props);
 
     const paramsType = findParamsType(props);
-    const inputSchema = paramsType
-      ? McpRouteProgrammer.generate({
-          context: props.context,
-          modulo: props.decorator.expression.expression,
-          type: paramsType,
-        })
-      : ts.factory.createObjectLiteralExpression(
-          [
-            ts.factory.createPropertyAssignment(
-              "type",
-              ts.factory.createStringLiteral("object"),
-            ),
-            ts.factory.createPropertyAssignment(
-              "properties",
-              ts.factory.createObjectLiteralExpression([]),
-            ),
-          ],
-          true,
-        );
+    const inputSchema = McpRouteProgrammer.generate({
+      context: props.context,
+      modulo: props.decorator.expression.expression,
+      type: paramsType,
+    });
 
     // Validate the return type to catch MCP-illegal shapes at compile time
     // (non-object, dynamic-property records, mixed `void | object` unions).
@@ -123,44 +109,43 @@ export namespace McpRouteTransformer {
   };
 
   /**
-   * Reject methods that carry `@McpRoute.Params()` more than once. MCP
-   * tools take a single arguments object, not a list of positional args.
+   * Reject methods that do not expose exactly one `@McpRoute.Params()`
+   * argument object. MCP tools do not have positional arguments.
    */
-  const enforceSingleParams = (props: {
+  const enforceParams = (props: {
     method: ts.MethodDeclaration;
   }): void => {
-    let count = 0;
-    for (const param of props.method.parameters) {
-      const decos = (param.modifiers ?? []).filter((m) =>
-        ts.isDecorator(m),
-      ) as ts.Decorator[];
-      if (
-        decos.some((d) =>
-          d.expression.getText().includes("McpRoute.Params"),
-        )
-      )
-        count += 1;
-    }
-    if (count > 1)
+    const decorated = props.method.parameters
+      .map((param, index) => ({ param, index }))
+      .filter(({ param }) => hasParamsDecorator(param));
+    if (decorated.length !== 1)
       throw new Error(
-        `[@nestia.core.McpRoute] method ${props.method.name.getText()} declares ${count} @McpRoute.Params() parameters; only one is allowed.`,
+        `[@nestia.core.McpRoute] method ${props.method.name.getText()} must declare exactly one @McpRoute.Params() parameter.`,
+      );
+    if (props.method.parameters.length !== 1 || decorated[0]!.index !== 0)
+      throw new Error(
+        `[@nestia.core.McpRoute] method ${props.method.name.getText()} must have exactly one parameter, and it must be decorated by @McpRoute.Params().`,
       );
   };
 
   const findParamsType = (props: {
     context: INestiaTransformContext;
     method: ts.MethodDeclaration;
-  }): ts.Type | undefined => {
+  }): ts.Type => {
     for (const param of props.method.parameters) {
-      const decos = (param.modifiers ?? []).filter((m) =>
-        ts.isDecorator(m),
-      ) as ts.Decorator[];
-      if (
-        decos.some((d) => d.expression.getText().includes("McpRoute.Params"))
-      )
+      if (hasParamsDecorator(param))
         return props.context.checker.getTypeAtLocation(param);
     }
-    return undefined;
+    throw new Error(
+      `[@nestia.core.McpRoute] method ${props.method.name.getText()} must declare exactly one @McpRoute.Params() parameter.`,
+    );
+  };
+
+  const hasParamsDecorator = (param: ts.ParameterDeclaration): boolean => {
+    const decos = (param.modifiers ?? []).filter((m) =>
+      ts.isDecorator(m),
+    ) as ts.Decorator[];
+    return decos.some((d) => d.expression.getText().includes("McpRoute.Params"));
   };
 
   const getReturnType = (props: {

@@ -55,6 +55,7 @@ export namespace SdkGenerator {
     if (app.project.config.distribute !== undefined)
       await SdkDistributionComposer.compose({
         config: app.project.config,
+        mcp: app.routes.some((r) => r.protocol === "mcp"),
         websocket: app.routes.some((r) => r.protocol === "websocket"),
       });
   };

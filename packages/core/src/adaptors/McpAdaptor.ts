@@ -1,11 +1,3 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import {
-  CallToolRequestSchema,
-  ErrorCode,
-  ListToolsRequestSchema,
-  McpError,
-} from "@modelcontextprotocol/sdk/types.js";
 import {
   BadRequestException,
   HttpException,
@@ -111,6 +103,14 @@ export class McpAdaptor {
       name: "nestia-mcp",
       version: "1.0.0",
     };
+    const {
+      CallToolRequestSchema,
+      ErrorCode,
+      ListToolsRequestSchema,
+      McpError,
+      McpServer,
+      StreamableHTTPServerTransport,
+    } = await loadMcpSdk();
 
     const http = app.getHttpAdapter();
     const route = options.path ?? "/mcp";
@@ -200,6 +200,28 @@ export class McpAdaptor {
     });
   }
 }
+
+const loadMcpSdk = async () => {
+  try {
+    const [server, transport, types] = await Promise.all([
+      import("@modelcontextprotocol/sdk/server/mcp.js"),
+      import("@modelcontextprotocol/sdk/server/streamableHttp.js"),
+      import("@modelcontextprotocol/sdk/types.js"),
+    ]);
+    return {
+      McpServer: server.McpServer,
+      StreamableHTTPServerTransport: transport.StreamableHTTPServerTransport,
+      CallToolRequestSchema: types.CallToolRequestSchema,
+      ErrorCode: types.ErrorCode,
+      ListToolsRequestSchema: types.ListToolsRequestSchema,
+      McpError: types.McpError,
+    };
+  } catch {
+    throw new Error(
+      "McpAdaptor.upgrade() requires @modelcontextprotocol/sdk. Install it before enabling MCP routes.",
+    );
+  }
+};
 
 export namespace McpAdaptor {
   /** Configuration options for {@link McpAdaptor.upgrade}. */

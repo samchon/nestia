@@ -21,12 +21,13 @@ export const test_mcp_tools_list = async (
   );
   try {
     const { tools } = await client.listTools();
-    TestValidator.equals("tool count", tools.length, 4);
+    TestValidator.equals("tool count", tools.length, 5);
 
     const names: string[] = tools.map((t) => t.name).sort();
     TestValidator.equals("tool names", names, [
       "add",
       "divide",
+      "echo_client",
       "get_weather",
       "subtract",
     ]);

@@ -42,15 +42,12 @@ export namespace NestiaConfigLoader {
 
     const setup: boolean = typia
       .assert<object[]>(compilerOptions.plugins ?? [])
-      .some(
-        (x: any) =>
-          x.transform === "@nestia/sdk/lib/transform" ||
-          x.transform === "@nestia/sdk/src/transform.ts",
-      );
+      .some((x: any) => x.transform === "@nestia/sdk/lib/transform");
     const plugins: any[] = [
       ...(compilerOptions.plugins ?? []),
       ...(setup ? [] : [{ transform: "@nestia/sdk/lib/transform" }]),
     ];
+    const hasPathAliases = Object.keys(compilerOptions.paths ?? {}).length > 0;
     if (!(process as any)[Symbol.for("ts-node.register.instance")])
       register({
         emit: false,
@@ -58,7 +55,7 @@ export namespace NestiaConfigLoader {
           ...compilerOptions,
           plugins,
         },
-        require: compilerOptions.baseUrl
+        require: (compilerOptions.baseUrl || hasPathAliases)
           ? ["tsconfig-paths/register"]
           : undefined,
       });

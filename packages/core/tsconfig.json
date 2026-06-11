@@ -1,10 +1,13 @@
 {
   "extends": "../../config/tsconfig.json",
   "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "bundler",
+    "rootDir": "src",
     "outDir": "lib",
     "plugins": [
       { "transform": "typia/lib/transform" },
-    ]
+    ],
   },
   "include": ["src"],
 }

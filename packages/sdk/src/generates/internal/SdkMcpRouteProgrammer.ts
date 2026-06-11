@@ -47,6 +47,7 @@ export namespace SdkMcpRouteProgrammer {
           file: "@modelcontextprotocol/sdk/client/index.js",
           type: "element",
           name: "Client",
+          alias: "McpClient",
         }),
       );
       const callToolResultTypeName = importer.external({
@@ -54,6 +55,7 @@ export namespace SdkMcpRouteProgrammer {
         file: "@modelcontextprotocol/sdk/types.js",
         type: "element",
         name: "CallToolResult",
+        alias: "McpCallToolResult",
       });
       // Register Primitive import so Output type resolves.
       if (route.returnType !== null)
@@ -430,7 +432,7 @@ export namespace SdkMcpRouteProgrammer {
     else if (route.description) lines.push(...route.description.split("\n"));
     if (lines.length) lines.push("");
     lines.push(
-      `@controller ${route.controller.class.name}.${route.name}`,
+      `@controller ${route.controller.class.name}.${route.function.name || route.name}`,
       `@tool ${route.toolName}`,
       `@accessor ${["api", "functional", ...route.accessor].join(".")}`,
       `@protocol mcp`,

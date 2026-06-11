@@ -56,7 +56,7 @@ const PlainFetcher = (importer: ImportDictionary) =>
 const EncryptedFetcher = (importer: ImportDictionary) =>
   importer.external({
     declaration: false,
-    file: "@nestia/fetcher",
+    file: "@nestia/fetcher/lib/EncryptedFetcher",
     type: "element",
     name: "EncryptedFetcher",
   });
