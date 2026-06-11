@@ -34,6 +34,17 @@ export const test_api_mcp_metadata = (): void => {
   );
 
   TestValidator.equals(
+    "echo_client METADATA.tool",
+    api.functional.mcp.echo_client.METADATA.tool,
+    "echo_client",
+  );
+  TestValidator.equals(
+    "echo_client METADATA.description",
+    api.functional.mcp.echo_client.METADATA.description,
+    "Echo a client-like DTO to exercise generated import aliasing.",
+  );
+
+  TestValidator.equals(
     "get_weather METADATA.tool",
     api.functional.mcp.get_weather.METADATA.tool,
     "get_weather",
@@ -48,11 +59,13 @@ export const test_api_mcp_metadata = (): void => {
     api.functional.mcp.add.METADATA.tool,
     api.functional.mcp.subtract.METADATA.tool,
     api.functional.mcp.divide.METADATA.tool,
+    api.functional.mcp.echo_client.METADATA.tool,
     api.functional.mcp.get_weather.METADATA.tool,
   ].sort();
   TestValidator.equals("tool names", tools, [
     "add",
     "divide",
+    "echo_client",
     "get_weather",
     "subtract",
   ]);

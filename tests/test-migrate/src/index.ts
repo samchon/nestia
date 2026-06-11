@@ -69,14 +69,9 @@ const execute = (
       );
     }
     if (files["tsconfig.json"] !== undefined) {
-      files["tsconfig.json"] = files["tsconfig.json"].replace(
-        "@nestia/core/lib/transform",
-        "@nestia/core/src/transform.ts",
-      );
-      files["tsconfig.json"] = files["tsconfig.json"].replace(
-        "@nestia/sdk/lib/transform",
-        "@nestia/sdk/src/transform.ts",
-      );
+      files["tsconfig.json"] = files["tsconfig.json"]
+        .replace("@nestia/core/lib/transform", "@nestia/core/src/transform.ts")
+        .replace("@nestia/sdk/lib/transform", "@nestia/sdk/src/transform.ts");
     }
 
     await NestiaMigrateFileArchiver.archive({

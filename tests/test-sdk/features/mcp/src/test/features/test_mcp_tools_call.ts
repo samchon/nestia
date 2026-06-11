@@ -42,6 +42,13 @@ export const test_mcp_tools_call = async (
       "weather temp is number",
       typeof weatherPayload.temperature === "number",
     );
+
+    const echoResult: any = await client.callTool({
+      name: "echo_client",
+      arguments: { name: "nestia" },
+    });
+    const echoPayload = JSON.parse(echoResult.content[0].text);
+    TestValidator.equals("echo client message", echoPayload.message, "nestia");
   } finally {
     await client.close();
   }

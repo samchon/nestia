@@ -27,15 +27,15 @@ export namespace IMcpRouteReflect {
    * Per-parameter reflection entry stored under `"nestia/McpRoute/Parameters"`
    * on the owning prototype + property key.
    *
-   * `validate` is the closure returned by `validate_request_body(...)` — at
-   * runtime it either returns the validated input or throws
-   * `BadRequestException`.
+   * `validate` is the closure returned by `validate_request_body(...)`;
+   * runtime callers receive `null` for valid input or an `Error` for invalid
+   * input.
    *
    * @internal
    */
   export interface IArgument {
     category: "params";
     index: number;
-    validate: (input: any) => any;
+    validate: (input: any) => Error | null;
   }
 }
