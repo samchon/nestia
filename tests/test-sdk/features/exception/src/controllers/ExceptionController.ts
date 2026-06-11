@@ -4,7 +4,7 @@ import {
   TypedParam,
   TypedRoute,
 } from "@nestia/core";
-import { Controller } from "@nestjs/common";
+import { BadRequestException, Controller } from "@nestjs/common";
 import typia, { TypeGuardError } from "typia";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
@@ -75,6 +75,15 @@ export class ExceptionController {
   ): Promise<IBbsArticle | INotFound | IUnprocessibleEntity> {
     section;
     return typia.random<IBbsArticle | INotFound | IUnprocessibleEntity>();
+  }
+
+  @TypedRoute.Get("nestjs-bad-request")
+  @TypedException<BadRequestException>({
+    status: 400,
+    description: "invalid parameter provided",
+  })
+  public async nestjs_bad_request(): Promise<string> {
+    return "ok";
   }
 
   /**
