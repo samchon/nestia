@@ -69,6 +69,24 @@ export function CalculateControllerBase(path: string) {
       acceptor.ping(15_000);
     }
 
+    /** Prepare a simple calculator through a route named connection. */
+    @WebSocketRoute("connection")
+    public async connection(
+      @WebSocketRoute.Acceptor()
+      acceptor: WebSocketAcceptor<
+        ICalcConfig, // header
+        ISimpleCalculator, // provider for remote client
+        ICalcEventListener // provider from remote client
+      >,
+    ): Promise<void> {
+      const header: ICalcConfig = acceptor.header;
+      const listener: Driver<ICalcEventListener> = acceptor.getDriver();
+      const provider: SimpleCalculator = new SimpleCalculator(header, listener);
+
+      await acceptor.accept(provider);
+      acceptor.ping(15_000);
+    }
+
     /** Prepare a scientific calculator. */
     @WebSocketRoute("scientific")
     public async scientific(

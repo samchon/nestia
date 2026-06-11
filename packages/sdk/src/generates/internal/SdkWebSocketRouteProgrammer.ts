@@ -1,9 +1,15 @@
-import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
+import {
+  Node,
+  NodeFlags,
+  SyntaxKind,
+  TypeScriptFactory,
+} from "@nestia/factory";
 import { IdentifierFactory } from "@nestia/factory";
 import { IJsDocTagInfo } from "typia";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
+import { StringUtil } from "../../utils/StringUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkImportWizard } from "./SdkImportWizard";
@@ -59,6 +65,9 @@ export namespace SdkWebSocketRouteProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedWebSocketRoute): Node => {
+      const connection: string = StringUtil.escapeDuplicate([route.name])(
+        "connection",
+      );
       return TypeScriptFactory.createFunctionDeclaration(
         [
           TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword),
@@ -69,7 +78,7 @@ export namespace SdkWebSocketRouteProgrammer {
         undefined,
         [
           IdentifierFactory.parameter(
-            "connection",
+            connection,
             TypeScriptFactory.createTypeReferenceNode(
               SdkImportWizard.IConnection(importer),
               [
@@ -90,7 +99,7 @@ export namespace SdkWebSocketRouteProgrammer {
           TypeScriptFactory.createTypeReferenceNode(`${route.name}.Output`),
         ]),
         TypeScriptFactory.createBlock(
-          writeFunctionBody(project)(importer)(route),
+          writeFunctionBody(project)(importer)(route)(connection),
           true,
         ),
       );
@@ -99,7 +108,8 @@ export namespace SdkWebSocketRouteProgrammer {
   const writeFunctionBody =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedWebSocketRoute): Node[] => {
+    (route: ITypedWebSocketRoute) =>
+    (connection: string): Node[] => {
       const access = (key: string) =>
         project.config.keyword === true
           ? TypeScriptFactory.createPropertyAccessExpression(
@@ -110,6 +120,7 @@ export namespace SdkWebSocketRouteProgrammer {
       return [
         local("url")(TypeScriptFactory.createTypeReferenceNode("string"))(
           joinPath(
+            connection,
             TypeScriptFactory.createCallExpression(
               TypeScriptFactory.createPropertyAccessExpression(
                 TypeScriptFactory.createIdentifier(route.name),
@@ -161,7 +172,7 @@ export namespace SdkWebSocketRouteProgrammer {
               TypeScriptFactory.createAsExpression(
                 TypeScriptFactory.createBinaryExpression(
                   TypeScriptFactory.createPropertyAccessExpression(
-                    TypeScriptFactory.createIdentifier("connection"),
+                    TypeScriptFactory.createIdentifier(connection),
                     "headers",
                   ),
                   TypeScriptFactory.createToken(
@@ -169,9 +180,7 @@ export namespace SdkWebSocketRouteProgrammer {
                   ),
                   TypeScriptFactory.createObjectLiteralExpression([], false),
                 ),
-                TypeScriptFactory.createKeywordTypeNode(
-                  SyntaxKind.AnyKeyword,
-                ),
+                TypeScriptFactory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
               ),
               access("provider"),
             ],
@@ -248,24 +257,23 @@ export namespace SdkWebSocketRouteProgrammer {
     };
 }
 
-const local =
-  (name: string) => (type: Node) => (expression: Node) =>
-    TypeScriptFactory.createVariableStatement(
-      [],
-      TypeScriptFactory.createVariableDeclarationList(
-        [
-          TypeScriptFactory.createVariableDeclaration(
-            name,
-            undefined,
-            type,
-            expression,
-          ),
-        ],
-        NodeFlags.Const,
-      ),
-    );
+const local = (name: string) => (type: Node) => (expression: Node) =>
+  TypeScriptFactory.createVariableStatement(
+    [],
+    TypeScriptFactory.createVariableDeclarationList(
+      [
+        TypeScriptFactory.createVariableDeclaration(
+          name,
+          undefined,
+          type,
+          expression,
+        ),
+      ],
+      NodeFlags.Const,
+    ),
+  );
 
-const joinPath = (caller: Node) =>
+const joinPath = (connection: string, caller: Node) =>
   TypeScriptFactory.createTemplateExpression(
     TypeScriptFactory.createTemplateHead("", ""),
     [
@@ -274,7 +282,7 @@ const joinPath = (caller: Node) =>
           TypeScriptFactory.createCallExpression(
             TypeScriptFactory.createPropertyAccessExpression(
               TypeScriptFactory.createPropertyAccessExpression(
-                TypeScriptFactory.createIdentifier("connection"),
+                TypeScriptFactory.createIdentifier(connection),
                 TypeScriptFactory.createIdentifier("host"),
               ),
               TypeScriptFactory.createIdentifier("endsWith"),
@@ -286,7 +294,7 @@ const joinPath = (caller: Node) =>
           TypeScriptFactory.createCallExpression(
             TypeScriptFactory.createPropertyAccessExpression(
               TypeScriptFactory.createPropertyAccessExpression(
-                TypeScriptFactory.createIdentifier("connection"),
+                TypeScriptFactory.createIdentifier(connection),
                 TypeScriptFactory.createIdentifier("host"),
               ),
               TypeScriptFactory.createIdentifier("substring"),
@@ -297,7 +305,7 @@ const joinPath = (caller: Node) =>
               TypeScriptFactory.createBinaryExpression(
                 TypeScriptFactory.createPropertyAccessExpression(
                   TypeScriptFactory.createPropertyAccessExpression(
-                    TypeScriptFactory.createIdentifier("connection"),
+                    TypeScriptFactory.createIdentifier(connection),
                     TypeScriptFactory.createIdentifier("host"),
                   ),
                   TypeScriptFactory.createIdentifier("length"),
@@ -309,7 +317,7 @@ const joinPath = (caller: Node) =>
           ),
           TypeScriptFactory.createToken(SyntaxKind.ColonToken),
           TypeScriptFactory.createPropertyAccessExpression(
-            TypeScriptFactory.createIdentifier("connection"),
+            TypeScriptFactory.createIdentifier(connection),
             TypeScriptFactory.createIdentifier("host"),
           ),
         ),
