@@ -1,5 +1,6 @@
 import {
   IHttpMigrateApplication,
+  IHttpMigrateRoute,
   OpenApi,
   OpenApiV3,
   OpenApiV3_1,
@@ -60,8 +61,7 @@ export class NestiaMigrateApplication {
         ),
       };
     } catch (exp) {
-      const message: string =
-        exp instanceof Error ? exp.message : String(exp);
+      const message: string = exp instanceof Error ? exp.message : String(exp);
       return {
         success: false,
         data: document,
@@ -144,14 +144,43 @@ const createContext = (
   application: IHttpMigrateApplication,
   config: INestiaMigrateConfig,
 ): INestiaMigrateContext => {
+  const routes: IHttpMigrateRoute[] = escapeConflictingAccessors(
+    application.routes
+      .filter((r) => r.method !== "query")
+      .map((r) => ({
+        ...r,
+        accessor: [...r.accessor],
+      })),
+  );
   return {
     mode,
     application: {
       ...application,
-      routes: application.routes.filter((r) => r.method !== "query"),
+      routes,
     },
     config,
   };
+};
+
+const escapeConflictingAccessors = (
+  routes: IHttpMigrateRoute[],
+): IHttpMigrateRoute[] => {
+  for (const route of routes)
+    while (true) {
+      const neighbor: IHttpMigrateRoute | undefined = routes.find(
+        (candidate) =>
+          candidate !== route &&
+          candidate.accessor.length < route.accessor.length &&
+          route.accessor
+            .slice(0, candidate.accessor.length)
+            .every((value, index) => value === candidate.accessor[index]),
+      );
+      if (neighbor === undefined) break;
+
+      const index: number = neighbor.accessor.length - 1;
+      route.accessor[index] = `_${route.accessor[index]}`;
+    }
+  return routes;
 };
 
 const renameSlug = (

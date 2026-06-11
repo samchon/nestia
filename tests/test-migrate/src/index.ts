@@ -14,6 +14,8 @@ import fs from "fs";
 import path from "path";
 import type { IValidation } from "typia";
 
+import { test_migrate_api_accessor_collision } from "./features/test_migrate_api_accessor_collision";
+
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
 const FIXTURE: string = path.join(TEST_ROOT, "fixture");
@@ -79,10 +81,11 @@ const assertFixtureSwagger = (document: SwaggerDocument): void => {
   const text: string = JSON.stringify(document);
   const paths: string[] = Object.keys(current.paths ?? {});
   const operations: number = paths
-    .map((accessor) =>
-      Object.keys(current.paths?.[accessor] ?? {}).filter((method) =>
-        METHODS.has(method),
-      ).length,
+    .map(
+      (accessor) =>
+        Object.keys(current.paths?.[accessor] ?? {}).filter((method) =>
+          METHODS.has(method),
+        ).length,
     )
     .reduce((a, b) => a + b, 0);
   const schemas: number = Object.keys(current.components?.schemas ?? {}).length;
@@ -93,7 +96,8 @@ const assertFixtureSwagger = (document: SwaggerDocument): void => {
   const errors: string[] = [];
   if (current.openapi !== "3.1.0") errors.push("OpenAPI 3.1 fixture expected");
   if (paths.length < 7) errors.push("fixture must contain several paths");
-  if (operations < 10) errors.push("fixture must contain at least 10 operations");
+  if (operations < 10)
+    errors.push("fixture must contain at least 10 operations");
   if (schemas < 20) errors.push("fixture must contain rich schemas");
   if (text.includes('"oneOf"') === false)
     errors.push("fixture must contain union schemas");
@@ -200,6 +204,7 @@ const main = async (): Promise<void> => {
     if (filter(scenario.name) === false) continue;
     const document: SwaggerDocument = await readDocument(scenario.file);
     assertFixtureSwagger(document);
+    test_migrate_api_accessor_collision(document);
     for (const [mode, keyword] of [
       ["nest", true],
       ["nest", false],
