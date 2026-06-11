@@ -10,8 +10,9 @@ import { ImportDictionary } from "./ImportDictionary";
  *
  * Output mirrors `SdkHttpRouteProgrammer` conventions: a top-level async
  * function paired with a namespace that exposes `Input`, `Output`, and
- * `METADATA`. The output type is wrapped in `Primitive<T>` from typia — MCP
- * round-trips values through JSON, which matches the semantics of `Primitive`.
+ * `METADATA`. Object output types are wrapped in `Primitive<T>` from typia
+ * because MCP round-trips values through JSON, matching the semantics of
+ * `Primitive`. Void MCP tools return `Promise<void>`.
  *
  * The response is typed via `CallToolResult` from `@modelcontextprotocol/sdk`
  * and narrowed structurally (`isError === true`, `type === "text"`) rather than
@@ -57,8 +58,9 @@ export namespace SdkMcpRouteProgrammer {
         name: "CallToolResult",
         alias: "McpCallToolResult",
       });
+      const isVoid = isVoidReturn(route);
       // Register Primitive import so Output type resolves.
-      if (route.returnType !== null)
+      if (!isVoid)
         importer.external({
           declaration: true,
           file: "typia",
@@ -234,84 +236,90 @@ export namespace SdkMcpRouteProgrammer {
               ),
             ),
           ),
-          // const first = result.content[0];
-          ts.factory.createVariableStatement(
-            undefined,
-            ts.factory.createVariableDeclarationList(
-              [
-                ts.factory.createVariableDeclaration(
-                  "first",
+          ...(isVoid
+            ? [ts.factory.createReturnStatement()]
+            : [
+                // const first = result.content[0];
+                ts.factory.createVariableStatement(
                   undefined,
-                  undefined,
-                  ts.factory.createElementAccessExpression(
-                    ts.factory.createPropertyAccessExpression(
-                      ts.factory.createIdentifier("result"),
-                      "content",
-                    ),
-                    ts.factory.createNumericLiteral(0),
-                  ),
-                ),
-              ],
-              ts.NodeFlags.Const,
-            ),
-          ),
-          ts.factory.createIfStatement(
-            ts.factory.createBinaryExpression(
-              ts.factory.createBinaryExpression(
-                ts.factory.createIdentifier("first"),
-                ts.factory.createToken(ts.SyntaxKind.EqualsEqualsEqualsToken),
-                ts.factory.createIdentifier("undefined"),
-              ),
-              ts.factory.createToken(ts.SyntaxKind.BarBarToken),
-              ts.factory.createBinaryExpression(
-                ts.factory.createPropertyAccessExpression(
-                  ts.factory.createIdentifier("first"),
-                  "type",
-                ),
-                ts.factory.createToken(
-                  ts.SyntaxKind.ExclamationEqualsEqualsToken,
-                ),
-                ts.factory.createStringLiteral("text"),
-              ),
-            ),
-            ts.factory.createThrowStatement(
-              ts.factory.createNewExpression(
-                ts.factory.createIdentifier("Error"),
-                undefined,
-                [
-                  ts.factory.createTemplateExpression(
-                    ts.factory.createTemplateHead('MCP tool "'),
+                  ts.factory.createVariableDeclarationList(
                     [
-                      ts.factory.createTemplateSpan(
-                        toolNameExpr,
-                        ts.factory.createTemplateTail(
-                          '" returned no text content',
+                      ts.factory.createVariableDeclaration(
+                        "first",
+                        undefined,
+                        undefined,
+                        ts.factory.createElementAccessExpression(
+                          ts.factory.createPropertyAccessExpression(
+                            ts.factory.createIdentifier("result"),
+                            "content",
+                          ),
+                          ts.factory.createNumericLiteral(0),
                         ),
                       ),
                     ],
+                    ts.NodeFlags.Const,
                   ),
-                ],
-              ),
-            ),
-          ),
-          ts.factory.createReturnStatement(
-            ts.factory.createAsExpression(
-              ts.factory.createCallExpression(
-                ts.factory.createPropertyAccessExpression(
-                  ts.factory.createIdentifier("JSON"),
-                  "parse",
                 ),
-                undefined,
-                [
-                  ts.factory.createPropertyAccessExpression(
-                    ts.factory.createIdentifier("first"),
-                    "text",
+                ts.factory.createIfStatement(
+                  ts.factory.createBinaryExpression(
+                    ts.factory.createBinaryExpression(
+                      ts.factory.createIdentifier("first"),
+                      ts.factory.createToken(
+                        ts.SyntaxKind.EqualsEqualsEqualsToken,
+                      ),
+                      ts.factory.createIdentifier("undefined"),
+                    ),
+                    ts.factory.createToken(ts.SyntaxKind.BarBarToken),
+                    ts.factory.createBinaryExpression(
+                      ts.factory.createPropertyAccessExpression(
+                        ts.factory.createIdentifier("first"),
+                        "type",
+                      ),
+                      ts.factory.createToken(
+                        ts.SyntaxKind.ExclamationEqualsEqualsToken,
+                      ),
+                      ts.factory.createStringLiteral("text"),
+                    ),
                   ),
-                ],
-              ),
-              outputRef,
-            ),
-          ),
+                  ts.factory.createThrowStatement(
+                    ts.factory.createNewExpression(
+                      ts.factory.createIdentifier("Error"),
+                      undefined,
+                      [
+                        ts.factory.createTemplateExpression(
+                          ts.factory.createTemplateHead('MCP tool "'),
+                          [
+                            ts.factory.createTemplateSpan(
+                              toolNameExpr,
+                              ts.factory.createTemplateTail(
+                                '" returned no text content',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                ts.factory.createReturnStatement(
+                  ts.factory.createAsExpression(
+                    ts.factory.createCallExpression(
+                      ts.factory.createPropertyAccessExpression(
+                        ts.factory.createIdentifier("JSON"),
+                        "parse",
+                      ),
+                      undefined,
+                      [
+                        ts.factory.createPropertyAccessExpression(
+                          ts.factory.createIdentifier("first"),
+                          "text",
+                        ),
+                      ],
+                    ),
+                    outputRef,
+                  ),
+                ),
+              ]),
         ],
         true,
       );
@@ -351,24 +359,30 @@ export namespace SdkMcpRouteProgrammer {
         );
       }
 
-      // Output type alias = Primitive<ReturnType>
-      const primitiveName = importer.external({
-        declaration: true,
-        file: "typia",
-        type: "element",
-        name: "Primitive",
-      });
-      const outputInner: ts.TypeNode = route.returnType
-        ? ts.factory.createTypeReferenceNode(
-            unwrapPromise(route.returnType.name),
-          )
-        : ts.factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword);
+      // Output type alias
+      const isVoid = isVoidReturn(route);
+      const outputType: ts.TypeNode =
+        !isVoid && route.returnType !== null
+          ? ts.factory.createTypeReferenceNode(
+              importer.external({
+                declaration: true,
+                file: "typia",
+                type: "element",
+                name: "Primitive",
+              }),
+              [
+                ts.factory.createTypeReferenceNode(
+                  unwrapPromise(route.returnType.name),
+                ),
+              ],
+            )
+          : ts.factory.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword);
       statements.push(
         ts.factory.createTypeAliasDeclaration(
           [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
           "Output",
           undefined,
-          ts.factory.createTypeReferenceNode(primitiveName, [outputInner]),
+          outputType,
         ),
       );
 
@@ -445,4 +459,11 @@ export namespace SdkMcpRouteProgrammer {
     const m = /^Promise<(.+)>$/.exec(name);
     return m ? m[1]! : name;
   };
+
+  const isVoidReturn = (route: ITypedMcpRoute): boolean =>
+    route.returnType === null ||
+    isVoidName(unwrapPromise(route.returnType.name));
+
+  const isVoidName = (name: string): boolean =>
+    name === "void" || name === "undefined";
 }

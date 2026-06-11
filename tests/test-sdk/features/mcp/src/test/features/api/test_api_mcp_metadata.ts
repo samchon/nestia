@@ -1,6 +1,4 @@
-/**
- * @author wildduck - https://github.com/wildduck2
- */
+/** @author wildduck - https://github.com/wildduck2 */
 import { TestValidator } from "@nestia/e2e";
 
 import api from "@api";
@@ -45,6 +43,17 @@ export const test_api_mcp_metadata = (): void => {
   );
 
   TestValidator.equals(
+    "notify METADATA.tool",
+    api.functional.mcp.notify.METADATA.tool,
+    "notify",
+  );
+  TestValidator.equals(
+    "notify METADATA.description",
+    api.functional.mcp.notify.METADATA.description,
+    "Accept a notification without returning content.",
+  );
+
+  TestValidator.equals(
     "get_weather METADATA.tool",
     api.functional.mcp.get_weather.METADATA.tool,
     "get_weather",
@@ -61,12 +70,14 @@ export const test_api_mcp_metadata = (): void => {
     api.functional.mcp.divide.METADATA.tool,
     api.functional.mcp.echo_client.METADATA.tool,
     api.functional.mcp.get_weather.METADATA.tool,
+    api.functional.mcp.notify.METADATA.tool,
   ].sort();
   TestValidator.equals("tool names", tools, [
     "add",
     "divide",
     "echo_client",
     "get_weather",
+    "notify",
     "subtract",
   ]);
 };

@@ -4,7 +4,6 @@ import {
   INestApplication,
 } from "@nestjs/common";
 import { NestContainer } from "@nestjs/core";
-import { randomUUID } from "crypto";
 
 import { IMcpRouteReflect } from "../decorators/internal/IMcpRouteReflect";
 
@@ -12,28 +11,25 @@ import { IMcpRouteReflect } from "../decorators/internal/IMcpRouteReflect";
  * MCP (Model Context Protocol) adaptor.
  *
  * `McpAdaptor` exposes every method decorated with {@link McpRoute} as an MCP
- * tool, reachable by LLM clients (Claude Desktop, Cursor, OpenAI function
- * calling, etc.) through a spec-compliant Streamable HTTP endpoint.
+ * tool, reachable by LLM clients through a stateless Streamable HTTP endpoint.
  *
  * At bootstrap the adaptor walks the {@link NestContainer}, collects every
  * controller method carrying `"nestia/McpRoute"` metadata, and caches a tool
- * registry. A fresh {@link McpServer} + {@link StreamableHTTPServerTransport}
- * pair is spun up per incoming HTTP request — the MCP-recommended pattern for
- * stateless mode, which lets multiple clients hit the endpoint concurrently
- * without sharing transport state.
+ * registry. A fresh MCP server and transport pair is spun up per incoming HTTP
+ * request, following MCP stateless Streamable HTTP mode. This adaptor
+ * intentionally does not manage `Mcp-Session-Id` state.
  *
- * Typia-generated JSON Schemas flow through unchanged — the Zod-based
- * high-level registration API of `McpServer` is bypassed by accessing the
- * low-level `.server` handler.
+ * Typia-generated JSON Schemas flow through unchanged; the Zod-based high-level
+ * registration API of `McpServer` is bypassed by accessing the low-level
+ * `.server` handler.
  *
  * Error mapping follows the MCP specification:
  *
- * - Unknown tool name → JSON-RPC `-32601` ({@link ErrorCode.MethodNotFound}).
- * - Typia validation failure → JSON-RPC `-32602` ({@link ErrorCode.InvalidParams})
- *   with structured diagnostics attached to `error.data.errors`.
- * - Handler throws {@link HttpException} → success response with `isError: true`,
+ * - Unknown tool name: JSON-RPC `-32601`.
+ * - Typia validation failure: JSON-RPC `-32602` with structured diagnostics.
+ * - Handler throws {@link HttpException}: success response with `isError: true`,
  *   so the LLM can read the message and recover.
- * - Any other throw → JSON-RPC `-32603` ({@link ErrorCode.InternalError}).
+ * - Any other throw: JSON-RPC `-32603`.
  *
  * @author wildduck - https://github.com/wildduck2
  * @example
@@ -48,7 +44,7 @@ import { IMcpRouteReflect } from "../decorators/internal/IMcpRouteReflect";
  */
 export class McpAdaptor {
   /**
-   * Upgrade a running Nest application with an MCP endpoint.
+   * Upgrade a running Nest application with a stateless MCP endpoint.
    *
    * Scans the application container for methods decorated with {@link McpRoute},
    * then registers a catch-all HTTP route at the configured path. Each incoming
@@ -66,6 +62,11 @@ export class McpAdaptor {
     app: INestApplication,
     options: McpAdaptor.IOptions = {},
   ): Promise<void> {
+    if ("sessioned" in (options as Record<string, unknown>))
+      throw new Error(
+        "McpAdaptor.upgrade() supports stateless Streamable HTTP only; sessioned mode is not implemented.",
+      );
+
     const tools: McpAdaptor.ITool[] = [];
     const container = (app as any).container as NestContainer;
     for (const module of container.getModules().values()) {
@@ -92,12 +93,14 @@ export class McpAdaptor {
 
           tools.push({
             meta,
+            source: `${wrapper.metatype?.name ?? proto.constructor?.name ?? "UnknownController"}.${String(key)}`,
             validateArgs: paramValidator,
             handler: async (args) => method.call(instance, args),
           });
         }
       }
     }
+    assertUniqueTools(tools);
 
     const serverInfo = options.serverInfo ?? {
       name: "nestia-mcp",
@@ -115,9 +118,8 @@ export class McpAdaptor {
     const http = app.getHttpAdapter();
     const route = options.path ?? "/mcp";
     http.all(route, async (req: any, res: any) => {
-      // Fresh server + transport per request. Stateless mode requires
-      // isolated transport state — sharing one across concurrent clients
-      // races on internal `_initialized` flags and session tracking.
+      // Stateless mode requires a fresh transport per request; sharing one
+      // across clients races on internal initialization and request IDs.
       const mcp = new McpServer(serverInfo, {
         capabilities: { tools: {} },
       });
@@ -162,6 +164,7 @@ export class McpAdaptor {
 
         try {
           const result = await tool.handler(args);
+          if (result === undefined) return { content: [] };
           return {
             content: [
               {
@@ -186,20 +189,41 @@ export class McpAdaptor {
       });
 
       const transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: options.sessioned ? () => randomUUID() : undefined,
+        sessionIdGenerator: undefined,
         enableJsonResponse: true,
       });
       try {
         await mcp.connect(transport);
         await transport.handleRequest(req.raw ?? req, res.raw ?? res, req.body);
       } finally {
-        // Release SDK resources even if handleRequest throws.
         await transport.close().catch(() => {});
         await mcp.close().catch(() => {});
       }
     });
   }
 }
+
+const assertUniqueTools = (tools: McpAdaptor.ITool[]): void => {
+  const dict: Map<string, McpAdaptor.ITool[]> = new Map();
+  for (const tool of tools) {
+    const array = dict.get(tool.meta.name) ?? [];
+    array.push(tool);
+    dict.set(tool.meta.name, array);
+  }
+  const duplicated = Array.from(dict.entries()).filter(
+    ([, list]) => list.length > 1,
+  );
+  if (duplicated.length === 0) return;
+  throw new Error(
+    [
+      "Duplicated MCP tool names are not allowed.",
+      ...duplicated.map(
+        ([name, list]) =>
+          `  - ${JSON.stringify(name)}: ${list.map((tool) => tool.source).join(", ")}`,
+      ),
+    ].join("\n"),
+  );
+};
 
 const loadMcpSdk = async () => {
   try {
@@ -240,23 +264,12 @@ export namespace McpAdaptor {
      * @default { name: "nestia-mcp", version: "1.0.0" }
      */
     serverInfo?: { name: string; version: string };
-
-    /**
-     * Enable session mode.
-     *
-     * When `true`, the transport issues an `Mcp-Session-Id` header on the
-     * initialize response and requires it on every subsequent request. When
-     * `false` (default), the server is stateless — simpler, covers the common
-     * tool-server use case.
-     *
-     * @default false
-     */
-    sessioned?: boolean;
   }
 
   /** @internal */
   export interface ITool {
     meta: IMcpRouteReflect;
+    source: string;
     handler: (args: unknown) => Promise<unknown>;
     validateArgs?: (input: any) => Error | null;
   }

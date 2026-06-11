@@ -1,6 +1,4 @@
-/**
- * @author wildduck - https://github.com/wildduck2
- */
+/** @author wildduck - https://github.com/wildduck2 */
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { TestValidator } from "@nestia/e2e";
@@ -21,7 +19,7 @@ export const test_mcp_tools_list = async (
   );
   try {
     const { tools } = await client.listTools();
-    TestValidator.equals("tool count", tools.length, 5);
+    TestValidator.equals("tool count", tools.length, 6);
 
     const names: string[] = tools.map((t) => t.name).sort();
     TestValidator.equals("tool names", names, [
@@ -29,6 +27,7 @@ export const test_mcp_tools_list = async (
       "divide",
       "echo_client",
       "get_weather",
+      "notify",
       "subtract",
     ]);
 
