@@ -68,6 +68,7 @@ export namespace NestiaSwaggerComposer {
     const routes: ITypedHttpRoute[] = [];
     for (const c of controllers)
       for (const o of c.operations) {
+        if (o.protocol === "mcp") continue;
         const pathList: Set<string> = new Set();
         const versions: string[] = VersioningStrategy.merge(project)([
           ...(c.versions ?? []),

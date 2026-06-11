@@ -63,6 +63,7 @@
     "typia": "catalog:samchon"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "catalog:modelcontextprotocol",
     "@nestjs/common": "catalog:nestjs",
     "@nestjs/core": "catalog:nestjs",
     "@nestjs/platform-express": "catalog:nestjs",
