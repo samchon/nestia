@@ -10,21 +10,22 @@ import { McpRouteReturnProgrammer } from "../programmers/McpRouteReturnProgramme
  *
  * Responsibilities:
  *
- * 1. Normalize the public string form (`@McpRoute("tool_name")`) into an
- *    internal config object literal (`@McpRoute({ name: "tool_name" })`) so
- *    downstream consumers — runtime adaptor + SDK reflection — only ever see
- *    the rich object shape.
+ * 1. Normalize the public string form (`@McpRoute("tool_name")`) into an internal
+ *    config object literal (`@McpRoute({ name: "tool_name" })`) so downstream
+ *    consumers — runtime adaptor + SDK reflection — only ever see the rich
+ *    object shape.
  * 2. Enforce MCP-spec constraints by delegating to typia validators:
- *    - exactly one `@McpRoute.Params()` parameter;
- *    - parameter type is an object without dynamic properties
- *      ({@link McpRouteProgrammer});
- *    - return type is `void` or a single object without dynamic properties
- *      ({@link McpRouteReturnProgrammer}).
+ *
+ *    - Exactly one `@McpRoute.Params()` parameter;
+ *    - Parameter type is an object without dynamic properties
+ *         ({@link McpRouteProgrammer});
+ *    - Return type is `void` or a single object without dynamic properties
+ *         ({@link McpRouteReturnProgrammer}).
  * 3. Inject typia-generated `inputSchema` (and `outputSchema`, when the return
  *    type is non-void) into the config literal.
- * 4. Parse the method's JSDoc and inject `description` / `title` into the
- *    config literal when not already explicit. The JSDoc comment is the
- *    canonical source for human-readable tool metadata.
+ * 4. Parse the method's JSDoc and inject `description` / `title` into the config
+ *    literal when not already explicit. The JSDoc comment is the canonical
+ *    source for human-readable tool metadata.
  *
  * @author wildduck - https://github.com/wildduck2
  */
@@ -109,12 +110,10 @@ export namespace McpRouteTransformer {
   };
 
   /**
-   * Reject methods that do not expose exactly one `@McpRoute.Params()`
-   * argument object. MCP tools do not have positional arguments.
+   * Reject methods that do not expose exactly one `@McpRoute.Params()` argument
+   * object. MCP tools do not have positional arguments.
    */
-  const enforceParams = (props: {
-    method: ts.MethodDeclaration;
-  }): void => {
+  const enforceParams = (props: { method: ts.MethodDeclaration }): void => {
     const decorated = props.method.parameters
       .map((param, index) => ({ param, index }))
       .filter(({ param }) => hasParamsDecorator(param));
@@ -145,7 +144,9 @@ export namespace McpRouteTransformer {
     const decos = (param.modifiers ?? []).filter((m) =>
       ts.isDecorator(m),
     ) as ts.Decorator[];
-    return decos.some((d) => d.expression.getText().includes("McpRoute.Params"));
+    return decos.some((d) =>
+      d.expression.getText().includes("McpRoute.Params"),
+    );
   };
 
   const getReturnType = (props: {
@@ -187,8 +188,8 @@ export namespace McpRouteTransformer {
 
   /**
    * Parse the JSDoc block attached to `method` and emit the property
-   * assignments needed to set `description` / `title` when the existing
-   * config object does not already define them.
+   * assignments needed to set `description` / `title` when the existing config
+   * object does not already define them.
    */
   const jsDocFields = (
     method: ts.MethodDeclaration,
@@ -242,11 +243,15 @@ export namespace McpRouteTransformer {
   ): boolean =>
     config.properties.some(
       (p) =>
-        ts.isPropertyAssignment(p) &&
-        !!p.name &&
-        (ts.isIdentifier(p.name) || ts.isStringLiteralLike(p.name)) &&
-        p.name.getText().replace(/["']/g, "") === name,
+        ts.isPropertyAssignment(p) && !!p.name && propertyName(p.name) === name,
     );
+
+  const propertyName = (name: ts.PropertyName): string | undefined =>
+    ts.isIdentifier(name)
+      ? name.escapedText.toString()
+      : ts.isStringLiteralLike(name)
+        ? name.text
+        : undefined;
 
   const injectFields = (
     config: ts.ObjectLiteralExpression,

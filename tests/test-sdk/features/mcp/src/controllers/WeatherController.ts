@@ -29,7 +29,7 @@ export class WeatherController {
    * Return the current weather for a named location. Optional coords object
    * exercises nested JSON Schema generation.
    */
-  @core.McpRoute({ name: "get_weather" })
+  @core.McpRoute("get_weather")
   public async get(
     @core.McpRoute.Params() params: IWeatherInput,
   ): Promise<IWeatherResult> {
