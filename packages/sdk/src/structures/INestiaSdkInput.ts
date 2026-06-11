@@ -1,10 +1,11 @@
-import { RouteInfo, VersionValue } from "@nestjs/common/interfaces";
+import { RequestMethod } from "@nestjs/common";
+import { VersionValue } from "@nestjs/common/interfaces";
 
 export interface INestiaSdkInput {
   controllers: INestiaSdkInput.IController[];
   globalPrefix?: {
     prefix: string;
-    exclude?: Array<string | RouteInfo>;
+    exclude?: INestiaSdkInput.IGlobalPrefixExclude[];
   };
   versioning?: {
     prefix: string;
@@ -16,5 +17,11 @@ export namespace INestiaSdkInput {
     class: Function;
     location: string;
     prefixes: string[];
+  }
+  export interface IGlobalPrefixExclude {
+    path: string;
+    method?: RequestMethod;
+    requestMethod?: RequestMethod;
+    pathRegex?: RegExp;
   }
 }

@@ -1,5 +1,4 @@
 import { INestApplication } from "@nestjs/common";
-import { IMetadataDictionary } from "./internal/legacy";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import { OpenApiConverter } from "@typia/utils";
 import path from "path";
@@ -13,12 +12,13 @@ import { PathAnalyzer } from "./analyses/PathAnalyzer";
 import { ReflectControllerAnalyzer } from "./analyses/ReflectControllerAnalyzer";
 import { TypedHttpRouteAnalyzer } from "./analyses/TypedHttpRouteAnalyzer";
 import { SwaggerGenerator } from "./generates/SwaggerGenerator";
+import { IMetadataDictionary } from "./internal/legacy";
 import { INestiaProject } from "./structures/INestiaProject";
 import { INestiaSdkInput } from "./structures/INestiaSdkInput";
+import { IOperationMetadata } from "./structures/IOperationMetadata";
 import { IReflectController } from "./structures/IReflectController";
 import { IReflectOperationError } from "./structures/IReflectOperationError";
 import { ITypedHttpRoute } from "./structures/ITypedHttpRoute";
-import { IOperationMetadata } from "./structures/IOperationMetadata";
 import { VersioningStrategy } from "./utils/VersioningStrategy";
 
 export namespace NestiaSwaggerComposer {
@@ -63,10 +63,10 @@ export namespace NestiaSwaggerComposer {
       TypedHttpRouteAnalyzer.dictionary(controllers);
 
     // CONVERT TO TYPED OPERATIONS
-    const globalPrefix: string = project.input.globalPrefix?.prefix ?? "";
     const routes: ITypedHttpRoute[] = [];
     for (const c of controllers)
       for (const o of c.operations) {
+        if (o.protocol !== "http") continue;
         const pathList: Set<string> = new Set();
         const versions: string[] = VersioningStrategy.merge(project)([
           ...(c.versions ?? []),
@@ -75,20 +75,31 @@ export namespace NestiaSwaggerComposer {
         for (const v of versions)
           for (const prefix of wrapPaths(c.prefixes))
             for (const cPath of wrapPaths(c.paths))
-              for (const filePath of wrapPaths(o.paths))
-                pathList.add(
-                  PathAnalyzer.join(globalPrefix, v, prefix, cPath, filePath),
+              for (const filePath of wrapPaths(o.paths)) {
+                const localPath: string = PathAnalyzer.join(
+                  prefix,
+                  cPath,
+                  filePath,
                 );
-        if (o.protocol === "http")
-          routes.push(
-            ...TypedHttpRouteAnalyzer.analyze({
-              controller: c,
-              errors: project.errors,
-              dictionary: collection,
-              operation: o,
-              paths: Array.from(pathList),
-            }),
-          );
+                pathList.add(
+                  PathAnalyzer.joinWithGlobalPrefix({
+                    globalPrefix: project.input.globalPrefix?.prefix ?? "",
+                    exclude: project.input.globalPrefix?.exclude,
+                    excludePath: localPath,
+                    method: o.method,
+                    path: PathAnalyzer.join(v, localPath),
+                  }),
+                );
+              }
+        routes.push(
+          ...TypedHttpRouteAnalyzer.analyze({
+            controller: c,
+            errors: project.errors,
+            dictionary: collection,
+            operation: o,
+            paths: Array.from(pathList),
+          }),
+        );
       }
     AccessorAnalyzer.analyze(routes);
     return routes;

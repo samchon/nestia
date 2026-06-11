@@ -1,4 +1,3 @@
-import { IMetadataDictionary } from "./internal/legacy";
 import fs from "fs";
 import path from "path";
 import { HashSet, Pair, TreeMap } from "tstl";
@@ -13,13 +12,14 @@ import { TypedWebSocketRouteAnalyzer } from "./analyses/TypedWebSocketRouteAnaly
 import { E2eGenerator } from "./generates/E2eGenerator";
 import { SdkGenerator } from "./generates/SdkGenerator";
 import { SwaggerGenerator } from "./generates/SwaggerGenerator";
+import { IMetadataDictionary } from "./internal/legacy";
 import { INestiaProject } from "./structures/INestiaProject";
+import { IOperationMetadata } from "./structures/IOperationMetadata";
 import { IReflectController } from "./structures/IReflectController";
 import { IReflectOperationError } from "./structures/IReflectOperationError";
 import { ITypedApplication } from "./structures/ITypedApplication";
 import { ITypedHttpRoute } from "./structures/ITypedHttpRoute";
 import { ITypedWebSocketRoute } from "./structures/ITypedWebSocketRoute";
-import { IOperationMetadata } from "./structures/IOperationMetadata";
 import { StringUtil } from "./utils/StringUtil";
 import { VersioningStrategy } from "./utils/VersioningStrategy";
 
@@ -194,7 +194,6 @@ export class NestiaSdkApplication {
       TypedHttpRouteAnalyzer.dictionary(controllers);
 
     // CONVERT TO TYPED OPERATIONS
-    const globalPrefix: string = project.input.globalPrefix?.prefix ?? "";
     const routes: Array<ITypedHttpRoute | ITypedWebSocketRoute> = [];
     for (const c of controllers)
       for (const o of c.operations) {
@@ -206,10 +205,22 @@ export class NestiaSdkApplication {
         for (const v of versions)
           for (const prefix of wrapPaths(c.prefixes))
             for (const cPath of wrapPaths(c.paths))
-              for (const filePath of wrapPaths(o.paths))
-                pathList.add(
-                  PathAnalyzer.join(globalPrefix, v, prefix, cPath, filePath),
+              for (const filePath of wrapPaths(o.paths)) {
+                const localPath: string = PathAnalyzer.join(
+                  prefix,
+                  cPath,
+                  filePath,
                 );
+                pathList.add(
+                  PathAnalyzer.joinWithGlobalPrefix({
+                    globalPrefix: project.input.globalPrefix?.prefix ?? "",
+                    exclude: project.input.globalPrefix?.exclude,
+                    excludePath: localPath,
+                    method: o.protocol === "http" ? o.method : "",
+                    path: PathAnalyzer.join(v, localPath),
+                  }),
+                );
+              }
         if (o.protocol === "http")
           routes.push(
             ...TypedHttpRouteAnalyzer.analyze({

@@ -14,13 +14,15 @@ export class Backend {
           logger: false,
         },
       );
-      app.setGlobalPrefix("x");
+      app.setGlobalPrefix("x", { exclude: ["/_ah/warmup"] });
       await core.WebSocketAdaptor.upgrade(app);
       return app;
     });
 
   public async open(): Promise<void> {
-    return (await this.application.get()).listen(Number(process.env.TEST_SDK_PORT ?? 37_000));
+    return (await this.application.get()).listen(
+      Number(process.env.TEST_SDK_PORT ?? 37_000),
+    );
   }
 
   public async close(): Promise<void> {
