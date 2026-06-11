@@ -1,0 +1,83 @@
+/** @author wildduck - https://github.com/wildduck2 */
+import { TestValidator } from "@nestia/e2e";
+
+import api from "@api";
+
+export const test_api_mcp_metadata = (): void => {
+  TestValidator.equals(
+    "add METADATA.protocol",
+    api.functional.mcp.add.METADATA.protocol,
+    "mcp",
+  );
+  TestValidator.equals(
+    "add METADATA.tool",
+    api.functional.mcp.add.METADATA.tool,
+    "add",
+  );
+  TestValidator.equals(
+    "add METADATA.description",
+    api.functional.mcp.add.METADATA.description,
+    "Return the sum of two numbers.",
+  );
+
+  TestValidator.equals(
+    "divide METADATA.tool",
+    api.functional.mcp.divide.METADATA.tool,
+    "divide",
+  );
+  TestValidator.equals(
+    "divide METADATA.description",
+    api.functional.mcp.divide.METADATA.description,
+    "Return a / b. Throws on division by zero.",
+  );
+
+  TestValidator.equals(
+    "echo_client METADATA.tool",
+    api.functional.mcp.echo_client.METADATA.tool,
+    "echo_client",
+  );
+  TestValidator.equals(
+    "echo_client METADATA.description",
+    api.functional.mcp.echo_client.METADATA.description,
+    "Echo a client-like DTO to exercise generated import aliasing.",
+  );
+
+  TestValidator.equals(
+    "notify METADATA.tool",
+    api.functional.mcp.notify.METADATA.tool,
+    "notify",
+  );
+  TestValidator.equals(
+    "notify METADATA.description",
+    api.functional.mcp.notify.METADATA.description,
+    "Accept a notification without returning content.",
+  );
+
+  TestValidator.equals(
+    "get_weather METADATA.tool",
+    api.functional.mcp.get_weather.METADATA.tool,
+    "get_weather",
+  );
+  TestValidator.predicate(
+    "get_weather METADATA.description non-empty",
+    typeof api.functional.mcp.get_weather.METADATA.description === "string" &&
+      api.functional.mcp.get_weather.METADATA.description.length > 0,
+  );
+
+  const tools = [
+    api.functional.mcp.add.METADATA.tool,
+    api.functional.mcp.subtract.METADATA.tool,
+    api.functional.mcp.divide.METADATA.tool,
+    api.functional.mcp.echo_client.METADATA.tool,
+    api.functional.mcp.get_weather.METADATA.tool,
+    api.functional.mcp.notify.METADATA.tool,
+  ].sort();
+  TestValidator.equals("tool names", tools, [
+    "add",
+    "divide",
+    "echo_client",
+    "get_weather",
+    "notify",
+    "subtract",
+  ]);
+};

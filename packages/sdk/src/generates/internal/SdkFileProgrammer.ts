@@ -4,11 +4,13 @@ import ts from "typescript";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedApplication } from "../../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { ITypedMcpRoute } from "../../structures/ITypedMcpRoute";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { MapUtil } from "../../utils/MapUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkHttpRouteProgrammer } from "./SdkHttpRouteProgrammer";
+import { SdkMcpRouteProgrammer } from "./SdkMcpRouteProgrammer";
 import { SdkRouteDirectory } from "./SdkRouteDirectory";
 import { SdkWebSocketRouteProgrammer } from "./SdkWebSocketRouteProgrammer";
 
@@ -27,7 +29,7 @@ export namespace SdkFileProgrammer {
 
   const emplace =
     (directory: SdkRouteDirectory) =>
-    (route: ITypedHttpRoute | ITypedWebSocketRoute): void => {
+    (route: ITypedHttpRoute | ITypedWebSocketRoute | ITypedMcpRoute): void => {
       // OPEN DIRECTORIES
       for (const key of route.accessor.slice(0, -1)) {
         directory = MapUtil.take(
@@ -80,7 +82,9 @@ export namespace SdkFileProgrammer {
         statements.push(
           ...(route.protocol === "http"
             ? SdkHttpRouteProgrammer.write(project)(importer)(route)
-            : SdkWebSocketRouteProgrammer.write(project)(importer)(route)),
+            : route.protocol === "websocket"
+              ? SdkWebSocketRouteProgrammer.write(project)(importer)(route)
+              : SdkMcpRouteProgrammer.write(project)(importer)(route)),
         );
         if (i !== directory.routes.length - 1)
           statements.push(FilePrinter.enter());

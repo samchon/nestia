@@ -27,6 +27,8 @@ catalogs:
     ts-node: ^10.9.2
     ts-patch: ^4.0.1
     typescript: ~6.0.3
+  modelcontextprotocol:
+    '@modelcontextprotocol/sdk': ^1.18.0
   rollup:
     rollup: ^4.56.0
     rollup-plugin-auto-external: ^2.0.0

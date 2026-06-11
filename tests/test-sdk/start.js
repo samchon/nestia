@@ -1,6 +1,21 @@
 const cp = require("child_process");
 const fs = require("fs");
 
+const tsNode = require.resolve("ts-node/dist/bin.js");
+const runTsNodeTest = (stdio) =>
+  cp.execFileSync(
+    process.execPath,
+    [
+      tsNode,
+      "-O",
+      JSON.stringify({ module: "commonjs", moduleResolution: "nodenext" }),
+      "-r",
+      "@nestjs/platform-express",
+      "src/test",
+    ],
+    { stdio },
+  );
+
 process.env.NODE_OPTIONS = [
   process.env.NODE_OPTIONS ?? "",
   "--no-experimental-strip-types",
@@ -43,9 +58,7 @@ const feature = (name) => {
       cp.execSync("npx tsc", { stdio: "ignore" });
       generate("all", true);
       if (fs.existsSync("src/test"))
-        cp.execSync('npx ts-node -O \'{"module":"commonjs","moduleResolution":"nodenext"}\' -r @nestjs/platform-express src/test', {
-          stdio: "ignore",
-        });
+        runTsNodeTest("ignore");
     } catch {
       return;
     }
@@ -79,16 +92,12 @@ const feature = (name) => {
   // RUN TEST AUTOMATION PROGRAM
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (fs.existsSync("src/test")) {
-    const test = (stdio) =>
-      cp.execSync('npx ts-node -O \'{"module":"commonjs","moduleResolution":"nodenext"}\' -r @nestjs/platform-express src/test', {
-        stdio,
-      });
     for (let i = 0; i < 3; ++i)
       try {
-        test("ignore");
+        runTsNodeTest("ignore");
         return;
       } catch {}
-    test("inherit");
+    runTsNodeTest("inherit");
   } else {
     const test = (stdio) => cp.execSync("npx tsc", { stdio });
     try {

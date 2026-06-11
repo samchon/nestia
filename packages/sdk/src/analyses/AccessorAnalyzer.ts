@@ -1,21 +1,20 @@
 import { NamingConvention } from "@typia/utils";
 
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
+import { ITypedMcpRoute } from "../structures/ITypedMcpRoute";
 import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
 
+type AnyRoute = ITypedHttpRoute | ITypedWebSocketRoute | ITypedMcpRoute;
+
 export namespace AccessorAnalyzer {
-  export const analyze = (
-    routes: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
-  ) => {
+  export const analyze = (routes: Array<AnyRoute>) => {
     shrink(routes);
     variable(routes);
     shrink(routes);
     for (const r of routes) r.name = r.accessor.at(-1) ?? r.name;
   };
 
-  const prepare = (
-    routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
-  ): Map<string, number> => {
+  const prepare = (routeList: Array<AnyRoute>): Map<string, number> => {
     const dict: Map<string, number> = new Map();
     for (const route of routeList)
       route.accessor.forEach((_a, i) => {
@@ -25,9 +24,7 @@ export namespace AccessorAnalyzer {
     return dict;
   };
 
-  const variable = (
-    routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
-  ) => {
+  const variable = (routeList: Array<AnyRoute>) => {
     const dict: Map<string, number> = prepare(routeList);
     for (const route of routeList) {
       const emended: string[] = route.accessor.slice();
@@ -49,7 +46,7 @@ export namespace AccessorAnalyzer {
     }
   };
 
-  const shrink = (routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>) => {
+  const shrink = (routeList: Array<AnyRoute>) => {
     const dict: Map<string, number> = prepare(routeList);
     for (const route of routeList) {
       if (

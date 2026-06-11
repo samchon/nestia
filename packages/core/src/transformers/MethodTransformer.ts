@@ -1,6 +1,7 @@
 import ts from "typescript";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
+import { McpRouteTransformer } from "./McpRouteTransformer";
 import { TypedRouteTransformer } from "./TypedRouteTransformer";
 import { WebSocketRouteTransformer } from "./WebSocketRouteTransformer";
 
@@ -33,6 +34,11 @@ export namespace MethodTransformer {
         context: props.context,
         method: props.method,
         decorator,
+      });
+      decorator = McpRouteTransformer.transform({
+        context: props.context,
+        decorator,
+        method: props.method,
       });
       return decorator;
     };

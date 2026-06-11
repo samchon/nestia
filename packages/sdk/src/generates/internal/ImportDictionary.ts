@@ -1,5 +1,5 @@
 import path from "path";
-import { HashMap, TreeSet, hash } from "tstl";
+import { HashMap, TreeMap, hash } from "tstl";
 import ts from "typescript";
 
 import { ImportAnalyzer } from "../../analyses/ImportAnalyzer";
@@ -78,10 +78,11 @@ export class ImportDictionary {
     };
     const value: ICompositeValue = this.components_.take(key, () => ({
       ...key,
-      elements: new TreeSet<string>(),
+      elements: new TreeMap<string, string | null>(),
     }));
-    if (props.type === "element") value.elements.insert(props.name);
-    return props.name;
+    if (props.type === "element")
+      value.elements.set(props.name, props.alias ?? null);
+    return props.type === "element" ? (props.alias ?? props.name) : props.name;
   }
 
   public toStatements(outDir: string): ts.Statement[] {
@@ -149,11 +150,11 @@ export class ImportDictionary {
       c.default !== null ? ts.factory.createIdentifier(c.default) : undefined,
       c.elements.size() !== 0
         ? ts.factory.createNamedImports(
-            Array.from(c.elements).map((elem) =>
+            Array.from(c.elements).map(({ first: name, second: alias }) =>
               ts.factory.createImportSpecifier(
                 false,
-                undefined,
-                ts.factory.createIdentifier(elem),
+                alias !== null ? ts.factory.createIdentifier(name) : undefined,
+                ts.factory.createIdentifier(alias ?? name),
               ),
             ),
           )
@@ -166,6 +167,7 @@ export namespace ImportDictionary {
     type: "default" | "element" | "asterisk";
     file: string;
     name: string;
+    alias?: string;
     declaration: boolean;
   }
 }
@@ -177,7 +179,7 @@ interface ICompositeKey {
   default: string | null;
 }
 interface ICompositeValue extends ICompositeKey {
-  elements: TreeSet<string>;
+  elements: TreeMap<string, string | null>;
 }
 
 const NODE_MODULES = "node_modules/";
