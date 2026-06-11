@@ -1,0 +1,170 @@
+---
+title: "Reference - SwaggerCustomizer"
+description: "Method decorator for route-level OpenAPI customization. Mutates the generated Swagger operation without changing runtime behavior or SDK signatures."
+---
+
+# `@SwaggerCustomizer`
+
+```ts filename="@nestia/core" copy
+export function SwaggerCustomizer(
+  closure: (props: SwaggerCustomizer.IProps) => unknown,
+): MethodDecorator;
+```
+
+`SwaggerCustomizer` is the escape hatch for route-level OpenAPI edits that
+Nestia cannot infer from TypeScript types. It runs only while composing the
+Swagger document. It does not change request parsing, validation, controller
+runtime behavior, or generated SDK function signatures.
+
+Prefer typed Nestia decorators when they describe the contract directly:
+
+- Use [`@TypedHeaders`](./TypedHeaders) when the controller method should
+  receive and validate a header DTO.
+- Use `SwaggerCustomizer` when a guard, middleware, or custom NestJS parameter
+  decorator handles runtime behavior, but the Swagger operation still needs an
+  explicit header, tag, extension, or other OpenAPI field.
+
+---
+
+## API
+
+```ts copy
+export namespace SwaggerCustomizer {
+  export interface IProps {
+    swagger: OpenApi.IDocument;
+    method: string;
+    path: string;
+    route: OpenApi.IOperation;
+
+    at(func: Function): ISwaggerEndpoint | undefined;
+    get(accessor: IAccessor): OpenApi.IOperation | undefined;
+  }
+
+  export interface IAccessor {
+    path: string;
+    method: string;
+  }
+
+  export interface ISwaggerEndpoint extends IAccessor {
+    route: OpenApi.IOperation;
+  }
+}
+```
+
+The most common field is `props.route`, the OpenAPI operation for the decorated
+controller method. `props.swagger` gives access to the whole document when you
+need to add a shared schema or security definition. `props.at()` and
+`props.get()` let one route inspect another generated operation.
+
+---
+
+## Add a Custom Header
+
+This pattern is useful when a custom parameter decorator reads a header at
+runtime and throws application-specific exceptions, while Swagger UI still needs
+to show the header input.
+
+```ts filename="PlayerId.ts" copy
+import { SwaggerCustomizer } from "@nestia/core";
+import {
+  ExecutionContext,
+  ForbiddenException,
+  createParamDecorator,
+} from "@nestjs/common";
+
+const PlayerIdValue = createParamDecorator(
+  (_data: unknown, ctx: ExecutionContext): number => {
+    const request = ctx.switchToHttp().getRequest();
+    const value = request.headers["x-player-id"];
+    const parsed = Number(value);
+
+    if (value === undefined || Number.isNaN(parsed))
+      throw new ForbiddenException("Access denied");
+    return parsed;
+  },
+);
+
+export function PlayerId(): ParameterDecorator {
+  return (target, propertyKey, parameterIndex) => {
+    PlayerIdValue()(target, propertyKey!, parameterIndex);
+
+    SwaggerCustomizer((props) => {
+      props.route.parameters ??= [];
+
+      const exists = props.route.parameters.some(
+        (p) => p.in === "header" && p.name === "x-player-id",
+      );
+      if (exists) return;
+
+      props.route.parameters.push({
+        name: "x-player-id",
+        in: "header",
+        required: true,
+        schema: {
+          type: "integer",
+          minimum: 1,
+        },
+        description: "Player ID for authentication and authorization.",
+      });
+    })(target, propertyKey!, undefined as any);
+  };
+}
+```
+
+Then use the decorator normally:
+
+```ts filename="BonusController.ts" copy
+import { TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+
+import { PlayerId } from "./PlayerId";
+
+@Controller("bonus")
+export class BonusController {
+  @TypedRoute.Get()
+  public async getBonuses(@PlayerId() playerId: number): Promise<IBonus[]> {
+    return this.bonusService.getPlayerBonuses(playerId);
+  }
+}
+```
+
+The generated Swagger operation includes the `x-player-id` header parameter,
+and the runtime still uses your custom `PlayerId` decorator.
+
+---
+
+## Add Vendor Extensions
+
+OpenAPI extension fields start with `x-`. Use them for gateway policies,
+internal routing metadata, or AI-tool annotations that do not belong to the
+standard OpenAPI shape.
+
+```ts copy
+@SwaggerCustomizer((props) => {
+  props.route["x-internal-permission"] = "bonus:read";
+})
+@TypedRoute.Get()
+public async getBonuses(): Promise<IBonus[]> {
+  return this.bonusService.getBonuses();
+}
+```
+
+---
+
+## What It Does Not Do
+
+- It does not validate the runtime request. Use `TypedBody`, `TypedQuery`,
+  `TypedParam`, `TypedHeaders`, guards, or pipes for runtime behavior.
+- It does not alter generated SDK function parameters. SDK signatures come from
+  Nestia route decorators and reflected TypeScript types.
+- It does not replace full document post-processing when you need broad,
+  cross-route rewrites. Prefer `SwaggerCustomizer` for local route edits.
+
+---
+
+## See Also
+
+- **[TypedHeaders](./TypedHeaders)** - typed header parsing and validation.
+- **[SwaggerExample](./SwaggerExample)** - request and response examples.
+- **[Swagger Document](/docs/swagger)** - generating and serving the OpenAPI
+  document.
