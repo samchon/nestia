@@ -7,6 +7,7 @@ import { IReflectOperationError } from "../structures/IReflectOperationError";
 import { IReflectType } from "../structures/IReflectType";
 import { ITypedApplication } from "../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
+import { ITypedMcpRoute } from "../structures/ITypedMcpRoute";
 import { CloneGenerator } from "./CloneGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
@@ -64,6 +65,7 @@ export namespace SdkGenerator {
     app: ITypedApplication,
   ): IReflectOperationError[] => {
     const errors: IReflectOperationError[] = [];
+    validateMcpDuplicates(errors)(app.routes);
     if (app.project.config.clone === true) return errors;
     for (const route of app.routes)
       if (route.protocol === "http")
@@ -74,6 +76,31 @@ export namespace SdkGenerator {
         });
     return errors;
   };
+
+  const validateMcpDuplicates =
+    (errors: IReflectOperationError[]) =>
+    (routes: ITypedApplication["routes"]): void => {
+      const dict: Map<string, ITypedMcpRoute[]> = new Map();
+      for (const route of routes)
+        if (route.protocol === "mcp") {
+          const array = dict.get(route.toolName) ?? [];
+          array.push(route);
+          dict.set(route.toolName, array);
+        }
+
+      for (const [toolName, list] of dict)
+        if (list.length > 1)
+          for (const route of list)
+            errors.push({
+              file: route.controller.file,
+              class: route.controller.class.name,
+              function: route.function.name || route.name,
+              from: `@McpRoute(${JSON.stringify(toolName)})`,
+              contents: [
+                `Duplicate MCP tool name ${JSON.stringify(toolName)} is not allowed.`,
+              ],
+            });
+    };
 
   const validateImplicit = (props: {
     config: INestiaConfig;

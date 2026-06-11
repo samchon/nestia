@@ -1,6 +1,4 @@
-/**
- * @author wildduck - https://github.com/wildduck2
- */
+/** @author wildduck - https://github.com/wildduck2 */
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { TestValidator } from "@nestia/e2e";
@@ -49,6 +47,12 @@ export const test_mcp_tools_call = async (
     });
     const echoPayload = JSON.parse(echoResult.content[0].text);
     TestValidator.equals("echo client message", echoPayload.message, "nestia");
+
+    const notifyResult: any = await client.callTool({
+      name: "notify",
+      arguments: { message: "done" },
+    });
+    TestValidator.equals("notify content", notifyResult.content, []);
   } finally {
     await client.close();
   }

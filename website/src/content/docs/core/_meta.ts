@@ -1,5 +1,6 @@
 export default {
   WebSocketRoute: "WebSocketRoute",
+  McpRoute: "McpRoute",
   TypedRoute: "TypedRoute",
   TypedBody: "TypedBody",
   TypedParam: "TypedParam",

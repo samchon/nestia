@@ -10,6 +10,10 @@ export interface ICalcResult {
   result: number;
 }
 
+export interface INotifyInput {
+  message: string;
+}
+
 /**
  * MCP tool fixture covering the happy path (`add`, `subtract`) and the
  * `HttpException` mapping path (`divide`).
@@ -42,5 +46,13 @@ export class CalculatorController {
     if (params.b === 0)
       throw new BadRequestException("Division by zero is not allowed.");
     return { result: params.a / params.b };
+  }
+
+  /** Accept a notification without returning content. */
+  @core.McpRoute({ name: "notify" })
+  public async notify(
+    @core.McpRoute.Params() params: INotifyInput,
+  ): Promise<void> {
+    void params;
   }
 }
