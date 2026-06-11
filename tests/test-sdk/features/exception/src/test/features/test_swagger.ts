@@ -49,6 +49,19 @@ export const test_swagger = async () => {
       ],
     },
   );
+  TestValidator.equals(
+    "nestjs bad request description",
+    content.paths["/exception/nestjs-bad-request"].get.responses[400]
+      .description,
+    "invalid parameter provided",
+  );
+  TestValidator.equals(
+    "nestjs bad request schema",
+    content.paths["/exception/nestjs-bad-request"].get.responses[400].content[
+      "application/json"
+    ].schema.$ref,
+    "#/components/schemas/BadRequestException",
+  );
 
   TestValidator.equals(
     "examples",

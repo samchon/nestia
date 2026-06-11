@@ -43,7 +43,8 @@ func TestSDKExceptionMetadataInProcess(t *testing.T) {
 		`"name":"TypeGuardErrorany"`,
 		`"value":"method"`,
 		`"value":"expected"`,
-		// The four named exception structures collected across decorators.
+		// The named exception structures collected across decorators.
+		`"name":"BadRequestException"`,
 		`"name":"INotFound"`,
 		`"name":"IUnprocessibleEntity"`,
 		`"name":"IInternalServerError"`,
