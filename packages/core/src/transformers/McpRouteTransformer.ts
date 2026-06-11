@@ -73,7 +73,7 @@ export namespace McpRouteTransformer {
     // (non-object, dynamic-property records, mixed `void | object` unions).
     // We do NOT emit `outputSchema` onto the wire — declaring an output schema
     // obliges the server to return `structuredContent` per the MCP spec, which
-    // the v1 adaptor does not produce. Validation alone is enough to honour
+    // the v1 adaptor does not produce. Validation alone is enough to honor
     // the constraint.
     const returnType = getReturnType(props);
     if (returnType)
