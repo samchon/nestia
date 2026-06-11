@@ -11,38 +11,38 @@ import { validate_request_body } from "./internal/validate_request_body";
  * reachable by LLM clients (Claude Desktop, Cursor, OpenAI function calling,
  * etc.) through the standard Streamable HTTP transport.
  *
- * For type-safe tool inputs, decorate exactly one parameter of the method
- * with {@link McpRoute.Params}. The parameter type `T` is analyzed at compile
- * time by the nestia transformer, which generates both a runtime validator
- * (powered by typia) and the JSON Schema attached to `inputSchema` in
- * `tools/list` responses. Manually supplying `inputSchema` in the decorator
- * config overrides the generated one.
+ * For type-safe tool inputs, decorate exactly one parameter of the method with
+ * {@link McpRoute.Params}. The parameter type `T` is analyzed at compile time by
+ * the nestia transformer, which generates both a runtime validator (powered by
+ * typia) and the JSON Schema attached to `inputSchema` in `tools/list`
+ * responses. Manually supplying `inputSchema` in the decorator config overrides
+ * the generated one.
  *
  * For the MCP endpoint to actually be served, you must call
  * {@link McpAdaptor.upgrade} on the {@link INestApplication} instance at
  * bootstrap. The decorator alone only stores reflection metadata.
  *
+ * @author wildduck - https://github.com/wildduck2
  * @example
- * ```typescript
- * import core from "@nestia/core";
+ *   ```typescript
+ *   import core from "@nestia/core";
  *
- * @Controller()
- * export class WeatherController {
- *   @core.McpRoute({
- *     name: "get_weather",
- *     description: "Return current weather for a city.",
- *   })
- *   public async get(
- *     @core.McpRoute.Params() params: { city: string },
- *   ): Promise<{ temp: number }> {
- *     return { temp: 22 };
+ *   @Controller()
+ *   export class WeatherController {
+ *     @core.McpRoute({
+ *       name: "get_weather",
+ *       description: "Return current weather for a city.",
+ *     })
+ *     public async get(
+ *       @core.McpRoute.Params() params: { city: string },
+ *     ): Promise<{ temp: number }> {
+ *       return { temp: 22 };
+ *     }
  *   }
- * }
- * ```
+ *   ```;
  *
  * @param config Tool configuration (name, description, optional overrides).
  * @returns Method decorator.
- * @author wildduck - https://github.com/wildduck2
  */
 export function McpRoute(config: McpRoute.IConfig): MethodDecorator {
   return function McpRoute(
@@ -71,26 +71,23 @@ export namespace McpRoute {
    * Configuration passed to {@link McpRoute}.
    *
    * All optional schemas (`inputSchema`, `outputSchema`) are auto-generated
-   * from TypeScript types via the nestia transformer when omitted; supply
-   * them explicitly only to override the compile-time inference.
+   * from TypeScript types via the nestia transformer when omitted; supply them
+   * explicitly only to override the compile-time inference.
    */
   export interface IConfig {
     /**
-     * Unique tool identifier reported in `tools/list` responses and used by
-     * the MCP client to invoke this tool via `tools/call`.
+     * Unique tool identifier reported in `tools/list` responses and used by the
+     * MCP client to invoke this tool via `tools/call`.
      */
     name: string;
 
-    /**
-     * Human-readable display name shown in MCP client UIs.
-     */
+    /** Human-readable display name shown in MCP client UIs. */
     title?: string;
 
     /**
-     * Free-form description consumed by the LLM when deciding whether to
-     * call this tool. Include expected inputs, side effects, and typical
-     * usage — the quality of this text strongly affects tool-selection
-     * accuracy.
+     * Free-form description consumed by the LLM when deciding whether to call
+     * this tool. Include expected inputs, side effects, and typical usage — the
+     * quality of this text strongly affects tool-selection accuracy.
      */
     description?: string;
 
@@ -103,14 +100,14 @@ export namespace McpRoute {
     inputSchema?: object;
 
     /**
-     * JSON Schema for structured tool output. When present, the MCP client
-     * may validate returned `structuredContent` against this schema.
+     * JSON Schema for structured tool output. When present, the MCP client may
+     * validate returned `structuredContent` against this schema.
      */
     outputSchema?: object;
 
     /**
-     * Tool behavior hints used by MCP clients to render safety cues and
-     * decide when to auto-approve calls.
+     * Tool behavior hints used by MCP clients to render safety cues and decide
+     * when to auto-approve calls.
      */
     annotations?: IMcpRouteReflect["annotations"];
   }
@@ -119,17 +116,17 @@ export namespace McpRoute {
    * Parameter decorator for an MCP tool's input arguments.
    *
    * `@McpRoute.Params<T>()` validates the `arguments` object from a
-   * `tools/call` request against the TypeScript type `T` using typia. A
-   * failed validation surfaces to the client as a JSON-RPC `-32602`
-   * (`InvalidParams`) error with structured diagnostics, giving the LLM
-   * precise feedback to self-correct.
+   * `tools/call` request against the TypeScript type `T` using typia. A failed
+   * validation surfaces to the client as a JSON-RPC `-32602` (`InvalidParams`)
+   * error with structured diagnostics, giving the LLM precise feedback to
+   * self-correct.
    *
-   * At most one parameter per method should carry this decorator — the MCP
-   * spec models tool input as a single arguments object.
+   * At most one parameter per method should carry this decorator — the MCP spec
+   * models tool input as a single arguments object.
    *
+   * @author wildduck - https://github.com/wildduck2
    * @param validator Optional custom validator. Default is `typia.assert()`.
    * @returns Parameter decorator.
-   * @author wildduck - https://github.com/wildduck2
    */
   export function Params<T>(
     validator?: IRequestBodyValidator<T>,
