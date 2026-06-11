@@ -8,6 +8,7 @@ import { ConfigAnalyzer } from "./analyses/ConfigAnalyzer";
 import { PathAnalyzer } from "./analyses/PathAnalyzer";
 import { ReflectControllerAnalyzer } from "./analyses/ReflectControllerAnalyzer";
 import { TypedHttpRouteAnalyzer } from "./analyses/TypedHttpRouteAnalyzer";
+import { TypedMcpRouteAnalyzer } from "./analyses/TypedMcpRouteAnalyzer";
 import { TypedWebSocketRouteAnalyzer } from "./analyses/TypedWebSocketRouteAnalyzer";
 import { E2eGenerator } from "./generates/E2eGenerator";
 import { SdkGenerator } from "./generates/SdkGenerator";
@@ -19,6 +20,7 @@ import { IReflectController } from "./structures/IReflectController";
 import { IReflectOperationError } from "./structures/IReflectOperationError";
 import { ITypedApplication } from "./structures/ITypedApplication";
 import { ITypedHttpRoute } from "./structures/ITypedHttpRoute";
+import { ITypedMcpRoute } from "./structures/ITypedMcpRoute";
 import { ITypedWebSocketRoute } from "./structures/ITypedWebSocketRoute";
 import { StringUtil } from "./utils/StringUtil";
 import { VersioningStrategy } from "./utils/VersioningStrategy";
@@ -161,7 +163,11 @@ export class NestiaSdkApplication {
       const set: HashSet<Pair<string, string>> = new HashSet();
       for (const controller of controllers)
         for (const controllerPath of controller.paths)
-          for (const operation of controller.operations)
+          for (const operation of controller.operations) {
+            if (operation.protocol === "mcp") {
+              set.insert(new Pair(`mcp:${operation.toolName}`, "mcp"));
+              continue;
+            }
             for (const operationPath of operation.paths)
               set.insert(
                 new Pair(
@@ -169,6 +175,7 @@ export class NestiaSdkApplication {
                   operation.protocol === "http" ? operation.method : "",
                 ),
               );
+          }
       return set.size();
     })();
 
@@ -179,7 +186,9 @@ export class NestiaSdkApplication {
         .map(
           (c) =>
             c.paths.length *
-            c.operations.map((f) => f.paths.length).reduce((a, b) => a + b, 0),
+            c.operations
+              .map((f) => (f.protocol === "mcp" ? 1 : f.paths.length))
+              .reduce((a, b) => a + b, 0),
         )
         .reduce((a, b) => a + b, 0)}`,
     );
@@ -194,9 +203,20 @@ export class NestiaSdkApplication {
       TypedHttpRouteAnalyzer.dictionary(controllers);
 
     // CONVERT TO TYPED OPERATIONS
-    const routes: Array<ITypedHttpRoute | ITypedWebSocketRoute> = [];
+    const routes: Array<
+      ITypedHttpRoute | ITypedWebSocketRoute | ITypedMcpRoute
+    > = [];
     for (const c of controllers)
       for (const o of c.operations) {
+        if (o.protocol === "mcp") {
+          routes.push(
+            ...TypedMcpRouteAnalyzer.analyze({
+              controller: c,
+              operation: o,
+            }),
+          );
+          continue;
+        }
         const pathList: Set<string> = new Set();
         const versions: string[] = VersioningStrategy.merge(project)([
           ...(c.versions ?? []),
