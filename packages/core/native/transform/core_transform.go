@@ -1513,6 +1513,9 @@ func cleanupNestiaCorePrintedExpression(text string) string {
 var nestiaCoreSingleParameterArrowPattern = regexp.MustCompile(`(^|[\s(=,:?])([A-Za-z_$][A-Za-z0-9_$]*) =>`)
 
 func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimchecker.Type {
+	if typ := nestiaCoreExplicitAsyncReturnType(prog, node); typ != nil {
+		return typ
+	}
 	signature := prog.Checker.GetSignatureFromDeclaration(node)
 	if signature == nil {
 		return nil
@@ -1522,13 +1525,50 @@ func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimc
 		return nil
 	}
 	symbol := typ.Symbol()
-	if symbol != nil && symbol.Name == "Promise" {
+	if symbol != nil && nestiaCoreIsAsyncReturnWrapper(symbol.Name) {
 		args := prog.Checker.GetTypeArguments(typ)
 		if len(args) == 1 {
 			return args[0]
 		}
 	}
 	return typ
+}
+
+func nestiaCoreExplicitAsyncReturnType(prog *driver.Program, node *shimast.Node) *shimchecker.Type {
+	if prog == nil || prog.Checker == nil || node == nil || node.FunctionLikeData() == nil {
+		return nil
+	}
+	typeNode := node.FunctionLikeData().Type
+	if typeNode == nil || typeNode.Kind != shimast.KindTypeReference {
+		return nil
+	}
+	ref := typeNode.AsTypeReferenceNode()
+	if ref == nil || ref.TypeArguments == nil || len(ref.TypeArguments.Nodes) != 1 {
+		return nil
+	}
+	if nestiaCoreIsAsyncReturnWrapper(nestiaCoreTypeNodeText(ref.TypeName)) == false {
+		return nil
+	}
+	return prog.Checker.GetTypeFromTypeNode(ref.TypeArguments.Nodes[0])
+}
+
+func nestiaCoreIsAsyncReturnWrapper(name string) bool {
+	return name == "Promise" || name == "Observable"
+}
+
+func nestiaCoreTypeNodeText(node *shimast.Node) string {
+	if node == nil {
+		return ""
+	}
+	source, ok := SourceFileText(shimast.GetSourceFileOfNode(node))
+	if ok == false {
+		return ""
+	}
+	start, end := node.Pos(), node.End()
+	if start < 0 || end > len(source) || start >= end {
+		return ""
+	}
+	return strings.TrimSpace(source[start:end])
 }
 
 func nestiaCoreShouldSkipMethodDecorator(prog *driver.Program, call *shimast.CallExpression) bool {
