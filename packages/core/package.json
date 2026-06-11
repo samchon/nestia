@@ -67,6 +67,7 @@
     "ws": "^7.5.3"
   },
   "peerDependencies": {
+    "@modelcontextprotocol/sdk": "catalog:modelcontextprotocol",
     "@nestia/fetcher": "workspace:^",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
@@ -74,7 +75,13 @@
     "rxjs": ">=6.0.3",
     "typia": "catalog:samchon"
   },
+  "peerDependenciesMeta": {
+    "@modelcontextprotocol/sdk": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "catalog:modelcontextprotocol",
     "@nestjs/common": "catalog:nestjs",
     "@nestjs/core": "catalog:nestjs",
     "@nestjs/platform-express": "catalog:nestjs",
