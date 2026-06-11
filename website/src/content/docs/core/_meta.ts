@@ -9,4 +9,5 @@ export default {
   TypedHeaders: "TypedHeaders",
   TypedException: "TypedException",
   SwaggerExample: "SwaggerExample",
+  SwaggerCustomizer: "SwaggerCustomizer",
 };
