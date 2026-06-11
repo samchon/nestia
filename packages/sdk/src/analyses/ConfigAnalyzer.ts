@@ -100,7 +100,7 @@ export namespace ConfigAnalyzer {
         typeof (app as any).config?.globalPrefix === "string"
           ? {
               prefix: (app as any).config.globalPrefix,
-              exclude: (app as any).config.globalPrefixOptions?.exclude ?? {},
+              exclude: (app as any).config.globalPrefixOptions?.exclude ?? [],
             }
           : undefined,
       versioning:
