@@ -1,6 +1,12 @@
-import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
+import {
+  Node,
+  NodeFlags,
+  SyntaxKind,
+  TypeScriptFactory,
+} from "@nestia/factory";
 import { IdentifierFactory, TypeFactory } from "@nestia/factory";
 
+import { sizeOf } from "../../internal/legacy";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { StringUtil } from "../../utils/StringUtil";
@@ -8,7 +14,6 @@ import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
-import { sizeOf } from "../../internal/legacy";
 
 export namespace SdkHttpFunctionProgrammer {
   export const write =
@@ -202,12 +207,8 @@ export namespace SdkHttpFunctionProgrammer {
                     ),
                     "assert",
                   ),
-                  [
-                    TypeScriptFactory.createTypeQueryNode(
-                      TypeScriptFactory.createIdentifier(p.name),
-                    ),
-                  ],
-                  [TypeScriptFactory.createIdentifier(p.name)],
+                  [TypeScriptFactory.createTypeQueryNode(access(p.name))],
+                  [access(p.name)],
                 ),
               ),
             )
@@ -239,9 +240,7 @@ export namespace SdkHttpFunctionProgrammer {
       const assigners: Node[] = [
         TypeScriptFactory.createBinaryExpression(
           TypeScriptFactory.createIdentifier(headers),
-          TypeScriptFactory.createToken(
-            SyntaxKind.QuestionQuestionEqualsToken,
-          ),
+          TypeScriptFactory.createToken(SyntaxKind.QuestionQuestionEqualsToken),
           TypeScriptFactory.createObjectLiteralExpression([]),
         ),
         ...route.success.setHeaders.map((tuple) =>
