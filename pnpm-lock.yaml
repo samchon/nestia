@@ -18,6 +18,9 @@ catalogs:
     '@nestjs/platform-fastify':
       specifier: ^11.1.6
       version: 11.1.21
+    rxjs:
+      specifier: ^7.1.0
+      version: 7.8.2
   rollup:
     '@rollup/plugin-commonjs':
       specifier: ^29.0.0
@@ -788,6 +791,9 @@ importers:
       multer:
         specifier: ^2.0.2
         version: 2.1.1
+      rxjs:
+        specifier: catalog:nestjs
+        version: 7.8.2
       tgrid:
         specifier: catalog:samchon
         version: 1.2.1

@@ -1153,11 +1153,11 @@ func nestiaSDKReflectTypeNode(
 		ref := node.AsTypeReferenceNode()
 		name := nestiaSDKEntityNameText(ref.TypeName)
 		rootRefs := nestiaSDKReflectImports(name, imports)
-		if len(rootRefs) == 0 && name != "Promise" {
+		if len(rootRefs) == 0 && nestiaSDKIsAsyncReturnWrapper(name) == false {
 			rootRefs = nestiaSDKReflectTypeReferenceSymbolImport(prog, ref.TypeName, name)
 		}
 		if ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) != 0 {
-			if name == "Promise" && len(ref.TypeArguments.Nodes) == 1 {
+			if nestiaSDKIsAsyncReturnWrapper(name) && len(ref.TypeArguments.Nodes) == 1 {
 				return nestiaSDKReflectTypeNode(prog, imports, ref.TypeArguments.Nodes[0])
 			}
 			args := make([]any, 0, len(ref.TypeArguments.Nodes))
@@ -1354,7 +1354,7 @@ func nestiaSDKMethodReturnTypeNode(method *shimast.Node) *shimast.Node {
 func nestiaSDKReturnTypeNode(node *shimast.Node) *shimast.Node {
 	if node != nil && node.Kind == shimast.KindTypeReference {
 		ref := node.AsTypeReferenceNode()
-		if ref != nil && ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) == 1 && nestiaSDKEntityNameText(ref.TypeName) == "Promise" {
+		if ref != nil && ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) == 1 && nestiaSDKIsAsyncReturnWrapper(nestiaSDKEntityNameText(ref.TypeName)) {
 			return ref.TypeArguments.Nodes[0]
 		}
 	}
@@ -1369,11 +1369,15 @@ func nestiaSDKReturnTypeNodeText(node *shimast.Node) string {
 	text := nestiaSDKTypeNodeText(node)
 	if node != nil && node.Kind == shimast.KindTypeReference {
 		ref := node.AsTypeReferenceNode()
-		if ref != nil && ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) == 1 && strings.HasPrefix(strings.TrimSpace(text), "Promise<") {
+		if ref != nil && ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) == 1 && nestiaSDKIsAsyncReturnWrapper(nestiaSDKEntityNameText(ref.TypeName)) {
 			return nestiaSDKTypeNodeText(ref.TypeArguments.Nodes[0])
 		}
 	}
 	return text
+}
+
+func nestiaSDKIsAsyncReturnWrapper(name string) bool {
+	return name == "Promise" || name == "Observable"
 }
 
 func nestiaSDKTypeNodeText(node *shimast.Node) string {

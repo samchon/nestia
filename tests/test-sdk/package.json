@@ -21,6 +21,7 @@
     "fastify": "^4.0.0",
     "fastify-multer": "^2.0.3",
     "multer": "^2.0.2",
+    "rxjs": "catalog:nestjs",
     "tgrid": "catalog:samchon",
     "tstl": "catalog:samchon",
     "typia": "catalog:samchon",

@@ -9,6 +9,7 @@ catalogs:
     '@nestjs/core': ^11.1.6
     '@nestjs/platform-express': ^11.1.6
     '@nestjs/platform-fastify': ^11.1.6
+    rxjs: ^7.1.0
   samchon:
     '@typia/interface': 13.0.0-dev.20260605.1
     '@typia/utils': 13.0.0-dev.20260605.1
