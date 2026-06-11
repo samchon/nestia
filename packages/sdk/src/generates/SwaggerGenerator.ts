@@ -1,5 +1,4 @@
 import { SwaggerCustomizer } from "@nestia/core";
-import { JsonSchemasProgrammer, MetadataSchema, sizeOf } from "../internal/legacy";
 import {
   OpenApi,
   OpenApiV3,
@@ -14,6 +13,11 @@ import { Singleton } from "tstl";
 import type { IJsonSchemaCollection } from "typia";
 
 import { INestiaConfig } from "../INestiaConfig";
+import {
+  JsonSchemasProgrammer,
+  MetadataSchema,
+  sizeOf,
+} from "../internal/legacy";
 import { ITypedApplication } from "../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { FileRetriever } from "../utils/FileRetriever";
@@ -77,10 +81,11 @@ export namespace SwaggerGenerator {
     document: OpenApi.IDocument;
   }): OpenApi.IDocument => {
     // GATHER METADATA
-    const routes: ITypedHttpRoute[] = props.routes.filter((r) =>
-      r.jsDocTags.every(
-        (tag) => tag.name !== "internal" && tag.name !== "hidden",
-      ),
+    const routes: ITypedHttpRoute[] = props.routes.filter(
+      (r) =>
+        r.jsDocTags.every(
+          (tag) => tag.name !== "internal" && tag.name !== "hidden",
+        ) && isSwaggerExcluded(r) === false,
     );
     const metadatas: MetadataSchema[] = routes
       .map((r) => [
@@ -296,6 +301,25 @@ export namespace SwaggerGenerator {
     for (const param of route.pathParameters)
       str = str.replace(`:${param.field}`, `{${param.field}}`);
     return str;
+  };
+
+  const isSwaggerExcluded = (route: ITypedHttpRoute): boolean => {
+    const controller: unknown = Reflect.getMetadata(
+      "swagger/apiExcludeController",
+      route.controller.class,
+    );
+    if (Array.isArray(controller) && controller[0] === true) return true;
+
+    const endpoint: unknown = Reflect.getMetadata(
+      "swagger/apiExcludeEndpoint",
+      route.function,
+    );
+    return (
+      endpoint !== undefined &&
+      (typeof endpoint !== "object" ||
+        endpoint === null ||
+        (endpoint as { disable?: boolean }).disable !== false)
+    );
   };
 }
 
