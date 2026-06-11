@@ -53,7 +53,7 @@ export const load_controllers = async (
 async function mount(sources: string[]): Promise<any[]> {
   const controllers: any[] = [];
   for (const file of sources) {
-    const external: any = await import(pathToFileURL(file).href);
+    const external: any = await dynamicImport(pathToFileURL(file).href);
     for (const key in external) {
       const instance: Creator<object> = external[key];
       if (Reflect.getMetadata("path", instance) !== undefined)
@@ -62,6 +62,11 @@ async function mount(sources: string[]): Promise<any[]> {
   }
   return controllers;
 }
+
+const dynamicImport: (specifier: string) => Promise<any> = Function(
+  "specifier",
+  "return import(specifier);",
+) as (specifier: string) => Promise<any>;
 
 /**
  * Whether the process is running from TypeScript source under `ttsx`.

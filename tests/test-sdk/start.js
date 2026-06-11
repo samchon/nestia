@@ -49,6 +49,7 @@ const run = (file, args, options) =>
         ...(options.env ?? {}),
       },
       stdio: options.stdio ?? "ignore",
+      shell: options.shell ?? false,
     });
     child.on("error", reject);
     child.on("exit", (code, signal) => {
@@ -435,6 +436,7 @@ const main = async () => {
         env: {
           NODE_OPTIONS: "",
         },
+        shell: process.platform === "win32",
       },
     );
 
