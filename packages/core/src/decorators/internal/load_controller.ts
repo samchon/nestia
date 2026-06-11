@@ -56,6 +56,11 @@ async function mount(sources: string[]): Promise<any[]> {
     const external: any = await dynamicImport(pathToFileURL(file).href);
     for (const key in external) {
       const instance: Creator<object> = external[key];
+      if (
+        instance === null ||
+        (typeof instance !== "function" && typeof instance !== "object")
+      )
+        continue;
       if (Reflect.getMetadata("path", instance) !== undefined)
         controllers.push(instance);
     }
