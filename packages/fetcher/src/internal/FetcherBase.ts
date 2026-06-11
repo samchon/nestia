@@ -223,12 +223,17 @@ const response_headers_to_object = (
   headers: Headers,
 ): Record<string, string | string[]> => {
   const output: Record<string, string | string[]> = {};
+  const cookieHeaders: string[] | undefined =
+    typeof (headers as any).getSetCookie === "function"
+      ? (headers as any).getSetCookie()
+      : undefined;
+  if (cookieHeaders?.length) output["set-cookie"] = cookieHeaders;
+
   headers.forEach((value, key) => {
-    if (key === "set-cookie") {
+    if (key.toLowerCase() === "set-cookie") {
+      if (cookieHeaders?.length) return;
       output[key] ??= [];
-      (output[key] as string[]).push(
-        ...value.split(";").map((str) => str.trim()),
-      );
+      (output[key] as string[]).push(value);
     } else output[key] = value;
   });
   return output;
