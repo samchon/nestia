@@ -47,7 +47,7 @@ export type IPropagation<
         StatusMap[P]
       >;
     }[keyof StatusMap]
-  | IPropagation.IBranch<false, unknown, unknown>;
+  | IPropagation.IBranch<false, number, unknown>;
 export namespace IPropagation {
   /**
    * Type of configurable status codes.
