@@ -2,6 +2,18 @@ import { TestValidator } from "@nestia/e2e";
 
 import api from "@api";
 
+/**
+ * Verifies generated MCP SDK metadata preserves tool names and JSDoc
+ * descriptions.
+ *
+ * The native transformer rewrites `@McpRoute("name")` into runtime metadata
+ * using method JSDoc for descriptions. SDK generation must carry that reflected
+ * metadata into `METADATA` constants for client-side discovery.
+ *
+ * 1. Read each generated MCP wrapper namespace's `METADATA`.
+ * 2. Assert protocol, tool names, and selected descriptions.
+ * 3. Assert all expected tools are represented exactly once.
+ */
 export const test_api_mcp_metadata = (): void => {
   TestValidator.equals(
     "add METADATA.protocol",
@@ -31,6 +43,28 @@ export const test_api_mcp_metadata = (): void => {
   );
 
   TestValidator.equals(
+    "echo_client METADATA.tool",
+    api.functional.mcp.echo_client.METADATA.tool,
+    "echo_client",
+  );
+  TestValidator.equals(
+    "echo_client METADATA.description",
+    api.functional.mcp.echo_client.METADATA.description,
+    "Echo a client-like DTO to exercise generated import aliasing.",
+  );
+
+  TestValidator.equals(
+    "notify METADATA.tool",
+    api.functional.mcp.notify.METADATA.tool,
+    "notify",
+  );
+  TestValidator.equals(
+    "notify METADATA.description",
+    api.functional.mcp.notify.METADATA.description,
+    "Accept a notification without returning content.",
+  );
+
+  TestValidator.equals(
     "get_weather METADATA.tool",
     api.functional.mcp.get_weather.METADATA.tool,
     "get_weather",
@@ -45,12 +79,16 @@ export const test_api_mcp_metadata = (): void => {
     api.functional.mcp.add.METADATA.tool,
     api.functional.mcp.subtract.METADATA.tool,
     api.functional.mcp.divide.METADATA.tool,
+    api.functional.mcp.echo_client.METADATA.tool,
     api.functional.mcp.get_weather.METADATA.tool,
+    api.functional.mcp.notify.METADATA.tool,
   ].sort();
   TestValidator.equals("tool names", tools, [
     "add",
     "divide",
+    "echo_client",
     "get_weather",
+    "notify",
     "subtract",
   ]);
 };

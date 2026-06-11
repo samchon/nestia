@@ -1,6 +1,6 @@
 import { Node, TypeScriptFactory } from "@nestia/factory";
 import path from "path";
-import { HashMap, TreeSet, hash } from "tstl";
+import { HashMap, TreeMap, hash } from "tstl";
 
 import { ImportAnalyzer } from "../../analyses/ImportAnalyzer";
 import { IReflectImport } from "../../structures/IReflectImport";
@@ -70,10 +70,11 @@ export class ImportDictionary {
     };
     const value: ICompositeValue = this.components_.take(key, () => ({
       ...key,
-      elements: new TreeSet<string>(),
+      elements: new TreeMap<string, string | null>(),
     }));
-    if (props.type === "element") value.elements.insert(props.name);
-    return props.name;
+    if (props.type === "element")
+      value.elements.set(props.name, props.alias ?? null);
+    return props.type === "element" ? (props.alias ?? props.name) : props.name;
   }
 
   public toStatements(outDir: string): Node[] {
@@ -142,11 +143,13 @@ export class ImportDictionary {
         : undefined,
       c.elements.size() !== 0
         ? TypeScriptFactory.createNamedImports(
-            Array.from(c.elements).map((elem) =>
+            Array.from(c.elements).map(({ first: name, second: alias }) =>
               TypeScriptFactory.createImportSpecifier(
-                false,
-                undefined,
-                TypeScriptFactory.createIdentifier(elem),
+                c.declaration,
+                alias !== null
+                  ? TypeScriptFactory.createIdentifier(name)
+                  : undefined,
+                TypeScriptFactory.createIdentifier(alias ?? name),
               ),
             ),
           )
@@ -159,6 +162,7 @@ export namespace ImportDictionary {
     type: "default" | "element" | "asterisk";
     file: string;
     name: string;
+    alias?: string;
     declaration: boolean;
   }
 }
@@ -170,7 +174,7 @@ interface ICompositeKey {
   default: string | null;
 }
 interface ICompositeValue extends ICompositeKey {
-  elements: TreeSet<string>;
+  elements: TreeMap<string, string | null>;
 }
 
 const NODE_MODULES = "node_modules/";
@@ -198,6 +202,7 @@ const normalize = (file: string): string => {
 };
 
 const trimSourceExtension = (file: string): string => {
+  if (file.startsWith(`${NODE_MODULES}`)) return file;
   for (const ext of SOURCE_EXTENSIONS)
     if (file.endsWith(ext)) return file.substring(0, file.length - ext.length);
   return file;

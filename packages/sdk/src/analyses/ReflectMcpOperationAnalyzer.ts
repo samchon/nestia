@@ -1,9 +1,9 @@
 import { INestiaProject } from "../structures/INestiaProject";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectImport } from "../structures/IReflectImport";
 import { IReflectMcpOperation } from "../structures/IReflectMcpOperation";
 import { IReflectMcpOperationParameter } from "../structures/IReflectMcpOperationParameter";
-import { IOperationMetadata } from "../transformers/IOperationMetadata";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 
 export namespace ReflectMcpOperationAnalyzer {
@@ -51,7 +51,9 @@ export namespace ReflectMcpOperationAnalyzer {
     const parameters: IReflectMcpOperationParameter[] = preconfigured
       .map((p) => {
         const matched: IOperationMetadata.IParameter | undefined =
-          ctx.metadata.parameters.find((m) => p.index === m.index);
+          ctx.metadata.parameters.find(
+            (m: IOperationMetadata.IParameter) => p.index === m.index,
+          );
         if (matched === undefined) {
           errors.push(
             `Unable to find parameter type of the ${p.index} (th) argument.`,

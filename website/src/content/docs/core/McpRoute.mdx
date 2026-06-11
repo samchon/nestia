@@ -1,0 +1,252 @@
+---
+title: "Reference - McpRoute"
+description: "Expose NestJS controller methods as stateless MCP tools with compile-time schemas and generated TypeScript SDK wrappers."
+---
+
+import { Callout, Tabs } from "nextra/components";
+
+# `@McpRoute`
+
+```ts filename="@nestia/core" copy
+export function McpRoute(name: string): MethodDecorator;
+
+export namespace McpRoute {
+  export function Params(): ParameterDecorator;
+}
+
+export class McpAdaptor {
+  public static upgrade(
+    app: INestApplication,
+    options?: McpAdaptor.IOptions,
+  ): Promise<void>;
+}
+```
+
+`@McpRoute()` exposes a NestJS controller method as an MCP (Model Context
+Protocol) tool.
+
+The common flow is: an LLM client connects to your NestJS application through
+MCP Streamable HTTP, lists decorated tools, and calls them by tool name.
+`@nestia/core` analyzes the params and return types at compile time, then emits
+MCP-compatible JSON schemas and request validators.
+
+<Callout type="info">
+  `McpAdaptor` supports stateless Streamable HTTP tool endpoints. It does not
+  keep `Mcp-Session-Id` state, and it does not implement MCP resources, prompts,
+  sampling, or elicitation.
+</Callout>
+
+<Callout type="warning">
+  Install `@modelcontextprotocol/sdk` in the server application before calling
+  `McpAdaptor.upgrade()`. `@nestia/core` loads it only when MCP is enabled.
+</Callout>
+
+---
+
+## Basic Usage
+
+<Tabs
+  items={[
+    <code>CalculatorController.ts</code>,
+    <code>Backend.ts</code>,
+    <code>Client Test</code>,
+  ]}
+  defaultIndex={0}>
+  <Tabs.Tab>
+
+```ts copy filename="src/CalculatorController.ts" showLineNumbers
+import core from "@nestia/core";
+import { Controller } from "@nestjs/common";
+
+export interface ICalcInput {
+  a: number;
+  b: number;
+}
+
+export interface ICalcResult {
+  result: number;
+}
+
+@Controller()
+export class CalculatorController {
+  /** Return the sum of two numbers. */
+  @core.McpRoute("add")
+  public async add(
+    @core.McpRoute.Params() params: ICalcInput,
+  ): Promise<ICalcResult> {
+    return { result: params.a + params.b };
+  }
+
+  /** Accept a notification without returning content. */
+  @core.McpRoute("notify")
+  public async notify(
+    @core.McpRoute.Params() params: { message: string },
+  ): Promise<void> {
+    void params;
+  }
+}
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```ts copy filename="src/Backend.ts" showLineNumbers {13}
+import core from "@nestia/core";
+import { INestApplication, Module } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+
+import { CalculatorController } from "./CalculatorController";
+
+@Module({
+  controllers: [CalculatorController],
+})
+class CalculatorModule {}
+
+export async function bootstrap(): Promise<INestApplication> {
+  const app: INestApplication = await NestFactory.create(CalculatorModule);
+  await core.McpAdaptor.upgrade(app, { path: "/mcp" });
+  await app.listen(3000);
+  return app;
+}
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```ts copy filename="test_mcp_add.ts" showLineNumbers
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+
+async function main(): Promise<void> {
+  const client = new Client({ name: "example", version: "1.0.0" });
+  await client.connect(
+    new StreamableHTTPClientTransport(new URL("http://localhost:3000/mcp")),
+  );
+
+  const result = await client.callTool({
+    name: "add",
+    arguments: { a: 1, b: 2 },
+  });
+  console.log(result.content);
+
+  await client.close();
+}
+main().catch(console.error);
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+The `name` passed to `@McpRoute()` becomes the MCP tool name, so it must be
+unique in the application. Descriptions are read from the method JSDoc comment,
+and `@title` can provide a UI title.
+
+`McpAdaptor.upgrade()` must run before `app.listen()`. Without the adaptor,
+decorated methods are only metadata and no MCP HTTP endpoint is mounted.
+
+---
+
+## Installation
+
+```bash
+npm install @modelcontextprotocol/sdk
+```
+
+`@nestia/core` does not force every user to install the MCP SDK. The package is
+loaded lazily when `McpAdaptor.upgrade()` is called.
+
+When generating a distributable SDK package with `nestia.config.ts`
+`distribute`, `@nestia/sdk` adds `@modelcontextprotocol/sdk` to the generated
+package dependencies only if MCP routes exist.
+
+---
+
+## Parameters
+
+Every MCP tool must have exactly one parameter, and it must be decorated with
+`@McpRoute.Params()`.
+
+The parameter type must be a single object type without dynamic keys. Index
+signatures and `Record<string, T>` are rejected at compile time because MCP tool
+arguments must have statically known JSON schema properties.
+
+```ts filename="AllowedController.ts" copy
+@core.McpRoute("get_weather")
+public async getWeather(
+  @core.McpRoute.Params() params: {
+    location: string;
+    unit: "celsius" | "fahrenheit";
+  },
+): Promise<{ temperature: number }> {
+  return { temperature: 24 };
+}
+```
+
+```ts filename="RejectedController.ts" copy
+@core.McpRoute("bad")
+public async bad(
+  @core.McpRoute.Params() params: Record<string, number>,
+): Promise<{ ok: boolean }> {
+  return { ok: true };
+}
+```
+
+---
+
+## Return Type
+
+MCP tools may return either:
+
+- `void`
+- a single object type without dynamic keys
+
+`void | object` unions are rejected because the generated client needs one
+stable output contract. Dynamic-key object returns are also rejected for the same
+schema reason as params.
+
+For object returns, Nestia serializes the result as JSON text content and the
+generated SDK wrapper parses it back into the declared output type. For `void`
+returns, Nestia returns an empty MCP content array and the generated SDK wrapper
+returns `Promise<void>`.
+
+---
+
+## Generated SDK
+
+Related Document: [Software Development Kit](/docs/sdk)
+
+When you run `npx nestia sdk`, MCP routes are emitted under
+`api.functional.mcp`.
+
+```ts filename="src/api/functional/mcp/index.ts" copy
+import type { Client as McpClient } from "@modelcontextprotocol/sdk/client/index.js";
+import type { CallToolResult as McpCallToolResult } from "@modelcontextprotocol/sdk/types.js";
+
+export async function add(
+  client: McpClient,
+  args: add.Input,
+): Promise<add.Output> {
+  const raw = await client.callTool({
+    name: add.METADATA.tool,
+    arguments: args as any as Record<string, any>,
+  });
+  if (Object.prototype.hasOwnProperty.call(raw, "toolResult"))
+    throw new Error(
+      `MCP tool "${add.METADATA.tool}" returned a legacy (pre-2024-11-05) compatibility result`,
+    );
+  const result: McpCallToolResult = raw as McpCallToolResult;
+  if (result.isError === true)
+    throw new Error(`MCP tool "${add.METADATA.tool}" returned isError`);
+  const first = result.content.find(() => true);
+  if (first !== undefined && first.type === "text")
+    return JSON.parse(first.text) as add.Output;
+  throw new Error(`MCP tool "${add.METADATA.tool}" returned no text content`);
+}
+```
+
+The generated function receives an already connected MCP `Client`. Nestia does
+not create the MCP transport for you, because transport lifecycle, auth headers,
+and client identity belong to the caller.
+
+MCP SDK imports are aliased (`McpClient`, `McpCallToolResult`) so that your DTO
+names may still be `Client` or `CallToolResult`.

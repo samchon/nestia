@@ -1,5 +1,6 @@
 import fs from "fs";
 import NodePath from "path";
+import { pathToFileURL } from "url";
 
 /**
  * Dynamic Executor running prefixed functions.
@@ -218,7 +219,9 @@ export namespace DynamicExecutor {
           continue;
         } else if (file.substr(-3) !== `.${props.extension}`) continue;
 
-        const modulo: Module<Arguments> = await import(location);
+        const modulo: Module<Arguments> = await import(
+          pathToFileURL(location).href
+        );
         container.push(() => props.executor(location, modulo));
       }
     };

@@ -37,15 +37,16 @@ type nestiaCoreOptions struct {
 }
 
 type nestiaCoreSite struct {
-	File      *shimast.SourceFile
-	FilePath  string
-	Call      *shimast.CallExpression
-	Modulo    *shimast.Node
-	Kind      string
-	Type      *shimchecker.Type
-	ArgCount  int
-	Segments  []string
-	Arguments []string
+	File             *shimast.SourceFile
+	FilePath         string
+	Call             *shimast.CallExpression
+	Modulo           *shimast.Node
+	Kind             string
+	Type             *shimchecker.Type
+	ArgCount         int
+	Segments         []string
+	Arguments        []string
+	ReplaceArguments bool
 }
 
 type nestiaCoreTransformState struct {
@@ -154,7 +155,10 @@ func collectNestiaCoreSourceRewriteMap(
 			diagnostics = append(diagnostics, nestiaCoreDiagnostic(site, "failed to locate decorator arguments"))
 			continue
 		}
-		replacement := appendArgumentsText(source[open+1:close], site.Arguments)
+		replacement := strings.Join(site.Arguments, ", ")
+		if site.ReplaceArguments == false {
+			replacement = appendArgumentsText(source[open+1:close], site.Arguments)
+		}
 		rewrites[filepath.ToSlash(site.FilePath)] = append(rewrites[filepath.ToSlash(site.FilePath)], SourceRewrite{
 			start:       open + 1,
 			end:         close,
@@ -182,6 +186,7 @@ func collectNestiaCoreBuildRewrites(
 			RootName:                   site.Segments[0],
 			Namespaces:                 site.Segments[1:],
 			AppendArguments:            site.Arguments,
+			ReplaceArguments:           site.ReplaceArguments,
 			TargetExpressionCandidates: nestiaCoreTargetCandidates(prog, site),
 			SourceStart:                site.Call.AsNode().Pos(),
 			ExpectedArgumentCount:      &expectedArgumentCount,
@@ -317,7 +322,14 @@ func visitNestiaCoreNode(
 				*diagnostics = append(*diagnostics, validateNestiaCoreWebSocketRoute(state.prog, context, node, call, canonical)...)
 			}
 			kind := nestiaCoreMethodKind(canonical)
-			if kind == "" || nestiaCoreShouldSkipMethodDecorator(state.prog, call) {
+			if kind == "" {
+				continue
+			}
+			if kind == "McpRoute" {
+				if nestiaCoreMcpRouteAlreadyTransformed(call) {
+					continue
+				}
+			} else if nestiaCoreShouldSkipMethodDecorator(state.prog, call) {
 				continue
 			}
 			candidates = append(candidates, candidate{
@@ -335,6 +347,7 @@ func visitNestiaCoreNode(
 				site, ok, err := transformNestiaCoreMethodDecorator(
 					state,
 					context.file,
+					node,
 					candidate.call,
 					candidate.segments,
 					candidate.kind,
@@ -391,12 +404,40 @@ func transformNestiaCoreParameterDecorator(
 func transformNestiaCoreMethodDecorator(
 	state *nestiaCoreTransformState,
 	file *shimast.SourceFile,
+	method *shimast.Node,
 	call *shimast.CallExpression,
 	segments []string,
 	kind string,
 	typ *shimchecker.Type,
 ) (nestiaCoreSite, bool, error) {
 	modulo := nestiaCoreModuloNode(call.Expression)
+	if kind == "McpRoute" {
+		arguments, err := state.mcpRouteArguments(file, method, call, typ)
+		if err != nil {
+			return nestiaCoreSite{
+				File:      file,
+				FilePath:  file.FileName(),
+				Call:      call,
+				Modulo:    modulo,
+				Kind:      kind,
+				Type:      typ,
+				Segments:  segments,
+				Arguments: arguments,
+			}, false, err
+		}
+		return nestiaCoreSite{
+			File:             file,
+			FilePath:         file.FileName(),
+			Call:             call,
+			Modulo:           modulo,
+			Kind:             kind,
+			Type:             typ,
+			ArgCount:         nestiaCoreArgumentCount(call),
+			Segments:         segments,
+			Arguments:        arguments,
+			ReplaceArguments: true,
+		}, true, nil
+	}
 	arguments, err := state.methodArguments(file, segments, modulo, kind, typ, nestiaCoreArgumentCount(call))
 	if err != nil {
 		return nestiaCoreSite{
@@ -452,6 +493,19 @@ func (state *nestiaCoreTransformState) methodArguments(
 		return []string{emitNestiaCoreExpression(state.prog, file, node, false)}, true, nil
 	})
 	return arguments, err
+}
+
+func (state *nestiaCoreTransformState) mcpRouteArguments(
+	file *shimast.SourceFile,
+	method *shimast.Node,
+	call *shimast.CallExpression,
+	typ *shimchecker.Type,
+) ([]string, error) {
+	node, err := nestiaCoreMcpRouteArgumentNode(state.prog, nil, nil, state.options, file, method, call, typ)
+	if err != nil {
+		return nil, err
+	}
+	return []string{emitNestiaCoreExpression(state.prog, file, node, false)}, nil
 }
 
 // nestiaCoreMethodArgumentNode builds the single appended decorator-argument
@@ -712,6 +766,7 @@ func nestiaCoreParameterKind(segments []string) string {
 		"TypedQuery":            "TypedQuery",
 		"TypedQuery.Body":       "TypedQueryBody",
 		"TypedFormData.Body":    "TypedFormDataBody",
+		"McpRoute.Params":       "McpRouteParams",
 		"PlainBody":             "PlainBody",
 		"WebSocketRoute.Header": "TypedBody",
 		"WebSocketRoute.Param":  "TypedParam",
@@ -726,6 +781,9 @@ func nestiaCoreParameterKind(segments []string) string {
 }
 
 func nestiaCoreMethodKind(segments []string) string {
+	if len(segments) != 0 && segments[len(segments)-1] == "McpRoute" {
+		return "McpRoute"
+	}
 	if len(segments) < 2 {
 		return ""
 	}
@@ -793,7 +851,7 @@ func nestiaCoreParameterArgumentNodes(
 ) ([]*shimast.Node, bool, error) {
 	argCount := nestiaCoreArgumentCount(call)
 	switch kind {
-	case "TypedBody", "TypedHeaders", "TypedQuery", "TypedQueryBody", "PlainBody":
+	case "TypedBody", "TypedHeaders", "TypedQuery", "TypedQueryBody", "McpRouteParams", "PlainBody":
 		if argCount != 0 {
 			return nil, false, nil
 		}
@@ -810,6 +868,8 @@ func nestiaCoreParameterArgumentNodes(
 		switch kind {
 		case "TypedBody":
 			return nestiaCoreGenerateTypedBody(prog, importer, ec, options, modulo, typ), nil
+		case "McpRouteParams":
+			return nestiaCoreGenerateMcpRouteParams(prog, importer, ec, options, modulo, typ), nil
 		case "TypedHeaders":
 			return nestiaCoreGenerateTypedHeaders(prog, importer, ec, options, modulo, typ), nil
 		case "TypedParam":

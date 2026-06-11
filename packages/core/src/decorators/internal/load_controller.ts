@@ -1,3 +1,5 @@
+import { pathToFileURL } from "url";
+
 import { Creator } from "../../typings/Creator";
 import { SourceFinder } from "../../utils/SourceFinder";
 
@@ -11,7 +13,9 @@ export const load_controllers = async (
       ? path.include
       : [path];
   const exclude: string[] =
-    typeof path === "object" && !Array.isArray(path) ? (path.exclude ?? []) : [];
+    typeof path === "object" && !Array.isArray(path)
+      ? (path.exclude ?? [])
+      : [];
   const filter =
     isTsNode === true
       ? (file: string) =>
@@ -49,7 +53,7 @@ export const load_controllers = async (
 async function mount(sources: string[]): Promise<any[]> {
   const controllers: any[] = [];
   for (const file of sources) {
-    const external: any = await import(file);
+    const external: any = await import(pathToFileURL(file).href);
     for (const key in external) {
       const instance: Creator<object> = external[key];
       if (Reflect.getMetadata("path", instance) !== undefined)
@@ -62,8 +66,8 @@ async function mount(sources: string[]): Promise<any[]> {
 /**
  * Whether the process is running from TypeScript source under `ttsx`.
  *
- * `ttsx` runs a TypeScript entry from source: it builds the owning project to
- * a temporary directory and installs runtime module hooks that serve that emit
+ * `ttsx` runs a TypeScript entry from source: it builds the owning project to a
+ * temporary directory and installs runtime module hooks that serve that emit
  * under the original source URLs, exporting the manifest path through
  * `TTSX_RUNTIME_MANIFEST`. Its presence is the reliable signal that the
  * controllers on disk are `.ts` (the `.js` glob will be empty) yet `import()`
