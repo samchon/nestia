@@ -2,6 +2,7 @@ import { TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller, Query } from "@nestjs/common";
 
 import { IBigQuery } from "@api/lib/structures/IBigQuery";
+import { IBusinessListingFilters } from "@api/lib/structures/IBusinessListingFilters";
 import { INestQuery } from "@api/lib/structures/INestQuery";
 import { IQuery } from "@api/lib/structures/IQuery";
 
@@ -10,6 +11,13 @@ export class QueryController {
   @TypedRoute.Get("typed")
   public async typed(@TypedQuery() query: IQuery): Promise<IQuery> {
     return query;
+  }
+
+  @TypedRoute.Get("typed-enum-array")
+  public async typedEnumArray(
+    @TypedQuery() filters: IBusinessListingFilters,
+  ): Promise<IBusinessListingFilters> {
+    return filters;
   }
 
   @TypedRoute.Get("nest")
