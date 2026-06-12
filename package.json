@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "12.0.0-dev.20260601.1",
+  "version": "12.0.0-dev.20260612.2",
   "description": "Nestia station",
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
