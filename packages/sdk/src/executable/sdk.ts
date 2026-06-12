@@ -15,7 +15,7 @@ npx @nestia/sdk [command] [options?]
     - npx @nestia/sdk dependencies --manager pnpm
   2. npx @nestia/sdk init
   3. npx @nestia/sdk sdk --config? [config file] --project? [project file]
-  4. npx @nestia/sdk swagger --config? [config file] --project? [project file]
+  4. npx @nestia/sdk swagger --watch? --config? [config file] --project? [project file]
   5. npx @nestia/sdk e2e --config? [config file] --project? [project file]
   6. npx @nestia/sdk all --config? [config file] --project? [project file]
 `;
@@ -78,7 +78,9 @@ main().catch((exp) => {
   while (current !== undefined && current !== null && depth < 10) {
     const message: string =
       current instanceof Error ? current.message : String(current);
-    console.error(`${"  ".repeat(depth)}${depth === 0 ? "" : "caused by: "}${message}`);
+    console.error(
+      `${"  ".repeat(depth)}${depth === 0 ? "" : "caused by: "}${message}`,
+    );
     if (current instanceof Error && current.cause !== undefined) {
       current = current.cause;
       depth++;

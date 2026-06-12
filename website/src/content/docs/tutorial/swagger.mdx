@@ -47,6 +47,14 @@ npx nestia swagger
 
 Output: `dist/swagger.json`. You can drop that file straight into Swagger UI, Redoc, Postman, or any OpenAPI tool.
 
+During local development, keep the file fresh while editing controllers:
+
+```bash filename="Terminal" copy
+npx nestia swagger --watch
+```
+
+The watcher runs the same generator immediately, then regenerates the document when controller, config, or project files change.
+
 ---
 
 ## 2. What ends up in the schema

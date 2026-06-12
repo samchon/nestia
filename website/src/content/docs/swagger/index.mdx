@@ -112,6 +112,14 @@ npx nestia all
 
 Output: `dist/swagger.json`. Feed it to Swagger UI, Redoc, Postman imports, the [Nestia Editor](./editor), or `@nestia/chat`.
 
+For local live reload workflows, run the swagger generator in watch mode:
+
+```bash filename="Terminal" copy
+npx nestia swagger --watch
+```
+
+Watch mode writes the initial document, then regenerates it when controller, `nestia.config.ts`, or `tsconfig.json` inputs change. Point your dev server or Swagger UI reload tooling at the generated file.
+
 ### OpenAPI versions
 
 The `openapi` field accepts `"3.1"` (default), `"3.0"`, or `"2.0"`. Nestia generates the spec at 3.1 internally and downgrades on the way out — your type fidelity is highest at 3.1, but the document is still legal at older versions.
