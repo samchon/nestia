@@ -72,7 +72,9 @@ export namespace SdkHttpCloneReferencer {
     const unique: Set<string> = new Set();
     const keep: ITypedWebSocketRoute["imports"] = [];
     for (const imp of props.route.imports) {
-      const cloned: string[] = imp.file.includes("node_modules")
+      const cloned: string[] = SdkWebSocketCloneProgrammer.isNodeModulesPath(
+        imp.file,
+      )
         ? []
         : imp.elements.filter((elem) =>
             props.cloned.has(

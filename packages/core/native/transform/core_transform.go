@@ -1585,7 +1585,8 @@ func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimc
 		return nil
 	}
 	symbol := typ.Symbol()
-	if symbol != nil && nestiaCoreIsAsyncReturnWrapper(symbol.Name) {
+	if symbol != nil &&
+		nestiaCoreIsAsyncReturnWrapperSymbol(symbol.Name, symbol.Declarations) {
 		args := prog.Checker.GetTypeArguments(typ)
 		if len(args) == 1 {
 			return args[0]
@@ -1606,15 +1607,91 @@ func nestiaCoreExplicitAsyncReturnType(prog *driver.Program, node *shimast.Node)
 	if ref == nil || ref.TypeArguments == nil || len(ref.TypeArguments.Nodes) != 1 {
 		return nil
 	}
-	if nestiaCoreIsAsyncReturnWrapper(nestiaCoreTypeNodeText(ref.TypeName)) == false {
+	if nestiaCoreIsAsyncReturnWrapperReference(prog, ref.TypeName) == false {
 		return nil
 	}
 	return prog.Checker.GetTypeFromTypeNode(ref.TypeArguments.Nodes[0])
 }
 
-func nestiaCoreIsAsyncReturnWrapper(name string) bool {
-	return name == "Promise" || name == "Observable"
+func nestiaCoreIsAsyncReturnWrapperReference(
+	prog *driver.Program,
+	node *shimast.Node,
+) bool {
+	name := nestiaCoreTypeNodeText(node)
+	if name == "Promise" {
+		return true
+	}
+	if name != "Observable" || prog == nil || prog.Checker == nil {
+		return false
+	}
+	symbol := prog.Checker.GetSymbolAtLocation(node)
+	return nestiaCoreIsRxjsObservableImport(node) ||
+		(symbol != nil && nestiaCoreIsRxjsDeclarations(symbol.Declarations))
 }
+
+func nestiaCoreIsAsyncReturnWrapperSymbol(
+	name string,
+	declarations []*shimast.Node,
+) bool {
+	if name == "Promise" {
+		return true
+	}
+	return name == "Observable" && nestiaCoreIsRxjsDeclarations(declarations)
+}
+
+func nestiaCoreIsRxjsDeclarations(declarations []*shimast.Node) bool {
+	for _, decl := range declarations {
+		sourceFile := shimast.GetSourceFileOfNode(decl)
+		if sourceFile == nil {
+			continue
+		}
+		file := filepath.ToSlash(sourceFile.FileName())
+		if strings.Contains(file, "/node_modules/rxjs/") {
+			return true
+		}
+	}
+	return false
+}
+
+func nestiaCoreIsRxjsObservableImport(node *shimast.Node) bool {
+	source, ok := SourceFileText(shimast.GetSourceFileOfNode(node))
+	return ok && nestiaCoreHasNamedImport(source, "rxjs", "Observable", "Observable")
+}
+
+func nestiaCoreHasNamedImport(
+	source string,
+	module string,
+	imported string,
+	local string,
+) bool {
+	for _, match := range nestiaCoreImportFromPattern.FindAllStringSubmatch(source, -1) {
+		if len(match) < 3 || match[2] != module {
+			continue
+		}
+		open := strings.Index(match[1], "{")
+		close := strings.LastIndex(match[1], "}")
+		if open < 0 || close <= open {
+			continue
+		}
+		for _, part := range strings.Split(match[1][open+1:close], ",") {
+			fields := strings.Fields(strings.TrimPrefix(strings.TrimSpace(part), "type "))
+			if len(fields) == 1 && fields[0] == local && imported == local {
+				return true
+			}
+			if len(fields) == 3 &&
+				fields[0] == imported &&
+				fields[1] == "as" &&
+				fields[2] == local {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+var nestiaCoreImportFromPattern = regexp.MustCompile(
+	`(?s)import\s+(?:type\s+)?(.+?)\s+from\s+["']([^"']+)["']`,
+)
 
 func nestiaCoreTypeNodeText(node *shimast.Node) string {
 	if node == nil {

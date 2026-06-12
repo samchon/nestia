@@ -144,6 +144,11 @@ and `@title` can provide a UI title.
 `McpAdaptor.upgrade()` must run before `app.listen()`. Without the adaptor,
 decorated methods are only metadata and no MCP HTTP endpoint is mounted.
 
+Keep MCP tools on their own controller methods. A method decorated with
+`@McpRoute()` must not also carry an HTTP route decorator such as
+`@TypedRoute.Get()` or a `@WebSocketRoute()` decorator; generate a separate
+method when the same business operation needs multiple protocol surfaces.
+
 ---
 
 ## Installation

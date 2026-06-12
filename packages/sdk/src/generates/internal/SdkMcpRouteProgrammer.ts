@@ -1,4 +1,5 @@
 import {
+  IdentifierFactory,
   Node,
   NodeFlags,
   SyntaxKind,
@@ -227,10 +228,19 @@ export namespace SdkMcpRouteProgrammer {
                             TypeScriptFactory.createArrowFunction(
                               undefined,
                               undefined,
-                              [],
+                              [IdentifierFactory.parameter("entry")],
                               undefined,
                               undefined,
-                              TypeScriptFactory.createTrue(),
+                              TypeScriptFactory.createBinaryExpression(
+                                TypeScriptFactory.createPropertyAccessExpression(
+                                  TypeScriptFactory.createIdentifier("entry"),
+                                  "type",
+                                ),
+                                TypeScriptFactory.createToken(
+                                  SyntaxKind.EqualsEqualsEqualsToken,
+                                ),
+                                TypeScriptFactory.createStringLiteral("text"),
+                              ),
                             ),
                           ],
                         ),

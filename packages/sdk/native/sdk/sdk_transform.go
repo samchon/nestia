@@ -270,7 +270,7 @@ func nestiaSDKMetadataText(context *nestiaSDKContext, file *shimast.SourceFile, 
 		}
 	}
 	returnType := transform.NestiaCoreMethodReturnType(prog, method)
-	returnTypeNode := nestiaSDKMethodReturnTypeNode(method)
+	returnTypeNode := nestiaSDKMethodReturnTypeNode(prog, method)
 	exceptions := nestiaSDKExceptionResponses(context, imports, method)
 	metadata := map[string]any{
 		"parameters":  parameters,
@@ -1409,11 +1409,11 @@ func nestiaSDKReflectTypeNode(
 		ref := node.AsTypeReferenceNode()
 		name := nestiaSDKEntityNameText(ref.TypeName)
 		rootRefs := nestiaSDKReflectImports(name, imports)
-		if len(rootRefs) == 0 && nestiaSDKIsAsyncReturnWrapper(name) == false {
+		if len(rootRefs) == 0 && nestiaSDKIsAsyncReturnWrapper(prog, ref.TypeName, name) == false {
 			rootRefs = nestiaSDKReflectTypeReferenceSymbolImport(prog, ref.TypeName, name)
 		}
 		if ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) != 0 {
-			if nestiaSDKIsAsyncReturnWrapper(name) && len(ref.TypeArguments.Nodes) == 1 {
+			if nestiaSDKIsAsyncReturnWrapper(prog, ref.TypeName, name) && len(ref.TypeArguments.Nodes) == 1 {
 				return nestiaSDKReflectTypeNode(prog, imports, ref.TypeArguments.Nodes[0])
 			}
 			args := make([]any, 0, len(ref.TypeArguments.Nodes))
@@ -1589,28 +1589,32 @@ func nestiaSDKParameterTypeNode(node *shimast.Node) *shimast.Node {
 	return nil
 }
 
-func nestiaSDKMethodReturnTypeName(prog *driver.Program, method *shimast.Node, typ *shimchecker.Type) string {
+func nestiaSDKMethodReturnTypeName(
+	prog *driver.Program,
+	method *shimast.Node,
+	typ *shimchecker.Type,
+) string {
 	if method != nil && method.FunctionLikeData() != nil {
 		if typeNode := method.FunctionLikeData().Type; typeNode != nil {
-			return nestiaSDKReturnTypeNodeText(typeNode)
+			return nestiaSDKReturnTypeNodeText(prog, typeNode)
 		}
 	}
 	return nestiaSDKTypeNameFromChecker(prog, typ)
 }
 
-func nestiaSDKMethodReturnTypeNode(method *shimast.Node) *shimast.Node {
+func nestiaSDKMethodReturnTypeNode(prog *driver.Program, method *shimast.Node) *shimast.Node {
 	if method != nil && method.FunctionLikeData() != nil {
 		if typeNode := method.FunctionLikeData().Type; typeNode != nil {
-			return nestiaSDKReturnTypeNode(typeNode)
+			return nestiaSDKReturnTypeNode(prog, typeNode)
 		}
 	}
 	return nil
 }
 
-func nestiaSDKReturnTypeNode(node *shimast.Node) *shimast.Node {
+func nestiaSDKReturnTypeNode(prog *driver.Program, node *shimast.Node) *shimast.Node {
 	if node != nil && node.Kind == shimast.KindTypeReference {
 		ref := node.AsTypeReferenceNode()
-		if ref != nil && ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) == 1 && nestiaSDKIsAsyncReturnWrapper(nestiaSDKEntityNameText(ref.TypeName)) {
+		if ref != nil && ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) == 1 && nestiaSDKIsAsyncReturnWrapper(prog, ref.TypeName, nestiaSDKEntityNameText(ref.TypeName)) {
 			return ref.TypeArguments.Nodes[0]
 		}
 	}
@@ -1621,20 +1625,86 @@ func nestiaSDKEntityNameText(node *shimast.Node) string {
 	return nestiaSDKTypeNodeText(node)
 }
 
-func nestiaSDKReturnTypeNodeText(node *shimast.Node) string {
+func nestiaSDKReturnTypeNodeText(prog *driver.Program, node *shimast.Node) string {
 	text := nestiaSDKTypeNodeText(node)
 	if node != nil && node.Kind == shimast.KindTypeReference {
 		ref := node.AsTypeReferenceNode()
-		if ref != nil && ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) == 1 && nestiaSDKIsAsyncReturnWrapper(nestiaSDKEntityNameText(ref.TypeName)) {
+		if ref != nil && ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) == 1 && nestiaSDKIsAsyncReturnWrapper(prog, ref.TypeName, nestiaSDKEntityNameText(ref.TypeName)) {
 			return nestiaSDKTypeNodeText(ref.TypeArguments.Nodes[0])
 		}
 	}
 	return text
 }
 
-func nestiaSDKIsAsyncReturnWrapper(name string) bool {
-	return name == "Promise" || name == "Observable"
+func nestiaSDKIsAsyncReturnWrapper(
+	prog *driver.Program,
+	node *shimast.Node,
+	name string,
+) bool {
+	if name == "Promise" {
+		return true
+	}
+	if name != "Observable" || prog == nil || prog.Checker == nil {
+		return false
+	}
+	symbol := prog.Checker.GetSymbolAtLocation(node)
+	return nestiaSDKIsRxjsObservableImport(node) ||
+		(symbol != nil && nestiaSDKIsRxjsDeclarations(symbol.Declarations))
 }
+
+func nestiaSDKIsRxjsDeclarations(declarations []*shimast.Node) bool {
+	for _, decl := range declarations {
+		sourceFile := shimast.GetSourceFileOfNode(decl)
+		if sourceFile == nil {
+			continue
+		}
+		file := filepath.ToSlash(sourceFile.FileName())
+		if strings.Contains(file, "/node_modules/rxjs/") {
+			return true
+		}
+	}
+	return false
+}
+
+func nestiaSDKIsRxjsObservableImport(node *shimast.Node) bool {
+	source, ok := transform.SourceFileText(shimast.GetSourceFileOfNode(node))
+	return ok && nestiaSDKHasNamedImport(source, "rxjs", "Observable", "Observable")
+}
+
+func nestiaSDKHasNamedImport(
+	source string,
+	module string,
+	imported string,
+	local string,
+) bool {
+	for _, match := range nestiaSDKImportFromPattern.FindAllStringSubmatch(source, -1) {
+		if len(match) < 3 || match[2] != module {
+			continue
+		}
+		open := strings.Index(match[1], "{")
+		close := strings.LastIndex(match[1], "}")
+		if open < 0 || close <= open {
+			continue
+		}
+		for _, part := range strings.Split(match[1][open+1:close], ",") {
+			fields := strings.Fields(strings.TrimPrefix(strings.TrimSpace(part), "type "))
+			if len(fields) == 1 && fields[0] == local && imported == local {
+				return true
+			}
+			if len(fields) == 3 &&
+				fields[0] == imported &&
+				fields[1] == "as" &&
+				fields[2] == local {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+var nestiaSDKImportFromPattern = regexp.MustCompile(
+	`(?s)import\s+(?:type\s+)?(.+?)\s+from\s+["']([^"']+)["']`,
+)
 
 func nestiaSDKTypeNodeText(node *shimast.Node) string {
 	if node == nil {
