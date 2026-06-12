@@ -1,4 +1,9 @@
-import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
+import {
+  Node,
+  NodeFlags,
+  SyntaxKind,
+  TypeScriptFactory,
+} from "@nestia/factory";
 import fs from "fs";
 
 import { INestiaProject } from "../structures/INestiaProject";
@@ -7,14 +12,16 @@ import { FilePrinter } from "./internal/FilePrinter";
 import { ImportDictionary } from "./internal/ImportDictionary";
 import { SdkHttpCloneProgrammer } from "./internal/SdkHttpCloneProgrammer";
 import { SdkHttpCloneReferencer } from "./internal/SdkHttpCloneReferencer";
+import { SdkWebSocketCloneProgrammer } from "./internal/SdkWebSocketCloneProgrammer";
 
 export namespace CloneGenerator {
   export const write = async (app: ITypedApplication): Promise<void> => {
     const dict: Map<string, SdkHttpCloneProgrammer.IModule> =
       SdkHttpCloneProgrammer.write(app);
-    if (dict.size === 0) return;
+    const websocket: Set<string> = await SdkWebSocketCloneProgrammer.write(app);
+    if (dict.size === 0 && websocket.size === 0) return;
 
-    SdkHttpCloneReferencer.replace(app);
+    SdkHttpCloneReferencer.replace(app, websocket);
     try {
       await fs.promises.mkdir(`${app.project.config.output}/structures`);
     } catch {}

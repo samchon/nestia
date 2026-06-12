@@ -3,8 +3,21 @@ import { sleep_for } from "tstl";
 import typia from "typia";
 
 import api from "@api";
-import { IListener } from "@api/lib/interfaces/IListener";
+import { IListener } from "@api/lib/structures/IListener";
 
+/**
+ * Verifies WebSocket clone SDKs import provider/listener contracts from
+ * generated structures instead of source interfaces.
+ *
+ * Locks the regression where `@WebSocketRoute.Acceptor()` interfaces stayed
+ * imported from the application `src/` tree. Compiling a distributed SDK would
+ * then pull source files into `lib/`; using the generated structure type here
+ * proves the clone path exports and consumes the listener contract.
+ *
+ * 1. Connect to the generated WebSocket SDK with a structure-imported listener.
+ * 2. Call calculator driver methods through the generated SDK.
+ * 3. Assert both RPC return values and listener events preserve the contract.
+ */
 export const test_api_calculate = async (
   connection: api.IConnection,
 ): Promise<void> => {

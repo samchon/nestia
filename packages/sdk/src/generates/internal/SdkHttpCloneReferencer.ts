@@ -1,23 +1,33 @@
 import { MetadataSchema, nameOf } from "../../internal/legacy";
-
 import { IReflectType } from "../../structures/IReflectType";
 import { ITypedApplication } from "../../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { StringUtil } from "../../utils/StringUtil";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
+import { SdkWebSocketCloneProgrammer } from "./SdkWebSocketCloneProgrammer";
 
 export namespace SdkHttpCloneReferencer {
-  export const replace = (app: ITypedApplication): void => {
+  export const replace = (
+    app: ITypedApplication,
+    websocket: Set<string> = new Set(),
+  ): void => {
     const directory: string = `${app.project.config.output}/structures`;
     for (const route of app.routes)
       if (route.protocol === "http")
-        visitRoute({
+        visitHttpRoute({
+          directory,
+          route,
+        });
+      else if (route.protocol === "websocket")
+        visitWebSocketRoute({
+          cloned: websocket,
           directory,
           route,
         });
   };
 
-  const visitRoute = (props: {
+  const visitHttpRoute = (props: {
     directory: string;
     route: ITypedHttpRoute;
   }): void => {
@@ -51,6 +61,47 @@ export namespace SdkHttpCloneReferencer {
       default: null,
       elements: [str],
     }));
+  };
+
+  const visitWebSocketRoute = (props: {
+    cloned: Set<string>;
+    directory: string;
+    route: ITypedWebSocketRoute;
+  }): void => {
+    const unique: Set<string> = new Set();
+    const keep: ITypedWebSocketRoute["imports"] = [];
+    for (const imp of props.route.imports) {
+      const cloned: string[] = imp.file.includes("node_modules")
+        ? []
+        : imp.elements.filter((elem) =>
+            props.cloned.has(
+              SdkWebSocketCloneProgrammer.importKey(imp.file, elem),
+            ),
+          );
+      const remained: string[] = imp.elements.filter(
+        (elem) => cloned.includes(elem) === false,
+      );
+      for (const elem of cloned) unique.add(elem);
+      if (
+        imp.asterisk !== null ||
+        imp.default !== null ||
+        remained.length !== 0
+      )
+        keep.push({
+          ...imp,
+          elements: remained,
+        });
+    }
+
+    props.route.imports = [
+      ...keep,
+      ...Array.from(unique).map((str) => ({
+        file: `${props.directory}/${str}`,
+        asterisk: null,
+        default: null,
+        elements: [str],
+      })),
+    ];
   };
 
   const visitType = (p: {
