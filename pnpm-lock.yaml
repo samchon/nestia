@@ -551,6 +551,9 @@ importers:
       prettier:
         specifier: catalog:typescript
         version: 3.8.3
+      tgrid:
+        specifier: catalog:samchon
+        version: 1.2.1
       tstl:
         specifier: catalog:samchon
         version: 3.0.0
