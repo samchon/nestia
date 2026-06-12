@@ -8,6 +8,17 @@ export interface IConnection {
   path: string;
 }
 
+/**
+ * Verifies unknown MCP tool names are rejected as JSON-RPC `MethodNotFound`.
+ *
+ * Locks the adaptor dispatch table built from transformed `@McpRoute` metadata.
+ * A regression here would either call the wrong controller method or return an
+ * unstructured error for a common client recovery case.
+ *
+ * 1. Connect an MCP SDK client to the test transport.
+ * 2. Call a tool name that is not registered.
+ * 3. Assert the thrown MCP error code is `MethodNotFound`.
+ */
 export const test_mcp_invalid_tool = async (
   connection: IConnection,
 ): Promise<void> => {

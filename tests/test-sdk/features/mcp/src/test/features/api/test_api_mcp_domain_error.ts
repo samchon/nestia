@@ -9,6 +9,18 @@ export interface IConnection {
   path: string;
 }
 
+/**
+ * Verifies generated MCP SDK wrappers throw when a tool response carries
+ * `isError`.
+ *
+ * Locks the client-side guard around MCP domain failures. The raw protocol
+ * returns `isError: true`; generated wrappers should convert that into a thrown
+ * JavaScript error for ordinary SDK consumers.
+ *
+ * 1. Connect an MCP SDK client to the test transport.
+ * 2. Call `api.functional.mcp.divide` with a zero denominator.
+ * 3. Assert the wrapper rejects.
+ */
 export const test_api_mcp_domain_error = async (
   connection: IConnection,
 ): Promise<void> => {

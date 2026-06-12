@@ -9,6 +9,17 @@ export interface IConnection {
   path: string;
 }
 
+/**
+ * Verifies the generated MCP SDK wrapper handles a successful division result.
+ *
+ * Locks a non-additive arithmetic route so SDK generation is not accidentally
+ * tailored to the first tool only. It also exercises reuse of the same input
+ * and output DTO aliases across multiple MCP wrappers.
+ *
+ * 1. Connect an MCP SDK client to the test transport.
+ * 2. Call `api.functional.mcp.divide` with a non-zero denominator.
+ * 3. Assert the parsed result is the expected quotient.
+ */
 export const test_api_mcp_divide_ok = async (
   connection: IConnection,
 ): Promise<void> => {

@@ -8,6 +8,17 @@ export interface IConnection {
   path: string;
 }
 
+/**
+ * Verifies invalid MCP tool arguments are rejected as JSON-RPC `InvalidParams`.
+ *
+ * Locks the typia validator path generated for `@McpRoute.Params()`. Without
+ * this mapping, malformed model-supplied arguments could reach the controller
+ * or surface as a generic internal error that clients cannot self-correct.
+ *
+ * 1. Connect an MCP SDK client to the test transport.
+ * 2. Call `add` with a string where a number is required.
+ * 3. Assert the thrown MCP error code is `InvalidParams`.
+ */
 export const test_mcp_invalid_arguments = async (
   connection: IConnection,
 ): Promise<void> => {

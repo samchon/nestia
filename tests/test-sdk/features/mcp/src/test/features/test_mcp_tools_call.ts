@@ -7,6 +7,18 @@ export interface IConnection {
   path: string;
 }
 
+/**
+ * Verifies direct MCP `tools/call` requests execute transformed controller
+ * methods and return JSON text content.
+ *
+ * Locks the runtime path from MCP request arguments through typia validation,
+ * controller invocation, and JSON serialization. The generated SDK has separate
+ * coverage; this test keeps the raw protocol behavior pinned.
+ *
+ * 1. Connect an MCP SDK client to the test transport.
+ * 2. Call arithmetic and weather tools through `client.callTool`.
+ * 3. Parse text content and assert representative payload fields.
+ */
 export const test_mcp_tools_call = async (
   connection: IConnection,
 ): Promise<void> => {

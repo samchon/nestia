@@ -9,6 +9,17 @@ export interface IConnection {
   path: string;
 }
 
+/**
+ * Verifies the generated MCP SDK wrapper calls the `subtract` tool.
+ *
+ * Locks generation of multiple tool wrappers in the same `mcp/index.ts` file. A
+ * namespace collision or accessor ordering regression could leave only one
+ * arithmetic wrapper usable even when metadata reflection succeeds.
+ *
+ * 1. Connect an MCP SDK client to the test transport.
+ * 2. Call `api.functional.mcp.subtract` with typed arguments.
+ * 3. Assert the parsed result is the expected difference.
+ */
 export const test_api_mcp_subtract = async (
   connection: IConnection,
 ): Promise<void> => {
