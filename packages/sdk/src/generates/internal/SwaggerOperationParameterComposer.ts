@@ -1,11 +1,15 @@
-import { JsonSchemasProgrammer, MetadataObjectType } from "../../internal/legacy";
 import { OpenApi } from "@typia/interface";
 import { VariadicSingleton } from "tstl";
 import { IJsDocTagInfo, IJsonSchemaCollection } from "typia";
 
 import { INestiaConfig } from "../../INestiaConfig";
+import {
+  JsonSchemasProgrammer,
+  MetadataObjectType,
+} from "../../internal/legacy";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
+import { SwaggerReadonlyArrayEmender } from "./SwaggerReadonlyArrayEmender";
 
 export namespace SwaggerOperationParameterComposer {
   export interface IProps<Parameter extends ITypedHttpRouteParameter> {
@@ -112,35 +116,44 @@ export namespace SwaggerOperationParameterComposer {
       props.parameter.metadata.objects.length === 0
     )
       return [param];
-    return (props.parameter.metadata.objects[0]!.type as MetadataObjectType).properties.filter((p) =>
-      p.jsDocTags.every(
-        (tag) => tag.name !== "hidden" && tag.name !== "ignore",
-      ),
-    ).map((p) => {
-      const json: IJsonSchemaCollection = JsonSchemasProgrammer.writeSchemas({
-        version: "3.1",
-        metadatas: [p.value],
-      }) as IJsonSchemaCollection;
-      if (Object.keys(json.components.schemas ?? {}).length !== 0) {
-        props.document.components ??= {};
-        props.document.components.schemas ??= {};
-        Object.assign(
-          props.document.components.schemas,
-          json.components.schemas,
-        );
-      }
-      return {
-        name: p.key.constants[0]!.values[0]!.value as string,
-        in: props.parameter.category === "query" ? "query" : "header",
-        schema: json.schemas[0]!,
-        required: p.value.required,
-        description: SwaggerDescriptionComposer.compose({
-          description: p.description ?? null,
-          jsDocTags: p.jsDocTags,
-          kind: "title",
-        }).description,
-      };
-    });
+    return (
+      props.parameter.metadata.objects[0]!.type as MetadataObjectType
+    ).properties
+      .filter((p) =>
+        p.jsDocTags.every(
+          (tag) => tag.name !== "hidden" && tag.name !== "ignore",
+        ),
+      )
+      .map((p) => {
+        const json: IJsonSchemaCollection = JsonSchemasProgrammer.writeSchemas({
+          version: "3.1",
+          metadatas: [p.value],
+        }) as IJsonSchemaCollection;
+        SwaggerReadonlyArrayEmender.emend({
+          components: json.components,
+          schema: json.schemas[0],
+          metadata: p.value,
+        });
+        if (Object.keys(json.components.schemas ?? {}).length !== 0) {
+          props.document.components ??= {};
+          props.document.components.schemas ??= {};
+          Object.assign(
+            props.document.components.schemas,
+            json.components.schemas,
+          );
+        }
+        return {
+          name: p.key.constants[0]!.values[0]!.value as string,
+          in: props.parameter.category === "query" ? "query" : "header",
+          schema: json.schemas[0]!,
+          required: p.value.required,
+          description: SwaggerDescriptionComposer.compose({
+            description: p.description ?? null,
+            jsDocTags: p.jsDocTags,
+            kind: "title",
+          }).description,
+        };
+      });
   };
 }
 

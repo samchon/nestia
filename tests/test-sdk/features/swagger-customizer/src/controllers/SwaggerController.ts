@@ -4,6 +4,22 @@ import { tags } from "typia";
 
 import { SelectorParam } from "../decorators/SelectorParam";
 
+export interface IReadonlyArrayDto {
+  mutable: string[];
+  readonlyArray: readonly string[];
+  readonlyGeneric: ReadonlyArray<string>;
+  readonly readonlyProperty: string[];
+  readonly readonlyBoth: readonly string[];
+}
+
+export type IReadonlyArrayAliasDto = {
+  mutable: string[];
+  readonlyArray: readonly string[];
+  readonlyGeneric: ReadonlyArray<string>;
+  readonly readonlyProperty: string[];
+  readonly readonlyBoth: readonly string[];
+};
+
 @Controller("custom")
 export class CustomController {
   @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
@@ -31,5 +47,27 @@ export class CustomController {
   @TypedRoute.Get(":id/normal")
   public normal(@TypedParam("id") id: string & tags.Format<"uuid">): string {
     return id.toString();
+  }
+
+  @TypedRoute.Get("readonly-array")
+  public readonlyArray(): IReadonlyArrayDto {
+    return {
+      mutable: [],
+      readonlyArray: [],
+      readonlyGeneric: [],
+      readonlyProperty: [],
+      readonlyBoth: [],
+    };
+  }
+
+  @TypedRoute.Get("readonly-array-alias")
+  public readonlyArrayAlias(): IReadonlyArrayAliasDto {
+    return {
+      mutable: [],
+      readonlyArray: [],
+      readonlyGeneric: [],
+      readonlyProperty: [],
+      readonlyBoth: [],
+    };
   }
 }
