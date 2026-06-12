@@ -84,6 +84,32 @@ Nothing in this file is hand-written.
 
 ---
 
+## Binary responses
+
+When a route declares a binary response `Content-Type` with Nest's
+`@Header("Content-Type", "...")` or Swagger's `@ApiProduces("...")`, generated
+SDK functions return `ReadableStream<Uint8Array<ArrayBufferLike>>` instead of
+trying to parse the body as JSON or text.
+
+```ts copy
+import { Controller, Get, Header, StreamableFile } from "@nestjs/common";
+
+@Controller("files")
+export class FileController {
+  @Header("Content-Type", "image/png")
+  @Get("thumbnail")
+  public thumbnail(): StreamableFile {
+    return new StreamableFile(/* readable source */);
+  }
+}
+```
+
+The generated Swagger response is emitted as `type: "string"` with
+`format: "binary"`. Binary detection currently covers `image/*`, `video/*`,
+`audio/*`, `application/octet-stream`, and `application/pdf`.
+
+---
+
 ## `INestiaConfig` keys
 
 | Key            | Type                                                              | Purpose                                                              |

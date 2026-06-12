@@ -3,6 +3,7 @@ import { IConnection } from "../IConnection";
 import { IFetchEvent } from "../IFetchEvent";
 import { IFetchRoute } from "../IFetchRoute";
 import { IPropagation } from "../IPropagation";
+import { is_binary_response_content_type } from "./is_binary_response_content_type";
 
 /** @internal */
 export namespace FetcherBase {
@@ -175,7 +176,9 @@ export namespace FetcherBase {
               await response.text(),
             );
             result.data = route.parseQuery ? route.parseQuery(query) : query;
-          } else
+          } else if (is_binary_response_content_type(route.response?.type))
+            result.data = response.body ?? new ReadableStream<Uint8Array>();
+          else
             result.data = props.decode(await response.text(), result.headers);
         }
         event.output = result.data;

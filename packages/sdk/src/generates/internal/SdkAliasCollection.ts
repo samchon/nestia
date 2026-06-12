@@ -1,7 +1,7 @@
 import { Node, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
 import { TypeFactory } from "@nestia/factory";
-import { MetadataSchema, sizeOf } from "../../internal/legacy";
 
+import { MetadataSchema, sizeOf } from "../../internal/legacy";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { IReflectType } from "../../structures/IReflectType";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -20,6 +20,16 @@ export namespace SdkAliasCollection {
         ? type.typeArguments.map((a) => name({ type: a }))
         : undefined,
     );
+
+  export const binaryChunk = (): Node =>
+    TypeScriptFactory.createTypeReferenceNode("Uint8Array", [
+      TypeScriptFactory.createTypeReferenceNode("ArrayBufferLike"),
+    ]);
+
+  export const binaryResponse = (): Node =>
+    TypeScriptFactory.createTypeReferenceNode("ReadableStream", [
+      binaryChunk(),
+    ]);
 
   export const from =
     (project: INestiaProject) =>
@@ -40,15 +50,14 @@ export namespace SdkAliasCollection {
           prefix: false,
         })
           .map((e) => {
-            const signature: Node =
-              TypeScriptFactory.createPropertySignature(
-                undefined,
-                e.key,
-                e.required
-                  ? undefined
-                  : TypeScriptFactory.createToken(SyntaxKind.QuestionToken),
-                e.type,
-              );
+            const signature: Node = TypeScriptFactory.createPropertySignature(
+              undefined,
+              e.key,
+              e.required
+                ? undefined
+                : TypeScriptFactory.createToken(SyntaxKind.QuestionToken),
+              e.type,
+            );
             const description: string | null =
               e.parameter.description ??
               route.jsDocTags
@@ -188,14 +197,18 @@ export namespace SdkAliasCollection {
                   [name(p)],
                 )
               : name(p);
-      if (project.config.propagate !== true) return schema(route.success);
+      const success: Node =
+        route.success.binary === true
+          ? binaryResponse()
+          : schema(route.success);
+      if (project.config.propagate !== true) return success;
 
       const branches: IBranch[] = [
         {
           status: String(
             route.success.status ?? (route.method === "POST" ? 201 : 200),
           ),
-          type: schema(route.success),
+          type: success,
         },
         ...Object.entries(route.exceptions).map(([status, value]) => ({
           status,

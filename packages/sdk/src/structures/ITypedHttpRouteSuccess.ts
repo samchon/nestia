@@ -1,16 +1,12 @@
 import { MetadataSchema } from "../internal/legacy";
-
+import { HttpResponseContentTypeUtil } from "../utils/HttpResponseContentTypeUtil";
 import { IReflectType } from "./IReflectType";
 
 export interface ITypedHttpRouteSuccess {
   type: IReflectType;
   status: number | null;
-  contentType:
-    | "application/json"
-    | "text/plain"
-    | "application/x-www-form-urlencoded"
-    | "application/json"
-    | null;
+  contentType: HttpResponseContentTypeUtil.Response;
+  binary: boolean;
   encrypted: boolean;
   metadata: MetadataSchema;
   example?: any;

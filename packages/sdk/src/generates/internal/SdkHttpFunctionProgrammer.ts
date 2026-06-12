@@ -52,6 +52,7 @@ export namespace SdkHttpFunctionProgrammer {
         ],
         TypeScriptFactory.createTypeReferenceNode("Promise", [
           project.config.propagate === true ||
+          route.success.binary === true ||
           sizeOf(route.success.metadata) !== 0
             ? TypeScriptFactory.createTypeReferenceNode(`${route.name}.Output`)
             : TypeScriptFactory.createTypeReferenceNode("void"),

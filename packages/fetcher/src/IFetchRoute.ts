@@ -54,7 +54,8 @@ export namespace IFetchRoute {
       | "application/json"
       | "application/x-www-form-urlencoded"
       | "multipart/form-data"
-      | "text/plain";
+      | "text/plain"
+      | (string & {});
     encrypted?: boolean;
   }
 }

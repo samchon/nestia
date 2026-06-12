@@ -144,7 +144,10 @@ export namespace SdkGenerator {
             from: `exception ${JSON.stringify(key)}`,
             contents: [`implicit (unnamed) exception type.`],
           });
-    if (isImplicitType(props.route.success.type))
+    if (
+      props.route.success.binary === false &&
+      isImplicitType(props.route.success.type)
+    )
       props.errors.push({
         file: props.route.controller.file,
         class: props.route.controller.class.name,

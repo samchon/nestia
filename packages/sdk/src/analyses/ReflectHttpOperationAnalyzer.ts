@@ -2,12 +2,12 @@ import { METHOD_METADATA, PATH_METADATA } from "@nestjs/common/constants";
 import { ranges } from "tstl";
 
 import { INestiaProject } from "../structures/INestiaProject";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
 import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperationParameter";
 import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
-import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
@@ -106,7 +106,7 @@ export namespace ReflectHttpOperationAnalyzer {
           ...props.metadata.parameters
             .filter((x) => parameters.some((y) => x.index === y.index))
             .map((x) => x.imports),
-          ...props.metadata.success.imports,
+          ...(success.binary === true ? [] : props.metadata.success.imports),
           ...Object.values(props.metadata.exceptions).map((e) => e.imports),
         ].flat(),
       ),
