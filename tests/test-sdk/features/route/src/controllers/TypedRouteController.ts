@@ -1,5 +1,11 @@
 import core from "@nestia/core";
-import { Controller } from "@nestjs/common";
+import {
+  CallHandler,
+  Controller,
+  ExecutionContext,
+  NestInterceptor,
+  UseInterceptors,
+} from "@nestjs/common";
 import { Observable, of } from "rxjs";
 import typia from "typia";
 
@@ -12,6 +18,15 @@ const createArticle = (): IBbsArticle => ({
   files: [],
   created_at: "2026-06-11T00:00:00.000Z" as IBbsArticle["created_at"],
 });
+
+class SerializedCacheHitInterceptor implements NestInterceptor {
+  public intercept(
+    _context: ExecutionContext,
+    _next: CallHandler,
+  ): Observable<string> {
+    return of(JSON.stringify(createArticle()));
+  }
+}
 
 @Controller("route")
 export class TypedRouteController {
@@ -28,5 +43,11 @@ export class TypedRouteController {
   @core.TypedRoute.Get("observable")
   public observable(): Observable<IBbsArticle> {
     return of(createArticle());
+  }
+
+  @core.TypedRoute.Get("cached")
+  @UseInterceptors(new SerializedCacheHitInterceptor())
+  public cached(): IBbsArticle {
+    return createArticle();
   }
 }

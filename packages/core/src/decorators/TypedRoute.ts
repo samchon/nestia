@@ -3,6 +3,7 @@ import {
   Delete,
   ExecutionContext,
   Get,
+  Header,
   NestInterceptor,
   Patch,
   Post,
@@ -141,6 +142,7 @@ export namespace TypedRoute {
       )(...args);
       return applyDecorators(
         ROUTERS[method](path),
+        Header("Content-Type", "application/json"),
         UseInterceptors(new TypedRouteInterceptor(stringify)),
       );
     }
