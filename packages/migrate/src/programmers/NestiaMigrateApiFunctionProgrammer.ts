@@ -2,8 +2,8 @@ import { TypeScriptFactory } from "@nestia/factory";
 import { IdentifierFactory, StatementFactory } from "@nestia/factory";
 import { IHttpMigrateRoute, OpenApi } from "@typia/interface";
 import * as typiaUtils from "@typia/utils";
-import ts from "../internal/ts";
 
+import ts from "../internal/ts";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
@@ -332,9 +332,13 @@ export namespace NestiaMigrateApiFunctionProgrammer {
   ): Array<IAssignHeader | ISetHeader> => {
     const directives: Array<IAssignHeader | ISetHeader> = [];
     for (const line of description.split("\n").map((l) => l.trim())) {
-      if (line.startsWith("@setHeader ")) {
+      const setHeaderTag: string | undefined = [
+        "@setHeader ",
+        "@setHeaders ",
+      ].find((tag) => line.startsWith(tag));
+      if (setHeaderTag !== undefined) {
         const parts: string[] = line
-          .substring("@setHeader ".length)
+          .substring(setHeaderTag.length)
           .trim()
           .split(/\s+/);
         if (parts.length >= 2)
