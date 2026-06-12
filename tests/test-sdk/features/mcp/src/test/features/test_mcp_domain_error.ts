@@ -7,6 +7,18 @@ export interface IConnection {
   path: string;
 }
 
+/**
+ * Verifies domain exceptions surface as MCP tool errors without rejecting the
+ * protocol call.
+ *
+ * Locks the adaptor branch that converts controller `HttpException` failures
+ * into `isError: true` tool results. MCP clients expect domain failures to be
+ * readable model feedback rather than transport-level JSON-RPC failures.
+ *
+ * 1. Connect an MCP SDK client to the test transport.
+ * 2. Call the `divide` tool with a zero denominator.
+ * 3. Assert the response has `isError` and a readable message.
+ */
 export const test_mcp_domain_error = async (
   connection: IConnection,
 ): Promise<void> => {

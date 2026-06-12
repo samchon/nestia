@@ -34,8 +34,8 @@ export const load_controllers = async (
   // straight from its TypeScript sources: `__dirname` still points at the
   // source tree (the runtime hooks serve the emitted JS under the source
   // URLs), so the controllers on disk are `.ts`, not `.js`. Detect that
-  // source-run context and retry with the TypeScript filter — `import()` of
-  // each `.ts` file is then served as the transformed emit by the hooks.
+  // source-run context and retry with the TypeScript filter; `import()` of each
+  // `.ts` file is then served as the transformed emit by the hooks.
   if (!isTsxRuntime()) return controllers;
 
   const tsFilter = (file: string) =>

@@ -9,6 +9,18 @@ export interface IConnection {
   path: string;
 }
 
+/**
+ * Verifies the generated MCP SDK wrapper calls the `add` tool and parses its
+ * JSON result.
+ *
+ * Locks the happy path for `SdkMcpRouteProgrammer`: it must pass typed
+ * arguments to `client.callTool`, select the text content item, and return the
+ * declared primitive output shape.
+ *
+ * 1. Connect an MCP SDK client to the test transport.
+ * 2. Call `api.functional.mcp.add` with typed arguments.
+ * 3. Assert the parsed result matches the controller output.
+ */
 export const test_api_mcp_add = async (
   connection: IConnection,
 ): Promise<void> => {
