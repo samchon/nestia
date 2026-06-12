@@ -127,6 +127,7 @@ The transformer walks each `@Typed*` decorator and produces:
 - **Error responses** from `@TypedException()` decorators.
 - **`summary` / `description`** from the controller method's JSDoc.
 - **Field descriptions, examples, titles** from JSDoc on DTO properties.
+- **Readonly array hints** through `x-readonly-array` for TypeScript `readonly T[]` and `ReadonlyArray<T>` positions. Property-level `readonly prop` still maps to OpenAPI `readOnly`.
 - **Constraints** (`minLength`, `format`, `pattern`, …) from `tags.*` intersections.
 
 If a route uses vanilla `@Get` / `@Body`, it is **invisible** to the generator — only `@Typed*` routes appear in the schema.
