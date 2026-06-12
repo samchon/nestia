@@ -10,17 +10,17 @@ import (
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 )
 
-// TestMethodReturnTypeObservable verifies Observable<T> return types unwrap to
-// their payload type.
+// TestMethodReturnTypeObservable verifies local Observable<T> aliases do not
+// unwrap as RxJS route payloads.
 //
-// Locks NestJS Observable route support in the native return-type helper. The
-// SDK and core transforms both consume this helper; if it treats Observable<T>
-// as the response object itself, generated SDK clients lose the controller
-// payload type and Swagger metadata points at the wrapper instead.
+// Locks the guard around NestJS Observable route support in the native
+// return-type helper. RxJS Observable<T> is an asynchronous NestJS response
+// wrapper, but an unrelated user-defined type with the same name is just a
+// normal DTO and must not be unwrapped by name alone.
 //
-//  1. Load a temporary controller method returning Observable<{ foo: string }>.
+//  1. Load a temporary controller method returning a local Observable<T> type.
 //  2. Resolve the method's return type through NestiaCoreMethodReturnType.
-//  3. Assert the resolved type is the payload rather than Observable<T>.
+//  3. Assert the resolved type remains the Observable wrapper.
 func TestMethodReturnTypeObservable(t *testing.T) {
 	temp := t.TempDir()
 	writeFile(t, filepath.Join(temp, "tsconfig.json"), `{
@@ -80,13 +80,7 @@ class ReproController {
 		t.Fatal("observable return type was not resolved")
 	}
 	text := prog.Checker.TypeToString(typ)
-	if text == "Observable<{ foo: string; bar?: number | undefined; }>" {
-		t.Fatalf("Observable wrapper was not unwrapped: %s", text)
-	}
-	if text == "Observable<{ foo: string; bar?: number; }>" {
-		t.Fatalf("Observable wrapper was not unwrapped: %s", text)
-	}
-	if strings.Contains(text, "foo") == false {
-		t.Fatalf("observable payload field was not preserved: %s", text)
+	if strings.Contains(text, "Observable") == false {
+		t.Fatalf("local Observable wrapper was unexpectedly unwrapped: %s", text)
 	}
 }

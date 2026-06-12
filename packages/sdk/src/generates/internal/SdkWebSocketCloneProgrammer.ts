@@ -25,7 +25,7 @@ export namespace SdkWebSocketCloneProgrammer {
     (ctx: IContext) =>
     async (file: string, name: string): Promise<boolean> => {
       const location: string | null = await resolveSourceFile(file);
-      if (location === null || location.includes("node_modules")) return false;
+      if (location === null || isNodeModulesPath(location)) return false;
 
       const key: string = `${location}#${name}`;
       const status: CloneStatus | undefined = ctx.visited.get(key);
@@ -289,6 +289,12 @@ export namespace SdkWebSocketCloneProgrammer {
 
   export const importKey = (file: string, name: string): string =>
     `${file}#${name}`;
+
+  export const isNodeModulesPath = (file: string): boolean =>
+    path
+      .resolve(file)
+      .split(/[\\/]+/)
+      .includes("node_modules");
 }
 
 interface IContext {

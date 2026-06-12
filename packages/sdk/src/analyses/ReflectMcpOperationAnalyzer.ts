@@ -1,3 +1,5 @@
+import { METHOD_METADATA, PATH_METADATA } from "@nestjs/common/constants";
+
 import { INestiaProject } from "../structures/INestiaProject";
 import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
@@ -29,6 +31,16 @@ export namespace ReflectMcpOperationAnalyzer {
     if (route === undefined) return null;
 
     const errors: string[] = [];
+    const hasHttpRoute: boolean =
+      Reflect.getMetadata(PATH_METADATA, ctx.function) !== undefined ||
+      Reflect.getMetadata(METHOD_METADATA, ctx.function) !== undefined;
+    const hasWebSocketRoute: boolean =
+      Reflect.getMetadata("nestia/WebSocketRoute", ctx.function) !== undefined;
+
+    if (hasHttpRoute || hasWebSocketRoute)
+      errors.push(
+        "@McpRoute must not be combined with HTTP or WebSocket route decorators on the same method.",
+      );
 
     const preconfigured: IReflectMcpOperationParameter.IPreconfigured[] = (
       (Reflect.getMetadata(
