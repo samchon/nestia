@@ -1,4 +1,9 @@
-import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
+import {
+  Node,
+  NodeFlags,
+  SyntaxKind,
+  TypeScriptFactory,
+} from "@nestia/factory";
 import { IdentifierFactory, LiteralFactory } from "@nestia/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
@@ -186,7 +191,9 @@ export namespace E2eFileProgrammer {
               NodeFlags.Const,
             ),
           ),
-          TypeScriptFactory.createExpressionStatement(assert),
+          ...(route.success.binary === true
+            ? []
+            : [TypeScriptFactory.createExpressionStatement(assert)]),
         ]),
       );
     };

@@ -1,7 +1,18 @@
-import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import { ExpressionFactory, IdentifierFactory, LiteralFactory, TypeFactory } from "@nestia/factory";
+import {
+  Node,
+  NodeFlags,
+  SyntaxKind,
+  TypeScriptFactory,
+} from "@nestia/factory";
+import {
+  ExpressionFactory,
+  IdentifierFactory,
+  LiteralFactory,
+  TypeFactory,
+} from "@nestia/factory";
 import { NamingConvention } from "@typia/utils";
 
+import { sizeOf } from "../../internal/legacy";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { FilePrinter } from "./FilePrinter";
@@ -10,15 +21,13 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkHttpSimulationProgrammer } from "./SdkHttpSimulationProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
-import { sizeOf } from "../../internal/legacy";
 
 export namespace SdkHttpNamespaceProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): Node => {
-      const types: Node[] =
-        writeTypes(project)(importer)(route);
+      const types: Node[] = writeTypes(project)(importer)(route);
       return TypeScriptFactory.createModuleDeclaration(
         [TypeScriptFactory.createToken(SyntaxKind.ExportKeyword)],
         TypeScriptFactory.createIdentifier(route.name),
@@ -81,6 +90,7 @@ export namespace SdkHttpNamespaceProgrammer {
         declare("Body", SdkAliasCollection.body(project)(importer)(route.body));
       if (
         project.config.propagate === true ||
+        route.success.binary === true ||
         sizeOf(route.success.metadata) !== 0
       )
         declare(

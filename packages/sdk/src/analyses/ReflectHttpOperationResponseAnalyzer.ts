@@ -4,12 +4,17 @@ import {
   HTTP_CODE_METADATA,
   INTERCEPTORS_METADATA,
 } from "@nestjs/common/constants";
-import { HttpQueryProgrammer, JsonMetadataFactory, sizeOf } from "../internal/legacy";
 
+import {
+  HttpQueryProgrammer,
+  JsonMetadataFactory,
+  sizeOf,
+} from "../internal/legacy";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
-import { IOperationMetadata } from "../structures/IOperationMetadata";
+import { HttpResponseContentTypeUtil } from "../utils/HttpResponseContentTypeUtil";
 import { TextPlainValidator } from "../validators/TextPlainValidator";
 
 export namespace ReflectHttpOperationResponseAnalyzer {
@@ -57,23 +62,25 @@ export namespace ReflectHttpOperationResponseAnalyzer {
           Reflect.getMetadata("swagger/apiProduces", ctx.function)?.[0] ??
           (ctx.httpMethod === "HEAD" ? null : "application/json"));
 
-    const schema =
-      contentType === "application/json"
+    const binary: boolean = HttpResponseContentTypeUtil.isBinary(contentType);
+    const schema = binary
+      ? { success: true as const, data: EMPTY_SCHEMA }
+      : contentType === "application/json"
         ? ctx.metadata.success.primitive
         : ctx.metadata.success.resolved;
     if (schema.success === false) errors.push(...schema.errors);
     if (ctx.httpMethod === "HEAD" && contentType !== null)
       errors.push(`HEAD method must not have a content type.`);
-    if (isContentType(contentType) === false)
+    if (HttpResponseContentTypeUtil.isSupported(contentType) === false)
       errors.push(
         `@nestia/sdk does not support ${JSON.stringify(contentType)} content type.`,
       );
 
     if (errors.length) return report();
     else if (
-      ctx.metadata.success.type === null ||
+      (binary === false && ctx.metadata.success.type === null) ||
       schema.success === false ||
-      !isContentType(contentType)
+      !HttpResponseContentTypeUtil.isSupported(contentType)
     )
       return null;
 
@@ -83,22 +90,25 @@ export namespace ReflectHttpOperationResponseAnalyzer {
     );
     return {
       contentType,
+      binary,
       encrypted,
       status:
         getStatus(ctx.function) ?? (ctx.httpMethod === "POST" ? 201 : 200),
-      type: ctx.metadata.success.type,
+      type: ctx.metadata.success.type ?? { name: "ReadableStream" },
       ...schema.data,
       validate:
-        contentType === "application/json" || encrypted === true
-          ? JsonMetadataFactory.validate
-          : contentType === "application/x-www-form-urlencoded"
-            ? HttpQueryProgrammer.validate
-            : contentType === "text/plain"
-              ? TextPlainValidator.validate
-              : (next) =>
-                  sizeOf(next.metadata) !== 0
-                    ? ["HEAD method must not have any return value."]
-                    : [],
+        binary === true
+          ? () => []
+          : contentType === "application/json" || encrypted === true
+            ? JsonMetadataFactory.validate
+            : contentType === "application/x-www-form-urlencoded"
+              ? HttpQueryProgrammer.validate
+              : contentType === "text/plain"
+                ? TextPlainValidator.validate
+                : (next) =>
+                    sizeOf(next.metadata) !== 0
+                      ? ["HEAD method must not have any return value."]
+                      : [],
       example: example?.example,
       examples: example?.examples,
     };
@@ -120,11 +130,34 @@ export namespace ReflectHttpOperationResponseAnalyzer {
     return meta.some((elem) => elem?.constructor?.name === props.name);
   };
 
-  const isContentType = (
-    input: string | null,
-  ): input is IReflectHttpOperationSuccess["contentType"] =>
-    input === null ||
-    input === "application/json" ||
-    input === "text/plain" ||
-    input === "application/x-www-form-urlencoded";
+  const EMPTY_SCHEMA: IOperationMetadata.ISchema = {
+    components: {
+      aliases: [],
+      arrays: [],
+      objects: [],
+      tuples: [],
+    },
+    metadata: {
+      aliases: [],
+      any: false,
+      arrays: [],
+      atomics: [],
+      constants: [],
+      escaped: null,
+      functions: [],
+      maps: [],
+      natives: [],
+      nullable: false,
+      objects: [],
+      optional: false,
+      required: true,
+      rest: null,
+      sets: [],
+      templates: [],
+      tuples: [],
+      size: 0,
+      name: "void",
+      empty: true,
+    } as IOperationMetadata.ISchema["metadata"],
+  };
 }

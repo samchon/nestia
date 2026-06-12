@@ -49,12 +49,13 @@ export namespace SdkHttpCloneReferencer {
         type: v.type,
         name: (name) => (v.type = { name }),
       });
-    visitType({
-      unique,
-      metadata: props.route.success.metadata,
-      type: props.route.success.type,
-      name: (name) => (props.route.success.type = { name }),
-    });
+    if (props.route.success.binary === false)
+      visitType({
+        unique,
+        metadata: props.route.success.metadata,
+        type: props.route.success.type,
+        name: (name) => (props.route.success.type = { name }),
+      });
     props.route.imports = Array.from(unique).map((str) => ({
       file: `${props.directory}/${str}`,
       asterisk: null,

@@ -1,7 +1,7 @@
-import { MetadataSchema } from "../../internal/legacy";
 import { OpenApi } from "@typia/interface";
 import { VariadicSingleton } from "tstl";
 
+import { MetadataSchema } from "../../internal/legacy";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { StringUtil } from "../../utils/StringUtil";
 import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
@@ -80,7 +80,12 @@ export namespace SwaggerOperationResponseComposer {
       content: props.route.success.contentType
         ? {
             [props.route.success.contentType]: {
-              schema: props.schema(props.route.success.metadata),
+              schema: props.route.success.binary
+                ? {
+                    format: "binary",
+                    type: "string",
+                  }
+                : props.schema(props.route.success.metadata),
               example: props.route.success.example,
               examples: props.route.success.examples,
             },

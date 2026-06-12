@@ -1,13 +1,24 @@
-import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import { ExpressionFactory, IdentifierFactory, LiteralFactory, StatementFactory, TypeFactory } from "@nestia/factory";
+import {
+  Node,
+  NodeFlags,
+  SyntaxKind,
+  TypeScriptFactory,
+} from "@nestia/factory";
+import {
+  ExpressionFactory,
+  IdentifierFactory,
+  LiteralFactory,
+  StatementFactory,
+  TypeFactory,
+} from "@nestia/factory";
 
+import { sizeOf } from "../../internal/legacy";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
-import { sizeOf } from "../../internal/legacy";
 
 export namespace SdkHttpSimulationProgrammer {
   export const random =
@@ -20,23 +31,29 @@ export namespace SdkHttpSimulationProgrammer {
           undefined,
           undefined,
           [],
-          project.config.primitive === false
+          project.config.primitive === false || route.success.binary === true
             ? output
             : TypeScriptFactory.createTypeReferenceNode(
                 SdkImportWizard.Resolved(importer),
                 [output],
               ),
           undefined,
-          TypeScriptFactory.createCallExpression(
-            IdentifierFactory.access(
-              TypeScriptFactory.createIdentifier(
-                SdkImportWizard.typia(importer),
+          route.success.binary === true
+            ? TypeScriptFactory.createNewExpression(
+                TypeScriptFactory.createIdentifier("ReadableStream"),
+                [SdkAliasCollection.binaryChunk()],
+                [],
+              )
+            : TypeScriptFactory.createCallExpression(
+                IdentifierFactory.access(
+                  TypeScriptFactory.createIdentifier(
+                    SdkImportWizard.typia(importer),
+                  ),
+                  "random",
+                ),
+                [output],
+                undefined,
               ),
-              "random",
-            ),
-            [output],
-            undefined,
-          ),
         ),
       );
     };
@@ -47,6 +64,7 @@ export namespace SdkHttpSimulationProgrammer {
     (route: ITypedHttpRoute): Node => {
       const output: boolean =
         project.config.propagate === true ||
+        route.success.binary === true ||
         sizeOf(route.success.metadata) !== 0;
       const caller = () =>
         TypeScriptFactory.createCallExpression(
@@ -232,69 +250,68 @@ export namespace SdkHttpSimulationProgrammer {
       ];
     };
 
-  const tryAndCatch =
-    (importer: ImportDictionary) => (individual: Node[]) =>
-      TypeScriptFactory.createTryStatement(
-        TypeScriptFactory.createBlock(individual, true),
-        TypeScriptFactory.createCatchClause(
-          "exp",
-          TypeScriptFactory.createBlock(
-            [
-              TypeScriptFactory.createIfStatement(
-                TypeScriptFactory.createLogicalNot(
-                  TypeScriptFactory.createCallExpression(
-                    IdentifierFactory.access(
-                      TypeScriptFactory.createIdentifier(
-                        SdkImportWizard.typia(importer),
-                      ),
-                      "is",
+  const tryAndCatch = (importer: ImportDictionary) => (individual: Node[]) =>
+    TypeScriptFactory.createTryStatement(
+      TypeScriptFactory.createBlock(individual, true),
+      TypeScriptFactory.createCatchClause(
+        "exp",
+        TypeScriptFactory.createBlock(
+          [
+            TypeScriptFactory.createIfStatement(
+              TypeScriptFactory.createLogicalNot(
+                TypeScriptFactory.createCallExpression(
+                  IdentifierFactory.access(
+                    TypeScriptFactory.createIdentifier(
+                      SdkImportWizard.typia(importer),
                     ),
-                    [
-                      TypeScriptFactory.createTypeReferenceNode(
-                        SdkImportWizard.HttpError(importer),
-                      ),
-                    ],
-                    [TypeScriptFactory.createIdentifier("exp")],
+                    "is",
                   ),
-                ),
-                TypeScriptFactory.createThrowStatement(
-                  TypeScriptFactory.createIdentifier("exp"),
+                  [
+                    TypeScriptFactory.createTypeReferenceNode(
+                      SdkImportWizard.HttpError(importer),
+                    ),
+                  ],
+                  [TypeScriptFactory.createIdentifier("exp")],
                 ),
               ),
-              TypeScriptFactory.createReturnStatement(
-                TypeScriptFactory.createAsExpression(
-                  TypeScriptFactory.createObjectLiteralExpression(
-                    [
-                      TypeScriptFactory.createPropertyAssignment(
-                        "success",
-                        TypeScriptFactory.createFalse(),
-                      ),
-                      TypeScriptFactory.createPropertyAssignment(
-                        "status",
-                        TypeScriptFactory.createIdentifier("exp.status"),
-                      ),
-                      TypeScriptFactory.createPropertyAssignment(
-                        "headers",
-                        TypeScriptFactory.createIdentifier("exp.headers"),
-                      ),
-                      TypeScriptFactory.createPropertyAssignment(
-                        "data",
-                        TypeScriptFactory.createIdentifier(
-                          "exp.toJSON().message",
-                        ),
-                      ),
-                    ],
-                    true,
-                  ),
-                  TypeFactory.keyword("any"),
-                ),
+              TypeScriptFactory.createThrowStatement(
+                TypeScriptFactory.createIdentifier("exp"),
               ),
-            ],
-            true,
-          ),
+            ),
+            TypeScriptFactory.createReturnStatement(
+              TypeScriptFactory.createAsExpression(
+                TypeScriptFactory.createObjectLiteralExpression(
+                  [
+                    TypeScriptFactory.createPropertyAssignment(
+                      "success",
+                      TypeScriptFactory.createFalse(),
+                    ),
+                    TypeScriptFactory.createPropertyAssignment(
+                      "status",
+                      TypeScriptFactory.createIdentifier("exp.status"),
+                    ),
+                    TypeScriptFactory.createPropertyAssignment(
+                      "headers",
+                      TypeScriptFactory.createIdentifier("exp.headers"),
+                    ),
+                    TypeScriptFactory.createPropertyAssignment(
+                      "data",
+                      TypeScriptFactory.createIdentifier(
+                        "exp.toJSON().message",
+                      ),
+                    ),
+                  ],
+                  true,
+                ),
+                TypeFactory.keyword("any"),
+              ),
+            ),
+          ],
+          true,
         ),
-        undefined,
-      );
+      ),
+      undefined,
+    );
 }
 
 const constant = (name: string) => (expression: Node) =>
