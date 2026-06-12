@@ -1,6 +1,7 @@
 import { INestiaConfig } from "../../INestiaConfig";
 import { NestiaSdkApplication } from "../../NestiaSdkApplication";
 import { NestiaConfigLoader } from "./NestiaConfigLoader";
+import { NestiaSdkWatcher } from "./NestiaSdkWatcher";
 
 export namespace NestiaSdkCommand {
   export const sdk = () =>
@@ -17,6 +18,7 @@ export namespace NestiaSdkCommand {
       generate: (app) => app.swagger(),
       validate: (config) => !!config.swagger?.output,
       solution: "configure INestiaConfig.swagger property.",
+      watch: hasFlagArgument("watch"),
     });
 
   export const e2e = () =>
@@ -50,6 +52,7 @@ export namespace NestiaSdkCommand {
     solution: string;
     generate: (app: NestiaSdkApplication) => Promise<void>;
     validate: (config: INestiaConfig) => boolean;
+    watch?: boolean;
   }) => {
     // LOAD CONFIG INFO
     const project: string =
@@ -58,32 +61,44 @@ export namespace NestiaSdkCommand {
         extension: "json",
       }) ?? "tsconfig.json";
     process.env.NESTIA_PROJECT = project;
-    const command: NestiaConfigLoader.ICompilerOptions =
-      await NestiaConfigLoader.compilerOptions(project);
-
-    const configurations: INestiaConfig[] =
-      await NestiaConfigLoader.configurations(
-        getFileArgument({
-          type: "config",
-          extension: "ts",
-        }) ?? "nestia.config.ts",
+    const configFile: string =
+      getFileArgument({
+        type: "config",
+        extension: "ts",
+      }) ?? "nestia.config.ts";
+    const configurations = async (): Promise<INestiaConfig[]> => {
+      const command: NestiaConfigLoader.ICompilerOptions =
+        await NestiaConfigLoader.compilerOptions(project);
+      return NestiaConfigLoader.configurations(
+        configFile,
         command.raw.compilerOptions ?? {},
       );
+    };
+    const generate = async (configurations: INestiaConfig[]): Promise<void> => {
+      if (
+        configurations.length > 1 &&
+        configurations.some(props.validate) === false
+      )
+        throw new Error(
+          `Every configurations are invalid to generate ${props.title}, ${props.solution}`,
+        );
+      for (const config of configurations) {
+        if (configurations.length > 1 && props.validate(config) === false)
+          continue;
+        const app: NestiaSdkApplication = new NestiaSdkApplication(config);
+        await props.generate(app);
+      }
+    };
 
-    // GENERATE
-    if (
-      configurations.length > 1 &&
-      configurations.some(props.validate) === false
-    )
-      throw new Error(
-        `Every configurations are invalid to generate ${props.title}, ${props.solution}`,
-      );
-    for (const config of configurations) {
-      if (configurations.length > 1 && props.validate(config) === false)
-        continue;
-      const app: NestiaSdkApplication = new NestiaSdkApplication(config);
-      await props.generate(app);
-    }
+    if (props.watch === true)
+      return NestiaSdkWatcher.watch({
+        configFile,
+        configurations,
+        generate,
+        projectFile: project,
+      });
+
+    await generate(await configurations());
   };
 
   const getFileArgument = (props: {
@@ -103,4 +118,7 @@ export namespace NestiaSdkCommand {
       throw new Error(`${props.type} file must be ${props.extension} file`);
     return file;
   };
+
+  const hasFlagArgument = (type: string): boolean =>
+    process.argv.slice(3).some((str) => str === `--${type}`);
 }

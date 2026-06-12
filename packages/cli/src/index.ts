@@ -9,7 +9,7 @@ npx nestia [command] [options?]
   4. npx nestia dependencies
   5. npx nestia init
   6. npx nestia sdk
-  7. npx nestia swagger
+  7. npx nestia swagger [--watch]
   8. npx nestia e2e
   9. npx nestia all
 `;
@@ -32,9 +32,9 @@ async function main(): Promise<void> {
       await import("./NestiaTemplate.js")
     ).NestiaTemplate.clone((msg) => halt(msg ?? USAGE))(argv);
   } else if (type === "setup") {
-    await (await import("./NestiaSetupWizard.js")).NestiaSetupWizard.setup(
-      argv,
-    );
+    await (
+      await import("./NestiaSetupWizard.js")
+    ).NestiaSetupWizard.setup(argv);
   } else if (
     type === "dependencies" ||
     type === "init" ||

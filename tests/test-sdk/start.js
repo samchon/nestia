@@ -11,6 +11,7 @@ const CLI_BIN = path.join(ROOT, "packages/cli/bin/index.js");
 const TTSC_BIN = packageBin("ttsc", "ttsc");
 const TTSX_BIN = packageBin("ttsc", "ttsx");
 const BASE_PORT = 37_000;
+const WATCH_TIMEOUT = 90_000;
 
 process.env.NODE_OPTIONS = [
   process.env.NODE_OPTIONS ?? "",
@@ -90,6 +91,8 @@ const runNestia = (cwd, args, stdio = "ignore") =>
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
 const feature = async (name, port) => {
+  if (name === "swagger-watch") return runSwaggerWatchFeature();
+
   const cwd = featureDirectory(name);
   const configFile =
     name === "cli-config" || name === "cli-config-project"
@@ -221,6 +224,180 @@ const assertGeneratedImportsAreExtensionless = (cwd) => {
       ].join("\n"),
     );
 };
+
+const runSwaggerWatchFeature = async () => {
+  const cwd = featureDirectory(`.tmp-swagger-watch-${process.pid}`);
+  await fs.promises.rm(cwd, { force: true, recursive: true });
+  await writeSwaggerWatchFixture(cwd);
+
+  const child = cp.spawn(NODE, [CLI_BIN, "swagger", "--watch"], {
+    cwd,
+    env: { ...process.env },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let output = "";
+  let exit = null;
+  child.stdout.setEncoding("utf8");
+  child.stderr.setEncoding("utf8");
+  child.stdout.on("data", (chunk) => (output += chunk));
+  child.stderr.on("data", (chunk) => (output += chunk));
+  child.on("exit", (code, signal) => {
+    exit = { code, signal };
+  });
+
+  try {
+    const swagger = path.join(cwd, "swagger.json");
+    await waitUntil(
+      "initial swagger watch generation",
+      () => swaggerHasPath(swagger, "/health"),
+      () => exit,
+      () => output,
+    );
+
+    const controller = path.join(cwd, "src/controllers/HealthController.ts");
+    const original = fs.readFileSync(controller, "utf8");
+    const updated = original.replace(
+      "  public get(): void {}",
+      [
+        "  public get(): void {}",
+        "",
+        '  @core.TypedRoute.Get("watch")',
+        "  public watch(): void {}",
+      ].join("\n"),
+    );
+    if (updated === original)
+      throw new Error("Unable to update HealthController.ts watch route.");
+    fs.writeFileSync(controller, updated, "utf8");
+
+    await waitUntil(
+      "swagger watch regeneration",
+      () => swaggerHasPath(swagger, "/health/watch"),
+      () => exit,
+      () => output,
+    );
+  } finally {
+    await stopChild(child);
+    await fs.promises.rm(cwd, { force: true, recursive: true });
+  }
+};
+
+const writeSwaggerWatchFixture = async (cwd) => {
+  await fs.promises.mkdir(path.join(cwd, "src/controllers"), {
+    recursive: true,
+  });
+  await fs.promises.writeFile(
+    path.join(cwd, "package.json"),
+    JSON.stringify(
+      {
+        name: "@nestia/test-sdk-swagger-watch",
+        version: "0.0.0",
+        private: true,
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
+  await fs.promises.writeFile(
+    path.join(cwd, "tsconfig.json"),
+    JSON.stringify(
+      {
+        extends: "../../../config/tsconfig.json",
+        include: ["src"],
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
+  await fs.promises.writeFile(
+    path.join(cwd, "nestia.config.ts"),
+    [
+      'import { INestiaConfig } from "@nestia/sdk";',
+      "",
+      "export const NESTIA_CONFIG: INestiaConfig = {",
+      '  input: ["src/controllers"],',
+      "  swagger: {",
+      '    output: "swagger.json",',
+      "    info: {",
+      '      title: "Swagger Watch Test",',
+      "    },",
+      "  },",
+      "};",
+      "export default NESTIA_CONFIG;",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+  await fs.promises.writeFile(
+    path.join(cwd, "src/controllers/HealthController.ts"),
+    [
+      'import core from "@nestia/core";',
+      'import { Controller } from "@nestjs/common";',
+      "",
+      '@Controller("health")',
+      "export class HealthController {",
+      "  @core.TypedRoute.Get()",
+      "  public get(): void {}",
+      "}",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+};
+
+const swaggerHasPath = (file, accessor) => {
+  if (!fs.existsSync(file)) return false;
+  const document = JSON.parse(fs.readFileSync(file, "utf8"));
+  return document.paths?.[accessor] !== undefined;
+};
+
+const waitUntil = async (title, predicate, exit, output) => {
+  const started = Date.now();
+  let lastError = null;
+  while (Date.now() - started < WATCH_TIMEOUT) {
+    const status = exit();
+    if (status !== null)
+      throw new Error(
+        [
+          `${title} failed because watch process exited with ${
+            status.signal ?? `code ${status.code}`
+          }.`,
+          output().slice(-4_000),
+        ].join("\n"),
+      );
+    try {
+      if (predicate()) return;
+    } catch (error) {
+      lastError = error;
+    }
+    await delay(250);
+  }
+  throw new Error(
+    [
+      `${title} timed out.`,
+      lastError instanceof Error ? lastError.message : "",
+      output().slice(-4_000),
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  );
+};
+
+const stopChild = async (child) => {
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  const exited = new Promise((resolve) => child.once("exit", resolve));
+  child.kill();
+  await Promise.race([
+    exited,
+    delay(2_000).then(() => {
+      if (child.exitCode === null && child.signalCode === null)
+        child.kill("SIGKILL");
+    }),
+  ]);
+};
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
   const project = ".ttsx.tsconfig.json";
@@ -444,7 +621,9 @@ const main = async () => {
     const filter = featureFilter();
     const names = (await fs.promises.readdir(featureDirectory()))
       .sort()
+      .filter((name) => !name.startsWith(".tmp-"))
       .filter(filter);
+    if (filter("swagger-watch")) names.push("swagger-watch");
     await runFeatures(names);
   });
 };
