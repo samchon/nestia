@@ -15,6 +15,7 @@ import path from "path";
 import type { IValidation } from "typia";
 
 import { test_migrate_api_accessor_collision } from "./features/test_migrate_api_accessor_collision";
+import { test_migrate_api_response_header_tags } from "./features/test_migrate_api_response_header_tags";
 
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
@@ -205,6 +206,7 @@ const main = async (): Promise<void> => {
     const document: SwaggerDocument = await readDocument(scenario.file);
     assertFixtureSwagger(document);
     test_migrate_api_accessor_collision(document);
+    test_migrate_api_response_header_tags();
     for (const [mode, keyword] of [
       ["nest", true],
       ["nest", false],
