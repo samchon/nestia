@@ -52,7 +52,7 @@
     "rxjs": ">=6.0.3",
     "tgrid": "^1.1.0",
     "typia": "catalog:samchon",
-    "ws": "^7.5.3"
+    "ws": "^7.5.11"
   },
   "peerDependencies": {
     "@nestia/fetcher": "workspace:^",
