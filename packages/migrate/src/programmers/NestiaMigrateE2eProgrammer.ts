@@ -1,5 +1,5 @@
+import { type FunctionDeclaration, type Statement } from "@ttsc/factory";
 import { IHttpMigrateRoute, OpenApi } from "@typia/interface";
-import ts from "typescript";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
@@ -25,14 +25,13 @@ export namespace NestiaMigrateE2eProgrammer {
   ): INestiaMigrateFile => {
     const importer: NestiaMigrateImportProgrammer =
       new NestiaMigrateImportProgrammer();
-    const func: ts.FunctionDeclaration =
-      NestiaMigrateE2eFunctionProgrammer.write({
-        config,
-        components,
-        importer,
-        route,
-      });
-    const statements: ts.Statement[] = [
+    const func: FunctionDeclaration = NestiaMigrateE2eFunctionProgrammer.write({
+      config,
+      components,
+      importer,
+      route,
+    });
+    const statements: Statement[] = [
       ...importer.toStatements(
         (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
       ),
