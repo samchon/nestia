@@ -1,7 +1,7 @@
-import { TypeScriptFactory } from "@nestia/factory";
-import ts from "../internal/ts";
+import { NodeFlags, SyntaxKind, factory } from "@ttsc/factory";
 
 import { NestiaMigrateControllerAnalyzer } from "../analyzers/NestiaMigrateControllerAnalyzer";
+import ts from "../internal/ts";
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
@@ -75,11 +75,11 @@ export namespace NestiaMigrateNestProgrammer {
         for (const child of modulo.children.values())
           internal.push(...iterate(importer)(child));
         output.push(
-          TypeScriptFactory.createModuleDeclaration(
-            [TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword)],
-            TypeScriptFactory.createIdentifier(modulo.name),
-            TypeScriptFactory.createModuleBlock(internal),
-            ts.NodeFlags.Namespace,
+          factory.createModuleDeclaration(
+            [factory.createModifier(SyntaxKind.ExportKeyword)],
+            factory.createIdentifier(modulo.name),
+            factory.createModuleBlock(internal),
+            NodeFlags.Namespace,
           ),
         );
       }

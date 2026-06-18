@@ -54,8 +54,8 @@
   "homepage": "https://nestia.io",
   "dependencies": {
     "@nestia/core": "workspace:^",
-    "@nestia/factory": "workspace:^",
     "@nestia/fetcher": "workspace:^",
+    "@ttsc/factory": "catalog:typescript",
     "@typia/interface": "catalog:samchon",
     "@typia/utils": "catalog:samchon",
     "get-function-location": "^2.0.0",

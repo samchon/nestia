@@ -1,4 +1,4 @@
-import { Node, TypeScriptFactory } from "@nestia/factory";
+import { type ImportClause, type Node, factory } from "@ttsc/factory";
 import path from "path";
 import { HashMap, TreeMap, hash } from "tstl";
 
@@ -109,11 +109,10 @@ export class ImportDictionary {
           .sort((a, b) => a.file.localeCompare(b.file));
         for (const c of compositions)
           container.push(
-            TypeScriptFactory.createImportDeclaration(
+            factory.createImportDeclaration(
               undefined,
               this.toImportClaude(c),
-              TypeScriptFactory.createStringLiteral(c.file),
-              undefined,
+              factory.createStringLiteral(c.file),
             ),
           );
       };
@@ -127,29 +126,23 @@ export class ImportDictionary {
     ];
   }
 
-  private toImportClaude(c: ICompositeValue): Node {
+  private toImportClaude(c: ICompositeValue): ImportClause {
     if (c.asterisk !== null)
-      return TypeScriptFactory.createImportClause(
+      return factory.createImportClause(
         c.declaration,
         undefined,
-        TypeScriptFactory.createNamespaceImport(
-          TypeScriptFactory.createIdentifier(c.asterisk),
-        ),
+        factory.createNamespaceImport(factory.createIdentifier(c.asterisk)),
       );
-    return TypeScriptFactory.createImportClause(
+    return factory.createImportClause(
       c.declaration,
-      c.default !== null
-        ? TypeScriptFactory.createIdentifier(c.default)
-        : undefined,
+      c.default !== null ? factory.createIdentifier(c.default) : undefined,
       c.elements.size() !== 0
-        ? TypeScriptFactory.createNamedImports(
+        ? factory.createNamedImports(
             Array.from(c.elements).map(({ first: name, second: alias }) =>
-              TypeScriptFactory.createImportSpecifier(
+              factory.createImportSpecifier(
                 c.declaration,
-                alias !== null
-                  ? TypeScriptFactory.createIdentifier(name)
-                  : undefined,
-                TypeScriptFactory.createIdentifier(alias ?? name),
+                alias !== null ? factory.createIdentifier(name) : undefined,
+                factory.createIdentifier(alias ?? name),
               ),
             ),
           )

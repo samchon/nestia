@@ -1,94 +1,75 @@
-// Compatibility shim that replaces `import ts from "./ts"`. The values
-// (`ts.factory`, `ts.SyntaxKind`, `ts.NodeFlags`) are routed to @nestia/factory
-// so the migration generators run without a `typescript` dependency, while the
-// type aliases (`ts.Expression`, `ts.ParameterDeclaration`, …) collapse to the
-// shared @nestia/factory `Node` so existing annotations type-check unchanged.
-//
-// Every alias is intentionally `Node`; the migrate package treats AST nodes as
-// opaque tokens it composes and prints — it never inspects them with
-// TypeScript-Compiler-API guards that would need the original brands.
-
+// Compatibility shim that replaces `import ts from "typescript"`. AST
+// construction now goes through `@ttsc/factory`'s `factory`, `SyntaxKind`, and
+// `NodeFlags`, imported directly where needed; the value side here exposes only
+// the `isUnionTypeNode` guard the migrate generators still call. The type
+// aliases (`ts.Expression`, `ts.ParameterDeclaration`, …) map to the matching
+// `@ttsc/factory` node types so existing annotations keep their precise shapes.
 import {
-  NodeFlags,
-  SyntaxKind,
-  TypeScriptFactory,
+  type Block,
+  type CallExpression,
+  type Decorator,
+  type Expression,
+  type FunctionDeclaration,
+  type Identifier,
+  type KeywordTypeNode,
+  type MethodDeclaration,
+  type ModuleDeclaration,
   type Node,
-} from "@nestia/factory";
-
-interface MutableEmitNode {
-  leadingComments?: Array<{
-    kind: number;
-    text: string;
-    hasTrailingNewLine?: boolean;
-  }>;
-}
+  type ParameterDeclaration,
+  type Statement,
+  type TypeAliasDeclaration,
+  type TypeNode,
+  type TypeReferenceNode,
+  type UnionTypeNode,
+  type VariableStatement,
+} from "@ttsc/factory";
 
 interface TsValue {
-  factory: typeof TypeScriptFactory;
-  NodeFlags: typeof NodeFlags;
-  SyntaxKind: typeof SyntaxKind;
-  addSyntheticLeadingComment(
-    node: Node,
-    kind: number,
-    text: string,
-    hasTrailingNewLine?: boolean,
-  ): Node;
-  isUnionTypeNode(node: Node | undefined): node is Node;
-  isTypeReferenceNode(node: Node | undefined): node is Node;
-  isIdentifier(node: Node | undefined): node is Node;
+  isUnionTypeNode(node: Node | undefined): node is UnionTypeNode;
 }
 
 const ts: TsValue = {
-  factory: TypeScriptFactory,
-  NodeFlags,
-  SyntaxKind,
-  // Pushes a synthetic leading comment onto the node's emit metadata, matching
-  // the surface of the TypeScript-Compiler-API helper of the same name. The
-  // @nestia/factory printer reads `emitNode.leadingComments` and emits them
-  // before the node body.
-  addSyntheticLeadingComment: (
-    node: Node,
-    kind: number,
-    text: string,
-    hasTrailingNewLine?: boolean,
-  ): Node => {
-    const mutable = node as Node & { emitNode?: MutableEmitNode };
-    const emitNode = (mutable.emitNode ??= {});
-    (emitNode.leadingComments ??= []).push({
-      kind,
-      text,
-      hasTrailingNewLine,
-    });
-    return node;
-  },
-  isUnionTypeNode: (node: Node | undefined): node is Node =>
-    !!node && node.kind === SyntaxKind.UnionType,
-  isTypeReferenceNode: (node: Node | undefined): node is Node =>
-    !!node && node.kind === SyntaxKind.TypeReference,
-  isIdentifier: (node: Node | undefined): node is Node =>
-    !!node && node.kind === SyntaxKind.Identifier,
+  isUnionTypeNode: (node: Node | undefined): node is UnionTypeNode =>
+    !!node && node.kind === "UnionTypeNode",
 };
 
+type _Block = Block;
+type _CallExpression = CallExpression;
+type _Decorator = Decorator;
+type _Expression = Expression;
+type _FunctionDeclaration = FunctionDeclaration;
+type _Identifier = Identifier;
+type _KeywordTypeNode = KeywordTypeNode;
+type _MethodDeclaration = MethodDeclaration;
+type _ModuleDeclaration = ModuleDeclaration;
 type _Node = Node;
+type _ParameterDeclaration = ParameterDeclaration;
+type _Statement = Statement;
+type _TypeAliasDeclaration = TypeAliasDeclaration;
+type _TypeNode = TypeNode;
+type _TypeReferenceNode = TypeReferenceNode;
+type _UnionTypeNode = UnionTypeNode;
+type _VariableStatement = VariableStatement;
 
 declare namespace ts {
   export type Node = _Node;
-  export type CallExpression = Node;
-  export type ConciseBody = Node;
-  export type Decorator = Node;
-  export type Expression = Node;
-  export type FunctionDeclaration = Node;
-  export type Identifier = Node;
-  export type KeywordTypeNode = Node;
-  export type MethodDeclaration = Node;
-  export type ModuleDeclaration = Node;
-  export type ParameterDeclaration = Node;
-  export type Statement = Node;
-  export type TypeAliasDeclaration = Node;
-  export type TypeNode = Node;
-  export type TypeReferenceNode = Node;
-  export type UnionTypeNode = Node;
-  export type VariableStatement = Node;
+  export type Block = _Block;
+  export type CallExpression = _CallExpression;
+  export type ConciseBody = _Block | _Expression;
+  export type Decorator = _Decorator;
+  export type Expression = _Expression;
+  export type FunctionDeclaration = _FunctionDeclaration;
+  export type Identifier = _Identifier;
+  export type KeywordTypeNode = _KeywordTypeNode;
+  export type MethodDeclaration = _MethodDeclaration;
+  export type ModuleDeclaration = _ModuleDeclaration;
+  export type ParameterDeclaration = _ParameterDeclaration;
+  export type Statement = _Statement;
+  export type TypeAliasDeclaration = _TypeAliasDeclaration;
+  export type TypeNode = _TypeNode;
+  export type TypeReferenceNode = _TypeReferenceNode;
+  export type UnionTypeNode = _UnionTypeNode;
+  export type VariableStatement = _VariableStatement;
 }
 
 export default ts;

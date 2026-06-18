@@ -12,7 +12,6 @@ The packages:
 - **`@nestia/migrate`** — converts a Swagger/OpenAPI document into a NestJS project (controllers, DTOs, optional e2e suite). Generated templates are non-interactive.
 - **`@nestia/e2e`** — test utilities used by both hand-written and generated e2e suites; discovers test functions by prefix and bundles small assertion and HTTP helpers.
 - **`@nestia/benchmark`** — load-test runner built on top of e2e functions; emits markdown reports.
-- **`@nestia/factory`** — printer-compatible TypeScript AST node factory used by Nestia generators.
 - **`@nestia/editor`** — Swagger UI with an embedded cloud TypeScript editor.
 - **`nestia`** — the CLI binary that drives `@nestia/sdk`.
 

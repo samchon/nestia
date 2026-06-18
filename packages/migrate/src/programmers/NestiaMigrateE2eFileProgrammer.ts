@@ -1,9 +1,10 @@
-import { TypeScriptFactory } from "@nestia/factory";
-import { IdentifierFactory, LiteralFactory } from "@nestia/factory";
+import { NodeFlags, SyntaxKind, factory } from "@ttsc/factory";
 import { IHttpMigrateRoute } from "@typia/interface";
-import ts from "../internal/ts";
 import { OpenApi } from "typia";
 
+import { IdentifierFactory } from "../factories/IdentifierFactory";
+import { LiteralFactory } from "../factories/LiteralFactory";
+import ts from "../internal/ts";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
@@ -17,10 +18,10 @@ export namespace NestiaMigrateE2eFunctionProgrammer {
   }
 
   export const write = (ctx: IContext): ts.FunctionDeclaration =>
-    TypeScriptFactory.createFunctionDeclaration(
+    factory.createFunctionDeclaration(
       [
-        TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword),
-        TypeScriptFactory.createModifier(ts.SyntaxKind.AsyncKeyword),
+        factory.createModifier(SyntaxKind.ExportKeyword),
+        factory.createModifier(SyntaxKind.AsyncKeyword),
       ],
       undefined,
       ["test", "api", ...ctx.route.accessor].join("_"),
@@ -28,30 +29,30 @@ export namespace NestiaMigrateE2eFunctionProgrammer {
       [
         IdentifierFactory.parameter(
           "connection",
-          TypeScriptFactory.createTypeReferenceNode(
-            TypeScriptFactory.createQualifiedName(
-              TypeScriptFactory.createIdentifier(
+          factory.createTypeReferenceNode(
+            factory.createQualifiedName(
+              factory.createIdentifier(
                 ctx.importer.external({
                   type: "default",
                   library: "@ORGANIZATION/PROJECT-api",
                   name: "api",
                 }),
               ),
-              TypeScriptFactory.createIdentifier("IConnection"),
+              factory.createIdentifier("IConnection"),
             ),
           ),
         ),
       ],
       undefined,
-      TypeScriptFactory.createBlock(writeBody(ctx), true),
+      factory.createBlock(writeBody(ctx), true),
     );
 
   export const writeBody = (ctx: IContext): ts.Statement[] => [
-    TypeScriptFactory.createVariableStatement(
+    factory.createVariableStatement(
       [],
-      TypeScriptFactory.createVariableDeclarationList(
+      factory.createVariableDeclarationList(
         [
-          TypeScriptFactory.createVariableDeclaration(
+          factory.createVariableDeclaration(
             "output",
             undefined,
             ctx.route.success
@@ -61,16 +62,16 @@ export namespace NestiaMigrateE2eFunctionProgrammer {
                   schema: ctx.route.success.schema,
                 })
               : undefined,
-            TypeScriptFactory.createAwaitExpression(writeCallExpressionn(ctx)),
+            factory.createAwaitExpression(writeCallExpressionn(ctx)),
           ),
         ],
-        ts.NodeFlags.Const,
+        NodeFlags.Const,
       ),
     ),
-    TypeScriptFactory.createExpressionStatement(
-      TypeScriptFactory.createCallExpression(
-        TypeScriptFactory.createPropertyAccessExpression(
-          TypeScriptFactory.createIdentifier(
+    factory.createExpressionStatement(
+      factory.createCallExpression(
+        factory.createPropertyAccessExpression(
+          factory.createIdentifier(
             ctx.importer.external({
               type: "default",
               library: "typia",
@@ -80,28 +81,26 @@ export namespace NestiaMigrateE2eFunctionProgrammer {
           "assert",
         ),
         undefined,
-        [TypeScriptFactory.createIdentifier("output")],
+        [factory.createIdentifier("output")],
       ),
     ),
   ];
 
   const writeCallExpressionn = (ctx: IContext): ts.CallExpression => {
-    const fetch = TypeScriptFactory.createPropertyAccessExpression(
-      TypeScriptFactory.createIdentifier("api.functional"),
-      TypeScriptFactory.createIdentifier(ctx.route.accessor.join(".")),
+    const fetch = factory.createPropertyAccessExpression(
+      factory.createIdentifier("api.functional"),
+      factory.createIdentifier(ctx.route.accessor.join(".")),
     );
-    const connection = TypeScriptFactory.createIdentifier("connection");
+    const connection = factory.createIdentifier("connection");
     if (
       ctx.route.parameters.length === 0 &&
       ctx.route.query === null &&
       ctx.route.body === null
     )
-      return TypeScriptFactory.createCallExpression(fetch, undefined, [
-        connection,
-      ]);
+      return factory.createCallExpression(fetch, undefined, [connection]);
 
-    const random = TypeScriptFactory.createPropertyAccessExpression(
-      TypeScriptFactory.createIdentifier(
+    const random = factory.createPropertyAccessExpression(
+      factory.createIdentifier(
         ctx.importer.external({
           type: "default",
           library: "typia",
@@ -111,7 +110,7 @@ export namespace NestiaMigrateE2eFunctionProgrammer {
       "random",
     );
     if (ctx.config.keyword === true)
-      return TypeScriptFactory.createCallExpression(fetch, undefined, [
+      return factory.createCallExpression(fetch, undefined, [
         connection,
         LiteralFactory.write(
           Object.fromEntries(
@@ -119,7 +118,7 @@ export namespace NestiaMigrateE2eFunctionProgrammer {
               .filter((x) => x !== null)
               .map(({ key, schema: value }) => [
                 key,
-                TypeScriptFactory.createCallExpression(
+                factory.createCallExpression(
                   random,
                   [
                     NestiaMigrateSchemaProgrammer.write({
@@ -134,12 +133,12 @@ export namespace NestiaMigrateE2eFunctionProgrammer {
           ),
         ),
       ]);
-    return TypeScriptFactory.createCallExpression(fetch, undefined, [
+    return factory.createCallExpression(fetch, undefined, [
       connection,
       ...[...ctx.route.parameters, ctx.route.query, ctx.route.body]
         .filter((p) => !!p)
         .map((p) =>
-          TypeScriptFactory.createCallExpression(
+          factory.createCallExpression(
             random,
             [
               NestiaMigrateSchemaProgrammer.write({

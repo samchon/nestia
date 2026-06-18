@@ -1,7 +1,7 @@
-import { TypeScriptFactory } from "@nestia/factory";
-import { LiteralFactory } from "@nestia/factory";
+import { type TypeNode, factory } from "@ttsc/factory";
 import { IMetadataTypeTag } from "@typia/interface";
 
+import { LiteralFactory } from "../../factories/LiteralFactory";
 import { ImportDictionary } from "./ImportDictionary";
 
 export namespace SdkTypeTagProgrammer {
@@ -9,12 +9,12 @@ export namespace SdkTypeTagProgrammer {
     importer: ImportDictionary,
     from: "object" | "array" | "boolean" | "number" | "bigint" | "string",
     tag: IMetadataTypeTag,
-  ) => {
+  ): TypeNode => {
     const name: string = tag.name.split("<")[0]!;
     if (PREDEFINED[from]?.has(name) === true)
-      return TypeScriptFactory.createTypeReferenceNode(
-        TypeScriptFactory.createQualifiedName(
-          TypeScriptFactory.createIdentifier(
+      return factory.createTypeReferenceNode(
+        factory.createQualifiedName(
+          factory.createIdentifier(
             importer.external({
               declaration: true,
               file: `typia`,
@@ -22,17 +22,13 @@ export namespace SdkTypeTagProgrammer {
               name: "tags",
             }),
           ),
-          TypeScriptFactory.createIdentifier(name),
+          factory.createIdentifier(name),
         ),
-        [
-          TypeScriptFactory.createLiteralTypeNode(
-            LiteralFactory.write(tag.value) as any,
-          ),
-        ],
+        [factory.createLiteralTypeNode(LiteralFactory.write(tag.value) as any)],
       );
-    return TypeScriptFactory.createTypeReferenceNode(
-      TypeScriptFactory.createQualifiedName(
-        TypeScriptFactory.createIdentifier(
+    return factory.createTypeReferenceNode(
+      factory.createQualifiedName(
+        factory.createIdentifier(
           importer.external({
             declaration: true,
             file: `typia`,
@@ -40,10 +36,10 @@ export namespace SdkTypeTagProgrammer {
             name: "tags",
           }),
         ),
-        TypeScriptFactory.createIdentifier("TagBase"),
+        factory.createIdentifier("TagBase"),
       ),
       [
-        TypeScriptFactory.createLiteralTypeNode(
+        factory.createLiteralTypeNode(
           LiteralFactory.write({
             target: from,
             kind: tag.kind,

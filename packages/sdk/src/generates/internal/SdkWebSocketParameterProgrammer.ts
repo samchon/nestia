@@ -1,4 +1,8 @@
-import { Node, TypeScriptFactory } from "@nestia/factory";
+import {
+  type ParameterDeclaration,
+  type TypeNode,
+  factory,
+} from "@ttsc/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
@@ -7,7 +11,7 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
 export namespace SdkWebSocketParameterProgrammer {
   export interface IEntry {
     key: string;
-    type: Node;
+    type: TypeNode;
   }
 
   export const getEntries = (props: {
@@ -26,7 +30,7 @@ export namespace SdkWebSocketParameterProgrammer {
         ? [
             {
               key: "query",
-              type: TypeScriptFactory.createTypeReferenceNode(`${prefix}Query`),
+              type: factory.createTypeReferenceNode(`${prefix}Query`),
             },
           ]
         : []),
@@ -34,9 +38,7 @@ export namespace SdkWebSocketParameterProgrammer {
         ? [
             {
               key: "provider",
-              type: TypeScriptFactory.createTypeReferenceNode(
-                `${prefix}Provider`,
-              ),
+              type: factory.createTypeReferenceNode(`${prefix}Provider`),
             },
           ]
         : []),
@@ -48,23 +50,23 @@ export namespace SdkWebSocketParameterProgrammer {
     route: ITypedWebSocketRoute;
     provider: boolean;
     prefix: boolean;
-  }): Node[] => {
+  }): ParameterDeclaration[] => {
     const entries: IEntry[] = getEntries(props);
     if (entries.length === 0) return [];
     else if (props.project.config.keyword === true) {
       const typeName: string = props.prefix
         ? `${props.route.name}.Props`
         : "Props";
-      const node: Node = props.provider
-        ? TypeScriptFactory.createTypeReferenceNode(typeName)
-        : TypeScriptFactory.createTypeReferenceNode("Omit", [
-            TypeScriptFactory.createTypeReferenceNode(typeName),
-            TypeScriptFactory.createLiteralTypeNode(
-              TypeScriptFactory.createStringLiteral("provider"),
+      const node: TypeNode = props.provider
+        ? factory.createTypeReferenceNode(typeName)
+        : factory.createTypeReferenceNode("Omit", [
+            factory.createTypeReferenceNode(typeName),
+            factory.createLiteralTypeNode(
+              factory.createStringLiteral("provider"),
             ),
           ]);
       return [
-        TypeScriptFactory.createParameterDeclaration(
+        factory.createParameterDeclaration(
           undefined,
           undefined,
           "props",
@@ -74,7 +76,7 @@ export namespace SdkWebSocketParameterProgrammer {
       ];
     }
     return entries.map((entry) =>
-      TypeScriptFactory.createParameterDeclaration(
+      factory.createParameterDeclaration(
         undefined,
         undefined,
         entry.key,

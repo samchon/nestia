@@ -32,7 +32,6 @@
     "@mui/material": "^6.4.0",
     "@mui/system": "^6.4.0",
     "@nestia/editor": "../deploy/tarballs/editor.tgz",
-    "@nestia/factory": "../deploy/tarballs/factory.tgz",
     "@nestia/migrate": "../deploy/tarballs/migrate.tgz",
     "next": "^15.3.4",
     "nextra": "4.6.1",

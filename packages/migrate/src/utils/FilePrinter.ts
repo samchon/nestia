@@ -1,4 +1,10 @@
-import { TypeScriptFactory, TypeScriptPrinter } from "@nestia/factory";
+import {
+  SyntaxKind,
+  TsPrinter,
+  addSyntheticLeadingComment,
+  factory,
+} from "@ttsc/factory";
+
 import ts from "../internal/ts";
 
 export namespace FilePrinter {
@@ -7,9 +13,9 @@ export namespace FilePrinter {
     comment: string,
   ): Node => {
     if (comment.length === 0) return node;
-    ts.addSyntheticLeadingComment(
+    addSyntheticLeadingComment(
       node,
-      ts.SyntaxKind.MultiLineCommentTrivia,
+      SyntaxKind.MultiLineCommentTrivia,
       [
         "*",
         ...comment
@@ -28,17 +34,11 @@ export namespace FilePrinter {
   };
 
   export const newLine = () =>
-    TypeScriptFactory.createExpressionStatement(
-      TypeScriptFactory.createIdentifier("\n"),
-    );
+    factory.createExpressionStatement(factory.createIdentifier("\n"));
 
   export const write = (props: {
     statements: ts.Statement[];
     top?: string;
-  }): string => {
-    return TypeScriptPrinter.write({
-      statements: props.statements,
-      top: props.top,
-    });
-  };
+  }): string =>
+    (props.top ?? "") + new TsPrinter().printFile(undefined, props.statements);
 }

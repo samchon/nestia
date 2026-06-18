@@ -112,11 +112,11 @@ binary, but tooling may still inspect the entry.
 
 ### 7. Internal symbols removed
 
-The `INestiaTransformOptions`, `INestiaTransformProject`, `PlainBodyProgrammer`, `TypedBodyProgrammer`, and the `programmers/` / `transformers/` directories were deleted. None were exported from `module.ts`; if your code imported them via deep paths it must be rewritten against the new pipeline or migrated to `@nestia/factory`.
+The `INestiaTransformOptions`, `INestiaTransformProject`, `PlainBodyProgrammer`, `TypedBodyProgrammer`, and the `programmers/` / `transformers/` directories were deleted. None were exported from `module.ts`; if your code imported them via deep paths it must be rewritten against the new pipeline or migrated to `@ttsc/factory`.
 
-### 8. `@nestia/factory` is a new published package
+### 8. AST factory: `@ttsc/factory`
 
-`@nestia/factory` provides a printer-compatible TypeScript AST factory used by `@nestia/sdk` and `@nestia/migrate`. Third-party code generators that previously reached into `@nestia/core`'s internal `factories/` can depend on `@nestia/factory` directly. The surface tracks internal needs but is publicly consumable.
+`@nestia/sdk` and `@nestia/migrate` build TypeScript source through [`@ttsc/factory`](https://www.npmjs.com/package/@ttsc/factory), a dependency-free, printer-compatible AST factory and printer that keeps working after the TypeScript-Go (tsgo) migration. Third-party code generators that previously reached into `@nestia/core`'s internal `factories/` can depend on `@ttsc/factory` directly.
 
 ### 9. Runtime requirement: Go 1.26+ on PATH
 

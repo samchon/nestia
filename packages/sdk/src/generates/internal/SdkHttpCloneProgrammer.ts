@@ -1,12 +1,12 @@
-import { Node, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
+import { type Node, SyntaxKind, type TypeNode, factory } from "@ttsc/factory";
+import { IPointer } from "tstl";
+import { IJsDocTagInfo } from "typia";
+
 import {
   MetadataAliasType,
   MetadataAtomic,
   MetadataObjectType,
 } from "../../internal/legacy";
-import { IPointer } from "tstl";
-import { IJsDocTagInfo } from "typia";
-
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedApplication } from "../../structures/ITypedApplication";
 import { MapUtil } from "../../utils/MapUtil";
@@ -19,9 +19,7 @@ export namespace SdkHttpCloneProgrammer {
   export interface IModule {
     name: string;
     children: Map<string, IModule>;
-    programmer:
-      | null
-      | ((importer: ImportDictionary) => Node);
+    programmer: null | ((importer: ImportDictionary) => Node);
   }
 
   export const write = (app: ITypedApplication): Map<string, IModule> => {
@@ -71,11 +69,11 @@ export namespace SdkHttpCloneProgrammer {
     (importer: ImportDictionary) =>
     (alias: MetadataAliasType): Node =>
       FilePrinter.description(
-        TypeScriptFactory.createTypeAliasDeclaration(
-          [TypeScriptFactory.createToken(SyntaxKind.ExportKeyword)],
+        factory.createTypeAliasDeclaration(
+          [factory.createToken(SyntaxKind.ExportKeyword)],
           alias.name.split(".").at(-1)!,
           [],
-          SdkTypeProgrammer.write(project)(importer)(alias.value),
+          SdkTypeProgrammer.write(project)(importer)(alias.value) as TypeNode,
         ),
         writeComment([])(alias.description, alias.jsDocTags),
       );
@@ -85,11 +83,11 @@ export namespace SdkHttpCloneProgrammer {
     (importer: ImportDictionary) =>
     (object: MetadataObjectType): Node => {
       return FilePrinter.description(
-        TypeScriptFactory.createTypeAliasDeclaration(
-          [TypeScriptFactory.createToken(SyntaxKind.ExportKeyword)],
+        factory.createTypeAliasDeclaration(
+          [factory.createToken(SyntaxKind.ExportKeyword)],
           object.name.split(".").at(-1)!,
           [],
-          SdkTypeProgrammer.write_object(project)(importer)(object),
+          SdkTypeProgrammer.write_object(project)(importer)(object) as TypeNode,
         ),
         writeComment([])(object.description ?? null, object.jsDocTags),
       );

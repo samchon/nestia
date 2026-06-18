@@ -1,9 +1,10 @@
-import { TypeScriptFactory } from "@nestia/factory";
-import { FormatCheatSheet, TypeFactory } from "@nestia/factory";
+import { SyntaxKind, factory } from "@ttsc/factory";
 import * as typiaUtils from "@typia/utils";
-import ts from "../internal/ts";
 import type { OpenApi } from "typia";
 
+import { FormatCheatSheet } from "../factories/FormatCheatSheet";
+import { TypeFactory } from "../factories/TypeFactory";
+import ts from "../internal/ts";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
@@ -90,7 +91,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     // DETERMINE
     if (union.length === 0) return TypeFactory.keyword("any");
     else if (union.length === 1) return union[0]!;
-    return TypeScriptFactory.createUnionTypeNode(union);
+    return factory.createUnionTypeNode(union);
   };
 
   /* -----------------------------------------------------------
@@ -100,19 +101,19 @@ export namespace NestiaMigrateSchemaProgrammer {
     importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.IConstant;
   }): ts.TypeNode => {
-    return TypeScriptFactory.createLiteralTypeNode(
+    return factory.createLiteralTypeNode(
       typeof props.schema.const === "boolean"
         ? props.schema.const === true
-          ? TypeScriptFactory.createTrue()
-          : TypeScriptFactory.createFalse()
+          ? factory.createTrue()
+          : factory.createFalse()
         : typeof props.schema.const === "number"
           ? props.schema.const < 0
-            ? TypeScriptFactory.createPrefixUnaryExpression(
-                ts.SyntaxKind.MinusToken,
-                TypeScriptFactory.createNumericLiteral(-props.schema.const),
+            ? factory.createPrefixUnaryExpression(
+                SyntaxKind.MinusToken,
+                factory.createNumericLiteral(-props.schema.const),
               )
-            : TypeScriptFactory.createNumericLiteral(props.schema.const)
-          : TypeScriptFactory.createStringLiteral(props.schema.const),
+            : factory.createNumericLiteral(props.schema.const)
+          : factory.createStringLiteral(props.schema.const),
     );
   };
 
@@ -169,7 +170,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       );
     return intersection.length === 1
       ? intersection[0]!
-      : TypeScriptFactory.createIntersectionTypeNode(intersection);
+      : factory.createIntersectionTypeNode(intersection);
   };
 
   const writeString = (props: {
@@ -177,7 +178,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     schema: OpenApi.IJsonSchema.IString;
   }): ts.TypeNode => {
     if (props.schema.format === "binary")
-      return TypeScriptFactory.createTypeReferenceNode("File");
+      return factory.createTypeReferenceNode("File");
 
     const intersection: ts.TypeNode[] = [TypeFactory.keyword("string")];
     if (props.schema.default !== undefined)
@@ -204,7 +205,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       );
     return intersection.length === 1
       ? intersection[0]!
-      : TypeScriptFactory.createIntersectionTypeNode(intersection);
+      : factory.createIntersectionTypeNode(intersection);
   };
 
   /* -----------------------------------------------------------
@@ -216,7 +217,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     schema: OpenApi.IJsonSchema.IArray;
   }): ts.TypeNode => {
     const intersection: ts.TypeNode[] = [
-      TypeScriptFactory.createArrayTypeNode(
+      factory.createArrayTypeNode(
         write({
           components: props.components,
           importer: props.importer,
@@ -232,7 +233,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       intersection.push(props.importer.tag("UniqueItems"));
     return intersection.length === 1
       ? intersection[0]!
-      : TypeScriptFactory.createIntersectionTypeNode(intersection);
+      : factory.createIntersectionTypeNode(intersection);
   };
 
   const writeTuple = (props: {
@@ -240,7 +241,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.ITuple;
   }): ts.TypeNode =>
-    TypeScriptFactory.createTupleTypeNode([
+    factory.createTupleTypeNode([
       ...props.schema.prefixItems.map((item) =>
         write({
           components: props.components,
@@ -251,7 +252,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       ...(typeof props.schema.additionalItems === "object" &&
       props.schema.additionalItems !== null
         ? [
-            TypeScriptFactory.createRestTypeNode(
+            factory.createRestTypeNode(
               write({
                 components: props.components,
                 importer: props.importer,
@@ -261,11 +262,9 @@ export namespace NestiaMigrateSchemaProgrammer {
           ]
         : props.schema.additionalItems === true
           ? [
-              TypeScriptFactory.createRestTypeNode(
-                TypeScriptFactory.createArrayTypeNode(
-                  TypeScriptFactory.createKeywordTypeNode(
-                    ts.SyntaxKind.AnyKeyword,
-                  ),
+              factory.createRestTypeNode(
+                factory.createArrayTypeNode(
+                  factory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
                 ),
               ),
             ]
@@ -278,12 +277,12 @@ export namespace NestiaMigrateSchemaProgrammer {
     schema: OpenApi.IJsonSchema.IObject;
   }): ts.TypeNode => {
     const regular = () =>
-      TypeScriptFactory.createTypeLiteralNode(
+      factory.createTypeLiteralNode(
         Object.entries(props.schema.properties ?? [])
           .map(([key, value], index) => [
             ...(index !== 0 &&
             (!!value.title?.length || !!value.description?.length)
-              ? [TypeScriptFactory.createIdentifier("\n") as any]
+              ? [factory.createIdentifier("\n") as any]
               : []),
             writeRegularProperty({
               components: props.components,
@@ -296,7 +295,7 @@ export namespace NestiaMigrateSchemaProgrammer {
           .flat(),
       );
     const dynamic = () =>
-      TypeScriptFactory.createTypeLiteralNode([
+      factory.createTypeLiteralNode([
         writeDynamicProperty({
           components: props.components,
           importer: props.importer,
@@ -305,7 +304,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       ]);
     return !!props.schema.properties?.length &&
       typeof props.schema.additionalProperties === "object"
-      ? TypeScriptFactory.createIntersectionTypeNode([regular(), dynamic()])
+      ? factory.createIntersectionTypeNode([regular(), dynamic()])
       : typeof props.schema.additionalProperties === "object"
         ? dynamic()
         : regular();
@@ -324,26 +323,26 @@ export namespace NestiaMigrateSchemaProgrammer {
       schema: props.value,
     });
     return FilePrinter.description(
-      TypeScriptFactory.createPropertySignature(
+      factory.createPropertySignature(
         props.value.readOnly
-          ? [TypeScriptFactory.createToken(ts.SyntaxKind.ReadonlyKeyword)]
+          ? [factory.createToken(SyntaxKind.ReadonlyKeyword)]
           : undefined,
         NamingConvention.variable(props.key)
-          ? TypeScriptFactory.createIdentifier(props.key)
-          : TypeScriptFactory.createStringLiteral(props.key),
+          ? factory.createIdentifier(props.key)
+          : factory.createStringLiteral(props.key),
         props.required.includes(props.key)
           ? undefined
-          : TypeScriptFactory.createToken(ts.SyntaxKind.QuestionToken),
+          : factory.createToken(SyntaxKind.QuestionToken),
         props.required.includes(props.key)
           ? valueTypeNode
           : ts.isUnionTypeNode(valueTypeNode)
-            ? TypeScriptFactory.createUnionTypeNode([
+            ? factory.createUnionTypeNode([
                 ...(valueTypeNode.types ?? []),
-                TypeScriptFactory.createTypeReferenceNode("undefined"),
+                factory.createTypeReferenceNode("undefined"),
               ])
-            : TypeScriptFactory.createUnionTypeNode([
+            : factory.createUnionTypeNode([
                 valueTypeNode,
-                TypeScriptFactory.createTypeReferenceNode("undefined"),
+                factory.createTypeReferenceNode("undefined"),
               ]),
       ),
       writeComment(props.value),
@@ -356,13 +355,13 @@ export namespace NestiaMigrateSchemaProgrammer {
     schema: OpenApi.IJsonSchema;
   }) =>
     FilePrinter.description(
-      TypeScriptFactory.createIndexSignature(
+      factory.createIndexSignature(
         undefined,
         [
-          TypeScriptFactory.createParameterDeclaration(
+          factory.createParameterDeclaration(
             undefined,
             undefined,
-            TypeScriptFactory.createIdentifier("key"),
+            factory.createIdentifier("key"),
             undefined,
             TypeFactory.keyword("string"),
           ),
@@ -396,7 +395,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     importer: NestiaMigrateImportProgrammer;
     elements: OpenApi.IJsonSchema[];
   }): ts.UnionTypeNode =>
-    TypeScriptFactory.createUnionTypeNode(
+    factory.createUnionTypeNode(
       props.elements.map((schema) =>
         write({
           components: props.components,
@@ -406,8 +405,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       ),
     );
 }
-const createNode = (text: string) =>
-  TypeScriptFactory.createTypeReferenceNode(text);
+const createNode = (text: string) => factory.createTypeReferenceNode(text);
 
 const writeComment = (schema: OpenApi.IJsonSchema): string => {
   interface IPlugin {

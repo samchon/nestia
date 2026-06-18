@@ -1,17 +1,20 @@
 import {
-  Node,
+  type Block,
+  type Expression,
+  type Node,
   NodeFlags,
+  type ParameterDeclaration,
+  type Statement,
   SyntaxKind,
-  TypeScriptFactory,
-} from "@nestia/factory";
-import {
-  ExpressionFactory,
-  IdentifierFactory,
-  LiteralFactory,
-  TypeFactory,
-} from "@nestia/factory";
+  type TypeNode,
+  factory,
+} from "@ttsc/factory";
 import { NamingConvention } from "@typia/utils";
 
+import { ExpressionFactory } from "../../factories/ExpressionFactory";
+import { IdentifierFactory } from "../../factories/IdentifierFactory";
+import { LiteralFactory } from "../../factories/LiteralFactory";
+import { TypeFactory } from "../../factories/TypeFactory";
 import { sizeOf } from "../../internal/legacy";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -27,11 +30,11 @@ export namespace SdkHttpNamespaceProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): Node => {
-      const types: Node[] = writeTypes(project)(importer)(route);
-      return TypeScriptFactory.createModuleDeclaration(
-        [TypeScriptFactory.createToken(SyntaxKind.ExportKeyword)],
-        TypeScriptFactory.createIdentifier(route.name),
-        TypeScriptFactory.createModuleBlock([
+      const types: Statement[] = writeTypes(project)(importer)(route);
+      return factory.createModuleDeclaration(
+        [factory.createToken(SyntaxKind.ExportKeyword)],
+        factory.createIdentifier(route.name),
+        factory.createModuleBlock([
           ...types,
           ...(types.length ? [FilePrinter.enter()] : []),
           writeMetadata(project)(importer)(route),
@@ -39,8 +42,12 @@ export namespace SdkHttpNamespaceProgrammer {
           writePath(project)(importer)(route),
           ...(project.config.simulate
             ? [
-                SdkHttpSimulationProgrammer.random(project)(importer)(route),
-                SdkHttpSimulationProgrammer.simulate(project)(importer)(route),
+                SdkHttpSimulationProgrammer.random(project)(importer)(
+                  route,
+                ) as Statement,
+                SdkHttpSimulationProgrammer.simulate(project)(importer)(
+                  route,
+                ) as Statement,
               ]
             : []),
           ...(project.config.json &&
@@ -57,15 +64,15 @@ export namespace SdkHttpNamespaceProgrammer {
   const writeTypes =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): Node[] => {
-      const array: Node[] = [];
+    (route: ITypedHttpRoute): Statement[] => {
+      const array: Statement[] = [];
       const declare = (name: string, type: Node) =>
         array.push(
-          TypeScriptFactory.createTypeAliasDeclaration(
-            [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
+          factory.createTypeAliasDeclaration(
+            [factory.createModifier(SyntaxKind.ExportKeyword)],
             name,
             undefined,
-            type,
+            type as TypeNode,
           ),
         );
       if (
@@ -103,20 +110,20 @@ export namespace SdkHttpNamespaceProgrammer {
   const writeMetadata =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): Node =>
+    (route: ITypedHttpRoute): Statement =>
       constant("METADATA")(
-        TypeScriptFactory.createAsExpression(
-          TypeScriptFactory.createObjectLiteralExpression(
+        factory.createAsExpression(
+          factory.createObjectLiteralExpression(
             [
-              TypeScriptFactory.createPropertyAssignment(
+              factory.createPropertyAssignment(
                 "method",
-                TypeScriptFactory.createStringLiteral(route.method),
+                factory.createStringLiteral(route.method),
               ),
-              TypeScriptFactory.createPropertyAssignment(
+              factory.createPropertyAssignment(
                 "path",
-                TypeScriptFactory.createStringLiteral(route.path),
+                factory.createStringLiteral(route.path),
               ),
-              TypeScriptFactory.createPropertyAssignment(
+              factory.createPropertyAssignment(
                 "request",
                 route.body
                   ? LiteralFactory.write(
@@ -130,38 +137,40 @@ export namespace SdkHttpNamespaceProgrammer {
                             encrypted: false,
                           },
                     )
-                  : TypeScriptFactory.createNull(),
+                  : factory.createNull(),
               ),
-              TypeScriptFactory.createPropertyAssignment(
+              factory.createPropertyAssignment(
                 "response",
                 route.method !== "HEAD"
                   ? LiteralFactory.write({
                       type: route.success.contentType,
                       encrypted: !!route.success.encrypted,
                     })
-                  : TypeScriptFactory.createNull(),
+                  : factory.createNull(),
               ),
-              TypeScriptFactory.createPropertyAssignment(
+              factory.createPropertyAssignment(
                 "status",
                 route.success.status !== null
                   ? ExpressionFactory.number(route.success.status)
-                  : TypeScriptFactory.createNull(),
+                  : factory.createNull(),
               ),
               ...(route.success.contentType ===
               "application/x-www-form-urlencoded"
                 ? [
-                    TypeScriptFactory.createPropertyAssignment(
+                    factory.createPropertyAssignment(
                       "parseQuery",
-                      TypeScriptFactory.createCallExpression(
-                        TypeScriptFactory.createIdentifier(
+                      factory.createCallExpression(
+                        factory.createIdentifier(
                           `${SdkImportWizard.typia(importer)}.http.createAssertQuery`,
                         ),
                         [
-                          project.config.clone === true
+                          (project.config.clone === true
                             ? SdkAliasCollection.from(project)(importer)(
                                 route.success.metadata,
                               )
-                            : SdkAliasCollection.name(route.success),
+                            : SdkAliasCollection.name(
+                                route.success,
+                              )) as TypeNode,
                         ],
                         undefined,
                       ),
@@ -171,19 +180,17 @@ export namespace SdkHttpNamespaceProgrammer {
             ],
             true,
           ),
-          TypeScriptFactory.createTypeReferenceNode(
-            TypeScriptFactory.createIdentifier("const"),
-          ),
+          factory.createTypeReferenceNode(factory.createIdentifier("const")),
         ),
       );
 
   const writePath =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): Node => {
-      const out = (body: Node) =>
+    (route: ITypedHttpRoute): Statement => {
+      const out = (body: Block | Expression) =>
         constant("path")(
-          TypeScriptFactory.createArrowFunction(
+          factory.createArrowFunction(
             [],
             [],
             SdkHttpParameterProgrammer.getParameterDeclarations({
@@ -192,7 +199,7 @@ export namespace SdkHttpNamespaceProgrammer {
               route,
               body: false,
               prefix: false,
-            }),
+            }) as ParameterDeclaration[],
             undefined,
             undefined,
             body,
@@ -203,53 +210,46 @@ export namespace SdkHttpNamespaceProgrammer {
         false,
       );
       if (parameters.length === 0)
-        return out(TypeScriptFactory.createStringLiteral(route.path));
+        return out(factory.createStringLiteral(route.path));
 
       const access = (name: string) =>
         project.config.keyword === true ? `props.${name}` : name;
       const template = () => {
         const split: string[] = route.path.split(":");
-        if (split.length === 1)
-          return TypeScriptFactory.createStringLiteral(route.path);
-        return TypeScriptFactory.createTemplateExpression(
-          TypeScriptFactory.createTemplateHead(split[0]!),
+        if (split.length === 1) return factory.createStringLiteral(route.path);
+        return factory.createTemplateExpression(
+          factory.createTemplateHead(split[0]!),
           split.slice(1).map((s, i, arr) => {
             const name: string = s.split("/")[0]!;
-            return TypeScriptFactory.createTemplateSpan(
-              TypeScriptFactory.createCallExpression(
-                TypeScriptFactory.createIdentifier("encodeURIComponent"),
+            return factory.createTemplateSpan(
+              factory.createCallExpression(
+                factory.createIdentifier("encodeURIComponent"),
                 undefined,
                 [
-                  TypeScriptFactory.createBinaryExpression(
-                    TypeScriptFactory.createCallChain(
-                      TypeScriptFactory.createPropertyAccessChain(
-                        TypeScriptFactory.createIdentifier(
+                  factory.createBinaryExpression(
+                    factory.createCallChain(
+                      factory.createPropertyAccessChain(
+                        factory.createIdentifier(
                           access(
                             route.pathParameters.find((p) => p.field === name)!
                               .name,
                           ),
                         ),
-                        TypeScriptFactory.createToken(
-                          SyntaxKind.QuestionDotToken,
-                        ),
+                        factory.createToken(SyntaxKind.QuestionDotToken),
                         "toString",
                       ),
                       undefined,
                       undefined,
                       [],
                     ),
-                    TypeScriptFactory.createToken(
-                      SyntaxKind.QuestionQuestionToken,
-                    ),
-                    TypeScriptFactory.createStringLiteral("null"),
+                    factory.createToken(SyntaxKind.QuestionQuestionToken),
+                    factory.createStringLiteral("null"),
                   ),
                 ],
               ),
               (i !== arr.length - 1
-                ? TypeScriptFactory.createTemplateMiddle
-                : TypeScriptFactory.createTemplateTail)(
-                s.substring(name.length),
-              ),
+                ? factory.createTemplateMiddle
+                : factory.createTemplateTail)(s.substring(name.length)),
             );
           }),
         );
@@ -257,37 +257,37 @@ export namespace SdkHttpNamespaceProgrammer {
       if (route.queryObject === null && route.queryParameters.length === 0)
         return out(template());
 
-      const block = (expr: Node) => {
+      const block = (expr: Expression) => {
         const computeName = (str: string): string =>
           parameters.find((p) => p.name === str) !== undefined
             ? computeName("_" + str)
             : str;
         const variables: string = computeName("variables");
-        return TypeScriptFactory.createBlock(
+        return factory.createBlock(
           [
             local(variables)("URLSearchParams")(
-              TypeScriptFactory.createNewExpression(
-                TypeScriptFactory.createIdentifier("URLSearchParams"),
+              factory.createNewExpression(
+                factory.createIdentifier("URLSearchParams"),
                 [],
                 [],
               ),
             ),
-            TypeScriptFactory.createForOfStatement(
+            factory.createForOfStatement(
               undefined,
-              TypeScriptFactory.createVariableDeclarationList(
+              factory.createVariableDeclarationList(
                 [
-                  TypeScriptFactory.createVariableDeclaration(
-                    TypeScriptFactory.createArrayBindingPattern([
-                      TypeScriptFactory.createBindingElement(
+                  factory.createVariableDeclaration(
+                    factory.createArrayBindingPattern([
+                      factory.createBindingElement(
                         undefined,
                         undefined,
-                        TypeScriptFactory.createIdentifier("key"),
+                        factory.createIdentifier("key"),
                         undefined,
                       ),
-                      TypeScriptFactory.createBindingElement(
+                      factory.createBindingElement(
                         undefined,
                         undefined,
-                        TypeScriptFactory.createIdentifier("value"),
+                        factory.createIdentifier("value"),
                         undefined,
                       ),
                     ]),
@@ -298,54 +298,49 @@ export namespace SdkHttpNamespaceProgrammer {
                 ],
                 NodeFlags.Const,
               ),
-              TypeScriptFactory.createCallExpression(
-                TypeScriptFactory.createIdentifier("Object.entries"),
+              factory.createCallExpression(
+                factory.createIdentifier("Object.entries"),
                 undefined,
-                [
-                  TypeScriptFactory.createAsExpression(
-                    expr,
-                    TypeFactory.keyword("any"),
-                  ),
-                ],
+                [factory.createAsExpression(expr, TypeFactory.keyword("any"))],
               ),
-              TypeScriptFactory.createIfStatement(
-                TypeScriptFactory.createStrictEquality(
-                  TypeScriptFactory.createIdentifier("undefined"),
-                  TypeScriptFactory.createIdentifier("value"),
+              factory.createIfStatement(
+                factory.createStrictEquality(
+                  factory.createIdentifier("undefined"),
+                  factory.createIdentifier("value"),
                 ),
-                TypeScriptFactory.createContinueStatement(),
-                TypeScriptFactory.createIfStatement(
-                  TypeScriptFactory.createCallExpression(
-                    TypeScriptFactory.createIdentifier("Array.isArray"),
+                factory.createContinueStatement(),
+                factory.createIfStatement(
+                  factory.createCallExpression(
+                    factory.createIdentifier("Array.isArray"),
                     undefined,
-                    [TypeScriptFactory.createIdentifier("value")],
+                    [factory.createIdentifier("value")],
                   ),
-                  TypeScriptFactory.createExpressionStatement(
-                    TypeScriptFactory.createCallExpression(
-                      TypeScriptFactory.createPropertyAccessExpression(
-                        TypeScriptFactory.createIdentifier("value"),
-                        TypeScriptFactory.createIdentifier("forEach"),
+                  factory.createExpressionStatement(
+                    factory.createCallExpression(
+                      factory.createPropertyAccessExpression(
+                        factory.createIdentifier("value"),
+                        factory.createIdentifier("forEach"),
                       ),
                       undefined,
                       [
-                        TypeScriptFactory.createArrowFunction(
+                        factory.createArrowFunction(
                           undefined,
                           undefined,
                           [IdentifierFactory.parameter("elem")],
                           undefined,
                           undefined,
-                          TypeScriptFactory.createCallExpression(
+                          factory.createCallExpression(
                             IdentifierFactory.access(
-                              TypeScriptFactory.createIdentifier(variables),
+                              factory.createIdentifier(variables),
                               "append",
                             ),
                             undefined,
                             [
-                              TypeScriptFactory.createIdentifier("key"),
-                              TypeScriptFactory.createCallExpression(
-                                TypeScriptFactory.createIdentifier("String"),
+                              factory.createIdentifier("key"),
+                              factory.createCallExpression(
+                                factory.createIdentifier("String"),
                                 undefined,
-                                [TypeScriptFactory.createIdentifier("elem")],
+                                [factory.createIdentifier("elem")],
                               ),
                             ],
                           ),
@@ -353,19 +348,19 @@ export namespace SdkHttpNamespaceProgrammer {
                       ],
                     ),
                   ),
-                  TypeScriptFactory.createExpressionStatement(
-                    TypeScriptFactory.createCallExpression(
+                  factory.createExpressionStatement(
+                    factory.createCallExpression(
                       IdentifierFactory.access(
-                        TypeScriptFactory.createIdentifier(variables),
+                        factory.createIdentifier(variables),
                         "set",
                       ),
                       undefined,
                       [
-                        TypeScriptFactory.createIdentifier("key"),
-                        TypeScriptFactory.createCallExpression(
-                          TypeScriptFactory.createIdentifier("String"),
+                        factory.createIdentifier("key"),
+                        factory.createCallExpression(
+                          factory.createIdentifier("String"),
                           undefined,
-                          [TypeScriptFactory.createIdentifier("value")],
+                          [factory.createIdentifier("value")],
                         ),
                       ],
                     ),
@@ -374,35 +369,35 @@ export namespace SdkHttpNamespaceProgrammer {
               ),
             ),
             local("location")("string")(template()),
-            TypeScriptFactory.createReturnStatement(
-              TypeScriptFactory.createConditionalExpression(
-                TypeScriptFactory.createStrictEquality(
+            factory.createReturnStatement(
+              factory.createConditionalExpression(
+                factory.createStrictEquality(
                   ExpressionFactory.number(0),
                   IdentifierFactory.access(
-                    TypeScriptFactory.createIdentifier(variables),
+                    factory.createIdentifier(variables),
                     "size",
                   ),
                 ),
                 undefined,
-                TypeScriptFactory.createIdentifier("location"),
+                factory.createIdentifier("location"),
                 undefined,
-                TypeScriptFactory.createTemplateExpression(
-                  TypeScriptFactory.createTemplateHead(""),
+                factory.createTemplateExpression(
+                  factory.createTemplateHead(""),
                   [
-                    TypeScriptFactory.createTemplateSpan(
-                      TypeScriptFactory.createIdentifier("location"),
-                      TypeScriptFactory.createTemplateMiddle("?"),
+                    factory.createTemplateSpan(
+                      factory.createIdentifier("location"),
+                      factory.createTemplateMiddle("?"),
                     ),
-                    TypeScriptFactory.createTemplateSpan(
-                      TypeScriptFactory.createCallExpression(
+                    factory.createTemplateSpan(
+                      factory.createCallExpression(
                         IdentifierFactory.access(
-                          TypeScriptFactory.createIdentifier(variables),
+                          factory.createIdentifier(variables),
                           "toString",
                         ),
                         undefined,
                         undefined,
                       ),
-                      TypeScriptFactory.createTemplateTail(""),
+                      factory.createTemplateTail(""),
                     ),
                   ],
                 ),
@@ -416,37 +411,31 @@ export namespace SdkHttpNamespaceProgrammer {
         return out(
           block(
             route.queryObject.metadata.required === false
-              ? TypeScriptFactory.createBinaryExpression(
-                  TypeScriptFactory.createIdentifier(route.queryObject.name),
-                  TypeScriptFactory.createToken(
-                    SyntaxKind.QuestionQuestionToken,
-                  ),
-                  TypeScriptFactory.createObjectLiteralExpression([], false),
+              ? factory.createBinaryExpression(
+                  factory.createIdentifier(route.queryObject.name),
+                  factory.createToken(SyntaxKind.QuestionQuestionToken),
+                  factory.createObjectLiteralExpression([], false),
                 )
-              : TypeScriptFactory.createIdentifier(
-                  access(route.queryObject.name),
-                ),
+              : factory.createIdentifier(access(route.queryObject.name)),
           ),
         );
       return out(
         block(
-          TypeScriptFactory.createObjectLiteralExpression(
+          factory.createObjectLiteralExpression(
             [
               ...(route.queryObject
                 ? [
-                    TypeScriptFactory.createSpreadAssignment(
-                      TypeScriptFactory.createIdentifier(
-                        access(route.queryObject.name),
-                      ),
+                    factory.createSpreadAssignment(
+                      factory.createIdentifier(access(route.queryObject.name)),
                     ),
                   ]
                 : []),
               ...route.queryParameters.map((q) =>
-                TypeScriptFactory.createPropertyAssignment(
+                factory.createPropertyAssignment(
                   NamingConvention.variable(q.field!)
                     ? q.field!
-                    : TypeScriptFactory.createStringLiteral(q.field!),
-                  TypeScriptFactory.createIdentifier(access(q.name)),
+                    : factory.createStringLiteral(q.field!),
+                  factory.createIdentifier(access(q.name)),
                 ),
               ),
             ],
@@ -458,57 +447,55 @@ export namespace SdkHttpNamespaceProgrammer {
 
   const writeStringify =
     (project: INestiaProject) =>
-    (importer: ImportDictionary): Node =>
+    (importer: ImportDictionary): Statement =>
       constant("stringify")(
-        TypeScriptFactory.createArrowFunction(
+        factory.createArrowFunction(
           [],
           undefined,
           [
             IdentifierFactory.parameter(
               "input",
-              TypeScriptFactory.createTypeReferenceNode("Body"),
+              factory.createTypeReferenceNode("Body"),
             ),
           ],
           undefined,
           undefined,
-          TypeScriptFactory.createCallExpression(
+          factory.createCallExpression(
             IdentifierFactory.access(
               IdentifierFactory.access(
-                TypeScriptFactory.createIdentifier(
-                  SdkImportWizard.typia(importer),
-                ),
+                factory.createIdentifier(SdkImportWizard.typia(importer)),
                 "json",
               ),
               project.config.assert ? "stringify" : "assertStringify",
             ),
             undefined,
-            [TypeScriptFactory.createIdentifier("input")],
+            [factory.createIdentifier("input")],
           ),
         ),
       );
 }
 
-const local = (name: string) => (type: string) => (expression: Node) =>
-  TypeScriptFactory.createVariableStatement(
+const local = (name: string) => (type: string) => (expression: Expression) =>
+  factory.createVariableStatement(
     [],
-    TypeScriptFactory.createVariableDeclarationList(
+    factory.createVariableDeclarationList(
       [
-        TypeScriptFactory.createVariableDeclaration(
+        factory.createVariableDeclaration(
           name,
           undefined,
-          TypeScriptFactory.createTypeReferenceNode(type),
+          factory.createTypeReferenceNode(type),
           expression,
         ),
       ],
       NodeFlags.Const,
     ),
   );
-const constant = (name: string) => (expression: Node) =>
-  TypeScriptFactory.createVariableStatement(
-    [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
-    TypeScriptFactory.createVariableDeclarationList(
+const constant = (name: string) => (expression: Expression) =>
+  factory.createVariableStatement(
+    [factory.createModifier(SyntaxKind.ExportKeyword)],
+    factory.createVariableDeclarationList(
       [
-        TypeScriptFactory.createVariableDeclaration(
+        factory.createVariableDeclaration(
           name,
           undefined,
           undefined,

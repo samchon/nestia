@@ -1,11 +1,17 @@
 import {
-  Node,
+  type EntityName,
+  type Expression,
+  type Node,
   NodeFlags,
+  type ParameterDeclaration,
+  type Statement,
   SyntaxKind,
-  TypeScriptFactory,
-} from "@nestia/factory";
-import { IdentifierFactory, TypeFactory } from "@nestia/factory";
+  type TypeNode,
+  factory,
+} from "@ttsc/factory";
 
+import { IdentifierFactory } from "../../factories/IdentifierFactory";
+import { TypeFactory } from "../../factories/TypeFactory";
 import { sizeOf } from "../../internal/legacy";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -20,10 +26,10 @@ export namespace SdkHttpFunctionProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): Node => {
-      return TypeScriptFactory.createFunctionDeclaration(
+      return factory.createFunctionDeclaration(
         [
-          TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword),
-          TypeScriptFactory.createModifier(SyntaxKind.AsyncKeyword),
+          factory.createModifier(SyntaxKind.ExportKeyword),
+          factory.createModifier(SyntaxKind.AsyncKeyword),
         ],
         undefined,
         route.name,
@@ -31,54 +37,47 @@ export namespace SdkHttpFunctionProgrammer {
         [
           IdentifierFactory.parameter(
             "connection",
-            TypeScriptFactory.createTypeReferenceNode(
+            factory.createTypeReferenceNode(
               SdkImportWizard.IConnection(importer),
               route.headerObject !== null
-                ? [
-                    TypeScriptFactory.createTypeReferenceNode(
-                      `${route.name}.Headers`,
-                    ),
-                  ]
+                ? [factory.createTypeReferenceNode(`${route.name}.Headers`)]
                 : undefined,
             ),
           ),
-          ...SdkHttpParameterProgrammer.getParameterDeclarations({
+          ...(SdkHttpParameterProgrammer.getParameterDeclarations({
             project,
             importer,
             route,
             body: true,
             prefix: true,
-          }),
+          }) as ParameterDeclaration[]),
         ],
-        TypeScriptFactory.createTypeReferenceNode("Promise", [
+        factory.createTypeReferenceNode("Promise", [
           project.config.propagate === true ||
           route.success.binary === true ||
           sizeOf(route.success.metadata) !== 0
-            ? TypeScriptFactory.createTypeReferenceNode(`${route.name}.Output`)
-            : TypeScriptFactory.createTypeReferenceNode("void"),
+            ? factory.createTypeReferenceNode(`${route.name}.Output`)
+            : factory.createTypeReferenceNode("void"),
         ]),
-        TypeScriptFactory.createBlock(
-          writeBody(project)(importer)(route),
-          true,
-        ),
+        factory.createBlock(writeBody(project)(importer)(route), true),
       );
     };
 
   const writeBody =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): Node[] => {
-      const access = (name: string): Node =>
+    (route: ITypedHttpRoute): Statement[] => {
+      const access = (name: string): Expression =>
         project.config.keyword === true
-          ? TypeScriptFactory.createPropertyAccessExpression(
-              TypeScriptFactory.createIdentifier("props"),
+          ? factory.createPropertyAccessExpression(
+              factory.createIdentifier("props"),
               name,
             )
-          : TypeScriptFactory.createIdentifier(name);
+          : factory.createIdentifier(name);
       const fetch = () =>
-        TypeScriptFactory.createCallExpression(
+        factory.createCallExpression(
           IdentifierFactory.access(
-            TypeScriptFactory.createIdentifier(
+            factory.createIdentifier(
               SdkImportWizard.Fetcher(
                 !!route.body?.encrypted || route.success.encrypted,
               )(importer),
@@ -93,26 +92,24 @@ export namespace SdkHttpFunctionProgrammer {
             : undefined,
           [
             route.body && route.body.contentType !== "multipart/form-data"
-              ? TypeScriptFactory.createObjectLiteralExpression(
+              ? factory.createObjectLiteralExpression(
                   [
-                    TypeScriptFactory.createSpreadAssignment(
-                      TypeScriptFactory.createIdentifier("connection"),
+                    factory.createSpreadAssignment(
+                      factory.createIdentifier("connection"),
                     ),
-                    TypeScriptFactory.createPropertyAssignment(
+                    factory.createPropertyAssignment(
                       "headers",
-                      TypeScriptFactory.createObjectLiteralExpression(
+                      factory.createObjectLiteralExpression(
                         [
-                          TypeScriptFactory.createSpreadAssignment(
+                          factory.createSpreadAssignment(
                             IdentifierFactory.access(
-                              TypeScriptFactory.createIdentifier("connection"),
+                              factory.createIdentifier("connection"),
                               "headers",
                             ),
                           ),
-                          TypeScriptFactory.createPropertyAssignment(
-                            TypeScriptFactory.createStringLiteral(
-                              "Content-Type",
-                            ),
-                            TypeScriptFactory.createStringLiteral(
+                          factory.createPropertyAssignment(
+                            factory.createStringLiteral("Content-Type"),
+                            factory.createStringLiteral(
                               route.body?.contentType ?? "application/json",
                             ),
                           ),
@@ -123,30 +120,30 @@ export namespace SdkHttpFunctionProgrammer {
                   ],
                   true,
                 )
-              : TypeScriptFactory.createIdentifier("connection"),
-            TypeScriptFactory.createObjectLiteralExpression(
+              : factory.createIdentifier("connection"),
+            factory.createObjectLiteralExpression(
               [
-                TypeScriptFactory.createSpreadAssignment(
+                factory.createSpreadAssignment(
                   IdentifierFactory.access(
-                    TypeScriptFactory.createIdentifier(route.name),
+                    factory.createIdentifier(route.name),
                     "METADATA",
                   ),
                 ),
-                TypeScriptFactory.createPropertyAssignment(
+                factory.createPropertyAssignment(
                   "template",
                   IdentifierFactory.access(
                     IdentifierFactory.access(
-                      TypeScriptFactory.createIdentifier(route.name),
+                      factory.createIdentifier(route.name),
                       "METADATA",
                     ),
                     "path",
                   ),
                 ),
-                TypeScriptFactory.createPropertyAssignment(
+                factory.createPropertyAssignment(
                   "path",
-                  TypeScriptFactory.createCallExpression(
+                  factory.createCallExpression(
                     IdentifierFactory.access(
-                      TypeScriptFactory.createIdentifier(route.name),
+                      factory.createIdentifier(route.name),
                       "path",
                     ),
                     undefined,
@@ -154,7 +151,7 @@ export namespace SdkHttpFunctionProgrammer {
                       project,
                       route,
                       body: false,
-                    }),
+                    }) as Expression[],
                   ),
                 ),
               ],
@@ -165,57 +162,53 @@ export namespace SdkHttpFunctionProgrammer {
             route.body !== null &&
             (route.body.contentType === "application/json" ||
               route.body.encrypted === true)
-              ? [TypeScriptFactory.createIdentifier(`${route.name}.stringify`)]
+              ? [factory.createIdentifier(`${route.name}.stringify`)]
               : []),
           ],
         );
       const output = (awaiter: boolean) =>
         project.config.simulate
-          ? TypeScriptFactory.createConditionalExpression(
-              TypeScriptFactory.createStrictEquality(
-                TypeScriptFactory.createTrue(),
-                TypeScriptFactory.createIdentifier("connection.simulate"),
+          ? factory.createConditionalExpression(
+              factory.createStrictEquality(
+                factory.createTrue(),
+                factory.createIdentifier("connection.simulate"),
               ),
               undefined,
-              TypeScriptFactory.createCallExpression(
-                TypeScriptFactory.createIdentifier(`${route.name}.simulate`),
+              factory.createCallExpression(
+                factory.createIdentifier(`${route.name}.simulate`),
                 [],
                 [
-                  TypeScriptFactory.createIdentifier("connection"),
-                  ...SdkHttpParameterProgrammer.getArguments({
+                  factory.createIdentifier("connection"),
+                  ...(SdkHttpParameterProgrammer.getArguments({
                     project,
                     route,
                     body: true,
-                  }),
+                  }) as Expression[]),
                 ],
               ),
               undefined,
-              awaiter
-                ? TypeScriptFactory.createAwaitExpression(fetch())
-                : fetch(),
+              awaiter ? factory.createAwaitExpression(fetch()) : fetch(),
             )
           : awaiter
-            ? TypeScriptFactory.createAwaitExpression(fetch())
+            ? factory.createAwaitExpression(fetch())
             : fetch();
       return [
         ...(project.config.assert
           ? SdkHttpParameterProgrammer.getSignificant(route, true).map((p) =>
-              TypeScriptFactory.createExpressionStatement(
-                TypeScriptFactory.createCallExpression(
+              factory.createExpressionStatement(
+                factory.createCallExpression(
                   IdentifierFactory.access(
-                    TypeScriptFactory.createIdentifier(
-                      SdkImportWizard.typia(importer),
-                    ),
+                    factory.createIdentifier(SdkImportWizard.typia(importer)),
                     "assert",
                   ),
-                  [TypeScriptFactory.createTypeQueryNode(access(p.name))],
+                  [factory.createTypeQueryNode(access(p.name) as EntityName)],
                   [access(p.name)],
                 ),
               ),
             )
           : []),
         ...(route.success.setHeaders.length === 0
-          ? [TypeScriptFactory.createReturnStatement(output(false))]
+          ? [factory.createReturnStatement(output(false))]
           : writeSetHeaders(project)(importer)(route)(output(true))),
       ];
     };
@@ -224,7 +217,7 @@ export namespace SdkHttpFunctionProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute) =>
-    (condition: Node): Node[] => {
+    (condition: Expression): Statement[] => {
       const accessor = (x: string) => (y: string) =>
         x[0] === "[" ? `${x}${y}` : `${x}.${y}`;
       const output: string = StringUtil.escapeDuplicate([
@@ -238,44 +231,42 @@ export namespace SdkHttpFunctionProgrammer {
         ? accessor(output)("data")
         : output;
 
-      const assigners: Node[] = [
-        TypeScriptFactory.createBinaryExpression(
-          TypeScriptFactory.createIdentifier(headers),
-          TypeScriptFactory.createToken(SyntaxKind.QuestionQuestionEqualsToken),
-          TypeScriptFactory.createObjectLiteralExpression([]),
+      const assigners: Statement[] = [
+        factory.createBinaryExpression(
+          factory.createIdentifier(headers),
+          factory.createToken(SyntaxKind.QuestionQuestionEqualsToken),
+          factory.createObjectLiteralExpression([]),
         ),
         ...route.success.setHeaders.map((tuple) =>
           tuple.type === "assigner"
-            ? TypeScriptFactory.createCallExpression(
-                TypeScriptFactory.createIdentifier("Object.assign"),
+            ? factory.createCallExpression(
+                factory.createIdentifier("Object.assign"),
                 [],
                 [
-                  TypeScriptFactory.createIdentifier(headers),
-                  TypeScriptFactory.createIdentifier(
-                    accessor(data)(tuple.source),
-                  ),
+                  factory.createIdentifier(headers),
+                  factory.createIdentifier(accessor(data)(tuple.source)),
                 ],
               )
-            : TypeScriptFactory.createBinaryExpression(
-                TypeScriptFactory.createIdentifier(
+            : factory.createBinaryExpression(
+                factory.createIdentifier(
                   accessor(headers)(tuple.target ?? tuple.source),
                 ),
-                TypeScriptFactory.createToken(SyntaxKind.EqualsToken),
-                TypeScriptFactory.createIdentifier(
-                  accessor(data)(tuple.source),
-                ),
+                factory.createToken(SyntaxKind.EqualsToken),
+                factory.createIdentifier(accessor(data)(tuple.source)),
               ),
         ),
-      ].map(TypeScriptFactory.createExpressionStatement);
+      ].map(factory.createExpressionStatement);
       return [
-        TypeScriptFactory.createVariableStatement(
+        factory.createVariableStatement(
           [],
-          TypeScriptFactory.createVariableDeclarationList(
+          factory.createVariableDeclarationList(
             [
-              TypeScriptFactory.createVariableDeclaration(
+              factory.createVariableDeclaration(
                 output,
                 undefined,
-                SdkAliasCollection.response(project)(importer)(route),
+                SdkAliasCollection.response(project)(importer)(
+                  route,
+                ) as TypeNode,
                 condition,
               ),
             ],
@@ -284,18 +275,16 @@ export namespace SdkHttpFunctionProgrammer {
         ),
         ...(project.config.propagate
           ? [
-              TypeScriptFactory.createIfStatement(
-                TypeScriptFactory.createIdentifier(accessor(output)("success")),
+              factory.createIfStatement(
+                factory.createIdentifier(accessor(output)("success")),
                 assigners.length === 1
                   ? assigners[0]!
-                  : TypeScriptFactory.createBlock(assigners, true),
+                  : factory.createBlock(assigners, true),
                 undefined,
               ),
             ]
           : assigners),
-        TypeScriptFactory.createReturnStatement(
-          TypeScriptFactory.createIdentifier(output),
-        ),
+        factory.createReturnStatement(factory.createIdentifier(output)),
       ];
     };
 }

@@ -1,6 +1,16 @@
-import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import { ExpressionFactory, IdentifierFactory, TypeFactory } from "@nestia/factory";
+import {
+  type Block,
+  type Expression,
+  NodeFlags,
+  type Statement,
+  SyntaxKind,
+  type TypeNode,
+  factory,
+} from "@ttsc/factory";
 
+import { ExpressionFactory } from "../../factories/ExpressionFactory";
+import { IdentifierFactory } from "../../factories/IdentifierFactory";
+import { TypeFactory } from "../../factories/TypeFactory";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { FilePrinter } from "./FilePrinter";
@@ -12,11 +22,11 @@ export namespace SdkWebSocketNamespaceProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedWebSocketRoute): Node =>
-      TypeScriptFactory.createModuleDeclaration(
-        [TypeScriptFactory.createToken(SyntaxKind.ExportKeyword)],
-        TypeScriptFactory.createIdentifier(route.name),
-        TypeScriptFactory.createModuleBlock([
+    (route: ITypedWebSocketRoute): Statement =>
+      factory.createModuleDeclaration(
+        [factory.createToken(SyntaxKind.ExportKeyword)],
+        factory.createIdentifier(route.name),
+        factory.createModuleBlock([
           ...writeTypes(project)(importer)(route),
           FilePrinter.enter(),
           writePath(project)(route),
@@ -27,12 +37,12 @@ export namespace SdkWebSocketNamespaceProgrammer {
   const writeTypes =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedWebSocketRoute): Node[] => {
-      const output: Node[] = [];
-      const declare = (name: string, type: Node) =>
+    (route: ITypedWebSocketRoute): Statement[] => {
+      const output: Statement[] = [];
+      const declare = (name: string, type: TypeNode) =>
         output.push(
-          TypeScriptFactory.createTypeAliasDeclaration(
-            [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
+          factory.createTypeAliasDeclaration(
+            [factory.createModifier(SyntaxKind.ExportKeyword)],
             name,
             undefined,
             type,
@@ -43,12 +53,12 @@ export namespace SdkWebSocketNamespaceProgrammer {
         declare("Props", SdkAliasCollection.websocketProps(route));
       declare(
         "Output",
-        TypeScriptFactory.createTypeLiteralNode([
-          TypeScriptFactory.createPropertySignature(
+        factory.createTypeLiteralNode([
+          factory.createPropertySignature(
             undefined,
             "connector",
             undefined,
-            TypeScriptFactory.createTypeReferenceNode(
+            factory.createTypeReferenceNode(
               importer.external({
                 declaration: false,
                 file: "tgrid",
@@ -56,40 +66,36 @@ export namespace SdkWebSocketNamespaceProgrammer {
                 name: "WebSocketConnector",
               }),
               [
-                TypeScriptFactory.createTypeReferenceNode("Header"),
-                TypeScriptFactory.createTypeReferenceNode("Provider"),
-                TypeScriptFactory.createTypeReferenceNode("Listener"),
+                factory.createTypeReferenceNode("Header"),
+                factory.createTypeReferenceNode("Provider"),
+                factory.createTypeReferenceNode("Listener"),
               ],
             ),
           ),
-          TypeScriptFactory.createPropertySignature(
+          factory.createPropertySignature(
             undefined,
             "driver",
             undefined,
-            TypeScriptFactory.createTypeReferenceNode(
+            factory.createTypeReferenceNode(
               importer.external({
                 declaration: true,
                 file: "tgrid",
                 type: "element",
                 name: "Driver",
               }),
-              [TypeScriptFactory.createTypeReferenceNode("Listener")],
+              [factory.createTypeReferenceNode("Listener")],
             ),
           ),
-          TypeScriptFactory.createPropertySignature(
+          factory.createPropertySignature(
             undefined,
             "reconnect",
             undefined,
-            TypeScriptFactory.createFunctionTypeNode(
+            factory.createFunctionTypeNode(
               undefined,
               [],
-              TypeScriptFactory.createTypeReferenceNode(
-                TypeScriptFactory.createIdentifier("Promise"),
-                [
-                  TypeScriptFactory.createKeywordTypeNode(
-                    SyntaxKind.VoidKeyword,
-                  ),
-                ],
+              factory.createTypeReferenceNode(
+                factory.createIdentifier("Promise"),
+                [factory.createKeywordTypeNode(SyntaxKind.VoidKeyword)],
               ),
             ),
           ),
@@ -122,10 +128,10 @@ export namespace SdkWebSocketNamespaceProgrammer {
 
   const writePath =
     (project: INestiaProject) =>
-    (route: ITypedWebSocketRoute): Node => {
-      const out = (body: Node) =>
+    (route: ITypedWebSocketRoute): Statement => {
+      const out = (body: Block | Expression) =>
         constant("path")(
-          TypeScriptFactory.createArrowFunction(
+          factory.createArrowFunction(
             [],
             [],
             SdkWebSocketParameterProgrammer.getParameterDeclarations({
@@ -140,63 +146,56 @@ export namespace SdkWebSocketNamespaceProgrammer {
           ),
         );
       if (route.pathParameters.length === 0 && route.query === null)
-        return out(TypeScriptFactory.createStringLiteral(route.path));
+        return out(factory.createStringLiteral(route.path));
 
       const access = (key: string) =>
         project.config.keyword === true
-          ? TypeScriptFactory.createPropertyAccessExpression(
-              TypeScriptFactory.createIdentifier("props"),
+          ? factory.createPropertyAccessExpression(
+              factory.createIdentifier("props"),
               key,
             )
-          : TypeScriptFactory.createIdentifier(key);
+          : factory.createIdentifier(key);
       const template = () => {
         const split: string[] = route.path.split(":");
-        if (split.length === 1)
-          return TypeScriptFactory.createStringLiteral(route.path);
-        return TypeScriptFactory.createTemplateExpression(
-          TypeScriptFactory.createTemplateHead(split[0]!),
+        if (split.length === 1) return factory.createStringLiteral(route.path);
+        return factory.createTemplateExpression(
+          factory.createTemplateHead(split[0]!),
           split.slice(1).map((s, i, arr) => {
             const name: string = s.split("/")[0]!;
-            return TypeScriptFactory.createTemplateSpan(
-              TypeScriptFactory.createCallExpression(
-                TypeScriptFactory.createIdentifier("encodeURIComponent"),
+            return factory.createTemplateSpan(
+              factory.createCallExpression(
+                factory.createIdentifier("encodeURIComponent"),
                 undefined,
                 [
-                  TypeScriptFactory.createBinaryExpression(
-                    TypeScriptFactory.createCallChain(
-                      TypeScriptFactory.createPropertyAccessChain(
+                  factory.createBinaryExpression(
+                    factory.createCallChain(
+                      factory.createPropertyAccessChain(
                         access(
                           route.pathParameters.find((p) => p.field === name)!
                             .name,
                         ),
-                        TypeScriptFactory.createToken(
-                          SyntaxKind.QuestionDotToken,
-                        ),
+                        factory.createToken(SyntaxKind.QuestionDotToken),
                         "toString",
                       ),
                       undefined,
                       undefined,
                       [],
                     ),
-                    TypeScriptFactory.createToken(
-                      SyntaxKind.QuestionQuestionToken,
-                    ),
-                    TypeScriptFactory.createStringLiteral("null"),
+                    factory.createToken(SyntaxKind.QuestionQuestionToken),
+                    factory.createStringLiteral("null"),
                   ),
                 ],
               ),
               (i !== arr.length - 1
-                ? TypeScriptFactory.createTemplateMiddle
-                : TypeScriptFactory.createTemplateTail)(
-                s.substring(name.length),
-              ),
+                ? factory.createTemplateMiddle
+                : factory.createTemplateTail)(s.substring(name.length)),
             );
           }),
         );
       };
       if (route.query === null) return out(template());
 
-      const block = (expr: Node) => {
+      const block = (expr: Expression) => {
         const computeName = (str: string): string =>
           [...route.pathParameters, ...(route.query ? [route.query] : [])].find(
             (p) => p.name === str,
@@ -204,31 +203,31 @@ export namespace SdkWebSocketNamespaceProgrammer {
             ? computeName("_" + str)
             : str;
         const variables: string = computeName("variables");
-        return TypeScriptFactory.createBlock(
+        return factory.createBlock(
           [
             local(variables)("URLSearchParams")(
-              TypeScriptFactory.createNewExpression(
-                TypeScriptFactory.createIdentifier("URLSearchParams"),
+              factory.createNewExpression(
+                factory.createIdentifier("URLSearchParams"),
                 [],
                 [],
               ),
             ),
-            TypeScriptFactory.createForOfStatement(
+            factory.createForOfStatement(
               undefined,
-              TypeScriptFactory.createVariableDeclarationList(
+              factory.createVariableDeclarationList(
                 [
-                  TypeScriptFactory.createVariableDeclaration(
-                    TypeScriptFactory.createArrayBindingPattern([
-                      TypeScriptFactory.createBindingElement(
+                  factory.createVariableDeclaration(
+                    factory.createArrayBindingPattern([
+                      factory.createBindingElement(
                         undefined,
                         undefined,
-                        TypeScriptFactory.createIdentifier("key"),
+                        factory.createIdentifier("key"),
                         undefined,
                       ),
-                      TypeScriptFactory.createBindingElement(
+                      factory.createBindingElement(
                         undefined,
                         undefined,
-                        TypeScriptFactory.createIdentifier("value"),
+                        factory.createIdentifier("value"),
                         undefined,
                       ),
                     ]),
@@ -239,54 +238,49 @@ export namespace SdkWebSocketNamespaceProgrammer {
                 ],
                 NodeFlags.Const,
               ),
-              TypeScriptFactory.createCallExpression(
-                TypeScriptFactory.createIdentifier("Object.entries"),
+              factory.createCallExpression(
+                factory.createIdentifier("Object.entries"),
                 undefined,
-                [
-                  TypeScriptFactory.createAsExpression(
-                    expr,
-                    TypeFactory.keyword("any"),
-                  ),
-                ],
+                [factory.createAsExpression(expr, TypeFactory.keyword("any"))],
               ),
-              TypeScriptFactory.createIfStatement(
-                TypeScriptFactory.createStrictEquality(
-                  TypeScriptFactory.createIdentifier("undefined"),
-                  TypeScriptFactory.createIdentifier("value"),
+              factory.createIfStatement(
+                factory.createStrictEquality(
+                  factory.createIdentifier("undefined"),
+                  factory.createIdentifier("value"),
                 ),
-                TypeScriptFactory.createContinueStatement(),
-                TypeScriptFactory.createIfStatement(
-                  TypeScriptFactory.createCallExpression(
-                    TypeScriptFactory.createIdentifier("Array.isArray"),
+                factory.createContinueStatement(),
+                factory.createIfStatement(
+                  factory.createCallExpression(
+                    factory.createIdentifier("Array.isArray"),
                     undefined,
-                    [TypeScriptFactory.createIdentifier("value")],
+                    [factory.createIdentifier("value")],
                   ),
-                  TypeScriptFactory.createExpressionStatement(
-                    TypeScriptFactory.createCallExpression(
-                      TypeScriptFactory.createPropertyAccessExpression(
-                        TypeScriptFactory.createIdentifier("value"),
-                        TypeScriptFactory.createIdentifier("forEach"),
+                  factory.createExpressionStatement(
+                    factory.createCallExpression(
+                      factory.createPropertyAccessExpression(
+                        factory.createIdentifier("value"),
+                        factory.createIdentifier("forEach"),
                       ),
                       undefined,
                       [
-                        TypeScriptFactory.createArrowFunction(
+                        factory.createArrowFunction(
                           undefined,
                           undefined,
                           [IdentifierFactory.parameter("elem")],
                           undefined,
                           undefined,
-                          TypeScriptFactory.createCallExpression(
+                          factory.createCallExpression(
                             IdentifierFactory.access(
-                              TypeScriptFactory.createIdentifier(variables),
+                              factory.createIdentifier(variables),
                               "append",
                             ),
                             undefined,
                             [
-                              TypeScriptFactory.createIdentifier("key"),
-                              TypeScriptFactory.createCallExpression(
-                                TypeScriptFactory.createIdentifier("String"),
+                              factory.createIdentifier("key"),
+                              factory.createCallExpression(
+                                factory.createIdentifier("String"),
                                 undefined,
-                                [TypeScriptFactory.createIdentifier("elem")],
+                                [factory.createIdentifier("elem")],
                               ),
                             ],
                           ),
@@ -294,19 +288,19 @@ export namespace SdkWebSocketNamespaceProgrammer {
                       ],
                     ),
                   ),
-                  TypeScriptFactory.createExpressionStatement(
-                    TypeScriptFactory.createCallExpression(
+                  factory.createExpressionStatement(
+                    factory.createCallExpression(
                       IdentifierFactory.access(
-                        TypeScriptFactory.createIdentifier(variables),
+                        factory.createIdentifier(variables),
                         "set",
                       ),
                       undefined,
                       [
-                        TypeScriptFactory.createIdentifier("key"),
-                        TypeScriptFactory.createCallExpression(
-                          TypeScriptFactory.createIdentifier("String"),
+                        factory.createIdentifier("key"),
+                        factory.createCallExpression(
+                          factory.createIdentifier("String"),
                           undefined,
-                          [TypeScriptFactory.createIdentifier("value")],
+                          [factory.createIdentifier("value")],
                         ),
                       ],
                     ),
@@ -315,35 +309,35 @@ export namespace SdkWebSocketNamespaceProgrammer {
               ),
             ),
             local("location")("string")(template()),
-            TypeScriptFactory.createReturnStatement(
-              TypeScriptFactory.createConditionalExpression(
-                TypeScriptFactory.createStrictEquality(
+            factory.createReturnStatement(
+              factory.createConditionalExpression(
+                factory.createStrictEquality(
                   ExpressionFactory.number(0),
                   IdentifierFactory.access(
-                    TypeScriptFactory.createIdentifier(variables),
+                    factory.createIdentifier(variables),
                     "size",
                   ),
                 ),
                 undefined,
-                TypeScriptFactory.createIdentifier("location"),
+                factory.createIdentifier("location"),
                 undefined,
-                TypeScriptFactory.createTemplateExpression(
-                  TypeScriptFactory.createTemplateHead(""),
+                factory.createTemplateExpression(
+                  factory.createTemplateHead(""),
                   [
-                    TypeScriptFactory.createTemplateSpan(
-                      TypeScriptFactory.createIdentifier("location"),
-                      TypeScriptFactory.createTemplateMiddle("?"),
+                    factory.createTemplateSpan(
+                      factory.createIdentifier("location"),
+                      factory.createTemplateMiddle("?"),
                     ),
-                    TypeScriptFactory.createTemplateSpan(
-                      TypeScriptFactory.createCallExpression(
+                    factory.createTemplateSpan(
+                      factory.createCallExpression(
                         IdentifierFactory.access(
-                          TypeScriptFactory.createIdentifier(variables),
+                          factory.createIdentifier(variables),
                           "toString",
                         ),
                         undefined,
                         undefined,
                       ),
-                      TypeScriptFactory.createTemplateTail(""),
+                      factory.createTemplateTail(""),
                     ),
                   ],
                 ),
@@ -357,27 +351,27 @@ export namespace SdkWebSocketNamespaceProgrammer {
     };
 }
 
-const local = (name: string) => (type: string) => (expression: Node) =>
-  TypeScriptFactory.createVariableStatement(
+const local = (name: string) => (type: string) => (expression: Expression) =>
+  factory.createVariableStatement(
     [],
-    TypeScriptFactory.createVariableDeclarationList(
+    factory.createVariableDeclarationList(
       [
-        TypeScriptFactory.createVariableDeclaration(
+        factory.createVariableDeclaration(
           name,
           undefined,
-          TypeScriptFactory.createTypeReferenceNode(type),
+          factory.createTypeReferenceNode(type),
           expression,
         ),
       ],
       NodeFlags.Const,
     ),
   );
-const constant = (name: string) => (expression: Node) =>
-  TypeScriptFactory.createVariableStatement(
-    [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
-    TypeScriptFactory.createVariableDeclarationList(
+const constant = (name: string) => (expression: Expression) =>
+  factory.createVariableStatement(
+    [factory.createModifier(SyntaxKind.ExportKeyword)],
+    factory.createVariableDeclarationList(
       [
-        TypeScriptFactory.createVariableDeclaration(
+        factory.createVariableDeclaration(
           name,
           undefined,
           undefined,

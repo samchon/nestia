@@ -1,55 +1,47 @@
 import {
-  Node,
+  type Node,
+  type Statement,
   SyntaxKind,
-  TypeScriptFactory,
-  TypeScriptPrinter,
-} from "@nestia/factory";
+  TsPrinter,
+  addSyntheticLeadingComment,
+  factory,
+} from "@ttsc/factory";
 import fs from "fs";
 import { format } from "prettier";
 
 export namespace FilePrinter {
-  export const description = <T extends Node>(
-    node: T,
-    comment: string,
-  ): T => {
+  export const description = <T extends Node>(node: T, comment: string): T => {
     if (comment.length === 0) return node;
-    node.emitNode ??= {};
-    node.emitNode.leadingComments = [
-      ...(node.emitNode.leadingComments ?? []),
-      {
-        kind: SyntaxKind.MultiLineCommentTrivia,
-        text: [
-          "*",
-          ...comment
-            .split("\r\n")
-            .join("\n")
-            .split("\n")
-            .map(
-              (str) =>
-                ` * ${str.split("*/").join("*\\\\/").split("*\\/").join("*\\\\/")}`,
-            ),
-          "",
-        ].join("\n"),
-        hasTrailingNewLine: true,
-      },
-    ];
-    return node;
+    return addSyntheticLeadingComment(
+      node,
+      SyntaxKind.MultiLineCommentTrivia,
+      [
+        "*",
+        ...comment
+          .split("\r\n")
+          .join("\n")
+          .split("\n")
+          .map(
+            (str) =>
+              ` * ${str.split("*/").join("*\\\\/").split("*\\/").join("*\\\\/")}`,
+          ),
+        "",
+      ].join("\n"),
+      true,
+    );
   };
 
   export const enter = () =>
-    TypeScriptFactory.createExpressionStatement(
-      TypeScriptFactory.createIdentifier("\n"),
-    );
+    factory.createExpressionStatement(factory.createIdentifier("\n"));
 
   export const write = async (props: {
     location: string;
     statements: Node[];
     top?: string;
   }): Promise<void> => {
-    const script: string = TypeScriptPrinter.write({
-      statements: props.statements,
-      top: props.top,
-    });
+    const script: string =
+      (props.top ?? "") +
+      new TsPrinter().printFile(undefined, props.statements as Statement[]);
     await fs.promises.writeFile(props.location, await beautify(script), "utf8");
   };
 

@@ -593,8 +593,6 @@ const main = async () => {
       [
         "--workspace-concurrency=1",
         "--filter",
-        "@nestia/factory",
-        "--filter",
         "@nestia/fetcher",
         "--filter",
         "nestia",
