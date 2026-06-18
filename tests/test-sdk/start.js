@@ -149,16 +149,6 @@ const feature = async (name, port) => {
         await runTtsxTest(cwd, "ignore", port);
         return;
       } catch {}
-    {
-      // TEMP DIAGNOSTIC: dump generated e2e files for a failing feature.
-      const dir = path.join(cwd, "src/test/features/api/automated");
-      if (fs.existsSync(dir))
-        for (const f of fs.readdirSync(dir))
-          console.log(
-            `\n===DUMP ${name}/${f}===\n` +
-              fs.readFileSync(path.join(dir, f), "utf8"),
-          );
-    }
     await runTtsxTest(cwd, "inherit", port);
   } else {
     try {
