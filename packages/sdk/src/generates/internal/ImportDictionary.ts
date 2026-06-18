@@ -127,12 +127,17 @@ export class ImportDictionary {
   }
 
   private toImportClaude(c: ICompositeValue): ImportClause {
+    // A namespace import cannot carry a per-binding `type` modifier, so the
+    // type-only flag stays off here (a value namespace import resolves type
+    // members fine), matching the legacy printer output `import * as X`.
     if (c.asterisk !== null)
       return factory.createImportClause(
-        c.declaration,
+        false,
         undefined,
         factory.createNamespaceImport(factory.createIdentifier(c.asterisk)),
       );
+    // `c.declaration` (type-only) belongs on the import clause, not on each
+    // specifier — emitting both produces the invalid `import type { type X }`.
     return factory.createImportClause(
       c.declaration,
       c.default !== null ? factory.createIdentifier(c.default) : undefined,
@@ -140,7 +145,7 @@ export class ImportDictionary {
         ? factory.createNamedImports(
             Array.from(c.elements).map(({ first: name, second: alias }) =>
               factory.createImportSpecifier(
-                c.declaration,
+                false,
                 alias !== null ? factory.createIdentifier(name) : undefined,
                 factory.createIdentifier(alias ?? name),
               ),
