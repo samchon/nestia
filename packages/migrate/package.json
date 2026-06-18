@@ -46,7 +46,8 @@
     "js-yaml": "^4.1.0",
     "rimraf": "catalog:utils",
     "rollup": "^4.24.3",
-    "ts-node": "catalog:typescript"
+    "ts-node": "catalog:typescript",
+    "typescript": "catalog:typescript"
   },
   "dependencies": {
     "@trivago/prettier-plugin-sort-imports": "catalog:typescript",
@@ -59,7 +60,6 @@
     "prettier": "catalog:typescript",
     "prettier-plugin-jsdoc": "catalog:typescript",
     "tstl": "catalog:samchon",
-    "typescript": "catalog:typescript",
     "typia": "catalog:samchon"
   },
   "files": [
