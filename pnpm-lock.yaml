@@ -43,8 +43,8 @@ catalogs:
       version: 8.1.2
   samchon:
     '@ttsc/factory':
-      specifier: ^0.15.7
-      version: 0.15.7
+      specifier: ^0.15.8
+      version: 0.15.8
     '@typia/core':
       specifier: ^12.1.0
       version: 12.1.0
@@ -525,7 +525,7 @@ importers:
         version: 4.3.0(prettier@3.8.1)
       '@ttsc/factory':
         specifier: catalog:samchon
-        version: 0.15.7
+        version: 0.15.8
       '@typia/core':
         specifier: catalog:samchon
         version: 12.1.0
@@ -1825,8 +1825,8 @@ packages:
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
-  '@ttsc/factory@0.15.7':
-    resolution: {integrity: sha512-dopXT6mN29X9VgnpDXFUergCKdXmPiM9gr9zjNT9k0Jim4nGHKMK/kwsnhZbTZW7t2+6BByxg8a0QD3k+IkanA==}
+  '@ttsc/factory@0.15.8':
+    resolution: {integrity: sha512-dqV24j47vd/A+ImSLS66O0Hz7L/4t2069GgBANX/d46RsLfiqTQEF2uLgNd6jQv0+qDLJOQB96/mzyyU4Pz1hA==}
 
   '@types/autocannon@7.12.7':
     resolution: {integrity: sha512-Pd4nPf7wRpacULa6D/EC9x3CwzFQXwA0z5WFuik/fvJjW44V3WzBTM3jtt8nSBoflUNgswPiMCtgrr1bwnAcMg==}
@@ -5544,7 +5544,7 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@ttsc/factory@0.15.7': {}
+  '@ttsc/factory@0.15.8': {}
 
   '@types/autocannon@7.12.7':
     dependencies:

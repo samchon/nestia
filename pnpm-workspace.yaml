@@ -9,7 +9,7 @@ catalogs:
     '@nestjs/platform-express': ^11.1.6
     '@nestjs/platform-fastify': ^11.1.6
   samchon:
-    '@ttsc/factory': ^0.15.7
+    '@ttsc/factory': ^0.15.8
     '@typia/core': ^12.1.0
     '@typia/interface': ^12.1.0
     '@typia/utils': ^12.1.0
