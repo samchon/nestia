@@ -30,8 +30,11 @@ export namespace FilePrinter {
     return node;
   };
 
-  export const newLine = () =>
-    factory.createExpressionStatement(factory.createIdentifier("\n"));
+  // A blank-line spacer between statements. An empty identifier prints as a
+  // single empty line; wrapping it in an `ExpressionStatement` (as the legacy
+  // code did) would append a stray `;` at statement level.
+  export const newLine = (): Statement =>
+    factory.createIdentifier("") as unknown as Statement;
 
   export const write = (props: {
     statements: Statement[];
