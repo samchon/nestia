@@ -1,4 +1,4 @@
-import ts from "typescript";
+import { type MethodDeclaration } from "@ttsc/factory";
 
 import { NestiaMigrateNestMethodProgrammer } from "../programmers/NestiaMigrateNestMethodProgrammer";
 
@@ -14,6 +14,6 @@ export interface INestiaMigrateConfig {
   programmer?: {
     controllerMethod?: (
       ctx: NestiaMigrateNestMethodProgrammer.IContext,
-    ) => ts.MethodDeclaration;
+    ) => MethodDeclaration;
   };
 }

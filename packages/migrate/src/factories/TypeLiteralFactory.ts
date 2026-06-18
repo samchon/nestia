@@ -1,8 +1,8 @@
+import { SyntaxKind, type TypeNode, factory } from "@ttsc/factory";
 import { NamingConvention } from "@typia/utils";
-import ts from "typescript";
 
 export namespace TypeLiteralFactory {
-  export const generate = (value: any): ts.TypeNode =>
+  export const generate = (value: any): TypeNode =>
     typeof value === "boolean"
       ? generateBoolean(value)
       : typeof value === "number"
@@ -15,40 +15,40 @@ export namespace TypeLiteralFactory {
               : Array.isArray(value)
                 ? generateTuple(value)
                 : generateObject(value)
-            : ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword);
+            : factory.createKeywordTypeNode(SyntaxKind.AnyKeyword);
 
   const generatestring = (str: string) =>
-    ts.factory.createLiteralTypeNode(ts.factory.createStringLiteral(str));
+    factory.createLiteralTypeNode(factory.createStringLiteral(str));
 
   const generateNumber = (num: number) =>
-    ts.factory.createLiteralTypeNode(
+    factory.createLiteralTypeNode(
       num < 0
-        ? ts.factory.createPrefixUnaryExpression(
-            ts.SyntaxKind.MinusToken,
-            ts.factory.createNumericLiteral(-num),
+        ? factory.createPrefixUnaryExpression(
+            SyntaxKind.MinusToken,
+            factory.createNumericLiteral(-num),
           )
-        : ts.factory.createNumericLiteral(num),
+        : factory.createNumericLiteral(num),
     );
 
   const generateBoolean = (bool: boolean) =>
-    ts.factory.createLiteralTypeNode(
-      bool ? ts.factory.createTrue() : ts.factory.createFalse(),
+    factory.createLiteralTypeNode(
+      bool ? factory.createTrue() : factory.createFalse(),
     );
 
   const generateNull = () =>
-    ts.factory.createLiteralTypeNode(ts.factory.createNull());
+    factory.createLiteralTypeNode(factory.createNull());
 
   const generateTuple = (items: any[]) =>
-    ts.factory.createTupleTypeNode(items.map(generate));
+    factory.createTupleTypeNode(items.map(generate));
 
   const generateObject = (obj: object) =>
-    ts.factory.createTypeLiteralNode(
+    factory.createTypeLiteralNode(
       Object.entries(obj).map(([key, value]) =>
-        ts.factory.createPropertySignature(
+        factory.createPropertySignature(
           undefined,
           NamingConvention.variable(key)
-            ? ts.factory.createIdentifier(key)
-            : ts.factory.createStringLiteral(key),
+            ? factory.createIdentifier(key)
+            : factory.createStringLiteral(key),
           undefined,
           generate(value),
         ),

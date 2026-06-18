@@ -1,5 +1,5 @@
+import { type Statement, factory } from "@ttsc/factory";
 import { IHttpMigrateRoute, OpenApi } from "@typia/interface";
-import ts from "typescript";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
@@ -16,10 +16,10 @@ export namespace NestiaMigrateApiFileProgrammer {
     children: Set<string>;
   }
 
-  export const write = (props: IProps): ts.Statement[] => {
+  export const write = (props: IProps): Statement[] => {
     const importer: NestiaMigrateImportProgrammer =
       new NestiaMigrateImportProgrammer();
-    const statements: ts.Statement[] = props.routes
+    const statements: Statement[] = props.routes
       .map((route) => [
         FilePrinter.newLine(),
         NestiaMigrateApiFunctionProgrammer.write({
@@ -41,12 +41,11 @@ export namespace NestiaMigrateApiFileProgrammer {
         (ref) => `../${"../".repeat(props.namespace.length)}structures/${ref}`,
       ),
       ...[...props.children].map((child) =>
-        ts.factory.createExportDeclaration(
+        factory.createExportDeclaration(
           undefined,
           false,
-          ts.factory.createNamespaceExport(ts.factory.createIdentifier(child)),
-          ts.factory.createStringLiteral(`./${child}/index`),
-          undefined,
+          factory.createNamespaceExport(factory.createIdentifier(child)),
+          factory.createStringLiteral(`./${child}/index`),
         ),
       ),
       ...statements,

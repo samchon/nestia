@@ -1,4 +1,4 @@
-import ts from "typescript";
+import { NodeFlags, type Statement, SyntaxKind, factory } from "@ttsc/factory";
 
 import { NestiaMigrateControllerAnalyzer } from "../analyzers/NestiaMigrateControllerAnalyzer";
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
@@ -15,7 +15,7 @@ export namespace NestiaMigrateNestProgrammer {
   ): Record<string, string> => {
     const controllers: INestiaMigrateController[] =
       NestiaMigrateControllerAnalyzer.analyze(context.application.routes);
-    const statements: [string, ts.Statement[]][] = [
+    const statements: [string, Statement[]][] = [
       ["src/MyModule.ts", NestiaMigrateNestModuleProgrammer.write(controllers)],
       ...controllers.map(
         (c) =>
@@ -26,7 +26,7 @@ export namespace NestiaMigrateNestProgrammer {
               components: context.application.document().components,
               controller: c,
             }),
-          ] satisfies [string, ts.Statement[]],
+          ] satisfies [string, Statement[]],
       ),
       ...[
         ...NestiaMigrateDtoProgrammer.compose({
@@ -37,7 +37,7 @@ export namespace NestiaMigrateNestProgrammer {
         ([key, value]) =>
           [`src/api/structures/${key}.ts`, writeDtoFile(key, value)] satisfies [
             string,
-            ts.Statement[],
+            Statement[],
           ],
       ),
     ];
@@ -52,9 +52,9 @@ export namespace NestiaMigrateNestProgrammer {
   const writeDtoFile = (
     key: string,
     modulo: NestiaMigrateDtoProgrammer.IModule,
-  ): ts.Statement[] => {
+  ): Statement[] => {
     const importer = new NestiaMigrateImportProgrammer();
-    const statements: ts.Statement[] = iterate(importer)(modulo);
+    const statements: Statement[] = iterate(importer)(modulo);
     if (statements.length === 0) return [];
 
     return [
@@ -66,19 +66,19 @@ export namespace NestiaMigrateNestProgrammer {
 
   const iterate =
     (importer: NestiaMigrateImportProgrammer) =>
-    (modulo: NestiaMigrateDtoProgrammer.IModule): ts.Statement[] => {
-      const output: ts.Statement[] = [];
+    (modulo: NestiaMigrateDtoProgrammer.IModule): Statement[] => {
+      const output: Statement[] = [];
       if (modulo.programmer !== null) output.push(modulo.programmer(importer));
       if (modulo.children.size) {
-        const internal: ts.Statement[] = [];
+        const internal: Statement[] = [];
         for (const child of modulo.children.values())
           internal.push(...iterate(importer)(child));
         output.push(
-          ts.factory.createModuleDeclaration(
-            [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-            ts.factory.createIdentifier(modulo.name),
-            ts.factory.createModuleBlock(internal),
-            ts.NodeFlags.Namespace,
+          factory.createModuleDeclaration(
+            [factory.createModifier(SyntaxKind.ExportKeyword)],
+            factory.createIdentifier(modulo.name),
+            factory.createModuleBlock(internal),
+            NodeFlags.Namespace,
           ),
         );
       }
