@@ -1,4 +1,4 @@
-import ts from "typescript";
+import { type Statement, type TypeReferenceNode, factory } from "@ttsc/factory";
 
 import { TypeLiteralFactory } from "../factories/TypeLiteralFactory";
 import { FilePrinter } from "../utils/FilePrinter";
@@ -25,26 +25,26 @@ export class NestiaMigrateImportProgrammer {
     return name;
   }
 
-  public dto(name: string, namespace?: string): ts.TypeReferenceNode {
+  public dto(name: string, namespace?: string): TypeReferenceNode {
     const file: string = name.split(".")[0]!;
     this.dtos_.add(file);
-    return ts.factory.createTypeReferenceNode(
+    return factory.createTypeReferenceNode(
       namespace?.length
-        ? ts.factory.createQualifiedName(
-            ts.factory.createIdentifier(namespace),
-            ts.factory.createIdentifier(file),
+        ? factory.createQualifiedName(
+            factory.createIdentifier(namespace),
+            factory.createIdentifier(file),
           )
         : name,
     );
   }
 
-  public tag(type: string, arg?: any): ts.TypeReferenceNode {
+  public tag(type: string, arg?: any): TypeReferenceNode {
     const instance: string = this.external({
       type: "instance",
       library: "typia",
       name: "tags",
     });
-    return ts.factory.createTypeReferenceNode(
+    return factory.createTypeReferenceNode(
       `${instance}.${type}`,
       arg === undefined ? [] : [TypeLiteralFactory.generate(arg)],
     );
@@ -53,29 +53,29 @@ export class NestiaMigrateImportProgrammer {
   public toStatements(
     dtoPath: (name: string) => string,
     current?: string,
-  ): ts.Statement[] {
+  ): Statement[] {
     return [
       ...[...this.external_.entries()].map(([library, props]) =>
-        ts.factory.createImportDeclaration(
+        factory.createImportDeclaration(
           undefined,
-          ts.factory.createImportClause(
+          factory.createImportClause(
             false,
             props.default !== null
-              ? ts.factory.createIdentifier(props.default)
+              ? factory.createIdentifier(props.default)
               : undefined,
             props.instances.size
-              ? ts.factory.createNamedImports(
+              ? factory.createNamedImports(
                   [...props.instances].map((i) =>
-                    ts.factory.createImportSpecifier(
+                    factory.createImportSpecifier(
                       false,
                       undefined,
-                      ts.factory.createIdentifier(i),
+                      factory.createIdentifier(i),
                     ),
                   ),
                 )
               : undefined,
           ),
-          ts.factory.createStringLiteral(library),
+          factory.createStringLiteral(library),
         ),
       ),
       ...(this.external_.size && this.dtos_.size
@@ -86,20 +86,20 @@ export class NestiaMigrateImportProgrammer {
           current ? (name) => name !== current!.split(".")[0] : () => true,
         )
         .map((i) =>
-          ts.factory.createImportDeclaration(
+          factory.createImportDeclaration(
             undefined,
-            ts.factory.createImportClause(
+            factory.createImportClause(
               false,
               undefined,
-              ts.factory.createNamedImports([
-                ts.factory.createImportSpecifier(
+              factory.createNamedImports([
+                factory.createImportSpecifier(
                   false,
                   undefined,
-                  ts.factory.createIdentifier(i),
+                  factory.createIdentifier(i),
                 ),
               ]),
             ),
-            ts.factory.createStringLiteral(dtoPath(i)),
+            factory.createStringLiteral(dtoPath(i)),
           ),
         ),
     ];

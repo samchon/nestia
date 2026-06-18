@@ -1,6 +1,6 @@
+import { SyntaxKind, type TypeAliasDeclaration, factory } from "@ttsc/factory";
 import { OpenApi } from "@typia/interface";
 import { IPointer } from "tstl";
-import ts from "typescript";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
@@ -15,7 +15,7 @@ export namespace NestiaMigrateDtoProgrammer {
     children: Map<string, IModule>;
     programmer:
       | null
-      | ((importer: NestiaMigrateImportProgrammer) => ts.TypeAliasDeclaration);
+      | ((importer: NestiaMigrateImportProgrammer) => TypeAliasDeclaration);
   }
 
   export const compose = (props: {
@@ -42,7 +42,7 @@ export namespace NestiaMigrateDtoProgrammer {
     (
       programmer: (
         importer: NestiaMigrateImportProgrammer,
-      ) => ts.TypeAliasDeclaration,
+      ) => TypeAliasDeclaration,
     ) => {
       const accessors: string[] = name.split(".");
       const modulo: IPointer<IModule> = { value: null! };
@@ -65,8 +65,8 @@ export namespace NestiaMigrateDtoProgrammer {
     (importer: NestiaMigrateImportProgrammer) =>
     (key: string, value: OpenApi.IJsonSchema) =>
       FilePrinter.description(
-        ts.factory.createTypeAliasDeclaration(
-          [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
+        factory.createTypeAliasDeclaration(
+          [factory.createToken(SyntaxKind.ExportKeyword)],
           key.split(".").at(-1)!,
           [],
           NestiaMigrateSchemaProgrammer.write({

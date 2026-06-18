@@ -1,7 +1,14 @@
-import { IdentifierFactory, StatementFactory } from "@typia/core";
+import {
+  type CallExpression,
+  NodeFlags,
+  type Statement,
+  SyntaxKind,
+  type VariableStatement,
+  factory,
+} from "@ttsc/factory";
 import { IHttpMigrateRoute } from "@typia/interface";
-import ts from "typescript";
 
+import { IdentifierFactory, StatementFactory } from "../factories";
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { FilePrinter } from "../utils/FilePrinter";
 import { NestiaMigrateE2eFunctionProgrammer } from "./NestiaMigrateE2eFileProgrammer";
@@ -13,35 +20,34 @@ export namespace NestiaMigrateApiStartProgrammer {
   ): Record<string, string> => {
     const importer: NestiaMigrateImportProgrammer =
       new NestiaMigrateImportProgrammer();
-    const main: ts.VariableStatement = writeMain(
+    const main: VariableStatement = writeMain(
       context,
       importer,
       pick(context.application.routes),
     );
-    const statements: ts.Statement[] = [
+    const statements: Statement[] = [
       ...importer.toStatements(
         (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
       ),
       FilePrinter.newLine(),
-      ts.factory.createImportDeclaration(
+      factory.createImportDeclaration(
         undefined,
-        ts.factory.createImportClause(
+        factory.createImportClause(
           false,
           undefined,
-          ts.factory.createNamedImports([
-            ts.factory.createImportSpecifier(
+          factory.createNamedImports([
+            factory.createImportSpecifier(
               false,
               undefined,
-              ts.factory.createIdentifier("TestGlobal"),
+              factory.createIdentifier("TestGlobal"),
             ),
           ]),
         ),
-        ts.factory.createStringLiteral("./TestGlobal"),
-        undefined,
+        factory.createStringLiteral("./TestGlobal"),
       ),
       FilePrinter.newLine(),
       main,
-      ts.factory.createExpressionStatement(writeStarter()),
+      factory.createExpressionStatement(writeStarter()),
     ];
     return {
       "test/start.ts": FilePrinter.write({ statements }),
@@ -52,16 +58,16 @@ export namespace NestiaMigrateApiStartProgrammer {
     ctx: INestiaMigrateContext,
     importer: NestiaMigrateImportProgrammer,
     route: IHttpMigrateRoute,
-  ): ts.VariableStatement =>
+  ): VariableStatement =>
     StatementFactory.constant({
       name: "main",
-      value: ts.factory.createArrowFunction(
-        [ts.factory.createToken(ts.SyntaxKind.AsyncKeyword)],
+      value: factory.createArrowFunction(
+        [factory.createToken(SyntaxKind.AsyncKeyword)],
         undefined,
         [],
         undefined,
         undefined,
-        ts.factory.createBlock(
+        factory.createBlock(
           [
             writeConnection(ctx, importer),
             ...NestiaMigrateE2eFunctionProgrammer.writeBody({
@@ -79,32 +85,32 @@ export namespace NestiaMigrateApiStartProgrammer {
   const writeConnection = (
     ctx: INestiaMigrateContext,
     importer: NestiaMigrateImportProgrammer,
-  ): ts.VariableStatement =>
-    ts.factory.createVariableStatement(
+  ): VariableStatement =>
+    factory.createVariableStatement(
       undefined,
-      ts.factory.createVariableDeclarationList(
+      factory.createVariableDeclarationList(
         [
-          ts.factory.createVariableDeclaration(
+          factory.createVariableDeclaration(
             "connection",
             undefined,
-            ts.factory.createTypeReferenceNode(
-              ts.factory.createQualifiedName(
-                ts.factory.createIdentifier(
+            factory.createTypeReferenceNode(
+              factory.createQualifiedName(
+                factory.createIdentifier(
                   importer.external({
                     type: "default",
                     library: "@ORGANIZATION/PROJECT-api",
                     name: "api",
                   }),
                 ),
-                ts.factory.createIdentifier("IConnection"),
+                factory.createIdentifier("IConnection"),
               ),
             ),
-            ts.factory.createObjectLiteralExpression(
+            factory.createObjectLiteralExpression(
               [
-                ts.factory.createSpreadAssignment(
-                  ts.factory.createCallExpression(
-                    ts.factory.createPropertyAccessExpression(
-                      ts.factory.createIdentifier("TestGlobal"),
+                factory.createSpreadAssignment(
+                  factory.createCallExpression(
+                    factory.createPropertyAccessExpression(
+                      factory.createIdentifier("TestGlobal"),
                       "connection",
                     ),
                     undefined,
@@ -113,9 +119,9 @@ export namespace NestiaMigrateApiStartProgrammer {
                 ),
                 ...(ctx.application.document().servers?.[0]?.url?.length
                   ? [
-                      ts.factory.createPropertyAssignment(
+                      factory.createPropertyAssignment(
                         "host",
-                        ts.factory.createStringLiteral(
+                        factory.createStringLiteral(
                           ctx.application.document().servers![0]!.url,
                         ),
                       ),
@@ -123,9 +129,9 @@ export namespace NestiaMigrateApiStartProgrammer {
                   : []),
                 ...(ctx.config.simulate === true
                   ? [
-                      ts.factory.createPropertyAssignment(
+                      factory.createPropertyAssignment(
                         "simulate",
-                        ts.factory.createTrue(),
+                        factory.createTrue(),
                       ),
                     ]
                   : []),
@@ -134,15 +140,15 @@ export namespace NestiaMigrateApiStartProgrammer {
             ),
           ),
         ],
-        ts.NodeFlags.Const,
+        NodeFlags.Const,
       ),
     );
 
-  const writeStarter = (): ts.CallExpression =>
-    ts.factory.createCallExpression(
-      ts.factory.createPropertyAccessExpression(
-        ts.factory.createCallExpression(
-          ts.factory.createIdentifier("main"),
+  const writeStarter = (): CallExpression =>
+    factory.createCallExpression(
+      factory.createPropertyAccessExpression(
+        factory.createCallExpression(
+          factory.createIdentifier("main"),
           undefined,
           undefined,
         ),
@@ -150,34 +156,34 @@ export namespace NestiaMigrateApiStartProgrammer {
       ),
       undefined,
       [
-        ts.factory.createArrowFunction(
+        factory.createArrowFunction(
           undefined,
           undefined,
           [IdentifierFactory.parameter("exp")],
           undefined,
           undefined,
-          ts.factory.createBlock(
+          factory.createBlock(
             [
-              ts.factory.createExpressionStatement(
-                ts.factory.createCallExpression(
-                  ts.factory.createPropertyAccessExpression(
-                    ts.factory.createIdentifier("console"),
+              factory.createExpressionStatement(
+                factory.createCallExpression(
+                  factory.createPropertyAccessExpression(
+                    factory.createIdentifier("console"),
                     "log",
                   ),
                   undefined,
-                  [ts.factory.createIdentifier("exp")],
+                  [factory.createIdentifier("exp")],
                 ),
               ),
-              ts.factory.createExpressionStatement(
-                ts.factory.createCallExpression(
-                  ts.factory.createPropertyAccessExpression(
-                    ts.factory.createIdentifier("process"),
+              factory.createExpressionStatement(
+                factory.createCallExpression(
+                  factory.createPropertyAccessExpression(
+                    factory.createIdentifier("process"),
                     "exit",
                   ),
                   undefined,
                   [
-                    ts.factory.createPrefixMinus(
-                      ts.factory.createNumericLiteral("1"),
+                    factory.createPrefixMinus(
+                      factory.createNumericLiteral("1"),
                     ),
                   ],
                 ),
