@@ -1,5 +1,5 @@
+import { type Statement, SyntaxKind, factory } from "@ttsc/factory";
 import { OpenApi } from "@typia/interface";
-import ts from "typescript";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
@@ -15,14 +15,14 @@ export namespace NestiaMigrateNestControllerProgrammer {
     controller: INestiaMigrateController;
   }
 
-  export const write = (props: IProps): ts.Statement[] => {
+  export const write = (props: IProps): Statement[] => {
     const importer: NestiaMigrateImportProgrammer =
       new NestiaMigrateImportProgrammer();
-    const $class = ts.factory.createClassDeclaration(
+    const $class = factory.createClassDeclaration(
       [
-        ts.factory.createDecorator(
-          ts.factory.createCallExpression(
-            ts.factory.createIdentifier(
+        factory.createDecorator(
+          factory.createCallExpression(
+            factory.createIdentifier(
               importer.external({
                 type: "instance",
                 library: "@nestjs/common",
@@ -30,10 +30,10 @@ export namespace NestiaMigrateNestControllerProgrammer {
               }),
             ),
             [],
-            [ts.factory.createStringLiteral(props.controller.path)],
+            [factory.createStringLiteral(props.controller.path)],
           ),
         ),
-        ts.factory.createToken(ts.SyntaxKind.ExportKeyword),
+        factory.createToken(SyntaxKind.ExportKeyword),
       ],
       props.controller.name,
       [],

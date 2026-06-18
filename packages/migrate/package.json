@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@trivago/prettier-plugin-sort-imports": "catalog:typescript",
+    "@ttsc/factory": "catalog:samchon",
     "@typia/core": "catalog:samchon",
     "@typia/interface": "catalog:samchon",
     "@typia/utils": "catalog:samchon",

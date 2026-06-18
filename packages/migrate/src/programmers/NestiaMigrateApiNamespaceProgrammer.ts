@@ -1,13 +1,23 @@
 import {
+  type Block,
+  type Expression,
+  type ModuleDeclaration,
+  NodeFlags,
+  SyntaxKind,
+  type TypeAliasDeclaration,
+  type TypeNode,
+  type VariableStatement,
+  factory,
+} from "@ttsc/factory";
+import { IHttpMigrateRoute } from "@typia/interface";
+import { OpenApi } from "typia";
+
+import {
   ExpressionFactory,
   IdentifierFactory,
   LiteralFactory,
   TypeFactory,
-} from "@typia/core";
-import { IHttpMigrateRoute } from "@typia/interface";
-import ts from "typescript";
-import { OpenApi } from "typia";
-
+} from "../factories";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
 import { NestiaMigrateApiSimulationProgrammer } from "./NestiaMigrateApiSimulationProgrammer";
@@ -22,12 +32,12 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
     route: IHttpMigrateRoute;
   }
 
-  export const write = (ctx: IContext): ts.ModuleDeclaration => {
-    const types: ts.TypeAliasDeclaration[] = writeTypes(ctx);
-    return ts.factory.createModuleDeclaration(
-      [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
-      ts.factory.createIdentifier(ctx.route.accessor.at(-1)!),
-      ts.factory.createModuleBlock([
+  export const write = (ctx: IContext): ModuleDeclaration => {
+    const types: TypeAliasDeclaration[] = writeTypes(ctx);
+    return factory.createModuleDeclaration(
+      [factory.createToken(SyntaxKind.ExportKeyword)],
+      factory.createIdentifier(ctx.route.accessor.at(-1)!),
+      factory.createModuleBlock([
         ...types,
         ...(types.length ? [FilePrinter.newLine()] : []),
         writeMetadata(ctx),
@@ -40,7 +50,7 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
             ]
           : []),
       ]),
-      ts.NodeFlags.Namespace,
+      NodeFlags.Namespace,
     );
   };
 
@@ -48,24 +58,24 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
     config: INestiaMigrateConfig,
     route: IHttpMigrateRoute,
   ) =>
-    ts.factory.createCallExpression(
-      ts.factory.createIdentifier(`${route.accessor.at(-1)!}.path`),
+    factory.createCallExpression(
+      factory.createIdentifier(`${route.accessor.at(-1)!}.path`),
       undefined,
       route.parameters.length === 0 && route.query === null
         ? []
         : config.keyword === true
-          ? [ts.factory.createIdentifier("props")]
+          ? [factory.createIdentifier("props")]
           : [...route.parameters, ...(route.query ? [route.query] : [])].map(
-              (p) => ts.factory.createIdentifier(p.key),
+              (p) => factory.createIdentifier(p.key),
             ),
     );
 
-  const writeTypes = (ctx: IContext): ts.TypeAliasDeclaration[] => {
-    const array: ts.TypeAliasDeclaration[] = [];
-    const declare = (name: string, type: ts.TypeNode) =>
+  const writeTypes = (ctx: IContext): TypeAliasDeclaration[] => {
+    const array: TypeAliasDeclaration[] = [];
+    const declare = (name: string, type: TypeNode) =>
       array.push(
-        ts.factory.createTypeAliasDeclaration(
-          [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+        factory.createTypeAliasDeclaration(
+          [factory.createModifier(SyntaxKind.ExportKeyword)],
           name,
           undefined,
           type,
@@ -161,44 +171,44 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
     return array;
   };
 
-  const writeMetadata = (ctx: IContext): ts.VariableStatement =>
+  const writeMetadata = (ctx: IContext): VariableStatement =>
     constant(
       "METADATA",
-      ts.factory.createAsExpression(
-        ts.factory.createObjectLiteralExpression(
+      factory.createAsExpression(
+        factory.createObjectLiteralExpression(
           [
-            ts.factory.createPropertyAssignment(
+            factory.createPropertyAssignment(
               "method",
-              ts.factory.createStringLiteral(ctx.route.method.toUpperCase()),
+              factory.createStringLiteral(ctx.route.method.toUpperCase()),
             ),
-            ts.factory.createPropertyAssignment(
+            factory.createPropertyAssignment(
               "path",
-              ts.factory.createStringLiteral(getPath(ctx.route)),
+              factory.createStringLiteral(getPath(ctx.route)),
             ),
-            ts.factory.createPropertyAssignment(
+            factory.createPropertyAssignment(
               "request",
               ctx.route.body
                 ? LiteralFactory.write({
                     type: ctx.route.body.type,
                     encrypted: !!ctx.route.body["x-nestia-encrypted"],
                   })
-                : ts.factory.createNull(),
+                : factory.createNull(),
             ),
-            ts.factory.createPropertyAssignment(
+            factory.createPropertyAssignment(
               "response",
               ctx.route.method.toUpperCase() !== "HEAD"
                 ? LiteralFactory.write({
                     type: ctx.route.success?.type ?? "application/json",
                     encrypted: !!ctx.route.success?.["x-nestia-encrypted"],
                   })
-                : ts.factory.createNull(),
+                : factory.createNull(),
             ),
             ...(ctx.route.success?.type === "application/x-www-form-urlencoded"
               ? [
-                  ts.factory.createPropertyAssignment(
+                  factory.createPropertyAssignment(
                     "parseQuery",
-                    ts.factory.createCallExpression(
-                      ts.factory.createIdentifier(
+                    factory.createCallExpression(
+                      factory.createIdentifier(
                         `${ctx.importer.external({
                           type: "default",
                           library: "typia",
@@ -220,23 +230,21 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
           ],
           true,
         ),
-        ts.factory.createTypeReferenceNode(
-          ts.factory.createIdentifier("const"),
-        ),
+        factory.createTypeReferenceNode(factory.createIdentifier("const")),
       ),
     );
 
-  const writePathFunction = (ctx: IContext): ts.VariableStatement => {
+  const writePathFunction = (ctx: IContext): VariableStatement => {
     const empty: boolean =
       ctx.route.parameters.length === 0 && ctx.route.query === null;
     const property = (key: string) =>
       ctx.config.keyword === true
-        ? IdentifierFactory.access(ts.factory.createIdentifier("props"), key)
-        : ts.factory.createIdentifier(key);
-    const out = (body: ts.ConciseBody) =>
+        ? IdentifierFactory.access(factory.createIdentifier("props"), key)
+        : factory.createIdentifier(key);
+    const out = (body: Block | Expression) =>
       constant(
         "path",
-        ts.factory.createArrowFunction(
+        factory.createArrowFunction(
           [],
           [],
           empty
@@ -246,13 +254,13 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
                   IdentifierFactory.parameter(
                     "props",
                     ctx.route.body
-                      ? ts.factory.createTypeReferenceNode("Omit", [
-                          ts.factory.createTypeReferenceNode("Props"),
-                          ts.factory.createLiteralTypeNode(
-                            ts.factory.createStringLiteral(ctx.route.body.key),
+                      ? factory.createTypeReferenceNode("Omit", [
+                          factory.createTypeReferenceNode("Props"),
+                          factory.createLiteralTypeNode(
+                            factory.createStringLiteral(ctx.route.body.key),
                           ),
                         ])
-                      : ts.factory.createTypeReferenceNode("Props"),
+                      : factory.createTypeReferenceNode("Props"),
                   ),
                 ]
               : [
@@ -270,7 +278,7 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
                     ? [
                         IdentifierFactory.parameter(
                           ctx.route.query.key,
-                          ts.factory.createTypeReferenceNode(
+                          factory.createTypeReferenceNode(
                             `${ctx.route.accessor.at(-1)!}.Query`,
                           ),
                         ),
@@ -285,28 +293,28 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
     const template = () => {
       const path: string = getPath(ctx.route);
       const split: string[] = path.split(":");
-      if (split.length === 1) return ts.factory.createStringLiteral(path);
-      return ts.factory.createTemplateExpression(
-        ts.factory.createTemplateHead(split[0]!),
+      if (split.length === 1) return factory.createStringLiteral(path);
+      return factory.createTemplateExpression(
+        factory.createTemplateHead(split[0]!),
         split.slice(1).map((s, i, arr) => {
           const name: string = s.split("/")[0]!;
-          return ts.factory.createTemplateSpan(
-            ts.factory.createCallExpression(
-              ts.factory.createIdentifier("encodeURIComponent"),
+          return factory.createTemplateSpan(
+            factory.createCallExpression(
+              factory.createIdentifier("encodeURIComponent"),
               undefined,
               [
-                ts.factory.createBinaryExpression(
+                factory.createBinaryExpression(
                   property(
                     ctx.route.parameters.find((p) => p.name === name)!.key,
                   ),
-                  ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
-                  ts.factory.createStringLiteral("null"),
+                  factory.createToken(SyntaxKind.QuestionQuestionToken),
+                  factory.createStringLiteral("null"),
                 ),
               ],
             ),
             (i !== arr.length - 1
-              ? ts.factory.createTemplateMiddle
-              : ts.factory.createTemplateTail)(s.substring(name.length)),
+              ? factory.createTemplateMiddle
+              : factory.createTemplateTail)(s.substring(name.length)),
           );
         }),
       );
@@ -319,33 +327,33 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
         : str;
     const variables: string = computeName("variables");
     return out(
-      ts.factory.createBlock(
+      factory.createBlock(
         [
           local({
             name: variables,
             type: "URLSearchParams",
-            expression: ts.factory.createNewExpression(
-              ts.factory.createIdentifier("URLSearchParams"),
+            expression: factory.createNewExpression(
+              factory.createIdentifier("URLSearchParams"),
               [],
               [],
             ),
           }),
-          ts.factory.createForOfStatement(
+          factory.createForOfStatement(
             undefined,
-            ts.factory.createVariableDeclarationList(
+            factory.createVariableDeclarationList(
               [
-                ts.factory.createVariableDeclaration(
-                  ts.factory.createArrayBindingPattern([
-                    ts.factory.createBindingElement(
+                factory.createVariableDeclaration(
+                  factory.createArrayBindingPattern([
+                    factory.createBindingElement(
                       undefined,
                       undefined,
-                      ts.factory.createIdentifier("key"),
+                      factory.createIdentifier("key"),
                       undefined,
                     ),
-                    ts.factory.createBindingElement(
+                    factory.createBindingElement(
                       undefined,
                       undefined,
-                      ts.factory.createIdentifier("value"),
+                      factory.createIdentifier("value"),
                       undefined,
                     ),
                   ]),
@@ -354,56 +362,56 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
                   undefined,
                 ),
               ],
-              ts.NodeFlags.Const,
+              NodeFlags.Const,
             ),
-            ts.factory.createCallExpression(
-              ts.factory.createIdentifier("Object.entries"),
+            factory.createCallExpression(
+              factory.createIdentifier("Object.entries"),
               undefined,
               [
-                ts.factory.createAsExpression(
+                factory.createAsExpression(
                   property(ctx.route.query.key),
                   TypeFactory.keyword("any"),
                 ),
               ],
             ),
-            ts.factory.createIfStatement(
-              ts.factory.createStrictEquality(
-                ts.factory.createIdentifier("undefined"),
-                ts.factory.createIdentifier("value"),
+            factory.createIfStatement(
+              factory.createStrictEquality(
+                factory.createIdentifier("undefined"),
+                factory.createIdentifier("value"),
               ),
-              ts.factory.createContinueStatement(),
-              ts.factory.createIfStatement(
-                ts.factory.createCallExpression(
-                  ts.factory.createIdentifier("Array.isArray"),
+              factory.createContinueStatement(),
+              factory.createIfStatement(
+                factory.createCallExpression(
+                  factory.createIdentifier("Array.isArray"),
                   undefined,
-                  [ts.factory.createIdentifier("value")],
+                  [factory.createIdentifier("value")],
                 ),
-                ts.factory.createExpressionStatement(
-                  ts.factory.createCallExpression(
-                    ts.factory.createPropertyAccessExpression(
-                      ts.factory.createIdentifier("value"),
-                      ts.factory.createIdentifier("forEach"),
+                factory.createExpressionStatement(
+                  factory.createCallExpression(
+                    factory.createPropertyAccessExpression(
+                      factory.createIdentifier("value"),
+                      factory.createIdentifier("forEach"),
                     ),
                     undefined,
                     [
-                      ts.factory.createArrowFunction(
+                      factory.createArrowFunction(
                         undefined,
                         undefined,
                         [IdentifierFactory.parameter("elem")],
                         undefined,
                         undefined,
-                        ts.factory.createCallExpression(
+                        factory.createCallExpression(
                           IdentifierFactory.access(
-                            ts.factory.createIdentifier(variables),
+                            factory.createIdentifier(variables),
                             "append",
                           ),
                           undefined,
                           [
-                            ts.factory.createIdentifier("key"),
-                            ts.factory.createCallExpression(
-                              ts.factory.createIdentifier("String"),
+                            factory.createIdentifier("key"),
+                            factory.createCallExpression(
+                              factory.createIdentifier("String"),
                               undefined,
-                              [ts.factory.createIdentifier("elem")],
+                              [factory.createIdentifier("elem")],
                             ),
                           ],
                         ),
@@ -411,19 +419,19 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
                     ],
                   ),
                 ),
-                ts.factory.createExpressionStatement(
-                  ts.factory.createCallExpression(
+                factory.createExpressionStatement(
+                  factory.createCallExpression(
                     IdentifierFactory.access(
-                      ts.factory.createIdentifier(variables),
+                      factory.createIdentifier(variables),
                       "set",
                     ),
                     undefined,
                     [
-                      ts.factory.createIdentifier("key"),
-                      ts.factory.createCallExpression(
-                        ts.factory.createIdentifier("String"),
+                      factory.createIdentifier("key"),
+                      factory.createCallExpression(
+                        factory.createIdentifier("String"),
                         undefined,
-                        [ts.factory.createIdentifier("value")],
+                        [factory.createIdentifier("value")],
                       ),
                     ],
                   ),
@@ -436,38 +444,35 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
             type: "string",
             expression: template(),
           }),
-          ts.factory.createReturnStatement(
-            ts.factory.createConditionalExpression(
-              ts.factory.createStrictEquality(
+          factory.createReturnStatement(
+            factory.createConditionalExpression(
+              factory.createStrictEquality(
                 ExpressionFactory.number(0),
                 IdentifierFactory.access(
-                  ts.factory.createIdentifier(variables),
+                  factory.createIdentifier(variables),
                   "size",
                 ),
               ),
               undefined,
-              ts.factory.createIdentifier("location"),
+              factory.createIdentifier("location"),
               undefined,
-              ts.factory.createTemplateExpression(
-                ts.factory.createTemplateHead(""),
-                [
-                  ts.factory.createTemplateSpan(
-                    ts.factory.createIdentifier("location"),
-                    ts.factory.createTemplateMiddle("?"),
-                  ),
-                  ts.factory.createTemplateSpan(
-                    ts.factory.createCallExpression(
-                      IdentifierFactory.access(
-                        ts.factory.createIdentifier(variables),
-                        "toString",
-                      ),
-                      undefined,
-                      undefined,
+              factory.createTemplateExpression(factory.createTemplateHead(""), [
+                factory.createTemplateSpan(
+                  factory.createIdentifier("location"),
+                  factory.createTemplateMiddle("?"),
+                ),
+                factory.createTemplateSpan(
+                  factory.createCallExpression(
+                    IdentifierFactory.access(
+                      factory.createIdentifier(variables),
+                      "toString",
                     ),
-                    ts.factory.createTemplateTail(""),
+                    undefined,
+                    undefined,
                   ),
-                ],
-              ),
+                  factory.createTemplateTail(""),
+                ),
+              ]),
             ),
           ),
         ],
@@ -477,41 +482,37 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
   };
 }
 
-const constant = (name: string, expression: ts.Expression) =>
-  ts.factory.createVariableStatement(
-    [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-    ts.factory.createVariableDeclarationList(
+const constant = (name: string, expression: Expression) =>
+  factory.createVariableStatement(
+    [factory.createModifier(SyntaxKind.ExportKeyword)],
+    factory.createVariableDeclarationList(
       [
-        ts.factory.createVariableDeclaration(
+        factory.createVariableDeclaration(
           name,
           undefined,
           undefined,
           expression,
         ),
       ],
-      ts.NodeFlags.Const,
+      NodeFlags.Const,
     ),
   );
 
 const getPath = (route: IHttpMigrateRoute) =>
   (route.emendedPath.startsWith("/") ? "" : "/") + route.emendedPath;
 
-const local = (props: {
-  name: string;
-  type: string;
-  expression: ts.Expression;
-}) =>
-  ts.factory.createVariableStatement(
+const local = (props: { name: string; type: string; expression: Expression }) =>
+  factory.createVariableStatement(
     [],
-    ts.factory.createVariableDeclarationList(
+    factory.createVariableDeclarationList(
       [
-        ts.factory.createVariableDeclaration(
+        factory.createVariableDeclaration(
           props.name,
           undefined,
-          ts.factory.createTypeReferenceNode(props.type),
+          factory.createTypeReferenceNode(props.type),
           props.expression,
         ),
       ],
-      ts.NodeFlags.Const,
+      NodeFlags.Const,
     ),
   );

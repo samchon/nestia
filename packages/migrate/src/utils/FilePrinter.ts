@@ -1,14 +1,18 @@
-import ts from "typescript";
+import {
+  type Node,
+  type Statement,
+  SyntaxKind,
+  TsPrinter,
+  addSyntheticLeadingComment,
+  factory,
+} from "@ttsc/factory";
 
 export namespace FilePrinter {
-  export const description = <Node extends ts.Node>(
-    node: Node,
-    comment: string,
-  ): Node => {
+  export const description = <T extends Node>(node: T, comment: string): T => {
     if (comment.length === 0) return node;
-    ts.addSyntheticLeadingComment(
+    addSyntheticLeadingComment(
       node,
-      ts.SyntaxKind.MultiLineCommentTrivia,
+      SyntaxKind.MultiLineCommentTrivia,
       [
         "*",
         ...comment
@@ -27,23 +31,15 @@ export namespace FilePrinter {
   };
 
   export const newLine = () =>
-    ts.factory.createExpressionStatement(ts.factory.createIdentifier("\n"));
+    factory.createExpressionStatement(factory.createIdentifier("\n"));
 
   export const write = (props: {
-    statements: ts.Statement[];
+    statements: Statement[];
     top?: string;
   }): string => {
-    const script: string = ts
-      .createPrinter({
-        newLine: ts.NewLineKind.LineFeed,
-      })
-      .printFile(
-        ts.factory.createSourceFile(
-          props.statements,
-          ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
-          ts.NodeFlags.None,
-        ),
-      );
+    const script: string = new TsPrinter({
+      newLine: "\n",
+    }).printFile(undefined, props.statements);
     return (props.top ?? "") + script;
   };
 }
