@@ -1,11 +1,14 @@
 import {
-  Node,
+  type Node,
   NodeFlags,
+  type NumericLiteral,
   SyntaxKind,
-  TypeScriptFactory,
-} from "@nestia/factory";
-import { IdentifierFactory, LiteralFactory } from "@nestia/factory";
+  type TypeNode,
+  factory,
+} from "@ttsc/factory";
 
+import { IdentifierFactory } from "../../factories/IdentifierFactory";
+import { LiteralFactory } from "../../factories/LiteralFactory";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { FilePrinter } from "./FilePrinter";
@@ -44,12 +47,12 @@ export namespace E2eFileProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): Node =>
-      TypeScriptFactory.createVariableStatement(
-        [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
-        TypeScriptFactory.createVariableDeclarationList(
+      factory.createVariableStatement(
+        [factory.createModifier(SyntaxKind.ExportKeyword)],
+        factory.createVariableDeclarationList(
           [
-            TypeScriptFactory.createVariableDeclaration(
-              TypeScriptFactory.createIdentifier(getFunctionName(route)),
+            factory.createVariableDeclaration(
+              factory.createIdentifier(getFunctionName(route)),
               undefined,
               undefined,
               generateArrow(project)(importer)(route),
@@ -64,34 +67,36 @@ export namespace E2eFileProgrammer {
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute) => {
       const random = IdentifierFactory.access(
-        TypeScriptFactory.createIdentifier(SdkImportWizard.typia(importer)),
+        factory.createIdentifier(SdkImportWizard.typia(importer)),
         "random",
       );
       const connection = route.headerObject
-        ? TypeScriptFactory.createObjectLiteralExpression(
+        ? factory.createObjectLiteralExpression(
             [
-              TypeScriptFactory.createSpreadAssignment(
-                TypeScriptFactory.createIdentifier("connection"),
+              factory.createSpreadAssignment(
+                factory.createIdentifier("connection"),
               ),
-              TypeScriptFactory.createPropertyAssignment(
+              factory.createPropertyAssignment(
                 "headers",
-                TypeScriptFactory.createObjectLiteralExpression(
+                factory.createObjectLiteralExpression(
                   [
-                    TypeScriptFactory.createSpreadAssignment(
+                    factory.createSpreadAssignment(
                       IdentifierFactory.access(
-                        TypeScriptFactory.createIdentifier("connection"),
+                        factory.createIdentifier("connection"),
                         "headers",
                       ),
                     ),
-                    TypeScriptFactory.createSpreadAssignment(
-                      TypeScriptFactory.createCallExpression(
+                    factory.createSpreadAssignment(
+                      factory.createCallExpression(
                         random,
                         [
-                          project.config.clone === true
+                          (project.config.clone === true
                             ? SdkAliasCollection.from(project)(importer)(
                                 route.headerObject.metadata,
                               )
-                            : SdkAliasCollection.name(route.headerObject),
+                            : SdkAliasCollection.name(
+                                route.headerObject,
+                              )) as TypeNode,
                         ],
                         undefined,
                       ),
@@ -103,7 +108,7 @@ export namespace E2eFileProgrammer {
             ],
             true,
           )
-        : TypeScriptFactory.createIdentifier("connection");
+        : factory.createIdentifier("connection");
       const entries = SdkHttpParameterProgrammer.getEntries({
         project,
         importer,
@@ -112,8 +117,8 @@ export namespace E2eFileProgrammer {
         e2e: true,
         prefix: ["api", "functional", ...route.accessor].join(".") + ".",
       });
-      const fetch = TypeScriptFactory.createCallExpression(
-        TypeScriptFactory.createIdentifier(
+      const fetch = factory.createCallExpression(
+        factory.createIdentifier(
           ["api", "functional", ...route.accessor].join("."),
         ),
         undefined,
@@ -125,9 +130,9 @@ export namespace E2eFileProgrammer {
                   Object.fromEntries(
                     entries.map((e) => [
                       e.key,
-                      TypeScriptFactory.createCallExpression(
+                      factory.createCallExpression(
                         IdentifierFactory.access(
-                          TypeScriptFactory.createIdentifier(
+                          factory.createIdentifier(
                             SdkImportWizard.typia(importer),
                           ),
                           "random",
@@ -140,11 +145,9 @@ export namespace E2eFileProgrammer {
                 ),
               ]
             : entries.map((e) =>
-                TypeScriptFactory.createCallExpression(
+                factory.createCallExpression(
                   IdentifierFactory.access(
-                    TypeScriptFactory.createIdentifier(
-                      SdkImportWizard.typia(importer),
-                    ),
+                    factory.createIdentifier(SdkImportWizard.typia(importer)),
                     "random",
                   ),
                   [getRandomType(importer)(e)],
@@ -153,39 +156,41 @@ export namespace E2eFileProgrammer {
               )),
         ],
       );
-      const assert = TypeScriptFactory.createCallExpression(
+      const assert = factory.createCallExpression(
         IdentifierFactory.access(
-          TypeScriptFactory.createIdentifier(SdkImportWizard.typia(importer)),
+          factory.createIdentifier(SdkImportWizard.typia(importer)),
           "assert",
         ),
         undefined,
-        [TypeScriptFactory.createIdentifier("output")],
+        [factory.createIdentifier("output")],
       );
 
-      return TypeScriptFactory.createArrowFunction(
-        [TypeScriptFactory.createModifier(SyntaxKind.AsyncKeyword)],
+      return factory.createArrowFunction(
+        [factory.createModifier(SyntaxKind.AsyncKeyword)],
         undefined,
         [
           IdentifierFactory.parameter(
             "connection",
-            TypeScriptFactory.createTypeReferenceNode("api.IConnection"),
+            factory.createTypeReferenceNode("api.IConnection"),
           ),
         ],
         undefined,
         undefined,
-        TypeScriptFactory.createBlock([
-          TypeScriptFactory.createVariableStatement(
+        factory.createBlock([
+          factory.createVariableStatement(
             [],
-            TypeScriptFactory.createVariableDeclarationList(
+            factory.createVariableDeclarationList(
               [
-                TypeScriptFactory.createVariableDeclaration(
+                factory.createVariableDeclaration(
                   "output",
                   undefined,
                   project.config.propagate !== true &&
                     route.success.type!.name === "void"
                     ? undefined
-                    : SdkAliasCollection.response(project)(importer)(route),
-                  TypeScriptFactory.createAwaitExpression(fetch),
+                    : (SdkAliasCollection.response(project)(importer)(
+                        route,
+                      ) as TypeNode),
+                  factory.createAwaitExpression(fetch),
                 ),
               ],
               NodeFlags.Const,
@@ -193,7 +198,7 @@ export namespace E2eFileProgrammer {
           ),
           ...(route.success.binary === true
             ? []
-            : [TypeScriptFactory.createExpressionStatement(assert)]),
+            : [factory.createExpressionStatement(assert)]),
         ]),
       );
     };
@@ -201,13 +206,14 @@ export namespace E2eFileProgrammer {
 
 const getRandomType =
   (importer: ImportDictionary) =>
-  (entry: SdkHttpParameterProgrammer.IEntry): Node => {
-    if (isPlainStringPathParameter(entry) === false) return entry.type;
-    return TypeScriptFactory.createIntersectionTypeNode([
-      entry.type,
-      TypeScriptFactory.createTypeReferenceNode(
-        TypeScriptFactory.createQualifiedName(
-          TypeScriptFactory.createIdentifier(
+  (entry: SdkHttpParameterProgrammer.IEntry): TypeNode => {
+    if (isPlainStringPathParameter(entry) === false)
+      return entry.type as TypeNode;
+    return factory.createIntersectionTypeNode([
+      entry.type as TypeNode,
+      factory.createTypeReferenceNode(
+        factory.createQualifiedName(
+          factory.createIdentifier(
             importer.external({
               declaration: true,
               file: "typia",
@@ -215,11 +221,11 @@ const getRandomType =
               name: "tags",
             }),
           ),
-          TypeScriptFactory.createIdentifier("MinLength"),
+          factory.createIdentifier("MinLength"),
         ),
         [
-          TypeScriptFactory.createLiteralTypeNode(
-            LiteralFactory.write(1) as Node,
+          factory.createLiteralTypeNode(
+            LiteralFactory.write(1) as NumericLiteral,
           ),
         ],
       ),

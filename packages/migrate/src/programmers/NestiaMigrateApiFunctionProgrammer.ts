@@ -1,8 +1,9 @@
-import { TypeScriptFactory } from "@nestia/factory";
-import { IdentifierFactory, StatementFactory } from "@nestia/factory";
+import { SyntaxKind, factory } from "@ttsc/factory";
 import { IHttpMigrateRoute, OpenApi } from "@typia/interface";
 import * as typiaUtils from "@typia/utils";
 
+import { IdentifierFactory } from "../factories/IdentifierFactory";
+import { StatementFactory } from "../factories/StatementFactory";
 import ts from "../internal/ts";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
@@ -22,23 +23,23 @@ export namespace NestiaMigrateApiFunctionProgrammer {
 
   export const write = (ctx: IContext): ts.FunctionDeclaration =>
     FilePrinter.description(
-      TypeScriptFactory.createFunctionDeclaration(
+      factory.createFunctionDeclaration(
         [
-          TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword),
-          TypeScriptFactory.createModifier(ts.SyntaxKind.AsyncKeyword),
+          factory.createModifier(SyntaxKind.ExportKeyword),
+          factory.createModifier(SyntaxKind.AsyncKeyword),
         ],
         undefined,
         ctx.route.accessor.at(-1)!,
         undefined,
         writeParameterDeclarations(ctx),
-        TypeScriptFactory.createTypeReferenceNode("Promise", [
-          TypeScriptFactory.createTypeReferenceNode(
+        factory.createTypeReferenceNode("Promise", [
+          factory.createTypeReferenceNode(
             ctx.route.success === null
               ? "void"
               : `${ctx.route.accessor.at(-1)!}.Response`,
           ),
         ]),
-        TypeScriptFactory.createBlock(writeBody(ctx), true),
+        factory.createBlock(writeBody(ctx), true),
       ),
       writeDescription(ctx.config, ctx.route),
     );
@@ -49,7 +50,7 @@ export namespace NestiaMigrateApiFunctionProgrammer {
   ): ts.ParameterDeclaration[] => {
     const connection: ts.ParameterDeclaration = IdentifierFactory.parameter(
       connectionName ?? "connection",
-      TypeScriptFactory.createTypeReferenceNode(
+      factory.createTypeReferenceNode(
         ctx.importer.external({
           type: "instance",
           library: "@nestia/fetcher",
@@ -57,7 +58,7 @@ export namespace NestiaMigrateApiFunctionProgrammer {
         }),
         ctx.route.headers
           ? [
-              TypeScriptFactory.createTypeReferenceNode(
+              factory.createTypeReferenceNode(
                 `${ctx.route.accessor.at(-1)!}.Headers`,
               ),
             ]
@@ -72,12 +73,12 @@ export namespace NestiaMigrateApiFunctionProgrammer {
       if (isProps === false) return [connection];
       return [
         connection,
-        TypeScriptFactory.createParameterDeclaration(
+        factory.createParameterDeclaration(
           undefined,
           undefined,
           "props",
           undefined,
-          TypeScriptFactory.createTypeReferenceNode(
+          factory.createTypeReferenceNode(
             `${ctx.route.accessor.at(-1)!}.Props`,
           ),
         ),
@@ -99,7 +100,7 @@ export namespace NestiaMigrateApiFunctionProgrammer {
         ? [
             IdentifierFactory.parameter(
               ctx.route.query.key,
-              TypeScriptFactory.createTypeReferenceNode(
+              factory.createTypeReferenceNode(
                 `${ctx.route.accessor.at(-1)!}.Query`,
               ),
             ),
@@ -109,13 +110,13 @@ export namespace NestiaMigrateApiFunctionProgrammer {
         ? [
             IdentifierFactory.parameter(
               ctx.route.body.key,
-              TypeScriptFactory.createTypeReferenceNode(
+              factory.createTypeReferenceNode(
                 `${ctx.route.accessor.at(-1)!}.Body`,
               ),
               (ctx.route.body.type === "application/json" ||
                 ctx.route.body.type === "text/plain") &&
                 ctx.route.operation().requestBody?.required === false
-                ? TypeScriptFactory.createToken(ts.SyntaxKind.QuestionToken)
+                ? factory.createToken(SyntaxKind.QuestionToken)
                 : undefined,
             ),
           ]
@@ -144,16 +145,13 @@ export namespace NestiaMigrateApiFunctionProgrammer {
 
     const property = (key: string): ts.Expression =>
       ctx.config.keyword === true
-        ? IdentifierFactory.access(
-            TypeScriptFactory.createIdentifier("props"),
-            key,
-          )
-        : TypeScriptFactory.createIdentifier(key);
+        ? IdentifierFactory.access(factory.createIdentifier("props"), key)
+        : factory.createIdentifier(key);
     const fetch = () =>
-      TypeScriptFactory.createAwaitExpression(
-        TypeScriptFactory.createCallExpression(
+      factory.createAwaitExpression(
+        factory.createCallExpression(
           IdentifierFactory.access(
-            TypeScriptFactory.createIdentifier(
+            factory.createIdentifier(
               ctx.importer.external({
                 type: "instance",
                 library: encrypted
@@ -167,26 +165,24 @@ export namespace NestiaMigrateApiFunctionProgrammer {
           undefined,
           [
             contentType && contentType !== "multipart/form-data"
-              ? TypeScriptFactory.createObjectLiteralExpression(
+              ? factory.createObjectLiteralExpression(
                   [
-                    TypeScriptFactory.createSpreadAssignment(
-                      TypeScriptFactory.createIdentifier("connection"),
+                    factory.createSpreadAssignment(
+                      factory.createIdentifier("connection"),
                     ),
-                    TypeScriptFactory.createPropertyAssignment(
+                    factory.createPropertyAssignment(
                       "headers",
-                      TypeScriptFactory.createObjectLiteralExpression(
+                      factory.createObjectLiteralExpression(
                         [
-                          TypeScriptFactory.createSpreadAssignment(
+                          factory.createSpreadAssignment(
                             IdentifierFactory.access(
-                              TypeScriptFactory.createIdentifier("connection"),
+                              factory.createIdentifier("connection"),
                               "headers",
                             ),
                           ),
-                          TypeScriptFactory.createPropertyAssignment(
-                            TypeScriptFactory.createStringLiteral(
-                              "Content-Type",
-                            ),
-                            TypeScriptFactory.createStringLiteral(contentType),
+                          factory.createPropertyAssignment(
+                            factory.createStringLiteral("Content-Type"),
+                            factory.createStringLiteral(contentType),
                           ),
                         ],
                         true,
@@ -195,33 +191,29 @@ export namespace NestiaMigrateApiFunctionProgrammer {
                   ],
                   true,
                 )
-              : TypeScriptFactory.createIdentifier("connection"),
-            TypeScriptFactory.createObjectLiteralExpression(
+              : factory.createIdentifier("connection"),
+            factory.createObjectLiteralExpression(
               [
-                TypeScriptFactory.createSpreadAssignment(
+                factory.createSpreadAssignment(
                   IdentifierFactory.access(
-                    TypeScriptFactory.createIdentifier(
-                      ctx.route.accessor.at(-1)!,
-                    ),
+                    factory.createIdentifier(ctx.route.accessor.at(-1)!),
                     "METADATA",
                   ),
                 ),
-                TypeScriptFactory.createPropertyAssignment(
+                factory.createPropertyAssignment(
                   "path",
-                  TypeScriptFactory.createCallExpression(
+                  factory.createCallExpression(
                     IdentifierFactory.access(
-                      TypeScriptFactory.createIdentifier(
-                        ctx.route.accessor.at(-1)!,
-                      ),
+                      factory.createIdentifier(ctx.route.accessor.at(-1)!),
                       "path",
                     ),
                     undefined,
                     getArguments(ctx, false),
                   ),
                 ),
-                TypeScriptFactory.createPropertyAssignment(
+                factory.createPropertyAssignment(
                   "status",
-                  TypeScriptFactory.createNull(),
+                  factory.createNull(),
                 ),
               ],
               true,
@@ -234,19 +226,19 @@ export namespace NestiaMigrateApiFunctionProgrammer {
     const value: ts.Expression =
       ctx.config.simulate !== true
         ? fetch()
-        : TypeScriptFactory.createConditionalExpression(
-            TypeScriptFactory.createStrictEquality(
-              TypeScriptFactory.createTrue(),
-              TypeScriptFactory.createIdentifier("connection.simulate"),
+        : factory.createConditionalExpression(
+            factory.createStrictEquality(
+              factory.createTrue(),
+              factory.createIdentifier("connection.simulate"),
             ),
             undefined,
-            TypeScriptFactory.createCallExpression(
-              TypeScriptFactory.createIdentifier(
+            factory.createCallExpression(
+              factory.createIdentifier(
                 `${ctx.route.accessor.at(-1)!}.simulate`,
               ),
               [],
               [
-                TypeScriptFactory.createIdentifier("connection"),
+                factory.createIdentifier("connection"),
                 ...getArguments(ctx, true),
               ],
             ),
@@ -256,52 +248,47 @@ export namespace NestiaMigrateApiFunctionProgrammer {
     const headers: Array<IAssignHeader | ISetHeader> = getHeaders(
       ctx.route.comment(),
     );
-    if (headers.length === 0)
-      return [TypeScriptFactory.createReturnStatement(value)];
+    if (headers.length === 0) return [factory.createReturnStatement(value)];
     return [
       StatementFactory.constant({
         name: "output",
-        type: TypeScriptFactory.createTypeReferenceNode(
+        type: factory.createTypeReferenceNode(
           `${ctx.route.accessor.at(-1)!}.Response`,
         ),
         value,
       }),
-      TypeScriptFactory.createExpressionStatement(
-        TypeScriptFactory.createBinaryExpression(
-          TypeScriptFactory.createIdentifier("connection.headers"),
-          TypeScriptFactory.createToken(
-            ts.SyntaxKind.QuestionQuestionEqualsToken,
-          ),
-          TypeScriptFactory.createObjectLiteralExpression([]),
+      factory.createExpressionStatement(
+        factory.createBinaryExpression(
+          factory.createIdentifier("connection.headers"),
+          factory.createToken(SyntaxKind.QuestionQuestionEqualsToken),
+          factory.createObjectLiteralExpression([]),
         ),
       ),
       ...headers.map((h) =>
-        TypeScriptFactory.createExpressionStatement(
+        factory.createExpressionStatement(
           h.type === "assign"
-            ? TypeScriptFactory.createCallExpression(
-                TypeScriptFactory.createIdentifier("Object.assign"),
+            ? factory.createCallExpression(
+                factory.createIdentifier("Object.assign"),
                 undefined,
                 [
-                  TypeScriptFactory.createIdentifier("connection.headers"),
-                  TypeScriptFactory.createIdentifier(`output.${h.accessor}`),
+                  factory.createIdentifier("connection.headers"),
+                  factory.createIdentifier(`output.${h.accessor}`),
                 ],
               )
-            : TypeScriptFactory.createBinaryExpression(
-                TypeScriptFactory.createIdentifier(
+            : factory.createBinaryExpression(
+                factory.createIdentifier(
                   `connection.headers${
                     NamingConvention.variable(h.property)
                       ? `.${h.property}`
                       : `[${JSON.stringify(h.property)}]`
                   }`,
                 ),
-                TypeScriptFactory.createToken(ts.SyntaxKind.EqualsToken),
-                TypeScriptFactory.createIdentifier(`output.${h.accessor}`),
+                factory.createToken(SyntaxKind.EqualsToken),
+                factory.createIdentifier(`output.${h.accessor}`),
               ),
         ),
       ),
-      TypeScriptFactory.createReturnStatement(
-        TypeScriptFactory.createIdentifier("output"),
-      ),
+      factory.createReturnStatement(factory.createIdentifier("output")),
     ];
   };
 
@@ -313,16 +300,14 @@ export namespace NestiaMigrateApiFunctionProgrammer {
     )
       return [];
     else if (ctx.config.keyword === true)
-      return [TypeScriptFactory.createIdentifier("props")];
+      return [factory.createIdentifier("props")];
     return [
-      ...ctx.route.parameters.map((p) =>
-        TypeScriptFactory.createIdentifier(p.key),
-      ),
+      ...ctx.route.parameters.map((p) => factory.createIdentifier(p.key)),
       ...(ctx.route.query
-        ? [TypeScriptFactory.createIdentifier(ctx.route.query.key)]
+        ? [factory.createIdentifier(ctx.route.query.key)]
         : []),
       ...(body && ctx.route.body
-        ? [TypeScriptFactory.createIdentifier(ctx.route.body.key)]
+        ? [factory.createIdentifier(ctx.route.body.key)]
         : []),
     ];
   };

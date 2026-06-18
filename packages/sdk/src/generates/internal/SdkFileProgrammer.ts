@@ -1,4 +1,4 @@
-import { Node, TypeScriptFactory } from "@nestia/factory";
+import { type Node, factory } from "@ttsc/factory";
 import fs from "fs";
 
 import { INestiaProject } from "../../structures/INestiaProject";
@@ -60,14 +60,11 @@ export namespace SdkFileProgrammer {
       for (const [key, value] of directory.children) {
         await iterate(project)(value)(`${outDir}/${key}`);
         statements.push(
-          TypeScriptFactory.createExportDeclaration(
+          factory.createExportDeclaration(
             undefined,
             false,
-            TypeScriptFactory.createNamespaceExport(
-              TypeScriptFactory.createIdentifier(key),
-            ),
-            TypeScriptFactory.createStringLiteral(`./${key}/index`),
-            undefined,
+            factory.createNamespaceExport(factory.createIdentifier(key)),
+            factory.createStringLiteral(`./${key}/index`),
           ),
         );
       }

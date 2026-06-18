@@ -1,4 +1,4 @@
-import { Node, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
+import { type Node, SyntaxKind, type TypeNode, factory } from "@ttsc/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -10,7 +10,7 @@ export namespace SdkHttpParameterProgrammer {
   export interface IEntry {
     key: string;
     required: boolean;
-    type: Node;
+    type: TypeNode;
     parameter: ITypedHttpRouteParameter;
   }
 
@@ -79,7 +79,7 @@ export namespace SdkHttpParameterProgrammer {
                         props.route.queryObject.metadata,
                       )
                     : SdkAliasCollection.name(props.route.queryObject)
-                  : TypeScriptFactory.createTypeReferenceNode(`${prefix}Query`),
+                  : factory.createTypeReferenceNode(`${prefix}Query`),
               parameter: props.route.queryObject,
             },
           ]
@@ -96,7 +96,7 @@ export namespace SdkHttpParameterProgrammer {
                         props.route.body.metadata,
                       )
                     : SdkAliasCollection.name(props.route.body)
-                  : TypeScriptFactory.createTypeReferenceNode(`${prefix}Body`),
+                  : factory.createTypeReferenceNode(`${prefix}Body`),
               parameter: props.route.body,
             },
           ]
@@ -117,17 +117,17 @@ export namespace SdkHttpParameterProgrammer {
       const typeName: string = props.prefix
         ? `${props.route.name}.Props`
         : "Props";
-      const node: Node =
+      const node: TypeNode =
         props.body === false && props.route.body !== null
-          ? TypeScriptFactory.createTypeReferenceNode("Omit", [
-              TypeScriptFactory.createTypeReferenceNode(typeName),
-              TypeScriptFactory.createLiteralTypeNode(
-                TypeScriptFactory.createStringLiteral(props.route.body.name),
+          ? factory.createTypeReferenceNode("Omit", [
+              factory.createTypeReferenceNode(typeName),
+              factory.createLiteralTypeNode(
+                factory.createStringLiteral(props.route.body.name),
               ),
             ])
-          : TypeScriptFactory.createTypeReferenceNode(typeName);
+          : factory.createTypeReferenceNode(typeName);
       return [
-        TypeScriptFactory.createParameterDeclaration(
+        factory.createParameterDeclaration(
           undefined,
           undefined,
           "props",
@@ -138,13 +138,11 @@ export namespace SdkHttpParameterProgrammer {
       ];
     }
     return entries.map((e) =>
-      TypeScriptFactory.createParameterDeclaration(
+      factory.createParameterDeclaration(
         undefined,
         undefined,
         e.key,
-        e.required
-          ? undefined
-          : TypeScriptFactory.createToken(SyntaxKind.QuestionToken),
+        e.required ? undefined : factory.createToken(SyntaxKind.QuestionToken),
         e.type,
         undefined,
       ),
@@ -159,7 +157,7 @@ export namespace SdkHttpParameterProgrammer {
     const parameters = getSignificant(props.route, props.body);
     if (parameters.length === 0) return [];
     else if (props.project.config.keyword === true)
-      return [TypeScriptFactory.createIdentifier("props")];
-    return parameters.map((p) => TypeScriptFactory.createIdentifier(p.name));
+      return [factory.createIdentifier("props")];
+    return parameters.map((p) => factory.createIdentifier(p.name));
   };
 }

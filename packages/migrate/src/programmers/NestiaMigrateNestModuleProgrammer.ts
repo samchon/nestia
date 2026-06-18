@@ -1,6 +1,6 @@
-import { TypeScriptFactory } from "@nestia/factory";
-import ts from "../internal/ts";
+import { SyntaxKind, factory } from "@ttsc/factory";
 
+import ts from "../internal/ts";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 
@@ -14,21 +14,19 @@ export namespace NestiaMigrateNestModuleProgrammer {
       $import(`${c.location.replace("src/", "./")}/${c.name}`)(c.name),
     ),
     ...(controllers.length ? [FilePrinter.newLine()] : []),
-    TypeScriptFactory.createClassDeclaration(
+    factory.createClassDeclaration(
       [
-        TypeScriptFactory.createDecorator(
-          TypeScriptFactory.createCallExpression(
-            TypeScriptFactory.createIdentifier("Module"),
+        factory.createDecorator(
+          factory.createCallExpression(
+            factory.createIdentifier("Module"),
             undefined,
             [
-              TypeScriptFactory.createObjectLiteralExpression(
+              factory.createObjectLiteralExpression(
                 [
-                  TypeScriptFactory.createPropertyAssignment(
-                    TypeScriptFactory.createIdentifier("controllers"),
-                    TypeScriptFactory.createArrayLiteralExpression(
-                      controllers.map((c) =>
-                        TypeScriptFactory.createIdentifier(c.name),
-                      ),
+                  factory.createPropertyAssignment(
+                    factory.createIdentifier("controllers"),
+                    factory.createArrayLiteralExpression(
+                      controllers.map((c) => factory.createIdentifier(c.name)),
                       true,
                     ),
                   ),
@@ -38,7 +36,7 @@ export namespace NestiaMigrateNestModuleProgrammer {
             ],
           ),
         ),
-        TypeScriptFactory.createToken(ts.SyntaxKind.ExportKeyword),
+        factory.createToken(SyntaxKind.ExportKeyword),
       ],
       "MyModule",
       undefined,
@@ -49,18 +47,18 @@ export namespace NestiaMigrateNestModuleProgrammer {
 }
 
 const $import = (file: string) => (instance: string) =>
-  TypeScriptFactory.createImportDeclaration(
+  factory.createImportDeclaration(
     undefined,
-    TypeScriptFactory.createImportClause(
+    factory.createImportClause(
       false,
       undefined,
-      TypeScriptFactory.createNamedImports([
-        TypeScriptFactory.createImportSpecifier(
+      factory.createNamedImports([
+        factory.createImportSpecifier(
           false,
           undefined,
-          TypeScriptFactory.createIdentifier(instance),
+          factory.createIdentifier(instance),
         ),
       ]),
     ),
-    TypeScriptFactory.createStringLiteral(file),
+    factory.createStringLiteral(file),
   );

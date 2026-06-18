@@ -52,8 +52,8 @@
     "rollup": "catalog:rollup"
   },
   "dependencies": {
-    "@nestia/factory": "workspace:^",
     "@trivago/prettier-plugin-sort-imports": "catalog:typescript",
+    "@ttsc/factory": "catalog:typescript",
     "@typia/interface": "catalog:samchon",
     "@typia/utils": "catalog:samchon",
     "commander": "10.0.0",

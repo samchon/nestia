@@ -1,9 +1,10 @@
 import {
-  Node,
+  type Node,
   NodeFlags,
+  type Statement,
   SyntaxKind,
-  TypeScriptFactory,
-} from "@nestia/factory";
+  factory,
+} from "@ttsc/factory";
 import fs from "fs";
 
 import { INestiaProject } from "../structures/INestiaProject";
@@ -60,10 +61,10 @@ export namespace CloneGenerator {
         for (const child of modulo.children.values())
           internal.push(...iterate(importer)(child));
         output.push(
-          TypeScriptFactory.createModuleDeclaration(
-            [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
-            TypeScriptFactory.createIdentifier(modulo.name),
-            TypeScriptFactory.createModuleBlock(internal),
+          factory.createModuleDeclaration(
+            [factory.createModifier(SyntaxKind.ExportKeyword)],
+            factory.createIdentifier(modulo.name),
+            factory.createModuleBlock(internal as Statement[]),
             NodeFlags.Namespace,
           ),
         );

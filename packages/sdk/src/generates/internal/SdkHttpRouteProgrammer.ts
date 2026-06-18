@@ -1,4 +1,4 @@
-import { Node } from "@nestia/factory";
+import { type Node } from "@ttsc/factory";
 import { IJsDocTagInfo } from "typia";
 
 import { INestiaConfig } from "../../INestiaConfig";
