@@ -25,10 +25,10 @@ catalogs:
   typescript:
     '@typescript/native-preview': 7.0.0-dev.20260518.1
     '@trivago/prettier-plugin-sort-imports': ^4.3.0
-    '@ttsc/factory': ^0.15.9
+    '@ttsc/factory': ^0.15.11
     prettier: ^3.8.1
     prettier-plugin-jsdoc: ^1.8.0
-    ttsc: ^0.15.9
+    ttsc: ^0.15.11
   modelcontextprotocol:
     '@modelcontextprotocol/sdk': ^1.18.0
   rollup:
