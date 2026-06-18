@@ -550,9 +550,6 @@ importers:
       tstl:
         specifier: catalog:samchon
         version: 3.0.0
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
       typia:
         specifier: catalog:samchon
         version: 12.1.0(typescript@6.0.3)
@@ -581,6 +578,9 @@ importers:
       ts-node:
         specifier: catalog:typescript
         version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
+      typescript:
+        specifier: catalog:typescript
+        version: 6.0.3
 
   packages/sdk:
     dependencies:
