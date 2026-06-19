@@ -1,0 +1,532 @@
+﻿---
+title: Guide Documents > Setup
+description: Bootstrap a Nestia-ready NestJS project with `npx nestia start` or run the setup wizard against an existing codebase — covers npm, pnpm, and yarn classic.
+---
+
+"use client";
+
+import { Tabs } from 'nextra/components'
+
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Stack from '@mui/material/Stack';
+
+# Setup
+## Boilerplate
+```bash filename="Terminal" copy showLineNumbers
+npx nestia start <directory>
+```
+
+Just run above `npx nestia start <directory>` command. 
+
+Boilerplate would be automatically constructed in the `<directory>`. For reference, this is a minimal boilerplate project concentrating only on the SDK generation from the NestJS server. It does not contain the database connection.
+
+If you want to construct much detailed boilerplate project, visit [`@samchon/backend`](https://github.com/samchon/backend) or run below command. Below boilerplate project is using Prisma ORM and PostgresSQL database. Also, it guides how to utilize FP (Functional Programming) and TDD (Test Driven Development) in the NestJS backend development.
+
+```bash filename="Terminal" copy showLineNumbers
+npx nestia template <directory>
+```
+
+
+
+
+## Setup Wizard
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+npx nestia setup
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+npx nestia setup --manager pnpm
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+     <Alert severity="warning">
+       Yarn berry is not supported.
+     </Alert>
+```bash filename="Terminal" copy showLineNumbers
+npx nestia setup --manager yarn
+```
+  </Tabs.Tab>
+</Tabs>
+
+When you want to setup `nestia` in existing project, just run above `npx nestia setup` command.
+
+Setup Wizard will install and configure everything automatically.
+
+During the setup process, the prompt will ask you to whether configure runtime swagger or not. If you hope to build [Swagger Document in the runtime](/docs/swagger/#runtime-composition), you have to choose `true` option. Otherwise, just select the `false` option please.
+
+```bash filename="Terminal"
+npm install --save-dev nestia@latest
+npx nestia setup
+
+----------------------------------------
+ Nestia Setup Wizard
+----------------------------------------
+? Package Manager (Use arrow keys)
+> npm
+  pnpm
+  yarn (berry is not supported)
+? Transform Runtime Swagger (Use arrow keys)
+> true
+  false
+```
+
+
+
+
+## Webpack
+### With `node_modules`
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+# SETUP NESTIA
+npx nestia setup
+
+# INSTALL TS-LOADER & WEBPACK
+npm install --save-dev ts-loader
+npm install --save-dev webpack webpack-cli webpack-node-externals 
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+# SETUP NESTIA
+npx nestia setup --manager pnpm
+
+# INSTALL TS-LOADER & WEBPACK
+pnpm install --save-dev ts-loader
+pnpm install --save-dev webpack webpack-cli webpack-node-externals 
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+     <Alert severity="warning">
+       Yarn berry is not supported.
+     </Alert>
+```bash filename="Terminal" copy showLineNumbers
+# SETUP NESTIA
+npx nestia setup --manager yarn
+
+# INSTALL TS-LOADER & WEBPACK
+yarn add -D ts-loader
+yarn add -D webpack webpack-cli webpack-node-externals 
+```
+  </Tabs.Tab>
+</Tabs>
+
+When you want to bundle your NestJS project into a single file, you have to install `webpack` manually.  
+
+Never run `nest build --webpack` command of `@nestjs/cli`, because it is not compatible with `nestia`.
+
+```javascript filename="webpack.config.js" showLineNumbers copy
+const path = require("path");
+const nodeExternals = require("webpack-node-externals");
+
+module.exports = {
+  // CUSTOMIZE HERE
+  entry: {
+    server: "./src/executable/server.ts",
+  },
+  output: {
+    path: path.join(__dirname, "dist"),
+    filename: "[name].js",
+  },
+  optimization: {
+    minimize: false,
+  },
+
+  // JUST KEEP THEM
+  externals: [nodeExternals()],
+  mode: "development",
+  target: "node",
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        loader: "ts-loader",
+      },
+    ],
+  },
+  resolve: {
+    extensions: [".tsx", ".ts", ".js"],
+  },
+};
+```
+
+After installing both `nestia` and `webpack`, configure `webpack.config.js` file like above. 
+
+From now on, you can build the single JS file just by running the `npx webpack` command. By the way, when removing `devDependencies` for `--production` install, never forget to add the `--ignore-scripts` option to prevent the `prepare` script.
+
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+npx webpack
+npm ci --omit=dev --ignore-scripts
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+pnpm webpack
+pnpm install --production --ignore-scripts
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+yarn webpack
+rm -rf node_modules
+yarn install --production --ignore-scripts --immutable
+```
+  </Tabs.Tab>
+</Tabs>
+
+### Single JS file only
+If you can build your NestJS project into a single JS file, and that JS file even does not require the `node_modules` directory, it would be useful for building a serverless environment. Also, as it does not need to perform the pruning process (represented by `pnpm install --production --ignore-scripts` command), it would be much convenient and faster than the above method.
+
+To accomplish the light JS bundling, install special dependencies like below.
+
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+# SETUP NESTIA
+npx nestia setup
+
+# INSTALL SPECIAL DEPENDENCIES
+npm install --save-dev ts-loader
+npm install --save-dev webpack webpack-cli
+npm install --save-dev copy-webpack-plugin write-file-webpack-plugin
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+# SETUP NESTIA
+npx nestia setup --manager pnpm
+
+# INSTALL SPECIAL DEPENDENCIES
+pnpm install --save-dev ts-loader
+pnpm install --save-dev webpack webpack-cli
+pnpm install --save-dev copy-webpack-plugin write-file-webpack-plugin
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+     <Alert severity="warning">
+       Yarn berry is not supported.
+     </Alert>
+```bash filename="Terminal" copy showLineNumbers
+# SETUP NESTIA
+npx nestia setup --manager yarn
+
+# INSTALL SPECIAL DEPENDENCIES
+yarn add -D ts-loader
+yarn add -D webpack webpack-cli
+yarn add -D copy-webpack-plugin write-file-webpack-plugin
+```
+  </Tabs.Tab>
+</Tabs>
+
+Also, configure `webpack.config.js` file like below, considering options. 
+
+For example, if your NestJS backend server is utilizing the [Prisma](https://prisma.io) ORM, uncomment the `CopyWebpackPlugin.patterns` block to copy the Prisma engine files (`node_modules/**/.prisma/client/*.node`) into the output `dist` directory.
+
+After that, just run `npx webpack` command. Then the light JS file(s) would be bundled into the `dist` directory, and you don't need to perform the pruning process (represented by `pnpm install --production --ignore-scripts` command) for the distribution. Just deploy the `dist` directory to the target server.
+
+```javascript filename="webpack.config.js" showLineNumbers copy
+const path = require("path");
+
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const WriteFilePlugin = require("write-file-webpack-plugin");
+const { IgnorePlugin } = require("webpack");
+
+const lazyImports = [
+  "@fastify/static",
+  "@fastify/view",
+  "@nestjs/microservices",
+  "@nestjs/websockets",
+  "class-transformer",
+  "class-validator",
+];
+
+// @reference https://tech-blog.s-yoshiki.com/entry/297
+module.exports = {
+  // CUSTOMIZE HERE
+  entry: {
+    server: "./src/executable/server.ts",
+  },
+  output: {
+    path: path.join(__dirname, "dist"),
+    filename: "[name].js",
+    chunkFormat: false,
+  },
+  optimization: {
+    minimize: true,
+  },
+
+  // JUST KEEP THEM
+  mode: "production",
+  target: "node",
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        loader: "ts-loader",
+      },
+    ],
+  },
+  resolve: {
+    extensions: [".tsx", ".ts", ".js"],
+  },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: ".env",
+          to: "[name][ext]",
+        },
+        {
+          from: "package.json",
+          to: "[name][ext]",
+        },
+        // {
+        //   from: "node_modules/**/.prisma/client/*.node",
+        //   to: () => Promise.resolve("[path][name][ext]"),
+        //   globOptions: {
+        //     dot: true,
+        // },
+      ],
+    }),
+    new WriteFilePlugin(),
+    new IgnorePlugin({
+      checkResource: (resource) => {
+        if (lazyImports.some((modulo) => resource.startsWith(modulo))) {
+          try {
+            require.resolve(resource);
+          } catch (err) {
+            return true;
+          }
+        }
+        return false;
+      },
+    }),
+  ],
+};
+```
+
+
+
+
+## NX
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+npx nestia setup
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+npx nestia setup --manager pnpm
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+npx nestia setup --manager yarn
+```
+  </Tabs.Tab>
+</Tabs>
+
+After installing `nestia` like above, and ensuring the `prepare` script is something similar to `ts-patch install` you have to modify the `tsconfig.lib.json` on each package to be similar to the below.
+
+```json filename="tsconfig.lib.json" showLineNumbers copy
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "declaration": true,
+    "types": [],
+    "plugins": [
+      { "transform": "typia/lib/transform" },
+      { 
+        "transform": "@nestia/core/lib/transform",
+        "validate": "validate",
+        "stringify": "assert", 
+      },
+      { "transform": "@nestia/sdk/lib/transform" }, // for runtime swagger composition
+    ],
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["jest.config.ts", "**/*.spec.ts", "**/*.test.ts"]
+}
+```
+
+After this, when running `nx <package-name>:build` it _should_ now output with the Nestia transforms applied. But if Nestia fails for any reasons (for example it considers some type you have to be invalid), this error is not reported back via Nx. Nx will silent swallow these errors from ts-patch/nestia, and you will just not get the output you expect. To debug this, you can create a new task in your `project.json` file similar to the below.
+
+```json filename="project.json" showLineNumbers copy
+ "targets": {
+    "build:validate:nestia": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc --project packages/<package-name>/tsconfig.lib.json --outDir dist/packages/nestiaTest"
+        ],
+      }
+    },
+    ...
+ }
+```
+
+Running this task will show you the errors from Nestia, and allow you to correct them, meaning that using the standard `nx <package-name>:build` task should now work the way you expect.
+
+Note: While Nx has a `transformers` feature on certain plugins, that won't work with Nestia. The reason is because Nx is expecting a transformer to export a `before` hook, which Nx then plugs directly into TypeScript via the compiler API. Nestia doesn't export that kind of hook, because Nestia only works with ts-patch, which abstracts the need for creating a specific before hook in the way Nx wants.
+
+## Manual Setup
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+# COMPILERS
+npm install --save-dev typescript
+npm install --save-dev ts-node
+npm install --save-dev ts-patch
+
+# NESTIA
+npm install --save-dev nestia
+npm install --save @nestia/core
+npm install --save @nestia/e2e
+npm install --save @nestia/sdk
+npm install --save typia
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+# COMPILERS
+pnpm install --save-dev typescript
+pnpm install --save-dev ts-node
+pnpm install --save-dev ts-patch
+
+# NESTIA
+pnpm install --save-dev nestia
+pnpm install --save-dev @nestia/sdk
+pnpm install --save @nestia/core
+pnpm install --save @nestia/e2e
+pnpm install --save typia
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+# COMPILERS
+yarn add -D typescript
+yarn add -D ts-node
+yarn add -D ts-patch
+
+# NESTIA
+yarn add -D nestia
+yarn add -D @nestia/sdk
+yarn add @nestia/core
+yarn add @nestia/e2e
+yarn add typia
+```
+  </Tabs.Tab>
+</Tabs>
+
+If you want to install `nestia` manually, you have to install `ts-node` and `ts-patch` modules as well as `typescript`. After installing those compilers, install `nestia` libraries like above.
+
+```json filename="tsconfig.json" showLineNumbers copy
+{
+  "strict": true,
+  "strictNullChecks": true,
+  "compilerOptions": {
+    "plugins": [
+      { "transform": "typia/lib/transform" },
+      { 
+        "transform": "@nestia/core/lib/transform",
+        "validate": "validate",
+        "stringify": "assert", 
+      },
+      { "transform": "@nestia/sdk/lib/transform" }, // for runtime swagger composition
+    ],
+  },
+}
+```
+
+After that, configure `tsconfig.json` file like above.
+
+As `@nestia/core` and `typia` are generating optimal validation and JSON serialization code through [transformation](https://typia.io/docs/setup/#transformation), you've to configure them as `plugins`. For reference, you can choose which [`typia`](https://github.com/samchon/typia) functions to be used in [validation](./core/TypedBody) and [JSON serialization](./core/TypedRoute).
+
+  - Configurable values both on `validate` and `stringify`
+    - [`is`](https://typia.io/docs/validators/is/): check validation only, and do not reveal the reason why 
+    - [`assert`](https://typia.io/docs/validators/assert/): find the 1st type error with reason
+    - [`validate`](https://typia.io/docs/validators/validate/): find every type errors with detailed reasons
+  - Only for `validate`
+    - [`equals`](https://typia.io/docs/validators/is/#equals-function): do not allow extra properties
+    - [`assertEquals`](https://typia.io/docs/validators/assert/#assertequals-function)
+    - [`validateEquals`](https://typia.io/docs/validators/validate/#validateequals-function)
+    - [`assertPrune`](https://typia.io/docs/misc/#prune-functions) or [`validatePrune`](https://typia.io/docs/misc/#prune-functions): prune extra properties with type checking
+    - [`assertClone`](https://typia.io/docs/misc/#clone-functions) or [`validateClone`](https://typia.io/docs/misc/#clone-functions): deep clone with type checking for faster pruning
+  - Only for `stringify`
+    - [`validate.log`](https://typia.io/docs/validators/validate/): check response data, but do not throw error and just log it
+
+Also, never forget to configure `strict` (or `strictNullChecks`) as `true`. It is essential option for modern TypeScript development.
+
+```json filename="package.json" showLineNumbers copy
+{
+  "scripts": {
+    "prepare": "ts-patch install && typia patch"
+  }
+}
+```
+
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+npm run prepare
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+pnpm run prepare
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" copy showLineNumbers
+yarn run prepare
+```
+  </Tabs.Tab>
+</Tabs>
+
+At last, configure `npm run prepare` command like above. 
+
+Of course, you've to run the `npm run prepare` command after configuration.
+
+For reference, [`ts-patch`](https://github.com/nonara/ts-patch) is an helper library of TypeScript compiler that supporting custom transformations by plugins. With the [`ts-patch`](https://github.com/nonara/ts-patch) setup and plugin configurations, whenever you run `tsc` command, your `@nestia/core` decorator function call statements would be transformed to the optimal operation codes in the compiled JavaScript files.
+
+<br/>
+<Alert severity="warning">
+
+    <AlertTitle>
+        **`npx typia patch`** 
+    </AlertTitle> 
+
+Since TypeScript v5.3 update, `tsc` no more parses `JSDocComment`s. Therefore, (`@nestia/core`) `typia` also cannot utilize those `JSDocComment` related features too, especially ["Comment Tags"](https://typia.io/docs/validators/tags/#comment-tags) and ["JSON schema generator"](https://typia.io/docs/json/schema). 
+
+The `npx typia patch` command has been developed to revive the `JSDocComment` parsing feature of `tsc`. It is temporary solution for the TypeScript v5.3 update instead of [`ts-patch`](https://github.com/nonara/ts-patch), and will be disabled after [`ts-patch`](https://github.com/nonara/ts-patch) starts supporting such TypeScript v5.3 update.
+
+Of course, if you don't use any ["Comment Tags"](https://typia.io/docs/validators/tags/#comment-tags) and ["JSON schema generator"](https://typia.io/docs/json/schema), you don't need to run `npx typia patch` command. This is not mandatory command, but just optional command.
+
+</Alert>
+
+
+
+
+## Standard TypeScript Only
+If you're using `@nestia/core` module, you've to use only standard TypeScript compiler.
+
+Do you remember? `@nestia/core` boosts up [runtime validation](./core/TypedBody) and [JSON serialization](./core/TypedRoute) through [AOT compilation](./pure/#aot-compilation). By the way, `@nestia/core` performs the AOT compilation through standard TypeScript compiler API. Therefore, if you want to utilize those superfast decorators of `@nestia/core` module, you have to use only standard TypeScript compiler.
+
+I also know that non-standard compilers are faster than standard. However, all of them are erasing type information, and skipping type checking for rapid compilation. By the way, without type information, `@nestia/core` can't do anything. It is the reason why `@nestia/core` does not support them.
+
+  - Standard TypeScript Compiler (keep type info)
+    - [Microsoft/TypeScript](https://github.com/microsoft/typescript)
+  - Non-standard TypeScript Compilers (erase type info)
+    - [SWC](https://swc.rs/)
+    - [ESBuild](https://esbuild.github.io/)
+    - [Babel](https://babeljs.io/)

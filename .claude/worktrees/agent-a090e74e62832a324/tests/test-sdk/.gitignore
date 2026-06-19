@@ -1,0 +1,11 @@
+features/*/packages
+features/*/swagger.json
+features/*/src/api/*.ts
+features/*/src/api/functional
+features/*/src/test/features/api/automated
+
+features/clone*/src/api/structures
+features/clone-type-create-duplicate/sdk
+features/configurations/src/api/bbs
+features/configurations/src/api/common
+features/configurations/*.swagger.json

@@ -1,0 +1,138 @@
+---
+title: Guide Documents > Core Library > SwaggerExample
+description: Attach example values to request parameters and response bodies — surfaced in the generated Swagger document's `example` / `examples` fields without affecting runtime behavior.
+---
+
+## Outline
+```typescript filename="@nestia/core" showLineNumbers
+export namespace SwaggerExample {
+  export function Response<T>(value: T): MethodDecorator;
+  export function Response<T>(key: string, value: T): MethodDecorator;
+
+  export function Parameter<T>(value: T): ParameterDecorator;
+  export function Parameter<T>(key: string, value: T): ParameterDecorator;
+}
+```
+
+Decorators that attach example values to a controller method's response body and request parameters.
+
+`SwaggerExample` does not change runtime behavior, validation, or the generated SDK's function signatures. It only feeds the [Swagger document](/docs/swagger) generator, which writes the values into the OpenAPI spec's `example` (single) and `examples` (named map) fields. Tools that consume the spec — Swagger UI, Postman imports, the [TypeScript Swagger Editor](/docs/swagger/editor), AI agents — then surface those examples to the reader.
+
+Each decorator has two overloads:
+
+- **`(value)`** — single default example. Becomes the OpenAPI `example` field.
+- **`(key, value)`** — one named example. Becomes an entry under `examples[key]`. Apply multiple times to attach several named examples to the same target.
+
+Both forms can coexist; a method (or parameter) may carry both a single default `example` and a map of named `examples`.
+
+
+
+
+## How to use
+```typescript filename="BbsArticlesController.ts" showLineNumbers {10,13-16,29-31,33,36}
+import core from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import typia, { tags } from "typia";
+import { v4 } from "uuid";
+
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+
+@Controller("bbs/articles")
+export class BbsArticlesController {
+  @core.SwaggerExample.Response(typia.random<IBbsArticle>())
+  @core.TypedRoute.Post()
+  public async create(
+    @core.SwaggerExample.Parameter(typia.random<IBbsArticle.ICreate>())
+    @core.SwaggerExample.Parameter("x", typia.random<IBbsArticle.ICreate>())
+    @core.SwaggerExample.Parameter("y", typia.random<IBbsArticle.ICreate>())
+    @core.SwaggerExample.Parameter("z", typia.random<IBbsArticle.ICreate>())
+    @core.TypedBody()
+    input: IBbsArticle.ICreate,
+  ): Promise<IBbsArticle> {
+    return {
+      ...typia.random<IBbsArticle>(),
+      ...input,
+    };
+  }
+
+  @core.SwaggerExample.Response(typia.random<IBbsArticle>())
+  @core.SwaggerExample.Response("a", typia.random<IBbsArticle>())
+  @core.SwaggerExample.Response("b", typia.random<IBbsArticle>())
+  @core.TypedRoute.Put(":id")
+  public async update(
+    @core.SwaggerExample.Parameter(v4())
+    @core.TypedParam("id")
+    id: string & tags.Format<"uuid">,
+    @core.SwaggerExample.Parameter(typia.random<IBbsArticle.IUpdate>())
+    @core.TypedBody()
+    input: IBbsArticle.IUpdate,
+  ): Promise<IBbsArticle> {
+    return {
+      ...typia.random<IBbsArticle>(),
+      ...input,
+      id,
+    };
+  }
+}
+```
+
+Above, `create` carries one default response example plus one default body example and three named body examples (`x`, `y`, `z`). `update` shows the inverse: the response side has both a default and two named examples (`a`, `b`), while the path parameter and request body each carry a single default example.
+
+Stack the decorators in any order relative to `@TypedBody()` / `@TypedParam()` / `@TypedQuery()` / `@TypedRoute.*`. They are independent — `SwaggerExample` only writes to metadata; the actual parameter/route decorator handles the request.
+
+
+
+
+## Generated Swagger
+After `npx nestia swagger`, the relevant chunks of the generated OpenAPI document look like:
+
+```json filename="swagger.json (excerpt)" showLineNumbers
+{
+  "paths": {
+    "/bbs/articles": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IBbsArticle.ICreate" },
+              "example": { "title": "...", "body": "...", "files": [] },
+              "examples": {
+                "x": { "value": { "title": "...", "body": "...", "files": [] } },
+                "y": { "value": { "title": "...", "body": "...", "files": [] } },
+                "z": { "value": { "title": "...", "body": "...", "files": [] } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IBbsArticle" },
+                "example": { "id": "...", "title": "...", "body": "...", "created_at": "..." }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+
+
+
+## When to use
+- A response or request DTO has non-obvious required-shape combinations (variants, discriminated unions, optional clusters).
+- You want the [Swagger Editor](/docs/swagger/editor) and SDK consumers to see *real-looking* sample payloads instead of the type-synthesized defaults.
+- You are building an [AI chatbot](/docs/swagger/chat) on top of the OpenAPI document — well-chosen examples sharply improve the model's tool-use accuracy.
+
+If you only need *one* generic example per slot, consider letting `typia.random<T>()` synthesize one inline (as in the snippets above). For curated, hand-written examples — or for several named variants — `SwaggerExample` is the right tool.
+
+
+
+
+## Related
+- [TypedException](./TypedException) — the same `example` / `examples` shape, but for declaring possible HTTP error responses.
+- [Swagger Document](/docs/swagger) — how the generated `swagger.json` is wired up end-to-end.

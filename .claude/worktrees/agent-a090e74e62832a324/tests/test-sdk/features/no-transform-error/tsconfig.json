@@ -1,0 +1,14 @@
+{
+  "extends": "../../config/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@api": ["./src/api"],
+      "@api/lib/*": ["./src/api/*"],
+    },
+    "plugins": [
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typia/lib/transform" },
+    ],
+  },
+  "include": ["src"],
+}

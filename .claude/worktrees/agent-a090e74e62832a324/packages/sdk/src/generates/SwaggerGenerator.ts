@@ -1,0 +1,291 @@
+import { SwaggerCustomizer } from "@nestia/core";
+import { JsonSchemasProgrammer, MetadataSchema } from "@typia/core";
+import {
+  OpenApi,
+  OpenApiV3,
+  OpenApiV3_1,
+  OpenApiV3_2,
+  SwaggerV2,
+} from "@typia/interface";
+import { OpenApiConverter } from "@typia/utils";
+import fs from "fs";
+import path from "path";
+import { Singleton } from "tstl";
+import typia, { IJsonSchemaCollection } from "typia";
+
+import { INestiaConfig } from "../INestiaConfig";
+import { ITypedApplication } from "../structures/ITypedApplication";
+import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
+import { FileRetriever } from "../utils/FileRetriever";
+import { SdkHttpParameterProgrammer } from "./internal/SdkHttpParameterProgrammer";
+import { SwaggerOperationComposer } from "./internal/SwaggerOperationComposer";
+
+export namespace SwaggerGenerator {
+  export const generate = async (app: ITypedApplication): Promise<void> => {
+    // GET CONFIGURATION
+    console.log("Generating Swagger Document");
+    if (app.project.config.swagger === undefined)
+      throw new Error("Swagger configuration is not defined.");
+    const config: INestiaConfig.ISwaggerConfig = app.project.config.swagger;
+
+    // TARGET LOCATION
+    const parsed: path.ParsedPath = path.parse(config.output);
+    const directory: string = path.dirname(parsed.dir);
+    if (fs.existsSync(directory) === false)
+      try {
+        await fs.promises.mkdir(directory);
+      } catch {}
+    if (fs.existsSync(directory) === false)
+      throw new Error(
+        `Error on NestiaApplication.swagger(): failed to create output directory: ${directory}`,
+      );
+    const location: string = !!parsed.ext
+      ? path.resolve(config.output)
+      : path.join(path.resolve(config.output), "swagger.json");
+
+    // COMPOSE SWAGGER DOCUMENT
+    const document: OpenApi.IDocument = compose({
+      config,
+      routes: app.routes.filter((route) => route.protocol === "http"),
+      document: await initialize(config),
+    });
+    const specified:
+      | OpenApi.IDocument
+      | SwaggerV2.IDocument
+      | OpenApiV3.IDocument
+      | OpenApiV3_1.IDocument
+      | OpenApiV3_2.IDocument =
+      (config.openapi ?? "3.2") === "3.2"
+        ? document
+        : OpenApiConverter.downgradeDocument(document, config.openapi as "2.0");
+    await fs.promises.writeFile(
+      location,
+      !config.beautify
+        ? JSON.stringify(specified)
+        : JSON.stringify(
+            specified,
+            null,
+            typeof config.beautify === "number" ? config.beautify : 2,
+          ),
+      "utf8",
+    );
+  };
+
+  export const compose = (props: {
+    config: Omit<INestiaConfig.ISwaggerConfig, "output">;
+    routes: ITypedHttpRoute[];
+    document: OpenApi.IDocument;
+  }): OpenApi.IDocument => {
+    // GATHER METADATA
+    const routes: ITypedHttpRoute[] = props.routes.filter((r) =>
+      r.jsDocTags.every(
+        (tag) => tag.name !== "internal" && tag.name !== "hidden",
+      ),
+    );
+    const metadatas: MetadataSchema[] = routes
+      .map((r) => [
+        r.success.metadata,
+        ...SdkHttpParameterProgrammer.getAll(r).map((p) => p.metadata),
+        ...Object.values(r.exceptions).map((e) => e.metadata),
+      ])
+      .flat()
+      .filter((m) => m.size() !== 0);
+
+    // COMPOSE JSON SCHEMAS
+    const json: IJsonSchemaCollection = JsonSchemasProgrammer.writeSchemas({
+      version: "3.1",
+      metadatas,
+    });
+    const dict: WeakMap<MetadataSchema, OpenApi.IJsonSchema> = new WeakMap();
+    json.schemas.forEach((schema, i) => dict.set(metadatas[i]!, schema));
+    const schema = (
+      metadata: MetadataSchema,
+    ): OpenApi.IJsonSchema | undefined => dict.get(metadata);
+
+    // COMPOSE DOCUMENT
+    const document: OpenApi.IDocument = props.document;
+    document.components.schemas ??= {};
+    Object.assign(document.components.schemas, json.components.schemas);
+    fillPaths({
+      ...props,
+      routes,
+      schema,
+      document,
+    });
+    return document;
+  };
+
+  export const initialize = async (
+    config: Omit<INestiaConfig.ISwaggerConfig, "output">,
+  ): Promise<OpenApi.IDocument> => {
+    const pack = new Singleton(
+      async (): Promise<Partial<OpenApi.IDocument.IInfo> | null> => {
+        const location: string | null = await FileRetriever.file(
+          "package.json",
+        )(process.cwd());
+        if (location === null) return null;
+
+        try {
+          const content: string = await fs.promises.readFile(location, "utf8");
+          const data = typia.json.assertParse<{
+            name?: string;
+            version?: string;
+            description?: string;
+            license?:
+              | string
+              | {
+                  type: string;
+                  /** @format uri */
+                  url: string;
+                };
+          }>(content);
+          return {
+            title: data.name,
+            version: data.version,
+            description: data.description,
+            license: data.license
+              ? typeof data.license === "string"
+                ? { name: data.license }
+                : typeof data.license === "object"
+                  ? {
+                      name: data.license.type,
+                      url: data.license.url,
+                    }
+                  : undefined
+              : undefined,
+          };
+        } catch {
+          return null;
+        }
+      },
+    );
+
+    return {
+      openapi: "3.2.0",
+      servers: config.servers ?? [
+        {
+          url: "https://github.com/samchon/nestia",
+          description: "insert your server url",
+        },
+      ],
+      info: {
+        ...(config.info ?? {}),
+        version: config.info?.version ?? (await pack.get())?.version ?? "0.1.0",
+        title:
+          config.info?.title ??
+          (await pack.get())?.title ??
+          "Swagger Documents",
+        description:
+          config.info?.description ??
+          (await pack.get())?.description ??
+          "Generated by nestia - https://github.com/samchon/nestia",
+        license: config.info?.license ?? (await pack.get())?.license,
+      },
+      paths: {},
+      components: {
+        schemas: {},
+        securitySchemes: config.security,
+      },
+      tags: config.tags ?? [],
+      "x-typia-emended-v12": true,
+    };
+  };
+
+  const fillPaths = (props: {
+    config: Omit<INestiaConfig.ISwaggerConfig, "output">;
+    document: OpenApi.IDocument;
+    schema: (metadata: MetadataSchema) => OpenApi.IJsonSchema | undefined;
+    routes: ITypedHttpRoute[];
+  }): void => {
+    // SWAGGER CUSTOMIZER
+    const customizers: Array<() => void> = [];
+    const neighbor = {
+      at: new Singleton(() => {
+        const functor: Map<Function, Endpoint> = new Map();
+        for (const r of props.routes) {
+          const method: OpenApi.Method =
+            r.method.toLowerCase() as OpenApi.Method;
+          const path: string = getPath(r);
+          const operation: OpenApi.IOperation | undefined =
+            props.document.paths?.[path]?.[method];
+          if (operation === undefined) continue;
+          functor.set(r.function, {
+            method,
+            path,
+            route: operation,
+          });
+        }
+        return functor;
+      }),
+      get: new Singleton(
+        () =>
+          (key: Accessor): OpenApi.IOperation | undefined => {
+            const method: OpenApi.Method =
+              key.method.toLowerCase() as OpenApi.Method;
+            const path: string =
+              "/" +
+              key.path
+                .split("/")
+                .filter((str) => !!str.length)
+                .map((str) =>
+                  str.startsWith(":") ? `{${str.substring(1)}}` : str,
+                )
+                .join("/");
+            return props.document.paths?.[path]?.[method];
+          },
+      ),
+    };
+
+    // COMPOSE OPERATIONS
+    for (const r of props.routes) {
+      const operation: OpenApi.IOperation = SwaggerOperationComposer.compose({
+        ...props,
+        route: r,
+      });
+      const path: string = getPath(r);
+      props.document.paths ??= {};
+      props.document.paths[path] ??= {};
+      props.document.paths[path][r.method.toLowerCase() as "get"] = operation;
+
+      const closure: Function | Function[] | undefined = Reflect.getMetadata(
+        "nestia/SwaggerCustomizer",
+        r.controller.class.prototype,
+        r.name,
+      );
+      if (closure !== undefined) {
+        const array: Function[] = Array.isArray(closure) ? closure : [closure];
+        customizers.push(() => {
+          for (const closure of array)
+            closure({
+              swagger: props.document,
+              method: r.method,
+              path,
+              route: operation,
+              at: (func: Function) => neighbor.at.get().get(func),
+              get: (accessor: Accessor) => neighbor.get.get()(accessor),
+            } satisfies SwaggerCustomizer.IProps);
+        });
+      }
+    }
+
+    // DO CUSTOMIZE
+    for (const fn of customizers) fn();
+  };
+
+  const getPath = (route: ITypedHttpRoute): string => {
+    let str: string = route.path;
+    for (const param of route.pathParameters)
+      str = str.replace(`:${param.field}`, `{${param.field}}`);
+    return str;
+  };
+}
+
+interface Accessor {
+  method: string;
+  path: string;
+}
+interface Endpoint {
+  method: string;
+  path: string;
+  route: OpenApi.IOperation;
+}

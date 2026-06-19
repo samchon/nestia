@@ -1,0 +1,4 @@
+{
+  "extends": "../config/tsconfig.typia.json",
+  "include": ["src"],
+}

@@ -1,0 +1,120 @@
+{
+  "openapi": "3.1.0",
+  "paths": {
+    "/customers/authorizations/join": {
+      "post": {
+        "description": "Join a customer.\n\n@setHeader token.access access",
+        "operationId": "joinCustomer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICustomer.IJoin"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICustomer.IAuthorized"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/authorizations/login": {
+      "post": {
+        "description": "Login a customer.\n\n@assignHeaders token",
+        "operationId": "loginCustomer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICustomer.ILogin"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICustomer.IAuthorized"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/authorizations/refresh": {
+      "get": {
+        "description": "Refresh a customer's authorization token.\n\n@setHeader access access",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IAuthorizationToken"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IAuthorizationToken": {
+        "type": "object",
+        "properties": {
+          "access": { "type": "string" },
+          "refresh": { "type": "string" },
+          "expired_at": { "type": "string", "format": "date-time" },
+          "refreshable_until": { "type": "string", "format": "date-time" }
+        },
+        "required": ["access", "refresh", "expired_at", "refreshable_until"]
+      },
+      "ICustomer.IAuthorized": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "token": { "$ref": "#/components/schemas/IAuthorizationToken" }
+        },
+        "required": ["id", "name", "email", "token"]
+      },
+      "ICustomer.IJoin": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "minLength": 8 }
+        },
+        "required": ["name", "email", "password"]
+      },
+      "ICustomer.ILogin": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        },
+        "required": ["email", "password"]
+      }
+    }
+  },
+  "x-samchon-emended-v4": true
+}
