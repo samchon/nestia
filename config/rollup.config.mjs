@@ -34,6 +34,14 @@ export default {
     nodeResolve(),
     commonjs({
       strictRequires: false,
+      // Render external `require()` as `import * as x` (augmented-namespace
+      // interop) instead of the default `import x from "pkg"`. The default
+      // synthesizes a default export that does not exist on named-only ESM
+      // packages such as `@mui/material`, which makes browser bundlers (the
+      // Next.js website build) fail with "does not contain a default export".
+      // `requireReturnsDefault` does not affect externals, so this is the knob
+      // that matters. The augmented namespace stays correct for CJS externals.
+      esmExternals: true,
     }),
   ],
 };

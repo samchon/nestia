@@ -15,6 +15,13 @@ const withNextra = nextra({});
 export default withNextra({
   output: "export",
   trailingSlash: true,
+  // `@nestia/editor` (and `@nestia/migrate`, pulled in through it) are only
+  // loaded via `dynamic(..., { ssr: false })`, so they never run on the
+  // server. Keep them external on the server compiler instead of bundling
+  // their ESM `.mjs`, whose esm-shim banner imports `node:module`/`node:url`/
+  // `node:path` — schemes the server bundler cannot resolve (UnhandledScheme).
+  // The client compiler already maps `node:*` to `false` via `nodeFallbacks`.
+  serverExternalPackages: ["@nestia/editor", "@nestia/migrate"],
   eslint: {
     ignoreDuringBuilds: true,
   },
