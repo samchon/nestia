@@ -18,9 +18,9 @@ export default withNextra({
   // `@nestia/editor` (and `@nestia/migrate`, pulled in through it) are only
   // loaded via `dynamic(..., { ssr: false })`, so they never run on the
   // server. Keep them external on the server compiler instead of bundling
-  // their ESM `.mjs`, whose esm-shim banner imports `node:module`/`node:url`/
-  // `node:path` — schemes the server bundler cannot resolve (UnhandledScheme).
-  // The client compiler already maps `node:*` to `false` via `nodeFallbacks`.
+  // their browser-oriented ESM `.mjs` there. The client compiler still bundles
+  // them; the `node:`-scheme imports their esm-shim banner carries are handled
+  // by the webpack rewrite below.
   serverExternalPackages: ["@nestia/editor", "@nestia/migrate"],
   eslint: {
     ignoreDuringBuilds: true,
@@ -38,6 +38,20 @@ export default withNextra({
         ...config.resolve.alias,
         "@vue/compiler-sfc": false,
       };
+      // `@nestia/migrate`'s `.mjs` carries an esm-shim banner that imports
+      // `node:module`/`node:url`/`node:path`. webpack intercepts the `node:`
+      // scheme before module resolution, so the `node:*` entries in
+      // `resolve.fallback` never apply and the client build dies with
+      // `UnhandledSchemeError`. Rewrite the requests to their bare names so
+      // the (working) bare `resolve.fallback` entries map them to `false`.
+      config.plugins.push(
+        new options.webpack.NormalModuleReplacementPlugin(
+          /^node:/,
+          (resource: { request: string }) => {
+            resource.request = resource.request.replace(/^node:/, "");
+          },
+        ),
+      );
     }
     return config;
   },
