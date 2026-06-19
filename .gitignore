@@ -2,6 +2,8 @@ bin/
 lib/
 node_modules/
 
+.claude/
+.codex/
 .discussions/
 .ttsc-cache/
 .wiki/
