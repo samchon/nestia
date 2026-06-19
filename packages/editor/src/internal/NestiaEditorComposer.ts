@@ -1,4 +1,5 @@
-import { NestiaMigrateApplication } from "@nestia/migrate";
+import migrate from "@nestia/migrate";
+import type { NestiaMigrateApplication } from "@nestia/migrate";
 import {
   OpenApiV3,
   OpenApiV3_1,
@@ -63,7 +64,7 @@ export namespace NestiaEditorComposer {
           },
         };
       const result: IValidation<NestiaMigrateApplication> =
-        await NestiaMigrateApplication.validate(props.document);
+        await migrate.NestiaMigrateApplication.validate(props.document);
       if (result.success === false) return result;
 
       const app: NestiaMigrateApplication = result.data;

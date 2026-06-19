@@ -48,14 +48,12 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "catalog:rollup",
+    "@rollup/plugin-esm-shim": "catalog:rollup",
     "@rollup/plugin-node-resolve": "catalog:rollup",
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils",
     "rollup": "catalog:rollup",
-    "rollup-plugin-auto-external": "catalog:rollup",
-    "rollup-plugin-node-externals": "catalog:rollup",
-    "tinyglobby": "^0.2.16",
-    "@rollup/plugin-typescript": "catalog:rollup"
+    "rollup-plugin-node-externals": "catalog:rollup"
   },
   "files": [
     "README.md",

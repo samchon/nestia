@@ -15,7 +15,7 @@
     "@nestia/migrate": "lib/executable/migrate.js"
   },
   "scripts": {
-    "build": "rimraf lib && ttsc && rollup -c",
+    "build": "rimraf lib && ttsc && tsc --emitDeclarationOnly && rollup -c",
     "bundle": "node src/executable/bundle.js",
     "dev": "rimraf lib && ttsc --watch",
     "prepack": "pnpm run build",
@@ -43,13 +43,16 @@
   },
   "homepage": "https://nestia.io",
   "devDependencies": {
-    "@rollup/plugin-terser": "catalog:rollup",
-    "@rollup/plugin-typescript": "catalog:rollup",
+    "@rollup/plugin-commonjs": "catalog:rollup",
+    "@rollup/plugin-esm-shim": "catalog:rollup",
+    "@rollup/plugin-node-resolve": "catalog:rollup",
     "@types/inquirer": "^9.0.7",
     "@types/node": "catalog:utils",
     "js-yaml": "^4.1.0",
     "rimraf": "catalog:utils",
-    "rollup": "catalog:rollup"
+    "rollup": "catalog:rollup",
+    "rollup-plugin-node-externals": "catalog:rollup",
+    "typescript": "catalog:typescript"
   },
   "dependencies": {
     "@trivago/prettier-plugin-sort-imports": "catalog:typescript",
