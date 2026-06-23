@@ -74,13 +74,15 @@ export namespace DynamicBenchmarker {
     /**
      * Filter function.
      *
-     * The filter function to determine whether to execute the function in the
-     * servant or not.
+     * The filter function is called with the file name (basename) of each
+     * benchmark function module, not with the function name. When it returns
+     * `false`, the file would never be imported in the servant, so that every
+     * function defined in the file would never be executed either.
      *
-     * @param name Function name
+     * @param file File name (basename) of the benchmark functions
      * @returns Whether to execute the function or not.
      */
-    filter?: (name: string) => boolean;
+    filter?: (file: string) => boolean;
 
     /**
      * Progress callback function.
@@ -124,10 +126,10 @@ export namespace DynamicBenchmarker {
      * Extension of the benchmark function files to load, without the leading
      * dot.
      *
-     * The servant reads {@link location} and imports every file ending with
-     * this extension. Set it to match how the feature files are actually run:
-     * `"js"` when they are built JavaScript, or `"ts"` when they are executed
-     * from TypeScript source (for example under `ttsx`).
+     * The servant reads {@link location} and imports every file ending with this
+     * extension. Set it to match how the feature files are actually run: `"js"`
+     * when they are built JavaScript, or `"ts"` when they are executed from
+     * TypeScript source (for example under `ttsx`).
      *
      * @default "js"
      */
@@ -139,7 +141,9 @@ export namespace DynamicBenchmarker {
      * Every prefixed function will be executed in the servant.
      *
      * In other words, if a function name doesn't start with the prefix, then it
-     * would never be executed.
+     * would never be executed. Also, when a file name (basename) does not start
+     * with the prefix, the file would never be imported either, so that every
+     * function defined in the file would never be executed.
      */
     prefix: string;
 
@@ -401,11 +405,14 @@ const iterate =
         file.endsWith(`.${ctx.props.extension ?? "js"}`) &&
         file.endsWith(".d.ts") === false
       ) {
+        // GATE BY FILE NAME (PREFIX & FILTER), SO THAT EXCLUDED FILES ARE
+        // NEVER IMPORTED.
+        if (file.startsWith(ctx.props.prefix) === false) continue;
+        if ((await ctx.driver.filter(file)) === false) continue;
         const modulo = await import(location);
         for (const [key, value] of Object.entries(modulo)) {
           if (typeof value !== "function") continue;
           else if (key.startsWith(ctx.props.prefix) === false) continue;
-          else if ((await ctx.driver.filter(key)) === false) continue;
           ctx.collection.push({
             key,
             value: value as (...args: Parameters) => Promise<any>,
