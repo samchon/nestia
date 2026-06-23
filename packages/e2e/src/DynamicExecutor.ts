@@ -41,7 +41,9 @@ export namespace DynamicExecutor {
      * Every prefixed function will be executed.
      *
      * In other words, if a function name doesn't start with the prefix, then it
-     * would never be executed.
+     * would never be executed. Also, when a file name (basename) does not start
+     * with the prefix, the file would never be imported either, so that every
+     * function defined in the file would never be executed.
      */
     prefix: string;
 
@@ -68,10 +70,15 @@ export namespace DynamicExecutor {
     /**
      * Filter function whether to run or not.
      *
-     * @param name Function name
+     * The filter function is called with the file name (basename) of each
+     * dynamic function module, not with the function name. When it returns
+     * `false`, the file would never be imported, so that every function defined
+     * in the file would never be executed either.
+     *
+     * @param file File name (basename) of the dynamic functions
      * @returns Whether to run or not
      */
-    filter?: (name: string) => boolean;
+    filter?: (file: string) => boolean;
 
     /**
      * Wrapper of test function.
@@ -187,6 +194,8 @@ export namespace DynamicExecutor {
       const processes: Array<() => Promise<void>> = await iterate({
         extension: props.extension ?? "js",
         location: props.location,
+        prefix: props.prefix,
+        filter: props.filter,
         executor,
       });
       await Promise.all(
@@ -201,9 +210,21 @@ export namespace DynamicExecutor {
       return report;
     };
 
+  const specifier = (location: string): string => {
+    const relative: string = NodePath.relative(
+      __dirname,
+      NodePath.resolve(location),
+    )
+      .split(NodePath.sep)
+      .join("/");
+    return `./${relative}`;
+  };
+
   const iterate = async <Arguments extends any[]>(props: {
     location: string;
     extension: string;
+    prefix: string;
+    filter?: (file: string) => boolean;
     executor: (path: string, modulo: Module<Arguments>) => Promise<void>;
   }): Promise<Array<() => Promise<void>>> => {
     const container: Array<() => Promise<void>> = [];
@@ -217,8 +238,16 @@ export namespace DynamicExecutor {
           await visitor(location);
           continue;
         } else if (file.substr(-3) !== `.${props.extension}`) continue;
+        else if (file.startsWith(props.prefix) === false) continue;
+        else if (props.filter && props.filter(file) === false) continue;
 
-        const modulo: Module<Arguments> = await import(location);
+        // Convert the absolute path to a POSIX relative specifier. It works
+        // both as a native ESM dynamic import (module: nodenext, which keeps
+        // `import()` as is) and as a `require()` call (module: commonjs, which
+        // downlevels `import()` to `require()`). A raw absolute path would
+        // break the native import on Windows (file URL scheme), and a `file://`
+        // URL would break the downleveled `require()`.
+        const modulo: Module<Arguments> = await import(specifier(location));
         container.push(() => props.executor(location, modulo));
       }
     };
@@ -234,8 +263,7 @@ export namespace DynamicExecutor {
       for (const [key, closure] of Object.entries(modulo)) {
         if (
           key.substring(0, props.prefix.length) !== props.prefix ||
-          typeof closure !== "function" ||
-          (props.filter && props.filter(key) === false)
+          typeof closure !== "function"
         )
           continue;
 

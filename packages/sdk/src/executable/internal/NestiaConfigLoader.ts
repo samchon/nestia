@@ -60,9 +60,11 @@ export namespace NestiaConfigLoader {
           : undefined,
       });
 
+    // POSIX relative specifier: works both as a native ESM dynamic import
+    // (module: nodenext) and as a downleveled require() (module: commonjs).
     const loaded: (INestiaConfig | INestiaConfig[]) & {
       default?: INestiaConfig | INestiaConfig[];
-    } = await import(path.resolve(file));
+    } = await import(specifier(file));
     const instance: INestiaConfig | INestiaConfig[] =
       typeof loaded?.default === "object" && loaded.default !== null
         ? loaded.default
@@ -80,3 +82,11 @@ export namespace NestiaConfigLoader {
     }
   };
 }
+
+const specifier = (location: string): string => {
+  const relative: string = path
+    .relative(__dirname, path.resolve(location))
+    .split(path.sep)
+    .join("/");
+  return `./${relative}`;
+};

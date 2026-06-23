@@ -1,5 +1,6 @@
 import { IConnection } from "@nestia/fetcher";
 import fs from "fs";
+import NodePath from "path";
 import { Driver, WorkerConnector, WorkerServer } from "tgrid";
 import { HashMap, hash, sleep_for } from "tstl";
 
@@ -74,13 +75,15 @@ export namespace DynamicBenchmarker {
     /**
      * Filter function.
      *
-     * The filter function to determine whether to execute the function in the
-     * servant or not.
+     * The filter function is called with the file name (basename) of each
+     * benchmark function module, not with the function name. When it returns
+     * `false`, the file would never be imported in the servant, so that every
+     * function defined in the file would never be executed either.
      *
-     * @param name Function name
+     * @param file File name (basename) of the benchmark functions
      * @returns Whether to execute the function or not.
      */
-    filter?: (name: string) => boolean;
+    filter?: (file: string) => boolean;
 
     /**
      * Progress callback function.
@@ -126,7 +129,9 @@ export namespace DynamicBenchmarker {
      * Every prefixed function will be executed in the servant.
      *
      * In other words, if a function name doesn't start with the prefix, then it
-     * would never be executed.
+     * would never be executed. Also, when a file name (basename) does not start
+     * with the prefix, the file would never be imported either, so that every
+     * function defined in the file would never be executed.
      */
     prefix: string;
 
@@ -366,6 +371,16 @@ interface IFunction<Parameters extends any[]> {
   value: (...args: Parameters) => Promise<void>;
 }
 
+const specifier = (location: string): string => {
+  const relative: string = NodePath.relative(
+    __dirname,
+    NodePath.resolve(location),
+  )
+    .split(NodePath.sep)
+    .join("/");
+  return `./${relative}`;
+};
+
 const iterate =
   <Parameters extends any[]>(ctx: {
     collection: IFunction<Parameters>[];
@@ -379,11 +394,17 @@ const iterate =
       const stat: fs.Stats = await fs.promises.stat(location);
       if (stat.isDirectory() === true) await iterate(ctx)(location);
       else if (file.endsWith(__filename.substr(-3)) === true) {
-        const modulo = await import(location);
+        // GATE BY FILE NAME (PREFIX & FILTER), SO THAT EXCLUDED FILES ARE
+        // NEVER IMPORTED
+        if (file.startsWith(ctx.props.prefix) === false) continue;
+        if ((await ctx.driver.filter(file)) === false) continue;
+        // POSIX relative specifier: works both as a native ESM dynamic import
+        // (module: nodenext) and as a downleveled require() (module: commonjs)
+        // on any OS.
+        const modulo = await import(specifier(location));
         for (const [key, value] of Object.entries(modulo)) {
           if (typeof value !== "function") continue;
           else if (key.startsWith(ctx.props.prefix) === false) continue;
-          else if ((await ctx.driver.filter(key)) === false) continue;
           ctx.collection.push({
             key,
             value: value as (...args: Parameters) => Promise<any>,
