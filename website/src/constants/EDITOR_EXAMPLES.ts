@@ -39,7 +39,7 @@ export const EDITOR_EXAMPLES: IAsset[] = [
     title: "Atlas Cloud",
     package: "atlascloud",
     swagger:
-      "https://gist.githubusercontent.com/lucaszhu-hue/a8ded2ffb46aa668bd1dd2ba2a47249d/raw/atlascloud.json",
+      "https://raw.githubusercontent.com/AtlasCloudAI/atlas-cloud-skills/main/atlascloud.json",
   },
 ];
 interface IAsset {
