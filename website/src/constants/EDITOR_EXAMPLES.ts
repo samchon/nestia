@@ -35,6 +35,12 @@ export const EDITOR_EXAMPLES: IAsset[] = [
     swagger:
       "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/test/examples/v3.0/openai.json",
   },
+  {
+    title: "Atlas Cloud",
+    package: "atlascloud",
+    swagger:
+      "https://raw.githubusercontent.com/AtlasCloudAI/atlas-cloud-skills/main/atlascloud.json",
+  },
 ];
 interface IAsset {
   title: string;
