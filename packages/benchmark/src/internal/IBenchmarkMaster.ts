@@ -1,4 +1,4 @@
 export interface IBenchmarkMaster {
-  filter: (name: string) => boolean;
+  filter: (file: string) => boolean;
   progress: (current: number) => void;
 }

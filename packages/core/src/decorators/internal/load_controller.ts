@@ -1,4 +1,5 @@
 import is_ts_node from "detect-ts-node";
+import path from "path";
 
 import { Creator } from "../../typings/Creator";
 import { SourceFinder } from "../../utils/SourceFinder";
@@ -31,7 +32,9 @@ export const load_controllers = async (
 async function mount(sources: string[]): Promise<any[]> {
   const controllers: any[] = [];
   for (const file of sources) {
-    const external: any = await import(file);
+    // POSIX relative specifier: works both as a native ESM dynamic import
+    // (module: nodenext) and as a downleveled require() (module: commonjs).
+    const external: any = await import(specifier(file));
     for (const key in external) {
       const instance: Creator<object> = external[key];
       if (Reflect.getMetadata("path", instance) !== undefined)
@@ -40,6 +43,15 @@ async function mount(sources: string[]): Promise<any[]> {
   }
   return controllers;
 }
+
+/** @internal */
+const specifier = (location: string): string => {
+  const relative: string = path
+    .relative(__dirname, path.resolve(location))
+    .split(path.sep)
+    .join("/");
+  return `./${relative}`;
+};
 
 /** @internal */
 const EXTENSION = is_ts_node ? "ts" : "js";
