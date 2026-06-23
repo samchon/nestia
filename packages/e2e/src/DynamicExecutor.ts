@@ -1,6 +1,5 @@
 import fs from "fs";
 import NodePath from "path";
-import url from "url";
 
 /**
  * Dynamic Executor running prefixed functions.
@@ -42,7 +41,9 @@ export namespace DynamicExecutor {
      * Every prefixed function will be executed.
      *
      * In other words, if a function name doesn't start with the prefix, then it
-     * would never be executed.
+     * would never be executed. Also, when a file name (basename) does not start
+     * with the prefix, the file would never be imported either, so that every
+     * function defined in the file would never be executed.
      */
     prefix: string;
 
@@ -193,6 +194,7 @@ export namespace DynamicExecutor {
       const processes: Array<() => Promise<void>> = await iterate({
         extension: props.extension ?? "js",
         location: props.location,
+        prefix: props.prefix,
         filter: props.filter,
         executor,
       });
@@ -208,9 +210,20 @@ export namespace DynamicExecutor {
       return report;
     };
 
+  const specifier = (location: string): string => {
+    const relative: string = NodePath.relative(
+      __dirname,
+      NodePath.resolve(location),
+    )
+      .split(NodePath.sep)
+      .join("/");
+    return `./${relative}`;
+  };
+
   const iterate = async <Arguments extends any[]>(props: {
     location: string;
     extension: string;
+    prefix: string;
     filter?: (file: string) => boolean;
     executor: (path: string, modulo: Module<Arguments>) => Promise<void>;
   }): Promise<Array<() => Promise<void>>> => {
@@ -225,14 +238,16 @@ export namespace DynamicExecutor {
           await visitor(location);
           continue;
         } else if (file.substr(-3) !== `.${props.extension}`) continue;
+        else if (file.startsWith(props.prefix) === false) continue;
         else if (props.filter && props.filter(file) === false) continue;
 
-        // `module: nodenext` keeps the `import()` as a native ESM dynamic
-        // import (it is not downleveled to `require()` anymore), so the
-        // absolute filesystem path must be converted to a `file://` URL.
-        const modulo: Module<Arguments> = await import(
-          url.pathToFileURL(location).href
-        );
+        // Convert the absolute path to a POSIX relative specifier. It works
+        // both as a native ESM dynamic import (module: nodenext, which keeps
+        // `import()` as is) and as a `require()` call (module: commonjs, which
+        // downlevels `import()` to `require()`). A raw absolute path would
+        // break the native import on Windows (file URL scheme), and a `file://`
+        // URL would break the downleveled `require()`.
+        const modulo: Module<Arguments> = await import(specifier(location));
         container.push(() => props.executor(location, modulo));
       }
     };
