@@ -5,7 +5,6 @@ import { register } from "ts-node";
 import { parse } from "tsconfck";
 import ts from "typescript";
 import typia from "typia";
-import url from "url";
 
 import { INestiaConfig } from "../../INestiaConfig";
 
@@ -61,11 +60,11 @@ export namespace NestiaConfigLoader {
           : undefined,
       });
 
-    // `module: nodenext` keeps the `import()` as a native ESM dynamic
-    // import, so the filesystem path must be passed as a `file://` URL.
+    // POSIX relative specifier: works both as a native ESM dynamic import
+    // (module: nodenext) and as a downleveled require() (module: commonjs).
     const loaded: (INestiaConfig | INestiaConfig[]) & {
       default?: INestiaConfig | INestiaConfig[];
-    } = await import(url.pathToFileURL(path.resolve(file)).href);
+    } = await import(specifier(file));
     const instance: INestiaConfig | INestiaConfig[] =
       typeof loaded?.default === "object" && loaded.default !== null
         ? loaded.default
@@ -83,3 +82,11 @@ export namespace NestiaConfigLoader {
     }
   };
 }
+
+const specifier = (location: string): string => {
+  const relative: string = path
+    .relative(__dirname, path.resolve(location))
+    .split(path.sep)
+    .join("/");
+  return `./${relative}`;
+};
