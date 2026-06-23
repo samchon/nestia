@@ -1,5 +1,6 @@
 import fs from "fs";
 import NodePath from "path";
+import url from "url";
 
 /**
  * Dynamic Executor running prefixed functions.
@@ -68,10 +69,15 @@ export namespace DynamicExecutor {
     /**
      * Filter function whether to run or not.
      *
-     * @param name Function name
+     * The filter function is called with the file name (basename) of each
+     * dynamic function module, not with the function name. When it returns
+     * `false`, the file would never be imported, so that every function defined
+     * in the file would never be executed either.
+     *
+     * @param file File name (basename) of the dynamic functions
      * @returns Whether to run or not
      */
-    filter?: (name: string) => boolean;
+    filter?: (file: string) => boolean;
 
     /**
      * Wrapper of test function.
@@ -187,6 +193,7 @@ export namespace DynamicExecutor {
       const processes: Array<() => Promise<void>> = await iterate({
         extension: props.extension ?? "js",
         location: props.location,
+        filter: props.filter,
         executor,
       });
       await Promise.all(
@@ -204,6 +211,7 @@ export namespace DynamicExecutor {
   const iterate = async <Arguments extends any[]>(props: {
     location: string;
     extension: string;
+    filter?: (file: string) => boolean;
     executor: (path: string, modulo: Module<Arguments>) => Promise<void>;
   }): Promise<Array<() => Promise<void>>> => {
     const container: Array<() => Promise<void>> = [];
@@ -217,8 +225,14 @@ export namespace DynamicExecutor {
           await visitor(location);
           continue;
         } else if (file.substr(-3) !== `.${props.extension}`) continue;
+        else if (props.filter && props.filter(file) === false) continue;
 
-        const modulo: Module<Arguments> = await import(location);
+        // `module: nodenext` keeps the `import()` as a native ESM dynamic
+        // import (it is not downleveled to `require()` anymore), so the
+        // absolute filesystem path must be converted to a `file://` URL.
+        const modulo: Module<Arguments> = await import(
+          url.pathToFileURL(location).href
+        );
         container.push(() => props.executor(location, modulo));
       }
     };
@@ -234,8 +248,7 @@ export namespace DynamicExecutor {
       for (const [key, closure] of Object.entries(modulo)) {
         if (
           key.substring(0, props.prefix.length) !== props.prefix ||
-          typeof closure !== "function" ||
-          (props.filter && props.filter(key) === false)
+          typeof closure !== "function"
         )
           continue;
 

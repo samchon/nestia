@@ -2,6 +2,7 @@ import { IConnection } from "@nestia/fetcher";
 import fs from "fs";
 import { Driver, WorkerConnector, WorkerServer } from "tgrid";
 import { HashMap, hash, sleep_for } from "tstl";
+import url from "url";
 
 import { IBenchmarkEvent } from "./IBenchmarkEvent";
 import { DynamicBenchmarkReporter } from "./internal/DynamicBenchmarkReporter";
@@ -74,13 +75,15 @@ export namespace DynamicBenchmarker {
     /**
      * Filter function.
      *
-     * The filter function to determine whether to execute the function in the
-     * servant or not.
+     * The filter function is called with the file name (basename) of each
+     * benchmark function module, not with the function name. When it returns
+     * `false`, the file would never be imported in the servant, so that every
+     * function defined in the file would never be executed either.
      *
-     * @param name Function name
+     * @param file File name (basename) of the benchmark functions
      * @returns Whether to execute the function or not.
      */
-    filter?: (name: string) => boolean;
+    filter?: (file: string) => boolean;
 
     /**
      * Progress callback function.
@@ -379,11 +382,14 @@ const iterate =
       const stat: fs.Stats = await fs.promises.stat(location);
       if (stat.isDirectory() === true) await iterate(ctx)(location);
       else if (file.endsWith(__filename.substr(-3)) === true) {
-        const modulo = await import(location);
+        // FILTER BY FILE NAME, SO THAT EXCLUDED FILES ARE NEVER IMPORTED
+        if ((await ctx.driver.filter(file)) === false) continue;
+        // `module: nodenext` keeps the `import()` as a native ESM dynamic
+        // import, so the filesystem path must be passed as a `file://` URL.
+        const modulo = await import(url.pathToFileURL(location).href);
         for (const [key, value] of Object.entries(modulo)) {
           if (typeof value !== "function") continue;
           else if (key.startsWith(ctx.props.prefix) === false) continue;
-          else if ((await ctx.driver.filter(key)) === false) continue;
           ctx.collection.push({
             key,
             value: value as (...args: Parameters) => Promise<any>,

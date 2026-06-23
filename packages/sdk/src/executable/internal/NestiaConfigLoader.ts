@@ -5,6 +5,7 @@ import { register } from "ts-node";
 import { parse } from "tsconfck";
 import ts from "typescript";
 import typia from "typia";
+import url from "url";
 
 import { INestiaConfig } from "../../INestiaConfig";
 
@@ -60,9 +61,11 @@ export namespace NestiaConfigLoader {
           : undefined,
       });
 
+    // `module: nodenext` keeps the `import()` as a native ESM dynamic
+    // import, so the filesystem path must be passed as a `file://` URL.
     const loaded: (INestiaConfig | INestiaConfig[]) & {
       default?: INestiaConfig | INestiaConfig[];
-    } = await import(path.resolve(file));
+    } = await import(url.pathToFileURL(path.resolve(file)).href);
     const instance: INestiaConfig | INestiaConfig[] =
       typeof loaded?.default === "object" && loaded.default !== null
         ? loaded.default

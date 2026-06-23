@@ -1,4 +1,5 @@
 import is_ts_node from "detect-ts-node";
+import url from "url";
 
 import { Creator } from "../../typings/Creator";
 import { SourceFinder } from "../../utils/SourceFinder";
@@ -31,7 +32,9 @@ export const load_controllers = async (
 async function mount(sources: string[]): Promise<any[]> {
   const controllers: any[] = [];
   for (const file of sources) {
-    const external: any = await import(file);
+    // `module: nodenext` keeps the `import()` as a native ESM dynamic
+    // import, so the filesystem path must be passed as a `file://` URL.
+    const external: any = await import(url.pathToFileURL(file).href);
     for (const key in external) {
       const instance: Creator<object> = external[key];
       if (Reflect.getMetadata("path", instance) !== undefined)

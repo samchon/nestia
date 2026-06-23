@@ -7,6 +7,7 @@ import fs from "fs";
 import getFunctionLocation from "get-function-location";
 import path from "path";
 import { HashMap, Pair, Singleton } from "tstl";
+import url from "url";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { SdkGenerator } from "../generates/SdkGenerator";
@@ -37,7 +38,9 @@ export namespace ConfigAnalyzer {
       });
       const controllers: INestiaSdkInput.IController[] = [];
       for (const file of sources) {
-        const external: any[] = await import(file);
+        // `module: nodenext` keeps the `import()` as a native ESM dynamic
+        // import, so the filesystem path must be passed as a `file://` URL.
+        const external: any[] = await import(url.pathToFileURL(file).href);
         for (const key in external) {
           const instance: Function = external[key];
           if (Reflect.getMetadata("path", instance) !== undefined)
