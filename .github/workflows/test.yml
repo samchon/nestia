@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/test.yml'
+      - 'config/**'
       - 'packages/*/native/**'
       - 'packages/*/src/**'
       - 'packages/*/test/**'
