@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/build.yml'
+      - 'config/**'
       - 'packages/*/src/**'
       - 'packages/*/package.json'
       - 'packages/*/tsconfig.json'
