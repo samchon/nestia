@@ -232,7 +232,9 @@ export namespace TestValidator {
       const output: T = task();
       if (is_promise(output))
         return new Promise<void>((resolve, reject) =>
-          output.catch(() => resolve()).then(() => reject(message())),
+          output
+            .catch(() => resolve())
+            .then(() => reject(new Error(message()))),
         ) as any;
       else throw new Error(message());
     } catch {
