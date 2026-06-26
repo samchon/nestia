@@ -1,6 +1,5 @@
 import fs from "fs";
 import NodePath from "path";
-import { pathToFileURL } from "url";
 
 /**
  * Dynamic Executor running prefixed functions.
@@ -211,6 +210,16 @@ export namespace DynamicExecutor {
       return report;
     };
 
+  const specifier = (location: string): string => {
+    const relative: string = NodePath.relative(
+      __dirname,
+      NodePath.resolve(location),
+    )
+      .split(NodePath.sep)
+      .join("/");
+    return `./${relative}`;
+  };
+
   const iterate = async <Arguments extends any[]>(props: {
     location: string;
     extension: string;
@@ -234,9 +243,13 @@ export namespace DynamicExecutor {
         else if (file.startsWith(props.prefix) === false) continue;
         else if (props.filter && props.filter(file) === false) continue;
 
-        const modulo: Module<Arguments> = await import(
-          pathToFileURL(location).href
-        );
+        // Convert the absolute path to a POSIX relative specifier. It works
+        // both as a native ESM dynamic import (module: nodenext, which keeps
+        // `import()` as is) and as a `require()` call (module: commonjs, which
+        // downlevels `import()` to `require()`). A raw absolute path would
+        // break the native import on Windows (file URL scheme), and a `file://`
+        // URL would break the downleveled `require()`.
+        const modulo: Module<Arguments> = await import(specifier(location));
         container.push(() => props.executor(location, modulo));
       }
     };
