@@ -25,25 +25,54 @@ export namespace AccessorAnalyzer {
   };
 
   const variable = (routeList: Array<AnyRoute>) => {
-    const dict: Map<string, number> = prepare(routeList);
+    const reserved: Set<string> = reserve(routeList);
+    const assigned: Map<string, string> = new Map();
+    const used: Set<string> = new Set();
     for (const route of routeList) {
-      const emended: string[] = route.accessor.slice();
+      const emended: string[] = [];
       route.accessor.forEach((accessor, i) => {
-        if (NamingConvention.variable(accessor)) return;
-        while (true) {
+        const source: string = route.accessor.slice(0, i + 1).join(".");
+        const registered: string | undefined = assigned.get(source);
+        if (registered !== undefined) {
+          emended.push(registered.split(".").at(-1)!);
+          return;
+        }
+
+        accessor = normalize(accessor);
+        while (NamingConvention.variable(accessor) === false)
           accessor = "_" + accessor;
-          const partial: string = [
-            ...route.accessor.slice(0, i),
-            accessor,
-          ].join(".");
-          if (dict.has(partial) === false) {
-            emended[i] = accessor;
+        while (true) {
+          const partial: string = [...emended, accessor].join(".");
+          if (
+            used.has(partial) === false &&
+            (reserved.has(partial) === false || partial === source)
+          ) {
+            assigned.set(source, partial);
+            used.add(partial);
+            emended.push(accessor);
             break;
           }
+          accessor = "_" + accessor;
         }
       });
       route.accessor.splice(0, route.accessor.length, ...emended);
     }
+  };
+
+  const reserve = (routeList: Array<AnyRoute>): Set<string> => {
+    const output: Set<string> = new Set();
+    for (const route of routeList)
+      route.accessor.forEach((_a, i) => {
+        const partial: string[] = route.accessor.slice(0, i + 1);
+        if (partial.every(NamingConvention.variable))
+          output.add(partial.join("."));
+      });
+    return output;
+  };
+
+  const normalize = (accessor: string): string => {
+    const output: string = accessor.replace(/[^A-Za-z0-9_$]/g, "_");
+    return output.length ? output : "_";
   };
 
   const shrink = (routeList: Array<AnyRoute>) => {
