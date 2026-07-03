@@ -1,6 +1,6 @@
 {
   "name": "@nestia/e2e",
-  "version": "12.0.0-dev.20260612.2",
+  "version": "12.0.0-rc.2",
   "description": "E2E test utilify functions",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",

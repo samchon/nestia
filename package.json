@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "12.0.0-dev.20260612.2",
+  "version": "12.0.0-rc.2",
   "description": "Nestia station",
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
@@ -10,6 +10,7 @@
     "test": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" pnpm build && cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" pnpm test:go && cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" pnpm --filter=./tests/test-* --workspace-concurrency=1 -r start",
     "package:latest": "pnpm --filter=./packages/* -r publish --tag latest --access public",
     "package:next": "bash deploy/next.bash",
+    "package:rc": "bash deploy/rc.bash",
     "package:tgz": "node deploy/tarballs",
     "release": "rimraf packages/migrate/assets && bash deploy/README.bash && bumpp -r"
   },
