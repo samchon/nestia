@@ -1,0 +1,13 @@
+{
+  "extends": "../../../config/tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "paths": {
+      "@api": ["./src/api"],
+      "@api/lib/*": ["./src/api/*"],
+    }
+  },
+  "include": ["src", "nestia.config.ts"],
+}

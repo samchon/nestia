@@ -1,10 +1,7 @@
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import { load } from "js-yaml";
 import React from "react";
-// @ts-ignore
-import FileUpload from "react-mui-fileuploader";
-// @ts-ignore
-import { ExtendedFileProps } from "react-mui-fileuploader/dist/types/index.types";
+import FileUpload, { type ExtendedFileProps } from "react-mui-fileuploader";
 
 export function NestiaEditorFileUploader(
   props: NestiaEditorFileUploader.IProps,

@@ -57,7 +57,13 @@ export namespace SourceFinder {
   };
 
   const _Is_file = (pattern: string): boolean =>
-    pattern.endsWith(".ts") &&
-    !pattern.endsWith(".d.ts") &&
-    fs.existsSync(pattern);
+    isTypeScriptSource(pattern) && fs.existsSync(pattern);
+
+  export const isTypeScriptSource = (file: string): boolean => {
+    const lower: string = file.toLowerCase();
+    return (
+      /\.(?:[cm]?ts)$/.test(lower) &&
+      /\.(?:d\.[cm]?ts|d\.ts)$/.test(lower) === false
+    );
+  };
 }

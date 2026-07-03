@@ -38,14 +38,12 @@ export namespace NestiaEditorComposer {
       migrate: (app) => app.nest(props),
     })(props);
 
-  export const sdk = async (props: IProps): Promise<IValidation<IOutput>> => {
-    console.log("NestiaEditorComposer.sdk()", props);
-    return compose({
+  export const sdk = async (props: IProps): Promise<IValidation<IOutput>> =>
+    compose({
       openFile: "README.md,test/start.ts",
       startScript: ["swagger", "hello"],
       migrate: (app) => app.sdk(props),
     })(props);
-  };
 
   const compose =
     (config: {
