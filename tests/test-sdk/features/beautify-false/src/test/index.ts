@@ -28,8 +28,6 @@ async function main(): Promise<void> {
   });
   await server.close();
 
-  console.log(__dirname, __dirname.substring(__dirname.length - 2));
-
   const exceptions: Error[] = report.executions
     .filter((exec) => exec.error !== null)
     .map((exec) => exec.error!);

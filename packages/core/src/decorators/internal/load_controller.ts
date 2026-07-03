@@ -16,12 +16,7 @@ export const load_controllers = async (
     typeof path === "object" && !Array.isArray(path)
       ? (path.exclude ?? [])
       : [];
-  const filter =
-    isTsNode === true
-      ? (file: string) =>
-          file.substring(file.length - 3) === ".ts" &&
-          file.substring(file.length - 5) !== ".d.ts"
-      : (file: string) => file.substring(file.length - 3) === ".js";
+  const filter = isTsNode === true ? isTypeScriptSource : isJavaScriptModule;
   const sources: string[] = await SourceFinder.find({
     include,
     exclude,
@@ -38,13 +33,10 @@ export const load_controllers = async (
   // `.ts` file is then served as the transformed emit by the hooks.
   if (!isTsxRuntime()) return controllers;
 
-  const tsFilter = (file: string) =>
-    file.substring(file.length - 3) === ".ts" &&
-    file.substring(file.length - 5) !== ".d.ts";
   const fallback: string[] = await SourceFinder.find({
     include,
     exclude,
-    filter: tsFilter,
+    filter: isTypeScriptSource,
   });
   return fallback.length === 0 ? controllers : mount(fallback);
 };
@@ -89,3 +81,14 @@ function isTsxRuntime(): boolean {
     process.env.TTSX_RUNTIME_MANIFEST.length !== 0
   );
 }
+
+const isJavaScriptModule = (file: string): boolean =>
+  /\.(?:[cm]?js)$/.test(file.toLowerCase());
+
+const isTypeScriptSource = (file: string): boolean => {
+  const lower: string = file.toLowerCase();
+  return (
+    /\.(?:[cm]?ts)$/.test(lower) &&
+    /\.(?:d\.[cm]?ts|d\.ts)$/.test(lower) === false
+  );
+};

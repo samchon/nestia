@@ -7,6 +7,7 @@ import fs from "fs";
 import getFunctionLocation from "get-function-location";
 import path from "path";
 import { HashMap, Pair, Singleton } from "tstl";
+import { pathToFileURL } from "url";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { SdkGenerator } from "../generates/SdkGenerator";
@@ -41,9 +42,12 @@ export namespace ConfigAnalyzer {
       const runtime: RuntimeCompiler = await RuntimeCompiler.compile(sources);
       const controllers: INestiaSdkInput.IController[] = [];
       for (const file of sources) {
-        const external: any[] = await import(runtime.output(file));
+        const external: Record<string, unknown> = await dynamicImport(
+          pathToFileURL(runtime.output(file)).href,
+        );
         for (const key in external) {
-          const instance: Function = external[key];
+          const instance: unknown = external[key];
+          if (typeof instance !== "function") continue;
           if (Reflect.getMetadata("path", instance) !== undefined)
             controllers.push({
               class: instance,
@@ -281,7 +285,13 @@ const isTransform = (plugin: RuntimePlugin, name: string): boolean =>
   typeof plugin.transform === "string" && plugin.transform.includes(name);
 
 const replaceExtension = (file: string, extension: string): string =>
-  file.replace(/\.[cm]?tsx?$/i, extension);
+  file.replace(/\.[cm]?tsx?$/i, (matched) =>
+    matched.toLowerCase() === ".mts"
+      ? ".mjs"
+      : matched.toLowerCase() === ".cts"
+        ? ".cjs"
+        : extension,
+  );
 
 const normalizeProjectPath = (project: string | undefined): string => {
   const next: string = project ?? "tsconfig.json";
@@ -302,13 +312,17 @@ const normalize_file = (str: string) =>
 const filter =
   (config: INestiaConfig) =>
   async (location: string): Promise<boolean> =>
-    location.endsWith(".ts") &&
-    !location.endsWith(".d.ts") &&
+    SourceFinder.isTypeScriptSource(location) &&
     (config.output === undefined ||
       (location.indexOf(path.join(config.output, "functional")) === -1 &&
         (await (
           await bundler.get(config.output)
         )(location))) === false);
+
+const dynamicImport: (specifier: string) => Promise<any> = Function(
+  "specifier",
+  "return import(specifier);",
+) as (specifier: string) => Promise<any>;
 
 const bundler = new Singleton(async (output: string) => {
   const assets: string[] = await fs.promises.readdir(SdkGenerator.BUNDLE_PATH);
