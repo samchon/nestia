@@ -505,6 +505,7 @@ If a build emits `Error on nestia.core.<method>(): no transform has been configu
 - `npm run prepare` (or the equivalent) has executed at least once after install, so `ts-patch install` patched the local `typescript`.
 - The TypeScript binary actually being invoked is the project-local one (`node_modules/.bin/tsc`), not a globally installed `tsc` that points at an unpatched compiler.
 - The plugin entries in `tsconfig.json` are spelled exactly as shown above and appear in the `compilerOptions.plugins` array, not at the root.
+- Nx 23 creates Nest workspaces on TypeScript 6 and runs `nx serve` through `@nx/webpack`. The v11 `ts-patch` setup targets TypeScript 5; for Nx 23, migrate to the `@next` / `ttsc` setup, or pin TypeScript 5 before installing the legacy line. If you keep a Webpack target on v11, it must run `ts-loader` with the patched project-local TypeScript compiler.
 
 ## Migrating to TypeScript-Go
 

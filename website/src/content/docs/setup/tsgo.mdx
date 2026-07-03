@@ -233,6 +233,41 @@ bun ttsx src/main.ts
 
 NestJS monorepos created with `nest g app <name>` put each app at `apps/<name>/src/main.ts` with its own `apps/<name>/tsconfig.app.json`. Build each app with `ttsc -p apps/<name>/tsconfig.app.json`, and run the SDK / Swagger / e2e generators per app — `nestia.config.ts` is project-scoped.
 
+### Nx 23
+
+Fresh Nx 23 Nest workspaces use `@nx/webpack` and an `NxAppWebpackPlugin` build target. `nx serve <app>` runs that Webpack target before starting Node, so `compilerOptions.plugins` alone is not enough; the build must either call `ttsc` directly or load `@ttsc/unplugin/webpack` in the generated Webpack config.
+
+If you keep Nx's Webpack build, install `@ttsc/unplugin` and add the plugin next to `NxAppWebpackPlugin`. In the default Nx 23 layout the command runs from the app directory, so `project: "./tsconfig.app.json"` points at the app config:
+
+```js filename="apps/api/webpack.config.js" showLineNumbers copy
+const { NxAppWebpackPlugin } = require("@nx/webpack/app-plugin");
+const ttsc = require("@ttsc/unplugin/webpack").default;
+const { join } = require("path");
+
+module.exports = {
+  output: {
+    path: join(__dirname, "../../dist/apps/api"),
+    clean: true,
+  },
+  plugins: [
+    new NxAppWebpackPlugin({
+      target: "node",
+      compiler: "tsc",
+      main: "./src/main.ts",
+      tsConfig: "./tsconfig.app.json",
+      assets: ["./src/assets"],
+      optimization: false,
+      outputHashing: "none",
+      generatePackageJson: true,
+      sourceMap: true,
+    }),
+    ttsc({ project: "./tsconfig.app.json" }),
+  ],
+};
+```
+
+Without that plugin, `nx serve` can build successfully but the first `@TypedRoute` / `@TypedBody` call fails at runtime with "no transform has been configured" because Nx invoked Webpack's stock TypeScript path instead of `ttsc`.
+
 ## Generate
 
 First time on this project? Run `npx nestia init` once — it writes a starter `nestia.config.ts` next to your `tsconfig.json`. After that, `npx nestia all` emits the SDK, Swagger document, and e2e suite in one pass.
