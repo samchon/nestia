@@ -11,7 +11,7 @@ import { Cards, Callout } from "nextra/components";
 
 **Nestia turns a plain TypeScript type into everything a NestJS server usually needs to wire by hand.** You write one interface, and you get:
 
-- **Runtime validation** of requests and responses — typically 30–100× faster than `class-validator` (up to 20,000× on pathological cases; see [Why So Fast](/docs/concepts/why-fast) for the honest breakdown).
+- **Runtime validation** of requests and responses — typically 30–100× faster than `class-validator` and up to 20,000× on pathological cases.
 - A **typed client SDK** — like tRPC, but over plain REST.
 - An **OpenAPI 3.1 / 3.0 / 2.0** document.
 - An **end-to-end test suite** generated for every endpoint.
@@ -58,10 +58,6 @@ That's it. The rest is generated.
 2. At build time, **`ttsc`** (a Go-based TypeScript compiler) runs Nestia's transformer. It reads your TypeScript types and **inlines a hand-written validator and serializer** for each call site.
 3. The **`nestia` CLI** reads the same types to generate an SDK, a Swagger document, and an e2e suite into files you commit.
 
-Read the longer version on **[Concepts → AOT Compilation](/docs/concepts/aot)**.
-
----
-
 ## The packages
 
 Nestia is a small family. The two you'll see most are bold:
@@ -75,7 +71,7 @@ Nestia is a small family. The two you'll see most are bold:
 - `@nestia/editor` — Swagger UI with an embedded TypeScript playground.
 - `nestia` — the CLI that drives `@nestia/sdk`.
 
-You only think about the first two day-to-day. `npx nestia setup` installs them in one go.
+You only think about the first two day-to-day. Install them with `ttsc` and TypeScript 7 as shown in [Setup](/docs/setup).
 
 ---
 
@@ -86,16 +82,10 @@ You only think about the first two day-to-day. `npx nestia setup` installs them 
     30-minute guided walkthrough. Start here if you have not used Nestia before.
   </Cards.Card>
   <Cards.Card title="📦 Setup" href="/docs/setup">
-    Install Nestia in an existing NestJS project (TypeScript-Go or legacy).
-  </Cards.Card>
-  <Cards.Card title="🧠 Concepts" href="/docs/concepts/pure-typescript">
-    Pure TypeScript types, AOT compilation, why so fast — the "magic" explained.
+    Install Nestia in an existing NestJS project with TypeScript 7 and ttsc.
   </Cards.Card>
   <Cards.Card title="📖 Reference" href="/docs/core/TypedRoute">
     Per-decorator and per-feature reference pages.
-  </Cards.Card>
-  <Cards.Card title="🍳 Recipes / FAQ" href="/docs/recipes">
-    Short answers, migration recipes, troubleshooting.
   </Cards.Card>
   <Cards.Card title="🎮 Playground" href="https://stackblitz.com/github/samchon/nestia-start?file=README.md&view=editor">
     Try Nestia in a browser, no local setup needed.
@@ -118,10 +108,6 @@ You only think about the first two day-to-day. `npx nestia setup` installs them 
     **Mockup simulator** built into the SDK — flip `simulate: true` and your frontend runs without a backend.
   </Alert>
 </Stack>
-
-Curious how those numbers hold up under load? See **[Why So Fast](/docs/concepts/why-fast)** for the methodology and the caveats.
-
----
 
 ## Community
 

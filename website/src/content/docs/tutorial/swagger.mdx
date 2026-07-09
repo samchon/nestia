@@ -96,7 +96,7 @@ main().catch(console.error);
 Open **http://localhost:37001/docs** and you have an interactive playground. Every endpoint, every DTO, every constraint — already documented.
 
 <Callout type="info">
-`NestiaSwaggerComposer` lives in `@nestia/sdk`, which is a **runtime** dependency on the `@next` line for exactly this reason. The Go binary inside `@nestia/sdk` attaches the metadata `NestiaSwaggerComposer` needs at compile time, and the runtime call assembles the final document.
+`NestiaSwaggerComposer` lives in `@nestia/sdk`, which is a **runtime** dependency for exactly this reason. The Nestia transform attaches the metadata `NestiaSwaggerComposer` needs at compile time, and the runtime call assembles the final document.
 </Callout>
 
 ---
@@ -129,7 +129,7 @@ interface ICreateArticle {
 }
 ```
 
-The migration is mechanical. See **[Recipes → Migrating from @nestjs/swagger](/docs/recipes/from-nestjs-swagger)** for a full mapping table.
+The migration is mechanical: move descriptions, titles, defaults, examples, and validation strings from Swagger decorators into JSDoc on the same controller methods and DTO fields.
 
 ---
 

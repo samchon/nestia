@@ -48,24 +48,15 @@ main().catch(console.error);
 
 Open `http://localhost:3000/docs` and the Swagger UI loads with your full API. The raw JSON is at `http://localhost:3000/docs-json`.
 
-### Plugin configuration
+### Build requirement
 
-`NestiaSwaggerComposer` needs the `@nestia/sdk` transform active at build time. The auto-discovery in `ttsc` handles this on the `@next` line, but if you have an explicit `compilerOptions.plugins`, make sure the SDK transform is there:
+`NestiaSwaggerComposer` needs the `@nestia/sdk` transform active at build time.
+Build with `ttsc`; it discovers the Nestia and typia transforms from package
+manifests. You do not need a `compilerOptions.plugins` array.
 
-```jsonc filename="tsconfig.json" copy
-{
-  "compilerOptions": {
-    "strict": true,
-    "plugins": [
-      { "transform": "typia/lib/transform", "enabled": false },
-      { "transform": "@nestia/sdk/lib/transform" },                // <-- required
-      { "transform": "@nestia/core/native/transform.cjs" }
-    ]
-  }
-}
-```
-
-If the plugin is missing or stale, `NestiaSwaggerComposer` finds zero routes and emits an empty document. The fix is always: re-enable the plugin, then rebuild.
+If the app was built with `tsc`, SWC, Babel, or `nest build`, `NestiaSwaggerComposer`
+can find zero routes and emit an empty document. The fix is to rebuild through
+`ttsc`.
 
 ---
 
@@ -208,4 +199,3 @@ The `swagger` block of `INestiaConfig`:
 - **[Swagger → Strategy](./strategy)** — JSDoc tags, security schemes, decomposition.
 - **[Swagger → Editor](./editor)** — embed an in-browser TS playground with Swagger UI.
 - **[Swagger → Chat](./chat)** — convert your OpenAPI document into an LLM agent.
-- **[Recipes → Migrating from `@nestjs/swagger`](/docs/recipes/from-nestjs-swagger)** — mapping table.

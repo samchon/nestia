@@ -122,7 +122,7 @@ Why bother:
 
 `paths` tells the TypeScript compiler that `@samchon/shopping-api` resolves to `./src` — same target as the `node_modules` symlink in §1, but from the compiler's perspective rather than the runtime resolver's.
 
-Previous Nestia versions required a patched TypeScript compiler (`ts-patch`) so that `typescript-transform-paths` could rewrite the `@samchon/shopping-api` alias into relative imports at emit time. With the Go-backed transform, the SDK generator writes the file tree at code-generation time — the `paths` alias never appears in the emitted `.js` / `.d.ts`, so no transform-paths pass and no compiler patch are needed. Keep the `paths` entry purely for `tsc --noEmit` type-checking inside this workspace; published consumers resolve through the package's normal `exports` / `main`.
+The SDK generator writes the file tree at code-generation time. The `paths` alias never appears in the emitted `.js` / `.d.ts`, so no transform-paths pass or compiler patch is needed. Keep the `paths` entry purely for `tsc --noEmit` type-checking inside this workspace; published consumers resolve through the package's normal `exports` / `main`.
 
 ## What this combination buys you
 

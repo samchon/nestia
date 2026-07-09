@@ -136,7 +136,7 @@ The bad payload comes back with a structured error pointing at `$input.title` (t
 
 The Nestia transformer ran at compile time. It looked at every `@TypedBody()` and `@TypedRoute.*()` it could see and **inlined** a hand-written validator for that exact type into the compiled JavaScript. There is no schema registry, no decorator metadata reflection, no runtime type inference.
 
-If that sounds magical, read **[Concepts → Pure TypeScript](/docs/concepts/pure-typescript)** and **[Concepts → AOT Compilation](/docs/concepts/aot)** when you have time. They are short.
+That compile-time pass is why the runtime path has no schema registry, decorator metadata reflection, or runtime type inference.
 
 ---
 

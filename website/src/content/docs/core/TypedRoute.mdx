@@ -77,7 +77,7 @@ Everything the type expresses:
 
 If validation passes, Nestia stringifies the value with a hand-generated encoder for the exact return type — no generic `JSON.stringify` recursion, no `class-transformer` reflection.
 
-See **[Concepts → Pure TypeScript Types](/docs/concepts/pure-typescript)** for what tags exist, and **[Concepts → AOT Compilation](/docs/concepts/aot)** for what the build-time transformer does.
+The build-time transformer reads that return type and emits the runtime validator and stringifier directly.
 
 ---
 
@@ -111,6 +111,12 @@ Encrypted routes do not appear in Swagger UI because the response shape is encry
 
 ## Configuration
 
+No `compilerOptions.plugins` entry is needed for the default behavior. Without
+an explicit plugin config, `@TypedRoute` uses `"assert"` for response
+serialization and applies no LLM schema restriction.
+
+Add a plugin entry only when you want to override those defaults:
+
 ```jsonc filename="tsconfig.json" copy
 {
   "compilerOptions": {
@@ -119,7 +125,7 @@ Encrypted routes do not appear in Swagger UI because the response shape is encry
       { "transform": "typia/lib/transform", "enabled": false },
       {
         "transform": "@nestia/core/native/transform.cjs",
-        "stringify": "assert",
+        "stringify": "validate.log",
         "llm": { "strict": true }
       }
     ]
@@ -166,7 +172,7 @@ See **[Swagger → Chat](/docs/swagger/chat)** for the full LLM integration stor
 
 ## Benchmarks
 
-`typia.json.stringify<T>` is up to **200× faster** than `class-transformer`. The full methodology and graphs live on **[Concepts → Why So Fast](/docs/concepts/why-fast)** — including the honest caveat that 200× is the peak, with 30–100× as the typical real-server speedup.
+`typia.json.stringify<T>` is up to **200× faster** than `class-transformer`. Treat that as the peak case; **30–100×** is the typical real-server speedup.
 
 `@TypedRoute` matters in production because JSON stringification is the one HTTP-pipeline step that runs **synchronously on the main thread**. Slow encoders block subsequent requests. The faster encoder is the kind of free win you would otherwise pay for by migrating to fastify.
 
@@ -177,4 +183,3 @@ See **[Swagger → Chat](/docs/swagger/chat)** for the full LLM integration stor
 - **[Tutorial → Your First Endpoint](/docs/tutorial/endpoint)** — the introductory walkthrough.
 - **[TypedBody](./TypedBody)** — type-safe `application/json` request bodies.
 - **[TypedException](./TypedException)** — typed error responses.
-- **[Concepts → AOT Compilation](/docs/concepts/aot)** — what the transformer is doing.
