@@ -5,7 +5,7 @@ on:
     tags:
       - "v*.*.*"
       - "!v*-*"
-      - "!v*+*"
+      - "!v*\\+*"
   workflow_dispatch:
     inputs:
       tag:
