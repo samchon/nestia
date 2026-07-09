@@ -3,8 +3,8 @@ const USAGE = `Wrong command has been detected. Use like below:
 
 npx nestia [command] [options?]
 
-  1. npx nestia start <directory>
-  2. npx nestia template <directory>
+  1. npx nestia start <directory> [--repository <url>]
+  2. npx nestia template <directory> [--repository <url>]
   3. npx nestia dependencies
   4. npx nestia init
   5. npx nestia sdk
