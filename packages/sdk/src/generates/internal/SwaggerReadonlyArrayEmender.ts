@@ -217,14 +217,16 @@ const isReadonlyArrayLike = (
 };
 
 const isReadonlyArrayName = (name: string): boolean => {
-  const trimmed: string = name.trim();
   const compact: string = name.replace(/\s+/g, "");
-  return (
-    compact === "ReadonlyArray" ||
-    compact.startsWith("ReadonlyArray<") ||
-    compact.startsWith("readonly[") ||
-    trimmed.startsWith("readonly ")
-  );
+  // Metadata identity names pass through the generator's name replacer, which
+  // strips TypeScript punctuation for schema-key safety — depending on the
+  // compiler shim, `ReadonlyArray<string>` arrives here as "ReadonlyArray",
+  // "ReadonlyArray<string>", or the stripped "ReadonlyArraystring", and
+  // `readonly string[]` as "readonly string[]" or "readonlystring". Match on
+  // the prefixes that survive every form; this predicate only ever sees names
+  // of array/tuple metadata entries, whose spelling the generator controls
+  // ("readonly" is case-sensitive, so PascalCase user types cannot collide).
+  return compact.startsWith("ReadonlyArray") || compact.startsWith("readonly");
 };
 
 const componentSchema = (
