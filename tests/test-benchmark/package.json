@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/test-benchmark",
-  "version": "12.0.0-rc.2",
+  "version": "12.0.0-rc.3",
   "scripts": {
     "dev": "ttsc --watch",
     "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx -r @nestjs/platform-express src/index.ts"
