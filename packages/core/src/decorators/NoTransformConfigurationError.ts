@@ -5,10 +5,10 @@ export function NoTransformConfigurationError(method: string) {
       [
         `Error on nestia.core.${method}(): no transform has been configured.`,
         `Build the project with "ttsc" (not stock "tsc"); the Go-backed @nestia/core transform attaches automatically through ttsc plugin auto-discovery.`,
-        `If "ttsc" is missing, run "npx nestia setup" to install the toolchain and runtime packages.`,
+        `If "ttsc" is missing, install the toolchain manually: npm i -D ttsc typescript.`,
         `If you're using a non-standard TypeScript compiler like Babel or SWC, the @nestia/core transformer is not available.`,
         `If you're running "npx nestia sdk/swagger" or similar, run "npx ttsc --noEmit" to surface the underlying compilation error.`,
-        `See https://nestia.io/docs/setup for the full setup (tsgo and legacy paths); migration notes are at node_modules/@nestia/core/MIGRATION.md.`,
+        `See https://nestia.io/docs/setup for the full setup; migration notes are at node_modules/@nestia/core/MIGRATION.md.`,
       ].join(" "),
     );
   return undefined as never;
@@ -22,9 +22,9 @@ export namespace NoTransformConfigurationError {
    * If you set this value to `false`, {@link NoTransformConfigurationError} will
    * not throw an error.
    *
-   * Even if you've not configured the plugin transformer of `tsconfig.json`
-   * file, the error will not be thrown and the program will be continued.
-   * Instead, every validations and assertions will be skipped and the value
+   * Even if the transform did not run, the error will not be thrown and the
+   * program will be continued. Instead, every validation and assertion will be
+   * skipped and the value
    * will be returned as it is. Furthermore, unexpected behaviors may occur.
    *
    * Therefore, it is not recommended to set this value to `false` in production

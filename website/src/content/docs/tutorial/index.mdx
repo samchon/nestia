@@ -64,7 +64,7 @@ interface ICreateArticle {
 }
 ```
 
-Validation, OpenAPI schema, and the SDK type all come from this single declaration. At compile time, a transformer reads the type and emits the runtime code — that is why it ends up [20,000× faster](/docs/concepts/why-fast) than `class-validator` while staying simpler.
+Validation, OpenAPI schema, and the SDK type all come from this single declaration. At compile time, a transformer reads the type and emits the runtime code, which is why it can be much faster than `class-validator` while staying simpler.
 
 <Callout type="info">
 **Just want to play?** Open the [StackBlitz playground](https://stackblitz.com/github/samchon/nestia-start?file=README.md&view=editor) — a fully wired Nestia project runs in your browser, no local setup needed. You can come back to this tutorial after kicking the tires.
@@ -79,4 +79,3 @@ Validation, OpenAPI schema, and the SDK type all come from this single declarati
 Two alternatives, depending on your mood:
 
 - **[StackBlitz Playground](https://stackblitz.com/github/samchon/nestia-start?file=README.md&view=editor)** — instant, in-browser, zero install. Good for kicking the tires before committing to a local setup.
-- **[Concepts → Pure TypeScript](/docs/concepts/pure-typescript)** — if you'd rather understand the "why" before running anything.

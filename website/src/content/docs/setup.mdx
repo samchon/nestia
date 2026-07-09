@@ -1,0 +1,185 @@
+---
+title: Guide Documents > Setup
+description: "Install Nestia on TypeScript 7 with ttsc. Manual package install and no required tsconfig plugins."
+---
+
+import { Tabs } from "nextra/components";
+
+## Install
+
+Nestia runs on TypeScript 7 through [`ttsc`](https://github.com/samchon/ttsc).
+Install the compiler toolchain, the runtime packages, and the CLI explicitly:
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+npm i -D ttsc typescript
+npm i typia @nestia/core @nestia/sdk @nestia/fetcher
+npm i -D nestia
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+pnpm i -D ttsc typescript
+pnpm i typia @nestia/core @nestia/sdk @nestia/fetcher
+pnpm i -D nestia
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+yarn add -D ttsc typescript
+yarn add typia @nestia/core @nestia/sdk @nestia/fetcher
+yarn add -D nestia
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+bun add -d ttsc typescript
+bun add typia @nestia/core @nestia/sdk @nestia/fetcher
+bun add -d nestia
+```
+  </Tabs.Tab>
+</Tabs>
+
+`@nestia/sdk` is a runtime dependency. The generated SDK and runtime Swagger
+composition both resolve it while the Nestia transform attaches route metadata.
+
+## tsconfig.json
+
+Keep the NestJS decorator metadata flags. Do not add `compilerOptions.plugins`
+for normal Nestia setup; `ttsc` discovers `@nestia/core`, `@nestia/sdk`, and
+`typia` from their package manifests.
+
+```json filename="tsconfig.json" showLineNumbers copy
+{
+  "compilerOptions": {
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
+```
+
+## Transform options
+
+No plugin config means Nestia uses its defaults:
+
+- `@TypedBody` validates with `"validate"`.
+- `@TypedRoute` serializes with `"assert"`.
+- LLM schema restrictions are off.
+
+Add `compilerOptions.plugins` only when you want to override those options:
+
+```jsonc filename="tsconfig.json" showLineNumbers copy
+{
+  "compilerOptions": {
+    "plugins": [
+      { "transform": "typia/lib/transform", "enabled": false },
+      {
+        "transform": "@nestia/core/native/transform.cjs",
+        "validate": "validatePrune",
+        "stringify": "validate.log",
+        "llm": { "strict": true }
+      }
+    ]
+  }
+}
+```
+
+If a `nest new` project has `tsconfig.build.json`, point `ttsc` at that file so
+test files stay out of production output:
+
+```json filename="package.json" showLineNumbers copy
+{
+  "scripts": {
+    "build": "ttsc -p tsconfig.build.json"
+  }
+}
+```
+
+## Build
+
+Replace NestJS CLI build commands with `ttsc` / `ttsx`.
+
+```json filename="package.json" showLineNumbers copy
+{
+  "scripts": {
+    "build": "ttsc",
+    "start": "node dist/main.js",
+    "start:dev": "concurrently \"ttsc --watch\" \"node --watch dist/main.js\"",
+    "start:script": "ttsx src/main.ts"
+  }
+}
+```
+
+`nest build`, `nest start`, `tsc`, `ts-node`, and `tsx` do not run the Nestia
+transform. Use `ttsc` for builds and `ttsx` for direct TypeScript execution.
+
+## Generate
+
+Create `nestia.config.ts` once, then run the generators:
+
+```bash filename="Terminal" showLineNumbers copy
+npx nestia init
+npx nestia sdk
+npx nestia swagger
+npx nestia e2e
+npx nestia all
+```
+
+`init` writes a starter config. `sdk`, `swagger`, and `e2e` emit one artifact
+each; `all` runs the three together.
+
+## Bundlers
+
+A normal NestJS server should compile with `ttsc` directly. When a bundler owns
+the build, install `@ttsc/unplugin` and add the adapter for that bundler.
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+npm i -D @ttsc/unplugin
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+pnpm i -D @ttsc/unplugin
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+yarn add -D @ttsc/unplugin
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+bun add -d @ttsc/unplugin
+```
+  </Tabs.Tab>
+</Tabs>
+
+```ts filename="vite.config.ts" showLineNumbers copy
+import ttsc from "@ttsc/unplugin/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [ttsc()],
+});
+```
+
+Use the matching import path for other bundlers:
+`@ttsc/unplugin/webpack`, `@ttsc/unplugin/rspack`,
+`@ttsc/unplugin/esbuild`, `@ttsc/unplugin/next`,
+`@ttsc/unplugin/rollup`, `@ttsc/unplugin/rolldown`,
+`@ttsc/unplugin/farm`, or `@ttsc/unplugin/bun`.
+
+## Troubleshooting
+
+- **`no transform has been configured`**: the project was built by `tsc`,
+  `nest build`, SWC, Babel, or another path that skipped `ttsc`.
+- **Empty SDK or Swagger output**: confirm the controllers use `@TypedRoute`
+  and that the generator reads the same `tsconfig.json` as the build.
+- **NestJS DI fails**: restore `experimentalDecorators` and
+  `emitDecoratorMetadata`; NestJS still needs them for constructor injection.
+- **Bundler output skips validation**: add the matching `@ttsc/unplugin`
+  adapter to the bundler config.

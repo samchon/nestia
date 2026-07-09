@@ -136,6 +136,12 @@ Encrypted bodies do not appear in Swagger UI (the wire shape is opaque). Only th
 
 ## Configuration
 
+No `compilerOptions.plugins` entry is needed for the default behavior. Without
+an explicit plugin config, `@TypedBody` uses `"validate"` and applies no LLM
+schema restriction.
+
+Add a plugin entry only when you want to override those defaults:
+
 ```jsonc filename="tsconfig.json" copy
 {
   "compilerOptions": {
@@ -144,7 +150,7 @@ Encrypted bodies do not appear in Swagger UI (the wire shape is opaque). Only th
       { "transform": "typia/lib/transform", "enabled": false },
       {
         "transform": "@nestia/core/native/transform.cjs",
-        "validate": "validate",
+        "validate": "validatePrune",
         "llm": { "strict": true }
       }
     ]
@@ -187,7 +193,7 @@ When set, the transformer rejects any `@TypedBody` parameter whose type falls ou
 
 ## Benchmarks
 
-typia's validators are up to **20,000× faster** than `class-validator` on pathological cases (recursive unions, ultimate type shapes). Typical real-server speedup is **30–100×** — see **[Concepts → Why So Fast](/docs/concepts/why-fast)** for the honest breakdown and methodology.
+typia's validators are up to **20,000× faster** than `class-validator` on pathological cases (recursive unions, ultimate type shapes). Typical real-server speedup is **30–100×**.
 
 Why typia wins:
 
@@ -204,4 +210,3 @@ What also matters: typia handles types `class-validator` can't — recursive uni
 - **[Tutorial → Your First Endpoint](/docs/tutorial/endpoint)** — the broader pattern.
 - **[TypedRoute](./TypedRoute)** — for response-side validation and serialization.
 - **[TypedException](./TypedException)** — for typed error responses.
-- **[Concepts → Pure TypeScript Types](/docs/concepts/pure-typescript)** — why the type is enough.
