@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-import cp from "child_process";
 import fs from "fs";
 import process from "process";
 
+import { PackageManagerDetector } from "../utils/PackageManagerDetector";
 import { CommandParser } from "./internal/CommandParser";
+import { DependenciesInstaller } from "./internal/DependenciesInstaller";
 import type { NestiaSdkCommand } from "./internal/NestiaSdkCommand";
 
 const USAGE = `Wrong command has been detected. Use like below:
@@ -28,14 +29,19 @@ function halt(desc: string): never {
 function dependencies(argv: string[]): void {
   // INSTALL DEPENDENCIES
   const options = CommandParser.parse(argv);
-  const module = options.manager ?? options.module ?? "npm";
-  const prefix: string = module === "yarn" ? "yarn add" : `${module} install`;
-
-  for (const lib of ["@nestia/e2e", "@nestia/fetcher", "typia"]) {
-    const command: string = `${prefix} ${lib}`;
-    console.log(`\n$ ${command}`);
-    cp.execSync(command, { stdio: "inherit" });
-  }
+  const manual: string | undefined = options.manager ?? options.module;
+  if (
+    manual !== undefined &&
+    !(PackageManagerDetector.MANAGERS as readonly string[]).includes(manual)
+  )
+    halt(
+      `Unsupported package manager "${manual}". Choose one of (npm|pnpm|yarn).`,
+    );
+  DependenciesInstaller.install({
+    manager:
+      (manual as PackageManagerDetector.Manager | undefined) ??
+      PackageManagerDetector.detect({ directory: process.cwd() }),
+  });
 }
 
 async function initialize(): Promise<void> {

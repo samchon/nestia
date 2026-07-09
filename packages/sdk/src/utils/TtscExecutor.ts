@@ -52,7 +52,7 @@ export namespace TtscExecutor {
       throw new Error(
         `Unable to find "ttsc" binary from package metadata. ` +
           `Available bin entries: ${keys}. ` +
-          `Reinstall with: npm install --save-dev ttsc`,
+          `Reinstall "ttsc" as a devDependency (e.g. pnpm add -D ttsc).`,
       );
     }
 
@@ -60,7 +60,7 @@ export namespace TtscExecutor {
     if (!fs.existsSync(resolved))
       throw new Error(
         `"ttsc" binary not found at "${resolved}". ` +
-          `Reinstall with: npm install --save-dev ttsc`,
+          `Reinstall "ttsc" as a devDependency (e.g. pnpm add -D ttsc).`,
       );
     bin_.set(cwd, resolved);
     return resolved;

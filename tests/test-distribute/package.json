@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "name": "@nestia/test-distribute",
+  "version": "12.0.0-rc.3",
+  "scripts": {
+    "start": "node start.js"
+  },
+  "devDependencies": {
+    "@nestia/sdk": "workspace:^"
+  },
+  "packageManager": "pnpm@10.6.4"
+}

@@ -649,6 +649,12 @@ importers:
         specifier: catalog:typescript
         version: 0.18.1
 
+  tests/test-distribute:
+    devDependencies:
+      '@nestia/sdk':
+        specifier: workspace:^
+        version: link:../../packages/sdk
+
   tests/test-e2e:
     dependencies:
       '@nestia/e2e':
