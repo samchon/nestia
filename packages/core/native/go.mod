@@ -6,10 +6,11 @@ require (
 	github.com/microsoft/typescript-go/shim/ast v0.0.0
 	github.com/microsoft/typescript-go/shim/checker v0.0.0
 	github.com/microsoft/typescript-go/shim/compiler v0.0.0
+	github.com/microsoft/typescript-go/shim/core v0.0.0
 	github.com/microsoft/typescript-go/shim/printer v0.0.0
 	github.com/microsoft/typescript-go/shim/scanner v0.0.0
 	github.com/samchon/ttsc/packages/ttsc v0.0.0
-	github.com/samchon/typia/packages/typia/native v0.0.0-20260605060028-1dfa7ca6193e
+	github.com/samchon/typia/packages/typia/native v0.0.0-20260709031533-27f105ae8e56
 )
 
 require (
@@ -17,7 +18,6 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
 	github.com/microsoft/typescript-go v0.0.0-20260429010842-56ab4af42157 // indirect
 	github.com/microsoft/typescript-go/shim/bundled v0.0.0 // indirect
-	github.com/microsoft/typescript-go/shim/core v0.0.0 // indirect
 	github.com/microsoft/typescript-go/shim/diagnosticwriter v0.0.0 // indirect
 	github.com/microsoft/typescript-go/shim/parser v0.0.0 // indirect
 	github.com/microsoft/typescript-go/shim/tsoptions v0.0.0 // indirect
