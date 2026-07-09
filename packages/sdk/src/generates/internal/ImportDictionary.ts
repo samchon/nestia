@@ -127,12 +127,12 @@ export class ImportDictionary {
   }
 
   private toImportClaude(c: ICompositeValue): ImportClause {
-    // A namespace import cannot carry a per-binding `type` modifier, so the
-    // type-only flag stays off here (a value namespace import resolves type
-    // members fine), matching the legacy printer output `import * as X`.
+    // A namespace binding cannot carry a per-binding `type` modifier, so the
+    // type-only flag goes on the clause itself (`import type * as X`) —
+    // generated SDK code references DTO namespaces only in type positions.
     if (c.asterisk !== null)
       return factory.createImportClause(
-        false,
+        c.declaration,
         undefined,
         factory.createNamespaceImport(factory.createIdentifier(c.asterisk)),
       );
