@@ -89,8 +89,11 @@ export class NestiaMigrateImportProgrammer {
         .map((i) =>
           factory.createImportDeclaration(
             undefined,
+            // DTO files declare pure types, and generated code references them
+            // only in type positions — keep the clause type-only so emitted
+            // JS never loads the DTO module at runtime.
             factory.createImportClause(
-              false,
+              true,
               undefined,
               factory.createNamedImports([
                 factory.createImportSpecifier(
