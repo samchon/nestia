@@ -25,10 +25,10 @@ catalogs:
     uuid: ^13.0.0
   typescript:
     '@trivago/prettier-plugin-sort-imports': ^4.3.0
-    '@ttsc/factory': ^0.18.0
+    '@ttsc/factory': ^0.18.1
     prettier: ^3.8.1
     prettier-plugin-jsdoc: ^1.8.0
-    ttsc: ^0.18.0
+    ttsc: ^0.18.1
     typescript: ^7.0.2
   modelcontextprotocol:
     '@modelcontextprotocol/sdk': ^1.18.0
