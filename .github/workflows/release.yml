@@ -3,7 +3,21 @@ name: release
 on:
   push:
     tags:
-      - "*"
+      - "v*.*.*"
+      - "!v*-*"
+      - "!v*+*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "prerelease npm dist-tag to publish"
+        required: true
+        type: choice
+        options:
+          - rc
+          - next
+      version:
+        description: "Exact prerelease version. rc: x.y.z-rc.n, next: x.y.z-next.n"
+        required: true
 permissions:
   id-token: write
   contents: write
@@ -16,18 +30,42 @@ jobs:
         with:
           node-version: 24.x
           registry-url: https://registry.npmjs.org/
-      - uses: pnpm/action-setup@v4
+      - name: Validate release context
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: node deploy/release-guard.cjs validate-context
       - uses: actions/setup-go@v5
         with:
           go-version-file: packages/core/native/go.mod
           cache-dependency-path: packages/core/native/go.sum
+      - uses: pnpm/action-setup@v4
       - name: Install dependencies
         run: pnpm install
+      - name: Bump versions
+        if: github.event_name == 'workflow_dispatch'
+        run: node deploy/release-guard.cjs bump-if-needed
+      - name: Validate bumped versions
+        if: github.event_name == 'workflow_dispatch'
+        run: node deploy/release-guard.cjs validate-package-versions
+      - name: Commit bumped versions
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json pnpm-lock.yaml ":(glob)**/package.json"
+          if git diff --cached --quiet; then
+            echo "No version changes to commit."
+          else
+            git commit -m "chore(release): bump ${NPM_TAG} to ${RELEASE_VERSION} [skip ci]"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
       - name: Publish to npm
-        run: pnpm run package:latest --no-git-checks --provenance
+        run: pnpm run "package:${NPM_TAG}" --no-git-checks --provenance
   release:
     runs-on: ubuntu-latest
     needs: publish
+    if: github.event_name == 'push'
     permissions:
       contents: write
     steps:
@@ -41,6 +79,7 @@ jobs:
   website:
     runs-on: ubuntu-latest
     needs: release
+    if: github.event_name == 'push'
     permissions:
       contents: write
     steps:
