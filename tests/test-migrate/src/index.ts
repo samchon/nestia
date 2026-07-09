@@ -17,6 +17,11 @@ import type { IValidation } from "typia";
 import { test_migrate_api_accessor_collision } from "./features/test_migrate_api_accessor_collision";
 import { test_migrate_api_response_header_tags } from "./features/test_migrate_api_response_header_tags";
 import { test_migrate_dto_import_type } from "./features/test_migrate_dto_import_type";
+import { test_migrate_nest_dto_package_import } from "./features/test_migrate_nest_dto_package_import";
+import { test_migrate_nest_keyword_config_path } from "./features/test_migrate_nest_keyword_config_path";
+import { test_migrate_nest_monorepo_layout } from "./features/test_migrate_nest_monorepo_layout";
+import { test_migrate_nest_workspace_catalog_stamp } from "./features/test_migrate_nest_workspace_catalog_stamp";
+import { test_migrate_sdk_key_snapshot } from "./features/test_migrate_sdk_key_snapshot";
 
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
@@ -24,8 +29,19 @@ const FIXTURE: string = path.join(TEST_ROOT, "fixture");
 const GENERATED: string = path.join(TEST_ROOT, ".generated");
 const SWAGGER: string = path.join(GENERATED, "swagger.json");
 const OUTPUT: string = path.join(GENERATED, "output");
-const PNPM: string = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const NODE: string = process.execPath;
+// Launch the ttsc compiler through its JS entrypoint instead of `pnpm ttsc`:
+// spawning the `pnpm.cmd` shim without a shell raises EINVAL on Windows
+// (Node's CVE-2024-27980 mitigation), while the node launcher runs the same
+// pinned ttsc everywhere.
+const TTSC_BIN: string = path.join(
+  TEST_ROOT,
+  "node_modules",
+  "ttsc",
+  "lib",
+  "launcher",
+  "ttsc.js",
+);
 const TTSC_CACHE_DIR: string = path.resolve(
   ROOT,
   process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
@@ -155,7 +171,7 @@ const execute = (
       const content: string | undefined = files[key];
       if (key.endsWith("tsconfig.json") && content !== undefined)
         files[key] = content.replace(
-          /^\s*\{\s*"transform":\s*"typescript-transform-paths"\s*\},\n/gm,
+          /^\s*\{\s*"transform":\s*"typescript-transform-paths"\s*\},\r?\n/gm,
           "",
         );
     }
@@ -170,15 +186,34 @@ const execute = (
 
     const ttsc = (project?: string): void => {
       spawn(directory, [
-        PNPM,
-        "ttsc",
+        NODE,
+        TTSC_BIN,
         "--cache-dir",
         TTSC_CACHE_DIR,
         ...(project !== undefined ? ["-p", project] : []),
       ]);
     };
-    ttsc();
-    ttsc("test/tsconfig.json");
+    if (mode === "nest") {
+      // The monorepo template's backend consumes the api workspace package
+      // by name (`<slug>-api`). The generated archive is compiled without a
+      // `pnpm install`, so emulate the workspace link with a junction/symlink
+      // that node module resolution can walk into.
+      const nodeModules: string = path.join(directory, "node_modules");
+      await fs.promises.mkdir(nodeModules, { recursive: true });
+      try {
+        fs.symlinkSync(
+          path.join(directory, "packages", "api"),
+          path.join(nodeModules, `${scenario.name}-api`),
+          "junction",
+        );
+      } catch {}
+      ttsc(path.join("packages", "api", "tsconfig.json"));
+      ttsc(path.join("packages", "backend", "tsconfig.json"));
+      ttsc(path.join("packages", "backend", "test", "tsconfig.json"));
+    } else {
+      ttsc();
+      ttsc("test/tsconfig.json");
+    }
   });
 };
 
@@ -209,6 +244,11 @@ const main = async (): Promise<void> => {
     test_migrate_api_accessor_collision(document);
     test_migrate_api_response_header_tags();
     test_migrate_dto_import_type();
+    test_migrate_nest_monorepo_layout();
+    test_migrate_nest_dto_package_import();
+    test_migrate_nest_workspace_catalog_stamp();
+    test_migrate_nest_keyword_config_path();
+    test_migrate_sdk_key_snapshot();
     for (const [mode, keyword] of [
       ["nest", true],
       ["nest", false],

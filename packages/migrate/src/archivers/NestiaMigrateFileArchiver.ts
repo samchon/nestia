@@ -20,6 +20,10 @@ export namespace NestiaMigrateFileArchiver {
         .map((_str, i, entire) => entire.slice(0, i + 1).join("/"));
       for (const s of sequence) await mkdir.get(s);
     };
+    // The file set may lead with a nested path (the monorepo template's
+    // first key is `.github/workflows/build.yml`), so the archive root must
+    // exist before the per-directory mkdir walk below it.
+    await mkdir.get("");
     for (const [key, value] of Object.entries(props.files)) {
       await iterate(key.split("/").slice(0, -1).join("/"));
       await props.writeFile(`${props.root}/${key}`, value);

@@ -94,10 +94,10 @@ export class NestiaMigrateApplication {
       ...Object.fromEntries(
         Object.entries(NEST_TEMPLATE).filter(
           ([key]) =>
-            key.startsWith("src/api/structures") === false &&
-            key.startsWith("src/api/functional") === false &&
-            key.startsWith("src/api/controllers") === false &&
-            key.startsWith("test/features") === false,
+            key.startsWith("packages/api/src/structures") === false &&
+            key.startsWith("packages/api/src/functional") === false &&
+            key.startsWith("packages/backend/src/controllers") === false &&
+            key.startsWith("packages/backend/test/features") === false,
         ),
       ),
       ...NestiaMigrateNestProgrammer.write(context),
@@ -105,10 +105,9 @@ export class NestiaMigrateApplication {
       ...(config.e2e ? NestiaMigrateE2eProgrammer.write(context) : {}),
       ...(config.keyword === false
         ? {
-            "nestia.config.ts": NEST_TEMPLATE["nestia.config.ts"]!.replace(
-              "keyword: true",
-              "keyword: false",
-            ),
+            "packages/backend/nestia.config.ts": NEST_TEMPLATE[
+              "packages/backend/nestia.config.ts"
+            ]!.replace("keyword: true", "keyword: false"),
           }
         : {}),
     };

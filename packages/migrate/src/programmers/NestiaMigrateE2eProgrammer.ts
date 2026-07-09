@@ -1,6 +1,6 @@
 import { IHttpMigrateRoute, OpenApi } from "@typia/interface";
-import ts from "../internal/ts";
 
+import ts from "../internal/ts";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { INestiaMigrateFile } from "../structures/INestiaMigrateFile";
@@ -13,12 +13,18 @@ export namespace NestiaMigrateE2eProgrammer {
     Object.fromEntries(
       ctx.application.routes
         .map((r) =>
-          writeFile(ctx.config, ctx.application.document().components, r),
+          writeFile(
+            ctx.mode,
+            ctx.config,
+            ctx.application.document().components,
+            r,
+          ),
         )
         .map((r) => [`${r.location}/${r.file}`, r.content]),
     );
 
   const writeFile = (
+    mode: INestiaMigrateContext["mode"],
     config: INestiaMigrateConfig,
     components: OpenApi.IComponents,
     route: IHttpMigrateRoute,
@@ -33,14 +39,22 @@ export namespace NestiaMigrateE2eProgrammer {
         route,
       });
     const statements: ts.Statement[] = [
-      ...importer.toStatements(
-        (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
+      // The monorepo template consumes the api workspace package through its
+      // package name, while the single-package sdk template keeps resolving
+      // the built `lib` paths through tsconfig path mappings.
+      ...importer.toStatements((name) =>
+        mode === "nest"
+          ? "@ORGANIZATION/PROJECT-api"
+          : `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
       ),
       FilePrinter.newLine(),
       func,
     ];
     return {
-      location: `test/features/api`,
+      location:
+        mode === "nest"
+          ? `packages/backend/test/features/api`
+          : `test/features/api`,
       file: `${["test", "api", ...route.accessor].join("_")}.ts`,
       content: FilePrinter.write({ statements }),
     };

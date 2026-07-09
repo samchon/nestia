@@ -4,9 +4,11 @@ const fs = require("fs");
 
 const ROOT = `${__dirname}/../..`;
 const ASSETS = `${ROOT}/assets`;
-const TYPIA = require("js-yaml").load(
+const CATALOGS = require("js-yaml").load(
   fs.readFileSync(`${__dirname}/../../../../pnpm-lock.yaml`, "utf8"),
-).catalogs.samchon;
+).catalogs;
+const TYPIA = CATALOGS.samchon;
+const TYPESCRIPT = CATALOGS.typescript ?? {};
 
 const update = (content, options = {}) => {
   const parsed = JSON.parse(content);
@@ -14,10 +16,19 @@ const update = (content, options = {}) => {
     parsed.dependencies ?? {},
     parsed.devDependencies ?? {},
   ])
-    for (const key of Object.keys(record))
+    for (const key of Object.keys(record)) {
+      const current = record[key];
+      // `catalog:` / `workspace:` specifiers already carry their versions
+      // through pnpm-workspace.yaml, which gets its own stamping pass.
+      if (
+        typeof current === "string" &&
+        (current.startsWith("catalog:") || current.startsWith("workspace:"))
+      )
+        continue;
       if (key.startsWith("@nestia/") || key === "nestia")
         record[key] = `^${version}`;
       else if (TYPIA[key]) record[key] = TYPIA[key].specifier;
+    }
   migratePackageJson(parsed);
   if (options.sdkAggregate) {
     parsed.devDependencies ??= {};
@@ -34,10 +45,41 @@ const migratePackageJson = (parsed) => {
 
   const devDependencies = parsed.devDependencies;
   if (devDependencies) {
-    const usesTypeScript = typeof devDependencies.typescript === "string";
+    const usesTypeScript =
+      typeof devDependencies.typescript === "string" &&
+      devDependencies.typescript.startsWith("catalog:") === false;
     delete devDependencies["typescript-transform-paths"];
-    if (usesTypeScript) devDependencies.ttsc ??= "^0.10.2";
+    // Single-package templates compiling with a direct typescript dependency
+    // need the ttsc compiler this repository currently builds against.
+    if (usesTypeScript && TYPESCRIPT.ttsc)
+      devDependencies.ttsc ??= TYPESCRIPT.ttsc.specifier;
   }
+};
+
+// Stamp the template's pnpm-workspace.yaml catalogs with this repository's
+// current versions. The rewriting is line-targeted on purpose: the samchon
+// catalog relies on YAML anchors (`nestia: &nestia ...` aliased by the
+// `@nestia/*` entries), and a parse/dump round trip would inline and destroy
+// them.
+const updateWorkspaceCatalog = (content) => {
+  const replace = (line, name, specifier) => {
+    if (typeof specifier !== "string") return line;
+    const match = line.match(
+      new RegExp(`^(\\s+${name}: (?:&[A-Za-z0-9_-]+ )?)\\S[^\\r\\n]*(\\r?)$`),
+    );
+    return match === null ? line : `${match[1]}${specifier}${match[2]}`;
+  };
+  return content
+    .split("\n")
+    .map((line) => {
+      line = replace(line, "nestia", `^${version}`);
+      for (const name of ["tgrid", "tstl", "typia"])
+        line = replace(line, name, TYPIA[name]?.specifier);
+      for (const name of ["ttsc", "typescript"])
+        line = replace(line, name, TYPESCRIPT[name]?.specifier);
+      return line;
+    })
+    .join("\n");
 };
 
 const trimTemplateDependencies = (parsed) => {
@@ -168,29 +210,35 @@ export namespace ArgumentParser {
 
 const updateTsConfig = (content) => {
   content = content.replace(
-    /^\s*\{\s*"transform":\s*"typescript-transform-paths"\s*\},\n/gm,
+    /^\s*\{\s*"transform":\s*"typescript-transform-paths"\s*\},\r?\n/gm,
     "",
   );
   content = content.replace(
-    /^\s*\{\s*"transform":\s*"typia\/lib\/transform"(?:,\s*"enabled":\s*false)?\s*\},?\n/gm,
+    /^\s*\{\s*"transform":\s*"typia\/lib\/transform"(?:,\s*"enabled":\s*false)?\s*\},?\r?\n/gm,
     "",
   );
   content = content.replace(
-    /^\s*\{\s*"transform":\s*"@nestia\/core\/lib\/transform"\s*\},?\n/gm,
+    /^\s*\{\s*"transform":\s*"@nestia\/core\/lib\/transform"\s*\},?\r?\n/gm,
     "",
   );
   content = content.replace(
-    /^\s*\{\s*"transform":\s*"@nestia\/core\/native\/transform\.cjs"\s*\},?\n/gm,
+    /^\s*\{\s*"transform":\s*"@nestia\/core\/native\/transform\.cjs"\s*\},?\r?\n/gm,
     "",
   );
   content = content.replace(
-    /^\s*\{\s*"transform":\s*"@nestia\/sdk\/lib\/transform"\s*\},\n/gm,
+    /^\s*\{\s*"transform":\s*"@nestia\/sdk\/lib\/transform"\s*\},\r?\n/gm,
     "",
   );
   return content;
 };
 
-const bundle = async ({ mode, repository, revision, exceptions, transform }) => {
+const bundle = async ({
+  mode,
+  repository,
+  revision,
+  exceptions,
+  transform,
+}) => {
   const root = `${__dirname}/../..`;
   const assets = `${root}/assets`;
   const template = `${assets}/${mode}`;
@@ -204,9 +252,16 @@ const bundle = async ({ mode, repository, revision, exceptions, transform }) => 
         await fs.promises.mkdir(ASSETS);
       } catch {}
 
-    cp.execSync(`git clone https://github.com/samchon/${repository} ${mode}`, {
-      cwd: ASSETS,
-    });
+    // Disable line-ending conversion so the bundled template is byte-identical
+    // on every platform: with core.autocrlf=true (the common Windows default)
+    // the checkout would rewrite LF to CRLF and break the line-targeted
+    // transforms below.
+    cp.execSync(
+      `git clone --config core.autocrlf=false https://github.com/samchon/${repository} ${mode}`,
+      {
+        cwd: ASSETS,
+      },
+    );
     // The template repositories are live projects; an unpinned clone lets any
     // upstream push break this build (samchon/nestia-start#632 did exactly
     // that), so every bundle checks out a reviewed revision.
@@ -275,20 +330,25 @@ const main = async () => {
   await bundle({
     mode: "nest",
     repository: "nestia-start",
-    // nestia-start's master was restructured into a pnpm monorepo
-    // (samchon/nestia-start#632), while the migrate programmers still emit
-    // the single-package layout. Stay pinned to the last compatible commit
-    // until NEST_TEMPLATE and the programmers adopt the monorepo structure.
-    revision: "1057bccd13d75bbe49a73024a0273147999bf818",
+    // The pnpm monorepo restructuring of nestia-start (samchon/nestia-start#632,
+    // #634, #635) is now the layout the migrate programmers emit. This revision
+    // is the first monorepo commit whose config package is consumed through
+    // workspace dependencies, so the archive works with a plain `pnpm install`.
+    revision: "314d77f2e4ef41b18ba1ab7d14ba97f5f74897f3",
     exceptions: [
       ".git",
       ".github/dependabot.yml",
       ".github/workflows/dependabot-automerge.yml",
-      "src/api/functional",
-      "src/controllers",
-      "src/MyModule.ts",
-      "src/providers",
-      "test/features",
+      // The template's lockfile resolves the catalog versions that the
+      // stamping below rewrites; shipping it would only bloat NEST_TEMPLATE
+      // with 160 KB of immediately-stale data.
+      "pnpm-lock.yaml",
+      "packages/api/src/functional",
+      "packages/api/src/structures",
+      "packages/backend/src/MyModule.ts",
+      "packages/backend/src/controllers",
+      "packages/backend/src/providers",
+      "packages/backend/test/features",
     ],
     transform: (key, value) => {
       if (key.endsWith("package.json")) {
@@ -296,9 +356,10 @@ const main = async () => {
         trimTemplateDependencies(parsed);
         return JSON.stringify(parsed, null, 2);
       }
-      if (key === "test/helpers/ArgumentParser.ts") return ARGUMENT_PARSER;
-      if (key.endsWith("tsconfig.json"))
-        return updateTsConfig(value);
+      if (key === "pnpm-workspace.yaml") return updateWorkspaceCatalog(value);
+      if (key === "packages/backend/test/helpers/ArgumentParser.ts")
+        return ARGUMENT_PARSER;
+      if (key.endsWith("tsconfig.json")) return updateTsConfig(value);
       return value;
     },
   });
@@ -324,8 +385,7 @@ const main = async () => {
         return JSON.stringify(parsed, null, 2);
       }
       if (key === "test/utils/ArgumentParser.ts") return ARGUMENT_PARSER;
-      if (key.endsWith("tsconfig.json"))
-        return updateTsConfig(value);
+      if (key.endsWith("tsconfig.json")) return updateTsConfig(value);
       return value;
     },
   });
