@@ -190,7 +190,7 @@ const updateTsConfig = (content) => {
   return content;
 };
 
-const bundle = async ({ mode, repository, exceptions, transform }) => {
+const bundle = async ({ mode, repository, revision, exceptions, transform }) => {
   const root = `${__dirname}/../..`;
   const assets = `${root}/assets`;
   const template = `${assets}/${mode}`;
@@ -206,6 +206,13 @@ const bundle = async ({ mode, repository, exceptions, transform }) => {
 
     cp.execSync(`git clone https://github.com/samchon/${repository} ${mode}`, {
       cwd: ASSETS,
+    });
+    // The template repositories are live projects; an unpinned clone lets any
+    // upstream push break this build (samchon/nestia-start#632 did exactly
+    // that), so every bundle checks out a reviewed revision.
+    cp.execSync(`git checkout ${revision}`, {
+      cwd: template,
+      stdio: "pipe",
     });
 
     // REMOVE VULNERABLE FILES
@@ -268,6 +275,11 @@ const main = async () => {
   await bundle({
     mode: "nest",
     repository: "nestia-start",
+    // nestia-start's master was restructured into a pnpm monorepo
+    // (samchon/nestia-start#632), while the migrate programmers still emit
+    // the single-package layout. Stay pinned to the last compatible commit
+    // until NEST_TEMPLATE and the programmers adopt the monorepo structure.
+    revision: "1057bccd13d75bbe49a73024a0273147999bf818",
     exceptions: [
       ".git",
       ".github/dependabot.yml",
@@ -293,6 +305,7 @@ const main = async () => {
   await bundle({
     mode: "sdk",
     repository: "nestia-sdk-template",
+    revision: "8cfb771ea2bdc1692ce256863a0ada49990214a8",
     exceptions: [
       ".git",
       ".github/dependabot.yml",
