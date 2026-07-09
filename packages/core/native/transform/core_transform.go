@@ -24,7 +24,7 @@ import (
 	nativehttp "github.com/samchon/typia/packages/typia/native/core/programmers/http"
 	nativejson "github.com/samchon/typia/packages/typia/native/core/programmers/json"
 	nativellm "github.com/samchon/typia/packages/typia/native/core/programmers/llm"
-	nativemisc "github.com/samchon/typia/packages/typia/native/core/programmers/misc"
+	nativeplain "github.com/samchon/typia/packages/typia/native/core/programmers/plain"
 	schemametadata "github.com/samchon/typia/packages/typia/native/core/schemas/metadata"
 )
 
@@ -943,19 +943,19 @@ func nestiaCoreGenerateTypedBody(
 			Config: nativeprogrammers.AssertProgrammer_IConfig{Equals: true, Guard: false},
 		}), ec)
 	case "assertClone":
-		return nestiaCoreValidatorObject("type", "assert", nativemisc.MiscAssertCloneProgrammer.Write(nativecontext.IProgrammerProps{
+		return nestiaCoreValidatorObject("type", "assert", nativeplain.PlainAssertCloneProgrammer.Write(nativecontext.IProgrammerProps{
 			Context: context, Modulo: modulo, Type: typ, Name: name,
 		}), ec)
 	case "validateClone":
-		return nestiaCoreValidatorObject("type", "validate", nativemisc.MiscValidateCloneProgrammer.Write(nativecontext.IProgrammerProps{
+		return nestiaCoreValidatorObject("type", "validate", nativeplain.PlainValidateCloneProgrammer.Write(nativecontext.IProgrammerProps{
 			Context: context, Modulo: modulo, Type: typ, Name: name,
 		}), ec)
 	case "assertPrune":
-		return nestiaCoreValidatorObject("type", "assert", nativemisc.MiscAssertPruneProgrammer.Write(nativecontext.IProgrammerProps{
+		return nestiaCoreValidatorObject("type", "assert", nativeplain.PlainAssertPruneProgrammer.Write(nativecontext.IProgrammerProps{
 			Context: context, Modulo: modulo, Type: typ, Name: name,
 		}), ec)
 	case "validatePrune":
-		return nestiaCoreValidatorObject("type", "validate", nativemisc.MiscValidatePruneProgrammer.Write(nativecontext.IProgrammerProps{
+		return nestiaCoreValidatorObject("type", "validate", nativeplain.PlainValidatePruneProgrammer.Write(nativecontext.IProgrammerProps{
 			Context: context, Modulo: modulo, Type: typ, Name: name,
 		}), ec)
 	default:
