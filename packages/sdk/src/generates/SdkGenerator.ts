@@ -24,17 +24,7 @@ export namespace SdkGenerator {
     } catch {}
 
     // BUNDLING
-    const bundle: string[] = await fs.promises.readdir(BUNDLE_PATH);
-    for (const file of bundle) {
-      const current: string = `${BUNDLE_PATH}/${file}`;
-      const target: string = `${app.project.config.output}/${file}`;
-      const stats: fs.Stats = await fs.promises.stat(current);
-
-      if (stats.isFile() === true) {
-        const content: string = await fs.promises.readFile(current, "utf8");
-        await fs.promises.writeFile(target, content, "utf8");
-      }
-    }
+    await bundle(app.project.config.output);
 
     // STRUCTURES
     if (app.project.config.clone === true) await CloneGenerator.write(app);
@@ -164,6 +154,28 @@ export namespace SdkGenerator {
     type.name.startsWith("__object.") ||
     type.name.includes("readonly [") ||
     (!!type.typeArguments?.length && type.typeArguments.some(isImplicitType));
+
+  /**
+   * Emplace the static bundle files (`index.ts`, `module.ts`, ...) into the SDK
+   * output directory.
+   *
+   * Files the user already has are never touched, so that hand-written
+   * customizations (e.g. extra re-exports in `module.ts`) survive regeneration.
+   * Only missing files are filled in from the bundle.
+   */
+  export const bundle = async (output: string): Promise<void> => {
+    const files: string[] = await fs.promises.readdir(BUNDLE_PATH);
+    for (const file of files) {
+      const current: string = `${BUNDLE_PATH}/${file}`;
+      const target: string = `${output}/${file}`;
+      const stats: fs.Stats = await fs.promises.stat(current);
+      if (stats.isFile() === false) continue;
+      if (fs.existsSync(target) === true) continue;
+
+      const content: string = await fs.promises.readFile(current, "utf8");
+      await fs.promises.writeFile(target, content, "utf8");
+    }
+  };
 
   export const BUNDLE_PATH = NodePath.join(
     __dirname,

@@ -92,6 +92,7 @@ const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
 const feature = async (name, port) => {
   if (name === "swagger-watch") return runSwaggerWatchFeature();
+  if (name === "bundle-preserve") return runBundlePreserveFeature();
 
   const cwd = featureDirectory(name);
   const configFile =
@@ -279,6 +280,175 @@ const runSwaggerWatchFeature = async () => {
     await stopChild(child);
     await fs.promises.rm(cwd, { force: true, recursive: true });
   }
+};
+
+// Regression lock for the SDK bundle scaffold behavior: files that already
+// exist in the output directory (`index.ts`, `module.ts`, ...) must never be
+// overwritten by `nestia sdk`, so that user customizations survive
+// regeneration; only missing files are filled in from the bundle. This
+// regressed once (#1471 switched to an unconditional overwrite), which broke
+// templates that re-export their own `structures` from `module.ts`.
+//
+// Scenario:
+//   1. Generate into an empty directory -> every bundle file is created.
+//   2. Customize module.ts / index.ts and delete HttpError.ts.
+//   3. Regenerate -> customized files are byte-identical, HttpError.ts is
+//      restored from the bundle.
+//   4. The preserved output still compiles.
+const BUNDLE_FILES = [
+  "HttpError.ts",
+  "IConnection.ts",
+  "index.ts",
+  "module.ts",
+  "Primitive.ts",
+  "Resolved.ts",
+];
+
+const runBundlePreserveFeature = async () => {
+  const cwd = featureDirectory(`.tmp-bundle-preserve-${process.pid}`);
+  await fs.promises.rm(cwd, { force: true, recursive: true });
+  try {
+    await writeBundlePreserveFixture(cwd);
+    const api = (file) => path.join(cwd, "src/api", file);
+    const bundled = (file) =>
+      fs.readFileSync(
+        path.join(ROOT, "packages/sdk/assets/bundle/api", file),
+        "utf8",
+      );
+    const assert = (condition, message) => {
+      if (!condition) throw new Error(`bundle-preserve: ${message}`);
+    };
+    const generate = async () => {
+      try {
+        await runNestia(cwd, ["sdk"]);
+      } catch {
+        await runNestia(cwd, ["sdk"], "inherit");
+      }
+    };
+
+    // 1. FIRST GENERATION FILLS AN EMPTY DIRECTORY FROM THE BUNDLE
+    await generate();
+    for (const file of BUNDLE_FILES)
+      assert(
+        fs.readFileSync(api(file), "utf8") === bundled(file),
+        `${file} must be copied from the bundle on first generation.`,
+      );
+
+    // 2. CUSTOMIZE SOME FILES AND REMOVE ANOTHER
+    const customModule = [
+      'export type * from "./IConnection";',
+      'export * from "./HttpError";',
+      'export type * from "./custom";',
+      "",
+      'export * as functional from "./functional/index";',
+      "",
+    ].join("\n");
+    const customIndex = [
+      'import * as api from "./module";',
+      "",
+      'export * from "./module";',
+      'export type * from "./custom";',
+      "",
+      "export default api;",
+      "",
+    ].join("\n");
+    fs.writeFileSync(
+      api("custom.ts"),
+      "export type Custom = { value: string };\n",
+    );
+    fs.writeFileSync(api("module.ts"), customModule);
+    fs.writeFileSync(api("index.ts"), customIndex);
+    fs.rmSync(api("HttpError.ts"));
+
+    // 3. REGENERATION PRESERVES USER FILES, RESTORES MISSING ONES
+    await generate();
+    assert(
+      fs.readFileSync(api("module.ts"), "utf8") === customModule,
+      "customized module.ts must be preserved.",
+    );
+    assert(
+      fs.readFileSync(api("index.ts"), "utf8") === customIndex,
+      "customized index.ts must be preserved.",
+    );
+    assert(
+      fs.readFileSync(api("HttpError.ts"), "utf8") === bundled("HttpError.ts"),
+      "missing HttpError.ts must be restored from the bundle.",
+    );
+    for (const file of ["IConnection.ts", "Primitive.ts", "Resolved.ts"])
+      assert(
+        fs.readFileSync(api(file), "utf8") === bundled(file),
+        `untouched ${file} must stay identical to the bundle.`,
+      );
+
+    // 4. THE PRESERVED OUTPUT MUST COMPILE
+    try {
+      await runTsc(cwd);
+    } catch {
+      await runTsc(cwd, "inherit");
+    }
+  } finally {
+    await fs.promises.rm(cwd, { force: true, recursive: true });
+  }
+};
+
+const writeBundlePreserveFixture = async (cwd) => {
+  await fs.promises.mkdir(path.join(cwd, "src/controllers"), {
+    recursive: true,
+  });
+  await fs.promises.writeFile(
+    path.join(cwd, "package.json"),
+    JSON.stringify(
+      {
+        name: "@nestia/test-sdk-bundle-preserve",
+        version: "0.0.0",
+        private: true,
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
+  await fs.promises.writeFile(
+    path.join(cwd, "tsconfig.json"),
+    JSON.stringify(
+      {
+        extends: "../../../config/tsconfig.json",
+        include: ["src"],
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
+  await fs.promises.writeFile(
+    path.join(cwd, "nestia.config.ts"),
+    [
+      'import { INestiaConfig } from "@nestia/sdk";',
+      "",
+      "export const NESTIA_CONFIG: INestiaConfig = {",
+      '  input: ["src/controllers"],',
+      '  output: "src/api",',
+      "};",
+      "export default NESTIA_CONFIG;",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+  await fs.promises.writeFile(
+    path.join(cwd, "src/controllers/HealthController.ts"),
+    [
+      'import core from "@nestia/core";',
+      'import { Controller } from "@nestjs/common";',
+      "",
+      '@Controller("health")',
+      "export class HealthController {",
+      "  @core.TypedRoute.Get()",
+      "  public get(): void {}",
+      "}",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
 };
 
 const writeSwaggerWatchFixture = async (cwd) => {
@@ -622,6 +792,7 @@ const main = async () => {
       .filter((name) => !name.startsWith(".tmp-"))
       .filter(filter);
     if (filter("swagger-watch")) names.push("swagger-watch");
+    if (filter("bundle-preserve")) names.push("bundle-preserve");
     await runFeatures(names);
   });
 };
