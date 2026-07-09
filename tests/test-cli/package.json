@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "name": "@nestia/test-cli",
+  "version": "12.0.0-rc.3",
+  "scripts": {
+    "dev": "ttsc --watch",
+    "start": "pnpm --filter nestia build && cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx src/index.ts"
+  },
+  "dependencies": {
+    "@nestia/e2e": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:utils",
+    "cross-env": "catalog:utils",
+    "nestia": "workspace:^",
+    "ttsc": "catalog:typescript"
+  },
+  "packageManager": "pnpm@10.6.4"
+}

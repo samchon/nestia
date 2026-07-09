@@ -649,6 +649,25 @@ importers:
         specifier: catalog:typescript
         version: 0.18.1
 
+  tests/test-cli:
+    dependencies:
+      '@nestia/e2e':
+        specifier: workspace:^
+        version: link:../../packages/e2e
+    devDependencies:
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
+      nestia:
+        specifier: workspace:^
+        version: link:../../packages/cli
+      ttsc:
+        specifier: catalog:typescript
+        version: 0.18.1
+
   tests/test-e2e:
     dependencies:
       '@nestia/e2e':
