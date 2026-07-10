@@ -51,7 +51,7 @@ pnpm test
 - Respect package boundaries. The Go binary lives in `@nestia/core` and is shared with `@nestia/sdk`. Don't fork a second native binary, and don't reintroduce a TypeScript-side transformer.
 - Preserve the contract. Decorator names, `INestiaConfig` options, CLI flags, and the generated SDK / Swagger / e2e surface are public. Renaming or removing any of them is a deliberate, separate change.
 - Keep detection general. The native transform must locate target packages through their resolved package root, not through workspace-only path substrings — substring matching breaks the moment a consumer installs from npm. The same rule applies to generators: no hard-coded DTO, controller, or feature names.
-- Use the workspace catalogs. `pnpm-workspace.yaml` pins versions under `catalog:typescript`, `catalog:samchon`, `catalog:nestjs`, `catalog:utils`, `catalog:rollup`. New dependencies go through the matching catalog; internal references use `workspace:^`.
+- Use the workspace catalogs. `pnpm-workspace.yaml` pins versions under `catalog:typescript`, `catalog:samchon`, `catalog:nestjs`, `catalog:utils`, `catalog:modelcontextprotocol`, and `catalog:rolldown`. New dependencies go through the matching catalog; internal references use `workspace:^`.
 - Migration templates ship without interactive dependencies — generated projects stay non-interactive.
 - When public behavior changes, update the matching guide page under `website/src/content/docs/**` in the same change.
 
