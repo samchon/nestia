@@ -46,9 +46,14 @@ if (esmStatic && pack.publishConfig) {
   visitExports("publishConfig.exports", pack.publishConfig.exports);
 }
 
-if (requireMain && typeof pack.main === "string") {
+// Runtime checks target the published entry point: in the workspace,
+// `main` points at src/*.ts for source resolution, while npm consumers
+// get the lib build declared in publishConfig.
+const publishedMain = pack.publishConfig?.main ?? pack.main;
+
+if (requireMain && typeof publishedMain === "string") {
   try {
-    require(path.resolve(directory, pack.main));
+    require(path.resolve(directory, publishedMain));
   } catch (error) {
     failures.push(`main is not require-able: ${error.message}`);
   }
@@ -81,11 +86,11 @@ const finish = () => {
   }
 };
 
-if (esm && typeof pack.main === "string") {
+if (esm && typeof publishedMain === "string") {
   (async () => {
     try {
-      const cjs = require(path.resolve(directory, pack.main));
-      const mjs = path.resolve(directory, pack.main.replace(/\.js$/, ".mjs"));
+      const cjs = require(path.resolve(directory, publishedMain));
+      const mjs = path.resolve(directory, publishedMain.replace(/\.js$/, ".mjs"));
       const namespace = await import(pathToFileURL(mjs).href);
       for (const key of Object.keys(cjs))
         if (key !== "default" && key !== "__esModule" && !(key in namespace))
