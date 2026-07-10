@@ -31,11 +31,11 @@ catalogs:
       version: 1.1.5
   samchon:
     '@typia/interface':
-      specifier: ^13.0.1
-      version: 13.0.1
+      specifier: ^13.0.2
+      version: 13.0.2
     '@typia/utils':
-      specifier: ^13.0.1
-      version: 13.0.1
+      specifier: ^13.0.2
+      version: 13.0.2
     tgrid:
       specifier: ^1.2.1
       version: 1.2.1
@@ -245,10 +245,10 @@ importers:
         version: link:../fetcher
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
       get-function-location:
         specifier: ^2.0.0
         version: 2.0.0
@@ -333,7 +333,7 @@ importers:
         version: link:../migrate
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
       fflate:
         specifier: ^0.8.2
         version: 0.8.3
@@ -415,10 +415,10 @@ importers:
     dependencies:
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
     devDependencies:
       '@types/node':
         specifier: catalog:utils
@@ -440,10 +440,10 @@ importers:
         version: 0.18.1
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
       commander:
         specifier: 10.0.0
         version: 10.0.0
@@ -495,10 +495,10 @@ importers:
         version: 0.18.1
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
       get-function-location:
         specifier: ^2.0.0
         version: 2.0.0
@@ -692,7 +692,7 @@ importers:
         version: 4.1.8
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
       chalk:
         specifier: 4.1.2
         version: 4.1.2
@@ -792,10 +792,10 @@ importers:
         version: 11.4.3(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.0.1
+        version: 13.0.2
       express:
         specifier: ^4.21.1
         version: 4.22.2
@@ -2192,14 +2192,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@typia/interface@13.0.1':
-    resolution: {integrity: sha512-dgy2HIus1pd4iLriyXJuGogqZEMaNKU4LSlxlIZp8xWdto5VTIJr4Ivy1lSZ65OcjioeRxixpAqXPFuBDeaSWQ==}
-
   '@typia/interface@13.0.2':
     resolution: {integrity: sha512-8MnKq/vs90KA1iydscUubBzP2C6qXYL4vlW83giWV8ZzCfROtyyczx29P2ZH0tvN6yRd6qQlnx6sAB4YAmr7QA==}
-
-  '@typia/utils@13.0.1':
-    resolution: {integrity: sha512-HWWxmkVrN1PE5oWD31G/z9C6yD5Q1Ebm0iZB92ncW+mwdHco3DZdj4oMe+RoFmHhlCS8NJ+MxSX4UchKwT683A==}
 
   '@typia/utils@13.0.2':
     resolution: {integrity: sha512-xBaSdfviUgGJPdunaxKI/KFI5AFubDag2BYy8O+fd64yVaNgh/OaaWnOuHU2M7m+88pyR2WeVz0BisHcUJ7V7A==}
@@ -5617,13 +5611,7 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
-  '@typia/interface@13.0.1': {}
-
   '@typia/interface@13.0.2': {}
-
-  '@typia/utils@13.0.1':
-    dependencies:
-      '@typia/interface': 13.0.1
 
   '@typia/utils@13.0.2':
     dependencies:

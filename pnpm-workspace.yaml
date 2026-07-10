@@ -6,17 +6,17 @@ packages:
 
 catalogs:
   nestjs:
-    '@nestjs/common': ^11.1.6
-    '@nestjs/core': ^11.1.6
-    '@nestjs/platform-express': ^11.1.6
-    '@nestjs/platform-fastify': ^11.1.6
+    '@nestjs/common': &nestjs ^11.1.6
+    '@nestjs/core': *nestjs
+    '@nestjs/platform-express': *nestjs
+    '@nestjs/platform-fastify': *nestjs
     rxjs: ^7.1.0
   samchon:
-    '@typia/interface': ^13.0.1
-    '@typia/utils': ^13.0.1
+    typia: &typia ^13.0.2
+    '@typia/interface': *typia
+    '@typia/utils': *typia
     tgrid: ^1.2.1
     tstl: ^3.0.0
-    typia: ^13.0.2
   utils:
     '@types/node': ^25.3.3
     '@types/uuid': ^11.0.0
@@ -24,12 +24,12 @@ catalogs:
     rimraf: ^6.1.3
     uuid: ^13.0.0
   typescript:
+    ttsc: &ttsc ^0.18.1
+    '@ttsc/factory': *ttsc
+    '@ttsc/unplugin': *ttsc
     '@trivago/prettier-plugin-sort-imports': ^4.3.0
-    '@ttsc/factory': ^0.18.1
-    '@ttsc/unplugin': ^0.18.1
     prettier: ^3.8.1
     prettier-plugin-jsdoc: ^1.8.0
-    ttsc: ^0.18.1
     typescript: ^7.0.2
   modelcontextprotocol:
     '@modelcontextprotocol/sdk': ^1.18.0
