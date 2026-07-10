@@ -1,6 +1,9 @@
 {
   "extends": "../../config/tsconfig.json",
   "compilerOptions": {
+    // The .mjs build transpiles per file through rolldown (oxc), which cannot
+    // see cross-file type information.
+    "isolatedModules": true,
     "rootDir": "src",
     "outDir": "lib",
   },
