@@ -22,6 +22,7 @@ import { test_migrate_nest_keyword_config_path } from "./features/test_migrate_n
 import { test_migrate_nest_monorepo_layout } from "./features/test_migrate_nest_monorepo_layout";
 import { test_migrate_nest_workspace_catalog_stamp } from "./features/test_migrate_nest_workspace_catalog_stamp";
 import { test_migrate_sdk_key_snapshot } from "./features/test_migrate_sdk_key_snapshot";
+import { test_migrate_sdk_pnpm_template } from "./features/test_migrate_sdk_pnpm_template";
 
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
@@ -249,6 +250,7 @@ const main = async (): Promise<void> => {
     test_migrate_nest_workspace_catalog_stamp();
     test_migrate_nest_keyword_config_path();
     test_migrate_sdk_key_snapshot();
+    test_migrate_sdk_pnpm_template();
     for (const [mode, keyword] of [
       ["nest", true],
       ["nest", false],

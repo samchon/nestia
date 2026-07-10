@@ -57,29 +57,25 @@ const migratePackageJson = (parsed) => {
 };
 
 // Stamp the template's pnpm-workspace.yaml catalogs with this repository's
-// current versions. The rewriting is line-targeted on purpose: the samchon
-// catalog relies on YAML anchors (`nestia: &nestia ...` aliased by the
-// `@nestia/*` entries), and a parse/dump round trip would inline and destroy
-// them.
+// current versions. Keep the rewrite line-targeted so quoted package names,
+// comments, ordering, and any anchors supplied by the upstream template remain
+// intact.
 const updateWorkspaceCatalog = (content) => {
-  const replace = (line, name, specifier) => {
-    if (typeof specifier !== "string") return line;
+  const replace = (line) => {
     const match = line.match(
-      new RegExp(`^(\\s+${name}: (?:&[A-Za-z0-9_-]+ )?)\\S[^\\r\\n]*(\\r?)$`),
+      /^(\s+(?:"([^"]+)"|'([^']+)'|([^:\s]+)): (?:&[A-Za-z0-9_-]+ )?)\S[^\r\n]*(\r?)$/,
     );
-    return match === null ? line : `${match[1]}${specifier}${match[2]}`;
+    if (match === null) return line;
+
+    const name = match[2] ?? match[3] ?? match[4];
+    const specifier =
+      name === "nestia" || name.startsWith("@nestia/")
+        ? `^${version}`
+        : (TYPIA[name]?.specifier ?? TYPESCRIPT[name]?.specifier);
+    if (typeof specifier !== "string") return line;
+    return `${match[1]}${specifier}${match[5]}`;
   };
-  return content
-    .split("\n")
-    .map((line) => {
-      line = replace(line, "nestia", `^${version}`);
-      for (const name of ["tgrid", "tstl", "typia"])
-        line = replace(line, name, TYPIA[name]?.specifier);
-      for (const name of ["ttsc", "typescript"])
-        line = replace(line, name, TYPESCRIPT[name]?.specifier);
-      return line;
-    })
-    .join("\n");
+  return content.split("\n").map(replace).join("\n");
 };
 
 const trimTemplateDependencies = (parsed) => {
@@ -330,11 +326,9 @@ const main = async () => {
   await bundle({
     mode: "nest",
     repository: "nestia-start",
-    // The pnpm monorepo restructuring of nestia-start (samchon/nestia-start#632,
-    // #634, #635) is now the layout the migrate programmers emit. This revision
-    // is the first monorepo commit whose config package is consumed through
-    // workspace dependencies, so the archive works with a plain `pnpm install`.
-    revision: "314d77f2e4ef41b18ba1ab7d14ba97f5f74897f3",
+    // Pin the reviewed pnpm monorepo template after its catalog, rolldown, and
+    // package self-reference migrations.
+    revision: "8188661cb1c1b0fb30e6184b06422764d64a5f68",
     exceptions: [
       ".git",
       ".github/dependabot.yml",
@@ -366,12 +360,17 @@ const main = async () => {
   await bundle({
     mode: "sdk",
     repository: "nestia-sdk-template",
-    revision: "8cfb771ea2bdc1692ce256863a0ada49990214a8",
+    // Pin the reviewed pnpm-native SDK template.
+    revision: "37a019e2b8dea3d02237137aaec2f242f53dcd2d",
     exceptions: [
       ".git",
       ".github/dependabot.yml",
       ".github/workflows/build.yml",
       ".github/workflows/dependabot-automerge.yml",
+      // update() stamps the current Nestia version into package.json. The
+      // template repository's lockfile resolves its own version, so let the
+      // first pnpm install create a lockfile that matches the migrated output.
+      "pnpm-lock.yaml",
       "src/functional",
       "src/structures",
       "test/features",

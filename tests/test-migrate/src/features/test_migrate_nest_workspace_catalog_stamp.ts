@@ -11,14 +11,14 @@ import path from "path";
  *
  * The monorepo template consumes every nestia package through the
  * `catalog:samchon` indirection of pnpm-workspace.yaml, so version stamping
- * moved from package.json dependency rewriting to catalog rewriting. The stamp
- * must track this repository's version while preserving the YAML anchor
- * (`nestia: &nestia ...`) that the `@nestia/*` alias entries dereference — a
- * naive YAML round trip would inline and destroy those anchors.
+ * moved from package.json dependency rewriting to catalog rewriting. Dependabot
+ * compatibility requires explicit `@nestia/*` entries instead of YAML aliases,
+ * and every one must track this repository's version without disturbing the
+ * upstream catalog layout.
  *
  * 1. Generate a nest project from a synthetic OpenAPI document.
- * 2. Assert pnpm-workspace.yaml pins `nestia: &nestia ^<current version>`.
- * 3. Assert the `@nestia/*` alias entries and the `ttsc` anchor survive.
+ * 2. Assert every Nestia catalog entry pins the current version explicitly.
+ * 3. Assert the TypeScript and typia catalog entries keep caret versions.
  * 4. Assert package.json dependencies keep their `catalog:` indirections.
  */
 export const test_migrate_nest_workspace_catalog_stamp = (): void => {
@@ -38,15 +38,24 @@ export const test_migrate_nest_workspace_catalog_stamp = (): void => {
   const { version } = createRequire(path.join(process.cwd(), "package.json"))(
     "@nestia/migrate/package.json",
   ) as { version: string };
-  if (workspace.includes(`nestia: &nestia ^${version}`) === false)
-    throw new Error(
-      `pnpm-workspace.yaml must stamp \`nestia: &nestia ^${version}\`.`,
-    );
-  for (const alias of ["@nestia/core", "@nestia/sdk", "@nestia/fetcher"])
-    if (workspace.includes(`"${alias}": *nestia`) === false)
-      throw new Error(`The ${alias} entry must keep its *nestia alias.`);
-  if (/^\s+ttsc: &ttsc \^\d/m.test(workspace) === false)
-    throw new Error("The ttsc catalog entry must keep its anchor and version.");
+  for (const name of [
+    "@nestia/benchmark",
+    "@nestia/core",
+    "@nestia/e2e",
+    "@nestia/fetcher",
+    "@nestia/sdk",
+    "nestia",
+  ]) {
+    const key: string = name.startsWith("@") ? `"${name}"` : name;
+    if (workspace.includes(`${key}: ^${version}`) === false)
+      throw new Error(
+        `pnpm-workspace.yaml must stamp \`${key}: ^${version}\`.`,
+      );
+  }
+  if (/^\s+ttsc: \^\d/m.test(workspace) === false)
+    throw new Error("The ttsc catalog entry must keep a caret version.");
+  if (/^\s+typescript: \^\d/m.test(workspace) === false)
+    throw new Error("The typescript catalog entry must keep a caret version.");
   if (/^\s+typia: \^\d/m.test(workspace) === false)
     throw new Error("The typia catalog entry must keep a caret version.");
 
