@@ -1,6 +1,6 @@
 import { SyntaxKind, factory } from "@ttsc/factory";
 import { IHttpMigrateRoute, OpenApi } from "@typia/interface";
-import * as typiaUtils from "@typia/utils";
+import { NamingConvention } from "@typia/utils";
 
 import { IdentifierFactory } from "../factories/IdentifierFactory";
 import { StatementFactory } from "../factories/StatementFactory";
@@ -9,9 +9,6 @@ import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
-
-const { NamingConvention } =
-  (typiaUtils as { default?: typeof typiaUtils }).default ?? typiaUtils;
 
 export namespace NestiaMigrateApiFunctionProgrammer {
   export interface IContext {
