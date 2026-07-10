@@ -8,10 +8,10 @@ import {
   Switch,
   TextField,
 } from "@mui/material";
-import StackBlitzSDK from "@stackblitz/sdk";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import React from "react";
 
+import { NestiaEditorArchiver } from "./internal/NestiaEditorArchiver";
 import { NestiaEditorComposer } from "./internal/NestiaEditorComposer";
 import { NestiaEditorFileUploader } from "./internal/NestiaEditorFileUploader";
 
@@ -58,18 +58,10 @@ export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
         package: name,
       });
       if (result.success === true) {
-        StackBlitzSDK.openProject(
-          {
-            title: document.info?.title ?? "Nestia Editor",
-            template: "node",
-            files: result.data.files,
-          },
-          {
-            newWindow: true,
-            openFile: result.data.openFile,
-            startScript: result.data.startScript as any,
-          },
-        );
+        NestiaEditorArchiver.download({
+          name: NestiaEditorArchiver.name(name),
+          files: result.data.files,
+        });
       } else {
         handleError(JSON.stringify(result.errors, null, 2));
       }
@@ -142,7 +134,7 @@ export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
         disabled={progress === true || document === null}
         onClick={() => generate()}
       >
-        {progress ? "Generating..." : "Generate Editor"}
+        {progress ? "Generating..." : "Download Project"}
       </Button>
     </>
   );

@@ -352,12 +352,12 @@ importers:
       '@nestia/migrate':
         specifier: workspace:^
         version: link:../migrate
-      '@stackblitz/sdk':
-        specifier: ^1.11.0
-        version: 1.11.0
       '@typia/interface':
         specifier: catalog:samchon
         version: 13.0.0
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.3
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.1
@@ -686,6 +686,28 @@ importers:
       cross-env:
         specifier: catalog:utils
         version: 10.1.0
+      ttsc:
+        specifier: catalog:typescript
+        version: 0.18.1
+
+  tests/test-editor:
+    dependencies:
+      '@nestia/e2e':
+        specifier: workspace:^
+        version: link:../../packages/e2e
+    devDependencies:
+      '@nestia/editor':
+        specifier: workspace:^
+        version: link:../../packages/editor
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.3
       ttsc:
         specifier: catalog:typescript
         version: 0.18.1
@@ -1732,9 +1754,6 @@ packages:
 
   '@scarf/scarf@1.4.0':
     resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
-
-  '@stackblitz/sdk@1.11.0':
-    resolution: {integrity: sha512-DFQGANNkEZRzFk1/rDP6TcFdM82ycHE+zfl9C/M/jXlH68jiqHWHFMQURLELoD8koxvu/eW5uhg94NSAZlYrUQ==}
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -2920,6 +2939,9 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
   figures@3.2.0:
     resolution: {integrity: sha512-yaduQFRKLXYOGgEn6AZau90j3ggSOyiqXU0F9JZfeXYhNa+Jk4X+s45A2zg5jns87GAFa34BBm2kXw4XpNcbdg==}
@@ -5153,8 +5175,6 @@ snapshots:
 
   '@scarf/scarf@1.4.0': {}
 
-  '@stackblitz/sdk@1.11.0': {}
-
   '@standard-schema/spec@1.1.0': {}
 
   '@tokenizer/inflate@0.4.1':
@@ -6499,6 +6519,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
       picomatch: 4.0.4
+
+  fflate@0.8.3: {}
 
   figures@3.2.0:
     dependencies:
