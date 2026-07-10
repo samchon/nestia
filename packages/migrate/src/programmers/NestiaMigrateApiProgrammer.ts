@@ -48,7 +48,7 @@ export namespace NestiaMigrateApiProgrammer {
     // DO GENERATE
     const files: Record<string, string> = Object.fromEntries(
       dict.toJSON().map(({ second: value }) => [
-        `src/${ctx.mode === "nest" ? "api/" : ""}functional/${[...value.namespace, "index.ts"].join("/")}`,
+        `${ctx.mode === "nest" ? "packages/api/src" : "src"}/functional/${[...value.namespace, "index.ts"].join("/")}`,
         FilePrinter.write({
           statements: NestiaMigrateApiFileProgrammer.write({
             ...value,

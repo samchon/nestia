@@ -40,6 +40,7 @@ jobs:
           - { name: e2e, run: "pnpm --filter ./tests/test-e2e start" }
           - { name: benchmark, run: "pnpm --filter ./tests/test-benchmark start" }
           - { name: cli, run: "pnpm --filter ./tests/test-cli start" }
+          - { name: editor, run: "pnpm --filter ./tests/test-editor start" }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
