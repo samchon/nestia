@@ -7,7 +7,11 @@ const ROOT = path.join(__dirname, "../..");
 const NODE = process.execPath;
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const PROJECT_CONFIG = "tsconfig.project.json";
-const CLI_BIN = path.join(ROOT, "packages/cli/bin/index.js");
+// The cli is launched from its TypeScript source through ttsx: the workspace
+// packages resolve each other's src/*.ts entries, which plain `node` cannot
+// load (`--no-experimental-strip-types`), while ttsx installs runtime hooks
+// that propagate to child processes via NODE_OPTIONS.
+const CLI_MAIN = path.join(ROOT, "packages/cli/src/index.ts");
 const TTSC_BIN = packageBin("ttsc", "ttsc");
 const TTSX_BIN = packageBin("ttsc", "ttsx");
 const BASE_PORT = 37_000;
@@ -86,7 +90,7 @@ const runNode = (cwd, script, args, stdio = "ignore", env = undefined) =>
   run(NODE, [script, ...args], { cwd, env, stdio });
 
 const runNestia = (cwd, args, stdio = "ignore") =>
-  runNode(cwd, CLI_BIN, args, stdio);
+  runNode(cwd, TTSX_BIN, [CLI_MAIN, ...args], stdio);
 
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
@@ -231,7 +235,7 @@ const runSwaggerWatchFeature = async () => {
   await fs.promises.rm(cwd, { force: true, recursive: true });
   await writeSwaggerWatchFixture(cwd);
 
-  const child = cp.spawn(NODE, [CLI_BIN, "swagger", "--watch"], {
+  const child = cp.spawn(NODE, [TTSX_BIN, CLI_MAIN, "swagger", "--watch"], {
     cwd,
     env: { ...process.env },
     stdio: ["ignore", "pipe", "pipe"],
