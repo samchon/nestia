@@ -26,12 +26,15 @@ catalogs:
   typescript:
     '@trivago/prettier-plugin-sort-imports': ^4.3.0
     '@ttsc/factory': ^0.18.1
+    '@ttsc/unplugin': ^0.18.1
     prettier: ^3.8.1
     prettier-plugin-jsdoc: ^1.8.0
     ttsc: ^0.18.1
     typescript: ^7.0.2
   modelcontextprotocol:
     '@modelcontextprotocol/sdk': ^1.18.0
+  rolldown:
+    rolldown: ^1.1.5
   rollup:
     rollup: ^4.56.0
     rollup-plugin-node-externals: ^8.1.2
