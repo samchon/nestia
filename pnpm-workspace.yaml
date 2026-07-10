@@ -24,7 +24,7 @@ catalogs:
     rimraf: ^6.1.3
     uuid: ^13.0.0
   typescript:
-    ttsc: &ttsc ^0.18.1
+    ttsc: &ttsc ^0.18.4
     '@ttsc/factory': *ttsc
     '@ttsc/unplugin': *ttsc
     '@trivago/prettier-plugin-sort-imports': ^4.3.0
