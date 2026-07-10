@@ -3,6 +3,12 @@
   "compilerOptions": {
     "declaration": false,
     "noEmit": false,
+    // Workspace packages resolve to src/*.ts, so @nestia/core sources join
+    // these synthetic programs; transformer-only generics there (e.g. the
+    // deprecated TypedException<T> status overload) must not trip TS6196.
+    // Same convention as the .ttsx.tsconfig.json written by test-sdk.
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "sourceMap": false
   }
 }
