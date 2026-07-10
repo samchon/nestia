@@ -19,7 +19,7 @@
     "bundle": "node src/executable/bundle.js",
     "dev": "rimraf lib && ttsc --watch",
     "prepack": "pnpm run build",
-    "prepare": "npm run bundle",
+    "prepare": "pnpm run bundle",
     "test": "node lib/test"
   },
   "repository": {
