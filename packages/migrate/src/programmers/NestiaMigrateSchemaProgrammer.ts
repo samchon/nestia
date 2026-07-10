@@ -1,5 +1,5 @@
 import { SyntaxKind, factory } from "@ttsc/factory";
-import * as typiaUtils from "@typia/utils";
+import { NamingConvention, OpenApiTypeChecker } from "@typia/utils";
 import type { OpenApi } from "typia";
 
 import { FormatCheatSheet } from "../factories/FormatCheatSheet";
@@ -8,9 +8,6 @@ import ts from "../internal/ts";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
-
-const { NamingConvention, OpenApiTypeChecker } =
-  (typiaUtils as { default?: typeof typiaUtils }).default ?? typiaUtils;
 
 export namespace NestiaMigrateSchemaProgrammer {
   /* -----------------------------------------------------------
