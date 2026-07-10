@@ -45,7 +45,7 @@
   "devDependencies": {
     "@types/inquirer": "^9.0.7",
     "@types/node": "catalog:utils",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.2.0",
     "rimraf": "catalog:utils",
     "rolldown": "catalog:rolldown",
     "typescript": "catalog:typescript"

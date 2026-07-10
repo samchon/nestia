@@ -42,7 +42,7 @@
     "@nestia/migrate": "workspace:^",
     "@typia/interface": "catalog:samchon",
     "fflate": "^0.8.2",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.2.0",
     "prettier": "catalog:typescript",
     "react-mui-fileuploader": "^0.5.2",
     "typia": "catalog:samchon"
