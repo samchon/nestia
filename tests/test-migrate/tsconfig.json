@@ -2,15 +2,6 @@
   "extends": "../config/tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
-    "plugins": [
-      {
-        "transform": "typia/lib/transform",
-        "enabled": false
-      },
-      {
-        "transform": "@nestia/core/native/transform.cjs"
-      }
-    ],
   },
   "include": ["src"],
 }

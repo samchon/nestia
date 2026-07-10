@@ -1,4 +1,4 @@
-import ts from "typescript";
+import { IJsDocTagInfo } from "typia";
 
 import { IReflectController } from "./IReflectController";
 import { IReflectImport } from "./IReflectImport";
@@ -29,5 +29,5 @@ export interface ITypedMcpRoute {
   annotations: IReflectMcpOperation.IAnnotations | null;
   imports: IReflectImport[];
   description: string | null;
-  jsDocTags: ts.JSDocTagInfo[];
+  jsDocTags: IJsDocTagInfo[];
 }

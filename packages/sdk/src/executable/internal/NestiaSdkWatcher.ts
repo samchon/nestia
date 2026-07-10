@@ -59,6 +59,11 @@ class WatchSession {
         else console.log(`Change detected (${current}); regenerating swagger`);
 
         configurations = await this.props.configurations();
+        // Watchers must be live before artifacts are written: consumers react
+        // to the artifact appearing, and an edit arriving between the write
+        // and a later watcher installation would be lost forever. Changes
+        // during generation queue through `pending`.
+        await this.refresh(configurations);
         await this.props.generate(configurations);
         await this.refresh(configurations);
         console.log(

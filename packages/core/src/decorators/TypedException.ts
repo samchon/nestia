@@ -76,7 +76,7 @@ export function TypedException<T>(
  * @author Jeongho Nam - https://github.com/samchon
  * @deprecated Use {@link TypedException.IProps} typed function instead. This
  *   typed function is deprecated and will be removed in the next major update.
- * @template T Type of the exception
+ * @template T Type of the exception, consumed by the transformer only
  * @param status Status number or pattern like "2XX", "3XX", "4XX", "5XX"
  * @param description Description about the exception
  * @returns Method decorator

@@ -1,4 +1,4 @@
-import ts from "typescript";
+import { IJsDocTagInfo } from "typia";
 
 import { IReflectImport } from "./IReflectImport";
 import { IReflectMcpOperationParameter } from "./IReflectMcpOperationParameter";
@@ -25,7 +25,7 @@ export interface IReflectMcpOperation {
   returnType: IReflectType | null;
   imports: IReflectImport[];
   description: string | null;
-  jsDocTags: ts.JSDocTagInfo[];
+  jsDocTags: IJsDocTagInfo[];
 }
 
 export namespace IReflectMcpOperation {

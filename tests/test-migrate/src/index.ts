@@ -44,7 +44,7 @@ const TTSC_BIN: string = path.join(
   "ttsc.js",
 );
 const TTSC_CACHE_DIR: string = path.resolve(
-  ROOT,
+  TEST_ROOT,
   process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
 );
 
