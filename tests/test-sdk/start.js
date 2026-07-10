@@ -417,6 +417,13 @@ const writeBundlePreserveFixture = async (cwd) => {
     JSON.stringify(
       {
         extends: "../../../config/tsconfig.json",
+        compilerOptions: {
+          // This fixture is compiled bare (no ttsx test project), so the
+          // workspace-resolved @nestia/core sources join the program and
+          // their transformer-only generics must not trip TS6196.
+          noUnusedLocals: false,
+          noUnusedParameters: false,
+        },
         include: ["src"],
       },
       null,
