@@ -8,7 +8,7 @@ import {
   SwaggerV2,
 } from "@typia/interface";
 import type { IValidation } from "@typia/interface";
-import * as typiaUtils from "@typia/utils";
+import { HttpMigration, OpenApiConverter } from "@typia/utils";
 
 import { NEST_TEMPLATE } from "./bundles/NEST_TEMPLATE";
 import { SDK_TEMPLATE } from "./bundles/SDK_TEMPLATE";
@@ -18,9 +18,6 @@ import { NestiaMigrateE2eProgrammer } from "./programmers/NestiaMigrateE2eProgra
 import { NestiaMigrateNestProgrammer } from "./programmers/NestiaMigrateNestProgrammer";
 import { INestiaMigrateConfig } from "./structures/INestiaMigrateConfig";
 import { INestiaMigrateContext } from "./structures/INestiaMigrateContext";
-
-const { HttpMigration, OpenApiConverter } =
-  (typiaUtils as { default?: typeof typiaUtils }).default ?? typiaUtils;
 
 export class NestiaMigrateApplication {
   private readonly data_: IHttpMigrateApplication;

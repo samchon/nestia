@@ -12,11 +12,11 @@ catalogs:
     '@nestjs/platform-fastify': ^11.1.6
     rxjs: ^7.1.0
   samchon:
-    '@typia/interface': ^13.0.0
-    '@typia/utils': ^13.0.0
+    '@typia/interface': ^13.0.1
+    '@typia/utils': ^13.0.1
     tgrid: ^1.2.1
     tstl: ^3.0.0
-    typia: ^13.0.0
+    typia: ^13.0.1
   utils:
     '@types/node': ^25.3.3
     '@types/uuid': ^11.0.0
@@ -26,12 +26,15 @@ catalogs:
   typescript:
     '@trivago/prettier-plugin-sort-imports': ^4.3.0
     '@ttsc/factory': ^0.18.1
+    '@ttsc/unplugin': ^0.18.1
     prettier: ^3.8.1
     prettier-plugin-jsdoc: ^1.8.0
     ttsc: ^0.18.1
     typescript: ^7.0.2
   modelcontextprotocol:
     '@modelcontextprotocol/sdk': ^1.18.0
+  rolldown:
+    rolldown: ^1.1.5
   rollup:
     rollup: ^4.56.0
     rollup-plugin-node-externals: ^8.1.2

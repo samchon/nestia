@@ -4,11 +4,7 @@
   "version": "12.0.0-rc.3",
   "description": "Shared build configuration for nestia packages",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "catalog:rollup",
-    "@rollup/plugin-esm-shim": "catalog:rollup",
-    "@rollup/plugin-node-resolve": "catalog:rollup",
-    "rollup": "catalog:rollup",
-    "rollup-plugin-node-externals": "catalog:rollup",
+    "@ttsc/unplugin": "catalog:typescript",
     "tinyglobby": "^0.2.16"
   }
 }

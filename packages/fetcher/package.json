@@ -23,7 +23,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rimraf lib && ttsc && rollup -c rollup.config.mjs && node ../../deploy/verify-package-exports.cjs --require-main",
+    "build": "rimraf lib && ttsc && rolldown -c && node ../../deploy/verify-package-exports.cjs --require-main --esm",
     "dev": "rimraf lib && ttsc --watch",
     "prepack": "pnpm run build"
   },
@@ -47,13 +47,9 @@
     "@typia/utils": "catalog:samchon"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "catalog:rollup",
-    "@rollup/plugin-esm-shim": "catalog:rollup",
-    "@rollup/plugin-node-resolve": "catalog:rollup",
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils",
-    "rollup": "catalog:rollup",
-    "rollup-plugin-node-externals": "catalog:rollup"
+    "rolldown": "catalog:rolldown"
   },
   "files": [
     "README.md",

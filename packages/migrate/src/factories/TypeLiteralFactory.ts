@@ -1,10 +1,7 @@
 import { SyntaxKind, factory } from "@ttsc/factory";
-import * as typiaUtils from "@typia/utils";
+import { NamingConvention } from "@typia/utils";
 
 import ts from "../internal/ts";
-
-const { NamingConvention } =
-  (typiaUtils as { default?: typeof typiaUtils }).default ?? typiaUtils;
 
 export namespace TypeLiteralFactory {
   export const generate = (value: any): ts.TypeNode =>

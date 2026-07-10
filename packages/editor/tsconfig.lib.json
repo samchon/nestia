@@ -71,7 +71,7 @@
     // "preserveValueImports": true,                     /* Preserve unused imported values in the JavaScript output that would otherwise be removed. */
 
     /* Interop Constraints */
-    // "isolatedModules": true,                          /* Ensure that each file can be safely transpiled without relying on other imports. */
+    "isolatedModules": true,                          /* Ensure that each file can be safely transpiled without relying on other imports. The .mjs build transpiles per file through rolldown (oxc), which cannot see cross-file type information; type-only re-exports must be marked `export type` or they survive into the runtime ESM and crash imports. */
     // "allowSyntheticDefaultImports": true,             /* Allow 'import x from y' when a module doesn't have a default export. */
     "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables `allowSyntheticDefaultImports` for type compatibility. */
     // "preserveSymlinks": true,                         /* Disable resolving symlinks to their realpath. This correlates to the same flag in node. */
