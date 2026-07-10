@@ -75,14 +75,32 @@ const execute = (
       root: directory,
       files,
     });
-    cp.execSync(`npx tsc -p ${directory}/tsconfig.json`, {
-      stdio: "inherit",
-      cwd: directory,
-    });
-    cp.execSync(`npx tsc -p ${directory}/test/tsconfig.json`, {
-      stdio: "inherit",
-      cwd: directory,
-    });
+    const compile = (config: string): void => {
+      cp.execSync(`npx tsc -p ${directory}/${config}`, {
+        stdio: "inherit",
+        cwd: directory,
+      });
+    };
+    if (mode === "nest") {
+      // The monorepo template's backend imports the api workspace package by
+      // its name, so emulate the pnpm workspace link before compiling.
+      await fs.promises.mkdir(`${directory}/node_modules`, {
+        recursive: true,
+      });
+      try {
+        fs.symlinkSync(
+          `${directory}/packages/api`,
+          `${directory}/node_modules/${project}-api`,
+          "junction",
+        );
+      } catch {}
+      compile("packages/api/tsconfig.json");
+      compile("packages/backend/tsconfig.json");
+      compile("packages/backend/test/tsconfig.json");
+    } else {
+      compile("tsconfig.json");
+      compile("test/tsconfig.json");
+    }
   });
 };
 

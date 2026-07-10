@@ -55,6 +55,13 @@ export class NestiaMigrateImportProgrammer {
     dtoPath: (name: string) => string,
     current?: string,
   ): ts.Statement[] {
+    // Group the DTO references by their resolved module specifier: relative
+    // specifiers stay one-import-per-file, while package specifiers (e.g. the
+    // monorepo's `@ORGANIZATION/PROJECT-api`) merge into a single clause.
+    const modules: Map<string, string[]> = new Map();
+    for (const name of this.dtos_)
+      if (current === undefined || name !== current.split(".")[0])
+        MapUtil.take(modules)(dtoPath(name))(() => []).push(name);
     return [
       ...[...this.external_.entries()].map(([library, props]) =>
         factory.createImportDeclaration(
@@ -82,30 +89,28 @@ export class NestiaMigrateImportProgrammer {
       ...(this.external_.size && this.dtos_.size
         ? [FilePrinter.newLine()]
         : []),
-      ...[...this.dtos_]
-        .filter(
-          current ? (name) => name !== current!.split(".")[0] : () => true,
-        )
-        .map((i) =>
-          factory.createImportDeclaration(
+      ...[...modules.entries()].map(([specifier, names]) =>
+        factory.createImportDeclaration(
+          undefined,
+          // DTO files declare pure types, and generated code references them
+          // only in type positions — keep the clause type-only so emitted
+          // JS never loads the DTO module at runtime.
+          factory.createImportClause(
+            true,
             undefined,
-            // DTO files declare pure types, and generated code references them
-            // only in type positions — keep the clause type-only so emitted
-            // JS never loads the DTO module at runtime.
-            factory.createImportClause(
-              true,
-              undefined,
-              factory.createNamedImports([
+            factory.createNamedImports(
+              names.map((name) =>
                 factory.createImportSpecifier(
                   false,
                   undefined,
-                  factory.createIdentifier(i),
+                  factory.createIdentifier(name),
                 ),
-              ]),
+              ),
             ),
-            factory.createStringLiteral(dtoPath(i)),
           ),
+          factory.createStringLiteral(specifier),
         ),
+      ),
     ];
   }
 }

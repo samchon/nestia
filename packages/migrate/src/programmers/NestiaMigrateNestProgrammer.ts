@@ -17,11 +17,14 @@ export namespace NestiaMigrateNestProgrammer {
     const controllers: INestiaMigrateController[] =
       NestiaMigrateControllerAnalyzer.analyze(context.application.routes);
     const statements: [string, ts.Statement[]][] = [
-      ["src/MyModule.ts", NestiaMigrateNestModuleProgrammer.write(controllers)],
+      [
+        "packages/backend/src/MyModule.ts",
+        NestiaMigrateNestModuleProgrammer.write(controllers),
+      ],
       ...controllers.map(
         (c) =>
           [
-            `${c.location}/${c.name}.ts`,
+            `packages/backend/${c.location}/${c.name}.ts`,
             NestiaMigrateNestControllerProgrammer.write({
               config: context.config,
               components: context.application.document().components,
@@ -36,18 +39,36 @@ export namespace NestiaMigrateNestProgrammer {
         }).entries(),
       ].map(
         ([key, value]) =>
-          [`src/api/structures/${key}.ts`, writeDtoFile(key, value)] satisfies [
-            string,
-            ts.Statement[],
-          ],
+          [
+            `packages/api/src/structures/${key}.ts`,
+            writeDtoFile(key, value),
+          ] satisfies [string, ts.Statement[]],
       ),
     ];
-    return Object.fromEntries(
+    const files: Record<string, string> = Object.fromEntries(
       statements.map(([key, value]) => [
         key,
         FilePrinter.write({ statements: value }),
       ]),
     );
+    // The template's `packages/api/src/module.ts` re-exports the DTO types
+    // through `export * from "./structures"`, so the generated structure files
+    // need a barrel replacing the one deleted from the bundled template.
+    files["packages/api/src/structures/index.ts"] = writeDtoBarrel(files);
+    return files;
+  };
+
+  const writeDtoBarrel = (files: Record<string, string>): string => {
+    const prefix: string = "packages/api/src/structures/";
+    const names: string[] = Object.entries(files)
+      .filter(
+        ([key, content]) =>
+          key.startsWith(prefix) && key.endsWith(".ts") && content.length !== 0,
+      )
+      .map(([key]) => key.slice(prefix.length, -".ts".length))
+      .sort();
+    if (names.length === 0) return "export {};\n";
+    return names.map((name) => `export * from "./${name}";\n`).join("");
   };
 
   const writeDtoFile = (

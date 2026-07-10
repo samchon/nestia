@@ -5,7 +5,6 @@ import ts from "../internal/ts";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
-import { StringUtil } from "../utils/StringUtil";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateNestMethodProgrammer } from "./NestiaMigrateNestMethodProgrammer";
 
@@ -56,13 +55,10 @@ export namespace NestiaMigrateNestControllerProgrammer {
         .flat(),
     );
     return [
-      ...importer.toStatements(
-        (ref) =>
-          `${"../".repeat(
-            StringUtil.splitWithNormalization(props.controller.location)
-              .length - 1,
-          )}api/structures/${ref}`,
-      ),
+      // Controllers live in the backend workspace package while the DTO
+      // structures belong to the api package, so the types must be imported
+      // through the package name instead of a relative path.
+      ...importer.toStatements(() => "@ORGANIZATION/PROJECT-api"),
       ...(importer.empty() ? [] : [FilePrinter.newLine()]),
       $class,
     ];
