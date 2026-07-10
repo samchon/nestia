@@ -1,6 +1,7 @@
 import {
   Alert,
   AlertTitle,
+  Button,
   CircularProgress,
   Step,
   StepContent,
@@ -8,24 +9,25 @@ import {
   Stepper,
   Typography,
 } from "@mui/material";
-import StackBlitzSDK from "@stackblitz/sdk";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import { load } from "js-yaml";
 import React from "react";
 import { IValidation } from "typia";
 
+import { NestiaEditorArchiver } from "./internal/NestiaEditorArchiver";
 import { NestiaEditorComposer } from "./internal/NestiaEditorComposer";
 
 export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
-  const [id] = React.useState(
-    `reactia-editor-div-${Math.random().toString().substring(2)}`,
-  );
   const [step, setStep] = React.useState(0);
   const [fetchError, setFetchError] = React.useState<string | null>(null);
   const [operations, setOperationCount] = React.useState<
     Record<string, number>
   >({});
   const [composerError, setComposerError] = React.useState<any | null>(null);
+  const [files, setFiles] = React.useState<Record<string, string> | null>(null);
+  const archive: string = NestiaEditorArchiver.name(
+    props.package ?? "@ORGANIZATION/PROJECT",
+  );
 
   React.useEffect(() => {
     (async () => {
@@ -69,29 +71,15 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
         return;
       }
 
-      // COMPOSING STACKBLITZ PROJECT
+      // READY TO DOWNLOAD
       setStep(2);
-      StackBlitzSDK.embedProject(
-        id,
-        {
-          title: document.info?.title ?? "Nestia Editor",
-          template: "node",
-          files: result.data.files,
-        },
-        {
-          width: "100%",
-          height: "100%",
-          openFile: result.data.openFile,
-          startScript: result.data.startScript as any, // no problem
-        },
-      );
+      setFiles(result.data.files);
     })().catch((exp) => {
       console.error("unknown error", exp);
     });
   }, []);
   return (
     <div
-      id={id}
       style={{
         width: "100%",
         height: "100%",
@@ -176,9 +164,34 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
           </Step>
           <Step key={2}>
             <StepLabel>
-              <Typography variant="h5">Composing TypeScript Project</Typography>
+              <Typography variant="h5">
+                Downloading TypeScript Project
+              </Typography>
             </StepLabel>
-            <StepContent></StepContent>
+            <StepContent>
+              <br />
+              {files !== null ? (
+                <>
+                  <p>
+                    {Object.keys(files).length.toLocaleString()} files are
+                    ready.
+                  </p>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    size="large"
+                    onClick={() =>
+                      NestiaEditorArchiver.download({
+                        name: archive,
+                        files,
+                      })
+                    }
+                  >
+                    Download {archive}
+                  </Button>
+                </>
+              ) : null}
+            </StepContent>
           </Step>
         </Stepper>
       </div>
