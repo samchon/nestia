@@ -120,6 +120,39 @@ body {
   box-shadow: 0 6px 18px rgba(31, 20, 23, 0.18);
 }
 
+/* ── Callouts ──
+   Nextra paints `type="info"` blue, and the docs lean on it 27 times, so the
+   body copy read blue-accented under a red brand.
+
+   They go warm-neutral with the accent carried by the left edge alone. Red
+   is deliberately *not* used for the surface: `info` outnumbers every other
+   callout type here by nine to one, so filling them all with brand red would
+   both wash the docs pink and make routine notes look like danger warnings.
+   `warning` keeps its amber -- there are only three, and they mean it. */
+.nextra-callout {
+  border-color: rgba(112, 92, 97, 0.22) !important;
+  border-left: 3px solid var(--nestia-red) !important;
+  background: #faf8f8 !important;
+  color: var(--nestia-ink) !important;
+}
+
+.nextra-callout:has(+ *) svg,
+.nextra-callout > svg {
+  color: var(--nestia-red) !important;
+}
+
+/* MUI `<Alert severity="info">` appears twice in the docs and ships its own
+   blue; match it to the callouts above so the two do not disagree. */
+.MuiAlert-standardInfo {
+  border-left: 3px solid var(--nestia-red) !important;
+  background-color: #faf8f8 !important;
+  color: var(--nestia-ink) !important;
+}
+
+.MuiAlert-standardInfo .MuiAlert-icon {
+  color: var(--nestia-red) !important;
+}
+
 /* ── Sidebar: red wash fading into the white content column ── */
 body:has(.nestia-docs-page-marker) .nextra-sidebar {
   border-right: 1px solid var(--nestia-border);
