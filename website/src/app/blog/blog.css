@@ -10,6 +10,46 @@
   max-width: none;
 }
 
+/* ── Headings on the hand-written blog routes ──
+   Nextra ships Tailwind Preflight, which resets every heading to
+   `font-size: inherit; font-weight: inherit`. MDX headings get their scale
+   back from Nextra's component mapping, but these routes build their
+   headings in JSX -- the index, the tag pages, and the post title in
+   `mdx-components-blog.jsx` -- so nothing ever restored them and they
+   rendered at body size and weight.
+
+   On an article that inverted the hierarchy outright: the post title came
+   out smaller than the `## Preface` heading underneath it. */
+.x\:container.x\:prose > h1,
+.nestia-blog-post-main > h1 {
+  margin: 0 0 0.75rem;
+  color: var(--nestia-ink);
+  font-size: clamp(1.9rem, 1.35rem + 2.1vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.x\:container.x\:prose > p {
+  color: var(--nestia-muted);
+  line-height: 1.7;
+}
+
+/* The navbar is a solid red band, so content butting straight up against it
+   reads as a collision rather than as a start. */
+.x\:container.x\:prose {
+  padding-top: 2.5rem;
+}
+
+/* A post with no headings renders no TOC, and used to lose the grid wrapper
+   with it -- leaving the article unconstrained and full-bleed. */
+.nestia-blog-post-solo {
+  max-width: min(1100px, calc(100vw - 2rem));
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2.5rem 1.5rem 0;
+}
+
 .nestia-blog-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -128,7 +168,7 @@
   max-width: min(1100px, calc(100vw - 2rem));
   margin-left: auto;
   margin-right: auto;
-  padding: 2rem 1.5rem 0;
+  padding: 2.5rem 1.5rem 0;
 }
 
 .nestia-blog-post-main {

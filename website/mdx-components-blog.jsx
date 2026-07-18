@@ -39,7 +39,9 @@ export function useMDXComponents(components) {
       }
 
       return (
-        <div className={hasToc ? "nestia-blog-post-layout" : undefined}>
+        <div
+          className={hasToc ? "nestia-blog-post-layout" : "nestia-blog-post-solo"}
+        >
           <div className="nestia-blog-post-main">
             {metadata?.ogImage ? (
               <img
