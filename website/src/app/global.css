@@ -120,6 +120,32 @@ body {
   box-shadow: 0 6px 18px rgba(31, 20, 23, 0.18);
 }
 
+/* ── Footer ──
+   Nextra's footer text is a blue-tinted gray (Tailwind's gray-600, hue 256),
+   which is the one place a cool neutral survived the retheme. The link
+   inside it carried `color: initial` inline -- a holdover from the dark
+   theme, where it existed to escape the theme's link color. On white that
+   rendered the only link in the footer as plain black text.
+
+   Nextra 4 gives the footer no class of its own -- it is a bare `<footer>`
+   carrying `x:text-gray-600` inside an `x:bg-gray-100` strip -- so these
+   match on the element and need `!important` to beat those utilities. */
+footer {
+  color: var(--nestia-muted) !important;
+}
+
+footer a {
+  color: var(--nestia-red) !important;
+}
+
+footer a:hover {
+  color: var(--nestia-red-deep) !important;
+}
+
+div:has(> footer) {
+  background: var(--nestia-wash) !important;
+}
+
 /* ── Callouts ──
    Nextra paints `type="info"` blue, and the docs lean on it 27 times, so the
    body copy read blue-accented under a red brand.

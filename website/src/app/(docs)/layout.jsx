@@ -8,11 +8,7 @@ const footer = (
     <br />
     <br />
     Copyright 2022 - {new Date().getFullYear()}{" "}
-    <a
-      href="https://github.com/samchon"
-      target="_blank"
-      style={{ color: "initial" }}
-    >
+    <a href="https://github.com/samchon" target="_blank">
       <u>Samchon</u>
     </a>{" "}
     & Contributors
