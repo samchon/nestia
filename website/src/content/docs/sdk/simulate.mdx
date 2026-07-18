@@ -12,7 +12,7 @@ Flip **`simulate: true`** in `nestia.config.ts` and the generated SDK gains a se
 The point: a frontend can ship UI work before the backend exists. The simulator runs the **same input validation** the real server would, so bad payloads still fail with the same 400, and good payloads come back with realistic-looking data.
 
 <Callout type="info">
-**New to this feature?** Read **[Tutorial → Mockup Simulator](/docs/tutorial/simulator)** for the friendly walkthrough. This page is the reference.
+**New to this feature?** Read **[Tutorial → Mockup Simulator](/tutorial/simulator)** for the friendly walkthrough. This page is the reference.
 </Callout>
 
 ---
@@ -128,6 +128,6 @@ export const connection: api.IConnection = process.env.NODE_ENV === "production"
 
 ## See also
 
-- **[Tutorial → Mockup Simulator](/docs/tutorial/simulator)** — the walkthrough.
+- **[Tutorial → Mockup Simulator](/tutorial/simulator)** — the walkthrough.
 - **[SDK Overview](/docs/sdk)** — generator configuration.
 - **[E2E Tests](/docs/sdk/e2e)** — the generated test suite (which uses real HTTP, not the simulator).
