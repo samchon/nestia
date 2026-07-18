@@ -1,147 +1,80 @@
-## 1. Project
+# AGENTS.md
 
-### 1.1. What Nestia Is
+`nestia` is a set of NestJS helper libraries that turn pure TypeScript types into validators, serializers, Swagger documents, typed SDKs, mockup simulators, and e2e suites. It ships the `nestia` CLI plus the `@nestia/core`, `@nestia/sdk`, `@nestia/fetcher`, `@nestia/migrate`, `@nestia/e2e`, `@nestia/benchmark`, and `@nestia/editor` packages.
 
-Nestia is a set of NestJS helper libraries built around one idea: a pure TypeScript type definition should replace the stack of decorators, validators, transformers, and Swagger annotations that NestJS normally needs. The compile-time transform reads those types and injects everything else.
+## Attitude
 
-The packages:
+Follow the literal request; it is the contract, not a hint at what the user "really" wants.
 
-- **`@nestia/core`** — typed request/response decorators for NestJS controllers. Replaces class-validator and class-transformer with type-driven validation and serialization that runs an order of magnitude faster.
-- **`@nestia/sdk`** — generators driven by the `nestia` CLI that emit Swagger documents, typed SDK libraries, mockup simulators, and automatic e2e test suites from decorated controllers. Reads metadata that the native transform attaches at build time. On the `@next` line it ships as a runtime dependency (the Go binary needs to resolve it; `NestiaSwaggerComposer` consumers needed it at runtime anyway).
-- **`@nestia/fetcher`** — typed `fetch` runtime that generated SDKs sit on top of. Plain and AES-encrypted variants, with simulation support for the mockup mode.
-- **`@nestia/migrate`** — converts a Swagger/OpenAPI document into a NestJS project (controllers, DTOs, optional e2e suite). Generated templates are non-interactive.
-- **`@nestia/e2e`** — test utilities used by both hand-written and generated e2e suites; discovers test functions by prefix and bundles small assertion and HTTP helpers.
-- **`@nestia/benchmark`** — load-test runner built on top of e2e functions; emits markdown reports.
-- **`@nestia/editor`** — Swagger UI with an embedded cloud TypeScript editor.
-- **`nestia`** — the CLI binary that drives `@nestia/sdk`.
+- **Scope is the user's to widen.** Reinterpret the goal, weigh alternatives, or expand the task only on an explicit hand-off ("figure it out", "you decide"). Take a confident, specific ask as given.
+- **Fidelity binds the goal, not the effort.** Within that goal, act with full initiative: do the substeps it needs, verify your work, surface what you notice. Literal scope is no excuse for passive execution.
+- **Evidence precedes correction.** Treat issue reports, review proposals, and claims that something is wrong or missing as hypotheses. Verify the real code path, tests, generated artifacts, upstream ownership, and history before accepting the premise or changing behavior.
+- **Trace the consequence surface.** A named file or failing case is the starting point, not the investigation boundary. Follow the same cause through downstream consumers, side effects, state transitions, platforms, and boundary cases, then address the whole verified class of failure within the requested goal.
+- **Default over ask.** On an ambiguous detail, pick the sensible default and say what you chose; reserve questions for forks only the user can settle.
+- **Preserve the worktree.** Never reset, revert, or silently stage unrelated user changes.
+- **Fill the available agent pool when parallel work is independent.** Use up to ten concurrent agents in total, including the lead, when the runtime provides that capacity; keep at most nine child agents active so the lead retains one coordination slot.
 
-Downstream projects (`@agentica`, `@autobe`) build on this stack but are not part of this repository's contract.
+## Skills
 
-### 1.2. How It Works
+Durable project conventions and workflows live under `.agents/skills/`. Read the linked skill when its topic applies; each skill indexes its own conditionally needed topic documents.
 
-A single Go binary under `packages/core/native` performs the compile-time transform that injects validators, stringifiers, and SDK metadata. Both `@nestia/core` and `@nestia/sdk` register that binary through their `ttsc` plugin manifests; the typia transform is composed in.
+### Project Outline
 
-The `transform.ts` files in `@nestia/core` and `@nestia/sdk` are plugin descriptors, not transformers — there is no TypeScript-side transform anymore. Consumers reach the binary through `ttsc` / `ttsx` and the published descriptors. Inside the repo, each test workspace's `start` script uses `cross-env` to set `TTSC_GO_BINARY`, pin `TTSC_CACHE_DIR` (so the Go source-plugin build is reused across suites), and carry the required `NODE_OPTIONS`.
+What nestia is, the package family, the Go plugin composition model, the workspace layout, product boundaries, and canonical commands, `.agents/skills/project/SKILL.md`.
 
-### 1.3. Layout
+### Development
 
-- `packages/*` — the published packages, including the shared Go plugin under `packages/core/native`.
-- `tests/test-*` — feature-test workspaces. `test-e2e` and `test-migrate` are function-per-file; `test-sdk` is project-shaped (each `features/<name>` is a real nestia project); `test-transform-options` is a synthetic harness for plugin option matrices; `test-benchmark` boots a real NestJS app.
-- `benchmark/` — the published benchmark workspace, with results under `benchmark/results/**`.
-- `website/src/content/docs/**` — user-facing MDX guides published at `nestia.io/docs`.
-- `.discussions/`, `conventions/` — multi-agent review workspace and its minutes.
-- `deploy/` — release scripts.
+Work rules, testing, validation, consequence analysis, and change integrity, `.agents/skills/development/SKILL.md`. Read before writing or modifying code.
 
-### 1.4. Commands
+### Documentation
 
-```bash
-pnpm install
-pnpm format
-pnpm build
-pnpm test
-```
+README and website guide authoring rules, `.agents/skills/documentation/SKILL.md`. Read before writing or modifying documentation.
 
-`pnpm test` builds, then runs each test workspace's `start` script (which sets the `ttsc` env via `cross-env`). It needs `go` on `PATH` (or `TTSC_GO_BINARY`).
+### Issue Campaigns
 
-## 2. Development
+Repository-wide issue discovery, lead-verified issue writing, CI-suspended DAG-batched implementation, and cleanup, `.agents/skills/issue-campaign/SKILL.md`. Read when the user asks for a broad audit, many issue candidates, or an issue-to-implementation campaign; do not use it for one already-defined issue.
 
-### 2.1. Work Rules
+### Review
 
-- Match existing conventions. Before adding a file, function, or test, open a nearby peer in the same package and mirror its naming, location, and code style — don't create parallel structures.
-- Respect package boundaries. The Go binary lives in `@nestia/core` and is shared with `@nestia/sdk`. Don't fork a second native binary, and don't reintroduce a TypeScript-side transformer.
-- Preserve the contract. Decorator names, `INestiaConfig` options, CLI flags, and the generated SDK / Swagger / e2e surface are public. Renaming or removing any of them is a deliberate, separate change.
-- Keep detection general. The native transform must locate target packages through their resolved package root, not through workspace-only path substrings — substring matching breaks the moment a consumer installs from npm. The same rule applies to generators: no hard-coded DTO, controller, or feature names.
-- Use the workspace catalogs. `pnpm-workspace.yaml` pins versions under `catalog:typescript`, `catalog:samchon`, `catalog:nestjs`, `catalog:utils`, `catalog:modelcontextprotocol`, and `catalog:rolldown`. New dependencies go through the matching catalog; internal references use `workspace:^`.
-- Migration templates ship without interactive dependencies — generated projects stay non-interactive.
-- When public behavior changes, update the matching guide page under `website/src/content/docs/**` in the same change.
+Solo review, team Review Cycle, research review, and exhaustive issue-discovery rounds, `.agents/skills/review/SKILL.md`. Every agent inspects the whole declared surface independently, and rounds continue until a complete pass produces no sound improvement or meaningful issue candidate. Self-Review and any unqualified review request are always solo.
 
-### 2.2. Testing
+### Discussion
 
-**One test case per file, named after what it asserts.** Applies to both layers.
+Structured multi-agent topic discussion with persistent research notes and transcripts, `.agents/skills/discussion/SKILL.md`. Read only when the user explicitly asks for a discussion; review and issue discovery do not imply discussion.
 
-- **Go unit tests** live under `packages/*/test/` and next to the native binary. One `Test*` per file, named after the assertion. Tests that exercise the CLI surface or emit pipeline should invoke the real binary (e.g. `go run ./packages/core/native/cmd/...`) so the wrapper branches stay covered.
-- **TypeScript suites** under `tests/test-*` come in three shapes:
-  - *Function-per-file* (`test-e2e`, `test-migrate`, and the generated tests inside `test-sdk` features): each file exports exactly one `test_<snake_case>` function with a matching file name; `DynamicExecutor` discovers them by prefix.
-  - *Project-shaped* (`tests/test-sdk/features/<name>`): each directory is a real nestia project — config, tsconfig, controllers, expected outputs. The harness runs the CLI, compiles, and asserts on observable output. Directory names containing `error` are expected to fail compilation.
-  - *Synthetic* (`tests/test-transform-options`): drives `ttsc` with hand-written plugin configs to verify transform options. Add new option combinations here instead of inventing new project fixtures.
+### Pull Request Submission
 
-Open every case with a doc comment in the same three-part shape: a one-line `Verifies …` headline, a short paragraph stating the non-obvious *why* (which branch or regression is being pinned), and a 2–4-step numbered scenario.
+Branch, commit, pull request, check, and merge flow, `.agents/skills/pull-request/SKILL.md`. Read when the user explicitly asks to open, submit, update, or merge a pull request, or when a standing autonomous mandate authorizes end-to-end delivery; never open, push, or propose one on unprompted initiative.
 
-```ts
-/**
- * Verifies @TypedBody with `validate: "assertPrune"` strips extras from
- * both input and return value.
- *
- * Locks the assertPrune branch of the native body validator. Other validate
- * modes pass the input through untouched; only the Prune family removes
- * extras, and the transformer has to pick the matching typia helper. A
- * regression in helper selection would silently fall back to a non-pruning
- * validator and let extra properties through.
- *
- * 1. Build a controller method with `@TypedBody()` and `validate: "assertPrune"`.
- * 2. Send a payload carrying an extra property.
- * 3. Assert the extra is missing from both the input and the return value.
- */
-export const test_body_config_assertPrune_strips_extras = () => { /* ... */ };
-```
+### Benchmark
 
-Use the shared helpers in `@nestia/e2e` and each suite's local helpers; don't reach into another suite's internals.
+Benchmark runners, fixture integrity, measurement integrity, result archives, and publication, `.agents/skills/benchmark/SKILL.md`. Read before running, modifying, or publishing benchmark results.
 
-### 2.3. Validation
+## Maintenance
 
-Match the scope of the command to the scope of the change. Report any command you couldn't run.
+### Writing style
 
-- Touched the Go binary → `go test` in that module.
-- Touched one test workspace → `pnpm --filter ./tests/<name> start`.
-- Touched the transform, decorators, or generators broadly → `pnpm test`.
-- Touched packaging → `pnpm package:tgz` from `deploy/tarballs` and try a clean install.
+AGENTS.md and SKILL.md files are read by humans as well as agents.
 
-### 2.4. Change Integrity
+- **Optimize for comprehension, not minimum length.** A shorter document that forces the reader to infer prerequisites, reasons, exceptions, or stop conditions is not concise. Add the context needed to execute correctly.
+- **Remove repetition, not substance.** State a rule once at its owner and link to it elsewhere. Keep the rationale when it prevents a plausible mistake.
+- **Give each paragraph one job.** Split purpose, rule, rationale, procedure, and consequence when combining them would make the reader unpack a dense block.
+- **Use structure as compression.** Use numbered lists for ordered procedures, bullets for choices or checklists, tables for repeated mappings, and code blocks for exact commands. Do not hide a workflow inside one long sentence.
+- **State the rule before its reason.** Use negative phrasing only for a named failure mode that the affirmative rule does not already exclude.
+- **Skills point, not paraphrase.** Do not restate what the website, READMEs, or source comments already say; link to them.
+- **Source lines are not paragraphs.** Keep each prose paragraph on one source line and never hard-wrap it, but insert as many blank-line paragraph boundaries as the ideas require.
 
-Treat tests, fixtures, snapshots, CI workflows, package wiring, dependencies, core algorithms, and generated baselines as part of the specification. Changing them requires an explicit user request or a clear product reason, and the final report must call it out.
+### AGENTS.md
 
-For mechanical ports, migrations, or broad rewrites, preserve the existing algorithm and public behavior in reviewable slices. Prefer a concrete exemplar over abstract instructions, and inspect the diff before trusting a green test run.
+This is the single shared entry point for both Claude Code (via `CLAUDE.md -> @AGENTS.md`) and Codex CLI. Keep it to the brief product identity, global attitude, and skill index. The H2s are `## Attitude`, `## Skills`, and `## Maintenance`; `## Attitude` is the one place global agent-behavior rules live.
 
-## 3. Documentation
+Update AGENTS.md only for repository-contract changes: a new skill area, a renamed or merged skill, a workflow that no longer fits an existing skill, a release-process change, or a coding-agent rule that applies globally before any skill loads.
 
-User-facing guides live under `website/src/content/docs/**` and publish to `nestia.io/docs`. One audience, one task per page. Update the page's `_meta.ts` when adding or moving it.
+### Skills
 
-Update `AGENTS.md` when the repository's load-bearing facts shift — the package family, the JS-descriptor / Go-plugin boundary, the test layering, the release flow. Treat it as a map, not a rulebook.
-
-When adding agent-facing rules, state the desired workflow first. Use negative constraints only for named failure modes, and include the reason so the rule points back to the intended behavior.
-
-## 4. Multi-Agent Workflows
-
-Use these workflows only when the user explicitly asks for the named workflow, a multi-agent review, or a multi-agent discussion. Use Review Cycles for direct review of changed source, docs, and tests; Discussions for open-ended topic exploration; and Research Review Rounds when review needs shared research before individual proposals.
-
-### 4.1. Review Cycles
-
-For an explicitly requested review cycle, form a team of six agents. Each agent must read the changed source, docs, and tests in full, then propose concrete improvements.
-
-The lead agent rechecks every proposal, verifies it against the codebase, and applies only changes that are technically sound and relevant.
-
-That is one cycle. For the next cycle, form a fresh team of six different agents and repeat. Continue while at least one verified proposal is accepted. Stop when no agent proposes an improvement, or when no proposal survives lead-agent validation.
-
-### 4.2. Discussions
-
-For a discussion task, create a new topic directory under `.discussions/<topic>/`. Use a short filesystem-safe topic name. Do not delete or overwrite existing discussion directories unless the user explicitly requests it.
-
-Form a team of six agents. Each agent researches the topic, creates a personal subdirectory under the topic directory, and continuously maintains its own wiki-style knowledge base there.
-
-When all agents are ready, run three unrestricted discussion rounds recorded as `round1.md`, `round2.md`, and `round3.md` in the topic directory. Each round has a one-hour budget. The lead agent moderates, acts as scribe, and does not narrow the topic unless the user did.
-
-The transcript files must record the live discussion, not a retrospective summary. The lead agent writes each statement in speaking order. Team agents read the updated transcript before speaking again and continue researching, revising their own knowledge bases, and preparing notes while waiting for their next turn.
-
-After `round3.md` is complete, the lead agent writes the agreed conclusions and major open points into `summary.md` in the topic directory, reports them to the user, and waits for the next instruction.
-
-### 4.3. Research Review Rounds
-
-For an explicitly requested research review, combine the `.discussions` knowledge-base workflow with the review validation loop.
-
-Create a new topic directory under `.discussions/<topic>/`. Each research review round gets its own `review-round-N/` subdirectory with six fresh agents, agent knowledge-base folders, `round1.md`, `round2.md`, `round3.md`, `proposals.md`, and `lead-validation.md`.
-
-In each round, agents build their own knowledge bases from the changed source, docs, tests, and any relevant research. Run the three live discussion transcripts as in Discussions: the lead agent records statements in speaking order while team agents read each other's statements, keep researching between turns, and refine their notes.
-
-At the end of a round, each agent submits its own concrete improvement proposals. Do not require consensus; discussion is for shared understanding, not voting. The lead agent verifies every proposal and applies only changes that are technically sound and relevant.
-
-For the next round, replace the team with six different agents and repeat. Continue while at least one verified proposal is accepted. Stop when no meaningful proposal remains, or when no proposal survives lead-agent validation.
+- **Location.** `.agents/skills/<kebab-name>/SKILL.md`. No numeric prefix. Each file opens with YAML frontmatter whose `name` matches the directory and whose third-person `description` states what the skill covers and when to use it.
+- **Core in SKILL.md, conditional topics as sibling documents.** Keep always-applicable procedure in SKILL.md. Move a topic needed only under a specific condition to a one-level-deep sibling document and link it with that read condition.
+- **Two trigger surfaces, one scope.** The frontmatter description is the full trigger contract, including exclusions. The AGENTS.md pointer mirrors that scope more briefly. Correct the frontmatter first when the scope changes.
+- **Create or merge.** Add a skill when a substantial repository concern would otherwise inflate AGENTS.md beyond an index. Merge sibling concerns when they share most of their structure.
+- **Headings are plain.** No chapter numbers in skill or AGENTS.md headings. Use descriptive titles.
+- **Current set.** The repository skills are `project`, `development`, `documentation`, `issue-campaign`, `review`, `discussion`, `pull-request`, and `benchmark`.
