@@ -19,7 +19,7 @@ Drop-in replacement for `@Body()` from `@nestjs/common`. Identical behavior *plu
 - The endpoint is visible to **`@nestia/sdk`** — body schema appears in the generated SDK, Swagger document, and e2e suite.
 
 <Callout type="info">
-**New here?** Start with **[Tutorial → Validate Inputs](/docs/tutorial/validate)** for the friendly walkthrough. This page is the reference.
+**New here?** Start with **[Tutorial → Validate Inputs](/tutorial/validate)** for the friendly walkthrough. This page is the reference.
 </Callout>
 
 For non-JSON content types:
@@ -87,7 +87,7 @@ If validation fails, the response body is:
 
 The `errors` array contains every failure with the **path** (dot / bracket notation rooted at `$input`), the **expected** type expression, and the offending **value**. Default mode is `validate` — every failure at once. See [Configuration](#configuration) below to switch modes.
 
-For the full tag catalog, see **[Tutorial → Validate Inputs](/docs/tutorial/validate)** and the [typia tags reference](https://typia.io/docs/validators/tags/).
+For the full tag catalog, see **[Tutorial → Validate Inputs](/tutorial/validate)** and the [typia tags reference](https://typia.io/docs/validators/tags/).
 
 ---
 
@@ -206,7 +206,7 @@ What also matters: typia handles types `class-validator` can't — recursive uni
 
 ## See also
 
-- **[Tutorial → Validate Inputs](/docs/tutorial/validate)** — full walkthrough with tag examples.
-- **[Tutorial → Your First Endpoint](/docs/tutorial/endpoint)** — the broader pattern.
+- **[Tutorial → Validate Inputs](/tutorial/validate)** — full walkthrough with tag examples.
+- **[Tutorial → Your First Endpoint](/tutorial/endpoint)** — the broader pattern.
 - **[TypedRoute](./TypedRoute)** — for response-side validation and serialization.
 - **[TypedException](./TypedException)** — for typed error responses.
