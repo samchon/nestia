@@ -129,20 +129,26 @@ body {
 
    Nextra 4 gives the footer no class of its own -- it is a bare `<footer>`
    carrying `x:text-gray-600` inside an `x:bg-gray-100` strip -- so these
-   match on the element and need `!important` to beat those utilities. */
-footer {
+   match on the element and need `!important` to beat those utilities.
+
+   Matched through `body > div >` rather than on a bare `footer`, so the
+   rules cannot reach a `<footer>` that an embedded application renders
+   inside the content column -- the Swagger editor mounts a whole app at
+   `/editor`, and an unscoped `footer {}` here would repaint anything it
+   happens to nest. Nextra's own footer sits at exactly this depth. */
+body > div > footer {
   color: var(--nestia-muted) !important;
 }
 
-footer a {
+body > div > footer a {
   color: var(--nestia-red) !important;
 }
 
-footer a:hover {
+body > div > footer a:hover {
   color: var(--nestia-red-deep) !important;
 }
 
-div:has(> footer) {
+body > div:has(> footer) {
   background: var(--nestia-wash) !important;
 }
 
