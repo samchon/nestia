@@ -30,7 +30,9 @@ Every push gets its own cancellation gate:
 4. Poll again because push, pull-request, chained, and ruleset runs can appear after the first query. Continue until two consecutive polls find no new run and every observed run is terminal; every run observed as active must end `cancelled`, while a run already terminal when first observed is only recorded.
 5. Record the run IDs and final states in `.wiki/<campaign>/ci-state.md`. Stop further pushes or pull-request mutations if enumeration, cancellation, or readback fails.
 
-Four workflows trigger on `pull_request` here — `build`, `test`, `website`, and `spell-check` — and `test` alone fans out to eight matrix jobs. All but `spell-check` carry path filters, so the set that actually starts depends on the batch's touched paths. Enumerate by SHA rather than by an expected job list, and note that `test` already sets a cancel-in-progress concurrency group — an automatic supersede is not the same as a recorded cancellation.
+Four workflow files trigger on `pull_request` here — `build`, `test`, `website`, and `spell-check` — and `test` alone fans out to eight matrix jobs. All but `spell-check` carry path filters, so the set that actually starts depends on the batch's touched paths.
+
+`.github/workflows/` is not the whole check surface. CodeQL default setup and the Socket Security app also report on pull requests without a workflow file in the repository, and `gh run cancel` does not apply to app-reported checks. This is why the gate enumerates by SHA rather than by an expected job list. Note too that `test` already sets a cancel-in-progress concurrency group — an automatic supersede is not the same as a recorded cancellation.
 
 Opening or updating a pull request can enqueue additional runs for the already-pushed SHA. Run the same gate immediately after pull-request creation and after any operation that retriggers checks. The exact-SHA boundary is mandatory: never cancel unrelated contributors' runs.
 
