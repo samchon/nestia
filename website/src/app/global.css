@@ -230,23 +230,3 @@ body:has(.nestia-landing) div[class~="x:h-0"][class~="x:w-64"] {
 :has(.nestia-landing) .nextra-breadcrumb {
   display: none !important;
 }
-
-/* ── Editor page: hide Nextra chrome so the editor gets the full viewport ── */
-.nestia-editor-page .nextra-sidebar-container,
-.nestia-editor-page .nextra-sidebar,
-.nestia-editor-page .nextra-breadcrumb,
-.nestia-editor-page .nextra-toc,
-.nestia-editor-page nav.nextra-toc,
-.nestia-editor-page aside,
-.nestia-editor-page footer {
-  display: none !important;
-}
-.nestia-editor-page article {
-  max-width: 100% !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-.nestia-editor-page main {
-  max-width: 100% !important;
-  margin: 0 !important;
-}
