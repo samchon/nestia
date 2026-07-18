@@ -1,0 +1,159 @@
+<!doctype html>
+<!--
+  Source of truth for `public/og.jpg`, the social card every share of
+  nestia.io renders.
+
+  To regenerate: open this file in a browser and capture the `.card` element
+  at exactly 1200x630, or drive it headless:
+
+    await page.goto("file:///<abs>/website/build/og.html");
+    await page.locator(".card").screenshot({
+      path: "website/public/og.jpg", type: "jpeg", quality: 92,
+    });
+
+  Deliberately dependency-free -- plain HTML against the same palette as
+  `src/app/global.css`, so it needs no build step and nothing to install.
+  Keep the colors here in sync with the `--nestia-*` vars over there.
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: #555;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      .card {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        background: #ffffff;
+        overflow: hidden;
+        font-family:
+          ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+          sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 88px;
+      }
+      /* The same three-stop band the navbar uses, as a spine down the left
+         edge -- the one motif that reads instantly as this site. */
+      .spine {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 18px;
+        background: linear-gradient(
+          180deg,
+          #851425 0%,
+          #b81e35 58%,
+          #cc243d 100%
+        );
+      }
+      /* A wash bleed in the far corner, so the expanse of white has some
+         depth without competing with the text. */
+      .bleed {
+        position: absolute;
+        right: -160px;
+        top: -160px;
+        width: 620px;
+        height: 620px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          #fdedef 0%,
+          rgba(253, 237, 239, 0) 70%
+        );
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 34px;
+        position: relative;
+      }
+      .mark {
+        width: 148px;
+        height: 148px;
+        flex: none;
+      }
+      .wordmark {
+        font-size: 88px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #1f1417;
+        line-height: 1;
+      }
+      .tagline {
+        margin-top: 14px;
+        font-size: 30px;
+        font-weight: 600;
+        color: #b81e35;
+        letter-spacing: -0.01em;
+      }
+      .pitch {
+        position: relative;
+        margin-top: 44px;
+        font-size: 29px;
+        line-height: 1.5;
+        color: #705c61;
+        max-width: 900px;
+      }
+      .pitch b {
+        color: #1f1417;
+        font-weight: 700;
+      }
+      /* In normal flow rather than pinned to the bottom edge: anchoring it
+         there left a dead band between the pitch and the wordmark, and the
+         whole lockup read as sitting high in the card. */
+      .foot {
+        position: relative;
+        margin-top: 52px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #b81e35;
+        letter-spacing: -0.01em;
+      }
+      .foot .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #ea2845;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="spine"></div>
+      <div class="bleed"></div>
+      <div class="row">
+        <img
+          class="mark"
+          src="../public/favicon/android-chrome-512x512.png"
+          alt=""
+        />
+        <div>
+          <div class="wordmark">NESTIA</div>
+          <div class="tagline">Make NestJS Super-Fast/Easy</div>
+        </div>
+      </div>
+      <div class="pitch">
+        One TypeScript type drives a NestJS endpoint, a <b>typed client SDK</b>,
+        an OpenAPI document, and e2e tests — for free.
+      </div>
+      <div class="foot"><span class="dot"></span>nestia.io</div>
+    </div>
+  </body>
+</html>
