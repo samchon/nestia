@@ -3,17 +3,13 @@ title: "Reference · Mockup Simulator"
 description: "Embed a mock backend inside the generated SDK. The frontend can develop and test against schema-valid random responses before any API is implemented."
 ---
 
-import { Callout, Tabs } from "nextra/components";
+import { Tabs } from "nextra/components";
 
 # Mockup Simulator
 
 Flip **`simulate: true`** in `nestia.config.ts` and the generated SDK gains a second mode of operation: instead of making HTTP calls, each function answers in-process with a typed random payload.
 
 The point: a frontend can ship UI work before the backend exists. The simulator runs the **same input validation** the real server would, so bad payloads still fail with the same 400, and good payloads come back with realistic-looking data.
-
-<Callout type="info">
-**New to this feature?** Read **[Tutorial → Mockup Simulator](/tutorial/simulator)** for the friendly walkthrough. This page is the reference.
-</Callout>
 
 ---
 
@@ -128,6 +124,5 @@ export const connection: api.IConnection = process.env.NODE_ENV === "production"
 
 ## See also
 
-- **[Tutorial → Mockup Simulator](/tutorial/simulator)** — the walkthrough.
 - **[SDK Overview](/docs/sdk)** — generator configuration.
 - **[E2E Tests](/docs/sdk/e2e)** — the generated test suite (which uses real HTTP, not the simulator).

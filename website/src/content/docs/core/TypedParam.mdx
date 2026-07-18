@@ -3,8 +3,6 @@ title: "Reference · TypedParam"
 description: "Type-safe path-parameter decorator. Infers the param type from the TypeScript signature, coerces strings into numbers / booleans / dates, and validates formats like uuid."
 ---
 
-import { Callout } from "nextra/components";
-
 # `@TypedParam`
 
 ```ts filename="@nestia/core" copy
@@ -18,10 +16,6 @@ Drop-in replacement for `@Param("name")` from `@nestjs/common`. Identical behavi
 - The parameter is **visible to `@nestia/sdk`** — appears in the generated SDK with the same type your handler sees.
 
 Vanilla `@Param("id")` always gives you a `string`. `@TypedParam("id")` gives you exactly the type you declared.
-
-<Callout type="info">
-**New here?** Start with **[Tutorial → Your First Endpoint](/tutorial/endpoint)** for the friendly walkthrough. This page is the reference.
-</Callout>
 
 ---
 
@@ -99,4 +93,3 @@ Vanilla params are invisible to `@nestia/sdk`'s generators.
 - **[TypedQuery](./TypedQuery)** — query-string parameters, including nested DTOs.
 - **[TypedBody](./TypedBody)** — JSON request bodies.
 - **[TypedRoute](./TypedRoute)** — the route decorators these parameters live on.
-- **[Tutorial → Your First Endpoint](/tutorial/endpoint)** — the broader pattern.

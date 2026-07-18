@@ -154,9 +154,9 @@ const HomeHeroMovie = () => {
           }}
         >
           <HeroButton
-            title="Start the Tutorial"
+            title="Guide Documents"
             icon={<MenuBookIcon />}
-            href="/tutorial"
+            href="/docs"
             variant="contained"
           />
           <HeroButton
