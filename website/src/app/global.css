@@ -1,0 +1,219 @@
+@import "nextra-theme-docs/style.css";
+
+/* ── Palette ──────────────────────────────────────────────────────────────
+   NestJS red and white, two-tone. The hues come from NestJS itself: the
+   `#ea2845` primary that both nestjs.com and docs.nestjs.com paint their
+   accents with.
+
+   That literal brand red only reaches 4.30:1 on white, short of WCAG AA, so
+   it is *not* the anchor. It stays as `--nestia-red-vivid` for decoration
+   that never carries body text -- the logo chip, borders, the bright end of
+   a gradient. Everything that touches text resolves to `--nestia-red`
+   (6.40:1) or darker.
+
+   deep/base/mid are the three stops of the red band, at one hue with
+   lightness 30% / 42% / 47%. White text stays readable across the whole
+   sweep -- 5.41:1 even on `mid`, the lightest stop -- so the navbar has no
+   weak spot wherever the gradient happens to land behind a link.
+
+   --nestia-red is the exact hex of hsl(351, 72%, 42%), the same triple fed
+   to Nextra via <Head color> in app/layout.jsx. Nextra derives its own
+   primary ramp from that HSL, so keeping the two literals in sync matters:
+   change one and you must recompute the other, or links and buttons drift
+   apart by a shade. */
+:root {
+  --nestia-red: #b81e35;
+  --nestia-red-deep: #851425;
+  --nestia-red-mid: #cc243d;
+  --nestia-red-vivid: #ea2845;
+  --nestia-ink: #1f1417;
+  --nestia-soft: #fdedef;
+  --nestia-wash: #fff7f8;
+  --nestia-border: #f2cad0;
+  --nestia-muted: #705c61;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: #ffffff;
+  color: var(--nestia-ink);
+}
+
+::selection {
+  background: rgba(184, 30, 53, 0.18);
+}
+
+/* Badge rows: shields.io images are wrapped in links, but the Preflight
+   Nextra ships resets `img` to `display: block`, so each badge would stack
+   on its own line. Keep linked inline images inline (the banner is not a
+   link, so it stays block). */
+:is(.nextra-content, article) a img {
+  display: inline-block;
+}
+
+/* ── Navigation bar: one red band across every surface ── */
+.nextra-navbar-blur {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  background: linear-gradient(
+    110deg,
+    var(--nestia-red-deep) 0%,
+    var(--nestia-red) 58%,
+    var(--nestia-red-mid) 100%
+  ) !important;
+  box-shadow: 0 8px 24px rgba(31, 20, 23, 0.18);
+}
+
+.nextra-navbar,
+.nextra-navbar a,
+.nextra-navbar button {
+  color: var(--nestia-wash) !important;
+}
+
+.nextra-navbar nav > div a[aria-current="true"] {
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.nextra-navbar input {
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.13) !important;
+  color: white !important;
+}
+
+.nextra-navbar input::placeholder {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.nextra-navbar kbd {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: rgba(255, 255, 255, 0.84) !important;
+}
+
+/* The logo mark is a colored PNG that reads as mud against the red band, so
+   it gets a white chip behind it. */
+.nestia-site-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.nextra-navbar .nestia-site-logo {
+  color: white !important;
+}
+
+.nestia-site-logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.35rem;
+  padding: 0.15rem;
+  background: white;
+  box-shadow: 0 6px 18px rgba(31, 20, 23, 0.18);
+}
+
+/* ── Sidebar: red wash fading into the white content column ── */
+body:has(.nestia-docs-page-marker) .nextra-sidebar {
+  border-right: 1px solid var(--nestia-border);
+  background: linear-gradient(
+    180deg,
+    var(--nestia-soft) 0%,
+    var(--nestia-wash) 48%,
+    white 100%
+  );
+}
+
+body:has(.nestia-docs-page-marker) :is(.nextra-sidebar, .nextra-mobile-nav) a,
+body:has(.nestia-docs-page-marker)
+  :is(.nextra-sidebar, .nextra-mobile-nav)
+  button {
+  color: var(--nestia-ink) !important;
+}
+
+body:has(.nestia-docs-page-marker)
+  :is(.nextra-sidebar, .nextra-mobile-nav)
+  li.active
+  > a {
+  background: var(--nestia-red) !important;
+  color: white !important;
+  box-shadow: 0 7px 18px rgba(184, 30, 53, 0.2);
+}
+
+body:has(.nestia-docs-page-marker)
+  :is(.nextra-sidebar, .nextra-mobile-nav)
+  li:not(.active)
+  > a:hover,
+body:has(.nestia-docs-page-marker)
+  :is(.nextra-sidebar, .nextra-mobile-nav)
+  li:not(.active)
+  > button:hover {
+  background: var(--nestia-soft) !important;
+  color: var(--nestia-red-deep) !important;
+}
+
+body:has(.nestia-docs-page-marker)
+  :is(.nextra-sidebar, .nextra-mobile-nav)
+  li[class*="font-semibold"]:not(.active) {
+  color: var(--nestia-red-deep) !important;
+}
+
+body:has(.nestia-docs-page-marker)
+  :is(.nextra-sidebar, .nextra-mobile-nav)
+  ul
+  ul::before {
+  background: var(--nestia-border) !important;
+}
+
+/* ── Landing page: full-bleed canvas ──
+   The landing carries its own full-width sections, so it opts out of the
+   docs content column entirely. Nextra lays the page out as a flex row of
+   [sidebar spacer | sidebar | toc | article]; the spacer is a 256px w-64/h-0
+   div that keeps its width even when the sidebar is hidden, and the toc
+   normally balances it on the right. Hiding only the toc would leave the
+   article 256px off-center, so the spacer has to go with it. */
+body:has(.nestia-landing) {
+  --nextra-content-width: 100%;
+}
+:has(.nestia-landing) article {
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+:has(.nestia-landing) main {
+  max-width: 100% !important;
+}
+body:has(.nestia-landing) div[class~="x:h-0"][class~="x:w-64"] {
+  display: none !important;
+}
+:has(.nestia-landing) .nextra-toc,
+:has(.nestia-landing) .nextra-breadcrumb {
+  display: none !important;
+}
+
+/* ── Editor page: hide Nextra chrome so the editor gets the full viewport ── */
+.nestia-editor-page .nextra-sidebar-container,
+.nestia-editor-page .nextra-sidebar,
+.nestia-editor-page .nextra-breadcrumb,
+.nestia-editor-page .nextra-toc,
+.nestia-editor-page nav.nextra-toc,
+.nestia-editor-page aside,
+.nestia-editor-page footer {
+  display: none !important;
+}
+.nestia-editor-page article {
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.nestia-editor-page main {
+  max-width: 100% !important;
+  margin: 0 !important;
+}
