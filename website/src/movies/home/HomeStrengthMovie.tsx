@@ -92,7 +92,7 @@ const FeatureCard = (props: FeatureCardProps) => (
       variant="outlined"
       sx={{
         height: "100%",
-        backgroundColor: PALETTE.WASH,
+        backgroundColor: "#fff",
         borderColor: PALETTE.BORDER,
         transition: "all 0.2s ease",
         "&:hover": {
@@ -175,7 +175,7 @@ const FeatureCard = (props: FeatureCardProps) => (
 );
 
 const HomeStrengthMovie = () => (
-  <Box sx={{ py: { xs: 6, md: 10 } }}>
+  <Box sx={{ py: { xs: 6, md: 10 }, backgroundColor: PALETTE.WASH }}>
     <Container maxWidth="lg">
       <HomeSectionHeading title="Key Features" maxWidth={600}>
         One library. Pure TypeScript types. Everything you need for NestJS.

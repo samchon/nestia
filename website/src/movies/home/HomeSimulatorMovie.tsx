@@ -53,7 +53,7 @@ const callouts = [
 ];
 
 const HomeSimulatorMovie = () => (
-  <Box sx={{ py: { xs: 6, md: 10 } }}>
+  <Box sx={{ py: { xs: 6, md: 10 }, backgroundColor: PALETTE.WASH }}>
     <Container maxWidth="lg">
       <HomeSectionHeading title="Mockup Simulator" maxWidth={700}>
         SDK-embedded simulator that mimics your backend API.
@@ -148,7 +148,7 @@ const HomeSimulatorMovie = () => (
                   p: 2,
                   borderRadius: 2,
                   border: `1px solid ${PALETTE.BORDER}`,
-                  backgroundColor: PALETTE.WASH,
+                  backgroundColor: "#fff",
                 }}
               >
                 <Typography sx={{ fontSize: "1.4rem" }}>{c.icon}</Typography>
