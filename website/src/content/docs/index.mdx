@@ -5,7 +5,7 @@ description: Nestia — a NestJS helper suite that turns pure TypeScript types i
 
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
-import { Cards } from "nextra/components";
+import { Cards, Callout } from "nextra/components";
 
 ## What is Nestia?
 
@@ -18,6 +18,10 @@ import { Cards } from "nextra/components";
 - A **mockup simulator** so a frontend can call your API before the server exists.
 
 No decorator triplets. No separate schema files. No codegen round-trip. Just types.
+
+<Callout type="info">
+**New here?** Start with **[Tutorial → Welcome](/tutorial)** — a 30-minute guided tour from zero to a working Nestia app. This page is the high-level "why."
+</Callout>
 
 ---
 
@@ -74,6 +78,9 @@ You only think about the first two day-to-day. Install them with `ttsc` and Type
 ## Where to go next
 
 <Cards>
+  <Cards.Card title="🚀 Tutorial" href="/tutorial">
+    30-minute guided walkthrough. Start here if you have not used Nestia before.
+  </Cards.Card>
   <Cards.Card title="📦 Setup" href="/docs/setup">
     Install Nestia in an existing NestJS project with TypeScript 7 and ttsc.
   </Cards.Card>

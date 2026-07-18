@@ -26,8 +26,9 @@ export default async function Page(props) {
 
   // The sidebar wash is scoped to sidebar-bearing routes via `body:has(...)`
   // in global.css, so the landing keeps a plain white gutter. This marker is
-  // what that selector keys off.
-  const isDocsPage = params.mdxPath?.[0] === "docs";
+  // what that selector keys off. `tutorial` is a top-level page of its own
+  // but still renders a sidebar, so it belongs in the same set as `docs`.
+  const isDocsPage = ["docs", "tutorial"].includes(params.mdxPath?.[0]);
 
   return (
     <Wrapper toc={toc} metadata={metadata}>

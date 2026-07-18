@@ -4,6 +4,13 @@ export default {
   // GETTING STARTED
   index: "🙋🏻‍♂️ Introduction",
   setup: "📦 Setup",
+  // The tutorial is its own top-level page now, so it is linked rather than
+  // nested. Without this the reference section loses its only pointer back
+  // to the walkthrough it keeps deferring to.
+  tutorial: {
+    title: "🚀 Tutorial",
+    href: "/tutorial",
+  },
 
   // FEATURE REFERENCE
   "-- features": {
