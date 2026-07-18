@@ -10,6 +10,46 @@
   max-width: none;
 }
 
+/* ── Headings on the hand-written blog routes ──
+   Nextra ships Tailwind Preflight, which resets every heading to
+   `font-size: inherit; font-weight: inherit`. MDX headings get their scale
+   back from Nextra's component mapping, but these routes build their
+   headings in JSX -- the index, the tag pages, and the post title in
+   `mdx-components-blog.jsx` -- so nothing ever restored them and they
+   rendered at body size and weight.
+
+   On an article that inverted the hierarchy outright: the post title came
+   out smaller than the `## Preface` heading underneath it. */
+.x\:container.x\:prose > h1,
+.nestia-blog-post-main > h1 {
+  margin: 0 0 0.75rem;
+  color: var(--nestia-ink);
+  font-size: clamp(1.9rem, 1.35rem + 2.1vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.x\:container.x\:prose > p {
+  color: var(--nestia-muted);
+  line-height: 1.7;
+}
+
+/* The navbar is a solid red band, so content butting straight up against it
+   reads as a collision rather than as a start. */
+.x\:container.x\:prose {
+  padding-top: 2.5rem;
+}
+
+/* A post with no headings renders no TOC, and used to lose the grid wrapper
+   with it -- leaving the article unconstrained and full-bleed. */
+.nestia-blog-post-solo {
+  max-width: min(1100px, calc(100vw - 2rem));
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2.5rem 1.5rem 0;
+}
+
 .nestia-blog-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -21,27 +61,27 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(127, 127, 127, 0.2);
+  border: 1px solid var(--nestia-border);
   border-radius: 1.25rem;
-  background: color-mix(in srgb, rgb(var(--nextra-bg)) 92%, white 8%);
+  background: var(--nestia-wash);
   text-decoration: none;
   color: inherit;
 }
 
-.dark .nestia-blog-card {
-  background: color-mix(in srgb, rgb(var(--nextra-bg)) 94%, white 6%);
-}
 
 .nestia-blog-card:hover {
   transform: translateY(-2px);
-  transition: transform 0.18s ease;
+  border-color: var(--nestia-red);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .nestia-blog-card-image {
   width: 100%;
   aspect-ratio: 1.91 / 1;
   object-fit: cover;
-  background: rgba(127, 127, 127, 0.08);
+  background: var(--nestia-soft);
 }
 
 .nestia-blog-card-body {
@@ -60,13 +100,10 @@
 
 .nestia-blog-card-description {
   margin: 0;
-  color: rgb(95 95 95);
+  color: var(--nestia-muted);
   line-height: 1.6;
 }
 
-.dark .nestia-blog-card-description {
-  color: rgb(170 170 170);
-}
 
 .nestia-blog-card-meta {
   display: flex;
@@ -74,12 +111,9 @@
   gap: 0.65rem;
   margin-top: auto;
   font-size: 0.9rem;
-  color: rgb(110 110 110);
+  color: var(--nestia-muted);
 }
 
-.dark .nestia-blog-card-meta {
-  color: rgb(155 155 155);
-}
 
 .nestia-blog-card-tags {
   display: flex;
@@ -93,7 +127,7 @@
   align-items: center;
   padding: 0.24rem 0.6rem;
   border-radius: 999px;
-  background: rgba(127, 127, 127, 0.12);
+  background: var(--nestia-soft);
   font-size: 0.84rem;
 }
 
@@ -103,7 +137,7 @@
   object-fit: cover;
   border-radius: 1.5rem;
   margin: 0 0 1.5rem;
-  background: rgba(127, 127, 127, 0.08);
+  background: var(--nestia-soft);
 }
 
 .nestia-blog-meta,
@@ -115,18 +149,15 @@
 }
 
 .nestia-blog-meta {
-  color: rgb(110 110 110);
+  color: var(--nestia-muted);
   font-size: 0.95rem;
 }
 
-.dark .nestia-blog-meta {
-  color: rgb(160 160 160);
-}
 
 .nestia-blog-comments {
   margin-top: 3rem;
   padding-top: 2rem;
-  border-top: 1px solid rgba(127, 127, 127, 0.18);
+  border-top: 1px solid var(--nestia-border);
 }
 
 .nestia-blog-post-layout {
@@ -137,7 +168,7 @@
   max-width: min(1100px, calc(100vw - 2rem));
   margin-left: auto;
   margin-right: auto;
-  padding: 2rem 1.5rem 0;
+  padding: 2.5rem 1.5rem 0;
 }
 
 .nestia-blog-post-main {
@@ -157,7 +188,7 @@
   flex-direction: column;
   gap: 0.6rem;
   padding-left: 1rem;
-  border-left: 1px solid rgba(127, 127, 127, 0.18);
+  border-left: 1px solid var(--nestia-border);
 }
 
 .nestia-blog-toc-title {
@@ -165,12 +196,9 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: rgb(115 115 115);
+  color: var(--nestia-muted);
 }
 
-.dark .nestia-blog-toc-title {
-  color: rgb(165 165 165);
-}
 
 .nestia-blog-toc-list,
 .nestia-blog-toc-sublist {
@@ -197,15 +225,12 @@
 
 .nestia-blog-toc-link {
   display: inline-block;
-  color: rgb(90 90 90);
+  color: var(--nestia-muted);
   text-decoration: none;
   line-height: 1.45;
   font-size: 0.95rem;
 }
 
-.dark .nestia-blog-toc-link {
-  color: rgb(175 175 175);
-}
 
 .nestia-blog-toc-link:hover {
   color: inherit;
@@ -231,6 +256,6 @@
     margin-top: 1rem;
     padding: 1rem 0 0;
     border-left: 0;
-    border-top: 1px solid rgba(127, 127, 127, 0.18);
+    border-top: 1px solid var(--nestia-border);
   }
 }

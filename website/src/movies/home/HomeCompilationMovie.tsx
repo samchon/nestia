@@ -3,6 +3,8 @@
 import { Box, Container, Typography } from "@mui/material";
 
 import HomeCodeHighlight from "../../components/home/HomeCodeHighlight";
+import HomeSectionHeading from "../../components/home/HomeSectionHeading";
+import { CODE, PALETTE } from "../../constants/PALETTE";
 
 const BEFORE_CODE = `import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -40,6 +42,10 @@ const article: IBbsArticle =
     } satisfies IBbsArticle.ICreate,
   );`;
 
+// The code panels stay on a dark surface even though the page is white: the
+// syntax highlighter is pinned to `github-dark`, and re-tinting a whole theme
+// to sit on white would fight it. A dark panel on white reads as a deliberate
+// inset rather than a leftover from the old black site.
 const CodePanel = (props: {
   title: string;
   label: string;
@@ -51,9 +57,10 @@ const CodePanel = (props: {
       flex: 1,
       minWidth: 0,
       borderRadius: 2,
-      border: "1px solid rgba(255,255,255,0.1)",
+      border: `1px solid ${CODE.BORDER}`,
       overflow: "hidden",
-      backgroundColor: "rgba(0,0,0,0.3)",
+      backgroundColor: CODE.SURFACE,
+      boxShadow: "0 12px 30px rgba(31,20,23,0.14)",
     }}
   >
     <Box
@@ -63,8 +70,8 @@ const CodePanel = (props: {
         gap: 1.5,
         px: 2.5,
         py: 1.5,
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
-        backgroundColor: "rgba(255,255,255,0.03)",
+        borderBottom: `1px solid ${CODE.BORDER}`,
+        backgroundColor: CODE.SURFACE_BAR,
       }}
     >
       <Box
@@ -82,10 +89,7 @@ const CodePanel = (props: {
       >
         {props.label}
       </Box>
-      <Typography
-        variant="body2"
-        sx={{ color: "rgba(255,255,255,0.6)", fontWeight: 500 }}
-      >
+      <Typography variant="body2" sx={{ color: CODE.DIM, fontWeight: 500 }}>
         {props.title}
       </Typography>
     </Box>
@@ -98,7 +102,7 @@ const CodePanel = (props: {
         fontSize: { xs: "0.72rem", md: "0.8rem" },
         lineHeight: 1.7,
         fontFamily: "'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace",
-        color: "rgba(255,255,255,0.85)",
+        color: CODE.TEXT,
         "&::-webkit-scrollbar": { height: 6 },
         "&::-webkit-scrollbar-thumb": {
           backgroundColor: "rgba(255,255,255,0.15)",
@@ -116,32 +120,11 @@ const CodePanel = (props: {
 const HomeCompilationMovie = () => (
   <Box sx={{ py: { xs: 6, md: 10 } }}>
     <Container maxWidth="lg">
-      <Box sx={{ textAlign: "center", mb: 6 }}>
-        <Typography
-          variant="h3"
-          sx={{
-            fontWeight: 700,
-            fontSize: { xs: "1.6rem", md: "2.2rem" },
-            mb: 2,
-            color: "rgba(255,255,255,0.95)",
-          }}
-        >
-          SDK Generation Magic
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: "rgba(255,255,255,0.55)",
-            fontSize: "1.05rem",
-            maxWidth: 650,
-            mx: "auto",
-          }}
-        >
-          Write NestJS controllers as you normally would. Nestia analyzes your
-          TypeScript types and generates a fully type-safe SDK — like tRPC,
-          but fully automated.
-        </Typography>
-      </Box>
+      <HomeSectionHeading title="SDK Generation Magic">
+        Write NestJS controllers as you normally would. Nestia analyzes your
+        TypeScript types and generates a fully type-safe SDK — like tRPC, but
+        fully automated.
+      </HomeSectionHeading>
       <Box
         sx={{
           display: "flex",
@@ -150,17 +133,19 @@ const HomeCompilationMovie = () => (
           alignItems: "stretch",
         }}
       >
+        {/* Backend and frontend are told apart by red against ink, staying
+            inside the two-tone rather than reaching for a third hue. */}
         <CodePanel
           title="Your NestJS Controller"
           label="Backend"
-          labelColor="rgba(0,150,255,0.7)"
+          labelColor={PALETTE.RED}
           code={BEFORE_CODE}
         />
         <Box
           sx={{
             display: { xs: "none", md: "flex" },
             alignItems: "center",
-            color: "rgba(255,255,255,0.3)",
+            color: PALETTE.RED,
             fontSize: "2rem",
             px: 1,
           }}
@@ -171,7 +156,7 @@ const HomeCompilationMovie = () => (
           sx={{
             display: { xs: "flex", md: "none" },
             justifyContent: "center",
-            color: "rgba(255,255,255,0.3)",
+            color: PALETTE.RED,
             fontSize: "2rem",
           }}
         >
@@ -180,7 +165,7 @@ const HomeCompilationMovie = () => (
         <CodePanel
           title="Auto-generated SDK"
           label="Frontend"
-          labelColor="rgba(80,200,0,0.7)"
+          labelColor={PALETTE.INK}
           code={AFTER_CODE}
         />
       </Box>

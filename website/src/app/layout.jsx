@@ -1,6 +1,8 @@
 import Script from "next/script";
 import { Head } from "nextra/components";
 
+import "./global.css";
+
 const title = "Nestia";
 const description = "NestJS Helper Libraries";
 
@@ -16,7 +18,11 @@ export const metadata = {
 export default function RootLayout(props) {
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
-      <Head>
+      <Head
+        color={{ hue: 351, saturation: 72, lightness: 42 }}
+        backgroundColor={{ light: "#ffffff", dark: "#ffffff" }}
+      >
+        <meta name="theme-color" content="#b81e35" />
         <link rel="manifest" href="/favicon/site.webmanifest" />
         <link
           rel="apple-touch-icon"
