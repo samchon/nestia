@@ -24,8 +24,16 @@ export default async function Page(props) {
   const result = await importPage(params.mdxPath);
   const { default: MDXContent, toc, metadata } = result;
 
+  // The sidebar wash is scoped to docs routes via `body:has(...)` in
+  // global.css, so the landing keeps a plain white gutter. This marker is
+  // what that selector keys off.
+  const isDocsPage = params.mdxPath?.[0] === "docs";
+
   return (
     <Wrapper toc={toc} metadata={metadata}>
+      {isDocsPage && (
+        <span className="nestia-docs-page-marker" aria-hidden="true" hidden />
+      )}
       <MDXContent {...props} params={params} />
     </Wrapper>
   );

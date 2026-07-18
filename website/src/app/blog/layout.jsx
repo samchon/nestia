@@ -36,23 +36,19 @@ export default async function BlogLayout(props) {
       navbar={
         <Navbar
           logo={
-            <>
-              <img
-                src="/favicon/android-chrome-192x192.png"
-                width={32}
-                height={32}
-              />
-              <span
-                style={{
-                  fontWeight: "bold",
-                  fontSize: "1.2rem",
-                  paddingLeft: 15,
-                  paddingRight: 10,
-                }}
-              >
+            <span className="nestia-site-logo">
+              <span className="nestia-site-logo-mark" aria-hidden="true">
+                <img
+                  src="/favicon/android-chrome-192x192.png"
+                  width={32}
+                  height={32}
+                  alt=""
+                />
+              </span>
+              <span style={{ fontSize: "1.2rem", paddingRight: 10 }}>
                 Nestia
               </span>
-            </>
+            </span>
           }
           projectLink="https://github.com/samchon/nestia"
         />
@@ -63,7 +59,8 @@ export default async function BlogLayout(props) {
       navigation={false}
       sidebar={{ toggleButton: false }}
       nextThemes={{
-        defaultTheme: "dark",
+        defaultTheme: "light",
+        forcedTheme: "light",
       }}
       darkMode={false}
       footer={footer}
