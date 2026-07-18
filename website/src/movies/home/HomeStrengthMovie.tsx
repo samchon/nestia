@@ -10,6 +10,9 @@ import {
   Typography,
 } from "@mui/material";
 
+import HomeSectionHeading from "../../components/home/HomeSectionHeading";
+import { PALETTE } from "../../constants/PALETTE";
+
 interface FeatureCardProps {
   icon: string;
   title: string;
@@ -89,12 +92,12 @@ const FeatureCard = (props: FeatureCardProps) => (
       variant="outlined"
       sx={{
         height: "100%",
-        backgroundColor: "rgba(255,255,255,0.02)",
-        borderColor: "rgba(255,255,255,0.08)",
+        backgroundColor: PALETTE.WASH,
+        borderColor: PALETTE.BORDER,
         transition: "all 0.2s ease",
         "&:hover": {
-          borderColor: "rgba(0,150,255,0.4)",
-          backgroundColor: "rgba(0,150,255,0.03)",
+          borderColor: PALETTE.RED,
+          backgroundColor: PALETTE.SOFT,
         },
       }}
     >
@@ -121,7 +124,7 @@ const FeatureCard = (props: FeatureCardProps) => (
               fontWeight: 700,
               fontSize: "1.05rem",
               mb: 0.5,
-              color: "rgba(255,255,255,0.95)",
+              color: PALETTE.INK,
             }}
           >
             {props.title}
@@ -131,7 +134,7 @@ const FeatureCard = (props: FeatureCardProps) => (
               fontFamily:
                 "'Fira Code', 'JetBrains Mono', monospace",
               fontSize: "0.82rem",
-              color: "rgba(255,255,255,0.6)",
+              color: PALETTE.RED_DEEP,
               mb: 1,
             }}
           >
@@ -139,13 +142,13 @@ const FeatureCard = (props: FeatureCardProps) => (
           </Typography>
           {props.metric && (
             <Typography sx={{ fontSize: "0.85rem", mb: 1.5 }}>
-              <span style={{ color: "rgb(0,180,255)", fontWeight: 600 }}>
+              <span style={{ color: PALETTE.RED, fontWeight: 600 }}>
                 {props.metric}
               </span>
               {props.metricNote && (
                 <span
                   style={{
-                    color: "rgba(255,255,255,0.45)",
+                    color: PALETTE.MUTED,
                     fontWeight: 400,
                   }}
                 >
@@ -158,7 +161,7 @@ const FeatureCard = (props: FeatureCardProps) => (
           <Typography
             variant="body2"
             sx={{
-              color: "rgba(255,255,255,0.55)",
+              color: PALETTE.MUTED,
               lineHeight: 1.65,
               fontSize: "0.88rem",
             }}
@@ -174,30 +177,9 @@ const FeatureCard = (props: FeatureCardProps) => (
 const HomeStrengthMovie = () => (
   <Box sx={{ py: { xs: 6, md: 10 } }}>
     <Container maxWidth="lg">
-      <Box sx={{ textAlign: "center", mb: 6 }}>
-        <Typography
-          variant="h3"
-          sx={{
-            fontWeight: 700,
-            fontSize: { xs: "1.6rem", md: "2.2rem" },
-            mb: 2,
-            color: "rgba(255,255,255,0.95)",
-          }}
-        >
-          Key Features
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: "rgba(255,255,255,0.55)",
-            fontSize: "1.05rem",
-            maxWidth: 600,
-            mx: "auto",
-          }}
-        >
-          One library. Pure TypeScript types. Everything you need for NestJS.
-        </Typography>
-      </Box>
+      <HomeSectionHeading title="Key Features" maxWidth={600}>
+        One library. Pure TypeScript types. Everything you need for NestJS.
+      </HomeSectionHeading>
       <Grid container spacing={3}>
         {features.map((f) => (
           <FeatureCard key={f.title} {...f} />

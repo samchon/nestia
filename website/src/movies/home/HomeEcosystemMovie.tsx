@@ -2,11 +2,15 @@
 
 import { Box, Container, Grid, Typography } from "@mui/material";
 
+import HomeSectionHeading from "../../components/home/HomeSectionHeading";
+import { PALETTE } from "../../constants/PALETTE";
+
 const ComparisonColumn = (props: {
   label: string;
   labelColor: string;
   items: { icon: string; text: string }[];
   borderColor: string;
+  tint: string;
 }) => (
   <Grid item xs={12} md={6}>
     <Box
@@ -21,7 +25,7 @@ const ComparisonColumn = (props: {
         sx={{
           px: 3,
           py: 1.5,
-          backgroundColor: `${props.borderColor}15`,
+          backgroundColor: props.tint,
           borderBottom: `1px solid ${props.borderColor}`,
         }}
       >
@@ -46,13 +50,20 @@ const ComparisonColumn = (props: {
               mb: i < props.items.length - 1 ? 2.5 : 0,
             }}
           >
-            <Typography sx={{ fontSize: "1.1rem", lineHeight: 1.6 }}>
+            <Typography
+              sx={{
+                fontSize: "1.1rem",
+                lineHeight: 1.6,
+                color: props.labelColor,
+                fontWeight: 700,
+              }}
+            >
               {item.icon}
             </Typography>
             <Typography
               variant="body2"
               sx={{
-                color: "rgba(255,255,255,0.7)",
+                color: PALETTE.MUTED,
                 lineHeight: 1.6,
                 fontSize: "0.9rem",
               }}
@@ -69,37 +80,21 @@ const ComparisonColumn = (props: {
 const HomeEcosystemMovie = () => (
   <Box sx={{ py: { xs: 6, md: 10 } }}>
     <Container maxWidth="lg">
-      <Box sx={{ textAlign: "center", mb: 6 }}>
-        <Typography
-          variant="h3"
-          sx={{
-            fontWeight: 700,
-            fontSize: { xs: "1.6rem", md: "2.2rem" },
-            mb: 2,
-            color: "rgba(255,255,255,0.95)",
-          }}
-        >
-          Why Nestia?
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: "rgba(255,255,255,0.55)",
-            fontSize: "1.05rem",
-            maxWidth: 700,
-            mx: "auto",
-          }}
-        >
-          Traditional NestJS development requires separate schemas, manual SDK
-          writing, and verbose decorators. Nestia eliminates all of that with
-          pure TypeScript types.
-        </Typography>
-      </Box>
+      <HomeSectionHeading title="Why Nestia?" maxWidth={700}>
+        Traditional NestJS development requires separate schemas, manual SDK
+        writing, and verbose decorators. Nestia eliminates all of that with pure
+        TypeScript types.
+      </HomeSectionHeading>
       <Grid container spacing={3}>
+        {/* The usual red-is-bad / green-is-good coding is inverted here, and
+            deliberately: red is the brand, so painting the column we are
+            arguing against in brand red would read as an endorsement. The
+            weaker option goes neutral and the recommended one takes the red. */}
         <ComparisonColumn
           label="Traditional NestJS"
-          labelColor="rgba(255,100,100,0.9)"
-          borderColor="rgba(255,100,100,0.25)"
+          labelColor={PALETTE.MUTED}
+          borderColor="rgba(112,92,97,0.28)"
+          tint="rgba(112,92,97,0.06)"
           items={[
             {
               icon: "✕",
@@ -125,8 +120,9 @@ const HomeEcosystemMovie = () => (
         />
         <ComparisonColumn
           label="Nestia — Pure TypeScript"
-          labelColor="rgba(0,200,100,0.9)"
-          borderColor="rgba(0,200,100,0.25)"
+          labelColor={PALETTE.RED}
+          borderColor={PALETTE.BORDER}
+          tint={PALETTE.SOFT}
           items={[
             {
               icon: "✓",

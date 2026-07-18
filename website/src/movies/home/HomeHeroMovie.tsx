@@ -6,9 +6,7 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { Box, Button, Container, Typography } from "@mui/material";
 import { ReactNode } from "react";
 
-const BLUE = "rgb(0, 200, 255)";
-const CYAN = "rgb(80, 200, 0)";
-const PURPLE = "rgb(191, 64, 191)";
+import { PALETTE } from "../../constants/PALETTE";
 
 const HeroButton = (props: {
   title: string;
@@ -32,16 +30,23 @@ const HeroButton = (props: {
       py: 1.2,
       borderRadius: 2,
       textTransform: "none",
-      borderColor:
-        props.variant === "outlined" ? "rgba(255,255,255,0.3)" : undefined,
-      color:
-        props.variant === "outlined" ? "rgba(255,255,255,0.9)" : undefined,
-      "&:hover": {
-        borderColor:
-          props.variant === "outlined" ? "rgba(255,255,255,0.6)" : undefined,
-        backgroundColor:
-          props.variant === "outlined" ? "rgba(255,255,255,0.05)" : undefined,
-      },
+      // The primary CTA inverts to red-on-white rather than staying red: a
+      // red button on the red band would have nothing separating it from its
+      // own background.
+      ...(props.variant === "contained"
+        ? {
+            backgroundColor: "#fff",
+            color: PALETTE.RED_DEEP,
+            "&:hover": { backgroundColor: PALETTE.WASH },
+          }
+        : {
+            borderColor: "rgba(255,255,255,0.35)",
+            color: "rgba(255,255,255,0.92)",
+            "&:hover": {
+              borderColor: "rgba(255,255,255,0.65)",
+              backgroundColor: "rgba(255,255,255,0.08)",
+            },
+          }),
     }}
   >
     {props.title}
@@ -54,37 +59,52 @@ const HomeHeroMovie = () => {
       sx={{
         position: "relative",
         py: { xs: 8, md: 12 },
+        px: 2,
         textAlign: "center",
         overflow: "hidden",
+        background: PALETTE.BAND,
       }}
     >
-      {/* Radial gradient background */}
+      {/* Light bloom, lifting the center of the band away from flatness */}
       <Box
         sx={{
           position: "absolute",
           inset: 0,
           background:
-            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,150,255,0.12) 0%, transparent 70%)",
+            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.12) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
       <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
+        {/* The mark is a colored PNG that muddies against red, so it keeps a
+            white plate, the same treatment the navbar logo gets. */}
         <Box
-          component="img"
-          src="/favicon/android-chrome-512x512.png"
-          alt="Nestia"
           sx={{
-            display: "block",
-            mx: "auto",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
             mb: 3,
-            width: { xs: 120, md: 160 },
-            height: { xs: 120, md: 160 },
+            p: { xs: 2, md: 2.5 },
+            borderRadius: 4,
+            backgroundColor: "#fff",
+            boxShadow: "0 18px 40px rgba(31,20,23,0.28)",
           }}
-        />
+        >
+          <Box
+            component="img"
+            src="/favicon/android-chrome-512x512.png"
+            alt="Nestia"
+            sx={{
+              display: "block",
+              width: { xs: 96, md: 128 },
+              height: { xs: 96, md: 128 },
+            }}
+          />
+        </Box>
         <Typography
           variant="h5"
           sx={{
-            color: "rgba(255,255,255,0.7)",
+            color: "rgba(255,255,255,0.92)",
             fontWeight: 400,
             fontSize: { xs: "1rem", sm: "1.15rem", md: "1.3rem" },
             lineHeight: 1.7,
@@ -95,13 +115,13 @@ const HomeHeroMovie = () => {
         >
           Stop writing DTOs three times. One TypeScript type drives a NestJS
           endpoint,
-          <br />a <strong style={{ color: "rgba(255,255,255,0.95)" }}>typed
-          client SDK</strong>, an OpenAPI document, and e2e tests — for free.
+          <br />a <strong style={{ color: "#fff" }}>typed client SDK</strong>,
+          an OpenAPI document, and e2e tests — for free.
         </Typography>
         <Typography
           variant="body1"
           sx={{
-            color: "rgba(255,255,255,0.45)",
+            color: "rgba(255,255,255,0.7)",
             fontSize: "1rem",
             mb: 3,
           }}
@@ -114,13 +134,16 @@ const HomeHeroMovie = () => {
               "'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace",
             fontSize: { xs: "0.9rem", md: "1.1rem" },
             mb: 5,
+            color: "rgba(255,255,255,0.75)",
           }}
         >
-          <span style={{ color: PURPLE }}>@</span>
-          <span style={{ color: BLUE }}>TypedBody</span>
-          <span style={{ color: "gray" }}>{"() "}</span>
-          <span style={{ color: "gray" }}>{"input: "}</span>
-          <span style={{ color: CYAN }}>IArticleCreate</span>
+          <span style={{ color: "rgba(255,255,255,0.6)" }}>@</span>
+          <span style={{ color: "#fff", fontWeight: 600 }}>TypedBody</span>
+          <span>{"() "}</span>
+          <span>{"input: "}</span>
+          <span style={{ color: "#ffd9df", fontWeight: 600 }}>
+            IArticleCreate
+          </span>
         </Typography>
         <Box
           sx={{
