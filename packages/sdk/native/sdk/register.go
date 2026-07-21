@@ -30,12 +30,11 @@ const sdkMetadataMember = "OperationMetadata"
 // ttsc classifies this package (name != "main") as a linked transform and
 // statically links it into the `@nestia/core` host binary — but only for
 // projects that depend on `@nestia/sdk`. The direct linked-plugin path keeps
-// old plugin plans working, while the contributor collectors let the aggregate
-// core host run SDK metadata rewrites without starting a second native backend.
+// old plugin plans working, while the emit-transform collector lets the
+// aggregate core host run the SDK metadata pass inside the shared emit context
+// without starting a second native backend.
 func init() {
 	driver.RegisterPlugin(linkedPlugin{})
-	transform.RegisterBuildOutputRewriteCollector(collectSDKBuildOutputRewriter)
-	transform.RegisterSourceRewriteCollector(collectSDKSourceRewriteMap)
 	transform.RegisterEmitTransformCollector(collectSDKEmitTransform)
 }
 
@@ -169,34 +168,6 @@ func collectSDKEmitTransform(
 	}
 	return EmitTransform(prog)
 }
-
-func collectSDKBuildOutputRewriter(
-	prog *driver.Program,
-	plan plugin.Plan,
-) (*transform.BuildOutputRewriter, []transform.Diagnostic) {
-	if shouldRunSDKContributorTransform() == false {
-		return nil, nil
-	}
-	plan.SDK = true
-	set, diagnostics := collectNestiaSDKBuildRewrites(prog, plan)
-	return &transform.BuildOutputRewriter{
-		Len:   set.Len,
-		Apply: set.Apply,
-	}, diagnostics
-}
-
-func collectSDKSourceRewriteMap(
-	prog *driver.Program,
-	plan plugin.Plan,
-	onlyFile string,
-) (map[string][]transform.SourceRewrite, []transform.Diagnostic) {
-	if shouldRunSDKContributorTransform() == false {
-		return map[string][]transform.SourceRewrite{}, nil
-	}
-	plan.SDK = true
-	return collectNestiaSDKSourceRewriteMap(prog, plan, onlyFile)
-}
-
 func shouldRunSDKContributorTransform() bool {
 	return os.Getenv("NESTIA_SDK_TRANSFORM") == "1"
 }

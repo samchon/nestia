@@ -19,23 +19,6 @@ type emitTransformCollector func(*driver.Program, plugin.Plan) (driver.PluginTra
 var buildOutputRewriteCollectors []buildOutputRewriteCollector
 var sourceRewriteCollectors []sourceRewriteCollector
 var emitTransformCollectors []emitTransformCollector
-
-// RegisterBuildOutputRewriteCollector registers a statically linked
-// contributor's emitted-JavaScript rewrite pass.
-func RegisterBuildOutputRewriteCollector(collector buildOutputRewriteCollector) {
-	if collector != nil {
-		buildOutputRewriteCollectors = append(buildOutputRewriteCollectors, collector)
-	}
-}
-
-// RegisterSourceRewriteCollector registers a statically linked contributor's
-// TypeScript source-to-source rewrite pass.
-func RegisterSourceRewriteCollector(collector sourceRewriteCollector) {
-	if collector != nil {
-		sourceRewriteCollectors = append(sourceRewriteCollectors, collector)
-	}
-}
-
 // RegisterEmitTransformCollector registers a statically linked contributor's
 // emit-phase AST transformer. The `transform` subcommand runs these inside the
 // shared EmitContext alongside the typia and core node transforms, so a linked
@@ -46,40 +29,6 @@ func RegisterEmitTransformCollector(collector emitTransformCollector) {
 		emitTransformCollectors = append(emitTransformCollectors, collector)
 	}
 }
-
-func collectContributorBuildOutputRewriters(
-	prog *driver.Program,
-	plan plugin.Plan,
-) ([]BuildOutputRewriter, []Diagnostic) {
-	output := []BuildOutputRewriter{}
-	diagnostics := []Diagnostic{}
-	for _, collector := range buildOutputRewriteCollectors {
-		rewriter, diags := collector(prog, plan)
-		diagnostics = append(diagnostics, diags...)
-		if rewriter != nil && rewriter.Apply != nil {
-			output = append(output, *rewriter)
-		}
-	}
-	return output, diagnostics
-}
-
-func collectContributorSourceRewriteMap(
-	prog *driver.Program,
-	plan plugin.Plan,
-	onlyFile string,
-) (map[string][]SourceRewrite, []Diagnostic) {
-	output := map[string][]SourceRewrite{}
-	diagnostics := []Diagnostic{}
-	for _, collector := range sourceRewriteCollectors {
-		rewrites, diags := collector(prog, plan, onlyFile)
-		diagnostics = append(diagnostics, diags...)
-		for file, entries := range rewrites {
-			output[file] = append(output[file], entries...)
-		}
-	}
-	return output, diagnostics
-}
-
 func collectContributorEmitTransforms(
 	prog *driver.Program,
 	plan plugin.Plan,

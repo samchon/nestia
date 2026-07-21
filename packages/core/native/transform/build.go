@@ -11,9 +11,7 @@ import (
 	"regexp"
 	"time"
 
-	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimcompiler "github.com/microsoft/typescript-go/shim/compiler"
-	shimscanner "github.com/microsoft/typescript-go/shim/scanner"
 	"github.com/samchon/nestia/packages/core/native/plugin"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 	typiaadapter "github.com/samchon/typia/packages/typia/native/adapter"
@@ -286,62 +284,11 @@ func profileBuildStep(enabled bool, name string, started time.Time) {
 		profileBuildDuration(enabled, name, time.Since(started))
 	}
 }
-
-func profileBuildStepCount(enabled bool, name string, started time.Time, count int) {
-	if enabled {
-		fmt.Fprintf(stderr, "ttsc-nestia profile: %s=%s count=%d\n", name, time.Since(started), count)
-	}
-}
-
 func profileBuildDuration(enabled bool, name string, elapsed time.Duration) {
 	if enabled {
 		fmt.Fprintf(stderr, "ttsc-nestia profile: %s=%s\n", name, elapsed)
 	}
 }
-
-func NewDiagnostic(site typiaadapter.CallSite, message string) Diagnostic {
-	line, column := 0, 0
-	if site.File != nil && site.Call != nil {
-		pos := site.Call.AsNode().Pos()
-		if pos >= 0 {
-			l, c := shimscanner.GetECMALineAndByteOffsetOfPosition(site.File, pos)
-			line, column = l+1, c+1
-		}
-	}
-	return Diagnostic{
-		File:    site.FilePath,
-		Line:    line,
-		Column:  column,
-		Code:    "typia." + site.Module + "." + site.Method,
-		Message: message,
-	}
-}
-
-func typiaBuildRewriteSortKey(site typiaadapter.CallSite) int {
-	node := site.Call.AsNode()
-	if node == nil {
-		return 0
-	}
-	insideDecorator := false
-	classEnd := 0
-	for current := node.Parent; current != nil; current = current.Parent {
-		if current.Kind == NestiaCoreKindDecorator {
-			insideDecorator = true
-		}
-		if current.Kind == shimast.KindClassDeclaration || current.Kind == shimast.KindClassExpression {
-			classEnd = current.End()
-			break
-		}
-	}
-	if insideDecorator == false {
-		return node.Pos()
-	}
-	if classEnd != 0 {
-		return classEnd + node.Pos()
-	}
-	return node.Pos() + 1_000_000_000
-}
-
 func readTypiaPluginOptions(cwd, tsconfigPath string) typiaadapter.PluginOptions {
 	path := tsconfigPath
 	if !filepath.IsAbs(path) {
