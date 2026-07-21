@@ -5,20 +5,10 @@ import (
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 )
 
-// BuildOutputRewriter patches emitted JavaScript after the core native
-// rewrites have been applied. Contributor packages register these from init().
-type BuildOutputRewriter struct {
-	Len   func() int
-	Apply func(outputName string, text string) (string, error)
-}
-
-type buildOutputRewriteCollector func(*driver.Program, plugin.Plan) (*BuildOutputRewriter, []Diagnostic)
-type sourceRewriteCollector func(*driver.Program, plugin.Plan, string) (map[string][]SourceRewrite, []Diagnostic)
 type emitTransformCollector func(*driver.Program, plugin.Plan) (driver.PluginTransform, []Diagnostic)
 
-var buildOutputRewriteCollectors []buildOutputRewriteCollector
-var sourceRewriteCollectors []sourceRewriteCollector
 var emitTransformCollectors []emitTransformCollector
+
 // RegisterEmitTransformCollector registers a statically linked contributor's
 // emit-phase AST transformer. The `transform` subcommand runs these inside the
 // shared EmitContext alongside the typia and core node transforms, so a linked

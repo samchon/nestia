@@ -126,6 +126,7 @@ func readNestiaCoreOptions(plan plugin.Plan) nestiaCoreOptions {
 	}
 	return options
 }
+
 // nestiaCoreMethodArgumentNode builds the single appended decorator-argument
 // node for a method decorator (TypedRoute / TypedQueryRoute). The importer is
 // the shared ec-mode ImportProgrammer on the node-emit path; nil on the legacy
@@ -326,6 +327,7 @@ func nestiaCoreMethodKind(segments []string) string {
 		return ""
 	}
 }
+
 // nestiaCoreParameterArgumentNodes builds the appended decorator-argument nodes
 // for a parameter decorator. The importer is the file-scoped ImportProgrammer:
 // on the node-emit path it is the shared ec-mode importer, so the validator's
@@ -1012,6 +1014,7 @@ func safeNestiaCoreGenerateNode(generator func() (*shimast.Node, error)) (node *
 	}()
 	return generator()
 }
+
 var nestiaCoreSingleParameterArrowPattern = regexp.MustCompile(`(^|[\s(=,:?])([A-Za-z_$][A-Za-z0-9_$]*) =>`)
 
 func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimchecker.Type {
@@ -1305,11 +1308,13 @@ func nestiaCoreSegmentsHaveSuffix(segments []string, suffix []string) bool {
 	}
 	return true
 }
+
 type commonJSImportIdentifierSubstitutionsCacheEntry struct {
 	value map[string]string
 }
 
 var commonJSImportIdentifierSubstitutionsCache sync.Map
+
 func nestiaCoreDiagnostic(site nestiaCoreSite, message string) Diagnostic {
 	line, column := 0, 0
 	if site.File != nil && site.Call != nil {

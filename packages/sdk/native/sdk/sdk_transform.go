@@ -1574,10 +1574,12 @@ func nestiaSDKTypeNodeText(node *shimast.Node) string {
 	}
 	return strings.TrimSpace(source[start:end])
 }
+
 type sdkOperationMetadataInsertResult struct {
 	text   string
 	cursor int
 }
+
 func nestiaSDKDiagnostic(site nestiaSDKSite, message string) transform.Diagnostic {
 	line, column := 0, 0
 	if site.File != nil && site.Method != nil {

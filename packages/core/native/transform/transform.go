@@ -195,11 +195,6 @@ func writeSingleOutput(text, outPath string) int {
 	return 0
 }
 
-type SourceRewrite struct {
-	start       int
-	end         int
-	replacement string
-}
 func SourceFileText(target any) (string, bool) {
 	type sourceText interface {
 		Text() string
@@ -226,6 +221,7 @@ var (
 	normalizeParenArrowTypePattern = regexp.MustCompile(`: \(([A-Za-z_$][A-Za-z0-9_$.]*(<[^()\n;{}]*>)?)\)(\s*=>)`)
 	normalizeParenNullishPattern   = regexp.MustCompile(`\| \((null|undefined)\)`)
 )
+
 func sourceFileKey(cwd string, file string) string {
 	rel, err := filepath.Rel(cwd, filepath.FromSlash(file))
 	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {

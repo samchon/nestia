@@ -1,7 +1,6 @@
 package transform
 
 import (
-
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimprinter "github.com/microsoft/typescript-go/shim/printer"
 	shimscanner "github.com/microsoft/typescript-go/shim/scanner"
@@ -53,8 +52,4 @@ func nestiaTypiaDiagnosticFrom(diag *nativecontext.ITypiaDiagnostic) Diagnostic 
 		}
 	}
 	return out
-}
-
-type nestiaTypiaImportRoot struct {
-	module string
 }

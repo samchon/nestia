@@ -5,6 +5,7 @@ import (
 )
 
 const nestiaKindColonToken = shimast.KindQuestionToken + 1
+
 func normalizeNestiaSyntheticTokens(node *shimast.Node) {
 	if node == nil {
 		return
