@@ -16,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Compare an object against `null`, at the top level and nested under a key.
  * 2. Assert each reports a difference rather than throwing, and that `notEquals`
  *    accepts the same pair.
- * 3. Re-assert the neighbouring spellings that were already correct.
+ * 3. Re-assert the neighboring spellings that were already correct.
  */
 export function test_validate_equals_null(): void {
   // A difference must be REPORTED, not thrown.
