@@ -68,8 +68,8 @@ pnpm test
 
 `pnpm test` builds, then runs `pnpm test:go`, then runs each `tests/test-*` workspace's `start` script at `--workspace-concurrency=1`. The whole chain needs `go` on `PATH`, and sets `TTSC_GO_BINARY=go`, `TTSC_CACHE_DIR=node_modules/.cache/ttsc`, and the `NODE_OPTIONS` pair.
 
-`pnpm format` chains three Prettier invocations over `packages/**/*.ts`, `internals/**/*.ts`, and `tests/**/*.ts`. It does not touch Go, Markdown, MDX, the website, or the benchmark workspace.
+`pnpm format` is one Prettier invocation over `packages/**/*.ts` and `tests/**/*.ts`. It does not touch Go, Markdown, MDX, the website, or the benchmark workspace.
 
-Note that `internals/` does not exist in this repository. Prettier exits 2 on a glob that matches nothing, and the three commands are chained with `&&`, so `pnpm format` aborts after the first invocation and never reaches `tests/**/*.ts`. Formatting a change under `tests/` therefore needs an explicit `npx prettier --write "tests/**/*.ts"` until the root script is repaired.
+It used to chain three invocations with `&&`, the second over a `internals/**/*.ts` directory that does not exist. Prettier exits 2 on a glob that matches nothing, so the chain aborted after the first invocation and `tests/**/*.ts` was never formatted. Keep the targets in one invocation: a chain lets an unmatched pattern silently drop every target after it.
 
 Release-time commands (most contributors skip these): `pnpm package:rc`, `pnpm package:next`, `pnpm package:latest`, and `pnpm release`. `pnpm package:tgz` stages local tarballs in `deploy/tarballs/`, which the website build then installs. See `.agents/skills/pull-request/SKILL.md` for the remote delivery flow.

@@ -35,7 +35,7 @@ These four are never acceptable; choosing any one means the approach is already 
 - Migration templates ship without interactive dependencies — generated projects stay non-interactive.
 - Keep local outputs local. Do not commit `.env`, the tarballs under `deploy/tarballs/`, or any tree the harnesses regenerate (`tests/test-migrate/.generated`, the generated halves of `tests/test-sdk/features/*/src/api`, `tests/test-benchmark/BENCHMARK.md`).
 - When public behavior changes, update the matching page under `website/src/content/docs/**` in the same change. Follow `.agents/skills/documentation/SKILL.md`.
-- Run `pnpm format` before every ordinary commit and stage the result; never commit unformatted output. The script currently stops short of `tests/**/*.ts` for the reason recorded in `.agents/skills/project/SKILL.md`, so format a test-workspace change explicitly. A solo issue campaign formats its unified cycle pull request. The sole exception is an explicit multi-agent campaign implementation batch: those pull requests must not run the repository-wide formatter, and that procedure performs one dedicated Post-Campaign Cleanup format pull request after the campaign ends.
+- Run `pnpm format` before every ordinary commit and stage the result; never commit unformatted output. It covers `packages/**/*.ts` and `tests/**/*.ts` in one invocation. A solo issue campaign formats its unified cycle pull request. The sole exception is an explicit multi-agent campaign implementation batch: those pull requests must not run the repository-wide formatter, and that procedure performs one dedicated Post-Campaign Cleanup format pull request after the campaign ends.
 
 ## Consequence Analysis
 
