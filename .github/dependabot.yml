@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    # Every workspace member declares these as "catalog:", so pnpm-workspace.yaml
+    # at the root is the only file holding a version to rewrite.
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    # Only the anchor holder of each catalog family is listed. '@nestjs/common'
+    # carries &nestjs, typia carries &typia, and ttsc carries &ttsc; the sibling
+    # entries are YAML aliases with no version of their own, so asking Dependabot
+    # to bump them makes it abandon the workspace file and write into the lockfile
+    # alone. Allowing the anchor leaves one edit per release, and the aliases
+    # follow it. The list also gates security updates, which is what keeps the
+    # transitive-dependency bumps out.
+    allow:
+      - dependency-name: "typescript"
+      - dependency-name: "ttsc"
+      - dependency-name: "typia"
+      - dependency-name: "@nestjs/common"
