@@ -4,6 +4,7 @@ import { IFetchEvent } from "../IFetchEvent";
 import { IFetchRoute } from "../IFetchRoute";
 import { IPropagation } from "../IPropagation";
 import { is_binary_response_content_type } from "./is_binary_response_content_type";
+import { join_host_and_path, normalize_route_path } from "./join_host_and_path";
 
 /** @internal */
 export namespace FetcherBase {
@@ -114,12 +115,8 @@ export namespace FetcherBase {
       // RESPONSE MESSAGE
       //----
       // URL SPECIFICATION
-      const path: string =
-        connection.host[connection.host.length - 1] !== "/" &&
-        route.path[0] !== "/"
-          ? `/${route.path}`
-          : route.path;
-      const url: URL = new URL(`${connection.host}${path}`);
+      const path: string = normalize_route_path(route.path);
+      const url: URL = new URL(join_host_and_path(connection.host, route.path));
 
       // DO FETCH
       const event: IFetchEvent = {
