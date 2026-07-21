@@ -29,7 +29,7 @@ Do not rewrite the body after every follow-up push. Record later CI fixes, newly
 
 Push only the topic branch with upstream tracking. Use a file-backed body for multiline Markdown when opening through `gh`.
 
-Keep one GitHub issue per branch and pull request unless two issues are genuinely the same defect. Record verification and any known gap in the body.
+An ordinary pull request carries one GitHub issue unless two issues are genuinely the same defect. Issue campaigns override that boundary: a solo cycle pull request owns every implementation-ready issue in the cycle, and a multi-agent batch owns its admitted set. Record verification and any known gap in the body.
 
 ## Version Bumps Are Release Commits
 

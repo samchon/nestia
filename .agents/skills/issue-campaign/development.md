@@ -114,7 +114,7 @@ When any gate finds a defect:
 
 Fix every red CI lane in the same pull request even when the failure predates the campaign or is unrelated to the campaign's original issues. Do not dismiss it as another contributor's failure.
 
-A `test-sdk` e2e feature gets three silent attempts and then one final attempt with inherited stdio, so a lane that passes on retry is not a clean result. Treat an intermittent failure as a campaign finding, not as noise to re-run away.
+The development skill records that a `test-sdk` e2e feature retries before the attempt whose output you see. In a campaign, treat an intermittent lane as a finding to adjudicate, not as noise to re-run away.
 
 Do not merge a head whose green checks belong to an older SHA or whose clean review predates a correction. Continue the loop until the same immutable head has green required checks, a complete Self-Review round with no sound improvement, and every applicable integration and mutation record final.
 
