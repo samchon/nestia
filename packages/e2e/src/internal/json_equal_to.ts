@@ -9,7 +9,14 @@ export const json_equal_to =
       (y: any): void => {
         if (typeof x === "function" || typeof y === "function") return;
         else if (typeof x !== typeof y) container.push(accessor);
-        else if (x instanceof Array)
+        // `typeof null` is "object", so the check above does not separate an
+        // object from null. Settle every null pair here, before the Array and
+        // Object branches walk into one: `null` is a JSON value, and comparing
+        // it against an object is a difference at this accessor, exactly as it
+        // already was when the two operands were swapped.
+        else if (x === null || y === null) {
+          if (x !== y) container.push(accessor);
+        } else if (x instanceof Array)
           if (!(y instanceof Array)) container.push(accessor);
           else array(accessor)(x)(y);
         else if (x instanceof Object) object(accessor)(x)(y);
