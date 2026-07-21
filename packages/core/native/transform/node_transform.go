@@ -15,8 +15,7 @@ import (
 // runtime references resolve to namespace imports tsgo's module-transform
 // aliases), injects those imports, and normalizes the synthetic operator tokens
 // typia's programmers leave nil. A diagnostic is appended for any site whose
-// generation raises a (recovered) transform error, matching the legacy text
-// path's swallow-and-report behavior.
+// generation raises a (recovered) transform error.
 //
 // addDiagnostic receives one entry per failed site; the build command turns a
 // non-empty diagnostic slice into a non-zero exit.
@@ -97,8 +96,7 @@ func nestiaCoreNodeTransform(
 		result = nestiaCoreInjectImports(result, importer.ToStatements(), ec)
 		// The node path prints through tsgo's printer, which dereferences the
 		// conditional ?/: operator tokens typia's programmers leave nil; the
-		// legacy text path filled them via normalizeNestiaSyntheticTokens before
-		// printing, so do the same here.
+		// so normalizeNestiaSyntheticTokens fills them before printing.
 		normalizeNestiaSyntheticTokens(result.AsNode())
 		return result
 	}
@@ -211,7 +209,7 @@ func nestiaCoreCollectMethodReplacements(
 		}
 		// @WebSocketRoute carries no injected validator (it is not a method kind),
 		// but its acceptor/driver parameter shapes are validated here, mirroring the
-		// legacy visitNestiaCoreNode path. Validate against the parse-tree method so
+		// collection pass. Validate against the parse-tree method so
 		// parameter type text resolves even when typia rebuilt this method.
 		if len(canonical) != 0 && canonical[len(canonical)-1] == "WebSocketRoute" {
 			for _, diag := range validateNestiaCoreWebSocketRoute(state.prog, context, nestiaCoreOriginalNode(state.ec, node), call, canonical) {

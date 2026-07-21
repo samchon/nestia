@@ -73,8 +73,7 @@ func runTransform(args []string) int {
 	// contributor's per-file node transformers run inside one shared EmitContext
 	// and the result SourceFile is printed back as TypeScript (no JS script
 	// transformers), mirroring typia's `transform` subcommand. Injected namespace
-	// imports stay as ES imports the caller can type-strip per file, so there is
-	// no text-splice RewriteSet.
+	// imports stay as ES imports the caller can type-strip per file.
 	transformDiags := []Diagnostic{}
 	addDiagnostic := func(diag Diagnostic) {
 		transformDiags = append(transformDiags, diag)

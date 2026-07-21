@@ -103,7 +103,7 @@ func runBuild(args []string) int {
 	// AST-integration emit: typia's per-file transformer and @nestia/core's own
 	// per-file transformer both run inside tsgo's emit pipeline (sharing the
 	// EmitContext), so they return AST and tsgo's module-transform aliases the
-	// namespace imports they inject. No text-splice RewriteSet, no cleanup pass.
+	// namespace imports they inject. This is the only emit path.
 	transformDiags := []Diagnostic{}
 	addDiagnostic := func(diag Diagnostic) {
 		transformDiags = append(transformDiags, diag)

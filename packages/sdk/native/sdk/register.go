@@ -13,7 +13,7 @@ import (
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 )
 
-// sdkMetadataNamespace is the import alias the legacy (text/program-mutation)
+// sdkMetadataNamespace is the import alias the ApplyProgram (program-mutation)
 // path references. The emit-context path lets tsgo's module-transform pick the
 // generated alias itself, so it does not use this constant.
 const sdkMetadataNamespace = "__OperationMetadata"
@@ -83,8 +83,8 @@ func (linkedPlugin) ApplyProgram(prog *driver.Program, _ driver.PluginContext) e
 // `@<ns>.OperationMetadata("<json>")` decorator plus a namespace import of
 // `@nestia/sdk`, both built with ec.Factory and referenced through
 // NewGeneratedNameForNode(modSpec), so tsgo's builtin module-transform emits the
-// `require("@nestia/sdk")` and aliases the reference itself — no hand-rolled
-// `__OperationMetadata` namespace and no text-splice.
+// `require("@nestia/sdk")` and aliases the reference itself, with no
+// hand-rolled `__OperationMetadata` namespace.
 //
 // Core's build command wires this into `prog.EmitWithPluginTransformers`
 // alongside the typia and core transforms, exactly as the typia build command

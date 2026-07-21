@@ -10,15 +10,16 @@ type emitTransformCollector func(*driver.Program, plugin.Plan) (driver.PluginTra
 var emitTransformCollectors []emitTransformCollector
 
 // RegisterEmitTransformCollector registers a statically linked contributor's
-// emit-phase AST transformer. The `transform` subcommand runs these inside the
-// shared EmitContext alongside the typia and core node transforms, so a linked
-// contributor (e.g. @nestia/sdk) participates in the node-path source-to-source
-// output the same way its source-rewrite collector did on the legacy text path.
+// emit-phase AST transformer. The `build` and `transform` subcommands run these
+// inside the shared EmitContext alongside the typia and core node transforms, so
+// a linked contributor (e.g. @nestia/sdk) participates in the same emit pass
+// rather than patching its output afterwards.
 func RegisterEmitTransformCollector(collector emitTransformCollector) {
 	if collector != nil {
 		emitTransformCollectors = append(emitTransformCollectors, collector)
 	}
 }
+
 func collectContributorEmitTransforms(
 	prog *driver.Program,
 	plan plugin.Plan,

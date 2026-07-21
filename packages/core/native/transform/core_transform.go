@@ -50,15 +50,13 @@ type nestiaCoreTransformState struct {
 	prog    *driver.Program
 	options nestiaCoreOptions
 	// importer is the file-scoped ImportProgrammer shared by every validator
-	// generated for the current file on the AST-integration emit path; nil on
-	// the legacy text-splice paths, where each generation gets a throwaway
-	// importer. When set, generation result caching is disabled: the cache keys
-	// on text, but ec-mode nodes embed per-file NewGeneratedNameForNode imports
-	// that cannot be reused verbatim across files.
+	// generated for the current file. When set, generation result caching is
+	// disabled: the cache keys on text, but ec-mode nodes embed per-file
+	// NewGeneratedNameForNode imports that cannot be reused verbatim across
+	// files. The nil case is defensive — every current caller supplies one.
 	importer *nativecontext.ImportProgrammer
-	// ec is the emit EmitContext on the AST-integration path (nil on the legacy
-	// text path). Threaded into ITypiaContext.Emit so typia's per-programmer
-	// factories build emit-tracked nodes.
+	// ec is the emit EmitContext. Threaded into ITypiaContext.Emit so typia's
+	// per-programmer factories build emit-tracked nodes.
 	ec          *shimprinter.EmitContext
 	cache       map[nestiaCoreCacheKey][]string
 	cacheHits   int
@@ -129,8 +127,7 @@ func readNestiaCoreOptions(plan plugin.Plan) nestiaCoreOptions {
 
 // nestiaCoreMethodArgumentNode builds the single appended decorator-argument
 // node for a method decorator (TypedRoute / TypedQueryRoute). The importer is
-// the shared ec-mode ImportProgrammer on the node-emit path; nil on the legacy
-// text path.
+// the file-scoped ec-mode ImportProgrammer.
 func nestiaCoreMethodArgumentNode(
 	prog *driver.Program,
 	importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext,
@@ -330,10 +327,8 @@ func nestiaCoreMethodKind(segments []string) string {
 
 // nestiaCoreParameterArgumentNodes builds the appended decorator-argument nodes
 // for a parameter decorator. The importer is the file-scoped ImportProgrammer:
-// on the node-emit path it is the shared ec-mode importer, so the validator's
-// runtime references resolve to tsgo-aliased namespace imports; nil keeps the
-// legacy text behavior. Returning nodes (not text) is the single source of truth
-// shared by the text path (nestiaCoreParameterArguments) and the AST emit path.
+// it is the shared ec-mode importer, so the validator's runtime references
+// resolve to tsgo-aliased namespace imports.
 func nestiaCoreParameterArgumentNodes(
 	prog *driver.Program,
 	importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext,
@@ -692,9 +687,8 @@ func nestiaCoreGenerateTypedQueryRoute(prog *driver.Program, importer *nativecon
 // validator generation. The importer argument is the file-scoped ImportProgrammer:
 // on the AST-integration emit path it is the shared, ec-mode importer (so every
 // generated validator references namespace imports tsgo's module-transform
-// aliases, and all injected imports collapse into one ToStatements() set). When
-// importer is nil a throwaway importer is allocated, preserving the legacy
-// text-splice behavior used by the `transform` / `check` source paths.
+// aliases, and all injected imports collapse into one ToStatements() set). A nil
+// importer falls back to a throwaway one; no current caller relies on it.
 func nestiaCoreTypiaContext(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, numeric bool, finite bool, functional bool) nativecontext.ITypiaContext {
 	if importer == nil {
 		importer = nativecontext.NewImportProgrammer(nativecontext.ImportProgrammer_IOptions{
@@ -716,8 +710,7 @@ func nestiaCoreTypiaContext(prog *driver.Program, importer *nativecontext.Import
 		// Seed the emit context so typia's per-programmer factories
 		// (EmitFactoryOf(..., Context.Emit)) build emit-tracked nodes; without it
 		// the generated validator/stringifier nodes have no original link and
-		// tsgo's MarkLinkedReferences pass nil-panics during emit. nil on the
-		// legacy text path.
+		// tsgo's MarkLinkedReferences pass nil-panics during emit.
 		Emit: ec,
 	}
 }
