@@ -276,8 +276,11 @@ const runCliArgumentDiagnosticsFeature = async () => {
   await fs.promises.rm(cwd, { force: true, recursive: true });
   await fs.promises.mkdir(cwd, { recursive: true });
   try {
+    // A CLI that never started is not a CLI that printed the wrong diagnostic.
+    // Surface the launch failure as itself, or every assertion below reports a
+    // missing message and hides the real cause.
     const invoke = (args) =>
-      new Promise((resolve) => {
+      new Promise((resolve, reject) => {
         const child = cp.spawn(NODE, [TTSX_BIN, CLI_MAIN, ...args], {
           cwd,
           env: { ...process.env },
@@ -288,7 +291,13 @@ const runCliArgumentDiagnosticsFeature = async () => {
         child.stderr.setEncoding("utf8");
         child.stdout.on("data", (chunk) => (output += chunk));
         child.stderr.on("data", (chunk) => (output += chunk));
-        child.on("error", (error) => resolve(String(error)));
+        child.on("error", (error) =>
+          reject(
+            new Error(
+              `cli-argument-diagnostics: unable to launch the cli (${error.code ?? "unknown"}): ${error.message}`,
+            ),
+          ),
+        );
         child.on("exit", () => resolve(output));
       });
     const assert = (condition, message) => {
