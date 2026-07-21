@@ -6,11 +6,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime/debug"
-	"sort"
-	"strconv"
 	"strings"
 	"sync"
-	"unicode"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimchecker "github.com/microsoft/typescript-go/shim/checker"
@@ -53,15 +50,13 @@ type nestiaCoreTransformState struct {
 	prog    *driver.Program
 	options nestiaCoreOptions
 	// importer is the file-scoped ImportProgrammer shared by every validator
-	// generated for the current file on the AST-integration emit path; nil on
-	// the legacy text-splice paths, where each generation gets a throwaway
-	// importer. When set, generation result caching is disabled: the cache keys
-	// on text, but ec-mode nodes embed per-file NewGeneratedNameForNode imports
-	// that cannot be reused verbatim across files.
+	// generated for the current file. When set, generation result caching is
+	// disabled: the cache keys on text, but ec-mode nodes embed per-file
+	// NewGeneratedNameForNode imports that cannot be reused verbatim across
+	// files. The nil case is defensive — every current caller supplies one.
 	importer *nativecontext.ImportProgrammer
-	// ec is the emit EmitContext on the AST-integration path (nil on the legacy
-	// text path). Threaded into ITypiaContext.Emit so typia's per-programmer
-	// factories build emit-tracked nodes.
+	// ec is the emit EmitContext. Threaded into ITypiaContext.Emit so typia's
+	// per-programmer factories build emit-tracked nodes.
 	ec          *shimprinter.EmitContext
 	cache       map[nestiaCoreCacheKey][]string
 	cacheHits   int
@@ -130,388 +125,9 @@ func readNestiaCoreOptions(plan plugin.Plan) nestiaCoreOptions {
 	return options
 }
 
-func collectNestiaCoreSourceRewriteMap(
-	prog *driver.Program,
-	plan plugin.Plan,
-	onlyFile string,
-) (map[string][]SourceRewrite, []Diagnostic) {
-	if plan.Core == false {
-		return map[string][]SourceRewrite{}, nil
-	}
-	options := readNestiaCoreOptions(plan)
-	sites, diagnostics := collectNestiaCoreSites(newNestiaCoreTransformState(prog, options))
-	rewrites := map[string][]SourceRewrite{}
-	for _, site := range sites {
-		if onlyFile != "" && filepath.ToSlash(site.FilePath) != filepath.ToSlash(onlyFile) {
-			continue
-		}
-		source, ok := SourceFileText(site.File)
-		if !ok {
-			diagnostics = append(diagnostics, nestiaCoreDiagnostic(site, "source text is unavailable"))
-			continue
-		}
-		open, close, ok := callArgumentBounds(source, site.Call)
-		if !ok {
-			diagnostics = append(diagnostics, nestiaCoreDiagnostic(site, "failed to locate decorator arguments"))
-			continue
-		}
-		replacement := strings.Join(site.Arguments, ", ")
-		if site.ReplaceArguments == false {
-			replacement = appendArgumentsText(source[open+1:close], site.Arguments)
-		}
-		rewrites[filepath.ToSlash(site.FilePath)] = append(rewrites[filepath.ToSlash(site.FilePath)], SourceRewrite{
-			start:       open + 1,
-			end:         close,
-			replacement: replacement,
-		})
-	}
-	return rewrites, diagnostics
-}
-
-func collectNestiaCoreBuildRewrites(
-	prog *driver.Program,
-	plan plugin.Plan,
-	rewrites *nativeRewriteSet,
-) []Diagnostic {
-	if plan.Core == false {
-		return nil
-	}
-	options := readNestiaCoreOptions(plan)
-	sites, diagnostics := collectNestiaCoreSites(newNestiaCoreTransformState(prog, options))
-	for _, site := range sites {
-		expectedArgumentCount := site.ArgCount
-		expectedArgumentsText := nestiaCoreStableOriginalArgumentText(site)
-		rewrites.Add(nativeRewrite{
-			FilePath:                   site.FilePath,
-			RootName:                   site.Segments[0],
-			Namespaces:                 site.Segments[1:],
-			AppendArguments:            site.Arguments,
-			ReplaceArguments:           site.ReplaceArguments,
-			TargetExpressionCandidates: nestiaCoreTargetCandidates(prog, site),
-			SourceStart:                site.Call.AsNode().Pos(),
-			ExpectedArgumentCount:      &expectedArgumentCount,
-			ExpectedArgumentsText:      expectedArgumentsText,
-		})
-	}
-	return diagnostics
-}
-
-func nestiaCoreOriginalArgumentText(site nestiaCoreSite) string {
-	source, ok := SourceFileText(site.File)
-	if !ok {
-		return ""
-	}
-	open, close, ok := callArgumentBounds(source, site.Call)
-	if !ok {
-		return ""
-	}
-	return strings.TrimSpace(source[open+1 : close])
-}
-
-func nestiaCoreStableOriginalArgumentText(site nestiaCoreSite) string {
-	text := nestiaCoreOriginalArgumentText(site)
-	if strings.Contains(text, "=>") || strings.Contains(text, "function") {
-		return ""
-	}
-	return text
-}
-
-func collectNestiaCoreSites(state *nestiaCoreTransformState) ([]nestiaCoreSite, []Diagnostic) {
-	sites := []nestiaCoreSite{}
-	diagnostics := []Diagnostic{}
-	prog := state.prog
-	if nestiaCoreStrictMode(prog) == false {
-		diagnostics = append(diagnostics, nestiaCoreGlobalDiagnostic("@nestia/core", "strict mode is required."))
-	}
-	for _, file := range prog.SourceFiles() {
-		if file == nil || file.IsDeclarationFile {
-			continue
-		}
-		context := newNestiaCoreFileContext(file)
-		file.ForEachChild(func(node *shimast.Node) bool {
-			visitNestiaCoreNode(state, context, node, &sites, &diagnostics)
-			return false
-		})
-	}
-	if os.Getenv("TTSC_NESTIA_PROFILE") != "" {
-		fmt.Fprintf(stderr, "ttsc-nestia profile: core-cache hits=%d misses=%d\n", state.cacheHits, state.cacheMisses)
-	}
-	return sites, diagnostics
-}
-
-func visitNestiaCoreNode(
-	state *nestiaCoreTransformState,
-	context nestiaCoreFileContext,
-	node *shimast.Node,
-	sites *[]nestiaCoreSite,
-	diagnostics *[]Diagnostic,
-) {
-	if node == nil {
-		return
-	}
-	switch node.Kind {
-	case shimast.KindParameter:
-		decorators := node.Decorators()
-		if len(decorators) == 0 {
-			break
-		}
-		type candidate struct {
-			decorator *shimast.Node
-			call      *shimast.CallExpression
-			segments  []string
-			kind      string
-		}
-		candidates := []candidate{}
-		for _, decorator := range decorators {
-			call, segments, ok := nestiaCoreRawDecoratorCall(decorator)
-			if !ok {
-				continue
-			}
-			canonical := nestiaCoreCanonicalSegments(context, segments)
-			kind := nestiaCoreParameterKind(canonical)
-			if kind == "" || nestiaCoreDecoratorReference(state.prog, context, decorator, segments, canonical) == false {
-				continue
-			}
-			candidates = append(candidates, candidate{
-				decorator: decorator,
-				call:      call,
-				segments:  segments,
-				kind:      kind,
-			})
-		}
-		if len(candidates) == 0 {
-			break
-		}
-		typ := state.prog.Checker.GetTypeAtLocation(node)
-		for _, candidate := range candidates {
-			site, ok, err := transformNestiaCoreParameterDecorator(
-				state,
-				context.file,
-				candidate.call,
-				candidate.segments,
-				candidate.kind,
-				typ,
-			)
-			if err != nil {
-				*diagnostics = append(*diagnostics, nestiaCoreDiagnostic(site, err.Error()))
-			} else if ok {
-				*sites = append(*sites, site)
-			}
-		}
-	case shimast.KindMethodDeclaration:
-		decorators := node.Decorators()
-		if len(decorators) == 0 {
-			break
-		}
-		type candidate struct {
-			call     *shimast.CallExpression
-			segments []string
-			kind     string
-		}
-		candidates := []candidate{}
-		for _, decorator := range decorators {
-			call, segments, ok := nestiaCoreRawDecoratorCall(decorator)
-			if !ok {
-				continue
-			}
-			canonical := nestiaCoreCanonicalSegments(context, segments)
-			if nestiaCoreDecoratorReference(state.prog, context, decorator, segments, canonical) == false {
-				continue
-			}
-			if len(canonical) != 0 && canonical[len(canonical)-1] == "WebSocketRoute" {
-				*diagnostics = append(*diagnostics, validateNestiaCoreWebSocketRoute(state.prog, context, node, call, canonical)...)
-			}
-			kind := nestiaCoreMethodKind(canonical)
-			if kind == "" {
-				continue
-			}
-			if kind == "McpRoute" {
-				if nestiaCoreMcpRouteAlreadyTransformed(call) {
-					continue
-				}
-			} else if nestiaCoreShouldSkipMethodDecorator(state.prog, call) {
-				continue
-			}
-			candidates = append(candidates, candidate{
-				call:     call,
-				segments: segments,
-				kind:     kind,
-			})
-		}
-		if len(candidates) == 0 {
-			break
-		}
-		typ := NestiaCoreMethodReturnType(state.prog, node)
-		if typ != nil {
-			for _, candidate := range candidates {
-				site, ok, err := transformNestiaCoreMethodDecorator(
-					state,
-					context.file,
-					node,
-					candidate.call,
-					candidate.segments,
-					candidate.kind,
-					typ,
-				)
-				if err != nil {
-					*diagnostics = append(*diagnostics, nestiaCoreDiagnostic(site, err.Error()))
-				} else if ok {
-					*sites = append(*sites, site)
-				}
-			}
-		}
-	}
-	node.ForEachChild(func(child *shimast.Node) bool {
-		visitNestiaCoreNode(state, context, child, sites, diagnostics)
-		return false
-	})
-}
-
-func transformNestiaCoreParameterDecorator(
-	state *nestiaCoreTransformState,
-	file *shimast.SourceFile,
-	call *shimast.CallExpression,
-	segments []string,
-	kind string,
-	typ *shimchecker.Type,
-) (nestiaCoreSite, bool, error) {
-	modulo := nestiaCoreModuloNode(call.Expression)
-	arguments, ok, err := state.parameterArguments(call, segments, modulo, kind, typ)
-	if err != nil || !ok {
-		return nestiaCoreSite{
-			File:     file,
-			FilePath: file.FileName(),
-			Call:     call,
-			Modulo:   modulo,
-			Kind:     kind,
-			Type:     typ,
-			Segments: segments,
-		}, ok, err
-	}
-	return nestiaCoreSite{
-		File:      file,
-		FilePath:  file.FileName(),
-		Call:      call,
-		Modulo:    modulo,
-		Kind:      kind,
-		Type:      typ,
-		ArgCount:  nestiaCoreArgumentCount(call),
-		Segments:  segments,
-		Arguments: arguments,
-	}, true, nil
-}
-
-func transformNestiaCoreMethodDecorator(
-	state *nestiaCoreTransformState,
-	file *shimast.SourceFile,
-	method *shimast.Node,
-	call *shimast.CallExpression,
-	segments []string,
-	kind string,
-	typ *shimchecker.Type,
-) (nestiaCoreSite, bool, error) {
-	modulo := nestiaCoreModuloNode(call.Expression)
-	if kind == "McpRoute" {
-		arguments, err := state.mcpRouteArguments(file, method, call, typ)
-		if err != nil {
-			return nestiaCoreSite{
-				File:      file,
-				FilePath:  file.FileName(),
-				Call:      call,
-				Modulo:    modulo,
-				Kind:      kind,
-				Type:      typ,
-				Segments:  segments,
-				Arguments: arguments,
-			}, false, err
-		}
-		return nestiaCoreSite{
-			File:             file,
-			FilePath:         file.FileName(),
-			Call:             call,
-			Modulo:           modulo,
-			Kind:             kind,
-			Type:             typ,
-			ArgCount:         nestiaCoreArgumentCount(call),
-			Segments:         segments,
-			Arguments:        arguments,
-			ReplaceArguments: true,
-		}, true, nil
-	}
-	arguments, err := state.methodArguments(file, segments, modulo, kind, typ, nestiaCoreArgumentCount(call))
-	if err != nil {
-		return nestiaCoreSite{
-			File:     file,
-			FilePath: file.FileName(),
-			Call:     call,
-			Modulo:   modulo,
-			Kind:     kind,
-			Type:     typ,
-			Segments: segments,
-		}, false, err
-	}
-	return nestiaCoreSite{
-		File:      file,
-		FilePath:  file.FileName(),
-		Call:      call,
-		Modulo:    modulo,
-		Kind:      kind,
-		Type:      typ,
-		ArgCount:  nestiaCoreArgumentCount(call),
-		Segments:  segments,
-		Arguments: arguments,
-	}, true, nil
-}
-
-func (state *nestiaCoreTransformState) parameterArguments(
-	call *shimast.CallExpression,
-	segments []string,
-	modulo *shimast.Node,
-	kind string,
-	typ *shimchecker.Type,
-) ([]string, bool, error) {
-	key := state.cacheKey(segments, kind, typ, nestiaCoreArgumentCount(call), kind == "TypedQuery")
-	return state.cachedArguments(key, func() ([]string, bool, error) {
-		return nestiaCoreParameterArguments(state.prog, state.options, call, modulo, kind, typ)
-	})
-}
-
-func (state *nestiaCoreTransformState) methodArguments(
-	file *shimast.SourceFile,
-	segments []string,
-	modulo *shimast.Node,
-	kind string,
-	typ *shimchecker.Type,
-	argCount int,
-) ([]string, error) {
-	key := state.cacheKey(segments, kind, typ, argCount, kind == "TypedQueryRoute")
-	arguments, _, err := state.cachedArguments(key, func() ([]string, bool, error) {
-		node, err := nestiaCoreMethodArgumentNode(state.prog, state.importer, state.ec, state.options, modulo, kind, typ)
-		if err != nil {
-			return nil, false, err
-		}
-		return []string{emitNestiaCoreExpression(state.prog, file, node, false)}, true, nil
-	})
-	return arguments, err
-}
-
-func (state *nestiaCoreTransformState) mcpRouteArguments(
-	file *shimast.SourceFile,
-	method *shimast.Node,
-	call *shimast.CallExpression,
-	typ *shimchecker.Type,
-) ([]string, error) {
-	node, err := nestiaCoreMcpRouteArgumentNode(state.prog, nil, nil, state.options, file, method, call, typ)
-	if err != nil {
-		return nil, err
-	}
-	return []string{emitNestiaCoreExpression(state.prog, file, node, false)}, nil
-}
-
 // nestiaCoreMethodArgumentNode builds the single appended decorator-argument
 // node for a method decorator (TypedRoute / TypedQueryRoute). The importer is
-// the shared ec-mode ImportProgrammer on the node-emit path; nil on the legacy
-// text path.
+// the file-scoped ec-mode ImportProgrammer.
 func nestiaCoreMethodArgumentNode(
 	prog *driver.Program,
 	importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext,
@@ -529,46 +145,6 @@ func nestiaCoreMethodArgumentNode(
 		}
 	})
 }
-
-func (state *nestiaCoreTransformState) cachedArguments(
-	key nestiaCoreCacheKey,
-	generate func() ([]string, bool, error),
-) ([]string, bool, error) {
-	if cached, ok := state.cache[key]; ok {
-		state.cacheHits++
-		return append([]string(nil), cached...), true, nil
-	}
-	state.cacheMisses++
-	arguments, ok, err := generate()
-	if err != nil || ok == false {
-		return arguments, ok, err
-	}
-	state.cache[key] = append([]string(nil), arguments...)
-	return append([]string(nil), arguments...), true, nil
-}
-
-func (state *nestiaCoreTransformState) cacheKey(
-	segments []string,
-	kind string,
-	typ *shimchecker.Type,
-	argCount int,
-	allowOptional bool,
-) nestiaCoreCacheKey {
-	return nestiaCoreCacheKey{
-		Kind:          kind,
-		Type:          typ,
-		TypeName:      nestiaCoreTypeNameText(state.prog, typ),
-		Modulo:        strings.Join(segments, "."),
-		Validate:      state.options.Validate,
-		Stringify:     state.options.Stringify,
-		StringifyNull: state.options.StringifyNull,
-		Llm:           state.options.Llm,
-		LlmStrict:     state.options.LlmStrict,
-		ArgCount:      argCount,
-		AllowOptional: allowOptional,
-	}
-}
-
 func nestiaCoreRawDecoratorCall(decorator *shimast.Node) (*shimast.CallExpression, []string, bool) {
 	if decorator == nil || decorator.Kind != NestiaCoreKindDecorator {
 		return nil, nil, false
@@ -705,58 +281,6 @@ func IsNestiaCoreCall(prog *driver.Program, node *shimast.Node) bool {
 		strings.Contains(location, "@nestia/core/src/decorators/") ||
 		strings.Contains(location, "packages/core/src/decorators/")
 }
-
-func isNestiaCoreImportedExpression(node *shimast.Node, segments []string) bool {
-	if len(segments) == 0 {
-		return false
-	}
-	source := shimast.GetSourceFileOfNode(node)
-	if source == nil || source.Statements == nil {
-		return false
-	}
-	root := segments[0]
-	for _, stmt := range source.Statements.Nodes {
-		if stmt == nil || stmt.Kind != shimast.KindImportDeclaration {
-			continue
-		}
-		decl := stmt.AsImportDeclaration()
-		if decl == nil || decl.ImportClause == nil || decl.ModuleSpecifier == nil || decl.ModuleSpecifier.Kind != shimast.KindStringLiteral {
-			continue
-		}
-		if decl.ModuleSpecifier.Text() != "@nestia/core" {
-			continue
-		}
-		clause := decl.ImportClause.AsImportClause()
-		if clause == nil || clause.PhaseModifier == shimast.KindTypeKeyword {
-			continue
-		}
-		if name := clause.Name(); name != nil && name.Text() == root {
-			return true
-		}
-		if clause.NamedBindings == nil || clause.NamedBindings.Kind != shimast.KindNamedImports {
-			continue
-		}
-		named := clause.NamedBindings.AsNamedImports()
-		if named == nil || named.Elements == nil {
-			continue
-		}
-		for _, elem := range named.Elements.Nodes {
-			if elem == nil {
-				continue
-			}
-			spec := elem.AsImportSpecifier()
-			if spec == nil || spec.IsTypeOnly {
-				continue
-			}
-			name := spec.Name()
-			if name != nil && name.Text() == root {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 func nestiaCoreParameterKind(segments []string) string {
 	suffixes := map[string]string{
 		"EncryptedBody":         "TypedBody",
@@ -801,45 +325,10 @@ func nestiaCoreMethodKind(segments []string) string {
 	}
 }
 
-func nestiaCoreParameterArguments(
-	prog *driver.Program,
-	options nestiaCoreOptions,
-	call *shimast.CallExpression,
-	modulo *shimast.Node,
-	kind string,
-	typ *shimchecker.Type,
-) ([]string, bool, error) {
-	nodes, ok, err := nestiaCoreParameterArgumentNodes(prog, nil, nil, options, call, modulo, kind, typ)
-	if err != nil || !ok {
-		return nil, ok, err
-	}
-	file := shimast.GetSourceFileOfNode(call.AsNode())
-	output := make([]string, 0, len(nodes))
-	for _, node := range nodes {
-		output = append(output, nestiaCoreArgumentNodeToText(prog, file, node))
-	}
-	return output, true, nil
-}
-
-// nestiaCoreArgumentNodeToText prints a single appended decorator-argument node
-// for the legacy text-splice path. Keyword nodes (undefined / true) print as
-// their literal text; validator nodes go through the type-stripping printer.
-func nestiaCoreArgumentNodeToText(prog *driver.Program, file *shimast.SourceFile, node *shimast.Node) string {
-	switch node.Kind {
-	case shimast.KindUndefinedKeyword:
-		return "undefined"
-	case shimast.KindTrueKeyword:
-		return "true"
-	}
-	return emitNestiaCoreExpression(prog, file, node, false)
-}
-
 // nestiaCoreParameterArgumentNodes builds the appended decorator-argument nodes
 // for a parameter decorator. The importer is the file-scoped ImportProgrammer:
-// on the node-emit path it is the shared ec-mode importer, so the validator's
-// runtime references resolve to tsgo-aliased namespace imports; nil keeps the
-// legacy text behavior. Returning nodes (not text) is the single source of truth
-// shared by the text path (nestiaCoreParameterArguments) and the AST emit path.
+// it is the shared ec-mode importer, so the validator's runtime references
+// resolve to tsgo-aliased namespace imports.
 func nestiaCoreParameterArgumentNodes(
 	prog *driver.Program,
 	importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext,
@@ -1198,9 +687,8 @@ func nestiaCoreGenerateTypedQueryRoute(prog *driver.Program, importer *nativecon
 // validator generation. The importer argument is the file-scoped ImportProgrammer:
 // on the AST-integration emit path it is the shared, ec-mode importer (so every
 // generated validator references namespace imports tsgo's module-transform
-// aliases, and all injected imports collapse into one ToStatements() set). When
-// importer is nil a throwaway importer is allocated, preserving the legacy
-// text-splice behavior used by the `transform` / `check` source paths.
+// aliases, and all injected imports collapse into one ToStatements() set). A nil
+// importer falls back to a throwaway one; no current caller relies on it.
 func nestiaCoreTypiaContext(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, numeric bool, finite bool, functional bool) nativecontext.ITypiaContext {
 	if importer == nil {
 		importer = nativecontext.NewImportProgrammer(nativecontext.ImportProgrammer_IOptions{
@@ -1222,8 +710,7 @@ func nestiaCoreTypiaContext(prog *driver.Program, importer *nativecontext.Import
 		// Seed the emit context so typia's per-programmer factories
 		// (EmitFactoryOf(..., Context.Emit)) build emit-tracked nodes; without it
 		// the generated validator/stringifier nodes have no original link and
-		// tsgo's MarkLinkedReferences pass nil-panics during emit. nil on the
-		// legacy text path.
+		// tsgo's MarkLinkedReferences pass nil-panics during emit.
 		Emit: ec,
 	}
 }
@@ -1521,55 +1008,6 @@ func safeNestiaCoreGenerateNode(generator func() (*shimast.Node, error)) (node *
 	return generator()
 }
 
-func safeNestiaCoreGenerate(
-	generator func() (*shimast.Node, error),
-	prog *driver.Program,
-	file *shimast.SourceFile,
-	preserveTypes bool,
-) (text string, err error) {
-	defer func() {
-		if exp := recover(); exp != nil {
-			if os.Getenv("NESTIA_NATIVE_DEBUG_STACK") != "" {
-				err = fmt.Errorf("%v\n%s", exp, debug.Stack())
-			} else {
-				err = fmt.Errorf("%v", exp)
-			}
-		}
-	}()
-	node, err := generator()
-	if err != nil {
-		return "", err
-	}
-	return emitNestiaCoreExpression(prog, file, node, preserveTypes), nil
-}
-
-func emitNestiaCoreExpression(prog *driver.Program, file *shimast.SourceFile, node *shimast.Node, preserveTypes bool) string {
-	var text string
-	if preserveTypes {
-		text = emitNestiaPreservingTypesWithIdentifierSubstitutions(node, file, nil)
-	} else {
-		text = emitNestiaWithIdentifierSubstitutions(
-			node,
-			file,
-			identifierSubstitutionsForEmit(prog, file),
-		)
-	}
-	return cleanupNestiaCorePrintedExpression(text)
-}
-
-func cleanupNestiaCorePrintedExpression(text string) string {
-	text = strings.TrimSpace(text)
-	text = strings.TrimSuffix(text, ";")
-	text = nestiaCoreSingleParameterArrowPattern.ReplaceAllString(text, `${1}(${2}) =>`)
-	if strings.HasPrefix(text, "(") && strings.HasSuffix(text, ")") {
-		return text
-	}
-	if strings.Contains(text, "=>") || strings.Contains(text, "function") {
-		return "(" + text + ")"
-	}
-	return text
-}
-
 var nestiaCoreSingleParameterArrowPattern = regexp.MustCompile(`(^|[\s(=,:?])([A-Za-z_$][A-Za-z0-9_$]*) =>`)
 
 func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimchecker.Type {
@@ -1768,19 +1206,41 @@ func callArgumentBounds(source string, call *shimast.CallExpression) (int, int, 
 		return 0, 0, false
 	}
 	open += start
-	close, ok := matchNativeParen(source, open)
+	close, ok := matchClosingParen(source, open)
 	return open, close, ok
 }
 
-func appendArgumentsText(current string, arguments []string) string {
-	current = strings.TrimSpace(current)
-	next := strings.Join(arguments, ", ")
-	if current == "" {
-		return next
+// matchClosingParen returns the index of the ')' closing the '(' at pos,
+// skipping over quoted and template spans so a parenthesis inside a string
+// literal argument cannot unbalance the scan.
+func matchClosingParen(text string, pos int) (int, bool) {
+	if pos >= len(text) || text[pos] != '(' {
+		return 0, false
 	}
-	return current + ", " + next
+	depth := 1
+	for i := pos + 1; i < len(text); i++ {
+		switch text[i] {
+		case '(':
+			depth++
+		case ')':
+			depth--
+			if depth == 0 {
+				return i, true
+			}
+		case '"', '\'', '`':
+			q := text[i]
+			j := i + 1
+			for j < len(text) && text[j] != q {
+				if text[j] == '\\' {
+					j++
+				}
+				j++
+			}
+			i = j
+		}
+	}
+	return 0, false
 }
-
 func NestiaCoreExpressionSegments(node *shimast.Node) []string {
 	if node == nil {
 		return nil
@@ -1804,15 +1264,6 @@ func NestiaCoreExpressionSegments(node *shimast.Node) []string {
 	}
 	return nil
 }
-
-func nestiaCoreModuloNode(node *shimast.Node) *shimast.Node {
-	segments := NestiaCoreExpressionSegments(node)
-	if len(segments) == 0 {
-		return nestiaCoreFactory.NewIdentifier("nestia_core_transform")
-	}
-	return nestiaCoreFactory.NewIdentifier(strings.Join(segments, "_"))
-}
-
 func nestiaCoreTypeName(prog *driver.Program, typ *shimchecker.Type) *string {
 	name := nestiaCoreTypeNameText(prog, typ)
 	return &name
@@ -1851,125 +1302,11 @@ func nestiaCoreSegmentsHaveSuffix(segments []string, suffix []string) bool {
 	return true
 }
 
-func nestiaCoreTargetCandidates(prog *driver.Program, site nestiaCoreSite) []string {
-	if len(site.Segments) == 0 {
-		return nil
-	}
-	candidates := []string{strings.Join(site.Segments, ".")}
-	substitutions := identifierSubstitutionsForEmit(prog, site.File)
-	if substitutions != nil {
-		if mapped, ok := substitutions[site.Segments[0]]; ok {
-			parts := append([]string{mapped}, site.Segments[1:]...)
-			candidates = append(candidates, strings.Join(parts, "."))
-		}
-	}
-	sort.SliceStable(candidates, func(i, j int) bool {
-		return len(candidates[i]) > len(candidates[j])
-	})
-	return candidates
-}
-
-func identifierSubstitutionsForEmit(program *driver.Program, file any) map[string]string {
-	if program == nil {
-		return nil
-	}
-	sourceFile, ok := file.(*shimast.SourceFile)
-	if ok == false {
-		return nil
-	}
-	return commonJSImportIdentifierSubstitutions(sourceFile)
-}
-
 type commonJSImportIdentifierSubstitutionsCacheEntry struct {
 	value map[string]string
 }
 
 var commonJSImportIdentifierSubstitutionsCache sync.Map
-
-func commonJSImportIdentifierSubstitutions(file *shimast.SourceFile) map[string]string {
-	if file == nil || file.Statements == nil {
-		return nil
-	}
-	if cached, ok := commonJSImportIdentifierSubstitutionsCache.Load(file); ok {
-		return cached.(commonJSImportIdentifierSubstitutionsCacheEntry).value
-	}
-	output := map[string]string{}
-	counts := map[string]int{}
-	for _, stmt := range file.Statements.Nodes {
-		if stmt == nil || stmt.Kind != shimast.KindImportDeclaration {
-			continue
-		}
-		decl := stmt.AsImportDeclaration()
-		if decl == nil || decl.ImportClause == nil || decl.ModuleSpecifier == nil || decl.ModuleSpecifier.Kind != shimast.KindStringLiteral {
-			continue
-		}
-		clause := decl.ImportClause.AsImportClause()
-		if clause == nil || clause.PhaseModifier == shimast.KindTypeKeyword {
-			continue
-		}
-		base := commonJSImportAliasBase(decl.ModuleSpecifier.Text())
-		counts[base]++
-		moduleAlias := base + "_" + strconv.Itoa(counts[base])
-		if name := clause.Name(); name != nil {
-			output[name.Text()] = moduleAlias + ".default"
-		}
-		if clause.NamedBindings == nil || clause.NamedBindings.Kind != shimast.KindNamedImports {
-			continue
-		}
-		named := clause.NamedBindings.AsNamedImports()
-		if named == nil || named.Elements == nil {
-			continue
-		}
-		for _, elem := range named.Elements.Nodes {
-			if elem == nil {
-				continue
-			}
-			spec := elem.AsImportSpecifier()
-			if spec == nil || spec.IsTypeOnly {
-				continue
-			}
-			name := spec.Name()
-			if name == nil {
-				continue
-			}
-			local := name.Text()
-			imported := local
-			if spec.PropertyName != nil {
-				imported = spec.PropertyName.Text()
-			}
-			output[local] = moduleAlias + "." + imported
-		}
-	}
-	if len(output) == 0 {
-		output = nil
-	}
-	commonJSImportIdentifierSubstitutionsCache.Store(file, commonJSImportIdentifierSubstitutionsCacheEntry{value: output})
-	return output
-}
-
-func commonJSImportAliasBase(module string) string {
-	base := strings.TrimSuffix(filepath.Base(module), filepath.Ext(module))
-	if base == "" || base == "." || base == string(filepath.Separator) {
-		base = "mod"
-	}
-	var builder strings.Builder
-	for _, r := range base {
-		if r == '_' || r == '$' || unicode.IsLetter(r) || unicode.IsDigit(r) {
-			builder.WriteRune(r)
-		} else {
-			builder.WriteByte('_')
-		}
-	}
-	text := builder.String()
-	if text == "" {
-		text = "mod"
-	}
-	first := []rune(text)[0]
-	if first != '_' && first != '$' && !unicode.IsLetter(first) {
-		text = "_" + text
-	}
-	return text
-}
 
 func nestiaCoreDiagnostic(site nestiaCoreSite, message string) Diagnostic {
 	line, column := 0, 0

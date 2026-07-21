@@ -24,8 +24,8 @@ export namespace NoTransformConfigurationError {
    *
    * Even if the transform did not run, the error will not be thrown and the
    * program will be continued. Instead, every validation and assertion will be
-   * skipped and the value
-   * will be returned as it is. Furthermore, unexpected behaviors may occur.
+   * skipped and the value will be returned as it is. Furthermore, unexpected
+   * behaviors may occur.
    *
    * Therefore, it is not recommended to set this value to `false` in production
    * environment. Configure this value to be `false` only when you're debugging

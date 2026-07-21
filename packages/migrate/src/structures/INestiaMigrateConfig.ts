@@ -1,5 +1,4 @@
 import ts from "../internal/ts";
-
 import { NestiaMigrateNestMethodProgrammer } from "../programmers/NestiaMigrateNestMethodProgrammer";
 
 export interface INestiaMigrateConfig {

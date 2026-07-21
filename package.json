@@ -5,7 +5,7 @@
   "description": "Nestia station",
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
-    "format": "prettier --write packages/**/*.ts && prettier --write internals/**/*.ts && prettier --write tests/**/*.ts",
+    "format": "prettier --write \"packages/**/*.ts\" \"tests/**/*.ts\"",
     "test:go": "pnpm --filter @nestia/core --filter @nestia/sdk -r run test:go && cd packages/core/native && go test ./...",
     "test": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" pnpm build && cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" pnpm test:go && cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" pnpm --filter=./tests/test-* --workspace-concurrency=1 -r start",
     "package:latest": "bash -c 'pnpm --filter=./packages/* -r publish --tag latest --access public \"$@\"' --",

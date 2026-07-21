@@ -74,9 +74,9 @@ export class BbsArticlesController {
   /**
    * Update article.
    *
-   * When updating, this BBS system does not overwrite the content, but accumulate it.
-   * Therefore, whenever an article being updated, length of {@link IBbsArticle.snapshots}
-   * would be increased and accumulated.
+   * When updating, this BBS system does not overwrite the content, but
+   * accumulate it. Therefore, whenever an article being updated, length of
+   * {@link IBbsArticle.snapshots} would be increased and accumulated.
    *
    * @param section Target section
    * @param id Target articles id

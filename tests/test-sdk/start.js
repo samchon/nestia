@@ -97,6 +97,8 @@ const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 const feature = async (name, port) => {
   if (name === "swagger-watch") return runSwaggerWatchFeature();
   if (name === "bundle-preserve") return runBundlePreserveFeature();
+  if (name === "cli-argument-diagnostics")
+    return runCliArgumentDiagnosticsFeature();
 
   const cwd = featureDirectory(name);
   const configFile =
@@ -228,6 +230,107 @@ const assertGeneratedImportsAreExtensionless = (cwd) => {
         ...failures,
       ].join("\n"),
     );
+};
+
+// Regression lock for the `--config` / `--project` value guard. The reader used
+// to test whether the WHOLE argument list had one element, which only equals
+// "the flag has no value" when the flag is the sole argument. With any other
+// token present it read past the end and reported
+// `Cannot read properties of undefined (reading 'endsWith')` instead of naming
+// the flag the user got wrong. `swagger --watch --config` is the everyday way to
+// hit it.
+//
+// Scenario:
+//   1. Invoke the real CLI through ttsx with each malformed spelling.
+//   2. Require the flag's own missing-value diagnostic every time.
+//   3. Require the control spelling NOT to report a missing value, so a guard
+//      that simply always threw would fail here.
+const CLI_ARGUMENT_DIAGNOSTIC_CASES = [
+  // The case that already worked: flag is the sole argument.
+  { args: ["swagger", "--config"], message: "config file must be provided" },
+  // The reported defect: a preceding token moves the end of the list.
+  {
+    args: ["swagger", "--watch", "--config"],
+    message: "config file must be provided",
+  },
+  {
+    args: ["sdk", "--project", "tsconfig.json", "--config"],
+    message: "config file must be provided",
+  },
+  // The same guard serves --project.
+  { args: ["sdk", "--project"], message: "project file must be provided" },
+  {
+    args: ["swagger", "--watch", "--project"],
+    message: "project file must be provided",
+  },
+  // A following flag is a missing value, not a badly named file: the diagnostic
+  // must name the flag whose value is absent.
+  {
+    args: ["swagger", "--config", "--watch"],
+    message: "config file must be provided",
+  },
+];
+
+const runCliArgumentDiagnosticsFeature = async () => {
+  const cwd = featureDirectory(`.tmp-cli-arguments-${process.pid}`);
+  await fs.promises.rm(cwd, { force: true, recursive: true });
+  await fs.promises.mkdir(cwd, { recursive: true });
+  try {
+    // A CLI that never started is not a CLI that printed the wrong diagnostic.
+    // Surface the launch failure as itself, or every assertion below reports a
+    // missing message and hides the real cause.
+    const invoke = (args) =>
+      new Promise((resolve, reject) => {
+        const child = cp.spawn(NODE, [TTSX_BIN, CLI_MAIN, ...args], {
+          cwd,
+          env: { ...process.env },
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+        let output = "";
+        child.stdout.setEncoding("utf8");
+        child.stderr.setEncoding("utf8");
+        child.stdout.on("data", (chunk) => (output += chunk));
+        child.stderr.on("data", (chunk) => (output += chunk));
+        child.on("error", (error) =>
+          reject(
+            new Error(
+              `cli-argument-diagnostics: unable to launch the cli (${error.code ?? "unknown"}): ${error.message}`,
+            ),
+          ),
+        );
+        child.on("exit", () => resolve(output));
+      });
+    const assert = (condition, message) => {
+      if (!condition) throw new Error(`cli-argument-diagnostics: ${message}`);
+    };
+
+    for (const { args, message } of CLI_ARGUMENT_DIAGNOSTIC_CASES) {
+      const output = await invoke(args);
+      assert(
+        output.includes(message),
+        `"nestia ${args.join(" ")}" must report ${JSON.stringify(message)}, got:\n${output}`,
+      );
+      assert(
+        output.includes("endsWith") === false,
+        `"nestia ${args.join(" ")}" must not surface a TypeError, got:\n${output}`,
+      );
+    }
+
+    // Control: a flag that DOES carry its value must get past the guard. The run
+    // still fails afterwards (this directory has no nestia config), which is
+    // exactly what distinguishes "value accepted" from "value rejected".
+    const control = await invoke(["swagger", "--config", "nestia.config.ts"]);
+    assert(
+      control.includes("must be provided") === false,
+      `a supplied --config value must not be reported as missing, got:\n${control}`,
+    );
+    assert(
+      control.includes("endsWith") === false,
+      `a supplied --config value must not surface a TypeError, got:\n${control}`,
+    );
+  } finally {
+    await fs.promises.rm(cwd, { force: true, recursive: true });
+  }
 };
 
 const runSwaggerWatchFeature = async () => {
@@ -804,6 +907,8 @@ const main = async () => {
       .filter(filter);
     if (filter("swagger-watch")) names.push("swagger-watch");
     if (filter("bundle-preserve")) names.push("bundle-preserve");
+    if (filter("cli-argument-diagnostics"))
+      names.push("cli-argument-diagnostics");
     await runFeatures(names);
   });
 };

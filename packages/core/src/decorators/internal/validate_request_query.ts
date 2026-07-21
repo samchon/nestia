@@ -35,7 +35,8 @@ const assert =
           message: MESSAGE,
         });
       }
-      if (is_missing_query_property(exp)) return new BadRequestException(MESSAGE);
+      if (is_missing_query_property(exp))
+        return new BadRequestException(MESSAGE);
       throw exp;
     }
   };

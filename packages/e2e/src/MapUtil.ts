@@ -10,12 +10,12 @@
  *   ```typescript
  *   // Create a cache with lazy initialization
  *   const cache = new Map<string, ExpensiveObject>();
- *   
+ *
  *   const obj = MapUtil.take(cache, "key1", () => {
  *     console.log("Creating expensive object...");
  *     return new ExpensiveObject();
  *   });
- *   
+ *
  *   // Subsequent calls return cached value without re-creating
  *   const sameObj = MapUtil.take(cache, "key1", () => new ExpensiveObject());
  *   console.log(obj === sameObj); // true
@@ -36,7 +36,7 @@ export namespace MapUtil {
    *   ```typescript
    *   // Simple caching example
    *   const userCache = new Map<number, User>();
-   *   
+   *
    *   const user = MapUtil.take(userCache, userId, () => {
    *     // This expensive operation only runs if userId is not cached
    *     return fetchUserFromDatabase(userId);
@@ -44,7 +44,7 @@ export namespace MapUtil {
    *
    *   // Configuration object caching
    *   const configs = new Map<string, Config>();
-   *   
+   *
    *   const dbConfig = MapUtil.take(configs, "database", () => ({
    *     host: "localhost",
    *     port: 5432,
@@ -53,7 +53,7 @@ export namespace MapUtil {
    *
    *   // Lazy computation results
    *   const computationCache = new Map<string, number>();
-   *   
+   *
    *   const result = MapUtil.take(computationCache, "fibonacci-40", () => {
    *     console.log("Computing fibonacci(40)...");
    *     return fibonacci(40); // Only computed once
@@ -62,8 +62,8 @@ export namespace MapUtil {
    *   // Using with complex keys
    *   const cache = new Map<[number, number], Matrix>();
    *   const key: [number, number] = [rows, cols];
-   *   
-   *   const matrix = MapUtil.take(cache, key, () => 
+   *
+   *   const matrix = MapUtil.take(cache, key, () =>
    *     generateIdentityMatrix(rows, cols)
    *   );
    *   ```;
@@ -72,7 +72,8 @@ export namespace MapUtil {
    * @template V - The type of values in the Map
    * @param map - The Map to retrieve from or update
    * @param key - The key to look up in the Map
-   * @param value - A factory function that creates the value if key doesn't exist
+   * @param value - A factory function that creates the value if key doesn't
+   *   exist
    * @returns The existing value if found, or the newly created value
    */
   export function take<K, V>(map: Map<K, V>, key: K, value: () => V): V {

@@ -1,4 +1,8 @@
-api/functional
+**/api/functional
 bin
 lib
 node_modules
+
+# Template, not TypeScript: `${input}` sits at statement position, so Prettier
+# cannot parse it and the whole `pnpm format` run exits 2.
+packages/sdk/assets/bundle/e2e/index.ts

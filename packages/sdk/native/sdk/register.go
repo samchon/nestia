@@ -13,7 +13,7 @@ import (
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 )
 
-// sdkMetadataNamespace is the import alias the legacy (text/program-mutation)
+// sdkMetadataNamespace is the import alias the ApplyProgram (program-mutation)
 // path references. The emit-context path lets tsgo's module-transform pick the
 // generated alias itself, so it does not use this constant.
 const sdkMetadataNamespace = "__OperationMetadata"
@@ -30,12 +30,11 @@ const sdkMetadataMember = "OperationMetadata"
 // ttsc classifies this package (name != "main") as a linked transform and
 // statically links it into the `@nestia/core` host binary — but only for
 // projects that depend on `@nestia/sdk`. The direct linked-plugin path keeps
-// old plugin plans working, while the contributor collectors let the aggregate
-// core host run SDK metadata rewrites without starting a second native backend.
+// old plugin plans working, while the emit-transform collector lets the
+// aggregate core host run the SDK metadata pass inside the shared emit context
+// without starting a second native backend.
 func init() {
 	driver.RegisterPlugin(linkedPlugin{})
-	transform.RegisterBuildOutputRewriteCollector(collectSDKBuildOutputRewriter)
-	transform.RegisterSourceRewriteCollector(collectSDKSourceRewriteMap)
 	transform.RegisterEmitTransformCollector(collectSDKEmitTransform)
 }
 
@@ -84,8 +83,8 @@ func (linkedPlugin) ApplyProgram(prog *driver.Program, _ driver.PluginContext) e
 // `@<ns>.OperationMetadata("<json>")` decorator plus a namespace import of
 // `@nestia/sdk`, both built with ec.Factory and referenced through
 // NewGeneratedNameForNode(modSpec), so tsgo's builtin module-transform emits the
-// `require("@nestia/sdk")` and aliases the reference itself — no hand-rolled
-// `__OperationMetadata` namespace and no text-splice.
+// `require("@nestia/sdk")` and aliases the reference itself, with no
+// hand-rolled `__OperationMetadata` namespace.
 //
 // Core's build command wires this into `prog.EmitWithPluginTransformers`
 // alongside the typia and core transforms, exactly as the typia build command
@@ -169,34 +168,6 @@ func collectSDKEmitTransform(
 	}
 	return EmitTransform(prog)
 }
-
-func collectSDKBuildOutputRewriter(
-	prog *driver.Program,
-	plan plugin.Plan,
-) (*transform.BuildOutputRewriter, []transform.Diagnostic) {
-	if shouldRunSDKContributorTransform() == false {
-		return nil, nil
-	}
-	plan.SDK = true
-	set, diagnostics := collectNestiaSDKBuildRewrites(prog, plan)
-	return &transform.BuildOutputRewriter{
-		Len:   set.Len,
-		Apply: set.Apply,
-	}, diagnostics
-}
-
-func collectSDKSourceRewriteMap(
-	prog *driver.Program,
-	plan plugin.Plan,
-	onlyFile string,
-) (map[string][]transform.SourceRewrite, []transform.Diagnostic) {
-	if shouldRunSDKContributorTransform() == false {
-		return map[string][]transform.SourceRewrite{}, nil
-	}
-	plan.SDK = true
-	return collectNestiaSDKSourceRewriteMap(prog, plan, onlyFile)
-}
-
 func shouldRunSDKContributorTransform() bool {
 	return os.Getenv("NESTIA_SDK_TRANSFORM") == "1"
 }

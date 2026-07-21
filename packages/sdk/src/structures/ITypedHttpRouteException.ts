@@ -1,5 +1,4 @@
 import { MetadataSchema } from "../internal/legacy";
-
 import { IReflectType } from "./IReflectType";
 
 export interface ITypedHttpRouteException {

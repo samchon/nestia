@@ -1,3 +1,6 @@
+import { NamingConvention } from "@typia/utils";
+import { IMetadataComponents, IMetadataSchema } from "typia";
+
 import {
   IMetadataDictionary,
   MetadataAliasType,
@@ -8,9 +11,6 @@ import {
   MetadataSchema,
   MetadataTupleType,
 } from "../internal/legacy";
-import { NamingConvention } from "@typia/utils";
-import { IMetadataComponents, IMetadataSchema } from "typia";
-
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
@@ -265,7 +265,8 @@ const renameDuplicateComponents = (routes: ITypedHttpRoute[]): void => {
     }
   }
   for (const route of routes)
-    for (const metadata of routeMetadatas(route)) clearMetadataNameCache(metadata);
+    for (const metadata of routeMetadatas(route))
+      clearMetadataNameCache(metadata);
 };
 
 const routeMetadatas = (route: ITypedHttpRoute): MetadataSchema[] => [
@@ -308,29 +309,49 @@ const collectComponentEntries = (
     collectComponentEntries(entries, route, map.value, visited);
   }
   for (const array of metadata.arrays)
-    if (visited.arrays.has((array.type as MetadataArrayType)) === false) {
-      visited.arrays.add((array.type as MetadataArrayType));
-      entries.push(componentEntry(route, "arrays", (array.type as MetadataArrayType)));
-      collectComponentEntries(entries, route, ((array.type as MetadataArrayType) as MetadataArrayType).value, visited);
+    if (visited.arrays.has(array.type as MetadataArrayType) === false) {
+      visited.arrays.add(array.type as MetadataArrayType);
+      entries.push(
+        componentEntry(route, "arrays", array.type as MetadataArrayType),
+      );
+      collectComponentEntries(
+        entries,
+        route,
+        (array.type as MetadataArrayType as MetadataArrayType).value,
+        visited,
+      );
     }
   for (const tuple of metadata.tuples)
-    if (visited.tuples.has((tuple.type as MetadataTupleType)) === false) {
-      visited.tuples.add((tuple.type as MetadataTupleType));
-      entries.push(componentEntry(route, "tuples", (tuple.type as MetadataTupleType)));
-      for (const elem of ((tuple.type as MetadataTupleType) as MetadataTupleType).elements)
+    if (visited.tuples.has(tuple.type as MetadataTupleType) === false) {
+      visited.tuples.add(tuple.type as MetadataTupleType);
+      entries.push(
+        componentEntry(route, "tuples", tuple.type as MetadataTupleType),
+      );
+      for (const elem of (tuple.type as MetadataTupleType as MetadataTupleType)
+        .elements)
         collectComponentEntries(entries, route, elem, visited);
     }
   for (const alias of metadata.aliases)
-    if (visited.aliases.has((alias.type as MetadataAliasType)) === false) {
-      visited.aliases.add((alias.type as MetadataAliasType));
-      entries.push(componentEntry(route, "aliases", (alias.type as MetadataAliasType)));
-      collectComponentEntries(entries, route, ((alias.type as MetadataAliasType) as MetadataAliasType).value, visited);
+    if (visited.aliases.has(alias.type as MetadataAliasType) === false) {
+      visited.aliases.add(alias.type as MetadataAliasType);
+      entries.push(
+        componentEntry(route, "aliases", alias.type as MetadataAliasType),
+      );
+      collectComponentEntries(
+        entries,
+        route,
+        (alias.type as MetadataAliasType as MetadataAliasType).value,
+        visited,
+      );
     }
   for (const obj of metadata.objects)
-    if (visited.objects.has((obj.type as MetadataObjectType)) === false) {
-      visited.objects.add((obj.type as MetadataObjectType));
-      entries.push(componentEntry(route, "objects", (obj.type as MetadataObjectType)));
-      for (const p of ((obj.type as MetadataObjectType) as MetadataObjectType).properties) {
+    if (visited.objects.has(obj.type as MetadataObjectType) === false) {
+      visited.objects.add(obj.type as MetadataObjectType);
+      entries.push(
+        componentEntry(route, "objects", obj.type as MetadataObjectType),
+      );
+      for (const p of (obj.type as MetadataObjectType as MetadataObjectType)
+        .properties) {
         collectComponentEntries(entries, route, p.key, visited);
         collectComponentEntries(entries, route, p.value, visited);
       }
@@ -393,20 +414,28 @@ const clearMetadataNameCache = (
   }
   for (const array of metadata.arrays) {
     (array as unknown as { name_?: string }).name_ = undefined;
-    clearMetadataNameCache(((array.type as MetadataArrayType) as MetadataArrayType).value, visited);
+    clearMetadataNameCache(
+      (array.type as MetadataArrayType as MetadataArrayType).value,
+      visited,
+    );
   }
   for (const tuple of metadata.tuples) {
     (tuple as unknown as { name_?: string }).name_ = undefined;
-    for (const elem of ((tuple.type as MetadataTupleType) as MetadataTupleType).elements)
+    for (const elem of (tuple.type as MetadataTupleType as MetadataTupleType)
+      .elements)
       clearMetadataNameCache(elem, visited);
   }
   for (const alias of metadata.aliases) {
     (alias as unknown as { name_?: string }).name_ = undefined;
-    clearMetadataNameCache(((alias.type as MetadataAliasType) as MetadataAliasType).value, visited);
+    clearMetadataNameCache(
+      (alias.type as MetadataAliasType as MetadataAliasType).value,
+      visited,
+    );
   }
   for (const obj of metadata.objects) {
     (obj as unknown as { name_?: string }).name_ = undefined;
-    for (const p of ((obj.type as MetadataObjectType) as MetadataObjectType).properties) {
+    for (const p of (obj.type as MetadataObjectType as MetadataObjectType)
+      .properties) {
       clearMetadataNameCache(p.key, visited);
       clearMetadataNameCache(p.value, visited);
     }
@@ -433,8 +462,7 @@ const uniqueComponents = <T extends { name: string }>(input: T[]): T[] => {
   const dict: Record<string, T> = {};
   for (const elem of input) {
     const oldbie: T | undefined = dict[elem.name];
-    if (oldbie === undefined)
-      dict[elem.name] = elem;
+    if (oldbie === undefined) dict[elem.name] = elem;
     else if (
       elem.name.includes(".") ||
       componentScore(oldbie) < componentScore(elem)
@@ -459,7 +487,8 @@ const enrollMetadata = (
   if (visited.schemas.has(metadata)) return;
   visited.schemas.add(metadata);
 
-  if (metadata.rest !== null) enrollMetadata(dictionary, metadata.rest, visited);
+  if (metadata.rest !== null)
+    enrollMetadata(dictionary, metadata.rest, visited);
   if (metadata.escaped !== null) {
     enrollMetadata(dictionary, metadata.escaped.original, visited);
     enrollMetadata(dictionary, metadata.escaped.returns, visited);
@@ -476,18 +505,28 @@ const enrollMetadata = (
     enrollMetadata(dictionary, map.value, visited);
   }
   for (const array of metadata.arrays)
-    if (enroll(dictionary.arrays, (array.type as MetadataArrayType)))
-      enrollMetadata(dictionary, ((array.type as MetadataArrayType) as MetadataArrayType).value, visited);
+    if (enroll(dictionary.arrays, array.type as MetadataArrayType))
+      enrollMetadata(
+        dictionary,
+        (array.type as MetadataArrayType as MetadataArrayType).value,
+        visited,
+      );
   for (const tuple of metadata.tuples)
-    if (enroll(dictionary.tuples, (tuple.type as MetadataTupleType)))
-      for (const elem of ((tuple.type as MetadataTupleType) as MetadataTupleType).elements)
+    if (enroll(dictionary.tuples, tuple.type as MetadataTupleType))
+      for (const elem of (tuple.type as MetadataTupleType as MetadataTupleType)
+        .elements)
         enrollMetadata(dictionary, elem, visited);
   for (const alias of metadata.aliases)
-    if (enroll(dictionary.aliases, (alias.type as MetadataAliasType)))
-      enrollMetadata(dictionary, ((alias.type as MetadataAliasType) as MetadataAliasType).value, visited);
+    if (enroll(dictionary.aliases, alias.type as MetadataAliasType))
+      enrollMetadata(
+        dictionary,
+        (alias.type as MetadataAliasType as MetadataAliasType).value,
+        visited,
+      );
   for (const obj of metadata.objects)
-    if (enroll(dictionary.objects, (obj.type as MetadataObjectType)))
-      for (const p of ((obj.type as MetadataObjectType) as MetadataObjectType).properties) {
+    if (enroll(dictionary.objects, obj.type as MetadataObjectType))
+      for (const p of (obj.type as MetadataObjectType as MetadataObjectType)
+        .properties) {
         enrollMetadata(dictionary, p.key, visited);
         enrollMetadata(dictionary, p.value, visited);
       }

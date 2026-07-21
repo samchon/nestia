@@ -1,4 +1,5 @@
 import { HttpError } from "./HttpError";
+import { join_host_and_path } from "./internal/join_host_and_path";
 
 export namespace NestiaSimulator {
   export interface IProps {
@@ -48,7 +49,7 @@ export namespace NestiaSimulator {
         if (isTypeGuardError(exp))
           throw new HttpError(
             props.method,
-            props.host + props.path,
+            join_host_and_path(props.host, props.path),
             400,
             {
               "Content-Type": props.contentType,

@@ -1,5 +1,5 @@
-import fs from "fs";
 import { TestValidator } from "@nestia/e2e";
+import fs from "fs";
 
 export const test_swagger = async () => {
   const content = JSON.parse(

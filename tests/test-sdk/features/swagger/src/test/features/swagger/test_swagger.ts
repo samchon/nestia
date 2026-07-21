@@ -1,12 +1,16 @@
-import fs from "fs";
 import { TestValidator } from "@nestia/e2e";
+import fs from "fs";
 
 export async function test_swagger(): Promise<void> {
   const { NESTIA_CONFIG } = await import(
     __dirname + "/../../../../nestia.config.ts"
   );
-  const pack = JSON.parse(await fs.promises.readFile(__dirname + "/../../../../package.json", "utf8"));
-  const swagger = JSON.parse(await fs.promises.readFile(__dirname + "/../../../../swagger.json", "utf8"));
+  const pack = JSON.parse(
+    await fs.promises.readFile(__dirname + "/../../../../package.json", "utf8"),
+  );
+  const swagger = JSON.parse(
+    await fs.promises.readFile(__dirname + "/../../../../swagger.json", "utf8"),
+  );
 
   TestValidator.equals("info.version", pack.version, swagger.info.version);
   TestValidator.equals(

@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
@@ -74,8 +73,7 @@ func runTransform(args []string) int {
 	// contributor's per-file node transformers run inside one shared EmitContext
 	// and the result SourceFile is printed back as TypeScript (no JS script
 	// transformers), mirroring typia's `transform` subcommand. Injected namespace
-	// imports stay as ES imports the caller can type-strip per file, so there is
-	// no text-splice RewriteSet.
+	// imports stay as ES imports the caller can type-strip per file.
 	transformDiags := []Diagnostic{}
 	addDiagnostic := func(diag Diagnostic) {
 		transformDiags = append(transformDiags, diag)
@@ -196,32 +194,6 @@ func writeSingleOutput(text, outPath string) int {
 	return 0
 }
 
-type SourceRewrite struct {
-	start       int
-	end         int
-	replacement string
-}
-
-func ApplySourceRewrites(source string, rewrites []SourceRewrite) (string, error) {
-	sort.SliceStable(rewrites, func(i, j int) bool {
-		return rewrites[i].start > rewrites[j].start
-	})
-	for i := 0; i < len(rewrites)-1; i++ {
-		if rewrites[i+1].end > rewrites[i].start {
-			return "", fmt.Errorf("overlapping rewrites: [%d,%d) vs [%d,%d)",
-				rewrites[i+1].start, rewrites[i+1].end, rewrites[i].start, rewrites[i].end)
-		}
-	}
-	output := source
-	for _, rewrite := range rewrites {
-		if rewrite.start < 0 || rewrite.end < rewrite.start || rewrite.end > len(output) {
-			return "", fmt.Errorf("invalid rewrite range [%d,%d)", rewrite.start, rewrite.end)
-		}
-		output = output[:rewrite.start] + rewrite.replacement + output[rewrite.end:]
-	}
-	return output, nil
-}
-
 func SourceFileText(target any) (string, bool) {
 	type sourceText interface {
 		Text() string
@@ -244,52 +216,10 @@ var (
 	cleanupInputIsParenPattern      = regexp.MustCompile(`input is \(([A-Za-z_$][A-Za-z0-9_$.]*)\)`)
 	cleanupCollapseBlankCallPattern = regexp.MustCompile(`\n\n([A-Za-z_$][A-Za-z0-9_$]*\([^;\n]*\);?)`)
 )
-
-func cleanupTypeScriptTransformText(text string) string {
-	text = cleanupTransformedText(text)
-	text = normalizeParenthesizedTypeAnnotations(text)
-	text = cleanupImportTypeBlockPattern.ReplaceAllStringFunc(text, func(line string) string {
-		return cleanupImportTypeLinePattern.ReplaceAllString(line, "import type { $1 } from")
-	})
-	text = cleanupImportBlankLinePattern.ReplaceAllString(text, "$1$2")
-	text = strings.ReplaceAll(text, "=(() =>", "= (() =>")
-	text = strings.ReplaceAll(text, ": (any) =>", ": any =>")
-	text = strings.ReplaceAll(text, ": (boolean) =>", ": boolean =>")
-	text = cleanupInputIsParenPattern.ReplaceAllString(text, "input is $1")
-	text = strings.ReplaceAll(text, "return (success ? ", "return success ? ")
-	text = strings.ReplaceAll(text, "}) as any;", "} as any;")
-	text = strings.ReplaceAll(text, "(() => {\n    const ", "(() => { const ")
-	text = strings.ReplaceAll(text, "(() => {\n    let ", "(() => { let ")
-	text = strings.ReplaceAll(text, "(() => {\n    return ", "(() => { return ")
-	text = strings.ReplaceAll(text, ";\n    const ", "; const ")
-	text = strings.ReplaceAll(text, ";\n    let ", "; let ")
-	text = strings.ReplaceAll(text, ";\n    return ", "; return ")
-	text = strings.ReplaceAll(text, "\n    };\n})()", "\n}; })()")
-	text = strings.ReplaceAll(text, "\n    });\n})()", "\n}); })()")
-	text = strings.ReplaceAll(text, "\n    }); let ", "\n}); let ")
-	text = strings.ReplaceAll(text, ";\n})()", "; })()")
-	text = strings.ReplaceAll(text, "\n        ", "\n    ")
-	text = cleanupCollapseBlankCallPattern.ReplaceAllString(text, "\n$1")
-	trimmed := strings.TrimRight(text, " \t\r\n")
-	if strings.HasSuffix(trimmed, ")") && !strings.HasSuffix(trimmed, ";") {
-		return trimmed + ";\n"
-	}
-	if text != "" && !strings.HasSuffix(text, "\n") {
-		return text + "\n"
-	}
-	return text
-}
-
 var (
 	normalizeParenArrowTypePattern = regexp.MustCompile(`: \(([A-Za-z_$][A-Za-z0-9_$.]*(<[^()\n;{}]*>)?)\)(\s*=>)`)
 	normalizeParenNullishPattern   = regexp.MustCompile(`\| \((null|undefined)\)`)
 )
-
-func normalizeParenthesizedTypeAnnotations(text string) string {
-	text = normalizeParenArrowTypePattern.ReplaceAllString(text, ": $1$3")
-	text = normalizeParenNullishPattern.ReplaceAllString(text, "| $1")
-	return text
-}
 
 func sourceFileKey(cwd string, file string) string {
 	rel, err := filepath.Rel(cwd, filepath.FromSlash(file))
@@ -298,25 +228,6 @@ func sourceFileKey(cwd string, file string) string {
 	}
 	return filepath.ToSlash(rel)
 }
-
-func newTransformCompilerDiagnostic(
-	file string,
-	code string,
-	message string,
-) transformCompilerDiagnostic {
-	var ptr *string
-	if file != "" {
-		normalized := filepath.ToSlash(file)
-		ptr = &normalized
-	}
-	return transformCompilerDiagnostic{
-		File:        ptr,
-		Category:    "error",
-		Code:        code,
-		MessageText: message,
-	}
-}
-
 func transformDiagnosticToCompilerDiagnostic(
 	diag Diagnostic,
 ) transformCompilerDiagnostic {

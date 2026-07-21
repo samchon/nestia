@@ -106,14 +106,17 @@ export namespace NestiaSdkCommand {
     extension: string;
   }): string | null => {
     const argv: string[] = process.argv.slice(3);
-    if (argv.length === 0) return null;
-
     const index: number = argv.findIndex((str) => str === `--${props.type}`);
     if (index === -1) return null;
-    else if (argv.length === 1)
-      throw new Error(`${props.type} file must be provided`);
 
-    const file: string = argv[index + 1]!;
+    // Bound the VALUE position, not the whole argument list. The two only
+    // coincide when the flag is the sole argument, so any preceding token used
+    // to send `undefined` into endsWith() and report a TypeError instead of this
+    // diagnostic. A following flag is a missing value too, not a badly named
+    // file.
+    const file: string | undefined = argv[index + 1];
+    if (file === undefined || file.startsWith("--"))
+      throw new Error(`${props.type} file must be provided`);
     if (file.endsWith(props.extension) === false)
       throw new Error(`${props.type} file must be ${props.extension} file`);
     return file;

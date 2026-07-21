@@ -1,6 +1,6 @@
-import { MetadataSchema } from "../internal/legacy";
 import { IJsDocTagInfo } from "typia";
 
+import { MetadataSchema } from "../internal/legacy";
 import { IReflectType } from "./IReflectType";
 
 export type ITypedHttpRouteParameter =

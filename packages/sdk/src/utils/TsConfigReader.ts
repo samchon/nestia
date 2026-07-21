@@ -10,7 +10,10 @@ export namespace TsConfigReader {
   export const read = async (file: string): Promise<ITsConfig> =>
     merge(file, new Set());
 
-  const merge = async (file: string, visited: Set<string>): Promise<ITsConfig> => {
+  const merge = async (
+    file: string,
+    visited: Set<string>,
+  ): Promise<ITsConfig> => {
     const location: string = path.resolve(file);
     if (visited.has(location)) return {};
     visited.add(location);
@@ -20,7 +23,10 @@ export namespace TsConfigReader {
     );
     const bases: ITsConfig[] = [];
     for (const parent of asArray(current.extends)) {
-      const next: string | null = resolveExtends(parent, path.dirname(location));
+      const next: string | null = resolveExtends(
+        parent,
+        path.dirname(location),
+      );
       if (next !== null) bases.push(await merge(next, visited));
     }
     return [...bases, current].reduce<ITsConfig>(
@@ -45,7 +51,9 @@ export namespace TsConfigReader {
   const resolveExtends = (specifier: string, cwd: string): string | null => {
     const candidates = (base: string): string[] => {
       const ext: string = path.extname(base);
-      return ext === ".json" || ext === ".jsonc" ? [base] : [base, `${base}.json`];
+      return ext === ".json" || ext === ".jsonc"
+        ? [base]
+        : [base, `${base}.json`];
     };
 
     if (path.isAbsolute(specifier) || specifier.startsWith(".")) {

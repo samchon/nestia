@@ -1,5 +1,6 @@
 import fs from "fs";
 import NodePath from "path";
+import { pathToFileURL } from "url";
 
 /**
  * Dynamic Executor running prefixed functions.
@@ -211,14 +212,27 @@ export namespace DynamicExecutor {
     };
 
   const specifier = (location: string): string => {
-    const relative: string = NodePath.relative(
-      __dirname,
-      NodePath.resolve(location),
-    )
+    const absolute: string = NodePath.resolve(location);
+    const relative: string = NodePath.relative(__dirname, absolute)
       .split(NodePath.sep)
       .join("/");
-    return `./${relative}`;
+    if (relative.length !== 0 && NodePath.isAbsolute(relative) === false)
+      return `./${relative}`;
+    // No relative expression exists. On Windows `path.relative` cannot express a
+    // path between two drive roots and hands back the absolute target, so the
+    // "./" prefix used to produce "./C:/..." — neither relative nor absolute —
+    // which resolved against this directory and failed with MODULE_NOT_FOUND.
+    // Fall back to the spelling the active module system accepts: `require()`,
+    // which a CommonJS build downlevels `import()` into, takes a filesystem path
+    // and rejects a URL, while a native ESM `import()` takes a URL and rejects a
+    // Windows filesystem path.
+    return isCommonJS() ? absolute : pathToFileURL(absolute).href;
   };
+
+  const isCommonJS = (): boolean =>
+    typeof module === "object" &&
+    module !== null &&
+    typeof require === "function";
 
   const iterate = async <Arguments extends any[]>(props: {
     location: string;
@@ -237,7 +251,11 @@ export namespace DynamicExecutor {
         if (stats.isDirectory() === true) {
           await visitor(location);
           continue;
-        } else if (file.substr(-3) !== `.${props.extension}`) continue;
+        }
+        // Compare the whole suffix. A fixed-width slice silently assumed a
+        // two-character extension, so every longer one ("mjs", "cjs", "tsx")
+        // matched nothing and the run reported success with no test executed.
+        else if (file.endsWith(`.${props.extension}`) === false) continue;
         // GATE BY FILE NAME (PREFIX & FILTER), SO THAT EXCLUDED FILES ARE
         // NEVER IMPORTED.
         else if (file.startsWith(props.prefix) === false) continue;
