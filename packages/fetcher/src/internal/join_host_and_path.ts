@@ -1,3 +1,6 @@
+/** @internal */
+const SLASH = 0x2f;
+
 /**
  * Normalize a route path to exactly one leading separator.
  *
@@ -8,8 +11,11 @@
  *
  * @internal
  */
-export const normalize_route_path = (path: string): string =>
-  `/${path.replace(/^\/+/, "")}`;
+export const normalize_route_path = (path: string): string => {
+  let start: number = 0;
+  while (start < path.length && path.charCodeAt(start) === SLASH) ++start;
+  return `/${path.slice(start)}`;
+};
 
 /**
  * Join a host address and a route path with exactly one separator.
@@ -21,7 +27,15 @@ export const normalize_route_path = (path: string): string =>
  * become `http://localhost:3000//health`, which most routers treat as an
  * unmapped path.
  *
+ * Both boundaries are scanned rather than matched with a regular expression.
+ * `host` is caller-supplied, and a trailing-separator pattern backtracks
+ * polynomially over a run of separators, so a pathological host would cost
+ * quadratic time on every request.
+ *
  * @internal
  */
-export const join_host_and_path = (host: string, path: string): string =>
-  `${host.replace(/\/+$/, "")}${normalize_route_path(path)}`;
+export const join_host_and_path = (host: string, path: string): string => {
+  let end: number = host.length;
+  while (end > 0 && host.charCodeAt(end - 1) === SLASH) --end;
+  return `${host.slice(0, end)}${normalize_route_path(path)}`;
+};

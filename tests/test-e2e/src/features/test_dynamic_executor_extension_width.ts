@@ -28,10 +28,13 @@ export async function test_dynamic_executor_extension_width(): Promise<void> {
       ["test_three.cjs", "test_three"],
       ["test_one.j", "test_one"],
     ];
+    // Assign through a quoted key rather than interpolating the name into an
+    // identifier position, so the fixture body never builds code out of an
+    // unquoted value.
     for (const [file, name] of fixtures)
       fs.writeFileSync(
         path.join(directory, file),
-        `exports.${name} = async () => ${JSON.stringify(name)};\n`,
+        `exports[${JSON.stringify(name)}] = async () => ${JSON.stringify(name)};\n`,
         "utf8",
       );
 
