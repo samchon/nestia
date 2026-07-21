@@ -1,5 +1,5 @@
-import fs from "fs";
 import { SwaggerV2 } from "@typia/interface";
+import fs from "fs";
 import typia from "typia";
 
 export const test_openapi_v2 = async (): Promise<void> => {

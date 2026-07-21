@@ -5,9 +5,11 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
  * the new nestia-start template.
  *
  * The editor feeds its zip download from @nestia/migrate, whose nest mode moved
- * from the single-package `src/api` layout to the pnpm monorepo (`packages/api`
- * + `packages/backend`). A regression back to legacy keys would hand users a
- * project whose build scripts point at nothing.
+ * from the single-package `src/api` layout to the pnpm monorepo
+ * (`packages/api`
+ *
+ * - `packages/backend`). A regression back to legacy keys would hand users a
+ *   project whose build scripts point at nothing.
  *
  * 1. Compose a nest-mode project from a minimal OpenAPI 3.1 document.
  * 2. Assert monorepo markers exist: pnpm-workspace.yaml and

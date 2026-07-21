@@ -4,11 +4,12 @@ import { MapUtil } from "../utils/MapUtil";
 export namespace ImportAnalyzer {
   /**
    * @deprecated Removed in the Go-migration cycle. Import metadata is now
-   * attached by the native transformer in `packages/core/native/cmd/ttsc-nestia`
-   * and consumed via `IOperationMetadata.imports`. Call sites that previously
-   * walked a `ts.SourceFile` to derive imports should read the metadata
-   * delivered through `Reflect.getMetadata("nestia/OperationMetadata", …)`
-   * instead. See `packages/core/MIGRATION.md`.
+   *   attached by the native transformer in
+   *   `packages/core/native/cmd/ttsc-nestia` and consumed via
+   *   `IOperationMetadata.imports`. Call sites that previously walked a
+   *   `ts.SourceFile` to derive imports should read the metadata delivered
+   *   through `Reflect.getMetadata("nestia/OperationMetadata", …)` instead. See
+   *   `packages/core/MIGRATION.md`.
    */
   export const analyze = (): never => {
     throw new Error(
@@ -88,5 +89,4 @@ export namespace ImportAnalyzer {
     }
     return [...allStarImports, ...defaultImports];
   }
-
 }

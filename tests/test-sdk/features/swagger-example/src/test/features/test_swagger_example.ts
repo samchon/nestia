@@ -14,8 +14,7 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
  *
  * 1. Read the generated Swagger document.
  * 2. Assert response and request-body examples on create/update routes.
- * 3. Assert the create request body keeps its JSDoc `@param input`
- *    description.
+ * 3. Assert the create request body keeps its JSDoc `@param input` description.
  */
 export const test_swagger_example = async (): Promise<void> => {
   const swagger: any = JSON.parse(

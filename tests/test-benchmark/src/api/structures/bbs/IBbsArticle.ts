@@ -3,23 +3,15 @@ import { tags } from "typia";
 import { IAttachmentFile } from "../common/IAttachmentFile";
 import { IPage } from "../common/IPage";
 
-/**
- * BBS article.
- */
+/** BBS article. */
 export interface IBbsArticle {
-  /**
-   * Primary Key.
-   */
+  /** Primary Key. */
   id: string & tags.Format<"uuid">;
 
-  /**
-   * Section code.
-   */
+  /** Section code. */
   section: string;
 
-  /**
-   * Name of nickname of writer.
-   */
+  /** Name of nickname of writer. */
   writer: string;
 
   /**
@@ -29,20 +21,14 @@ export interface IBbsArticle {
    */
   snapshots: IBbsArticle.ISnapshot[];
 
-  /**
-   * Creation time of the article.
-   */
+  /** Creation time of the article. */
   created_at: string & tags.Format<"date-time">;
 }
 
 export namespace IBbsArticle {
-  /**
-   * Page request info with some options.
-   */
+  /** Page request info with some options. */
   export interface IRequest extends IPage.IRequest {
-    /**
-     * Searching options.
-     */
+    /** Searching options. */
     search?: IRequest.ISearch;
 
     /**
@@ -53,18 +39,14 @@ export namespace IBbsArticle {
     sort?: IPage.Sort<IRequest.SortableColumns>;
   }
   export namespace IRequest {
-    /**
-     * Searching options.
-     */
+    /** Searching options. */
     export interface ISearch {
       writer?: string;
       title?: string;
       body?: string;
     }
 
-    /**
-     * List of sortable columns.
-     */
+    /** List of sortable columns. */
     export type SortableColumns =
       | "writer"
       | "title"
@@ -72,9 +54,7 @@ export namespace IBbsArticle {
       | "updated_at";
   }
 
-  /**
-   * Summarized info.
-   */
+  /** Summarized info. */
   export interface ISummary {
     id: string;
     writer: string;
@@ -83,58 +63,36 @@ export namespace IBbsArticle {
     updated_at: string;
   }
 
-  /**
-   * Content info.
-   */
+  /** Content info. */
   export interface ISnapshot extends Omit<IUpdate, "password"> {
-    /**
-     * Primary key of individual content.
-     */
+    /** Primary key of individual content. */
     id: string & tags.Format<"uuid">;
 
-    /**
-     * Creation time of this content.
-     */
+    /** Creation time of this content. */
     created_at: string & tags.Format<"date-time">;
   }
 
-  /**
-   * Store info.
-   */
+  /** Store info. */
   export interface ICreate extends IUpdate {
-    /**
-     * Name or nickname of the writer.
-     */
+    /** Name or nickname of the writer. */
     writer: string;
   }
 
-  /**
-   * Update info.
-   */
+  /** Update info. */
   export interface IUpdate {
-    /**
-     * Title of the article.
-     */
+    /** Title of the article. */
     title: string;
 
-    /**
-     * Content body.
-     */
+    /** Content body. */
     body: string;
 
-    /**
-     * Format of the content body.
-     */
+    /** Format of the content body. */
     format: "md" | "html" | "txt";
 
-    /**
-     * List of files (to be) attached.
-     */
+    /** List of files (to be) attached. */
     files: IAttachmentFile[];
 
-    /**
-     * Password of the article.
-     */
+    /** Password of the article. */
     password: string;
   }
 }

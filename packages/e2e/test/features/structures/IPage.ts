@@ -6,20 +6,14 @@ import { tags } from "typia";
  * @author Samchon
  */
 export interface IPage<T extends object> {
-  /**
-   * Pagination info.
-   */
+  /** Pagination info. */
   pagination: IPage.IPagination;
 
-  /**
-   * List of records
-   */
+  /** List of records */
   data: T[];
 }
 export namespace IPage {
-  /**
-   * Pagination info.
-   */
+  /** Pagination info. */
   export interface IPagination {
     /**
      * Current page number.
@@ -28,29 +22,19 @@ export namespace IPage {
      */
     page: number;
 
-    /**
-     * Limit records per a page.
-     */
+    /** Limit records per a page. */
     limit: number & tags.Default<100>;
 
-    /**
-     * Number of total records.
-     */
+    /** Number of total records. */
     total_count: number;
 
-    /**
-     * Number of total pages.
-     */
+    /** Number of total pages. */
     total_pages: number;
   }
 
-  /**
-   * Request info of page.
-   */
+  /** Request info of page. */
   export interface IRequest {
-    /**
-     * Target page number.
-     */
+    /** Target page number. */
     page?: number & tags.Default<1>;
 
     /**

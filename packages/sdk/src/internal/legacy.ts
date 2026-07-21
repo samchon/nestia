@@ -12,7 +12,6 @@
 // cross-reference lookups in O(1). Everything else either reads a
 // pre-baked field or short-circuits because typia's compile-time
 // transform already enforces the invariant.
-
 import type {
   IJsonSchemaCollection,
   IMetadataComponents,
@@ -39,16 +38,15 @@ declare module "@typia/interface" {
 /**
  * Plain `IMetadataSchema` augmented with the fields the nestia transform
  * pre-bakes. `size`, `name`, and `empty` replace the methods the legacy
- * `MetadataSchema` class exposed; `jsonSchema` is the OpenAPI 3.1
- * conversion typia's Go-side produces but does not expose to JS at
- * runtime.
+ * `MetadataSchema` class exposed; `jsonSchema` is the OpenAPI 3.1 conversion
+ * typia's Go-side produces but does not expose to JS at runtime.
  *
  * Fields are declared optional so that nested `IMetadataSchema` values
- * (`metadata.rest`, `metadata.escaped.original`, `IObjectType.value`,
- * …) — which are not top-level route inputs and therefore do not carry
- * the pre-baked overlay — still satisfy the type when passed through
- * legacy utilities. The utilities read the fields via the optional
- * accessor and fall back when absent.
+ * (`metadata.rest`, `metadata.escaped.original`, `IObjectType.value`, …) —
+ * which are not top-level route inputs and therefore do not carry the pre-baked
+ * overlay — still satisfy the type when passed through legacy utilities. The
+ * utilities read the fields via the optional accessor and fall back when
+ * absent.
  */
 export interface IReflectMetadata extends IMetadataSchema {
   size?: number;
@@ -64,9 +62,9 @@ export interface IReflectJsonSchema {
 }
 
 /**
- * Cross-reference dictionary produced by `MetadataComponents.from`. Each
- * map is keyed by the entry's `.name`, matching the lookup pattern the
- * legacy `MetadataComponents.dictionary` getter offered.
+ * Cross-reference dictionary produced by `MetadataComponents.from`. Each map is
+ * keyed by the entry's `.name`, matching the lookup pattern the legacy
+ * `MetadataComponents.dictionary` getter offered.
  */
 export interface IMetadataDictionary {
   objects: Map<string, IMetadataSchema.IObjectType>;
@@ -89,9 +87,9 @@ export type MetadataTupleType = IMetadataSchema.ITupleType;
 export type MetadataObjectType = IMetadataSchema.IObjectType;
 export type MetadataAtomic = IMetadataSchema.IAtomic;
 /**
- * Flattened constant-value shape: typia v13 splits `IConstant.IValue<T>` by
- * the atomic discriminator, but sdk's literal writer just needs the runtime
- * `value` payload, so collapse the union to a single ergonomic shape.
+ * Flattened constant-value shape: typia v13 splits `IConstant.IValue<T>` by the
+ * atomic discriminator, but sdk's literal writer just needs the runtime `value`
+ * payload, so collapse the union to a single ergonomic shape.
  */
 export interface MetadataConstantValue {
   value: string | number | bigint | boolean;
@@ -101,12 +99,12 @@ export type MetadataEscaped = IMetadataSchema.IEscaped;
 export type MetadataProperty = IMetadataSchema.IProperty;
 
 /**
- * Reference to a named array/tuple/object/alias type. typia v13's
- * plain `IReference` carries only the symbolic `name` + tags; the
- * legacy class additionally exposed `.type` as a getter that resolved
- * against the dictionary. `MetadataSchema.from` walks the metadata
- * tree once and attaches the resolved `.type` field so downstream
- * sdk code can keep its `ref.type` access pattern.
+ * Reference to a named array/tuple/object/alias type. typia v13's plain
+ * `IReference` carries only the symbolic `name` + tags; the legacy class
+ * additionally exposed `.type` as a getter that resolved against the
+ * dictionary. `MetadataSchema.from` walks the metadata tree once and attaches
+ * the resolved `.type` field so downstream sdk code can keep its `ref.type`
+ * access pattern.
  */
 export type MetadataArray = IMetadataSchema.IReference & {
   type: MetadataArrayType;
@@ -138,10 +136,10 @@ export const emptyOf = (m: IMetadataSchema): boolean =>
   (m as IReflectMetadata).empty ?? false;
 
 /**
- * Equivalent of the legacy `MetadataSchema.isSoleLiteral()` method:
- * `true` when the schema represents exactly one constant literal value
- * and nothing else. Used by sdk's type printer to fall back to literal
- * emission instead of a union.
+ * Equivalent of the legacy `MetadataSchema.isSoleLiteral()` method: `true` when
+ * the schema represents exactly one constant literal value and nothing else.
+ * Used by sdk's type printer to fall back to literal emission instead of a
+ * union.
  */
 export const isSoleLiteralOf = (m: IMetadataSchema): boolean => {
   if (m.any) return false;
@@ -184,11 +182,11 @@ export namespace MetadataComponents {
 
 export namespace MetadataSchema {
   /**
-   * Walks the metadata tree and attaches the resolved `.type` field to
-   * every `IReference` it encounters, using the supplied dictionary as
-   * the lookup index. This is idempotent — references whose `.type`
-   * has already been resolved are left alone — and mutates the input,
-   * matching the in-place resolution model `@typia/core` 12.x used.
+   * Walks the metadata tree and attaches the resolved `.type` field to every
+   * `IReference` it encounters, using the supplied dictionary as the lookup
+   * index. This is idempotent — references whose `.type` has already been
+   * resolved are left alone — and mutates the input, matching the in-place
+   * resolution model `@typia/core` 12.x used.
    */
   export const from = (
     plain: IMetadataSchema,
@@ -202,12 +200,11 @@ export namespace MetadataSchema {
 }
 
 /**
- * The walk tracks visited *targets* (the IObjectType / IArrayType / …
- * instances reached through the dictionary), not the wrapper schemas.
- * Wrapper schemas are reconstructed on the JS side and are not shared
- * across recursive references, so a `visited<IMetadataSchema>` set never
- * matches and the walk would recurse forever on cycles like
- * `interface Node { children: Node[] }`.
+ * The walk tracks visited _targets_ (the IObjectType / IArrayType / … instances
+ * reached through the dictionary), not the wrapper schemas. Wrapper schemas are
+ * reconstructed on the JS side and are not shared across recursive references,
+ * so a `visited<IMetadataSchema>` set never matches and the walk would recurse
+ * forever on cycles like `interface Node { children: Node[] }`.
  */
 const attachTypes = (
   schema: IMetadataSchema | null | undefined,
@@ -222,7 +219,8 @@ const attachTypes = (
     for (const elem of target.elements) attachTypes(elem, dict, visited);
   });
   attachReferences(schema.objects, dict.objects, visited, (target) => {
-    for (const prop of target.properties) attachTypes(prop.value, dict, visited);
+    for (const prop of target.properties)
+      attachTypes(prop.value, dict, visited);
   });
   attachReferences(schema.aliases, dict.aliases, visited, (target) =>
     attachTypes(target.value, dict, visited),
@@ -254,8 +252,7 @@ const attachReferences = <Target extends { name: string }>(
     const mutable = ref as IMetadataSchema.IReference & { type?: Target };
     if (mutable.type === undefined) {
       const target = index.get(ref.name);
-      if (target !== undefined)
-        (mutable as { type?: Target }).type = target;
+      if (target !== undefined) (mutable as { type?: Target }).type = target;
     }
     if (mutable.type !== undefined && visited.has(mutable.type) === false) {
       visited.add(mutable.type);
@@ -290,13 +287,12 @@ export namespace MetadataFactory {
 
   /**
    * Walks the metadata tree once, invoking the provided validator on each
-   * visited node, and accumulates the produced messages into `IError`
-   * entries. The walk skips back-edges through references so cyclic
-   * structures terminate. This is a faithful reimplementation of the
-   * legacy `@typia/core` walker, kept lean: the typia native transform
-   * has already validated structural invariants, so the validator is only
-   * called for SDK-side policy checks (JSON-serializability, query/header
-   * atomic-only rules, …).
+   * visited node, and accumulates the produced messages into `IError` entries.
+   * The walk skips back-edges through references so cyclic structures
+   * terminate. This is a faithful reimplementation of the legacy `@typia/core`
+   * walker, kept lean: the typia native transform has already validated
+   * structural invariants, so the validator is only called for SDK-side policy
+   * checks (JSON-serializability, query/header atomic-only rules, …).
    */
   export const validate = (props: {
     options?: unknown;
@@ -315,39 +311,49 @@ export namespace MetadataFactory {
       if (messages.length)
         errors.push({ name: nameOf(metadata), explore, messages });
       for (const obj of metadata.objects) {
-        const type = (obj as IMetadataSchema.IReference & {
-          type?: IMetadataSchema.IObjectType;
-        }).type;
+        const type = (
+          obj as IMetadataSchema.IReference & {
+            type?: IMetadataSchema.IObjectType;
+          }
+        ).type;
         if (type === undefined || visited.has(type)) continue;
         visited.add(type);
         for (const prop of type.properties)
           visit(prop.value, {
             object: type,
-            property: nameOf(prop.key) || String(prop.key.constants[0]?.values[0]?.value ?? ""),
+            property:
+              nameOf(prop.key) ||
+              String(prop.key.constants[0]?.values[0]?.value ?? ""),
             parameter: null,
             output: explore.output,
           });
       }
       for (const arr of metadata.arrays) {
-        const type = (arr as IMetadataSchema.IReference & {
-          type?: IMetadataSchema.IArrayType;
-        }).type;
+        const type = (
+          arr as IMetadataSchema.IReference & {
+            type?: IMetadataSchema.IArrayType;
+          }
+        ).type;
         if (type === undefined || visited.has(type)) continue;
         visited.add(type);
         visit(type.value, explore);
       }
       for (const tuple of metadata.tuples) {
-        const type = (tuple as IMetadataSchema.IReference & {
-          type?: IMetadataSchema.ITupleType;
-        }).type;
+        const type = (
+          tuple as IMetadataSchema.IReference & {
+            type?: IMetadataSchema.ITupleType;
+          }
+        ).type;
         if (type === undefined || visited.has(type)) continue;
         visited.add(type);
         for (const elem of type.elements) visit(elem, explore);
       }
       for (const alias of metadata.aliases) {
-        const type = (alias as IMetadataSchema.IReference & {
-          type?: IMetadataSchema.IAliasType;
-        }).type;
+        const type = (
+          alias as IMetadataSchema.IReference & {
+            type?: IMetadataSchema.IAliasType;
+          }
+        ).type;
         if (type === undefined || visited.has(type)) continue;
         visited.add(type);
         visit(type.value, explore);
@@ -370,10 +376,10 @@ export namespace MetadataFactory {
 export namespace JsonMetadataFactory {
   /**
    * Rejects metadata that cannot be losslessly JSON-serialized. The typia
-   * native runtime already screens out most structurally invalid types, so
-   * this only adds the JSON-policy bans the legacy `@typia/core` walker
-   * enforced — bare `bigint` payloads, function-typed properties, and
-   * `Map` / `Set` containers that have no canonical JSON representation.
+   * native runtime already screens out most structurally invalid types, so this
+   * only adds the JSON-policy bans the legacy `@typia/core` walker enforced —
+   * bare `bigint` payloads, function-typed properties, and `Map` / `Set`
+   * containers that have no canonical JSON representation.
    */
   export const validate: MetadataFactory.Validator = (props) => {
     const messages: string[] = [];
@@ -414,12 +420,12 @@ export namespace JsonSchemasProgrammer {
   /**
    * Consumes the per-metadata `jsonSchema` field the nestia transform
    * pre-bakes. Top-level route metadata (success / parameter / exception)
-   * always carries a baked schema; for nested metadata (object property
-   * values reached by the decomposed-query path), the bake is absent and
-   * this function falls back to a minimal JS-side converter that handles
-   * the schema shapes decompose actually emits — atomics, constants,
-   * templates, arrays of those, named references — without re-implementing
-   * the typia native programmer wholesale.
+   * always carries a baked schema; for nested metadata (object property values
+   * reached by the decomposed-query path), the bake is absent and this function
+   * falls back to a minimal JS-side converter that handles the schema shapes
+   * decompose actually emits — atomics, constants, templates, arrays of those,
+   * named references — without re-implementing the typia native programmer
+   * wholesale.
    */
   export const writeSchemas = (props: {
     version: "3.0" | "3.1";
@@ -462,12 +468,16 @@ const schemaFromMetadata = (m: IMetadataSchema): OpenApi.IJsonSchema => {
     void tpl;
   }
   for (const arr of m.arrays) {
-    const inner = (arr as IMetadataSchema.IReference & {
-      type?: IMetadataSchema.IArrayType;
-    }).type;
+    const inner = (
+      arr as IMetadataSchema.IReference & {
+        type?: IMetadataSchema.IArrayType;
+      }
+    ).type;
     union.push({
       type: "array",
-      items: inner ? schemaFromMetadata(inner.value) : ({} as OpenApi.IJsonSchema),
+      items: inner
+        ? schemaFromMetadata(inner.value)
+        : ({} as OpenApi.IJsonSchema),
     } as unknown as OpenApi.IJsonSchema);
   }
   for (const obj of m.objects)

@@ -1,5 +1,6 @@
-export interface IBbsArticle<Format extends string = string>
-  extends IBbsArticle.IStore<Format> {
+export interface IBbsArticle<
+  Format extends string = string,
+> extends IBbsArticle.IStore<Format> {
   /** @format uuid */
   id: string;
 

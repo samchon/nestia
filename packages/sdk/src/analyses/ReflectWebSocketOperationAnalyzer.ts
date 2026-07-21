@@ -1,11 +1,11 @@
 import { ranges } from "tstl";
 
 import { INestiaProject } from "../structures/INestiaProject";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectImport } from "../structures/IReflectImport";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
 import { IReflectWebSocketOperationParameter } from "../structures/IReflectWebSocketOperationParameter";
-import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { StringUtil } from "../utils/StringUtil";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";

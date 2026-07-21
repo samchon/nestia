@@ -1,10 +1,10 @@
-import { MetadataFactory } from "../internal/legacy";
 import {
   IJsDocTagInfo,
   IMetadataComponents,
   IMetadataSchema,
 } from "@typia/interface";
 
+import { MetadataFactory } from "../internal/legacy";
 import { IReflectType } from "./IReflectType";
 
 export type IReflectHttpOperationParameter =

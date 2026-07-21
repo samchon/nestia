@@ -1,9 +1,7 @@
 import { IPage } from "./IPage";
 
 export namespace IBbsArticle {
-  /**
-   * Page request info with some options.
-   */
+  /** Page request info with some options. */
   export interface IRequest extends IPage.IRequest {
     /**
      * Sorting options.
@@ -12,9 +10,7 @@ export namespace IBbsArticle {
      */
     sort?: IPage.IRequest.Sort<IRequest.SortableColumns>;
 
-    /**
-     * Search options.
-     */
+    /** Search options. */
     search?: IRequest.ISearch;
   }
   export namespace IRequest {
@@ -22,9 +18,7 @@ export namespace IBbsArticle {
       writer?: string;
       title?: string;
     }
-    /**
-     * List of sortable columns.
-     */
+    /** List of sortable columns. */
     export type SortableColumns =
       | "writer"
       | "title"
@@ -32,9 +26,7 @@ export namespace IBbsArticle {
       | "updated_at";
   }
 
-  /**
-   * Summarized info.
-   */
+  /** Summarized info. */
   export interface ISummary {
     id: string;
     writer: string;

@@ -1,6 +1,6 @@
-import { MetadataFactory } from "../internal/legacy";
 import { IMetadataComponents, IMetadataSchema } from "@typia/interface";
 
+import { MetadataFactory } from "../internal/legacy";
 import { IReflectType } from "./IReflectType";
 
 export interface IReflectHttpOperationException {

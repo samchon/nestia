@@ -1,8 +1,8 @@
-import { MetadataSchema } from "../../internal/legacy";
 import { OpenApi } from "@typia/interface";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { SecurityAnalyzer } from "../../analyses/SecurityAnalyzer";
+import { MetadataSchema } from "../../internal/legacy";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
 import { SwaggerOperationParameterComposer } from "./SwaggerOperationParameterComposer";
