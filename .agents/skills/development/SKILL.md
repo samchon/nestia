@@ -26,6 +26,7 @@ These four are never acceptable; choosing any one means the approach is already 
 
 ## Work Rules
 
+- Choose the principled course. Time, difficulty, and the breadth of consequences require more careful analysis and validation; they never justify a shortcut, leaving a verified consequence unaddressed, or a weaker acceptance standard.
 - Match existing conventions. Before adding a file, function, or test, open a nearby peer in the same package and mirror its naming, location, and code style; don't create parallel structures.
 - Respect package boundaries. The Go binary lives in `@nestia/core` and is shared with `@nestia/sdk` as a linked contributor. Don't fork a second native binary, don't give `@nestia/sdk` its own `ttsc` plugin entry, and don't reintroduce a TypeScript-side transformer.
 - Keep detection general and installation-safe. The native transform must locate target packages through their resolved package root, as `packages/core/src/transform.ts` does with `createRequire(...).resolve("@nestia/core/package.json")`. Workspace-only path substrings break the moment a consumer installs from npm. The same rule applies to the generators: no hard-coded DTO, controller, or feature names.
@@ -34,7 +35,7 @@ These four are never acceptable; choosing any one means the approach is already 
 - Migration templates ship without interactive dependencies — generated projects stay non-interactive.
 - Keep local outputs local. Do not commit `.env`, the tarballs under `deploy/tarballs/`, or any tree the harnesses regenerate (`tests/test-migrate/.generated`, the generated halves of `tests/test-sdk/features/*/src/api`, `tests/test-benchmark/BENCHMARK.md`).
 - When public behavior changes, update the matching page under `website/src/content/docs/**` in the same change. Follow `.agents/skills/documentation/SKILL.md`.
-- Run `pnpm format` before every ordinary commit and stage the result; never commit unformatted output. The script currently stops short of `tests/**/*.ts` for the reason recorded in `.agents/skills/project/SKILL.md`, so format a test-workspace change explicitly. The sole exception is an active issue campaign: campaign issue pull requests must not run the repository-wide formatter, and the issue-campaign skill performs one dedicated Post-Campaign Cleanup format pull request after the campaign ends.
+- Run `pnpm format` before every ordinary commit and stage the result; never commit unformatted output. The script currently stops short of `tests/**/*.ts` for the reason recorded in `.agents/skills/project/SKILL.md`, so format a test-workspace change explicitly. A solo issue campaign formats its unified cycle pull request. The sole exception is an explicit multi-agent campaign implementation batch: those pull requests must not run the repository-wide formatter, and that procedure performs one dedicated Post-Campaign Cleanup format pull request after the campaign ends.
 
 ## Consequence Analysis
 
@@ -140,6 +141,6 @@ A `test-sdk` e2e feature gets three silent attempts and then one final attempt w
 
 Treat tests, fixtures, snapshots, CI workflows, package wiring, dependencies, core algorithms, generated baselines, and benchmark results as part of the specification. Changing them requires an explicit user request or a clear product reason, and the final report must call it out.
 
-When Go source under `packages/*/native` changes, bump the package version in the same commit or pull request. The npm packages ship their `native/` trees and ttsc compiles that source on first use; without a new package version, npm consumers keep installing the previous native source tree. Ordinary version numbers otherwise belong to the release flow — see `.agents/skills/pull-request/SKILL.md`.
+Go source under `packages/*/native` must ship under a version newer than the latest published packages, because the npm packages ship their `native/` trees and ttsc compiles that source on first use; without a new package version, npm consumers keep installing the previous native source tree. Assign that version once in a maintainer-owned release change, where `bumpp -r` moves all eight packages together; multiple unreleased native changes belong to the same future release instead of consuming one patch number each. Issue implementation pull requests never change package versions. A maintainer-owned release change may begin only after campaign completion, or after the user explicitly suspends the campaign and lifts the freeze, and it uses the version the user assigned. See `.agents/skills/pull-request/SKILL.md`.
 
 For mechanical ports, migrations, or broad rewrites, preserve the existing algorithm and public behavior in reviewable slices. Prefer a concrete exemplar over abstract instructions, and inspect the diff before trusting a green test run.

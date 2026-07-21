@@ -1,121 +1,148 @@
-# Campaign Development
+# Solo Campaign Development
 
-Read this document in full when the user authorizes implementation pull requests or ends a campaign that entered implementation. Also read the repository development, pull-request, and review skills before acting.
+Read this document in full when the user authorizes implementation pull requests or the end of a solo issue campaign that entered implementation. Also read the repository development, pull-request, and review skills before acting.
 
 ## Flow
 
-- [Cancel Campaign CI After Every Push](#cancel-campaign-ci-after-every-push)
-- [Plan And Claim A Pull Request Wave](#plan-and-claim-a-pull-request-wave)
-- [Implement And Revalidate A Batch](#implement-and-revalidate-a-batch)
-- [Remove Every Finished Worktree](#remove-every-finished-worktree)
-- [While Campaign CI Is Cancelled](#while-campaign-ci-is-cancelled)
-- [Repeat A Campaign Cycle](#repeat-a-campaign-cycle)
-- [Post-Campaign Cleanup](#post-campaign-cleanup)
+- [Plan One Cycle Pull Request](#plan-one-cycle-pull-request)
+- [Claim The Complete Cycle](#claim-the-complete-cycle)
+- [Implement And Write Tests](#implement-and-write-tests)
+- [Keep Working While Commands Run](#keep-working-while-commands-run)
+- [Validate With CI And Self-Review](#validate-with-ci-and-self-review)
+- [Merge And Clean Up](#merge-and-clean-up)
+- [Repeat Until A Clean Round](#repeat-until-a-clean-round)
 
-Three rules govern the entire implementation phase:
+Five rules govern the implementation phase:
 
-- Local tests, lead verification, and solo Self-Review are the implementation gates.
-- Do not run `pnpm format` during discovery, issue publication, or implementation. Post-Campaign Cleanup owns the repository-wide formatter result.
-- Never disable repository Actions or any workflow for a campaign. After every campaign push and pull-request creation, immediately cancel only the runs for that campaign commit and verify cancellation before continuing.
+- The main agent performs all implementation, test authoring, CI diagnosis, review, and cleanup. Spawn no subagent except the read-only [commit early-warning pass](#implement-and-write-tests).
+- Put every accepted, implementation-ready issue in the current cycle into one pull request. The issue DAG controls implementation order inside that pull request, not pull-request count.
+- Work in the current checkout and one topic branch. Do not create a clone or worktree for a solo campaign or its Self-Review; a disposable checkout for a mutation experiment is a verification tool, not a second implementation home.
+- The pull request's ordinary CI, a clean solo Self-Review, and every applicable integration gate are the acceptance gates. Repair every red CI lane in that same pull request, even when the failure predates the campaign or is unrelated to its original issues.
+- Campaign branches and pull requests freeze package versions, release tags, and publication state throughout campaign implementation. They never choose a release number or publish a package. A maintainer release may begin only after campaign completion, or after the user explicitly suspends the campaign and lifts the freeze; it remains a separate task and does not relax this rule for campaign changes.
 
-## Cancel Campaign CI After Every Push
+## Plan One Cycle Pull Request
 
-Repository-wide Actions and workflow settings must remain unchanged. Before the first push, record `gh api repos/{owner}/{repo}/actions/permissions` and `gh workflow list --all --limit 1000 --json id,name,path,state` in `.wiki/<campaign>/ci-state.md` so the lead can prove the campaign did not alter them.
+Recompute the published-issue dependency DAG after publication. Record dependencies because they determine safe edit order and when one fix can expose another, but do not partition ready issues into separate pull requests.
 
-Every push gets its own cancellation gate:
+Before claiming, freeze the campaign knowledge base's integration-command manifest. Record its content hash and exact commands, environment, tool versions, triggering change classes, expected artifacts, and clean-consumer setup. Any later correction to the manifest is a reviewed campaign-state change and invalidates integration evidence recorded under the previous hash.
 
-1. Record the campaign branch and pushed commit SHA.
-2. List runs for that exact SHA with `gh run list --commit <sha> --limit 100 --json databaseId,headBranch,headSha,status,conclusion,url`.
-3. Cancel every `queued`, `in_progress`, `waiting`, `pending`, or `requested` run for that SHA with `gh run cancel <run-id>`. Never cancel by broad repository, workflow, or contributor filters.
-4. Poll again because push, pull-request, chained, and ruleset runs can appear after the first query. Continue until two consecutive polls find no new run and every observed run is terminal; every run observed as active must end `cancelled`, while a run already terminal when first observed is only recorded.
-5. Record the run IDs and final states in `.wiki/<campaign>/ci-state.md`. Stop further pushes or pull-request mutations if enumeration, cancellation, or readback fails.
+Build the cycle scope in this order:
 
-Four workflow files trigger on `pull_request` here — `build`, `test`, `website`, and `spell-check` — and `test` alone fans out to eight matrix jobs. All but `spell-check` carry path filters, so the set that actually starts depends on the batch's touched paths.
+1. Reopen every published, unclaimed issue and verify it still belongs to this repository and campaign.
+2. Remove only issues proved duplicate, invalid, out of scope, or externally blocked, and record the exact disposition. An accepted unresolved issue prevents campaign completion.
+3. Check open pull requests and remote branches for overlapping work before claiming.
+4. Put every remaining issue into one cycle ledger with its acceptance matrix, consequence surface, affected files, and DAG predecessors.
+5. Record the issue count before grouping and the result as one pull-request unit.
 
-`.github/workflows/` is not the whole check surface. CodeQL default setup and the Socket Security app also report on pull requests without a workflow file in the repository, and `gh run cancel` does not apply to app-reported checks. This is why the gate enumerates by SHA rather than by an expected job list. Note too that `test` already sets a cancel-in-progress concurrency group — an automatic supersede is not the same as a recorded cancellation.
+Different packages, invariants, or validation lanes do not split the solo cycle. A native Go transform fix, a decorator change, a generated SDK baseline, and a website guide update belong in the same cycle pull request when they are all accepted campaign work. Keep issue-level commits when that improves diagnosis, but the pull request remains the integrated campaign unit.
 
-Opening or updating a pull request can enqueue additional runs for the already-pushed SHA. Run the same gate immediately after pull-request creation and after any operation that retriggers checks. The exact-SHA boundary is mandatory: never cancel unrelated contributors' runs.
+An issue whose only predecessor is another issue in the same cycle is implementation-ready for this purpose. Order the edits through the DAG instead of deferring it to another pull request.
 
-## Plan And Claim A Pull Request Wave
+Difficulty never removes an issue from the cycle. When a resolution needs a judgment call about design, invariant ownership, or an acceptable behavior change, settle it from the issue's evidence and implement that decision inside the cycle. A proved duplicate, an invalid premise, an out-of-scope finding, and an external blocker remain the only dispositions that remove one.
 
-Build the issue dependency DAG before assigning implementation. Use it to form cohesive batches, not to create one worktree per issue.
+## Claim The Complete Cycle
 
-Batching follows these rules:
+Claim the whole cycle before implementation:
 
-- Group dependency-ready issues when their change surfaces and verification are compatible.
-- Assign one batch to one agent, worktree, branch, and pull request.
-- Split jointly implementable issues only for a concrete dependency, ownership, atomicity, or validation reason. Record that reason in the campaign knowledge base.
-- Immediately before claiming a batch, check again for an overlapping implementation pull request or branch.
+1. Use the current checkout, update `master` with `git pull --ff-only`, and create one topic branch. Do not create a clone or worktree.
+2. Create one implementation-free commit with `git commit --allow-empty`.
+3. Push the branch and open one draft pull request.
+4. Reference every cycle issue by number, mark verification pending, and state that the pull request owns the complete accepted cycle.
+5. Record the checkout, branch, pull request, head SHA, issue set, manifest hash, and external temporary-asset ledger in `.wiki`.
 
-The agent assigned a batch claims it as its first action, before writing any code:
+Keep every closing keyword out of the claim body. The body is written before any code exists, so a claim-time closing list closes whatever the cycle later drops, defers, or disproves, burying the analysis those issues carry. The cycle's closing set is the union of the [commit closing lines](#implement-and-write-tests), which makes the merge close exactly what landed.
 
-1. Create one isolated worktree and topic branch.
-2. Create one implementation-free claim commit with `git commit --allow-empty`.
-3. Push the branch and pass the exact-SHA cancellation gate.
-4. Open a draft pull request that overviews the batch scope and links every batched issue, then pass the gate again for runs triggered by pull-request creation.
-5. Mark verification as pending, and record the batch, worktree, branch, issues, pull request, and cancelled run IDs in the campaign knowledge base.
+The empty pull request prevents overlapping contributor work before code is written. Measure official duration from its GitHub `createdAt` timestamp through `mergedAt`, including implementation, CI, review, fixes, rebases, and merge. Use the GitHub timestamps, not commit dates or a local stopwatch, and record the issue count beside the duration. A claim that never merges has no official duration; record it separately as cancelled or unresolved instead of substituting `closedAt`.
 
-The draft pull request reserves the whole batch before code is written, preventing another contributor from starting overlapping work.
+## Implement And Write Tests
 
-Worktrees in this repository are not free: each needs its own `pnpm install`, and a batch that touches the native transform rebuilds the Go plugin into that worktree's cache. Set `TTSC_CACHE_DIR` to the shared root cache when the batch does not change Go source, and prefer fewer, larger batches over many thin ones.
+Work through the DAG on the claimed topic branch. Analyze the full consequence and case surface across every issue before editing, then implement the complete cycle and its tests.
 
-## Implement And Revalidate A Batch
+Before editing, turn each issue invariant into an executed consequence matrix. Enumerate every owning helper and caller, decorator and option combination, both HTTP adapters, equivalent TypeScript spelling and declaration provenance, union/intersection/generic and transform-option interaction, input context, positive and one-axis negative twin, boundary and malformed case, generated Swagger/SDK/simulator/e2e artifact, workspace and packed consumer, and supported platform affected by the owner. The issue's examples are seeds, not the matrix boundary. Record the matrix and every non-applicable cell with evidence in the campaign knowledge base and pull request.
 
-Analyze the full consequence and case surface across every issue in the batch. Follow the repository development skill for implementation, tests, documentation, generated artifacts, and narrow-then-broad local verification.
+Implement without interruption. Write each piece's tests as that piece lands instead of leaving the tests for the end of the cycle, and keep committing as each unit becomes coherent. Do not pause the sequence for a check run; [CI is read once per settled head](#validate-with-ci-and-self-review).
 
-An implementation agent may find that an issue is false or too broad. The lead must independently validate that conclusion before changing campaign state:
+Close each issue from the commit that earns it. End the commit message with one `Close #n: <issue title>` line per resolved issue, so a commit that resolves several issues carries several lines. GitHub matches the keyword and the number and ignores the title tail, so the line closes the issue normally while the log stays legible without opening each number.
 
-- For a narrowed issue, record the evidence on the issue and pull-request thread, then update the batch scope.
-- For a confirmed-invalid issue, record the evidence and close the issue.
-- If no issue remains in the batch, close the claim pull request instead of leaving an orphan reservation.
+Post a pull-request comment after each commit naming what that commit landed and which issues it resolved. The comment is the running ledger for a reader who does not read the diff, not a closing mechanism: GitHub closes an issue only from a commit message or the pull-request body.
 
-Commit and push every coherent implementation increment to the claimed branch. Immediately pass the exact-SHA cancellation gate after each push; do not hold a completed implementation locally until handoff or continue working while that gate is unresolved.
+Once a commit lands, the main agent may spawn one read-only subagent as a commit early-warning pass over that commit and keep implementing while it runs. The pass reads that one commit and reports candidates. It never edits, commits, pushes, or makes an implementation decision. Its value is timing: a defect named while that code is the newest thing written costs little to correct, and nothing has been built on top of it yet.
 
-Before merge, complete solo Self-Review, opening each round by commenting its findings and remediation plan on the pull request before acting on them so the thread records why every follow-up change happened. The implementing agent then merges its own pull request with the repository's established method — no separate lead approval — once implementation, that Self-Review, and the batch's package-scoped local verification all pass. Under an ordinary campaign it waits for explicit user authorization; under a standing autonomous mandate — an autonomous or remote-control campaign, or an instruction to carry the campaign through merge — it merges as soon as those gates pass, without a per-pull-request request.
+The pass never reduces the [Self-Review](#validate-with-ci-and-self-review) that gates the merge. A reader holding one commit cannot see what appears only across files: a helper that duplicates one the package already has, a native transform branch whose emitted decorator arguments no test workspace exercises, or a guide claiming a behavior the generator no longer performs. The main agent's own complete round over the whole base-to-head diff is what finds those, and no number of passes substitutes for it. The [review skill](../review/SKILL.md#commit-early-warning-pass) owns that boundary and the name the pass must not take.
 
-## Remove Every Finished Worktree
+Each issue remains an evidence and acceptance unit inside the combined diff. Keep its positive, negative, boundary, and regression cases identifiable. Near-100% coverage of changed behavior is required; a green happy path is not completion.
 
-Worktree removal is part of finishing an assignment, not optional housekeeping.
+Promote every reproduced defect class, consequence-matrix boundary, and mutation that caught an implementation error into a permanent regression discoverable by and executed from a canonical package or root command. A maintained repository probe is acceptable only when its exact command is a required, non-skippable coverage-matrix cell and mutation evidence proves that command fails. A dormant or one-off scratch witness is not enough when the same class could recur after the campaign.
 
-After a pull request merges:
+Follow the development skill for test shape and narrow-then-broad local evidence. Do not treat a local build or test result as a substitute for the pull request's ordinary CI acceptance gate. After the source, tests, documentation, fixtures, and generated consequences are ready, run `pnpm format` and include its integrated result in the same pull request; the script stops short of `tests/**/*.ts` for the reason recorded in `.agents/skills/project/SKILL.md`, so format a touched test workspace explicitly.
 
-1. Verify GitHub records it as merged into the intended target. This works for merge, squash, and rebase strategies.
-2. Confirm the worktree has no unpushed or uncommitted work worth preserving.
-3. Run `git worktree remove --force <path>` so ignored build artifacts are deleted too.
-4. Verify the directory no longer exists.
-5. Run `git worktree prune` and delete the local topic branch.
-6. Confirm `git worktree list --porcelain` contains no record of the removed path.
+If implementation disproves, narrows, or externally blocks an issue, reopen the evidence and revalidate that conclusion from primary sources before changing the claimed scope. Record the evidence on the issue and pull-request thread, update the campaign ledger, and close a confirmed-invalid issue. Do not leave an orphan issue or pretend an unresolved accepted issue was completed.
 
-A campaign worktree accumulates `node_modules`, `lib/`, `bin/`, compiled Go plugin caches, and the regenerated trees under `tests/test-sdk` and `tests/test-migrate/.generated`. `--force` is what removes them; leaving the directory behind leaves gigabytes on disk.
+## Keep Working While Commands Run
 
-If an assignment ends without a merge, first record retained evidence and confirm the remaining contents are disposable. Then remove its worktree and local branch by the same standard.
+Start every long command asynchronously and continue with work that does not depend on its result. `pnpm install`, package builds, Go plugin compilation, and test suites are all background work. Watching a CLI process, repeatedly polling it without a decision to make, or idling until a run finishes is not campaign work.
 
-Apply this rule to every campaign-created worktree, including one used for Post-Campaign Cleanup. Do not mark an assignment complete while its worktree remains on disk.
+Maintain a compact command record containing the command, source snapshot, start time, dependent decision, and final result. Check a running command at a genuine decision boundary, when it exits, or before merge. Do not use sleep loops or foreground waits merely to discover that a command is still running.
 
-## While Campaign CI Is Cancelled
+Two boundaries remain strict because overlap would destroy the evidence:
 
-- Record local verification for each pull request. Do not dispatch replacement CI.
-- Keep repository Actions and workflow settings unchanged. Cancel only exact-SHA campaign runs after every push or pull-request retrigger.
-- If work pauses, report local verification and the final state of every run for the latest campaign SHAs.
+- **A Self-Review round must not race a source change.** Freeze and commit the snapshot before opening the round, then inspect its complete diff while tests run. If review or a test result requires a change, commit the correction and restart from a fresh complete round over the new snapshot.
+- **A merge must not precede its evidence.** Every required local verification result, CI conclusion, and integration gate must be final before merge.
 
-## Repeat A Campaign Cycle
+## Validate With CI And Self-Review
 
-Report the wave after every surviving issue is covered by its assigned batch pull request.
+Commit and push the formatted integrated snapshot, then let every ordinary pull-request check run. Start solo Self-Review immediately over that exact base-to-head diff while CI executes.
 
-When the user requests another discovery cycle, return to the parent skill's Discover Issues phase and start new unlimited full rounds over the entire campaign scope. Earlier rounds are not coverage. Repository Actions remains unchanged, and discovery alone does not authorize issue publication, pull requests, or merging.
+Read CI once per settled head. It gates the cycle, not each commit. Only `test.yml` sets `cancel-in-progress`, so an intermediate commit's other lanes run to completion against a snapshot the cycle has already moved past; waiting on that result stalls implementation and proves nothing about the head that will merge. Note also that `.github/workflows/` is not the whole check surface: CodeQL default setup and the Socket Security app report on pull requests without a workflow file in this repository.
 
-## Post-Campaign Cleanup
+CI and review are independent gates:
 
-Run this phase only after the user ends the campaign, every campaign pull request is resolved, every campaign worktree is removed, and no campaign branch needs another push.
+- CI must prove every configured build, type-check, test, packaging, and platform lane.
+- Self-Review must prove requirement fidelity, consequence coverage, issue-by-issue acceptance, test quality, documentation, generated output, and risks not encoded in CI.
 
-1. Return to `master` in the main checkout and confirm it contains no unrelated user changes.
-2. Pull the final campaign result with `git pull --ff-only origin master`.
-3. Run `pnpm format` once against the integrated repository.
-4. If formatting produces no diff, report that no cleanup pull request was needed and stop.
-5. If formatting changes files, create a dedicated topic branch containing the formatter result and only directly necessary fixes.
-6. Commit and push under the pull-request skill, pass the exact-SHA cancellation gate, open the Post-Campaign Cleanup pull request, and pass the gate again for pull-request-triggered runs.
-7. Diagnose any locally reproducible failure, fix it, commit, push, and cancel the new commit's runs by the same gate.
-8. Merge once required checks pass: with explicit user authorization, or on a standing autonomous mandate without a separate request.
-9. If cleanup used the main checkout, return it to `master`, pull with `git pull --ff-only origin master`, and delete the local cleanup branch.
-10. If cleanup used an auxiliary worktree, remove it and its branch under Remove Every Finished Worktree, then pull `master` in the main checkout.
-11. Require the main checkout to be clean. Compare the final repository Actions permission and workflow inventory with the initial record and require that the campaign made no change.
+Treat the native Go transform, the SDK and Swagger generators, shared metadata, common runtime helpers, package manifests or declarations, CLI code, and test or oracle infrastructure as integration-sensitive. Before merging such a change, record the exact `origin/master` and pull-request head SHAs plus the integration-command manifest hash, construct their prospective merge result in a disposable checkout, and run the complete frozen canonical command set for root build, test, static analysis, generated artifacts, and clean packed consumers. Add a gate when the change warrants one, but never omit a manifest gate on a narrower consequence claim. An unavailable or failed mandatory gate blocks merge. Re-read `origin/master` before merge and restart the gate if it changed, and verify the exact merge SHA with the same command set afterward. Do not turn master red.
+
+Prove the regression tests are sensitive before merge: in a disposable checkout, revert or mutate only the product fix while retaining the tests, and require the expected assertions to fail while adjacent controls still pass.
+
+When any gate finds a defect:
+
+1. Diagnose the real cause from the CI log, review evidence, or gate output.
+2. Correct the source and complete the corresponding regression coverage.
+3. Run `pnpm format`.
+4. Commit and push the correction to the same pull request.
+5. Let the new CI run to completion and restart Self-Review as a fresh complete round over the new head.
+
+Fix every red CI lane in the same pull request even when the failure predates the campaign or is unrelated to the campaign's original issues. Do not dismiss it as another contributor's failure.
+
+A `test-sdk` e2e feature gets three silent attempts and then one final attempt with inherited stdio, so a lane that passes on retry is not a clean result. Treat an intermittent failure as a campaign finding, not as noise to re-run away.
+
+Do not merge a head whose green checks belong to an older SHA or whose clean review predates a correction. Continue the loop until the same immutable head has green required checks, a complete Self-Review round with no sound improvement, and every applicable integration and mutation record final.
+
+## Merge And Clean Up
+
+Merge only with user authorization, including a campaign-local standing authorization that explicitly covers merge.
+
+After merge:
+
+1. Verify GitHub records the pull request as merged into the intended target and every linked issue has the correct final state.
+2. Confirm the checkout has no unpushed or uncommitted work worth preserving.
+3. Switch back to `master`, pull with `git pull --ff-only`, and delete the local topic branch.
+4. Preserve compact command evidence and result hashes in the campaign knowledge base, then remove every disposable mutable root the cycle created: disposable mutation checkouts, `GOCACHE`, `GOTMPDIR`, `TTSC_CACHE_DIR`, generated-output roots, tarballs under `deploy/tarballs/`, the regenerated trees under `tests/test-sdk` and `tests/test-migrate/.generated`, and clean-consumer install roots. Confirm no live process uses a path before deleting it, delete only the exact proven path, and verify it is absent.
+5. Never bulk-delete a shared temporary directory, a shared ttsc cache directory, an installed toolchain, or an asset whose ownership is uncertain.
+
+Formatting belongs to the unified cycle pull request, so a separate post-campaign formatting pull request is not part of this solo workflow.
+
+## Repeat Until A Clean Round
+
+After every merged cycle, return to the parent skill's Discover Issues phase and perform another complete fresh round over the entire declared scope against one frozen integrated commit. Earlier rounds are not coverage, and a surviving issue or recent implementation never permits a residual-only review.
+
+If any meaningful candidate survives fact-checking, adjudicate and publish it when authorized, then claim the next single cycle pull request containing every implementation-ready issue. Repeat discovery, implementation, CI, review, merge, and cleanup without a fixed round limit. If the user authorized discovery but not implementation, preserve the `NOT CLEAN` campaign state and wait for implementation authority; never treat the absence of authority as completion.
+
+The campaign succeeds only when all of these are true:
+
+- one complete fresh full-scope discovery round finishes the entire census and matrix, is not `INCOMPLETE`, and produces no meaningful candidate after fact-checking;
+- no accepted or published campaign issue remains unresolved or deferred;
+- no campaign pull request, branch, process, or assignment-owned temporary asset remains; and
+- the target checkout is clean and synchronized.
+
+If an external blocker makes those conditions impossible, report the campaign as blocked rather than complete.

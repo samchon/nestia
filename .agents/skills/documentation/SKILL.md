@@ -1,6 +1,6 @@
 ---
 name: documentation
-description: Defines README and website-guide structure, audience, prose formatting, and voice for nestia. Use before writing, modifying, renaming, or moving repository documentation.
+description: Defines README, website-guide, and agent-instruction structure, audience, prose formatting, and voice for nestia. Use before writing, modifying, renaming, or moving repository documentation.
 ---
 
 # Documentation
@@ -30,6 +30,19 @@ Every docs folder and `src/content/` itself carries a `_meta.ts` that Nextra rea
 When emitted code is the point, pair the TypeScript source with the generated SDK, Swagger, or e2e output in side-by-side tabs so the reader sees what the transform produces. Back performance claims with a specific `benchmark/results/**` figure instead of an adjective.
 
 Building the website is not a plain `next build`. Follow the prerequisites in `.agents/skills/development/SKILL.md`: the site depends on `../deploy/tarballs/editor.tgz` and `../deploy/tarballs/migrate.tgz`, so root `pnpm run package:tgz` must run first, and `prebuild` additionally rebuilds `@nestia/migrate` and `@nestia/editor` and runs TypeDoc over five packages into `website/public/api`.
+
+## Agent Instructions
+
+`AGENTS.md` and `SKILL.md` files are operational documents for humans and agents. Keep only the product-wide contract in `AGENTS.md`, the always-applicable procedure in `SKILL.md`, and conditional detail in a linked sibling document.
+
+Concise and clear means:
+
+- Include the context needed to act correctly. Do not make the reader infer prerequisites, exceptions, reasons, or stop conditions merely to shorten the document.
+- State each rule at its owning document and link to it elsewhere. Remove repeated wording, not necessary substance.
+- Give each paragraph one job. Separate purpose, rule, rationale, procedure, and consequence when combining them obscures the action.
+- Use structure to compress meaning: ordered lists for procedures, bullets for choices and checks, tables for repeated mappings, and code blocks for exact commands.
+- State the rule before its reason. Use a negative rule only when it prevents a named failure the affirmative rule does not already exclude.
+- Link to website guides, READMEs, or source comments instead of paraphrasing them.
 
 ## Prose line breaks
 
