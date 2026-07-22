@@ -8,25 +8,32 @@ const main = async (): Promise<void> => {
   // PREPARE SERVER
   const app = await NestFactory.create(BbsArticleModule, { logger: false });
   await app.listen(3_000);
-
-  const report: DynamicBenchmarker.IReport = await DynamicBenchmarker.master({
-    servant: `${__dirname}/servant.ts`,
-    count: 10,
-    threads: 3,
-    simultaneous: 4,
-    stdio: "ignore",
-  });
-  if (report.statistics.count !== 10)
-    throw new Error(
-      `DynamicBenchmarker executed ${report.statistics.count} requests for a count of 10.`,
+  try {
+    const report: DynamicBenchmarker.IReport = await DynamicBenchmarker.master({
+      servant: `${__dirname}/servant.ts`,
+      count: 10,
+      threads: 3,
+      simultaneous: 4,
+      stdio: "ignore",
+    });
+    if (report.statistics.count !== 10)
+      throw new Error(
+        `DynamicBenchmarker executed ${report.statistics.count} requests for a count of 10.`,
+      );
+    if (
+      report.endpoints.reduce((sum, endpoint) => sum + endpoint.count, 0) !== 10
+    )
+      throw new Error("DynamicBenchmarker endpoint totals do not match count.");
+    await fs.promises.writeFile(
+      "BENCHMARK.md",
+      DynamicBenchmarker.markdown(report),
+      "utf8",
     );
-  if (report.endpoints.reduce((sum, endpoint) => sum + endpoint.count, 0) !== 10)
-    throw new Error("DynamicBenchmarker endpoint totals do not match count.");
-  await app.close();
-  await fs.promises.writeFile(
-    "BENCHMARK.md",
-    DynamicBenchmarker.markdown(report),
-    "utf8",
-  );
+  } finally {
+    await app.close();
+  }
 };
-main().catch(console.error);
+main().catch((exp) => {
+  console.error(exp);
+  process.exit(-1);
+});

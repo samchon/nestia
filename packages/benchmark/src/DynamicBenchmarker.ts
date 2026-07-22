@@ -353,12 +353,14 @@ export namespace DynamicBenchmarker {
       })(ctx.props.location);
 
       const entireEvents: IBenchmarkEvent[] = [];
+      let scheduled: number = 0;
       await Promise.all(
         new Array(mass.simultaneous)
           .fill(null)
           .map(() => 1)
           .map(async () => {
-            while (entireEvents.length < mass.count) {
+            while (scheduled < mass.count) {
+              ++scheduled;
               const localEvents: IBenchmarkEvent[] = [];
               const func: IFunction<Parameters> =
                 functions[Math.floor(Math.random() * functions.length)]!;
