@@ -73,30 +73,38 @@ export class McpAdaptor {
       for (const wrapper of module.controllers.values()) {
         const instance = wrapper.instance;
         if (!instance) continue;
-        const proto = Object.getPrototypeOf(instance);
-        for (const key of Object.getOwnPropertyNames(proto)) {
-          if (key === "constructor") continue;
-          const method = proto[key];
-          if (typeof method !== "function") continue;
+        const visited: Set<string> = new Set();
+        for (
+          let proto: any = Object.getPrototypeOf(instance);
+          proto !== null && proto !== Object.prototype;
+          proto = Object.getPrototypeOf(proto)
+        ) {
+          for (const key of Object.getOwnPropertyNames(proto)) {
+            if (key === "constructor" || visited.has(key)) continue;
+            visited.add(key);
+            const method = proto[key];
+            if (typeof method !== "function") continue;
 
-          const meta: IMcpRouteReflect | undefined = Reflect.getMetadata(
-            "nestia/McpRoute",
-            method,
-          );
-          if (!meta) continue;
+            const meta: IMcpRouteReflect | undefined = Reflect.getMetadata(
+              "nestia/McpRoute",
+              method,
+            );
+            if (!meta) continue;
 
-          const params: IMcpRouteReflect.IArgument[] =
-            Reflect.getMetadata("nestia/McpRoute/Parameters", proto, key) ?? [];
-          const paramValidator = params.find(
-            (p) => p.category === "params",
-          )?.validate;
+            const params: IMcpRouteReflect.IArgument[] =
+              Reflect.getMetadata("nestia/McpRoute/Parameters", proto, key) ??
+              [];
+            const paramValidator = params.find(
+              (p) => p.category === "params",
+            )?.validate;
 
-          tools.push({
-            meta,
-            source: `${wrapper.metatype?.name ?? proto.constructor?.name ?? "UnknownController"}.${String(key)}`,
-            validateArgs: paramValidator,
-            handler: async (args) => method.call(instance, args),
-          });
+            tools.push({
+              meta,
+              source: `${wrapper.metatype?.name ?? proto.constructor?.name ?? "UnknownController"}.${String(key)}`,
+              validateArgs: paramValidator,
+              handler: async (args) => method.call(instance, args),
+            });
+          }
         }
       }
     }

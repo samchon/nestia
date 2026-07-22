@@ -4,11 +4,17 @@ import { NestFactory } from "@nestjs/core";
 import { Singleton } from "tstl";
 
 import { CalculatorController } from "./controllers/CalculatorController";
+import { InheritedMcpController } from "./controllers/InheritedMcpController";
 import { ImportAliasController } from "./controllers/ImportAliasController";
 import { WeatherController } from "./controllers/WeatherController";
 
 @Module({
-  controllers: [CalculatorController, ImportAliasController, WeatherController],
+  controllers: [
+    CalculatorController,
+    InheritedMcpController,
+    ImportAliasController,
+    WeatherController,
+  ],
 })
 class McpModule {}
 

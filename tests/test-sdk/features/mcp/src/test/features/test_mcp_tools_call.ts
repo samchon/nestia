@@ -40,6 +40,13 @@ export const test_mcp_tools_call = async (
     const addPayload = JSON.parse(addResult.content[0].text);
     TestValidator.equals("add result", addPayload.result, 5);
 
+    const multiplyResult: any = await client.callTool({
+      name: "multiply",
+      arguments: { a: 2, b: 3 },
+    });
+    const multiplyPayload = JSON.parse(multiplyResult.content[0].text);
+    TestValidator.equals("multiply result", multiplyPayload.result, 6);
+
     const weatherResult: any = await client.callTool({
       name: "get_weather",
       arguments: { location: "Tokyo", unit: "celsius" },
