@@ -11,7 +11,8 @@ const path = require("path");
  * installing dependencies; an exception must not redirect the next feature.
  *
  * 1. Stub the first distribution install to fail after the composer changes cwd.
- * 2. Assert the rejection leaves the caller in its original working directory.
+ * 2. Assert that distribution first creates the requested nested output root.
+ * 3. Assert the rejection leaves the caller in its original working directory.
  */
 const main = async () => {
   const root = process.cwd();

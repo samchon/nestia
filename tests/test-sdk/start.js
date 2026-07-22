@@ -189,6 +189,7 @@ const feature = async (name, port) => {
     "src/api/module.ts",
     "src/api/Primitive.ts",
     "src/test/features/api/automated",
+    ...(name === "nested-output-directories" ? ["generated"] : []),
   ]);
 
   if (name.includes("distribute")) return;

@@ -5,6 +5,7 @@ features/*/swagger.json
 features/*/src/api/*.ts
 features/*/src/api/functional
 features/*/src/test/features/api/automated
+features/nested-output-directories/generated
 
 features/clone*/src/api/structures
 features/clone-type-create-duplicate/sdk
