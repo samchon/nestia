@@ -6,6 +6,11 @@ export async function test_validate_index(): Promise<void> {
   const { data } = generate_random_articles();
 
   TestValidator.index("index", data, data);
+  TestValidator.index(
+    "descending identifiers",
+    [{ id: "b" }, { id: "a" }],
+    [{ id: "b" }, { id: "a" }],
+  );
   TestValidator.error("error", () =>
     TestValidator.index(
       "index",
@@ -18,6 +23,13 @@ export async function test_validate_index(): Promise<void> {
         ...data.slice(1),
       ],
       false,
+    ),
+  );
+  TestValidator.error("order", () =>
+    TestValidator.index(
+      "index",
+      [{ id: "a" }, { id: "b" }],
+      [{ id: "b" }, { id: "a" }],
     ),
   );
 }
