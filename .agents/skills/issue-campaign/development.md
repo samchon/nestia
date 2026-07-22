@@ -58,7 +58,7 @@ Work through the DAG on the claimed topic branch. Analyze the full consequence a
 
 Before editing, turn each issue invariant into an executed consequence matrix over the parent skill's [discovery dimensions](SKILL.md#discover-issues), narrowed to what the owning code reaches: every caller, decorator and option combination, HTTP adapter, equivalent spelling and declaration provenance, transform-option interaction, boundary and malformed case, generated artifact, packed consumer, and supported platform. The issue's examples are seeds, not the matrix boundary. Record the matrix and every non-applicable cell with evidence in the campaign knowledge base and pull request.
 
-Implement without interruption. Write each piece's tests as that piece lands instead of leaving the tests for the end of the cycle, and keep committing as each unit becomes coherent. Do not pause the sequence for a check run; [CI is read once per settled head](#validate-with-ci-and-self-review).
+Implement without interruption. Write each piece's tests as that piece lands instead of leaving the tests for the end of the cycle, and commit and push each unit as it becomes coherent instead of holding a finished snapshot while its checks run. Move straight to the next issue in the DAG; do not pause the sequence for a check run, because [CI is read once per settled head](#validate-with-ci-and-self-review).
 
 Close each issue from the commit that earns it. End the commit message with one `Close #n: <issue title>` line per resolved issue, so a commit that resolves several issues carries several lines. GitHub matches the keyword and the number and ignores the title tail, so the line closes the issue normally while the log stays legible without opening each number.
 
