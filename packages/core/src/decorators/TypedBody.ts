@@ -7,8 +7,8 @@ import type express from "express";
 import type { FastifyRequest } from "fastify";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
-import { is_request_body_undefined } from "./internal/is_request_body_undefined";
 import { is_media_type } from "./internal/is_media_type";
+import { is_request_body_undefined } from "./internal/is_request_body_undefined";
 import { validate_request_body } from "./internal/validate_request_body";
 
 /**
