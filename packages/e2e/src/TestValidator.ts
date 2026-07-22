@@ -362,9 +362,7 @@ export namespace TestValidator {
     gotten = gotten.slice(0, length);
 
     const xIds: string[] = get_ids(expected).slice(0, length);
-    const yIds: string[] = get_ids(gotten)
-      .filter((id) => id >= xIds[0]!)
-      .slice(0, length);
+    const yIds: string[] = get_ids(gotten).slice(0, length);
 
     const equals: boolean = xIds.every((x, i) => x === yIds[i]);
     if (equals === true) return;
@@ -616,7 +614,7 @@ interface IEntity<Type extends string | number | bigint> {
 
 /** @internal */
 function get_ids<Entity extends IEntity<any>>(entities: Entity[]): string[] {
-  return entities.map((entity) => entity.id).sort((x, y) => (x < y ? -1 : 1));
+  return entities.map((entity) => entity.id.toString());
 }
 
 /** @internal */
