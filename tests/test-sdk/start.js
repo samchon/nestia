@@ -37,8 +37,6 @@ const featureDirectory = (name = "") => path.join(__dirname, "features", name);
 const TYPESCRIPT_ERROR_FEATURES = new Set([
   "body-error-get",
   "body-error-implicit",
-  "headers-error-array",
-  "method-error-head-non-void",
   "route-invalid-path-error",
   "security-error-not-found",
   "security-error-not-oauth2",
@@ -50,6 +48,78 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     "@WebSocketRoute.Acceptor() must have three type arguments.",
   ],
 ]);
+// One command compiles each compatible diagnostic cohort. The expected count
+// and source-path checks keep every former fixture's compiler diagnostic part
+// of the regression contract without regenerating packages per fixture.
+const ERROR_DIAGNOSTIC_COHORTS = [
+  {
+    name: "error-diagnostics",
+    config: "features/body-error-generic/error-diagnostics.config.ts",
+    project: "features/body-error-generic/tsconfig.json",
+    output: ".tmp-error-diagnostics",
+    cases: [
+      "body-error-generic",
+      "body-error-json",
+      "body-error-property",
+      "exception-error-bigint",
+      "headers-error-array",
+      "headers-error-atomic",
+      "headers-error-property-array",
+      "headers-error-property-nullable",
+      "headers-error-property-single",
+      "headers-error-union-object",
+      "headers-error-union-property",
+      "method-error-get-body",
+      "method-error-head-body",
+      "method-error-head-non-void",
+      "param-error-array",
+      "param-error-generic",
+      "param-error-native",
+      "param-error-object",
+      "param-error-union",
+      "param-error-union-literal",
+      "plain-error-any",
+      "plain-error-nullable",
+      "plain-error-number",
+      "plain-error-object",
+      "query-error-array",
+      "query-error-atomic",
+      "query-error-generic",
+      "query-error-native",
+      "query-error-union-array",
+      "query-error-union-literal",
+      "query-error-union-object",
+      "query-error-union-property",
+      "route-error-generic",
+      "route-error-implicit",
+      "route-error-json",
+      "websocket-error-invalid-acceptor",
+      "websocket-error-invalid-driver",
+      "websocket-error-invalid-parameter",
+      "websocket-error-no-acceptor",
+    ],
+  },
+  {
+    name: "mcp-error-diagnostics",
+    config: "features/mcp-error-extra-parameter/mcp-error-diagnostics.config.ts",
+    project: "features/mcp-error-extra-parameter/tsconfig.json",
+    output: ".tmp-mcp-error-diagnostics",
+    cases: [
+      "mcp-error-extra-parameter",
+      "mcp-error-missing-params-decorator",
+      "mcp-error-multiple-params",
+      "mcp-error-no-params",
+      "mcp-error-param-dynamic-properties",
+      "mcp-error-param-non-object",
+      "mcp-error-return-dynamic-properties",
+      "mcp-error-return-non-object",
+      "mcp-error-return-union-void-object",
+    ],
+  },
+];
+const AGGREGATED_ERROR_FEATURES = new Set(
+  ERROR_DIAGNOSTIC_COHORTS.flatMap((cohort) => cohort.cases),
+);
 
 const run = (file, args, options) =>
   new Promise((resolve, reject) => {
@@ -129,7 +199,42 @@ const runNestiaForError = (cwd, args) =>
 
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
+const runDiagnosticCohort = async (cohort) => {
+  try {
+    const output = await runNestiaForError(__dirname, [
+      "all",
+      "--config",
+      cohort.config,
+      "--project",
+      cohort.project,
+    ]);
+    const counts = Array.from(
+      output.matchAll(/Found (\d+) errors?\b/g),
+      (match) => Number(match[1]),
+    );
+    const actual = counts.length === 0 ? 0 : Math.max(...counts);
+    if (actual !== cohort.cases.length)
+      throw new Error(
+        `${cohort.name} reported ${actual} compiler errors; expected ${cohort.cases.length}:\n${output}`,
+      );
+    const normalized = output.replaceAll("\\", "/");
+    const missing = cohort.cases.filter(
+      (name) => normalized.includes(`/features/${name}/`) === false,
+    );
+    if (missing.length !== 0)
+      throw new Error(
+        `${cohort.name} omitted diagnostic source case(s): ${missing.join(", ")}:\n${output}`,
+      );
+  } finally {
+    await removePaths(__dirname, [cohort.output]);
+  }
+};
+
 const feature = async (name, port) => {
+  const cohort = ERROR_DIAGNOSTIC_COHORTS.find(
+    (candidate) => candidate.name === name,
+  );
+  if (cohort !== undefined) return runDiagnosticCohort(cohort);
   if (name === "swagger-watch") return runSwaggerWatchFeature();
   if (name === "bundle-preserve") return runBundlePreserveFeature();
   if (name === "cli-argument-diagnostics")
@@ -1097,7 +1202,14 @@ const main = async () => {
     const names = (await fs.promises.readdir(featureDirectory()))
       .sort()
       .filter((name) => !name.startsWith(".tmp-"))
+      .filter((name) => !AGGREGATED_ERROR_FEATURES.has(name))
       .filter(filter);
+    for (const cohort of ERROR_DIAGNOSTIC_COHORTS)
+      if (
+        filter(cohort.name) ||
+        cohort.cases.some((name) => filter(name))
+      )
+        names.push(cohort.name);
     if (filter("swagger-watch")) names.push("swagger-watch");
     if (filter("bundle-preserve")) names.push("bundle-preserve");
     if (filter("cli-argument-diagnostics"))
