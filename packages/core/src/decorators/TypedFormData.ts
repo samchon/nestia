@@ -9,6 +9,7 @@ import type ExpressMulter from "multer";
 
 import type { IRequestFormDataProps } from "../options/IRequestFormDataProps";
 import { Singleton } from "../utils/Singleton";
+import { is_media_type } from "./internal/is_media_type";
 import { validate_request_form_data } from "./internal/validate_request_form_data";
 
 /**
@@ -95,7 +96,12 @@ export namespace TypedFormData {
     ): Promise<T> {
       const http: HttpArgumentsHost = context.switchToHttp();
       const request: express.Request = http.getRequest();
-      if (isMultipartFormData(request.headers["content-type"]) === false)
+      if (
+        is_media_type(
+          request.headers["content-type"],
+          "multipart/form-data",
+        ) === false
+      )
         throw new BadRequestException(
           `Request body type is not "multipart/form-data".`,
         );
@@ -177,11 +183,3 @@ const parseFiles =
             }),
           );
   };
-
-/** @internal */
-const isMultipartFormData = (text?: string): boolean =>
-  text !== undefined &&
-  text
-    .split(";")
-    .map((str) => str.trim())
-    .some((str) => str === "multipart/form-data");

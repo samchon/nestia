@@ -8,6 +8,7 @@ import type { FastifyRequest } from "fastify";
 
 import { get_text_body } from "./internal/get_text_body";
 import { is_request_body_undefined } from "./internal/is_request_body_undefined";
+import { is_media_type } from "./internal/is_media_type";
 import { validate_request_body } from "./internal/validate_request_body";
 
 /**
@@ -56,7 +57,7 @@ export function PlainBody(
       (checker ?? (() => null))(undefined as any) === null
     )
       return undefined;
-    else if (!isTextPlain(request.headers["content-type"]))
+    else if (!is_media_type(request.headers["content-type"], "text/plain"))
       throw new BadRequestException(`Request body type is not "text/plain".`);
     const value: string = await get_text_body(request);
     if (checker) {
@@ -66,11 +67,3 @@ export function PlainBody(
     return value;
   })();
 }
-
-/** @internal */
-const isTextPlain = (text?: string): boolean =>
-  text !== undefined &&
-  text
-    .split(";")
-    .map((str) => str.trim())
-    .some((str) => str === "text/plain");
