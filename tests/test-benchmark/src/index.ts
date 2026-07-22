@@ -16,6 +16,7 @@ const main = async (): Promise<void> => {
       threads: 3,
       simultaneous: 4,
       stdio: "ignore",
+      filter: (file) => file === "test_api_count.ts",
       progress: (current) => progresses.push(current),
     });
     if (report.statistics.count !== 10)
