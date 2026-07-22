@@ -134,6 +134,13 @@ const feature = async (name, port) => {
   if (name === "bundle-preserve") return runBundlePreserveFeature();
   if (name === "cli-argument-diagnostics")
     return runCliArgumentDiagnosticsFeature();
+  if (name === "distribute-cwd-restore")
+    return runNode(
+      ROOT,
+      path.join(__dirname, "distribute-cwd-restore.js"),
+      [],
+      "inherit",
+    );
 
   const cwd = featureDirectory(name);
   const configFile =
@@ -956,6 +963,7 @@ const main = async () => {
     if (filter("bundle-preserve")) names.push("bundle-preserve");
     if (filter("cli-argument-diagnostics"))
       names.push("cli-argument-diagnostics");
+    if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
     await runFeatures(names);
   });
 };
