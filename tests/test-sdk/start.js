@@ -203,6 +203,8 @@ const feature = async (name, port) => {
       if (config.includes(`${kind}:`)) await generate(kind);
   } else await generate("all");
 
+  if (name === "nested-output-directories")
+    assertNestedOutputDirectories(cwd);
   assertGeneratedImportsAreExtensionless(cwd);
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (hasTtsxTestFiles(cwd)) {
@@ -219,6 +221,39 @@ const feature = async (name, port) => {
       await runTsc(cwd, "inherit");
     }
   }
+};
+
+// Regression lock for generators whose configured output path contains more
+// than one missing parent directory. Each generator must create the parent of
+// its final file location, rather than assuming a shallow output root exists.
+//
+// 1. Generate the SDK, Swagger document, and E2E suite into generated/**.
+// 2. Require a concrete output from each generator before TypeScript checks.
+const assertNestedOutputDirectories = (cwd) => {
+  const required = [
+    path.join(cwd, "generated/sdk/api/functional/index.ts"),
+    path.join(cwd, "generated/documents/openapi/swagger.json"),
+  ];
+  const missing = required.filter((location) => !fs.existsSync(location));
+  const e2e = path.join(cwd, "generated/tests/e2e");
+  if (hasTypeScriptFile(e2e) === false) missing.push(e2e);
+  if (missing.length !== 0)
+    throw new Error(
+      `nested-output-directories did not create: ${missing
+        .map((location) => path.relative(cwd, location))
+        .join(", ")}`,
+    );
+};
+
+const hasTypeScriptFile = (location) => {
+  if (!fs.existsSync(location)) return false;
+  for (const entry of fs.readdirSync(location)) {
+    const next = path.join(location, entry);
+    const stats = fs.statSync(next);
+    if (stats.isDirectory() && hasTypeScriptFile(next)) return true;
+    if (stats.isFile() && entry.endsWith(".ts")) return true;
+  }
+  return false;
 };
 
 const removePaths = async (cwd, locations) => {
