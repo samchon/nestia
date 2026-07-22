@@ -81,6 +81,9 @@ export function TypedException<T>(
  * @param description Description about the exception
  * @returns Method decorator
  */
+// The native transformer consumes T from the decorator call, but TypeScript's
+// checker cannot observe that compile-time-only use.
+// @ts-expect-error TS6133: T is transformer metadata, not a TypeScript value.
 export function TypedException<T>(
   status: number | "2XX" | "3XX" | "4XX" | "5XX",
   description?: string | undefined,
