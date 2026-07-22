@@ -109,7 +109,7 @@ const runNestiaForError = (cwd, args) =>
     child.stdout.on("data", (chunk) => chunks.push(chunk));
     child.stderr.on("data", (chunk) => chunks.push(chunk));
     child.on("error", reject);
-    child.on("exit", (code, signal) => {
+    child.on("close", (code, signal) => {
       const output = Buffer.concat(chunks).toString("utf8");
       if (code === 0)
         reject(
