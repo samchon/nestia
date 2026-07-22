@@ -15,6 +15,13 @@ export namespace NestiaMigrateApiProgrammer {
         (x) => hash(x.join(".")),
         (x, y) => x.length === y.length && x.join(".") === y.join("."),
       );
+    dict.take([], () => ({
+      config: ctx.config,
+      components: ctx.application.document().components,
+      namespace: [],
+      routes: [],
+      children: new Set(),
+    }));
     for (const route of ctx.application.routes) {
       const namespace: string[] = route.accessor.slice(0, -1);
       let last: NestiaMigrateApiFileProgrammer.IProps = dict.take(

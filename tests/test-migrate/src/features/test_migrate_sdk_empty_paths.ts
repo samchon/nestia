@@ -25,6 +25,8 @@ export const test_migrate_sdk_empty_paths = (): void => {
   } satisfies INestiaMigrateConfig);
   const starter: string | undefined = files["test/start.ts"];
   if (starter === undefined) throw new Error("Missing SDK starter file.");
+  if (files["src/functional/index.ts"] === undefined)
+    throw new Error("Missing SDK functional module.");
   if (starter.includes("TestGlobal") === true)
     throw new Error("An empty SDK starter must not require a test connection.");
   if (starter.includes("functional") === true)
