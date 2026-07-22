@@ -37,6 +37,7 @@ const featureDirectory = (name = "") => path.join(__dirname, "features", name);
 const TYPESCRIPT_ERROR_FEATURES = new Set([
   "body-error-get",
   "body-error-implicit",
+  "method-error-head-non-void",
   "route-invalid-path-error",
   "security-error-not-found",
   "security-error-not-oauth2",
@@ -48,9 +49,9 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     "@WebSocketRoute.Acceptor() must have three type arguments.",
   ],
 ]);
-// One command compiles each compatible diagnostic cohort. The expected count
-// and source-path checks keep every former fixture's compiler diagnostic part
-// of the regression contract without regenerating packages per fixture.
+// One command compiles each compatible native-diagnostic cohort. Each entry
+// names its source fixture and exact diagnostic-line count; SDK reflection
+// errors remain individual because compilation must succeed before reflection.
 const ERROR_DIAGNOSTIC_COHORTS = [
   {
     name: "error-diagnostics",
@@ -58,45 +59,39 @@ const ERROR_DIAGNOSTIC_COHORTS = [
     project: "features/body-error-generic/tsconfig.json",
     output: ".tmp-error-diagnostics",
     cases: [
-      "body-error-generic",
-      "body-error-json",
-      "body-error-property",
-      "exception-error-bigint",
-      "headers-error-array",
-      "headers-error-atomic",
-      "headers-error-property-array",
-      "headers-error-property-nullable",
-      "headers-error-property-single",
-      "headers-error-union-object",
-      "headers-error-union-property",
-      "method-error-get-body",
-      "method-error-head-body",
-      "method-error-head-non-void",
-      "param-error-array",
-      "param-error-generic",
-      "param-error-native",
-      "param-error-object",
-      "param-error-union",
-      "param-error-union-literal",
-      "plain-error-any",
-      "plain-error-nullable",
-      "plain-error-number",
-      "plain-error-object",
-      "query-error-array",
-      "query-error-atomic",
-      "query-error-generic",
-      "query-error-native",
-      "query-error-union-array",
-      "query-error-union-literal",
-      "query-error-union-object",
-      "query-error-union-property",
-      "route-error-generic",
-      "route-error-implicit",
-      "route-error-json",
-      "websocket-error-invalid-acceptor",
-      "websocket-error-invalid-driver",
-      "websocket-error-invalid-parameter",
-      "websocket-error-no-acceptor",
+      ["body-error-generic", 1],
+      ["body-error-json", 1],
+      ["headers-error-array", 1],
+      ["headers-error-atomic", 1],
+      ["headers-error-property-array", 1],
+      ["headers-error-property-nullable", 1],
+      ["headers-error-property-single", 1],
+      ["headers-error-union-object", 1],
+      ["headers-error-union-property", 1],
+      ["param-error-array", 1],
+      ["param-error-generic", 1],
+      ["param-error-native", 1],
+      ["param-error-object", 1],
+      ["param-error-union", 1],
+      ["param-error-union-literal", 1],
+      ["plain-error-any", 1],
+      ["plain-error-nullable", 1],
+      ["plain-error-number", 1],
+      ["plain-error-object", 1],
+      ["query-error-array", 1],
+      ["query-error-atomic", 1],
+      ["query-error-generic", 1],
+      ["query-error-native", 1],
+      ["query-error-union-array", 1],
+      ["query-error-union-literal", 1],
+      ["query-error-union-object", 1],
+      ["query-error-union-property", 1],
+      ["route-error-generic", 1],
+      ["route-error-json", 1],
+      ["websocket-error-invalid-acceptor", 1],
+      ["websocket-error-invalid-driver", 1],
+      ["websocket-error-invalid-parameter", 1],
+      ["websocket-error-no-acceptor", 1],
     ],
   },
   {
@@ -105,20 +100,22 @@ const ERROR_DIAGNOSTIC_COHORTS = [
     project: "features/mcp-error-extra-parameter/tsconfig.json",
     output: ".tmp-mcp-error-diagnostics",
     cases: [
-      "mcp-error-extra-parameter",
-      "mcp-error-missing-params-decorator",
-      "mcp-error-multiple-params",
-      "mcp-error-no-params",
-      "mcp-error-param-dynamic-properties",
-      "mcp-error-param-non-object",
-      "mcp-error-return-dynamic-properties",
-      "mcp-error-return-non-object",
-      "mcp-error-return-union-void-object",
+      ["mcp-error-extra-parameter", 1],
+      ["mcp-error-missing-params-decorator", 1],
+      ["mcp-error-multiple-params", 1],
+      ["mcp-error-no-params", 1],
+      ["mcp-error-param-dynamic-properties", 2],
+      ["mcp-error-param-non-object", 2],
+      ["mcp-error-return-dynamic-properties", 1],
+      ["mcp-error-return-non-object", 1],
+      ["mcp-error-return-union-void-object", 1],
     ],
   },
 ];
 const AGGREGATED_ERROR_FEATURES = new Set(
-  ERROR_DIAGNOSTIC_COHORTS.flatMap((cohort) => cohort.cases),
+  ERROR_DIAGNOSTIC_COHORTS.flatMap((cohort) =>
+    cohort.cases.map(([name]) => name),
+  ),
 );
 
 const run = (file, args, options) =>
@@ -210,18 +207,35 @@ const runDiagnosticCohort = async (cohort) => {
     ]);
     // Native transform diagnostics have one `error TS(...)` line each; unlike
     // TypeScript's CLI they intentionally do not append a summary line.
-    const actual = output.match(/ - error TS\([^)]*\):/g)?.length ?? 0;
-    if (actual !== cohort.cases.length)
-      throw new Error(
-        `${cohort.name} reported ${actual} compiler errors; expected ${cohort.cases.length}:\n${output}`,
-      );
     const normalized = output.replaceAll("\\", "/");
-    const missing = cohort.cases.filter(
-      (name) => normalized.includes(`/features/${name}/`) === false,
+    const diagnostics = normalized
+      .split(/\r?\n/)
+      .filter((line) => / - error TS\([^)]*\):/.test(line));
+    const expected = cohort.cases.reduce(
+      (sum, [, count]) => sum + count,
+      0,
     );
-    if (missing.length !== 0)
+    if (diagnostics.length !== expected)
       throw new Error(
-        `${cohort.name} omitted diagnostic source case(s): ${missing.join(", ")}:\n${output}`,
+        `${cohort.name} reported ${diagnostics.length} compiler errors; expected ${expected}:\n${output}`,
+      );
+    const mismatch = cohort.cases
+      .map(([name, expected]) => {
+        const actual = diagnostics.filter((line) =>
+          line.includes(`features/${name}/src/controllers/`),
+        ).length;
+        return actual === expected ? null : `${name}: ${actual}/${expected}`;
+      })
+      .filter((entry) => entry !== null);
+    const unexpected = diagnostics.filter(
+      (line) =>
+        cohort.cases.some(([name]) =>
+          line.includes(`features/${name}/src/controllers/`),
+        ) === false,
+    );
+    if (mismatch.length !== 0 || unexpected.length !== 0)
+      throw new Error(
+        `${cohort.name} diagnostic mismatch (${mismatch.join(", ") || "none"}); unexpected source(s): ${unexpected.join("; ") || "none"}:\n${output}`,
       );
   } finally {
     await removePaths(__dirname, [cohort.output]);
@@ -1205,7 +1219,7 @@ const main = async () => {
     for (const cohort of ERROR_DIAGNOSTIC_COHORTS)
       if (
         filter(cohort.name) ||
-        cohort.cases.some((name) => filter(name))
+        cohort.cases.some(([name]) => filter(name))
       )
         names.push(cohort.name);
     if (filter("swagger-watch")) names.push("swagger-watch");
