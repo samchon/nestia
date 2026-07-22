@@ -50,7 +50,7 @@ Write each Markdown or MDX paragraph on one source line. Never hard-wrap a singl
 
 One source line does not mean one long paragraph. Insert a blank line whenever the idea changes. Keep structural line breaks for paragraphs, list items, headings, tables, and fenced code.
 
-This is a manual convention, not a formatter gate. `prettier.config.js` sets `parser: "typescript"`, and root `pnpm format` only ever targets `*.ts`; no `*.md` or `*.mdx` file is formatted, and `proseWrap` is unset. Preserve one-line paragraphs yourself.
+Preserve one-line paragraphs yourself; this is a manual convention, not a formatter gate. `prettier.config.js` sets `parser: "typescript"` and leaves `proseWrap` unset, and root `pnpm format` [targets only `*.ts`](../project/SKILL.md#commands), so no `*.md` or `*.mdx` file is ever reformatted.
 
 `crate-ci/typos` does gate spelling on every pull request through `typos.toml`. Add a genuine new term to `[default.extend-words]` rather than reshaping prose around the checker.
 
