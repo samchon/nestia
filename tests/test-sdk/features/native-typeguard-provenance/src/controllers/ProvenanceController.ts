@@ -10,13 +10,13 @@ interface TypeGuardError {
 @Controller("provenance")
 export class ProvenanceController {
   @core.TypedRoute.Get("typia")
-  @core.TypedException<ValidationError>(400)
+  @core.TypedException<ValidationError>({ status: 400 })
   public typia(): string {
     return "ok";
   }
 
   @core.TypedRoute.Get("local")
-  @core.TypedException<TypeGuardError>(409)
+  @core.TypedException<TypeGuardError>({ status: 409 })
   public local(): string {
     return "ok";
   }

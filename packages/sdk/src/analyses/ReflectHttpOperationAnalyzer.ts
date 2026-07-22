@@ -107,7 +107,9 @@ export namespace ReflectHttpOperationAnalyzer {
             .filter((x) => parameters.some((y) => x.index === y.index))
             .map((x) => x.imports),
           ...(success.binary === true ? [] : props.metadata.success.imports),
-          ...Object.values(props.metadata.exceptions).map((e) => e.imports),
+          ...(props.project.config.propagate === true
+            ? Object.values(props.metadata.exceptions).map((e) => e.imports)
+            : []),
         ].flat(),
       ),
       description: props.metadata.description,
