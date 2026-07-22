@@ -208,11 +208,9 @@ const runDiagnosticCohort = async (cohort) => {
       "--project",
       cohort.project,
     ]);
-    const counts = Array.from(
-      output.matchAll(/Found (\d+) errors?\b/g),
-      (match) => Number(match[1]),
-    );
-    const actual = counts.length === 0 ? 0 : Math.max(...counts);
+    // Native transform diagnostics have one `error TS(...)` line each; unlike
+    // TypeScript's CLI they intentionally do not append a summary line.
+    const actual = output.match(/ - error TS\([^)]*\):/g)?.length ?? 0;
     if (actual !== cohort.cases.length)
       throw new Error(
         `${cohort.name} reported ${actual} compiler errors; expected ${cohort.cases.length}:\n${output}`,
