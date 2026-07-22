@@ -124,11 +124,13 @@ export namespace NestiaProjectTemplate {
   const CONTEXT: IContext = {
     execute: (executable, args): void => {
       console.log(`\n$ ${[executable, ...args].join(" ")}`);
-      cp.execFileSync(executable, args, { stdio: "inherit" });
+      const command: ICommand = commandOf(executable, args);
+      cp.execFileSync(command.executable, command.args, { stdio: "inherit" });
     },
     probe: (executable, args): boolean => {
       try {
-        cp.execFileSync(executable, args, { stdio: "ignore" });
+        const command: ICommand = commandOf(executable, args);
+        cp.execFileSync(command.executable, command.args, { stdio: "ignore" });
         return true;
       } catch {
         return false;
@@ -139,4 +141,16 @@ export namespace NestiaProjectTemplate {
     remove: (path: string): void =>
       fs.rmSync(path, { recursive: true, force: true }),
   };
+
+  const commandOf = (executable: string, args: readonly string[]): ICommand =>
+    process.platform === "win32" &&
+    (executable === "pnpm" || executable === "corepack")
+      ? {
+          executable: "cmd.exe",
+          args: ["/d", "/s", "/c", executable, ...args],
+        }
+      : {
+          executable,
+          args: [...args],
+        };
 }
