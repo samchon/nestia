@@ -18,7 +18,8 @@ import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
 
 export namespace ReflectHttpOperationAnalyzer {
   export interface IProps {
-    project: Omit<INestiaProject, "config">;
+    project: Omit<INestiaProject, "config"> &
+      Partial<Pick<INestiaProject, "config">>;
     controller: IReflectController;
     function: Function;
     name: string;
@@ -107,7 +108,7 @@ export namespace ReflectHttpOperationAnalyzer {
             .filter((x) => parameters.some((y) => x.index === y.index))
             .map((x) => x.imports),
           ...(success.binary === true ? [] : props.metadata.success.imports),
-          ...(props.project.config.propagate === true
+          ...(props.project.config?.propagate === true
             ? Object.values(props.metadata.exceptions).map((e) => e.imports)
             : []),
         ].flat(),
