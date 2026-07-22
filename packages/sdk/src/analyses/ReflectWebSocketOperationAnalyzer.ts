@@ -53,34 +53,41 @@ export namespace ReflectWebSocketOperationAnalyzer {
     const imports: IReflectImport[] = [];
     const parameters: IReflectWebSocketOperationParameter[] = preconfigured
       .map((p) => {
+        const reject = (message: string): null => {
+          errors.push(message);
+          return null;
+        };
+
         // METADATA INFO
         const matched: IOperationMetadata.IParameter | undefined =
           ctx.metadata.parameters.find((m) => p.index === m.index);
 
         // VALIDATE PARAMETER
         if (matched === undefined)
-          return errors.push(
+          return reject(
             `Unable to find parameter type of the ${p.index} (th).`,
           );
         else if (matched.type === null)
-          return errors.push(
+          return reject(
             `Failed to analyze the parameter type of the ${JSON.stringify(matched.name)}.`,
           );
         else if (
           p.category === "param" &&
           !(p as IReflectWebSocketOperationParameter.IParam).field?.length
         )
-          return errors.push(`@WebSocketRoute.Param() must have a field name.`);
+          return reject(`@WebSocketRoute.Param() must have a field name.`);
         else if (
           p.category === "acceptor" &&
           matched.type?.typeArguments?.length !== 3
         )
-          return `@WebSocketRoute.Acceptor() must have three type arguments.`;
+          return reject(
+            `@WebSocketRoute.Acceptor() must have three type arguments.`,
+          );
         else if (
           p.category === "driver" &&
           matched.type?.typeArguments?.length !== 1
         )
-          return errors.push(
+          return reject(
             `@WebSocketRoute.Driver() must have one type argument.`,
           );
 
@@ -119,7 +126,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
         // UNKNOWN TYPE, MAYBE NEW FEATURE
         else {
           if (p.category !== "header")
-            errors.push(
+            reject(
               `@WebSocketRoute.${StringUtil.capitalize(p.category)}() has not been supported yet. How about upgrading the nestia packages?`,
             );
           return null;

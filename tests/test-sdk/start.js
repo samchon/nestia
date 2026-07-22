@@ -44,6 +44,12 @@ const TYPESCRIPT_ERROR_FEATURES = new Set([
   "security-error-not-oauth2",
   "security-error-out-of-scopes",
 ]);
+const EXPECTED_ERROR_DIAGNOSTICS = new Map([
+  [
+    "websocket-error-invalid-acceptor-arity",
+    "@WebSocketRoute.Acceptor() must have three type arguments.",
+  ],
+]);
 
 const run = (file, args, options) =>
   new Promise((resolve, reject) => {
@@ -92,6 +98,35 @@ const runNode = (cwd, script, args, stdio = "ignore", env = undefined) =>
 const runNestia = (cwd, args, stdio = "ignore") =>
   runNode(cwd, TTSX_BIN, [CLI_MAIN, ...args], stdio);
 
+const runNestiaForError = (cwd, args) =>
+  new Promise((resolve, reject) => {
+    const child = cp.spawn(NODE, [TTSX_BIN, CLI_MAIN, ...args], {
+      cwd,
+      env: process.env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const chunks = [];
+    child.stdout.on("data", (chunk) => chunks.push(chunk));
+    child.stderr.on("data", (chunk) => chunks.push(chunk));
+    child.on("error", reject);
+    child.on("exit", (code, signal) => {
+      const output = Buffer.concat(chunks).toString("utf8");
+      if (code === 0)
+        reject(
+          new Error(
+            `${[NODE, TTSX_BIN, CLI_MAIN, ...args].join(" ")} unexpectedly succeeded.`,
+          ),
+        );
+      else if (signal !== null)
+        reject(
+          new Error(
+            `${[NODE, TTSX_BIN, CLI_MAIN, ...args].join(" ")} ended with ${signal}.`,
+          ),
+        );
+      else resolve(output);
+    });
+  });
+
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
 const feature = async (name, port) => {
@@ -116,6 +151,18 @@ const feature = async (name, port) => {
   };
 
   if (name.includes("error")) {
+    const expected = EXPECTED_ERROR_DIAGNOSTICS.get(name);
+    if (expected !== undefined) {
+      const output = await runNestiaForError(cwd, [
+        "all",
+        ...generationTail(name),
+      ]);
+      if (output.includes(expected) === false)
+        throw new Error(
+          `${name} did not report its expected diagnostic:\n${output}`,
+        );
+      return;
+    }
     try {
       if (TYPESCRIPT_ERROR_FEATURES.has(name)) await runTsc(cwd);
       await generate("all", true);
