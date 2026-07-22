@@ -58,7 +58,7 @@ Only an explicit user instruction or an existing public product contract can exc
 
 ### Discovery Ends Only On An Empty Round
 
-Rounds repeat inside one discovery phase, not only after a merged cycle. A round that produced any candidate is evidence the surface still hides more, so finish that round's remaining scope, then start another complete full-scope round against the same state. Keep repeating until one round comes up empty. Only then does the phase hand its adjudicated candidates to publication, and one round that found issues is never the phase.
+Rounds repeat inside one discovery phase, not only after a merged cycle. A round that produced any candidate is evidence the surface still hides more, so finish that round's remaining scope, then start another complete full-scope round against the same state. Keep repeating until one round adds nothing the earlier rounds of this phase had not already recorded; a round that only re-finds those candidates is the empty round, since nothing has been fixed yet. Only then does the phase hand its adjudicated candidates to publication, and one round that found issues is never the phase.
 
 A merged cycle then produces one more phase: begin a fresh full-scope round against the integrated repository and repeat the same loop. Discovery continues phase after phase, with no round limit, and the campaign ends only when a complete fresh round produces no meaningful issue candidate after fact-checking and no accepted issue remains unresolved.
 

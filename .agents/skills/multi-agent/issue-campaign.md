@@ -47,7 +47,7 @@ Source is only one evidence layer for nestia. Run the generators and read what t
 
 Pool raw candidates in `.wiki`, then reproduce and combine, split, rewrite, reject, or defer them before publication. Parallel discovery changes evidence breadth, not publication authority.
 
-Rounds repeat inside one discovery phase, exactly as the [solo rule](../issue-campaign/SKILL.md#discovery-ends-only-on-an-empty-round) states. A round in which any reviewer found a candidate is followed by another full-scope round against the same commit, and only an empty round releases the phase to publication.
+Rounds repeat inside one discovery phase, exactly as the [solo rule](../issue-campaign/SKILL.md#discovery-ends-only-on-an-empty-round) states. A round in which any reviewer found a candidate is followed by another full-scope round against the same commit, and the phase reaches publication only on a round that adds nothing the earlier rounds had already recorded.
 
 ## Cancel Campaign CI
 
