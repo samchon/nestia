@@ -9,10 +9,10 @@ export namespace NestiaProjectTemplate {
    * the network, the file system, or a real package manager.
    */
   export interface IContext {
-    /** Runs a command, inheriting stdio. Throws on non-zero exit. */
-    execute: (command: string) => void;
-    /** Silently checks whether a command succeeds. */
-    probe: (command: string) => boolean;
+    /** Runs an executable with explicit arguments, inheriting stdio. */
+    execute: (executable: string, args: readonly string[]) => void;
+    /** Silently checks whether an executable accepts the supplied arguments. */
+    probe: (executable: string, args: readonly string[]) => boolean;
     /** Changes the working directory. */
     chdir: (directory: string) => void;
     /** Checks whether a path exists. */
@@ -45,9 +45,7 @@ export namespace NestiaProjectTemplate {
       console.log("-----------------------------------------");
 
       // COPY PROJECTS
-      context.execute(
-        `git clone "${repository ?? props.repository}" "${dest}"`,
-      );
+      context.execute("git", ["clone", repository ?? props.repository, dest]);
       console.log(`cd "${dest}"`);
       context.chdir(dest);
 
@@ -56,16 +54,17 @@ export namespace NestiaProjectTemplate {
       // Their workspace manifests use the `catalog:` dependency protocol,
       // which npm cannot resolve. Only pnpm (directly installed, or served
       // through corepack) can set them up.
-      const pm: string = getPackageManager(halter, context);
+      const pm: ICommand = getPackageManager(halter, context);
 
       // INSTALL DEPENDENCIES
-      context.execute(`${pm} install`);
+      context.execute(pm.executable, [...pm.args, "install"]);
 
       // BUILD TYPESCRIPT
-      context.execute(`${pm} run build`);
+      context.execute(pm.executable, [...pm.args, "run", "build"]);
 
       // DO TEST
-      if (props.test === true) context.execute(`${pm} run test`);
+      if (props.test === true)
+        context.execute(pm.executable, [...pm.args, "run", "test"]);
 
       // REMOVE REPOSITORY ONLY FILES
       context.remove(".git");
@@ -93,14 +92,20 @@ export namespace NestiaProjectTemplate {
     return output;
   }
 
+  interface ICommand {
+    executable: string;
+    args: string[];
+  }
+
   function getPackageManager(
     halter: (msg?: string) => never,
     context: IContext,
-  ): string {
-    if (context.probe("pnpm --version") === true) return "pnpm";
-    else if (context.probe("corepack --version") === true) {
+  ): ICommand {
+    if (context.probe("pnpm", ["--version"]) === true)
+      return { executable: "pnpm", args: [] };
+    else if (context.probe("corepack", ["--version"]) === true) {
       process.env.COREPACK_ENABLE_DOWNLOAD_PROMPT = "0";
-      return "corepack pnpm";
+      return { executable: "corepack", args: ["pnpm"] };
     }
     return halter(
       [
@@ -117,13 +122,13 @@ export namespace NestiaProjectTemplate {
   }
 
   const CONTEXT: IContext = {
-    execute: (command: string): void => {
-      console.log(`\n$ ${command}`);
-      cp.execSync(command, { stdio: "inherit" });
+    execute: (executable, args): void => {
+      console.log(`\n$ ${[executable, ...args].join(" ")}`);
+      cp.execFileSync(executable, args, { stdio: "inherit" });
     },
-    probe: (command: string): boolean => {
+    probe: (executable, args): boolean => {
       try {
-        cp.execSync(command, { stdio: "ignore" });
+        cp.execFileSync(executable, args, { stdio: "ignore" });
         return true;
       } catch {
         return false;

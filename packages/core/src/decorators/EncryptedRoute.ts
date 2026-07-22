@@ -173,7 +173,7 @@ class EncryptedRouteInterceptor implements NestInterceptor {
           context.getClass(),
         );
         if (!param)
-          return Error(
+          throw new Error(
             `Error on EncryptedRoute.${this.method}(): no password found.`,
           );
 

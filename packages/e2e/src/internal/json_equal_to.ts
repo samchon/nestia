@@ -19,7 +19,10 @@ export const json_equal_to =
         } else if (x instanceof Array)
           if (!(y instanceof Array)) container.push(accessor);
           else array(accessor)(x)(y);
-        else if (x instanceof Object) object(accessor)(x)(y);
+        else if (x instanceof Object)
+          if (!(y instanceof Object) || y instanceof Array)
+            container.push(accessor);
+          else object(accessor)(x)(y);
         else if (x !== y) container.push(accessor);
       };
     const array =
@@ -32,10 +35,22 @@ export const json_equal_to =
     const object =
       (accessor: string) =>
       (x: any) =>
-      (y: any): void =>
-        Object.keys(x)
-          .filter((key) => x[key] !== undefined && !exception(key))
-          .forEach((key) => iterate(`${accessor}.${key}`)(x[key])(y[key]));
+      (y: any): void => {
+        const keys = (input: any): string[] =>
+          Object.keys(input).filter(
+            (key) => input[key] !== undefined && !exception(key),
+          );
+        const xKeys: string[] = keys(x);
+        const yKeys: string[] = keys(y);
+        if (
+          xKeys.length !== yKeys.length ||
+          xKeys.some((key) => yKeys.includes(key) === false)
+        )
+          container.push(accessor);
+        for (const key of xKeys)
+          if (yKeys.includes(key))
+            iterate(`${accessor}.${key}`)(x[key])(y[key]);
+      };
 
     iterate("")(x)(y);
     return container;

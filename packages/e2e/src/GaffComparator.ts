@@ -110,7 +110,9 @@ export namespace GaffComparator {
       const b: string[] = wrap(getter(y));
 
       const idx: number = a.findIndex((v, i) => v !== b[i]);
-      return idx !== -1 ? compare(a[idx]!, b[idx]!) : 0;
+      return idx !== -1
+        ? compare(a[idx]!, b[idx]!)
+        : a.length - b.length;
     };
 
   /**
@@ -197,7 +199,7 @@ export namespace GaffComparator {
       const b: number[] = take(y);
 
       const idx: number = a.findIndex((v, i) => v !== b[i]);
-      return idx !== -1 ? a[idx]! - b[idx]! : 0;
+      return idx !== -1 ? a[idx]! - b[idx]! : a.length - b.length;
     };
 
   /**
@@ -278,7 +280,7 @@ export namespace GaffComparator {
       const b: number[] = wrap(closure(y));
 
       const idx: number = a.findIndex((v, i) => v !== b[i]);
-      return idx !== -1 ? a[idx]! - b[idx]! : 0;
+      return idx !== -1 ? a[idx]! - b[idx]! : a.length - b.length;
     };
 
   const compare = (x: string, y: string) => x.localeCompare(y);

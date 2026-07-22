@@ -202,7 +202,22 @@ export namespace DynamicBenchmarker {
    * @returns Benchmark report
    */
   export const master = async (props: IMasterProps): Promise<IReport> => {
+    if (!Number.isSafeInteger(props.count) || props.count < 0)
+      throw new Error("DynamicBenchmarker.master(): count must be a non-negative integer.");
+    if (!Number.isSafeInteger(props.threads) || props.threads <= 0)
+      throw new Error("DynamicBenchmarker.master(): threads must be a positive integer.");
+    if (!Number.isSafeInteger(props.simultaneous) || props.simultaneous <= 0)
+      throw new Error(
+        "DynamicBenchmarker.master(): simultaneous must be a positive integer.",
+      );
     const completes: number[] = new Array(props.threads).fill(0);
+    const counts: number[] = new Array(props.threads)
+      .fill(0)
+      .map(
+        (_, index) =>
+          Math.floor(props.count / props.threads) +
+          (index < props.count % props.threads ? 1 : 0),
+      );
     const servants: WorkerConnector<
       null,
       IBenchmarkMaster,
@@ -247,9 +262,9 @@ export namespace DynamicBenchmarker {
 
     const events: IBenchmarkEvent[] = (
       await Promise.all(
-        servants.map((connector) =>
+        servants.map((connector, index) =>
           connector.getDriver().execute({
-            count: Math.ceil(props.count / props.threads),
+            count: counts[index]!,
             simultaneous: Math.ceil(props.simultaneous / props.threads),
           }),
         ),
@@ -365,8 +380,7 @@ export namespace DynamicBenchmarker {
               try {
                 await func.value(...ctx.props.parameters(connection, func.key));
               } catch (exp) {
-                for (const e of localEvents)
-                  e.success = e.status === 200 || e.status === 201;
+                for (const e of localEvents) e.success = false;
               }
               if (localEvents.length !== 0)
                 ctx.driver.progress(entireEvents.length).catch(() => {});

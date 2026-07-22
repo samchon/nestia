@@ -26,8 +26,8 @@ export namespace CliTestHarness {
   ----------------------------------------------------------- */
   /** Mirrors `NestiaProjectTemplate.IContext` of `packages/cli`. */
   export interface IContext {
-    execute: (command: string) => void;
-    probe: (command: string) => boolean;
+    execute: (executable: string, args: readonly string[]) => void;
+    probe: (executable: string, args: readonly string[]) => boolean;
     chdir: (directory: string) => void;
     exists: (path: string) => boolean;
     remove: (path: string) => void;
@@ -49,26 +49,32 @@ export namespace CliTestHarness {
   ----------------------------------------------------------- */
   export interface IFakeContext {
     context: IContext;
-    commands: string[];
-    probes: string[];
+    commands: IInvocation[];
+    probes: IInvocation[];
     chdirs: string[];
     removed: string[];
   }
+  export interface IInvocation {
+    executable: string;
+    args: string[];
+  }
   export const createFakeContext = (props?: {
     exists?: (path: string) => boolean;
-    probe?: (command: string) => boolean;
+    probe?: (invocation: IInvocation) => boolean;
   }): IFakeContext => {
-    const commands: string[] = [];
-    const probes: string[] = [];
+    const commands: IInvocation[] = [];
+    const probes: IInvocation[] = [];
     const chdirs: string[] = [];
     const removed: string[] = [];
     const context: IContext = {
-      execute: (command) => void commands.push(command),
-      probe: (command) => {
-        probes.push(command);
+      execute: (executable, args) =>
+        void commands.push({ executable, args: [...args] }),
+      probe: (executable, args) => {
+        const invocation: IInvocation = { executable, args: [...args] };
+        probes.push(invocation);
         return props?.probe !== undefined
-          ? props.probe(command)
-          : command.startsWith("pnpm");
+          ? props.probe(invocation)
+          : executable === "pnpm";
       },
       chdir: (directory) => void chdirs.push(directory),
       exists: (location) =>

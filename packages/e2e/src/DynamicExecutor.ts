@@ -185,6 +185,11 @@ export namespace DynamicExecutor {
     async <Arguments extends any[]>(
       props: IProps<Arguments>,
     ): Promise<IReport> => {
+      const simultaneous: number = props.simultaneous ?? 1;
+      if (!Number.isSafeInteger(simultaneous) || simultaneous <= 0)
+        throw new Error(
+          "DynamicExecutor: simultaneous must be a positive integer.",
+        );
       const report: IReport = {
         location: props.location,
         time: Date.now(),
@@ -200,7 +205,7 @@ export namespace DynamicExecutor {
         executor,
       });
       await Promise.all(
-        new Array(props.simultaneous ?? 1).fill(0).map(async () => {
+        new Array(simultaneous).fill(0).map(async () => {
           while (processes.length !== 0) {
             const task = processes.shift();
             await task?.();
