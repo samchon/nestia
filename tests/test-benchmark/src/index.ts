@@ -9,12 +9,14 @@ const main = async (): Promise<void> => {
   const app = await NestFactory.create(BbsArticleModule, { logger: false });
   await app.listen(3_000);
   try {
+    const progresses: number[] = [];
     const report: DynamicBenchmarker.IReport = await DynamicBenchmarker.master({
       servant: `${__dirname}/servant.ts`,
       count: 10,
       threads: 3,
       simultaneous: 4,
       stdio: "ignore",
+      progress: (current) => progresses.push(current),
     });
     if (report.statistics.count !== 10)
       throw new Error(
@@ -24,6 +26,11 @@ const main = async (): Promise<void> => {
       report.endpoints.reduce((sum, endpoint) => sum + endpoint.count, 0) !== 10
     )
       throw new Error("DynamicBenchmarker endpoint totals do not match count.");
+    if (
+      progresses.some((current) => current > 10) ||
+      progresses[progresses.length - 1] !== 10
+    )
+      throw new Error("DynamicBenchmarker progress exceeds the requested count.");
     await fs.promises.writeFile(
       "BENCHMARK.md",
       DynamicBenchmarker.markdown(report),
