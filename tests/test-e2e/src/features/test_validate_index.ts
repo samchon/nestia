@@ -11,6 +11,11 @@ export async function test_validate_index(): Promise<void> {
     [{ id: "b" }, { id: "a" }],
     [{ id: "b" }, { id: "a" }],
   );
+  TestValidator.index(
+    "numeric identifiers",
+    [{ id: 2 }, { id: 1 }],
+    [{ id: 2 }, { id: 1 }],
+  );
   TestValidator.error("error", () =>
     TestValidator.index(
       "index",
