@@ -13,6 +13,7 @@ import { Singleton } from "../utils/Singleton";
 import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
 import { get_text_body } from "./internal/get_text_body";
 import { headers_to_object } from "./internal/headers_to_object";
+import { is_media_type } from "./internal/is_media_type";
 import { validate_request_body } from "./internal/validate_request_body";
 
 /**
@@ -47,7 +48,7 @@ export function EncryptedBody<T>(
     const request: express.Request | FastifyRequest = context
       .switchToHttp()
       .getRequest();
-    if (isTextPlain(request.headers["content-type"]) === false)
+    if (is_media_type(request.headers["content-type"], "text/plain") === false)
       throw new BadRequestException(`Request body type is not "text/plain".`);
 
     const param: IEncryptionPassword | IEncryptionPassword.Closure | undefined =
@@ -87,11 +88,3 @@ const decrypt = (body: string, key: string, iv: string): string => {
     else throw exp;
   }
 };
-
-/** @internal */
-const isTextPlain = (text?: string): boolean =>
-  text !== undefined &&
-  text
-    .split(";")
-    .map((str) => str.trim())
-    .some((str) => str === "text/plain");

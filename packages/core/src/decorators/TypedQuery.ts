@@ -21,6 +21,7 @@ import typia from "typia";
 import { IRequestQueryValidator } from "../options/IRequestQueryValidator";
 import { IResponseBodyQuerifier } from "../options/IResponseBodyQuerifier";
 import { get_path_and_querify } from "./internal/get_path_and_querify";
+import { is_media_type } from "./internal/is_media_type";
 import { route_error } from "./internal/route_error";
 import { validate_request_query } from "./internal/validate_request_query";
 
@@ -79,7 +80,12 @@ export namespace TypedQuery {
       const request: express.Request | FastifyRequest = context
         .switchToHttp()
         .getRequest();
-      if (isApplicationQuery(request.headers["content-type"]) === false)
+      if (
+        is_media_type(
+          request.headers["content-type"],
+          "application/x-www-form-urlencoded",
+        ) === false
+      )
         throw new BadRequestException(
           `Request body type is not "application/x-www-form-urlencoded".`,
         );
@@ -170,17 +176,6 @@ export namespace TypedQuery {
 function tail(url: string): string {
   const index: number = url.indexOf("?");
   return index === -1 ? "" : url.substring(index + 1);
-}
-
-/** @internal */
-function isApplicationQuery(text?: string): boolean {
-  return (
-    text !== undefined &&
-    text
-      .split(";")
-      .map((str) => str.trim())
-      .some((str) => str === "application/x-www-form-urlencoded")
-  );
 }
 
 /** @internal */

@@ -7,6 +7,7 @@ import type express from "express";
 import type { FastifyRequest } from "fastify";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
+import { is_media_type } from "./internal/is_media_type";
 import { is_request_body_undefined } from "./internal/is_request_body_undefined";
 import { validate_request_body } from "./internal/validate_request_body";
 
@@ -37,7 +38,10 @@ export function TypedBody<T>(
       .getRequest();
     if (is_request_body_undefined(request) && checker(undefined as T) === null)
       return undefined;
-    else if (isApplicationJson(request.headers["content-type"]) === false)
+    else if (
+      is_media_type(request.headers["content-type"], "application/json") ===
+      false
+    )
       throw new BadRequestException(
         `Request body type is not "application/json".`,
       );
@@ -47,11 +51,3 @@ export function TypedBody<T>(
     return request.body;
   })();
 }
-
-/** @internal */
-const isApplicationJson = (text?: string): boolean =>
-  text !== undefined &&
-  text
-    .split(";")
-    .map((str) => str.trim())
-    .some((str) => str === "application/json");
