@@ -1080,22 +1080,38 @@ func nestiaSDKUnionRank(order map[string]int, name string) int {
 }
 
 func nestiaSDKIsTypeGuardError(prog *driver.Program, typ *shimchecker.Type, typeNode *shimast.Node) bool {
-	if typeNode != nil {
-		name := nestiaSDKTypeNodeText(typeNode)
-		if name == "TypeGuardError" || strings.HasPrefix(name, "TypeGuardError<") {
-			return true
-		}
-		if typeNode.Kind == shimast.KindTypeReference {
-			ref := typeNode.AsTypeReferenceNode()
-			name = nestiaSDKEntityNameText(ref.TypeName)
-			if name == "TypeGuardError" {
-				return true
-			}
+	if prog == nil || prog.Checker == nil {
+		return false
+	}
+	var symbol *shimast.Symbol
+	if typeNode != nil && typeNode.Kind == shimast.KindTypeReference {
+		ref := typeNode.AsTypeReferenceNode()
+		symbol = prog.Checker.GetSymbolAtLocation(ref.TypeName)
+	}
+	if symbol == nil && typ != nil {
+		symbol = typ.Symbol()
+	}
+	if symbol == nil {
+		return false
+	}
+	if symbol.Flags&shimast.SymbolFlagsAlias != 0 {
+		if aliased := shimchecker.Checker_getAliasedSymbol(prog.Checker, symbol); aliased != nil {
+			symbol = aliased
 		}
 	}
-	if prog != nil && prog.Checker != nil && typ != nil {
-		name := prog.Checker.TypeToString(typ)
-		return name == "TypeGuardError" || strings.HasPrefix(name, "TypeGuardError<")
+	if symbol.Name != "TypeGuardError" {
+		return false
+	}
+	for _, declaration := range symbol.Declarations {
+		source := shimast.GetSourceFileOfNode(declaration)
+		if source == nil {
+			continue
+		}
+		file := filepath.ToSlash(source.FileName())
+		if strings.Contains(file, "/node_modules/typia/") &&
+			strings.HasSuffix(file, "/TypeGuardError.d.ts") {
+			return true
+		}
 	}
 	return false
 }

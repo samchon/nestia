@@ -208,6 +208,8 @@ const feature = async (name, port) => {
   if (name === "native-namespace-methods")
     assertNativeNamespaceMethods(cwd);
   if (name === "native-import-alias") assertNativeImportAlias(cwd);
+  if (name === "native-typeguard-provenance")
+    assertNativeTypeGuardProvenance(cwd);
   assertGeneratedImportsAreExtensionless(cwd);
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (hasTtsxTestFiles(cwd)) {
@@ -307,6 +309,29 @@ const hasMatchingTypeScriptFile = (location, matcher) => {
     }
   }
   return false;
+};
+
+// Regression lock for the special TypeGuardError exception schema. Only
+// typia's actual declaration receives that synthetic schema: a user's same-
+// named interface must retain its own reflected OpenAPI object.
+//
+// 1. Generate Swagger for a locally declared TypeGuardError exception.
+// 2. Require its response to reference the local shape, not TypeGuardErrorany.
+const assertNativeTypeGuardProvenance = (cwd) => {
+  const swagger = JSON.parse(
+    fs.readFileSync(path.join(cwd, "swagger.json"), "utf8"),
+  );
+  const schema = swagger.paths?.["/provenance/local"]?.get?.responses?.[409]
+    ?.content?.["application/json"]?.schema;
+  if (schema?.$ref !== "#/components/schemas/TypeGuardError")
+    throw new Error(
+      "native-typeguard-provenance did not preserve the local TypeGuardError schema.",
+    );
+  const properties = swagger.components?.schemas?.TypeGuardError?.properties;
+  if (properties?.reason?.type !== "string")
+    throw new Error(
+      "native-typeguard-provenance omitted the local TypeGuardError.reason property.",
+    );
 };
 
 const removePaths = async (cwd, locations) => {
