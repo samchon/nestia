@@ -14,11 +14,11 @@ Read this document in full when the user authorizes implementation pull requests
 
 Five rules govern the implementation phase:
 
-- The main agent performs all implementation, test authoring, CI diagnosis, review, and cleanup. Spawn no subagent except the read-only [commit early-warning pass](#implement-and-write-tests).
+- The main agent performs all implementation, test authoring, CI diagnosis, review, and cleanup. Spawn no subagent except the required read-only [commit early-warning pass](#implement-and-write-tests), which runs on every pushed commit.
 - Put every accepted, implementation-ready issue in the current cycle into one pull request. The issue DAG controls implementation order inside that pull request, not pull-request count.
 - Work in the current checkout and one topic branch. Do not create a clone or worktree for a solo campaign or its Self-Review; a disposable checkout for a mutation experiment is a verification tool, not a second implementation home.
 - The pull request's ordinary CI, a clean solo Self-Review, and every applicable integration gate are the acceptance gates. Repair every red CI lane in that same pull request, even when the failure predates the campaign or is unrelated to its original issues.
-- Campaign branches and pull requests freeze package versions, release tags, and publication state. They never choose a release number or publish a package. A maintainer release begins only after campaign completion, or after the user explicitly suspends the campaign and lifts the freeze, and remains a separate task.
+- Campaign branches and pull requests freeze package versions, release tags, and publication state. They never choose a release number or publish a package. A maintainer release begins only after campaign completion, or after the user explicitly suspends the campaign and lifts the freeze; it remains a separate task either way.
 
 ## Plan One Cycle Pull Request
 
@@ -66,7 +66,7 @@ A revert inside the pull request must not carry the closing keyword forward: `gi
 
 After each pushed commit, submit a formal GitHub pull-request review with the `COMMENT` event naming the commit, what it landed, and which issues it resolved. The review is the running ledger for a reader who does not read the diff, not a closing mechanism: GitHub closes an issue only from a commit message or the pull-request body. Follow the [pull-request skill](../pull-request/SKILL.md#write-the-pull-request) for inline comments, review bodies, and self-review restrictions; do not replace this ledger with ordinary issue-style pull-request comments.
 
-Once a commit lands, the main agent may spawn one read-only subagent as a commit early-warning pass over that commit and keep implementing while it runs. The pass reads that one commit and reports candidates. It never edits, commits, pushes, or makes an implementation decision. Its value is timing: a defect named while that code is the newest thing written costs little to correct, and nothing has been built on top of it yet.
+Spawn one read-only subagent as a commit early-warning pass over every pushed commit, and keep implementing the next issue while it runs. The pass is required, not an option the schedule may drop: a defect named while that code is the newest thing written costs little to correct, and nothing has been built on top of it yet. It reads that one commit and reports candidates, and it never edits, commits, pushes, or makes an implementation decision. Reproduce every candidate it reports before acting on it, exactly as the author would reproduce one of their own.
 
 The pass never reduces the [Self-Review](#validate-with-ci-and-self-review) that gates the merge. A reader holding one commit cannot see what appears only across files: a helper that duplicates one the package already has, a native transform branch whose emitted decorator arguments no test workspace exercises, or a guide claiming a behavior the generator no longer performs. The main agent's own complete round over the whole base-to-head diff is what finds those, and no number of passes substitutes for it. The [review skill](../review/SKILL.md#commit-early-warning-pass) owns that boundary and the name the pass must not take.
 
@@ -84,7 +84,7 @@ Start every long command asynchronously and continue with work that does not dep
 
 Maintain a compact command record containing the command, source snapshot, start time, dependent decision, and final result. Check a running command at a genuine decision boundary, when it exits, or before merge. Do not use sleep loops or foreground waits merely to discover that a command is still running.
 
-Overlap stops where it would destroy evidence. A Self-Review round runs against one frozen snapshot, and a merge waits for every result its gates depend on; both boundaries are stated below.
+Overlap stops where it would destroy evidence: a [Self-Review round](#validate-with-ci-and-self-review) must not race a source change, and a [merge](#merge-and-clean-up) must not precede the results its gates depend on.
 
 ## Validate With CI And Self-Review
 
@@ -99,7 +99,7 @@ CI and review are independent gates:
 - CI must prove every configured build, type-check, test, packaging, and platform lane.
 - Self-Review must prove requirement fidelity, consequence coverage, issue-by-issue acceptance, test quality, documentation, generated output, and risks not encoded in CI.
 
-Treat the native Go transform, the SDK and Swagger generators, shared metadata, common runtime helpers, package manifests or declarations, CLI code, and test or oracle infrastructure as integration-sensitive. Before merging such a change, construct the prospective merge result of `origin/master` and the pull-request head in a disposable checkout, and run the canonical command set for root build, test, static analysis, generated artifacts, and clean packed consumers. Record the exact SHAs and commands with the result. An unavailable or failed mandatory gate blocks merge. Re-read `origin/master` before merge and restart the gate if it changed, then verify the merge SHA with the same commands afterward. Do not turn master red.
+Treat the native Go transform, the SDK and Swagger generators, shared metadata, common runtime helpers, package manifests or declarations, CLI code, and test or oracle infrastructure as integration-sensitive. Before merging such a change, construct the prospective merge result of `origin/master` and the pull-request head in a disposable checkout, and run the canonical command set for root build, test, static analysis, generated artifacts, and clean packed consumers. Record the exact SHAs and commands with the result. An unavailable or failed gate blocks merge, and a narrower consequence claim never omits one. Re-read `origin/master` before merge and restart the gate if it changed, then verify the merge SHA with the same commands afterward. Do not turn master red.
 
 Prove the regression tests are sensitive before merge: in a disposable checkout, revert or mutate only the product fix while retaining the tests, and require the expected assertions to fail while adjacent controls still pass.
 

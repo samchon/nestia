@@ -30,7 +30,7 @@ Keep concise, current Markdown documents for:
 
 Record raw candidates before fact-checking. The knowledge base is the durable place to collect overlapping observations, then combine, split, rewrite, reject, or defer them without losing why.
 
-Record every audited path and executed cell against its evidence, and record an absent check as absent rather than omitting it. A round whose notes cannot distinguish an executed check from an unrun one cannot support the completion gate below.
+Record every audited path and executed cell against its evidence, and record an absent check as absent rather than omitting it. A round whose notes cannot distinguish an executed check from an unrun one cannot support [Discovery Ends Only On An Empty Round](#discovery-ends-only-on-an-empty-round).
 
 The knowledge base supports the campaign but is not the final issue body. A published issue must stand alone without access to `.wiki`.
 
