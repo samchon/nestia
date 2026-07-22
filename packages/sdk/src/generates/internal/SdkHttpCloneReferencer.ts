@@ -69,22 +69,24 @@ export namespace SdkHttpCloneReferencer {
     directory: string;
     route: ITypedWebSocketRoute;
   }): void => {
-    const unique: Set<string> = new Set();
+    const unique: Map<string, string> = new Map();
     const keep: ITypedWebSocketRoute["imports"] = [];
     for (const imp of props.route.imports) {
       const cloned: string[] = SdkWebSocketCloneProgrammer.isNodeModulesPath(
         imp.file,
       )
         ? []
-        : imp.elements.filter((elem) =>
-            props.cloned.has(
-              SdkWebSocketCloneProgrammer.importKey(imp.file, elem),
-            ),
-          );
+        : imp.elements.filter((elem) => {
+            const imported: string = imp.elementAliases?.[elem] ?? elem;
+            return props.cloned.has(
+              SdkWebSocketCloneProgrammer.importKey(imp.file, imported),
+            );
+          });
       const remained: string[] = imp.elements.filter(
         (elem) => cloned.includes(elem) === false,
       );
-      for (const elem of cloned) unique.add(elem);
+      for (const elem of cloned)
+        unique.set(elem, imp.elementAliases?.[elem] ?? elem);
       if (
         imp.asterisk !== null ||
         imp.default !== null ||
@@ -98,11 +100,14 @@ export namespace SdkHttpCloneReferencer {
 
     props.route.imports = [
       ...keep,
-      ...Array.from(unique).map((str) => ({
-        file: `${props.directory}/${str}`,
+      ...Array.from(unique).map(([local, imported]) => ({
+        file: `${props.directory}/${imported}`,
         asterisk: null,
         default: null,
-        elements: [str],
+        elements: [local],
+        ...(local === imported
+          ? {}
+          : { elementAliases: { [local]: imported } }),
       })),
     ];
   };

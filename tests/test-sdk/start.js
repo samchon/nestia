@@ -207,6 +207,7 @@ const feature = async (name, port) => {
     assertNestedOutputDirectories(cwd);
   if (name === "native-namespace-methods")
     assertNativeNamespaceMethods(cwd);
+  if (name === "native-import-alias") assertNativeImportAlias(cwd);
   assertGeneratedImportsAreExtensionless(cwd);
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (hasTtsxTestFiles(cwd)) {
@@ -276,6 +277,36 @@ const assertNativeNamespaceMethods = (cwd) => {
     throw new Error(
       `native-namespace-methods omitted Swagger route(s): ${missing.join(", ")}`,
     );
+};
+
+// Regression lock for named TypeScript imports whose local binding differs
+// from the source module's exported name. The metadata must preserve both so
+// generated SDK declarations import the real export under the local spelling.
+//
+// 1. Generate an SDK for a controller that uses `IAccount as Account`.
+// 2. Require the generated SDK to retain that named-import alias before tsc.
+const assertNativeImportAlias = (cwd) => {
+  const root = path.join(cwd, "src/api");
+  const matcher = /\bIAccount\s+as\s+Account\b/;
+  if (hasMatchingTypeScriptFile(root, matcher) === false)
+    throw new Error(
+      "native-import-alias did not preserve `IAccount as Account` in the generated SDK.",
+    );
+};
+
+const hasMatchingTypeScriptFile = (location, matcher) => {
+  if (!fs.existsSync(location)) return false;
+  for (const entry of fs.readdirSync(location)) {
+    const next = path.join(location, entry);
+    const stats = fs.statSync(next);
+    if (stats.isDirectory() && hasMatchingTypeScriptFile(next, matcher))
+      return true;
+    if (stats.isFile() && entry.endsWith(".ts")) {
+      const content = fs.readFileSync(next, "utf8");
+      if (matcher.test(content)) return true;
+    }
+  }
+  return false;
 };
 
 const removePaths = async (cwd, locations) => {

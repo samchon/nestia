@@ -14,9 +14,10 @@ export namespace SdkWebSocketCloneProgrammer {
     for (const route of app.routes)
       if (route.protocol === "websocket")
         for (const imp of route.imports)
-          for (const name of imp.elements) {
-            if (await clone(ctx)(imp.file, name))
-              cloned.add(importKey(imp.file, name));
+          for (const local of imp.elements) {
+            const imported: string = imp.elementAliases?.[local] ?? local;
+            if (await clone(ctx)(imp.file, imported))
+              cloned.add(importKey(imp.file, imported));
           }
     return cloned;
   };

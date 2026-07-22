@@ -42,10 +42,12 @@ export class ImportDictionary {
         });
       for (const elem of imp.elements) {
         if (elem === "WebSocketAcceptor") continue;
+        const imported: string = imp.elementAliases?.[elem] ?? elem;
         this.internal({
           type: "element",
           file: imp.file,
-          name: elem,
+          name: imported,
+          alias: imported === elem ? undefined : elem,
           declaration: true,
         });
       }
@@ -70,10 +72,12 @@ export class ImportDictionary {
     };
     const value: ICompositeValue = this.components_.take(key, () => ({
       ...key,
-      elements: new TreeMap<string, string | null>(),
+      elements: new TreeMap<string, string>(),
     }));
-    if (props.type === "element")
-      value.elements.set(props.name, props.alias ?? null);
+    if (props.type === "element") {
+      const local: string = props.alias ?? props.name;
+      value.elements.set(local, props.name);
+    }
     return props.type === "element" ? (props.alias ?? props.name) : props.name;
   }
 
@@ -143,11 +147,13 @@ export class ImportDictionary {
       c.default !== null ? factory.createIdentifier(c.default) : undefined,
       c.elements.size() !== 0
         ? factory.createNamedImports(
-            Array.from(c.elements).map(({ first: name, second: alias }) =>
+            Array.from(c.elements).map(({ first: local, second: imported }) =>
               factory.createImportSpecifier(
                 false,
-                alias !== null ? factory.createIdentifier(name) : undefined,
-                factory.createIdentifier(alias ?? name),
+                imported !== local
+                  ? factory.createIdentifier(imported)
+                  : undefined,
+                factory.createIdentifier(local),
               ),
             ),
           )
@@ -172,7 +178,8 @@ interface ICompositeKey {
   default: string | null;
 }
 interface ICompositeValue extends ICompositeKey {
-  elements: TreeMap<string, string | null>;
+  /** Maps each local named binding to the exported name. */
+  elements: TreeMap<string, string>;
 }
 
 const NODE_MODULES = "node_modules/";
