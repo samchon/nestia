@@ -42,7 +42,17 @@ That manifest target, `packages/core/native/transform.cjs`, is the operative des
 
 `packages/core/src/transform.ts` and `packages/sdk/src/transform.ts` are plugin descriptors, not transformers. Each resolves its own installed package root through `createRequire(...).resolve("<pkg>/package.json")` and returns the Go entrypoint. `packages/sdk` deliberately has no `ttsc` key: its Go source is `package sdk`, a non-main package that ttsc statically links into the core host binary. Adding a second plugin entry for `@nestia/sdk` is a misconfiguration, and `tests/test-transform-options` records that in a source comment.
 
-Consumers reach the binary through `ttsc` / `ttsx` and the published descriptors. Inside the repo, every test workspace's `start` script uses `cross-env` to carry the `NODE_OPTIONS="--no-experimental-strip-types --no-experimental-detect-module"` that Node 24 needs. Five of them additionally set `TTSC_GO_BINARY=go` and pin `TTSC_CACHE_DIR` so the Go source-plugin build is reused; `test-e2e`, `test-migrate`, and `test-benchmark` point it at the shared root cache, `test-sdk` reaches the same cache from inside `features/<name>/`, and `test-transform-options` deliberately keeps a workspace-local one. `test-cli` and `test-editor` set neither variable, because they build the package under test first and exercise its built artifacts rather than compiling through the plugin.
+Consumers reach the binary through `ttsc` / `ttsx` and the published descriptors. Inside the repo, every test workspace's `start` script uses `cross-env` to carry the `NODE_OPTIONS="--no-experimental-strip-types --no-experimental-detect-module"` that Node 24 needs.
+
+Five of them additionally set `TTSC_GO_BINARY=go` and pin `TTSC_CACHE_DIR` so the Go source-plugin build is reused:
+
+| Workspace | Cache it pins |
+| --- | --- |
+| `test-e2e`, `test-migrate`, `test-benchmark` | the shared root cache |
+| `test-sdk` | the same shared cache, reached from inside `features/<name>/` |
+| `test-transform-options` | a deliberately workspace-local cache |
+
+`test-cli` and `test-editor` set neither variable, because they build the package under test first and exercise its built artifacts rather than compiling through the plugin.
 
 ## Layout
 
@@ -70,6 +80,6 @@ pnpm test
 
 `pnpm format` is one Prettier invocation over `packages/**/*.ts` and `tests/**/*.ts`. It does not touch Go, Markdown, MDX, the website, or the benchmark workspace.
 
-It used to chain three invocations with `&&`, the second over a `internals/**/*.ts` directory that does not exist. Prettier exits 2 on a glob that matches nothing, so the chain aborted after the first invocation and `tests/**/*.ts` was never formatted. Keep the targets in one invocation: a chain lets an unmatched pattern silently drop every target after it.
+Keep those targets in one invocation. A chained `&&` lets an unmatched pattern silently drop every target after it: the script once chained three invocations, the second over an `internals/**/*.ts` directory that does not exist, and because Prettier exits 2 on a glob that matches nothing, `tests/**/*.ts` was never formatted at all.
 
 Release-time commands (most contributors skip these): `pnpm package:rc`, `pnpm package:next`, `pnpm package:latest`, and `pnpm release`. `pnpm package:tgz` stages local tarballs in `deploy/tarballs/`, which the website build then installs. See `.agents/skills/pull-request/SKILL.md` for the remote delivery flow.

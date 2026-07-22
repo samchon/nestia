@@ -40,7 +40,18 @@ Freeze one exact commit before every round and work from it with a recorded depe
 
 Perform complete Solo Issue Discovery Rounds over every tracked repository surface, repeating them until one comes up empty. Source is only one evidence layer. Exercise real workflows and inspect relevant upstream behavior, history, generated artifacts, consumers, fixtures, public documentation, and closed decisions. For nestia that means running the generators and reading what they emit: Swagger documents, SDK libraries, mockup simulators, and generated e2e suites are product output, and a defect visible only in emitted code is still a defect.
 
-Cover this matrix as a floor and add the dimensions source and history reveal: every decorator and its option set; Express and Fastify for every request and response path; the Swagger document, SDK library, mockup simulator, and generated e2e suite one controller produces; `INestiaConfig` options and CLI flags, including the `--project` and `--config` paths; equivalent aliases, interfaces, classes, intersections, unions, generics, and re-exported or ambient declarations; user-global, default-library, module, package, and runtime-native provenance; transform-option interactions; valid, invalid, malformed, maximum-width, and one-past-boundary inputs; repeated generated-byte identity; clean tarball consumers; and supported Node, module-resolution, operating-system, and CLI paths.
+Cover this matrix as a floor, and add the dimensions source and history reveal:
+
+- every decorator and its option set;
+- Express and Fastify for every request and response path;
+- the Swagger document, SDK library, mockup simulator, and generated e2e suite one controller produces;
+- `INestiaConfig` options and CLI flags, including the `--project` and `--config` paths;
+- equivalent aliases, interfaces, classes, intersections, unions, generics, and re-exported or ambient declarations;
+- user-global, default-library, module, package, and runtime-native provenance;
+- transform-option interactions;
+- valid, invalid, malformed, maximum-width, and one-past-boundary inputs;
+- repeated generated-byte identity and clean tarball consumers; and
+- supported Node, module-resolution, operating-system, and CLI paths.
 
 Every interaction that reaches shared control flow is a separate cell, and every positive cell has a one-axis negative twin. Record negative results and killed hypotheses so a later round knows which exact experiment already ran.
 
