@@ -1,4 +1,9 @@
-import { SwaggerCustomizer, TypedParam, TypedRoute } from "@nestia/core";
+import {
+  SwaggerCustomizer,
+  SwaggerExample,
+  TypedParam,
+  TypedRoute,
+} from "@nestia/core";
 import { Controller, Param } from "@nestjs/common";
 import { tags } from "typia";
 
@@ -69,5 +74,49 @@ export class CustomController {
       readonlyProperty: [],
       readonlyBoth: [],
     };
+  }
+}
+
+@Controller("custom/inheritance/base")
+export class InheritedSwaggerControllerBase {
+  @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
+    (props.route as any)["x-metadata-base"] = true;
+  })
+  @TypedRoute.Get("route")
+  public route(): string {
+    return "base";
+  }
+
+  @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
+    (props.route as any)["x-metadata-inherited"] = true;
+  })
+  @TypedRoute.Get("inherited")
+  public inherited(): string {
+    return "inherited";
+  }
+
+  public example(@SwaggerExample.Parameter("base") value: string): string {
+    return value;
+  }
+
+  public inheritedExample(
+    @SwaggerExample.Parameter("inherited") value: string,
+  ): string {
+    return value;
+  }
+}
+
+@Controller("custom/inheritance/derived")
+export class InheritedSwaggerController extends InheritedSwaggerControllerBase {
+  @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
+    (props.route as any)["x-metadata-derived"] = true;
+  })
+  @TypedRoute.Get("route")
+  public route(): string {
+    return "derived";
+  }
+
+  public example(@SwaggerExample.Parameter("derived") value: string): string {
+    return value;
   }
 }

@@ -26,12 +26,28 @@ export class InheritedMcpControllerBase {
   ): Promise<IInheritedMcpResult> {
     return { result: params.a + params.b };
   }
+
+  /** Must be replaced by the derived tool metadata. */
+  @core.McpRoute("base_override")
+  public async override(
+    @core.McpRoute.Params() params: IInheritedMcpInput,
+  ): Promise<IInheritedMcpResult> {
+    return { result: params.a + params.b };
+  }
 }
 
 @Controller()
 export class InheritedMcpController extends InheritedMcpControllerBase {
   public async hidden(
     params: IInheritedMcpInput,
+  ): Promise<IInheritedMcpResult> {
+    return { result: params.a - params.b };
+  }
+
+  /** Return the difference of the derived input fields. */
+  @core.McpRoute("derived_override")
+  public async override(
+    @core.McpRoute.Params() params: IInheritedMcpInput,
   ): Promise<IInheritedMcpResult> {
     return { result: params.a - params.b };
   }

@@ -47,6 +47,13 @@ export const test_mcp_tools_call = async (
     const multiplyPayload = JSON.parse(multiplyResult.content[0].text);
     TestValidator.equals("multiply result", multiplyPayload.result, 6);
 
+    const overrideResult: any = await client.callTool({
+      name: "derived_override",
+      arguments: { a: 9, b: 3 },
+    });
+    const overridePayload = JSON.parse(overrideResult.content[0].text);
+    TestValidator.equals("derived override result", overridePayload.result, 6);
+
     const weatherResult: any = await client.callTool({
       name: "get_weather",
       arguments: { location: "Tokyo", unit: "celsius" },
