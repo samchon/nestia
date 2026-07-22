@@ -73,19 +73,28 @@ export namespace ImportAnalyzer {
             asterisk: null,
           }) satisfies IReflectImport,
       );
-    const instances: Set<string> = new Set(
-      imports.map((imp) => imp.elements).flat(),
-    );
+    const instances: Map<string, string> = new Map();
+    for (const imp of imports)
+      for (const local of imp.elements)
+        instances.set(local, imp.elementAliases?.[local] ?? local);
     if (instances.size !== 0) {
-      if (defaultImports.length !== 0)
-        defaultImports[0]!.elements = Array.from(instances).sort();
-      else
-        defaultImports.push({
+      const elements = Array.from(instances.keys()).sort();
+      const elementAliases: Record<string, string> = {};
+      for (const local of elements) {
+        const imported = instances.get(local)!;
+        if (imported !== local) elementAliases[local] = imported;
+      }
+      const target: IReflectImport =
+        defaultImports[0] ?? {
           file,
-          elements: Array.from(instances).sort(),
+          elements: [],
           default: null,
           asterisk: null,
-        });
+        };
+      target.elements = elements;
+      if (Object.keys(elementAliases).length !== 0)
+        target.elementAliases = elementAliases;
+      if (defaultImports.length === 0) defaultImports.push(target);
     }
     return [...allStarImports, ...defaultImports];
   }

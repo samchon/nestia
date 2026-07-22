@@ -84,7 +84,7 @@ export function TypedException<T>(
 export function TypedException<T>(
   status: number | "2XX" | "3XX" | "4XX" | "5XX",
   description?: string | undefined,
-): MethodDecorator;
+): MethodDecorator & Pick<TypedException.IProps<T>, never>;
 
 /** @internal */
 export function TypedException<T>(...args: any[]): MethodDecorator {

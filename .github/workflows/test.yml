@@ -4,6 +4,7 @@ on:
     paths:
       - '.github/workflows/test.yml'
       - 'config/**'
+      - 'benchmark/**'
       - 'packages/*/native/**'
       - 'packages/*/src/**'
       - 'packages/*/test/**'
@@ -67,3 +68,38 @@ jobs:
         env:
           NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
         run: ${{ matrix.run }}
+
+  benchmark-system:
+    name: benchmark-system (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: packages/core/native/go.mod
+          cache-dependency-path: packages/core/native/go.sum
+      - uses: pnpm/action-setup@v4
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Use System Go For Source Plugin Build
+        shell: bash
+        run: echo "TTSC_GO_BINARY=$(go env GOROOT)/bin/go" >> "$GITHUB_ENV"
+
+      - name: Build Packages
+        env:
+          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
+        run: pnpm build
+
+      - name: Build and Test Benchmark System
+        env:
+          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
+        run: pnpm --filter ./benchmark build && pnpm --filter ./benchmark test

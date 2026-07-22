@@ -43,6 +43,26 @@ export namespace EditorTestHarness {
     require(path.join(LIB, "internal", "NestiaEditorComposer.js"))
       .NestiaEditorComposer;
 
+  export const uploaderMarkup = (): string => {
+    const React: {
+      createElement: (type: unknown, props: object) => unknown;
+    } = require(path.join(ROOT, "packages", "editor", "node_modules", "react"));
+    const renderToStaticMarkup: (element: unknown) => string = require(
+      path.join(
+        ROOT,
+        "packages",
+        "editor",
+        "node_modules",
+        "react-dom",
+        "server",
+      ),
+    ).renderToStaticMarkup;
+    const uploader: unknown = require(
+      path.join(LIB, "NestiaEditorUploader.js"),
+    ).NestiaEditorUploader;
+    return renderToStaticMarkup(React.createElement(uploader, {}));
+  };
+
   /** Minimal OpenAPI 3.1 document accepted by the migrate application. */
   export const document = (): object => ({
     openapi: "3.1.0",

@@ -26,7 +26,5 @@ export namespace E2eGenerator {
 }
 
 const mkdir = async (location: string): Promise<void> => {
-  try {
-    await fs.promises.mkdir(location);
-  } catch {}
+  await fs.promises.mkdir(location, { recursive: true });
 };

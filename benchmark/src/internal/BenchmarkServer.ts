@@ -1,5 +1,4 @@
 import fs from "fs";
-import PHYSICAL_CPU_COUNT from "physical-cpu-count";
 import tgrid from "tgrid";
 
 import { IBenchmarkProgram } from "../programs/IBenchmarkProgram";

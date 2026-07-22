@@ -1,7 +1,7 @@
 import cannon from "autocannon";
-import PHYSICAL_CPU_COUNT from "physical-cpu-count";
 import tgrid from "tgrid";
 
+import { BenchmarkWorker } from "../../internal/BenchmarkWorker";
 import { Collection } from "../../structures/pure/Collection";
 import { IBenchmarkProgram } from "../IBenchmarkProgram";
 import { IAssertServerProgram } from "./IAssertServerProgram";
@@ -42,7 +42,7 @@ const shoot =
             "Content-Type": "application/json",
           },
           body,
-          workers: Math.min(2, PHYSICAL_CPU_COUNT - 2),
+          workers: BenchmarkWorker.count(),
           timeout: 300,
           connections: 500,
         },

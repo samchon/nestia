@@ -19,9 +19,7 @@ export namespace SdkGenerator {
 
     // PREPARE NEW DIRECTORIES
     console.log("Generating SDK Library");
-    try {
-      await fs.promises.mkdir(app.project.config.output);
-    } catch {}
+    await fs.promises.mkdir(app.project.config.output, { recursive: true });
 
     // BUNDLING
     await bundle(app.project.config.output);

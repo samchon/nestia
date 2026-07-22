@@ -11,36 +11,38 @@ export namespace SdkDistributionComposer {
     websocket: boolean;
   }) => {
     if (!fs.existsSync(props.config.distribute!))
-      await fs.promises.mkdir(props.config.distribute!);
+      await fs.promises.mkdir(props.config.distribute!, { recursive: true });
 
     const root: string = process.cwd();
     const output: string = path.resolve(props.config.output!);
     process.chdir(props.config.distribute!);
+    try {
+      if (await configured()) return;
 
-    const exit = () => process.chdir(root);
-    if (await configured()) return exit();
+      // COPY FILES
+      console.log("Composing SDK distribution environments...");
+      for (const file of await fs.promises.readdir(BUNDLE))
+        await fs.promises.copyFile(`${BUNDLE}/${file}`, file);
 
-    // COPY FILES
-    console.log("Composing SDK distribution environments...");
-    for (const file of await fs.promises.readdir(BUNDLE))
-      await fs.promises.copyFile(`${BUNDLE}/${file}`, file);
+      // CONFIGURE PATHS
+      for (const file of ["package.json", "tsconfig.json"])
+        await replace({ root, output })(file);
 
-    // CONFIGURE PATHS
-    for (const file of ["package.json", "tsconfig.json"])
-      await replace({ root, output })(file);
-
-    // INSTALL PACKAGES
-    const v: IDependencies = await dependencies({ websocket: props.websocket });
-    execute("npm install --save-dev rimraf");
-    execute(`npm install --save @nestia/fetcher@${v.version}`);
-    execute(`npm install --save typia@${v.typia}`);
-    if (props.mcp && v.mcp !== undefined)
-      execute(`npm install --save @modelcontextprotocol/sdk@${v.mcp}`);
-    if (props.websocket && v.tgrid !== undefined)
-      execute(`npm install --save tgrid@${v.tgrid}`);
-    execute("npx typia setup --manager npm");
-
-    exit();
+      // INSTALL PACKAGES
+      const v: IDependencies = await dependencies({
+        websocket: props.websocket,
+      });
+      execute("npm install --save-dev rimraf");
+      execute(`npm install --save @nestia/fetcher@${v.version}`);
+      execute(`npm install --save typia@${v.typia}`);
+      if (props.mcp && v.mcp !== undefined)
+        execute(`npm install --save @modelcontextprotocol/sdk@${v.mcp}`);
+      if (props.websocket && v.tgrid !== undefined)
+        execute(`npm install --save tgrid@${v.tgrid}`);
+      execute("npx typia setup --manager npm");
+    } finally {
+      process.chdir(root);
+    }
   };
 
   const configured = async (): Promise<boolean> =>

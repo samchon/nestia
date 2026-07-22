@@ -4,7 +4,7 @@ import { Driver, WebSocketAcceptor } from "tgrid";
 
 import { ICalculator } from "../interfaces/ICalculator";
 import { IListener } from "../interfaces/IListener";
-import { IPrecision } from "../interfaces/IPrecision";
+import { IPrecision as Precision } from "../interfaces/IPrecision";
 
 export function CalculateControllerBase(path: string) {
   @Controller(path)
@@ -12,7 +12,7 @@ export function CalculateControllerBase(path: string) {
     @core.WebSocketRoute()
     public async connect(
       @core.WebSocketRoute.Acceptor()
-      acceptor: WebSocketAcceptor<IPrecision, ICalculator, IListener>,
+      acceptor: WebSocketAcceptor<Precision, ICalculator, IListener>,
       @core.WebSocketRoute.Driver()
       driver: Driver<IListener>,
     ): Promise<void> {

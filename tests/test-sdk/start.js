@@ -44,6 +44,12 @@ const TYPESCRIPT_ERROR_FEATURES = new Set([
   "security-error-not-oauth2",
   "security-error-out-of-scopes",
 ]);
+const EXPECTED_ERROR_DIAGNOSTICS = new Map([
+  [
+    "websocket-error-invalid-acceptor-arity",
+    "@WebSocketRoute.Acceptor() must have three type arguments.",
+  ],
+]);
 
 const run = (file, args, options) =>
   new Promise((resolve, reject) => {
@@ -92,6 +98,35 @@ const runNode = (cwd, script, args, stdio = "ignore", env = undefined) =>
 const runNestia = (cwd, args, stdio = "ignore") =>
   runNode(cwd, TTSX_BIN, [CLI_MAIN, ...args], stdio);
 
+const runNestiaForError = (cwd, args) =>
+  new Promise((resolve, reject) => {
+    const child = cp.spawn(NODE, [TTSX_BIN, CLI_MAIN, ...args], {
+      cwd,
+      env: process.env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const chunks = [];
+    child.stdout.on("data", (chunk) => chunks.push(chunk));
+    child.stderr.on("data", (chunk) => chunks.push(chunk));
+    child.on("error", reject);
+    child.on("close", (code, signal) => {
+      const output = Buffer.concat(chunks).toString("utf8");
+      if (code === 0)
+        reject(
+          new Error(
+            `${[NODE, TTSX_BIN, CLI_MAIN, ...args].join(" ")} unexpectedly succeeded.`,
+          ),
+        );
+      else if (signal !== null)
+        reject(
+          new Error(
+            `${[NODE, TTSX_BIN, CLI_MAIN, ...args].join(" ")} ended with ${signal}.`,
+          ),
+        );
+      else resolve(output);
+    });
+  });
+
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
 const feature = async (name, port) => {
@@ -99,6 +134,13 @@ const feature = async (name, port) => {
   if (name === "bundle-preserve") return runBundlePreserveFeature();
   if (name === "cli-argument-diagnostics")
     return runCliArgumentDiagnosticsFeature();
+  if (name === "distribute-cwd-restore")
+    return runNode(
+      ROOT,
+      path.join(__dirname, "distribute-cwd-restore.js"),
+      [],
+      "inherit",
+    );
 
   const cwd = featureDirectory(name);
   const configFile =
@@ -116,6 +158,18 @@ const feature = async (name, port) => {
   };
 
   if (name.includes("error")) {
+    const expected = EXPECTED_ERROR_DIAGNOSTICS.get(name);
+    if (expected !== undefined) {
+      const output = await runNestiaForError(cwd, [
+        "all",
+        ...generationTail(name),
+      ]);
+      if (output.includes(expected) === false)
+        throw new Error(
+          `${name} did not report its expected diagnostic:\n${output}`,
+        );
+      return;
+    }
     try {
       if (TYPESCRIPT_ERROR_FEATURES.has(name)) await runTsc(cwd);
       await generate("all", true);
@@ -135,6 +189,7 @@ const feature = async (name, port) => {
     "src/api/module.ts",
     "src/api/Primitive.ts",
     "src/test/features/api/automated",
+    ...(name === "nested-output-directories" ? ["generated"] : []),
   ]);
 
   if (name.includes("distribute")) return;
@@ -148,6 +203,14 @@ const feature = async (name, port) => {
       if (config.includes(`${kind}:`)) await generate(kind);
   } else await generate("all");
 
+  if (name === "nested-output-directories")
+    assertNestedOutputDirectories(cwd);
+  if (name === "native-namespace-methods")
+    assertNativeNamespaceMethods(cwd);
+  if (name === "native-import-alias") assertNativeImportAlias(cwd);
+  if (name === "native-typeguard-provenance")
+    assertNativeTypeGuardProvenance(cwd);
+  if (name === "websocket-clone") assertWebSocketCloneAlias(cwd);
   assertGeneratedImportsAreExtensionless(cwd);
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (hasTtsxTestFiles(cwd)) {
@@ -164,6 +227,136 @@ const feature = async (name, port) => {
       await runTsc(cwd, "inherit");
     }
   }
+};
+
+// Regression lock for generators whose configured output path contains more
+// than one missing parent directory. Each generator must create the parent of
+// its final file location, rather than assuming a shallow output root exists.
+//
+// 1. Generate the SDK, Swagger document, and E2E suite into generated/**.
+// 2. Require a concrete output from each generator before TypeScript checks.
+const assertNestedOutputDirectories = (cwd) => {
+  const required = [
+    path.join(cwd, "generated/sdk/api/functional/index.ts"),
+    path.join(cwd, "generated/documents/openapi/swagger.json"),
+  ];
+  const missing = required.filter((location) => !fs.existsSync(location));
+  const e2e = path.join(cwd, "generated/tests/e2e");
+  if (hasTypeScriptFile(e2e) === false) missing.push(e2e);
+  if (missing.length !== 0)
+    throw new Error(
+      `nested-output-directories did not create: ${missing
+        .map((location) => path.relative(cwd, location))
+        .join(", ")}`,
+    );
+};
+
+const hasTypeScriptFile = (location) => {
+  if (!fs.existsSync(location)) return false;
+  for (const entry of fs.readdirSync(location)) {
+    const next = path.join(location, entry);
+    const stats = fs.statSync(next);
+    if (stats.isDirectory() && hasTypeScriptFile(next)) return true;
+    if (stats.isFile() && entry.endsWith(".ts")) return true;
+  }
+  return false;
+};
+
+// Regression lock for native SDK site collection. The de-duplication key must
+// identify a method declaration, not only its class and method spellings:
+// separate TypeScript namespaces may intentionally repeat both names.
+//
+// 1. Generate Swagger from two namespaced controllers with identical names.
+// 2. Require both independently decorated route paths in the document.
+const assertNativeNamespaceMethods = (cwd) => {
+  const swagger = JSON.parse(
+    fs.readFileSync(path.join(cwd, "swagger.json"), "utf8"),
+  );
+  const expected = ["/north/duplicate", "/south/duplicate"];
+  const missing = expected.filter(
+    (route) => swagger.paths?.[route] === undefined,
+  );
+  if (missing.length !== 0)
+    throw new Error(
+      `native-namespace-methods omitted Swagger route(s): ${missing.join(", ")}`,
+    );
+};
+
+// Regression lock for named TypeScript imports whose local binding differs
+// from the source module's exported name. The metadata must preserve both so
+// generated SDK declarations import the real export under the local spelling.
+//
+// 1. Generate an SDK for a controller that uses `IAccount as Account`.
+// 2. Require the generated SDK to retain that named-import alias before tsc.
+const assertNativeImportAlias = (cwd) => {
+  const root = path.join(cwd, "src/api");
+  const matcher = /\bIAccount\s+as\s+Account\b/;
+  if (hasMatchingTypeScriptFile(root, matcher) === false)
+    throw new Error(
+      "native-import-alias did not preserve `IAccount as Account` in the generated SDK.",
+    );
+};
+
+// Regression lock for aliases carried through the WebSocket clone pipeline.
+//
+// 1. Clone a WebSocket acceptor type imported as `IPrecision as Precision`.
+// 2. Require the generated client to import the cloned original under Precision.
+const assertWebSocketCloneAlias = (cwd) => {
+  const structures = path.join(cwd, "src/api/structures/IPrecision.ts");
+  if (
+    fs.existsSync(structures) === false ||
+    hasMatchingTypeScriptFile(
+      path.join(cwd, "src/api/functional"),
+      /\bIPrecision\s+as\s+Precision\s*}\s*from\s*["'][^"']*structures\/IPrecision["']/,
+    ) === false
+  )
+    throw new Error(
+      "websocket-clone did not preserve `IPrecision as Precision` from its cloned structure.",
+    );
+};
+
+const hasMatchingTypeScriptFile = (location, matcher) => {
+  if (!fs.existsSync(location)) return false;
+  for (const entry of fs.readdirSync(location)) {
+    const next = path.join(location, entry);
+    const stats = fs.statSync(next);
+    if (stats.isDirectory() && hasMatchingTypeScriptFile(next, matcher))
+      return true;
+    if (stats.isFile() && entry.endsWith(".ts")) {
+      const content = fs.readFileSync(next, "utf8");
+      if (matcher.test(content)) return true;
+    }
+  }
+  return false;
+};
+
+// Regression lock for the special TypeGuardError exception schema. Only
+// typia's actual declaration receives that synthetic schema: a user's same-
+// named interface must retain its own reflected OpenAPI object.
+//
+// 1. Generate Swagger for a locally declared TypeGuardError exception.
+// 2. Require its response to reference the local shape, not TypeGuardErrorany.
+const assertNativeTypeGuardProvenance = (cwd) => {
+  const swagger = JSON.parse(
+    fs.readFileSync(path.join(cwd, "swagger.json"), "utf8"),
+  );
+  const schema = swagger.paths?.["/provenance/local"]?.get?.responses?.[409]
+    ?.content?.["application/json"]?.schema;
+  if (schema?.$ref !== "#/components/schemas/TypeGuardError")
+    throw new Error(
+      "native-typeguard-provenance did not preserve the local TypeGuardError schema.",
+    );
+  const properties = swagger.components?.schemas?.TypeGuardError?.properties;
+  if (properties?.reason?.type !== "string")
+    throw new Error(
+      "native-typeguard-provenance omitted the local TypeGuardError.reason property.",
+    );
+  const typia = swagger.paths?.["/provenance/typia"]?.get?.responses?.[400]
+    ?.content?.["application/json"]?.schema;
+  if (typia?.$ref !== "#/components/schemas/TypeGuardErrorany")
+    throw new Error(
+      "native-typeguard-provenance did not retain typia's synthetic TypeGuardError schema.",
+    );
 };
 
 const removePaths = async (cwd, locations) => {
@@ -909,6 +1102,7 @@ const main = async () => {
     if (filter("bundle-preserve")) names.push("bundle-preserve");
     if (filter("cli-argument-diagnostics"))
       names.push("cli-argument-diagnostics");
+    if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
     await runFeatures(names);
   });
 };

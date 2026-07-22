@@ -82,7 +82,7 @@ func collectNestiaSDKSites(prog *driver.Program) ([]nestiaSDKSite, []transform.D
 		if file == nil || file.IsDeclarationFile {
 			continue
 		}
-		visited := map[string]bool{}
+		visited := map[int]bool{}
 		file.ForEachChild(func(node *shimast.Node) bool {
 			visitNestiaSDKNode(context, file, node, visited, &sites, &diagnostics)
 			return false
@@ -98,7 +98,7 @@ func visitNestiaSDKNode(
 	context *nestiaSDKContext,
 	file *shimast.SourceFile,
 	node *shimast.Node,
-	visited map[string]bool,
+	visited map[int]bool,
 	sites *[]nestiaSDKSite,
 	diagnostics *[]transform.Diagnostic,
 ) {
@@ -109,7 +109,10 @@ func visitNestiaSDKNode(
 		className := nestiaSDKParentClassName(node)
 		methodName := nestiaSDKMethodName(node)
 		if className != "" && methodName != "" {
-			key := className + "." + methodName
+			// A method's source position is unique in this file. Class and method
+			// names are not: namespaces can legitimately export identically named
+			// controller classes and methods.
+			key := node.Pos()
 			if visited[key] == false {
 				visited[key] = true
 				metadata, err := nestiaSDKMetadataText(context, file, node)
@@ -372,7 +375,12 @@ type nestiaSDKImportInfo struct {
 	File     string
 	Asterisk string
 	Default  string
-	Elements []string
+	Elements []nestiaSDKImportElement
+}
+
+type nestiaSDKImportElement struct {
+	Local    string
+	Imported string
 }
 
 func nestiaSDKAnalyzeImports(file *shimast.SourceFile) []nestiaSDKImportInfo {
@@ -394,7 +402,7 @@ func nestiaSDKAnalyzeImports(file *shimast.SourceFile) []nestiaSDKImportInfo {
 		}
 		info := nestiaSDKImportInfo{
 			File:     nestiaSDKNormalizeImportPath(file.FileName(), decl.ModuleSpecifier.Text()),
-			Elements: []string{},
+			Elements: []nestiaSDKImportElement{},
 		}
 		if name := clause.Name(); name != nil {
 			info.Default = name.Text()
@@ -416,7 +424,14 @@ func nestiaSDKAnalyzeImports(file *shimast.SourceFile) []nestiaSDKImportInfo {
 							continue
 						}
 						if name := spec.Name(); name != nil {
-							info.Elements = append(info.Elements, name.Text())
+							imported := name.Text()
+							if property := spec.PropertyName; property != nil {
+								imported = property.Text()
+							}
+							info.Elements = append(info.Elements, nestiaSDKImportElement{
+								Local:    name.Text(),
+								Imported: imported,
+							})
 						}
 					}
 				}
@@ -485,7 +500,7 @@ func nestiaSDKImportMatches(prefixes map[string]bool, imp nestiaSDKImportInfo) b
 		return true
 	}
 	for _, elem := range imp.Elements {
-		if prefixes[elem] {
+		if prefixes[elem.Local] {
 			return true
 		}
 	}
@@ -494,9 +509,13 @@ func nestiaSDKImportMatches(prefixes map[string]bool, imp nestiaSDKImportInfo) b
 
 func nestiaSDKImportLiteral(imp nestiaSDKImportInfo, prefixes map[string]bool) map[string]any {
 	elements := []string{}
+	aliases := map[string]string{}
 	for _, elem := range imp.Elements {
-		if prefixes[elem] {
-			elements = append(elements, elem)
+		if prefixes[elem.Local] {
+			elements = append(elements, elem.Local)
+			if elem.Imported != elem.Local {
+				aliases[elem.Local] = elem.Imported
+			}
 		}
 	}
 	asterisk := any(nestiaSDKLiteralNull)
@@ -507,12 +526,16 @@ func nestiaSDKImportLiteral(imp nestiaSDKImportInfo, prefixes map[string]bool) m
 	if imp.Default != "" && prefixes[imp.Default] {
 		def = imp.Default
 	}
-	return map[string]any{
+	output := map[string]any{
 		"file":     imp.File,
 		"asterisk": asterisk,
 		"default":  def,
 		"elements": elements,
 	}
+	if len(aliases) != 0 {
+		output["elementAliases"] = aliases
+	}
+	return output
 }
 
 func nestiaSDKResponse(
@@ -1057,24 +1080,58 @@ func nestiaSDKUnionRank(order map[string]int, name string) int {
 }
 
 func nestiaSDKIsTypeGuardError(prog *driver.Program, typ *shimchecker.Type, typeNode *shimast.Node) bool {
-	if typeNode != nil {
-		name := nestiaSDKTypeNodeText(typeNode)
-		if name == "TypeGuardError" || strings.HasPrefix(name, "TypeGuardError<") {
+	if prog == nil || prog.Checker == nil {
+		return false
+	}
+	var symbol *shimast.Symbol
+	if typeNode != nil && typeNode.Kind == shimast.KindTypeReference {
+		ref := typeNode.AsTypeReferenceNode()
+		symbol = prog.Checker.GetSymbolAtLocation(ref.TypeName)
+	}
+	if symbol == nil && typ != nil {
+		symbol = typ.Symbol()
+	}
+	if symbol == nil {
+		return false
+	}
+	if symbol.Flags&shimast.SymbolFlagsAlias != 0 {
+		if aliased := shimchecker.Checker_getAliasedSymbol(prog.Checker, symbol); aliased != nil {
+			symbol = aliased
+		}
+	}
+	if symbol.Name != "TypeGuardError" {
+		return false
+	}
+	for _, declaration := range symbol.Declarations {
+		source := shimast.GetSourceFileOfNode(declaration)
+		if source == nil {
+			continue
+		}
+		if nestiaSDKIsTypiaSourceFile(prog, source) {
 			return true
 		}
-		if typeNode.Kind == shimast.KindTypeReference {
-			ref := typeNode.AsTypeReferenceNode()
-			name = nestiaSDKEntityNameText(ref.TypeName)
-			if name == "TypeGuardError" {
-				return true
-			}
-		}
-	}
-	if prog != nil && prog.Checker != nil && typ != nil {
-		name := prog.Checker.TypeToString(typ)
-		return name == "TypeGuardError" || strings.HasPrefix(name, "TypeGuardError<")
 	}
 	return false
+}
+
+func nestiaSDKIsTypiaSourceFile(prog *driver.Program, source *shimast.SourceFile) bool {
+	if prog == nil || prog.FS == nil || source == nil {
+		return false
+	}
+	for directory := filepath.Dir(source.FileName()); ; {
+		contents, ok := prog.FS.ReadFile(filepath.Join(directory, "package.json"))
+		if ok {
+			var pack struct {
+				Name string `json:"name"`
+			}
+			return json.Unmarshal([]byte(contents), &pack) == nil && pack.Name == "typia"
+		}
+		parent := filepath.Dir(directory)
+		if parent == directory {
+			return false
+		}
+		directory = parent
+	}
 }
 
 func nestiaSDKTypeGuardErrorSchemaPipe() any {

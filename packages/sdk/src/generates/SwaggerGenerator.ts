@@ -35,19 +35,18 @@ export namespace SwaggerGenerator {
 
     // TARGET LOCATION
     const parsed: path.ParsedPath = path.parse(config.output);
-    const directory: string = path.dirname(parsed.dir);
+    const location: string = !!parsed.ext
+      ? path.resolve(config.output)
+      : path.join(path.resolve(config.output), "swagger.json");
+    const directory: string = path.dirname(location);
     if (fs.existsSync(directory) === false)
       try {
-        await fs.promises.mkdir(directory);
+        await fs.promises.mkdir(directory, { recursive: true });
       } catch {}
     if (fs.existsSync(directory) === false)
       throw new Error(
         `Error on NestiaApplication.swagger(): failed to create output directory: ${directory}`,
       );
-    const location: string = !!parsed.ext
-      ? path.resolve(config.output)
-      : path.join(path.resolve(config.output), "swagger.json");
-
     // COMPOSE SWAGGER DOCUMENT
     const document: OpenApi.IDocument = compose({
       config,

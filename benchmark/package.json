@@ -8,7 +8,8 @@
     "build": "rimraf bin && ttsc",
     "generate": "ttsx -P tsconfig.json src/generate/index.ts && npm run prettier && npm run build",
     "prettier": "prettier ./src/**/*.ts --write",
-    "start": "npm run build && node bin"
+    "start": "npm run build && node bin",
+    "test": "node bin/test"
   },
   "repository": {
     "type": "git",
