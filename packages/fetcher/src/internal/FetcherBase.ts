@@ -77,10 +77,11 @@ export namespace FetcherBase {
           throw new Error(
             `Error on ${props.className}.fetch(): no content-type being configured.`,
           );
-        else if (route.request.type !== "multipart/form-data")
+        else if (route.request.type !== "multipart/form-data") {
+          deleteHeader(headers, "content-type");
           headers["Content-Type"] = route.request.type;
-      } else if (input === undefined && headers["Content-Type"] !== undefined)
-        delete headers["Content-Type"];
+        }
+      } else if (input === undefined) deleteHeader(headers, "content-type");
 
       // INIT REQUEST DATA
       const init: RequestInit = {
@@ -237,4 +238,13 @@ const response_headers_to_object = (
     } else output[key] = value;
   });
   return output;
+};
+
+const deleteHeader = (
+  headers: Record<string, IConnection.HeaderValue | undefined>,
+  name: string,
+): void => {
+  const normalized: string = name.toLowerCase();
+  for (const key of Object.keys(headers))
+    if (key.toLowerCase() === normalized) delete headers[key];
 };

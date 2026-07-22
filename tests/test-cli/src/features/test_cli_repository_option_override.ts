@@ -28,7 +28,7 @@ export const test_cli_repository_option_override = async (): Promise<void> => {
   TestValidator.equals(
     "clone",
     fake.commands[0],
-    `git clone "${url}" "my-project"`,
+    { executable: "git", args: ["clone", url, "my-project"] },
   );
   TestValidator.equals("chdir", fake.chdirs, ["my-project"]);
 

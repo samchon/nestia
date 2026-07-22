@@ -21,9 +21,9 @@ export const test_cli_template_command_sequence = async (): Promise<void> => {
   ]);
 
   TestValidator.equals("commands", fake.commands, [
-    `git clone "https://github.com/samchon/backend" "my-backend"`,
-    "pnpm install",
-    "pnpm run build",
+    { executable: "git", args: ["clone", "https://github.com/samchon/backend", "my-backend"] },
+    { executable: "pnpm", args: ["install"] },
+    { executable: "pnpm", args: ["run", "build"] },
   ]);
   TestValidator.equals("removed", fake.removed, [
     ".git",

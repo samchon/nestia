@@ -23,10 +23,10 @@ export const test_cli_start_command_sequence = async (): Promise<void> => {
   ]);
 
   TestValidator.equals("commands", fake.commands, [
-    `git clone "https://github.com/samchon/nestia-start" "my-project"`,
-    "pnpm install",
-    "pnpm run build",
-    "pnpm run test",
+    { executable: "git", args: ["clone", "https://github.com/samchon/nestia-start", "my-project"] },
+    { executable: "pnpm", args: ["install"] },
+    { executable: "pnpm", args: ["run", "build"] },
+    { executable: "pnpm", args: ["run", "test"] },
   ]);
   TestValidator.equals("chdir", fake.chdirs, ["my-project"]);
   TestValidator.equals("removed", fake.removed, [

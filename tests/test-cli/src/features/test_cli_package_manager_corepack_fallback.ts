@@ -25,20 +25,20 @@ export const test_cli_package_manager_corepack_fallback =
     try {
       const fake: CliTestHarness.IFakeContext =
         CliTestHarness.createFakeContext({
-          probe: (command) => command.startsWith("corepack"),
+          probe: (invocation) => invocation.executable === "corepack",
         });
       await CliTestHarness.getStarter()(CliTestHarness.halter, fake.context)([
         "my-project",
       ]);
 
       TestValidator.equals("probes", fake.probes, [
-        "pnpm --version",
-        "corepack --version",
+        { executable: "pnpm", args: ["--version"] },
+        { executable: "corepack", args: ["--version"] },
       ]);
       TestValidator.equals("commands", fake.commands.slice(1), [
-        "corepack pnpm install",
-        "corepack pnpm run build",
-        "corepack pnpm run test",
+        { executable: "corepack", args: ["pnpm", "install"] },
+        { executable: "corepack", args: ["pnpm", "run", "build"] },
+        { executable: "corepack", args: ["pnpm", "run", "test"] },
       ]);
       TestValidator.equals<string | undefined>(
         "prompt",

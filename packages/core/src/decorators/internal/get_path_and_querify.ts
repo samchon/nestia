@@ -42,7 +42,7 @@ const take =
 const querify = (input: Record<string, any>): URLSearchParams => {
   const output: URLSearchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(input))
-    if (key === undefined) continue;
+    if (value === undefined) continue;
     else if (Array.isArray(value))
       for (const elem of value) output.append(key, String(elem));
     else output.append(key, String(value));
