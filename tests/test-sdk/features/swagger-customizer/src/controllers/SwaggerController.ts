@@ -82,21 +82,25 @@ export class InheritedSwaggerControllerBase {
   @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
     (props.route as any)["x-metadata-base"] = true;
   })
-  @TypedRoute.Get(":value")
-  public route(
-    @SwaggerExample.Parameter("base") @TypedParam("value") value: string,
-  ): string {
-    return value;
+  @TypedRoute.Get("route")
+  public route(): string {
+    return "base";
   }
 
   @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
     (props.route as any)["x-metadata-inherited"] = true;
   })
-  @TypedRoute.Get("inherited/:value")
-  public inherited(
-    @SwaggerExample.Parameter("inherited")
-    @TypedParam("value")
-    value: string,
+  @TypedRoute.Get("inherited")
+  public inherited(): string {
+    return "inherited";
+  }
+
+  public example(@SwaggerExample.Parameter("base") value: string): string {
+    return value;
+  }
+
+  public inheritedExample(
+    @SwaggerExample.Parameter("inherited") value: string,
   ): string {
     return value;
   }
@@ -107,12 +111,12 @@ export class InheritedSwaggerController extends InheritedSwaggerControllerBase {
   @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
     (props.route as any)["x-metadata-derived"] = true;
   })
-  @TypedRoute.Get(":value")
-  public route(
-    @SwaggerExample.Parameter("derived")
-    @TypedParam("value")
-    value: string,
-  ): string {
+  @TypedRoute.Get("route")
+  public route(): string {
+    return "derived";
+  }
+
+  public example(@SwaggerExample.Parameter("derived") value: string): string {
     return value;
   }
 }

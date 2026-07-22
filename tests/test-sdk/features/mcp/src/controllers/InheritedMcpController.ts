@@ -10,14 +10,6 @@ export interface IInheritedMcpResult {
   result: number;
 }
 
-export interface IInheritedMcpBaseInput {
-  value: string;
-}
-
-export interface IInheritedMcpDerivedInput {
-  value: number;
-}
-
 export class InheritedMcpControllerBase {
   /** Return the product of two numbers. */
   @core.McpRoute("multiply")
@@ -38,9 +30,9 @@ export class InheritedMcpControllerBase {
   /** Must be replaced by the derived tool metadata. */
   @core.McpRoute("base_override")
   public async override(
-    @core.McpRoute.Params() params: IInheritedMcpBaseInput,
+    @core.McpRoute.Params() params: IInheritedMcpInput,
   ): Promise<IInheritedMcpResult> {
-    return { result: params.value.length };
+    return { result: params.a + params.b };
   }
 }
 
@@ -52,11 +44,11 @@ export class InheritedMcpController extends InheritedMcpControllerBase {
     return { result: params.a - params.b };
   }
 
-  /** Return the derived input doubled. */
+  /** Return the difference of the derived input fields. */
   @core.McpRoute("derived_override")
   public async override(
-    @core.McpRoute.Params() params: IInheritedMcpDerivedInput,
+    @core.McpRoute.Params() params: IInheritedMcpInput,
   ): Promise<IInheritedMcpResult> {
-    return { result: params.value * 2 };
+    return { result: params.a - params.b };
   }
 }

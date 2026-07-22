@@ -49,7 +49,7 @@ export const test_mcp_tools_call = async (
 
     const overrideResult: any = await client.callTool({
       name: "derived_override",
-      arguments: { value: 3 },
+      arguments: { a: 9, b: 3 },
     });
     const overridePayload = JSON.parse(overrideResult.content[0].text);
     TestValidator.equals("derived override result", overridePayload.result, 6);

@@ -1,30 +1,50 @@
 import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 
+import {
+  InheritedSwaggerController,
+  InheritedSwaggerControllerBase,
+} from "../../controllers/SwaggerController";
+
 export const test_swagger_inherited_metadata = async (): Promise<void> => {
   const swagger: any = JSON.parse(
     await fs.promises.readFile(`${__dirname}/../../../swagger.json`, "utf8"),
   );
   const base: any =
-    swagger.paths["/custom/inheritance/base/{value}"].get;
+    swagger.paths["/custom/inheritance/base/route"].get;
   const derived: any =
-    swagger.paths["/custom/inheritance/derived/{value}"].get;
+    swagger.paths["/custom/inheritance/derived/route"].get;
   const inherited: any =
-    swagger.paths["/custom/inheritance/derived/inherited/{value}"].get;
+    swagger.paths["/custom/inheritance/derived/inherited"].get;
+  const baseExamples: Array<{ example: string }> = Reflect.getOwnMetadata(
+    "nestia/SwaggerExample/Parameters",
+    InheritedSwaggerControllerBase.prototype,
+    "example",
+  );
+  const derivedExamples: Array<{ example: string }> = Reflect.getOwnMetadata(
+    "nestia/SwaggerExample/Parameters",
+    InheritedSwaggerController.prototype,
+    "example",
+  );
+  const inheritedExamples: Array<{ example: string }> = Reflect.getMetadata(
+    "nestia/SwaggerExample/Parameters",
+    InheritedSwaggerController.prototype,
+    "inheritedExample",
+  );
 
   TestValidator.equals(
-    "base parameter example",
-    base.parameters[0].example,
+    "base parameter example metadata",
+    baseExamples[0]?.example,
     "base",
   );
   TestValidator.equals(
-    "derived parameter example",
-    derived.parameters[0].example,
+    "derived parameter example metadata",
+    derivedExamples[0]?.example,
     "derived",
   );
   TestValidator.equals(
-    "inherited parameter example",
-    inherited.parameters[0].example,
+    "inherited parameter example metadata",
+    inheritedExamples[0]?.example,
     "inherited",
   );
   TestValidator.equals(
