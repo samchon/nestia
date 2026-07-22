@@ -57,6 +57,21 @@ const main = () => {
       assert(body?.type === expectedType, `${option}: wrong body validator`);
       assertValidate(option, body);
 
+      // Headers intentionally collapse the ten body modes to assert, is, and
+      // validate. Their HTTP decoder creates a fresh object, so clone, prune,
+      // and equals do not carry body-validator semantics.
+      const headers = first(captured.TypedHeaders)?.[0];
+      const expectedHeaderType =
+        option === "is" || option === "equals"
+          ? "is"
+          : option.startsWith("validate")
+            ? "validate"
+            : "assert";
+      assert(
+        headers?.type === expectedHeaderType,
+        `${option}: wrong headers validator (got ${headers?.type}, expected ${expectedHeaderType})`,
+      );
+
       const param = first(captured.TypedParam);
       const expectValidateParam = option.startsWith("validate");
       assert(
@@ -234,6 +249,7 @@ const writeProject = (props) => {
 const load = (file) => {
   const captured = {
     TypedBody: [],
+    TypedHeaders: [],
     TypedParam: [],
     TypedQuery: [],
     "TypedRoute.Get": [],
@@ -247,6 +263,7 @@ const load = (file) => {
   const modules = {
     "@nestia/core": {
       TypedBody: decorator("TypedBody"),
+      TypedHeaders: decorator("TypedHeaders"),
       TypedParam: decorator("TypedParam"),
       TypedQuery: decorator("TypedQuery"),
       TypedRoute: {

@@ -60,6 +60,7 @@ jobs:
         run: echo "TTSC_GO_BINARY=$(go env GOROOT)/bin/go" >> "$GITHUB_ENV"
 
       - name: Build Packages
+        if: matrix.name != 'sdk'
         env:
           NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
         run: pnpm build
