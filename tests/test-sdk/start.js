@@ -205,6 +205,8 @@ const feature = async (name, port) => {
 
   if (name === "nested-output-directories")
     assertNestedOutputDirectories(cwd);
+  if (name === "native-namespace-methods")
+    assertNativeNamespaceMethods(cwd);
   assertGeneratedImportsAreExtensionless(cwd);
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (hasTtsxTestFiles(cwd)) {
@@ -254,6 +256,26 @@ const hasTypeScriptFile = (location) => {
     if (stats.isFile() && entry.endsWith(".ts")) return true;
   }
   return false;
+};
+
+// Regression lock for native SDK site collection. The de-duplication key must
+// identify a method declaration, not only its class and method spellings:
+// separate TypeScript namespaces may intentionally repeat both names.
+//
+// 1. Generate Swagger from two namespaced controllers with identical names.
+// 2. Require both independently decorated route paths in the document.
+const assertNativeNamespaceMethods = (cwd) => {
+  const swagger = JSON.parse(
+    fs.readFileSync(path.join(cwd, "swagger.json"), "utf8"),
+  );
+  const expected = ["/north/duplicate", "/south/duplicate"];
+  const missing = expected.filter(
+    (route) => swagger.paths?.[route] === undefined,
+  );
+  if (missing.length !== 0)
+    throw new Error(
+      `native-namespace-methods omitted Swagger route(s): ${missing.join(", ")}`,
+    );
 };
 
 const removePaths = async (cwd, locations) => {

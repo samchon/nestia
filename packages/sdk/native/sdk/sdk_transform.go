@@ -82,7 +82,7 @@ func collectNestiaSDKSites(prog *driver.Program) ([]nestiaSDKSite, []transform.D
 		if file == nil || file.IsDeclarationFile {
 			continue
 		}
-		visited := map[string]bool{}
+		visited := map[int]bool{}
 		file.ForEachChild(func(node *shimast.Node) bool {
 			visitNestiaSDKNode(context, file, node, visited, &sites, &diagnostics)
 			return false
@@ -98,7 +98,7 @@ func visitNestiaSDKNode(
 	context *nestiaSDKContext,
 	file *shimast.SourceFile,
 	node *shimast.Node,
-	visited map[string]bool,
+	visited map[int]bool,
 	sites *[]nestiaSDKSite,
 	diagnostics *[]transform.Diagnostic,
 ) {
@@ -109,7 +109,10 @@ func visitNestiaSDKNode(
 		className := nestiaSDKParentClassName(node)
 		methodName := nestiaSDKMethodName(node)
 		if className != "" && methodName != "" {
-			key := className + "." + methodName
+			// A method's source position is unique in this file. Class and method
+			// names are not: namespaces can legitimately export identically named
+			// controller classes and methods.
+			key := node.Pos()
 			if visited[key] == false {
 				visited[key] = true
 				metadata, err := nestiaSDKMetadataText(context, file, node)
