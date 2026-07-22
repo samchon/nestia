@@ -20,3 +20,8 @@ export namespace South {
     }
   }
 }
+
+// Config discovery receives exported controller values, while the AST method
+// declarations retain their DuplicateController namespace parents.
+export const NorthController = North.DuplicateController;
+export const SouthController = South.DuplicateController;
