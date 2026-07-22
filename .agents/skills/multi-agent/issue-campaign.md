@@ -12,7 +12,6 @@ The base issue-campaign skill owns authorization, the knowledge base, candidate 
 - [Plan And Claim A Pull Request Wave](#plan-and-claim-a-pull-request-wave)
 - [Implement And Revalidate A Batch](#implement-and-revalidate-a-batch)
 - [Remove Every Finished Worktree](#remove-every-finished-worktree)
-- [While Campaign CI Is Cancelled](#while-campaign-ci-is-cancelled)
 - [Repeat A Campaign Cycle](#repeat-a-campaign-cycle)
 - [Post-Campaign Cleanup](#post-campaign-cleanup)
 
@@ -20,7 +19,7 @@ Four rules govern the parallel implementation phase, which is the wave of concur
 
 - Local and package verification, solo Self-Review, independent verification, lead readback, and every applicable integration gate are mandatory implementation gates.
 - Do not run `pnpm format` during discovery, issue publication, or parallel batch implementation. Post-Campaign Cleanup owns the repository-wide formatter result. A campaign that returns implementation to the solo procedure formats its cycle pull request there instead, and then needs no cleanup format pull request.
-- Never disable repository Actions or any workflow for a campaign. After every campaign push and pull-request creation, immediately start an exact-SHA cancellation record for only the runs that campaign commit caused, except when the user designated that exact integration SHA before its push. Keep the record current and complete it before merge, but never make local development wait for it.
+- Never disable repository Actions or any workflow for a campaign. [Cancel Campaign CI](#cancel-campaign-ci) owns the exact-SHA record that replaces ordinary checks.
 - Campaign branches and pull requests freeze package versions, release tags, and publication state, exactly as the [solo rule](../issue-campaign/development.md#flow) states.
 
 Start long commands asynchronously and keep working under the solo procedure's [Keep Working While Commands Run](../issue-campaign/development.md#keep-working-while-commands-run). Never reserve an agent to watch an install, build, test, or cancellation, and never let a live cancellation record stop local reading, editing, committing, or Self-Review; it gates remote progression and merge, not thought.
@@ -64,6 +63,8 @@ Every push gets its own cancellation record. Start it immediately in a backgroun
 Enumerate by SHA rather than by an expected job list. Four workflow files trigger on `pull_request` here — `build`, `test`, `website`, and `spell-check` — and `test` alone fans out to eight matrix jobs and sets a cancel-in-progress concurrency group, which is an automatic supersede rather than a recorded cancellation. All but `spell-check` carry path filters, so the set that actually starts depends on the batch's touched paths, and `.github/workflows/` is not the whole surface: CodeQL default setup and the Socket Security app also report on pull requests without a workflow file, and `gh run cancel` does not apply to app-reported checks.
 
 Opening or updating a pull request can enqueue additional runs for the already-pushed SHA, so start the same record after pull-request creation and after any operation that retriggers checks. The initial claim push and its immediately following claim pull request are one reservation transaction, so opening that pull request does not wait for the first poll. Before merge, read every campaign SHA record back and require every ordinary campaign run to end `cancelled`, with a run already terminal when first observed or a designated integration run recorded at its actual conclusion.
+
+Local verification replaces those checks while they stay cancelled. Record it for each pull request and never dispatch replacement CI, unless the user designated one exact integration SHA before its push. When work pauses, report that local verification alongside the final state of every run for the latest campaign SHAs.
 
 ## Plan And Claim A Pull Request Wave
 
@@ -140,12 +141,6 @@ If an assignment ends without a merge, first record retained evidence and confir
 
 Apply this rule to every campaign-created worktree, including one used for Post-Campaign Cleanup and every verifier or mutation worktree. Do not mark an assignment complete while its worktree or assigned Go temporary assets remain on disk.
 
-## While Campaign CI Is Cancelled
-
-- Record local verification for each pull request. Do not dispatch replacement CI unless the user designated one exact integration SHA before its push.
-- Keep repository Actions and workflow settings unchanged. Cancel only exact-SHA campaign runs after every push or pull-request retrigger, and let only a pre-designated exact integration SHA run to its actual conclusion.
-- If work pauses, report local verification and the final state of every run for the latest campaign SHAs.
-
 ## Repeat A Campaign Cycle
 
 Report the wave after every surviving issue is covered by its assigned batch pull request.
@@ -159,7 +154,7 @@ If the user authorized discovery but not implementation, report the campaign as 
 Run normal completion cleanup only after the terminal repository-wide round satisfies the review skill's stop rule, every campaign pull request is resolved, every campaign worktree is removed, and no campaign branch needs another push.
 
 1. Return to `master` in the main checkout, confirm it contains no unrelated user changes, and pull the final campaign result with `git pull --ff-only origin master`.
-2. Run `pnpm format` once against the integrated repository. It stops short of `tests/**/*.ts` for the reason recorded in `.agents/skills/project/SKILL.md`, so format a touched test workspace explicitly.
+2. Run `pnpm format` once against the integrated repository.
 3. If formatting produces no diff, report that no cleanup pull request was needed and stop.
 4. If formatting changes files, create a dedicated topic branch containing the formatter result and only directly necessary fixes.
 5. Commit and push under the pull-request skill, pass the exact-SHA cancellation gate, open the Post-Campaign Cleanup pull request, and pass the gate again for pull-request-triggered runs.

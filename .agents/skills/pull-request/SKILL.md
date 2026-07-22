@@ -17,7 +17,7 @@ Solo work never creates a clone or worktree; only an explicit multi-agent campai
 
 Use one commit per coherent unit when the diff is large. Follow the repository's `<type>(<scope>): <subject>` history with an imperative lowercase subject and no trailing period.
 
-Run the validation required by the development skill. Run `pnpm format` before ordinary commits. A solo issue campaign formats its unified cycle pull request. Only an explicit multi-agent campaign implementation batch defers the repository-wide formatter result to its Post-Campaign Cleanup pull request.
+Run the validation and [formatting](../development/SKILL.md#work-rules) the development skill requires. A campaign's own procedure states when its formatter result lands.
 
 Stage explicit paths when the worktree is mixed. Never include unrelated user changes silently.
 
@@ -33,7 +33,7 @@ An ordinary pull request carries one GitHub issue unless two issues are genuinel
 
 ## Version Bumps Are Release Commits
 
-`bumpp -r` through `pnpm release` owns version numbers across the workspace; every published package moves together. Do not hand-edit a `version` field in an ordinary pull request. A native Go source change under `packages/*/native` must reach npm consumers under a newer version, but the development skill assigns that number once in a maintainer-owned release change rather than in the implementation pull request.
+`bumpp -r` through `pnpm release` owns version numbers across the workspace, so do not hand-edit a `version` field in an ordinary pull request. The development skill's [Change Integrity](../development/SKILL.md#change-integrity) rules state when a native change earns a new version and who assigns it.
 
 ## Issue Campaign Override
 
