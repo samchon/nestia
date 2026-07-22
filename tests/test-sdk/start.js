@@ -206,11 +206,14 @@ const runDiagnosticCohort = async (cohort) => {
       cohort.project,
     ]);
     // Native transform diagnostics have one `error TS(...)` line each; unlike
-    // TypeScript's CLI they intentionally do not append a summary line.
-    const normalized = output.replaceAll("\\", "/");
+    // TypeScript's CLI they intentionally do not append a summary line. Strip
+    // the CLI's color sequences before matching either diagnostic presentation.
+    const normalized = output
+      .replace(/\u001b\[[0-?]*[ -/]*[@-~]/g, "")
+      .replaceAll("\\", "/");
     const diagnostics = normalized
       .split(/\r?\n/)
-      .filter((line) => / - error TS\([^)]*\):/.test(line));
+      .filter((line) => / - error TS(?:\([^)]*\)|\d+):/.test(line));
     const expected = cohort.cases.reduce(
       (sum, [, count]) => sum + count,
       0,
