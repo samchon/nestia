@@ -225,7 +225,7 @@ export namespace WebSocketRoute {
     value: IWebSocketRouteReflect.IArgument,
   ) => {
     const array: IWebSocketRouteReflect.IArgument[] | undefined =
-      Reflect.getMetadata(
+      Reflect.getOwnMetadata(
         "nestia/WebSocketRoute/Parameters",
         target,
         propertyKey,

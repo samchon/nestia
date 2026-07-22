@@ -97,16 +97,25 @@ export namespace ReflectControllerAnalyzer {
   };
 
   function _Get_prototype_entries(creator: any): Array<[string, unknown]> {
-    const keyList = Object.getOwnPropertyNames(creator.prototype);
-    const entries: Array<[string, unknown]> = keyList.map((key) => [
-      key,
-      creator.prototype[key],
-    ]);
+    const visited: Set<string> = new Set();
+    return iterate(creator);
 
-    const parent = Object.getPrototypeOf(creator);
-    if (parent.prototype !== undefined)
-      entries.push(..._Get_prototype_entries(parent));
+    function iterate(target: any): Array<[string, unknown]> {
+      const keyList: string[] = Object.getOwnPropertyNames(
+        target.prototype,
+      ).filter((key) => {
+        if (visited.has(key)) return false;
+        visited.add(key);
+        return true;
+      });
+      const entries: Array<[string, unknown]> = keyList.map((key) => [
+        key,
+        target.prototype[key],
+      ]);
 
-    return entries;
+      const parent: any = Object.getPrototypeOf(target);
+      if (parent.prototype !== undefined) entries.push(...iterate(parent));
+      return entries;
+    }
   }
 }
