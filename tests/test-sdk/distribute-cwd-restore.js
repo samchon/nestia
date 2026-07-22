@@ -18,6 +18,7 @@ const main = async () => {
   const directory = await fs.promises.mkdtemp(
     path.join(os.tmpdir(), "nestia-distribute-cwd-"),
   );
+  const distribute = path.join(directory, "generated", "packages", "api");
   const composer = require(
     path.join(
       root,
@@ -37,7 +38,7 @@ const main = async () => {
     await composer.compose({
       config: {
         output: path.join(directory, "output"),
-        distribute: path.join(directory, "distribute"),
+        distribute,
       },
       mcp: false,
       websocket: false,
@@ -48,6 +49,10 @@ const main = async () => {
       error instanceof Error &&
       error.message === "intentional distribution install failure"
     ) {
+      if (fs.existsSync(distribute) === false)
+        throw new Error(
+          "distribution compose did not create its nested directory.",
+        );
       if (process.cwd() !== root)
         throw new Error(
           "distribution compose did not restore its working directory.",

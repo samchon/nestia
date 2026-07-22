@@ -11,7 +11,7 @@ export namespace SdkDistributionComposer {
     websocket: boolean;
   }) => {
     if (!fs.existsSync(props.config.distribute!))
-      await fs.promises.mkdir(props.config.distribute!);
+      await fs.promises.mkdir(props.config.distribute!, { recursive: true });
 
     const root: string = process.cwd();
     const output: string = path.resolve(props.config.output!);

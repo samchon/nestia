@@ -51,9 +51,7 @@ export namespace SdkFileProgrammer {
     (directory: SdkRouteDirectory) =>
     async (outDir: string): Promise<void> => {
       // CREATE A NEW DIRECTORY
-      try {
-        await fs.promises.mkdir(outDir);
-      } catch {}
+      await fs.promises.mkdir(outDir, { recursive: true });
 
       // ITERATE CHILDREN
       const statements: Node[] = [];
