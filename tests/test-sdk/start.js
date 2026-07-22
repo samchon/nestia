@@ -59,7 +59,7 @@ const ERROR_DIAGNOSTIC_COHORTS = [
     project: "features/body-error-generic/tsconfig.json",
     output: ".tmp-error-diagnostics",
     cases: [
-      ["body-error-generic", 1],
+      ["body-error-generic", 2],
       ["body-error-json", 1],
       ["headers-error-array", 1],
       ["headers-error-atomic", 1],
