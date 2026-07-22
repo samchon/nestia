@@ -1,7 +1,7 @@
 import cannon from "autocannon";
-import PHYSICAL_CPU_COUNT from "physical-cpu-count";
 import tgrid from "tgrid";
 
+import { BenchmarkWorker } from "../../internal/BenchmarkWorker";
 import { Collection } from "../../structures/pure/Collection";
 import { IBenchmarkProgram } from "../IBenchmarkProgram";
 import { IStringifyServerProgram } from "./IStringifyServerProgram";
@@ -35,7 +35,7 @@ const shoot = (port: number) =>
       {
         url: `http://127.0.0.1:${port}/stringify`,
         method: "GET",
-        workers: Math.min(2, PHYSICAL_CPU_COUNT - 2),
+        workers: BenchmarkWorker.count(),
         timeout: 300,
         connections: 500,
       },
