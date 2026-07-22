@@ -101,6 +101,8 @@ export namespace NestiaSwaggerComposer {
           }),
         );
       }
+    if (project.errors.length)
+      throw report({ type: "error", errors: project.errors });
     AccessorAnalyzer.analyze(routes);
     return routes;
   };
