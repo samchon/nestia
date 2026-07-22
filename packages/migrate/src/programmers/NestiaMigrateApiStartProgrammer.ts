@@ -15,32 +15,39 @@ export namespace NestiaMigrateApiStartProgrammer {
   ): Record<string, string> => {
     const importer: NestiaMigrateImportProgrammer =
       new NestiaMigrateImportProgrammer();
+    const route: IHttpMigrateRoute | undefined = pick(
+      context.application.routes,
+    );
     const main: ts.VariableStatement = writeMain(
       context,
       importer,
-      pick(context.application.routes),
+      route,
     );
     const statements: ts.Statement[] = [
       ...importer.toStatements(
         (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
       ),
       FilePrinter.newLine(),
-      factory.createImportDeclaration(
-        undefined,
-        factory.createImportClause(
-          false,
-          undefined,
-          factory.createNamedImports([
-            factory.createImportSpecifier(
-              false,
+      ...(route === undefined
+        ? []
+        : [
+            factory.createImportDeclaration(
               undefined,
-              factory.createIdentifier("TestGlobal"),
+              factory.createImportClause(
+                false,
+                undefined,
+                factory.createNamedImports([
+                  factory.createImportSpecifier(
+                    false,
+                    undefined,
+                    factory.createIdentifier("TestGlobal"),
+                  ),
+                ]),
+              ),
+              factory.createStringLiteral("./TestGlobal"),
             ),
+            FilePrinter.newLine(),
           ]),
-        ),
-        factory.createStringLiteral("./TestGlobal"),
-      ),
-      FilePrinter.newLine(),
       main,
       factory.createExpressionStatement(writeStarter()),
     ];
@@ -52,7 +59,7 @@ export namespace NestiaMigrateApiStartProgrammer {
   const writeMain = (
     ctx: INestiaMigrateContext,
     importer: NestiaMigrateImportProgrammer,
-    route: IHttpMigrateRoute,
+    route: IHttpMigrateRoute | undefined,
   ): ts.VariableStatement =>
     StatementFactory.constant({
       name: "main",
@@ -64,13 +71,17 @@ export namespace NestiaMigrateApiStartProgrammer {
         undefined,
         factory.createBlock(
           [
-            writeConnection(ctx, importer),
-            ...NestiaMigrateE2eFunctionProgrammer.writeBody({
-              config: ctx.config,
-              components: ctx.application.document().components,
-              importer,
-              route,
-            }),
+            ...(route === undefined
+              ? []
+              : [
+                  writeConnection(ctx, importer),
+                  ...NestiaMigrateE2eFunctionProgrammer.writeBody({
+                    config: ctx.config,
+                    components: ctx.application.document().components,
+                    importer,
+                    route,
+                  }),
+                ]),
           ],
           true,
         ),
@@ -191,7 +202,8 @@ export namespace NestiaMigrateApiStartProgrammer {
     );
 }
 
-const pick = <T>(array: T[]): T => {
+const pick = <T>(array: T[]): T | undefined => {
+  if (array.length === 0) return undefined;
   const rand: number = Math.random() * array.length;
   const index: number = Math.min(array.length - 1, Math.floor(rand));
   return array[index]!;
