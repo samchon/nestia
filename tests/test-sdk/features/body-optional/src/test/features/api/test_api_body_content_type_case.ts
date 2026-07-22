@@ -20,6 +20,16 @@ export const test_api_body_content_type_case = async (
   TestValidator.equals("json status", jsonResponse.status, 201);
   TestValidator.equals("json body", await jsonResponse.json(), json);
 
+  const invalidResponse: Response = await fetch(
+    `${connection.host}/body/optional/json`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/xml" },
+      body: JSON.stringify(json),
+    },
+  );
+  TestValidator.equals("invalid status", invalidResponse.status, 400);
+
   const text = "case-insensitive media type";
   const textResponse: Response = await fetch(
     `${connection.host}/body/optional/plain`,
