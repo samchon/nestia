@@ -1107,13 +1107,31 @@ func nestiaSDKIsTypeGuardError(prog *driver.Program, typ *shimchecker.Type, type
 		if source == nil {
 			continue
 		}
-		file := filepath.ToSlash(source.FileName())
-		if strings.Contains(file, "/node_modules/typia/") &&
-			strings.HasSuffix(file, "/TypeGuardError.d.ts") {
+		if nestiaSDKIsTypiaSourceFile(prog, source) {
 			return true
 		}
 	}
 	return false
+}
+
+func nestiaSDKIsTypiaSourceFile(prog *driver.Program, source *shimast.SourceFile) bool {
+	if prog == nil || prog.FS == nil || source == nil {
+		return false
+	}
+	for directory := filepath.Dir(source.FileName()); ; {
+		contents, ok := prog.FS.ReadFile(filepath.Join(directory, "package.json"))
+		if ok {
+			var pack struct {
+				Name string `json:"name"`
+			}
+			return json.Unmarshal([]byte(contents), &pack) == nil && pack.Name == "typia"
+		}
+		parent := filepath.Dir(directory)
+		if parent == directory {
+			return false
+		}
+		directory = parent
+	}
 }
 
 func nestiaSDKTypeGuardErrorSchemaPipe() any {

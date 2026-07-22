@@ -302,10 +302,12 @@ const assertNativeImportAlias = (cwd) => {
 // 1. Clone a WebSocket acceptor type imported as `IPrecision as Precision`.
 // 2. Require the generated client to import the cloned original under Precision.
 const assertWebSocketCloneAlias = (cwd) => {
+  const structures = path.join(cwd, "src/api/structures/IPrecision.ts");
   if (
+    fs.existsSync(structures) === false ||
     hasMatchingTypeScriptFile(
-      path.join(cwd, "src/api"),
-      /\bIPrecision\s+as\s+Precision\b/,
+      path.join(cwd, "src/api/functional"),
+      /\bIPrecision\s+as\s+Precision\s*}\s*from\s*["'][^"']*structures\/IPrecision["']/,
     ) === false
   )
     throw new Error(
@@ -348,6 +350,12 @@ const assertNativeTypeGuardProvenance = (cwd) => {
   if (properties?.reason?.type !== "string")
     throw new Error(
       "native-typeguard-provenance omitted the local TypeGuardError.reason property.",
+    );
+  const typia = swagger.paths?.["/provenance/typia"]?.get?.responses?.[400]
+    ?.content?.["application/json"]?.schema;
+  if (typia?.$ref !== "#/components/schemas/TypeGuardErrorany")
+    throw new Error(
+      "native-typeguard-provenance did not retain typia's synthetic TypeGuardError schema.",
     );
 };
 
