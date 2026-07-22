@@ -40,5 +40,5 @@ export const test_api_body_content_type_case = async (
     },
   );
   TestValidator.equals("text status", textResponse.status, 201);
-  TestValidator.equals("text body", await textResponse.text(), text);
+  TestValidator.equals("text body", await textResponse.json(), text);
 };
