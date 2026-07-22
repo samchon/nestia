@@ -7,11 +7,14 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
  * The uploader passes this value into migration, so a typo becomes the generated
  * package name and import prefix throughout a downloaded project.
  *
- * 1. Read the default used by the built editor uploader.
- * 2. Compose an SDK with it and assert the package manifest receives that exact prefix.
+ * 1. Server-render the built uploader and read its initial package input.
+ * 2. Compose an SDK with that observed value and check its package manifest.
  */
 export const test_editor_uploader_default_package = async (): Promise<void> => {
-  const packageName: string = EditorTestHarness.defaultPackage();
+  const markup: string = EditorTestHarness.uploaderMarkup();
+  const packageName: string | undefined = markup.match(/value="(@[^"]+)"/)?.[1];
+  if (packageName === undefined)
+    throw new Error("The editor uploader has no package input value.");
   if (packageName !== "@ORGANIZATION/PROJECT")
     throw new Error(`Unexpected editor package placeholder: ${packageName}`);
 
