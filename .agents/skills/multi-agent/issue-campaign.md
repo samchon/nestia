@@ -47,6 +47,8 @@ Source is only one evidence layer for nestia. Run the generators and read what t
 
 Pool raw candidates in `.wiki`, then reproduce and combine, split, rewrite, reject, or defer them before publication. Parallel discovery changes evidence breadth, not publication authority.
 
+Rounds repeat inside one discovery phase, exactly as the [solo rule](../issue-campaign/SKILL.md#discovery-ends-only-on-an-empty-round) states. A round in which any reviewer found a candidate is followed by another full-scope round against the same commit, and only an empty round releases the phase to publication.
+
 ## Cancel Campaign CI
 
 A parallel campaign runs many concurrent branches, so its implementation waves rely on local verification, independent verification, and integration gates instead of ordinary pull-request checks. Repository-wide Actions and workflow settings must remain unchanged. Before the first push, record `gh api repos/{owner}/{repo}/actions/permissions` and `gh workflow list --all --limit 1000 --json id,name,path,state` in `.wiki/<campaign>/ci-state.md` so the lead can prove the campaign did not alter them.

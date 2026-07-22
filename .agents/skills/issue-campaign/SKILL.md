@@ -38,7 +38,7 @@ The knowledge base supports the campaign but is not the final issue body. A publ
 
 Freeze one exact commit before every round and work from it with a recorded dependency lock and provisioning command. Derive the supported environment contract from package engines, public documentation, repository CI, peer requirements, and published package behavior rather than narrowing it ad hoc. Never combine results from different commits, and never accept a stale, unprovisioned, skipped, or sampled harness as full-round evidence.
 
-Perform one complete Solo Issue Discovery Round over every tracked repository surface. Source is only one evidence layer. Exercise real workflows and inspect relevant upstream behavior, history, generated artifacts, consumers, fixtures, public documentation, and closed decisions. For nestia that means running the generators and reading what they emit: Swagger documents, SDK libraries, mockup simulators, and generated e2e suites are product output, and a defect visible only in emitted code is still a defect.
+Perform complete Solo Issue Discovery Rounds over every tracked repository surface, repeating them until one comes up empty. Source is only one evidence layer. Exercise real workflows and inspect relevant upstream behavior, history, generated artifacts, consumers, fixtures, public documentation, and closed decisions. For nestia that means running the generators and reading what they emit: Swagger documents, SDK libraries, mockup simulators, and generated e2e suites are product output, and a defect visible only in emitted code is still a defect.
 
 Cover this matrix as a floor and add the dimensions source and history reveal: every decorator and its option set; Express and Fastify for every request and response path; the Swagger document, SDK library, mockup simulator, and generated e2e suite one controller produces; `INestiaConfig` options and CLI flags, including the `--project` and `--config` paths; equivalent aliases, interfaces, classes, intersections, unions, generics, and re-exported or ambient declarations; user-global, default-library, module, package, and runtime-native provenance; transform-option interactions; valid, invalid, malformed, maximum-width, and one-past-boundary inputs; repeated generated-byte identity; clean tarball consumers; and supported Node, module-resolution, operating-system, and CLI paths.
 
@@ -58,9 +58,11 @@ Only an explicit user instruction or an existing public product contract can exc
 
 ### Discovery Ends Only On An Empty Round
 
-A merged cycle does not end the campaign. It produces one more round: begin a fresh full-scope round against the integrated repository. Discovery continues cycle after cycle, with no round limit, and ends only when one complete fresh round produces no meaningful issue candidate after fact-checking and no accepted issue remains unresolved.
+Rounds repeat inside one discovery phase, not only after a merged cycle. A round that produced any candidate is evidence the surface still hides more, so finish that round's remaining scope, then start another complete full-scope round against the same state. Keep repeating until one round comes up empty. Only then does the phase hand its adjudicated candidates to publication, and one round that found issues is never the phase.
 
-Report the campaign complete only from a round that actually came up empty and that finished its whole census and matrix. Ending after a cycle that merely felt thorough leaves the issues the next round would have found unrecorded.
+A merged cycle then produces one more phase: begin a fresh full-scope round against the integrated repository and repeat the same loop. Discovery continues phase after phase, with no round limit, and the campaign ends only when a complete fresh round produces no meaningful issue candidate after fact-checking and no accepted issue remains unresolved.
+
+Report the campaign complete only from a round that actually came up empty and that finished its whole census and matrix. Ending after a round or cycle that merely felt thorough leaves the issues the next round would have found unrecorded.
 
 ## Vet And Publish Issues
 
