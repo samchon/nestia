@@ -1,21 +1,32 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    # Every workspace member declares these as "catalog:", so pnpm-workspace.yaml
-    # at the root is the only file holding a version to rewrite.
+    # Every workspace member declares its dependencies as "catalog:", so
+    # pnpm-workspace.yaml at the root is the only file holding a version to
+    # rewrite.
     directory: "/"
     schedule:
       interval: "daily"
-    open-pull-requests-limit: 10
-    # Only the anchor holder of each catalog family is listed. '@nestjs/common'
-    # carries &nestjs, typia carries &typia, and ttsc carries &ttsc; the sibling
-    # entries are YAML aliases with no version of their own, so asking Dependabot
-    # to bump them makes it abandon the workspace file and write into the lockfile
-    # alone. Allowing the anchor leaves one edit per release, and the aliases
-    # follow it. The list also gates security updates, which is what keeps the
-    # transitive-dependency bumps out.
-    allow:
-      - dependency-name: "typescript"
-      - dependency-name: "ttsc"
-      - dependency-name: "typia"
-      - dependency-name: "@nestjs/common"
+    # Version updates are off; security updates are not.
+    #
+    # `open-pull-requests-limit: 0` disables version updates for this ecosystem.
+    # Security updates run under their own internal limit and are unaffected,
+    # which is the property this file needs: the catalog layout makes automated
+    # version bumps awkward, but a vulnerability still has to reach a pull
+    # request.
+    #
+    # This replaces an `allow` list of the four catalog anchors. The list did
+    # suppress transitive version noise, but `allow` governs security updates
+    # too, so every alert outside those four names was excluded — and Dependabot
+    # answers a vulnerable dependency with no permitted version by failing the
+    # run (`all_versions_ignored`), not by skipping it. The result was 34 open
+    # alerts, 17 of them high, with no pull request proposing any of them and a
+    # red run every day.
+    #
+    # Why the anchors were listed, kept here because the constraint still holds:
+    # '@nestjs/common' carries &nestjs, typia carries &typia, and ttsc carries
+    # &ttsc, while the sibling entries are YAML aliases with no version of their
+    # own. Asking Dependabot to bump an alias makes it abandon the workspace file
+    # and write into the lockfile alone. Anchor versions are bumped by hand at
+    # release time instead.
+    open-pull-requests-limit: 0

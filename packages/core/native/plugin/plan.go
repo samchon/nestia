@@ -32,6 +32,23 @@ func (p Plan) UsesNestia() bool {
 	return p.Core || p.SDK
 }
 
+// Kind reports which plugin family an entry belongs to: "core", "sdk", "typia",
+// or "" when it is none of them.
+func (e Entry) Kind() string {
+	return classify(e)
+}
+
+// BoolConfig reads a boolean option from an entry's resolved plugin config. The
+// second result distinguishes an option explicitly set to false from one that is
+// absent, which the tri-state options depend on.
+func (e Entry) BoolConfig(key string) (bool, bool) {
+	if e.Config == nil {
+		return false, false
+	}
+	value, ok := e.Config[key].(bool)
+	return value, ok
+}
+
 func ParsePlan(payload string) (Plan, error) {
 	payload = strings.TrimSpace(payload)
 	if payload == "" {

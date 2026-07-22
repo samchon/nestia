@@ -8,7 +8,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"time"
 
 	shimcompiler "github.com/microsoft/typescript-go/shim/compiler"
@@ -114,7 +113,7 @@ func runBuild(args []string) int {
 	newPathsRewriter(prog).applyAll(prog.SourceFiles())
 	profileBuildStep(profile, "paths-rewrite", started)
 
-	typiaTransform := nestiaTypiaNodeTransform(prog, readTypiaPluginOptions(cwd, *tsconfigPath), addDiagnostic)
+	typiaTransform := nestiaTypiaNodeTransform(prog, readTypiaPluginOptions(plan), addDiagnostic)
 	coreTransform := nestiaCoreNodeTransform(prog, plan, addDiagnostic)
 
 	// Statically linked contributors (e.g. the @nestia/sdk OperationMetadata
@@ -289,38 +288,51 @@ func profileBuildDuration(enabled bool, name string, elapsed time.Duration) {
 		fmt.Fprintf(stderr, "ttsc-nestia profile: %s=%s\n", name, elapsed)
 	}
 }
-func readTypiaPluginOptions(cwd, tsconfigPath string) typiaadapter.PluginOptions {
-	path := tsconfigPath
-	if !filepath.IsAbs(path) {
-		path = filepath.Join(cwd, path)
-	}
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return typiaadapter.PluginOptions{}
-	}
-	text := string(data)
-	return typiaadapter.PluginOptions{
-		Functional: typiaOptionFunctionalPattern.MatchString(text),
-		Numeric:    typiaOptionNumericPattern.MatchString(text),
-		Finite:     typiaOptionFinitePattern.MatchString(text),
-		Undefined:  readBooleanPluginOption(text, "undefined"),
-	}
-}
 
-func readBooleanPluginOption(text string, name string) *bool {
-	matched := regexp.MustCompile(`(?s)"` + regexp.QuoteMeta(name) + `"\s*:\s*(true|false)`).FindStringSubmatch(text)
-	if matched == nil {
-		return nil
+// readTypiaPluginOptions takes typia's transform options from the resolved plugin
+// payload ttsc hands this binary, not from the text of one tsconfig file.
+//
+// The file is the wrong source twice over. It is only the *entry* of an `extends`
+// chain, so an option declared in a base was invisible — the compile then
+// succeeded with a weaker validator than the project asked for, and nothing said
+// so. And a text scan matches anywhere, so `"numeric": true` inside a comment or
+// an unrelated object turned the option on for a project that never set it. ttsc
+// has already resolved the whole chain by the time it builds --plugins-json.
+//
+// Options are read from every plugin entry, with typia's own entry winning, so a
+// project that sets them on the composing @nestia/core entry keeps working.
+func readTypiaPluginOptions(plan plugin.Plan) typiaadapter.PluginOptions {
+	options := typiaadapter.PluginOptions{}
+	apply := func(entry plugin.Entry) {
+		if value, ok := entry.BoolConfig("functional"); ok {
+			options.Functional = value
+		}
+		if value, ok := entry.BoolConfig("numeric"); ok {
+			options.Numeric = value
+		}
+		if value, ok := entry.BoolConfig("finite"); ok {
+			options.Finite = value
+		}
+		// `undefined` is tri-state: an explicit false must stay distinguishable
+		// from an absent option, so copy into a fresh variable rather than
+		// aliasing the closure's parameter.
+		if value, ok := entry.BoolConfig("undefined"); ok {
+			flag := value
+			options.Undefined = &flag
+		}
 	}
-	value := matched[1] == "true"
-	return &value
+	for _, entry := range plan.Entries {
+		if entry.Kind() != "typia" {
+			apply(entry)
+		}
+	}
+	for _, entry := range plan.Entries {
+		if entry.Kind() == "typia" {
+			apply(entry)
+		}
+	}
+	return options
 }
-
-var (
-	typiaOptionFunctionalPattern = regexp.MustCompile(`(?s)"functional"\s*:\s*true`)
-	typiaOptionNumericPattern    = regexp.MustCompile(`(?s)"numeric"\s*:\s*true`)
-	typiaOptionFinitePattern     = regexp.MustCompile(`(?s)"finite"\s*:\s*true`)
-)
 
 func resolveCWD(label string, cwdOverride string) (string, bool) {
 	if cwdOverride != "" {

@@ -78,7 +78,7 @@ func runTransform(args []string) int {
 	addDiagnostic := func(diag Diagnostic) {
 		transformDiags = append(transformDiags, diag)
 	}
-	typiaTransform := nestiaTypiaNodeTransform(prog, readTypiaPluginOptions(cwd, *tsconfigPath), addDiagnostic)
+	typiaTransform := nestiaTypiaNodeTransform(prog, readTypiaPluginOptions(plan), addDiagnostic)
 	coreTransform := nestiaCoreNodeTransform(prog, plan, addDiagnostic)
 	contributorTransforms, contributorDiags := collectContributorEmitTransforms(prog, plan)
 	if len(contributorDiags) > 0 {
