@@ -57,15 +57,20 @@ const main = () => {
       assert(body?.type === expectedType, `${option}: wrong body validator`);
       assertValidate(option, body);
 
-      // TypedHeaders follows the same validate-mode routing as TypedBody.
-      // Keeping it in this table makes the explicit assert-mode SDK fixture
-      // redundant without dropping transform coverage for header validators.
+      // Headers intentionally collapse the ten body modes to assert, is, and
+      // validate. Their HTTP decoder creates a fresh object, so clone, prune,
+      // and equals do not carry body-validator semantics.
       const headers = first(captured.TypedHeaders)?.[0];
+      const expectedHeaderType =
+        option === "is" || option === "equals"
+          ? "is"
+          : option.startsWith("validate")
+            ? "validate"
+            : "assert";
       assert(
-        headers?.type === expectedType,
-        `${option}: wrong headers validator`,
+        headers?.type === expectedHeaderType,
+        `${option}: wrong headers validator (got ${headers?.type}, expected ${expectedHeaderType})`,
       );
-      assertValidate(option, headers);
 
       const param = first(captured.TypedParam);
       const expectValidateParam = option.startsWith("validate");
