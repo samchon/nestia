@@ -1,4 +1,10 @@
-import { TypedBody, TypedParam, TypedQuery, TypedRoute } from "@nestia/core";
+import {
+  TypedBody,
+  TypedHeaders,
+  TypedParam,
+  TypedQuery,
+  TypedRoute,
+} from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import type { tags } from "typia";
 
@@ -10,6 +16,11 @@ interface IArticle {
 
 interface ISearch {
   keyword?: string;
+}
+
+interface IHeaders {
+  title: string;
+  count: number;
 }
 
 @Controller("validate")
@@ -25,5 +36,10 @@ export class ValidateController {
       ...input,
       id,
     };
+  }
+
+  @TypedRoute.Post("headers")
+  public headers(@TypedHeaders() headers: IHeaders): IHeaders {
+    return headers;
   }
 }

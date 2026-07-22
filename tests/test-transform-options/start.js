@@ -57,6 +57,16 @@ const main = () => {
       assert(body?.type === expectedType, `${option}: wrong body validator`);
       assertValidate(option, body);
 
+      // TypedHeaders follows the same validate-mode routing as TypedBody.
+      // Keeping it in this table makes the explicit assert-mode SDK fixture
+      // redundant without dropping transform coverage for header validators.
+      const headers = first(captured.TypedHeaders)?.[0];
+      assert(
+        headers?.type === expectedType,
+        `${option}: wrong headers validator`,
+      );
+      assertValidate(option, headers);
+
       const param = first(captured.TypedParam);
       const expectValidateParam = option.startsWith("validate");
       assert(
@@ -234,6 +244,7 @@ const writeProject = (props) => {
 const load = (file) => {
   const captured = {
     TypedBody: [],
+    TypedHeaders: [],
     TypedParam: [],
     TypedQuery: [],
     "TypedRoute.Get": [],
@@ -247,6 +258,7 @@ const load = (file) => {
   const modules = {
     "@nestia/core": {
       TypedBody: decorator("TypedBody"),
+      TypedHeaders: decorator("TypedHeaders"),
       TypedParam: decorator("TypedParam"),
       TypedQuery: decorator("TypedQuery"),
       TypedRoute: {
