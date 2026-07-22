@@ -13,6 +13,7 @@ import React from "react";
 
 import { NestiaEditorArchiver } from "./internal/NestiaEditorArchiver";
 import { NestiaEditorComposer } from "./internal/NestiaEditorComposer";
+import { NESTIA_EDITOR_DEFAULT_PACKAGE } from "./internal/NestiaEditorDefaultPackage";
 import { NestiaEditorFileUploader } from "./internal/NestiaEditorFileUploader";
 
 export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
@@ -21,7 +22,7 @@ export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
   const [keyword, setKeyword] = React.useState(true);
   const [simulate, setSimulate] = React.useState(true);
   const [e2e, setE2e] = React.useState(true);
-  const [name, setName] = React.useState("@ORGINIZATION/PROJECT");
+  const [name, setName] = React.useState(NESTIA_EDITOR_DEFAULT_PACKAGE);
 
   // RESULT
   const [document, setDocument] = React.useState<

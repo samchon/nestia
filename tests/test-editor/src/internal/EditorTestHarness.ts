@@ -43,6 +43,10 @@ export namespace EditorTestHarness {
     require(path.join(LIB, "internal", "NestiaEditorComposer.js"))
       .NestiaEditorComposer;
 
+  export const defaultPackage = (): string =>
+    require(path.join(LIB, "internal", "NestiaEditorDefaultPackage.js"))
+      .NESTIA_EDITOR_DEFAULT_PACKAGE as string;
+
   /** Minimal OpenAPI 3.1 document accepted by the migrate application. */
   export const document = (): object => ({
     openapi: "3.1.0",
