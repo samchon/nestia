@@ -16,7 +16,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  */
 export const test_migrate_sdk_empty_paths = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(
-    DOCUMENT,
+    EMPTY_PATHS_DOCUMENT,
   ).sdk({
     keyword: true,
     simulate: true,
@@ -31,7 +31,7 @@ export const test_migrate_sdk_empty_paths = (): void => {
     throw new Error("An empty SDK starter must not call a route.");
 };
 
-const DOCUMENT = {
+export const EMPTY_PATHS_DOCUMENT = {
   openapi: "3.1.0",
   info: {
     title: "Empty Paths",
