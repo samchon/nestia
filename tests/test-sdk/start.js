@@ -210,6 +210,7 @@ const feature = async (name, port) => {
   if (name === "native-import-alias") assertNativeImportAlias(cwd);
   if (name === "native-typeguard-provenance")
     assertNativeTypeGuardProvenance(cwd);
+  if (name === "websocket-clone") assertWebSocketCloneAlias(cwd);
   assertGeneratedImportsAreExtensionless(cwd);
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (hasTtsxTestFiles(cwd)) {
@@ -293,6 +294,22 @@ const assertNativeImportAlias = (cwd) => {
   if (hasMatchingTypeScriptFile(root, matcher) === false)
     throw new Error(
       "native-import-alias did not preserve `IAccount as Account` in the generated SDK.",
+    );
+};
+
+// Regression lock for aliases carried through the WebSocket clone pipeline.
+//
+// 1. Clone a WebSocket acceptor type imported as `IPrecision as Precision`.
+// 2. Require the generated client to import the cloned original under Precision.
+const assertWebSocketCloneAlias = (cwd) => {
+  if (
+    hasMatchingTypeScriptFile(
+      path.join(cwd, "src/api"),
+      /\bIPrecision\s+as\s+Precision\b/,
+    ) === false
+  )
+    throw new Error(
+      "websocket-clone did not preserve `IPrecision as Precision` from its cloned structure.",
     );
 };
 
