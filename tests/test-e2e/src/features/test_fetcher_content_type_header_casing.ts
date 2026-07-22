@@ -24,5 +24,9 @@ export async function test_fetcher_content_type_header_casing(): Promise<void> {
     },
     { value: true },
   );
-  TestValidator.equals("content type", captured, "application/json");
+  TestValidator.equals<string | null>(
+    "content type",
+    captured,
+    "application/json",
+  );
 }
