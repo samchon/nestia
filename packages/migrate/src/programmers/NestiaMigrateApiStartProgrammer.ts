@@ -18,11 +18,7 @@ export namespace NestiaMigrateApiStartProgrammer {
     const route: IHttpMigrateRoute | undefined = pick(
       context.application.routes,
     );
-    const main: ts.VariableStatement = writeMain(
-      context,
-      importer,
-      route,
-    );
+    const main: ts.VariableStatement = writeMain(context, importer, route);
     const statements: ts.Statement[] = [
       ...importer.toStatements(
         (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
@@ -34,7 +30,7 @@ export namespace NestiaMigrateApiStartProgrammer {
             factory.createImportDeclaration(
               undefined,
               factory.createImportClause(
-                false,
+                undefined,
                 undefined,
                 factory.createNamedImports([
                   factory.createImportSpecifier(
