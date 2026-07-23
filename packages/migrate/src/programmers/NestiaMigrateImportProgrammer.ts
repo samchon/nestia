@@ -1,4 +1,4 @@
-import { factory } from "@ttsc/factory";
+import { SyntaxKind, factory } from "@ttsc/factory";
 
 import { TypeLiteralFactory } from "../factories/TypeLiteralFactory";
 import ts from "../internal/ts";
@@ -67,7 +67,7 @@ export class NestiaMigrateImportProgrammer {
         factory.createImportDeclaration(
           undefined,
           factory.createImportClause(
-            false,
+            undefined,
             props.default !== null
               ? factory.createIdentifier(props.default)
               : undefined,
@@ -96,7 +96,7 @@ export class NestiaMigrateImportProgrammer {
           // only in type positions — keep the clause type-only so emitted
           // JS never loads the DTO module at runtime.
           factory.createImportClause(
-            true,
+            SyntaxKind.TypeKeyword,
             undefined,
             factory.createNamedImports(
               names.map((name) =>

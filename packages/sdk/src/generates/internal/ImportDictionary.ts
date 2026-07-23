@@ -1,4 +1,9 @@
-import { type ImportClause, type Node, factory } from "@ttsc/factory";
+import {
+  type ImportClause,
+  type Node,
+  SyntaxKind,
+  factory,
+} from "@ttsc/factory";
 import path from "path";
 import { HashMap, TreeMap, hash } from "tstl";
 
@@ -136,14 +141,14 @@ export class ImportDictionary {
     // generated SDK code references DTO namespaces only in type positions.
     if (c.asterisk !== null)
       return factory.createImportClause(
-        c.declaration,
+        c.declaration ? SyntaxKind.TypeKeyword : undefined,
         undefined,
         factory.createNamespaceImport(factory.createIdentifier(c.asterisk)),
       );
     // `c.declaration` (type-only) belongs on the import clause, not on each
     // specifier — emitting both produces the invalid `import type { type X }`.
     return factory.createImportClause(
-      c.declaration,
+      c.declaration ? SyntaxKind.TypeKeyword : undefined,
       c.default !== null ? factory.createIdentifier(c.default) : undefined,
       c.elements.size() !== 0
         ? factory.createNamedImports(

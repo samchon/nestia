@@ -50,7 +50,7 @@ const $import = (file: string) => (instance: string) =>
   factory.createImportDeclaration(
     undefined,
     factory.createImportClause(
-      false,
+      undefined,
       undefined,
       factory.createNamedImports([
         factory.createImportSpecifier(
