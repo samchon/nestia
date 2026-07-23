@@ -12,7 +12,7 @@ catalogs:
     '@nestjs/platform-fastify': *nestjs
     rxjs: ^7.1.0
   samchon:
-    typia: &typia ^13.0.2
+    typia: &typia ^13.2.0
     '@typia/interface': *typia
     '@typia/utils': *typia
     tgrid: ^1.2.1
@@ -24,7 +24,7 @@ catalogs:
     rimraf: ^6.1.3
     uuid: ^13.0.0
   typescript:
-    ttsc: &ttsc ^0.18.4
+    ttsc: &ttsc ^0.20.0
     '@ttsc/factory': *ttsc
     '@ttsc/unplugin': *ttsc
     '@trivago/prettier-plugin-sort-imports': ^4.3.0
