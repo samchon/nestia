@@ -3,7 +3,7 @@ title: "Reference · Swagger / OpenAPI"
 description: "Generate OpenAPI 3.1 / 3.0 / 2.0 documents directly from NestJS controllers and pure TypeScript types. No @ApiProperty decorators, powered by NestiaSwaggerComposer."
 ---
 
-import { Tabs } from "nextra/components";
+import { Callout, Tabs } from "nextra/components";
 
 # Swagger / OpenAPI
 
@@ -13,6 +13,10 @@ Nestia derives the entire OpenAPI document from your TypeScript types. No `@ApiP
 - **`NestiaSwaggerComposer.document(app)`** — compose the document inside a running app, serve it through `SwaggerModule.setup()`.
 
 Both read the same metadata the Nestia transformer attached at compile time.
+
+<Callout type="info">
+**New here?** Read **[Tutorial → Generate Swagger](/tutorial/swagger)** for the walkthrough. This page is the reference.
+</Callout>
 
 ---
 
@@ -191,6 +195,7 @@ The `swagger` block of `INestiaConfig`:
 
 ## See also
 
+- **[Tutorial → Generate Swagger](/tutorial/swagger)** — the walkthrough.
 - **[Swagger → Strategy](./strategy)** — JSDoc tags, security schemes, decomposition.
 - **[Swagger → Editor](./editor)** — embed an in-browser TS playground with Swagger UI.
 - **[Swagger → Chat](./chat)** — convert your OpenAPI document into an LLM agent.
