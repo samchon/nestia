@@ -1,0 +1,63 @@
+---
+title: Tutorial · Where to Next
+description: "A map of the rest of the Nestia docs. Pick the next step based on what you want to build."
+---
+
+# Where to Next
+
+You've seen the whole loop:
+
+- Typed controllers (`@TypedRoute`, `@TypedBody`, `@TypedParam`, `@TypedQuery`)
+- Generated **SDK**, **Swagger**, and **e2e** suites
+- The **mockup simulator**
+
+Now pick the chapter that matches what you're building.
+
+**Most teams' next step is [Setup](/docs/setup).** Everything below is here for when you're ready to deepen — read it lazily.
+
+---
+
+## I want to ship to production
+
+- **[Setup](/docs/setup)** — production install, watch mode, `tsconfig.build.json`, monorepos.
+- **[SDK → Distribution](/docs/sdk/distribute)** — publish the SDK as an `npm` package partners can install.
+- **[SDK → PNPM Monorepo](/docs/sdk/monorepo)** — share the SDK across workspaces without publishing.
+
+## I want richer endpoints
+
+- **[Core → TypedRoute](/docs/core/TypedRoute)** — serializer modes, encrypted routes, server-side benchmarks.
+- **[Core → TypedBody](/docs/core/TypedBody)** — validator modes, strip-extra-properties, encrypted body.
+- **[Core → TypedQuery](/docs/core/TypedQuery)** — nested query DTOs, `application/x-www-form-urlencoded` POSTs.
+- **[Core → TypedFormData](/docs/core/TypedFormData)** — `multipart/form-data` and file uploads.
+- **[Core → TypedHeaders](/docs/core/TypedHeaders)** — request header parsing.
+- **[Core → TypedException](/docs/core/TypedException)** — typed error responses.
+- **[Core → WebSocketRoute](/docs/core/WebSocketRoute)** — type-safe WebSocket RPC.
+
+## I want better tests
+
+- **[E2E → Why E2E?](/docs/e2e/why)** — the case for e2e over unit tests when you have a generated SDK.
+- **[E2E → Development](/docs/e2e/development)** — patterns for writing your own scenarios on top of the generated suite.
+- **[E2E → Benchmark](/docs/e2e/benchmark)** — `@nestia/benchmark` configuration and report shape.
+
+## I want Swagger / OpenAPI
+
+- **[Swagger → Overview](/docs/swagger)** — `NestiaSwaggerComposer`, generator config, downgrade to OpenAPI 3.0 / 2.0.
+- **[Swagger → Strategy](/docs/swagger/strategy)** — JSDoc tags Nestia recognizes, security schemes, decomposition.
+- **[Swagger → Editor](/docs/swagger/editor)** — embed an in-browser TypeScript editor next to your Swagger UI.
+
+## I want AI / LLM integration
+
+- **[Swagger → Chat](/docs/swagger/chat)** — convert your OpenAPI document into LLM function-calling schemas and ship an agent.
+- The `llm` plugin option ([TypedRoute → Configuration](/docs/core/TypedRoute#configuration)) enforces the LLM-friendly schema subset at compile time.
+
+## I have an existing Swagger document and want NestJS code
+
+- **[`@nestia/migrate`](https://github.com/samchon/nestia/tree/master/packages/migrate)** — feed it a `swagger.json`, get a NestJS project (controllers, DTOs, optional e2e) out.
+
+## Stuck?
+
+- **[GitHub Issues](https://github.com/samchon/nestia/issues)** — for bug reports.
+- **[Discord](https://discord.gg/E94XhzrUCZ)** — for live questions.
+- **[Gurubase](https://gurubase.io/g/nestia)** — an LLM that has read the entire docs and source for you.
+
+Good luck. Build something great.

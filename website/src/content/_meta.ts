@@ -10,6 +10,10 @@ export default {
       toc: false,
     },
   },
+  tutorial: {
+    title: "🚀 Tutorial",
+    type: "page",
+  },
   docs: {
     title: "📖 Guide Documents",
     type: "page",

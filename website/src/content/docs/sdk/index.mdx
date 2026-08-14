@@ -3,13 +3,17 @@ title: "Reference · SDK Generator"
 description: "Generate a type-safe client SDK from your NestJS controllers — typed fetch functions, DTO structures, and ready-to-publish NPM package layout."
 ---
 
-import { Tabs } from "nextra/components";
+import { Callout, Tabs } from "nextra/components";
 
 # SDK Generator
 
 `@nestia/sdk` reads your NestJS controllers and emits a **client SDK** — one typed function per route, plus a copy of the DTO types and an `IConnection` config object. The result is a normal TypeScript module a frontend, mobile app, or test suite can `import`.
 
 The SDK is hand-shaped TypeScript, not a `fetch` wrapper around generated JSON. Renaming a DTO field on the server and re-running `npx nestia sdk` is a compile error on the client — exactly what you want.
+
+<Callout type="info">
+**New here?** Read **[Tutorial → Generate Your SDK](/tutorial/sdk)** and **[Tutorial → Call Your API](/tutorial/consume)** for the friendly walkthrough. This page is the reference.
+</Callout>
 
 ---
 
@@ -175,7 +179,7 @@ else if (out.status === 400) out.data.expected; // TypeGuardError.IProps (400)
 else                          out.data;          // unknown — outside declared statuses
 ```
 
-The map of status codes comes from `@TypedRoute.*` (success) plus every `@TypedException()` on the route. Range matchers (`"4XX"`, `"5XX"`) work the same way.
+The map of status codes comes from `@TypedRoute.*` (success) plus every `@TypedException()` on the route. Range matchers (`"4XX"`, `"5XX"`) work the same way. See **[Tutorial → Call Your API → handle errors](/tutorial/consume#4-handle-errors)** for the full pattern.
 
 ---
 
@@ -224,6 +228,7 @@ Useful when one repo has two NestJS apps (e.g. a monorepo with `apps/admin` and 
 
 ## See also
 
+- **[Tutorial → Generate Your SDK](/tutorial/sdk)** — the walkthrough.
 - **[Mockup Simulator](./simulate)** — the in-process mock backend.
 - **[E2E Test Generation](./e2e)** — the test suite that comes with the SDK.
 - **[Distribution](./distribute)** — publishing as an npm package.

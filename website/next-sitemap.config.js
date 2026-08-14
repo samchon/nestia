@@ -14,7 +14,15 @@ const sitemapConfig = {
   transform: async (config, url) => ({
     loc: url,
     changefreq: url === "/" ? "daily" : "weekly",
-    priority: url === "/" ? 1.0 : url.startsWith("/docs") ? 0.8 : 0.6,
+    // The tutorial is the entry path for a new reader, so it ranks with the
+    // guides rather than falling to the catch-all now that it is no longer
+    // nested under `/docs`.
+    priority:
+      url === "/"
+        ? 1.0
+        : url.startsWith("/docs") || url.startsWith("/tutorial")
+          ? 0.8
+          : 0.6,
     lastmod: new Date().toISOString(),
   }),
 };

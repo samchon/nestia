@@ -1,0 +1,152 @@
+---
+title: Tutorial · Auto E2E Tests
+description: "Generate end-to-end test functions for every NestJS endpoint with `npx nestia e2e`. Run them locally, in CI, or as a load benchmark."
+---
+
+import { Callout, Tabs } from "nextra/components";
+
+# Auto E2E Tests
+
+E2E tests usually feel expensive — typed request payloads, faked auth, brittle URL strings. Nestia removes most of the work: it can write the **first version** of an e2e suite for every endpoint, and it runs against the SDK from Chapter 5, so the tests have the same type safety the SDK does.
+
+---
+
+## 1. Add an `e2e` block
+
+```ts filename="nestia.config.ts" {7} copy
+const config: INestiaConfig = {
+  input: () => NestFactory.create(AppModule),
+  output: "src/api",
+  swagger: { /* ... */ },
+  e2e: "test",                            // output directory
+};
+```
+
+Then:
+
+```bash filename="Terminal" copy
+npx nestia e2e
+```
+
+Output: `test/features/api/articles/test_api_articles_create.ts` (one file per endpoint).
+
+---
+
+## 2. What gets generated
+
+Each generated function:
+
+- Picks a random valid input from the DTO types (via `typia.random<T>()`).
+- Calls the SDK function.
+- Asserts the response shape.
+
+```ts filename="test/features/api/articles/test_api_articles_create.ts (generated)"
+import typia from "typia";
+
+import api from "@my-app/api";
+import type { IArticle } from "@my-app/api/lib/structures/IArticle";
+
+export const test_api_articles_create = async (
+  connection: api.IConnection,
+): Promise<void> => {
+  const output: IArticle = await api.functional.articles.create(
+    connection,
+    typia.random<IArticle.ICreate>(),
+  );
+  typia.assert(output);
+};
+```
+
+That is your **starter** test. It is not your final test — you will hand-write business assertions later — but you start from "smoke-tests every endpoint" instead of "an empty `test/` folder."
+
+<Callout type="warning">
+Re-running `npx nestia e2e` **overwrites** the generated files. The convention is to keep the auto-generated suite read-only and add your hand-written scenarios alongside them in the same directory (any file starting with `test_` and exporting a `test_*` function is picked up).
+</Callout>
+
+---
+
+## 3. Run the suite
+
+Generated tests use `@nestia/e2e`'s `DynamicExecutor` — it walks a directory, finds every `test_*` function, runs them in series, and reports pass/fail. A typical runner:
+
+```ts filename="test/index.ts" copy
+import { DynamicExecutor } from "@nestia/e2e";
+import { NestFactory } from "@nestjs/core";
+
+import { AppModule } from "../src/AppModule";
+
+const main = async () => {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(0);
+  const port = (app.getHttpServer().address() as any).port;
+
+  const report = await DynamicExecutor.validate({
+    prefix: "test_",
+    parameters: () => [{ host: `http://localhost:${port}` }],
+  })(__dirname + "/features");
+
+  console.log(report);
+  await app.close();
+};
+main().catch(console.error);
+```
+
+Run with:
+
+```bash filename="Terminal" copy
+npx ttsx test/index.ts
+```
+
+You get a per-test pass/fail summary. Plug it into CI with the exit code and you have regression coverage on the whole API.
+
+---
+
+## 4. Free benchmarks
+
+The same files that drive e2e drive load tests. Point `@nestia/benchmark` at the directory:
+
+```ts filename="benchmark/index.ts" copy
+import { NestiaBenchmarker } from "@nestia/benchmark";
+import { NestFactory } from "@nestjs/core";
+
+import { AppModule } from "../src/AppModule";
+
+const main = async () => {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(0);
+  const port = (app.getHttpServer().address() as any).port;
+
+  const report = await NestiaBenchmarker.benchmark({
+    prefix: "test_",
+    parameters: () => [{ host: `http://localhost:${port}` }],
+    threads: 16,
+    duration: 30_000,
+  })(__dirname + "/../test/features");
+
+  console.log(report);
+  await app.close();
+};
+main().catch(console.error);
+```
+
+The report is a markdown table (RPS, mean / median / p95 latency, error rate per endpoint) — drop it into your repo's `benchmarks/` directory and you have version-by-version performance history.
+
+See **[E2E → Benchmark](/docs/e2e/benchmark)** for the full configuration shape.
+
+---
+
+## 5. When to use auto-generation vs hand-written
+
+| Use generated tests when…             | Hand-write tests when…                                  |
+| ------------------------------------- | ------------------------------------------------------- |
+| You want a "did I break the schema" net. | You want to assert business rules ("admin sees all articles, user sees only own"). |
+| You're scaffolding a brand new service. | You need fixtures, auth flows, multi-step scenarios.    |
+| You want a quick benchmark target.    | You're testing failure paths — auth denied, race conditions, idempotency. |
+
+In practice you do both. The auto-generated suite covers the **schema contract**; your hand-written tests cover the **business contract**.
+
+---
+
+## Next
+
+Last optional generator: **[Mockup Simulator](/tutorial/simulator)** — your SDK can answer requests with realistic random data, so the frontend can develop before the backend is finished.

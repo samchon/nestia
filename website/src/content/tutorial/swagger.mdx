@@ -1,0 +1,159 @@
+---
+title: Tutorial · Generate Swagger
+description: "Generate an OpenAPI 3.1 / 3.0 / 2.0 document from your NestJS controllers with one command. No @ApiProperty decorators, no separate schema file."
+---
+
+import { Callout, Tabs } from "nextra/components";
+
+# Generate Swagger
+
+You wrote interfaces. Nestia already knows your routes, your DTOs, your status codes, and your JSDoc. Generating an OpenAPI document is two lines of config and one command.
+
+---
+
+## 1. Add a `swagger` block
+
+Open `nestia.config.ts` and add the `swagger` key:
+
+```ts filename="nestia.config.ts" {7-21} copy
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+
+import { AppModule } from "./src/AppModule";
+
+const config: INestiaConfig = {
+  input: () => NestFactory.create(AppModule),
+  output: "src/api",
+  swagger: {
+    openapi: "3.1",                       // or "3.0" / "2.0" if your tooling needs it
+    output: "dist/swagger.json",
+    info: {
+      title: "My App",
+      version: "1.0.0",
+    },
+    servers: [
+      { url: "http://localhost:37001", description: "Local" },
+    ],
+  },
+};
+export default config;
+```
+
+Then:
+
+```bash filename="Terminal" copy
+npx nestia swagger
+```
+
+Output: `dist/swagger.json`. You can drop that file straight into Swagger UI, Redoc, Postman, or any OpenAPI tool.
+
+During local development, keep the file fresh while editing controllers:
+
+```bash filename="Terminal" copy
+npx nestia swagger --watch
+```
+
+The watcher runs the same generator immediately, then regenerates the document when controller, config, or project files change.
+
+---
+
+## 2. What ends up in the schema
+
+Nestia walks each `@TypedRoute.*` and `@Typed*` parameter and produces a complete schema:
+
+- **Path / query / body / header types** become the matching OpenAPI parameter or request body.
+- **Return types** become the `200` (or `201` for POST) response schema.
+- **`@TypedException()`** decorators become non-2xx response schemas with typed payloads.
+- **JSDoc** on the method becomes `summary` and `description`.
+- **JSDoc on DTO fields** becomes property `description` and `title`. `@default`, `@example`, `@tag`, etc. are honored.
+- **`tags.MinLength<3>`** and friends become `minLength: 3` and friends.
+
+You did all of this by writing TypeScript types and JSDoc. There is no second source of truth to maintain.
+
+---
+
+## 3. Serve Swagger UI at runtime
+
+Want the UI live alongside your server? Compose the document at boot:
+
+```ts filename="src/main.ts" {1, 9-10} copy
+import { NestiaSwaggerComposer } from "@nestia/sdk";
+import { INestApplication } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { SwaggerModule } from "@nestjs/swagger";
+
+import { AppModule } from "./AppModule";
+
+const main = async () => {
+  const app: INestApplication = await NestFactory.create(AppModule);
+  const document = await NestiaSwaggerComposer.document(app, {});
+  SwaggerModule.setup("docs", app, document as any);
+  await app.listen(37001);
+};
+main().catch(console.error);
+```
+
+Open **http://localhost:37001/docs** and you have an interactive playground. Every endpoint, every DTO, every constraint — already documented.
+
+<Callout type="info">
+`NestiaSwaggerComposer` lives in `@nestia/sdk`, which is a **runtime** dependency for exactly this reason. The Nestia transform attaches the metadata `NestiaSwaggerComposer` needs at compile time, and the runtime call assembles the final document.
+</Callout>
+
+---
+
+## 4. Coming from `@nestjs/swagger`?
+
+Already have `@ApiProperty()` and `@ApiResponse()` everywhere? Two paths:
+
+- **Keep them.** Nestia ignores them. Your existing setup keeps working.
+- **Migrate.** Lift the strings (`description`, `default`, `title`, `example`) into JSDoc on the same field. Nestia reads JSDoc.
+
+Example before:
+
+```ts
+class CreateArticle {
+  @ApiProperty({ description: "Article title", minLength: 3, maxLength: 50 })
+  @IsString() @MinLength(3) @MaxLength(50)
+  title!: string;
+}
+```
+
+After:
+
+```ts
+interface ICreateArticle {
+  /**
+   * Article title
+   */
+  title: string & tags.MinLength<3> & tags.MaxLength<50>;
+}
+```
+
+The migration is mechanical: move descriptions, titles, defaults, examples, and validation strings from Swagger decorators into JSDoc on the same controller methods and DTO fields.
+
+---
+
+## 5. Document errors
+
+Use `@TypedException()` so 4xx responses appear in the schema with a typed payload:
+
+```ts copy
+import { TypedException, TypedRoute } from "@nestia/core";
+
+interface IBadRequest {
+  code: "INVALID_TITLE" | "INVALID_BODY";
+  message: string;
+}
+
+@TypedException<IBadRequest>(400, "When the payload is malformed")
+@TypedRoute.Post()
+public async create(...) { ... }
+```
+
+Now Swagger UI shows a 400 response with the `IBadRequest` schema and your description. If you also turned on **propagation mode** ([previous chapter](/tutorial/consume#4-handle-errors)) the SDK gives you the same `IBadRequest` type on the client.
+
+---
+
+## Next
+
+Documentation done. Now the regression net: **[Auto E2E Tests](/tutorial/e2e)** — one command writes an e2e suite for every endpoint.
