@@ -89,7 +89,7 @@ export namespace SwaggerOperationResponseComposer {
     const described: boolean =
       schema !== undefined ||
       props.route.success.example !== undefined ||
-      props.route.success.examples !== undefined;
+      Object.keys(props.route.success.examples ?? {}).length !== 0;
     output[
       props.route.success.status ??
         (props.route.method.toLowerCase() === "post" ? 201 : 200)
