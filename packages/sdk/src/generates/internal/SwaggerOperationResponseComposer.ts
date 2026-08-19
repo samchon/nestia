@@ -70,6 +70,26 @@ export namespace SwaggerOperationResponseComposer {
         jsDocTags: props.route.jsDocTags,
         tag: "return",
       });
+    // `content` describes a response body, so it exists exactly when there is
+    // one to describe. A route returning `void` has no schema, and writing the
+    // media type anyway says "this endpoint replies with JSON" and then declines
+    // to say what the JSON is: a client generator emits a parse for a body that
+    // never arrives, and the Swagger 2.0 downgrade refuses the document because
+    // a schemaless `produces` entry carries no information at all.
+    //
+    // The test is what the metadata yields, not how the return type is spelled:
+    // `void`, `undefined` and `never` all describe the same absent body. An
+    // example without a schema still describes a body, so it keeps the entry.
+    const schema: OpenApi.IJsonSchema | undefined = props.route.success.binary
+      ? {
+          format: "binary",
+          type: "string",
+        }
+      : props.schema(props.route.success.metadata);
+    const described: boolean =
+      schema !== undefined ||
+      props.route.success.example !== undefined ||
+      props.route.success.examples !== undefined;
     output[
       props.route.success.status ??
         (props.route.method.toLowerCase() === "post" ? 201 : 200)
@@ -77,20 +97,16 @@ export namespace SwaggerOperationResponseComposer {
       description: props.route.success.encrypted
         ? `${warning.get(!!description, props.route.method)}${description ?? ""}`
         : (description ?? ""),
-      content: props.route.success.contentType
-        ? {
-            [props.route.success.contentType]: {
-              schema: props.route.success.binary
-                ? {
-                    format: "binary",
-                    type: "string",
-                  }
-                : props.schema(props.route.success.metadata),
-              example: props.route.success.example,
-              examples: props.route.success.examples,
-            },
-          }
-        : undefined,
+      content:
+        props.route.success.contentType && described
+          ? {
+              [props.route.success.contentType]: {
+                schema,
+                example: props.route.success.example,
+                examples: props.route.success.examples,
+              },
+            }
+          : undefined,
       ...(props.route.success.encrypted ? { "x-nestia-encrypted": true } : {}),
     };
     return output;
