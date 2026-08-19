@@ -42,6 +42,32 @@ func Run(args []string) (code int) {
 	return run(args)
 }
 
+// RunWithOutput is Run with the host's stdout and stderr writers redirected for
+// the duration of the call, then restored.
+//
+// The project-mode `transform` subcommand publishes its whole result — the
+// transformed sources, the diagnostics, and the reference graph — as one JSON
+// envelope on stdout, and unlike the single-file path it has no `--out` seam. An
+// exit code is therefore the only thing an external test module can observe
+// about it, which is not enough to pin what the envelope carries. This makes the
+// envelope itself observable without giving the CLI a flag ttsc never passes.
+//
+// Restoring inside the call keeps the redirect scoped: a nil writer is ignored,
+// so a caller can redirect one stream and leave the other on the process.
+func RunWithOutput(args []string, out io.Writer, errOut io.Writer) int {
+	previousOut, previousErr := stdout, stderr
+	defer func() {
+		stdout, stderr = previousOut, previousErr
+	}()
+	if out != nil {
+		stdout = out
+	}
+	if errOut != nil {
+		stderr = errOut
+	}
+	return Run(args)
+}
+
 func run(args []string) int {
 	if len(args) == 0 {
 		return runHelp(nil)
