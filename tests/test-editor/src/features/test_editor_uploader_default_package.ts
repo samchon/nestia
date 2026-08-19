@@ -1,11 +1,11 @@
 import { EditorTestHarness } from "../internal/EditorTestHarness";
 
 /**
- * Verifies the editor's default package placeholder has the standard organization spelling.
+ * Verifies the editor's default package placeholder has the standard
+ * organization spelling.
  *
- * Why:
- * The uploader passes this value into migration, so a typo becomes the generated
- * package name and import prefix throughout a downloaded project.
+ * Why: The uploader passes this value into migration, so a typo becomes the
+ * generated package name and import prefix throughout a downloaded project.
  *
  * 1. Server-render the built uploader and read its initial package input.
  * 2. Compose an SDK with that observed value and check its package manifest.
@@ -30,5 +30,7 @@ export const test_editor_uploader_default_package = async (): Promise<void> => {
 
   const manifest: string | undefined = result.data?.files["package.json"];
   if (manifest?.includes('"name": "@ORGANIZATION/PROJECT-api"') !== true)
-    throw new Error("The editor default package was not propagated to the SDK.");
+    throw new Error(
+      "The editor default package was not propagated to the SDK.",
+    );
 };

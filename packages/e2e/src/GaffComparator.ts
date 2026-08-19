@@ -110,9 +110,7 @@ export namespace GaffComparator {
       const b: string[] = wrap(getter(y));
 
       const idx: number = a.findIndex((v, i) => v !== b[i]);
-      return idx !== -1
-        ? compare(a[idx]!, b[idx]!)
-        : a.length - b.length;
+      return idx !== -1 ? compare(a[idx]!, b[idx]!) : a.length - b.length;
     };
 
   /**

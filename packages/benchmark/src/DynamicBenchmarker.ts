@@ -203,9 +203,13 @@ export namespace DynamicBenchmarker {
    */
   export const master = async (props: IMasterProps): Promise<IReport> => {
     if (!Number.isSafeInteger(props.count) || props.count < 0)
-      throw new Error("DynamicBenchmarker.master(): count must be a non-negative integer.");
+      throw new Error(
+        "DynamicBenchmarker.master(): count must be a non-negative integer.",
+      );
     if (!Number.isSafeInteger(props.threads) || props.threads <= 0)
-      throw new Error("DynamicBenchmarker.master(): threads must be a positive integer.");
+      throw new Error(
+        "DynamicBenchmarker.master(): threads must be a positive integer.",
+      );
     if (!Number.isSafeInteger(props.simultaneous) || props.simultaneous <= 0)
       throw new Error(
         "DynamicBenchmarker.master(): simultaneous must be a positive integer.",

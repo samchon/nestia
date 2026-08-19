@@ -10,10 +10,8 @@ export const test_swagger_inherited_metadata = async (): Promise<void> => {
   const swagger: any = JSON.parse(
     await fs.promises.readFile(`${__dirname}/../../../swagger.json`, "utf8"),
   );
-  const base: any =
-    swagger.paths["/custom/inheritance/base/route"].get;
-  const derived: any =
-    swagger.paths["/custom/inheritance/derived/route"].get;
+  const base: any = swagger.paths["/custom/inheritance/base/route"].get;
+  const derived: any = swagger.paths["/custom/inheritance/derived/route"].get;
   const inherited: any =
     swagger.paths["/custom/inheritance/derived/inherited"].get;
   const baseExamples: Array<{ example: string }> = Reflect.getOwnMetadata(
@@ -47,11 +45,7 @@ export const test_swagger_inherited_metadata = async (): Promise<void> => {
     inheritedExamples[0]?.example,
     "inherited",
   );
-  TestValidator.equals(
-    "base customizer",
-    base["x-metadata-base"],
-    true,
-  );
+  TestValidator.equals("base customizer", base["x-metadata-base"], true);
   TestValidator.equals(
     "base excludes derived customizer",
     base["x-metadata-derived"],

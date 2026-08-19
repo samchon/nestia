@@ -24,11 +24,7 @@ export function SwaggerCustomizer(
   ) {
     const array: Array<(props: SwaggerCustomizer.IProps) => unknown> = (() => {
       if (
-        Reflect.hasOwnMetadata(
-          "nestia/SwaggerCustomizer",
-          target,
-          propertyKey,
-        )
+        Reflect.hasOwnMetadata("nestia/SwaggerCustomizer", target, propertyKey)
       )
         return Reflect.getOwnMetadata(
           "nestia/SwaggerCustomizer",

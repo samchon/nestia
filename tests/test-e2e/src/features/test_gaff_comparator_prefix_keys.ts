@@ -11,9 +11,12 @@ export async function test_gaff_comparator_prefix_keys(): Promise<void> {
   );
   TestValidator.predicate(
     "date prefix",
-    dates({ value: ["2026-01-01T00:00:00.000Z"] }, {
-      value: ["2026-01-01T00:00:00.000Z", "2026-01-02T00:00:00.000Z"],
-    }) < 0,
+    dates(
+      { value: ["2026-01-01T00:00:00.000Z"] },
+      {
+        value: ["2026-01-01T00:00:00.000Z", "2026-01-02T00:00:00.000Z"],
+      },
+    ) < 0,
   );
   TestValidator.predicate(
     "number prefix",
