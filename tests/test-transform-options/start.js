@@ -200,6 +200,83 @@ const main = () => {
         result.graph.configs,
       )}`,
     );
+
+    // `dependencies` is the second channel: the declarations the analysis
+    // actually read for this file, reported alongside the graph and unioned
+    // with it by the consumer.
+    assert(
+      result.dependencies !== undefined,
+      "envelope carries no dependencies section",
+    );
+    assert(
+      (result.dependencies[CONTROLLER_KEY] ?? []).includes(DTO_KEY),
+      `dependencies[${CONTROLLER_KEY}] omits ${DTO_KEY}: ${JSON.stringify(
+        result.dependencies[CONTROLLER_KEY],
+      )}`,
+    );
+    // Negative twin: a file the transform generated nothing for consulted no
+    // declaration, so it gets no entry rather than an empty or inherited one.
+    assert(
+      result.dependencies[UNRELATED_KEY] === undefined,
+      `dependencies must not carry ${UNRELATED_KEY}: ${JSON.stringify(
+        result.dependencies[UNRELATED_KEY],
+      )}`,
+    );
+  });
+
+  // Runtime-native identity, decided from the program's own default-library set
+  // rather than from a file name. `@nestia/core` hosts typia's transform, so it
+  // owes that analysis the classification typia's own host installs; without it
+  // the analysis falls back to a `lib.*.d.ts` base-name test and any file that
+  // matches the pattern is taken for a runtime authority.
+  //
+  // The consequence is not cosmetic. A type promoted to native identity loses
+  // its members to an `instanceof` check, so a purely user-authored global is
+  // validated by a constructor that need not exist at runtime -- a
+  // `ReferenceError` where the members would have been checked.
+  measure("user-authored global keeps its members", () => {
+    const user = loadRaw(
+      compile({
+        name: "native-global-user",
+        source: "native-global/user",
+        plugin: {},
+        // No DOM, no `@types`, so this program's only `Blob` is the one
+        // `lib.custom.d.ts` declares beside it.
+        compilerOptions: { lib: ["ESNext"], types: [] },
+        include: [
+          "../src/native-global/lib.custom.d.ts",
+          "../src/native-global/user.ts",
+        ],
+      }),
+    );
+    assert(
+      user.check({ blob: { customField: "x" } }) === true,
+      "a user-authored global Blob was not validated structurally",
+    );
+    assert(
+      user.check({ blob: {} }) === false,
+      "a user-authored global Blob accepted a value missing its member",
+    );
+
+    // The one-axis twin: same type name, same shape of use, real provenance.
+    // `Blob` from `lib.dom.d.ts` is a runtime authority, so it must keep
+    // native identity and reject a structural lookalike.
+    const runtime = loadRaw(
+      compile({
+        name: "native-global-runtime",
+        source: "native-global/runtime",
+        plugin: {},
+        compilerOptions: { lib: ["ESNext", "DOM"], types: [] },
+      }),
+    );
+    assert(
+      runtime.check({ blob: { customField: "x" } }) === false,
+      "a real DOM Blob lost its native identity to a structural check",
+    );
+    assert(
+      runtime.check({ blob: new Blob([]) }) === true,
+      "a real DOM Blob rejected an actual Blob instance",
+    );
   });
 
   measure("aliased core imports", () => {
@@ -319,6 +396,7 @@ const writeProject = (props) => {
         compilerOptions: {
           outDir: `./${props.name}`,
           rootDir: "../src",
+          ...props.compilerOptions,
           plugins: [
             {
               transform: "typia/lib/transform",
@@ -385,6 +463,15 @@ const load = (file) => {
     Module._load = original;
   }
   return captured;
+};
+
+// `load`'s counterpart for a module that exports the transform's product
+// directly instead of feeding it to a decorator. Nothing needs stubbing: these
+// fixtures import only `typia`, whose runtime helpers the emitted code calls for
+// real, which is the point — the assertion is on behaviour, not on text.
+const loadRaw = (file) => {
+  delete require.cache[file];
+  return require(file);
 };
 
 const assertValidate = (option, validator) => {
