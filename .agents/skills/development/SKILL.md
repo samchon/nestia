@@ -66,7 +66,7 @@ Test workspaces point at `@nestia/core/native/transform.cjs`. Do not add a secon
 
 All tracked Go tests live in two dedicated modules, not beside the source:
 
-- `packages/core/test` (58 files), run by `pnpm --filter @nestia/core test:go`.
+- `packages/core/test` (62 files), run by `pnpm --filter @nestia/core test:go`.
 - `packages/sdk/test` (19 files), run by `pnpm --filter @nestia/sdk test:go`.
 
 Each module carries `replace` directives back to `../native` (and, for the SDK, to `../../core/native`) plus the pinned typescript-go shim redirects. Use one `Test*` function per file, named after the assertion, and mirror a nearby test's package, fixture, and cleanup pattern. Tests that exercise the CLI surface or the emit pipeline should invoke the real binary so the wrapper branches stay covered.
@@ -81,7 +81,7 @@ Root `pnpm test` starts every `tests/test-*` workspace through its `start` scrip
   - Name every non-discovered helper so it cannot match that prefix. The gate is the *filename*, not the directory: `DynamicExecutor` recurses into every subdirectory and would import a helper named `test_*.ts` wherever it lives, including the sibling `internal/` or `structures/` directory where helpers conventionally sit.
   - `test-e2e` and `test-editor` throw when discovery returns zero tests. A hardcoded `js` extension once made a suite pass vacuously, so the extension now derives from `__filename` at runtime.
   - `test-cli` and `test-editor` build the package under test first, because their harnesses `require()` built artifacts by absolute path that the exports map does not expose.
-- **Project-shaped:** `tests/test-sdk/features/<name>` — 161 directories, each a real nestia project with its own `tsconfig.json` and a `nestia.config.ts`. `start.js` runs the CLI, compiles, and asserts on observable output, with a parallel worker pool and one port per feature. Within a successful feature the e2e layer is function-per-file again.
+- **Project-shaped:** `tests/test-sdk/features/<name>` — 155 directories, each a real nestia project with its own `tsconfig.json` and a `nestia.config.ts`. `start.js` runs the CLI, compiles, and asserts on observable output, with a parallel worker pool and one port per feature. Within a successful feature the e2e layer is function-per-file again.
   - The directory name encodes the expected behavior. A name containing `error` **must** fail, and the harness throws if it compiles; a name containing `distribute` returns immediately after the output is cleaned, so it neither generates nor compiles; `cli-*` names drive the `--project` and `--config` flags.
   - `cli-config` and `cli-config-project` carry `nestia.configuration.ts` instead, precisely to exercise that path.
   - Mirror `tests/test-sdk/template/success/` or `template/error/` when adding a feature. They are siblings of `features/`, not entries in it.

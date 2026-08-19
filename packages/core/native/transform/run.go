@@ -53,7 +53,10 @@ func Run(args []string) (code int) {
 // envelope itself observable without giving the CLI a flag ttsc never passes.
 //
 // Restoring inside the call keeps the redirect scoped: a nil writer is ignored,
-// so a caller can redirect one stream and leave the other on the process.
+// so a caller can redirect one stream and leave the other on the process. The
+// writers are package state, so concurrent calls would interleave; the host runs
+// one command per process and Go tests in one package run sequentially unless
+// they opt into t.Parallel.
 func RunWithOutput(args []string, out io.Writer, errOut io.Writer) int {
 	previousOut, previousErr := stdout, stderr
 	defer func() {

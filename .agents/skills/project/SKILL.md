@@ -56,10 +56,10 @@ Five of them additionally set `TTSC_GO_BINARY=go` and pin `TTSC_CACHE_DIR` so th
 
 ## Layout
 
-- `packages/*`: the eight published packages. The shared Go plugin lives under `packages/core/native` (module `github.com/samchon/nestia/packages/core/native`, with `cmd/ttsc-nestia` and the 17-file `transform/` tree); the SDK contributor lives under `packages/sdk/native/sdk`. Both `native/go.work` files carry the same fifteen `replace` directives: fourteen redirect the `github.com/microsoft/typescript-go/shim/*` modules to a pinned `github.com/samchon/ttsc` pseudo-version, and the fifteenth redirects `github.com/samchon/ttsc/packages/ttsc` itself.
-- `packages/core/test` and `packages/sdk/test`: the Go test modules, each its own module — core's replaces `../native`, the SDK's replaces both `../native` and `../../core/native`. All 77 tracked `*_test.go` files live here; `native/` itself carries none.
+- `packages/*`: the eight published packages. The shared Go plugin lives under `packages/core/native` (module `github.com/samchon/nestia/packages/core/native`, with `cmd/ttsc-nestia` and the 15-file `transform/` tree); the SDK contributor lives under `packages/sdk/native/sdk`. Both `native/go.work` files carry the same fifteen `replace` directives: fourteen redirect the `github.com/microsoft/typescript-go/shim/*` modules to a pinned `github.com/samchon/ttsc` pseudo-version, and the fifteenth redirects `github.com/samchon/ttsc/packages/ttsc` itself.
+- `packages/core/test` and `packages/sdk/test`: the Go test modules, each its own module — core's replaces `../native`, the SDK's replaces both `../native` and `../../core/native`. All 81 tracked `*_test.go` files live here; `native/` itself carries none.
 - `tests/test-*`: seven feature-test workspaces. `start` is the single entry contract for every one of them. See `.agents/skills/development/SKILL.md` for their shapes.
-- `tests/config/tsconfig.json`: the shared strict base config. Five workspaces extend it directly, and every one of `test-sdk`'s 161 feature projects extends it as `../../../config/tsconfig.json`. Not a package.
+- `tests/config/tsconfig.json`: the shared strict base config. Five workspaces extend it directly, and every one of `test-sdk`'s 155 feature projects extends it as `../../../config/tsconfig.json`. Not a package.
 - `config/`: `@nestia/config`, the private workspace holding the shared rolldown and tsconfig build configuration.
 - `benchmark/`: `@samchon/nestia-benchmark`, the private measurement workspace, with committed per-CPU results under `benchmark/results/**`. See `.agents/skills/benchmark/SKILL.md`.
 - `website/`: the Nextra site published at https://nestia.io, with guides under `website/src/content/docs/**`. See `.agents/skills/documentation/SKILL.md`.
@@ -78,7 +78,9 @@ pnpm test
 
 `pnpm test` builds, then runs `pnpm test:go`, then runs each `tests/test-*` workspace's `start` script at `--workspace-concurrency=1`. The whole chain needs `go` on `PATH`, and sets `TTSC_GO_BINARY=go`, `TTSC_CACHE_DIR=node_modules/.cache/ttsc`, and the `NODE_OPTIONS` pair.
 
-`pnpm format` is one Prettier invocation over `packages/**/*.ts` and `tests/**/*.ts`. It does not touch Go, Markdown, MDX, the website, or the benchmark workspace.
+`pnpm format` is one Prettier invocation over `packages/**/*.ts` and `tests/**/*.ts`. It does not touch Go, Markdown, MDX, the website, or the benchmark workspace. `.prettierignore` additionally excludes the trees `packages/migrate`'s `prepare` script regenerates, so formatting them cannot produce a change a commit could carry.
+
+`pnpm format:check` is the same invocation in read-only mode, and `format.yml` runs it on every pull request. It is its own workflow because a `paths:` filter is per workflow, and neither `build.yml` nor `test.yml` covers the whole formatter target set.
 
 Keep those targets in one invocation. A chained `&&` lets an unmatched pattern silently drop every target after it: the script once chained three invocations, the second over an `internals/**/*.ts` directory that does not exist, and because Prettier exits 2 on a glob that matches nothing, `tests/**/*.ts` was never formatted at all.
 
