@@ -21,6 +21,7 @@ import { test_migrate_nest_dto_package_import } from "./features/test_migrate_ne
 import { test_migrate_nest_keyword_config_path } from "./features/test_migrate_nest_keyword_config_path";
 import { test_migrate_nest_monorepo_layout } from "./features/test_migrate_nest_monorepo_layout";
 import { test_migrate_nest_workspace_catalog_stamp } from "./features/test_migrate_nest_workspace_catalog_stamp";
+import { test_migrate_sdk_dependency_catalog_stamp } from "./features/test_migrate_sdk_dependency_catalog_stamp";
 import {
   EMPTY_PATHS_DOCUMENT,
   test_migrate_sdk_empty_paths,
@@ -256,6 +257,7 @@ const main = async (): Promise<void> => {
     test_migrate_sdk_empty_paths();
     test_migrate_sdk_key_snapshot();
     test_migrate_sdk_pnpm_template();
+    test_migrate_sdk_dependency_catalog_stamp();
     await execute(
       "sdk",
       {
