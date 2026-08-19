@@ -468,7 +468,7 @@ const load = (file) => {
 // `load`'s counterpart for a module that exports the transform's product
 // directly instead of feeding it to a decorator. Nothing needs stubbing: these
 // fixtures import only `typia`, whose runtime helpers the emitted code calls for
-// real, which is the point — the assertion is on behaviour, not on text.
+// real, which is the point — the assertion is on behavior, not on text.
 const loadRaw = (file) => {
   delete require.cache[file];
   return require(file);

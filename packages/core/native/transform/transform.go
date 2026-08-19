@@ -161,7 +161,7 @@ func runTransformProject(
 	//
 	// The envelope deliberately declares no `dependenciesComplete`. That field
 	// transfers responsibility -- a listed file stops watching everything the
-	// reference closure carries -- and this host cannot honour it: whether a file
+	// reference closure carries -- and this host cannot honor it: whether a file
 	// is transformed at all depends on symbol resolutions that no listener
 	// reports, including the negative ones, and typia's own trigger set belongs
 	// to typia rather than to this host. See samchon/typia#2357.
