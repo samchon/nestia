@@ -44,6 +44,8 @@ bun add -d nestia
 `@nestia/sdk` is a runtime dependency. The generated SDK and runtime Swagger
 composition both resolve it while the Nestia transform attaches route metadata.
 
+`ttsc` must be 0.19.2 or newer. `ttsc` compiles the Nestia transform from Go source on first use, and that source reports the compiled project's reference graph through an API older releases do not have, so an older `ttsc` fails the plugin build instead of silently producing a transform without it. `@nestia/core` declares the floor as an optional peer dependency.
+
 ## tsconfig.json
 
 Keep the NestJS decorator metadata flags. Do not add `compilerOptions.plugins`
@@ -173,6 +175,8 @@ Use the matching import path for other bundlers:
 `@ttsc/unplugin/rollup`, `@ttsc/unplugin/rolldown`,
 `@ttsc/unplugin/farm`, or `@ttsc/unplugin/bun`.
 
+A persistent bundler cache stays correct across builds without any extra configuration. A bundler erases type-only imports from its own module graph, so nothing in that graph connects a controller's generated validator to the DTO declaration it was generated from; the Nestia transform reports the compiler's own reference graph to the adapter, which registers the DTO as an input of the controller module. Editing the DTO's type rebuilds the controller instead of replaying the cached module, in watch mode and in a kept filesystem cache alike.
+
 ## Troubleshooting
 
 - **`no transform has been configured`**: the project was built by `tsc`,
@@ -183,3 +187,5 @@ Use the matching import path for other bundlers:
   `emitDecoratorMetadata`; NestJS still needs them for constructor injection.
 - **Bundler output skips validation**: add the matching `@ttsc/unplugin`
   adapter to the bundler config.
+- **Plugin build fails on an unknown Go symbol**: `ttsc` is older than 0.19.2.
+  Upgrade it; the version floor is listed under [Install](#install).

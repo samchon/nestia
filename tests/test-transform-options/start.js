@@ -2,6 +2,7 @@ const cp = require("child_process");
 const fs = require("fs");
 const Module = require("module");
 const path = require("path");
+const { TtscCompiler } = require("ttsc");
 
 const ROOT = path.resolve(__dirname, "../..");
 const LIB = path.join(__dirname, "lib");
@@ -137,6 +138,70 @@ const main = () => {
     );
   });
 
+  // The transform envelope, read through ttsc's own programmatic API rather
+  // than the CLI. Every other case here reads the *emitted JavaScript*, so none
+  // of them can see the envelope's side channels at all: `graph` never reaches a
+  // .js file, it reaches the bundler adapter that asked for the transform.
+  //
+  // What it pins is a correctness property, not a performance one. A bundler
+  // erases `import type` from its own module graph, so without `graph` nothing
+  // connects `controller.ts`'s generated validator to the DTO in `dto.ts`, and a
+  // kept filesystem cache replays the stale module after that type changes.
+  measure("transform envelope graph", () => {
+    const result = transformEnvelope();
+    assert(
+      result.type === "success",
+      `envelope transform did not succeed (${result.type})`,
+    );
+    assert(
+      result.graph !== undefined,
+      "envelope carries no graph section; a consumer falls back to whole-snapshot validation",
+    );
+
+    // The transform really ran on the controller, so the graph below describes a
+    // program whose output is type-derived rather than a passthrough copy.
+    const controller = result.typescript[CONTROLLER_KEY];
+    assert(
+      controller !== undefined,
+      `envelope has no transformed source for ${CONTROLLER_KEY}`,
+    );
+    assert(
+      controller.includes(`expected: "IEnvelopeArticle"`),
+      `${CONTROLLER_KEY} carries no validator derived from the DTO:\n${controller}`,
+    );
+
+    // Positive: the type-only edge a bundler cannot see, under the same key
+    // `typescript` uses so the consumer can join the two sections.
+    assert(
+      (result.graph.edges[CONTROLLER_KEY] ?? []).includes(DTO_KEY),
+      `graph.edges[${CONTROLLER_KEY}] omits ${DTO_KEY}: ${JSON.stringify(
+        result.graph.edges[CONTROLLER_KEY],
+      )}`,
+    );
+    // Negative twin: a module of the same program that imports nothing must not
+    // inherit that edge. A graph that widened every file's edge set would pass
+    // the positive assertion while restoring whole-project invalidation.
+    assert(
+      !(result.graph.edges[UNRELATED_KEY] ?? []).includes(DTO_KEY),
+      `graph.edges[${UNRELATED_KEY}] must not carry ${DTO_KEY}`,
+    );
+    // The config chain stays a universal input for every file even under a
+    // future `dependenciesComplete` narrowing, so a missing entry would let a
+    // compiler-option edit go unnoticed by every cached module at once.
+    assert(
+      result.graph.configs[0] === "lib/envelope.json",
+      `graph.configs must start at the project tsconfig: ${JSON.stringify(
+        result.graph.configs,
+      )}`,
+    );
+    assert(
+      result.graph.configs.includes("tsconfig.base.json"),
+      `graph.configs omits the extended base config: ${JSON.stringify(
+        result.graph.configs,
+      )}`,
+    );
+  });
+
   measure("aliased core imports", () => {
     const file = compile({
       name: "aliases",
@@ -161,6 +226,38 @@ const main = () => {
       "aliased TypedRoute.Post was not transformed",
     );
   });
+};
+
+// Envelope keys are project-relative slash paths, and `projectRoot` below
+// anchors the project at this workspace so they stay readable and stable while
+// the generated tsconfig lives under `lib/` like every other case's.
+const CONTROLLER_KEY = "src/envelope/controller.ts";
+const DTO_KEY = "src/envelope/dto.ts";
+const UNRELATED_KEY = "src/envelope/unrelated.ts";
+
+/**
+ * Run the envelope project through ttsc's programmatic transform API and return
+ * the raw `ITtscCompilerTransformation`.
+ *
+ * `projectRoot` is what keeps the keys project-relative: without it the project
+ * root would be `lib/`, every source would key as `../src/...`, and the native
+ * host drops a key that escapes cwd — the envelope would come back empty and
+ * every assertion below would be vacuous.
+ */
+const transformEnvelope = () => {
+  const project = writeProject({
+    name: "envelope",
+    source: "envelope",
+    plugin: { validate: "assert" },
+    include: ["../src/envelope"],
+  });
+  return new TtscCompiler({
+    cacheDir: CACHE,
+    cwd: __dirname,
+    env: { TTSC_CACHE_DIR: CACHE },
+    projectRoot: __dirname,
+    tsconfig: project,
+  }).transform();
 };
 
 const compile = (props) => {
@@ -236,7 +333,7 @@ const writeProject = (props) => {
             },
           ],
         },
-        include: [`../src/${props.source}.ts`],
+        include: props.include ?? [`../src/${props.source}.ts`],
       },
       null,
       2,
