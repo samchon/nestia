@@ -3,6 +3,7 @@ package test
 import (
 	"bytes"
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/samchon/nestia/packages/core/native/transform"
@@ -77,4 +78,25 @@ func mustListOmit(t *testing.T, label string, list []string, needle string) {
 			t.Fatalf("%s must not carry %q\n%v", label, needle, list)
 		}
 	}
+}
+
+// mustOmitBundledScheme asserts no entry names a compiler-embedded library
+// file. Those change only with the toolchain, so a consumer that registered one
+// as a filesystem input would watch a path that does not exist.
+func mustOmitBundledScheme(t *testing.T, label string, list []string) {
+	t.Helper()
+	for _, entry := range list {
+		if strings.HasPrefix(entry, "bundled:///") {
+			t.Fatalf("%s carries the virtual library path %q", label, entry)
+		}
+	}
+}
+
+// keysOf lists a map's keys for a failure message.
+func keysOf(source map[string]string) []string {
+	keys := make([]string, 0, len(source))
+	for key := range source {
+		keys = append(keys, key)
+	}
+	return keys
 }

@@ -54,12 +54,3 @@ func TestTransformProjectEnvelopeStampsReferenceGraph(t *testing.T) {
 		t.Fatalf("graph.configs omits the extended base config\n%v", envelope.Graph.Configs)
 	}
 }
-
-// keysOf lists a map's keys for a failure message.
-func keysOf(source map[string]string) []string {
-	keys := make([]string, 0, len(source))
-	for key := range source {
-		keys = append(keys, key)
-	}
-	return keys
-}

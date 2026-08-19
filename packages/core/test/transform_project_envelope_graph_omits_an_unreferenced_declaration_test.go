@@ -1,9 +1,6 @@
 package test
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 // TestTransformProjectEnvelopeGraphOmitsAnUnreferencedDeclaration verifies the
 // reference graph reports one controller's own resolved references rather than
@@ -43,14 +40,4 @@ func TestTransformProjectEnvelopeGraphOmitsAnUnreferencedDeclaration(t *testing.
 	}
 	mustOmitBundledScheme(t, "graph.globals", envelope.Graph.Globals)
 	mustOmitBundledScheme(t, "graph.configs", envelope.Graph.Configs)
-}
-
-// mustOmitBundledScheme asserts no entry names a compiler-embedded library file.
-func mustOmitBundledScheme(t *testing.T, label string, list []string) {
-	t.Helper()
-	for _, entry := range list {
-		if strings.HasPrefix(entry, "bundled:///") {
-			t.Fatalf("%s carries the virtual library path %q", label, entry)
-		}
-	}
 }
