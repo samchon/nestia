@@ -72,8 +72,6 @@ func runBuild(args []string) int {
 		return 2
 	}
 	defer prog.Close()
-	releaseTypiaRegistries := registerTypiaDefaultLibraryClassifier(prog)
-	defer releaseTypiaRegistries()
 	if profile {
 		started = time.Now()
 	}

@@ -14,7 +14,6 @@ import (
 	shimprinter "github.com/microsoft/typescript-go/shim/printer"
 	"github.com/samchon/nestia/packages/core/native/plugin"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
-	schemametadata "github.com/samchon/typia/packages/typia/native/core/schemas/metadata"
 )
 
 type transformProjectOutput struct {
@@ -35,13 +34,6 @@ type transformProjectOutput struct {
 	// its narrow per-file one. Omitted only for a nil or unloaded program, which
 	// cannot happen here: LoadProgram failures return before this point.
 	Graph *driver.TransformGraph `json:"graph,omitempty"`
-	// Dependencies maps each transformed file (same keys as TypeScript) to the
-	// source files owning the declarations typia's metadata analysis consulted
-	// while generating that file's validators and stringifiers. A consumer
-	// unions them with Graph rather than choosing between them, so the list is
-	// additive: an omission costs nothing, and narrowing would require the
-	// separate `dependenciesComplete` declaration this envelope does not make.
-	Dependencies map[string][]string `json:"dependencies,omitempty"`
 }
 
 type transformCompilerDiagnostic struct {
@@ -91,8 +83,6 @@ func runTransform(args []string) int {
 		return 2
 	}
 	defer prog.Close()
-	releaseTypiaRegistries := registerTypiaDefaultLibraryClassifier(prog)
-	defer releaseTypiaRegistries()
 
 	// AST-integration source-to-source: typia's, core's, and any linked
 	// contributor's per-file node transformers run inside one shared EmitContext
@@ -154,23 +144,6 @@ func runTransformProject(
 	// sets parent pointers on the node tree it walks. ttsc's own `api-transform`
 	// host stamps it at the same point.
 	output.Graph = driver.NewTransformGraph(prog, cwd)
-	// `dependencies` is the second, narrower channel: the declaration files
-	// typia's analysis actually read for each file, reported alongside the graph
-	// rather than instead of it. The two are unioned by the consumer, so this
-	// list can only add inputs.
-	//
-	// The envelope deliberately declares no `dependenciesComplete`. That field
-	// transfers responsibility -- a listed file stops watching everything the
-	// reference closure carries -- and this host cannot honor it: whether a file
-	// is transformed at all depends on symbol resolutions that no listener
-	// reports, including the negative ones, and typia's own trigger set belongs
-	// to typia rather than to this host. See samchon/typia#2357.
-	collector := newTransformDependencyCollector(cwd, func(fileName string) bool {
-		sf := prog.SourceFile(fileName)
-		return sf != nil && prog.TSProgram.IsLibFile(sf)
-	})
-	schemametadata.MetadataDependency_listen(prog.Checker, collector.Touch)
-	defer schemametadata.MetadataDependency_release(prog.Checker)
 	for _, sf := range prog.SourceFiles() {
 		if sf.IsDeclarationFile {
 			continue
@@ -179,11 +152,8 @@ func runTransformProject(
 		if filepath.IsAbs(key) || key == ".." || strings.HasPrefix(key, "../") {
 			continue
 		}
-		collector.Begin(key)
 		output.TypeScript[key] = transformFileToTypeScript(prog, transforms, sf)
-		collector.End()
 	}
-	output.Dependencies = collector.ToJSON()
 	for _, diag := range *transformDiags {
 		output.Diagnostics = append(output.Diagnostics, transformDiagnosticToCompilerDiagnostic(diag))
 	}
