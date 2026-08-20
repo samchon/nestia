@@ -18,6 +18,7 @@ import {
   sizeOf,
 } from "../../internal/legacy";
 import { INestiaProject } from "../../structures/INestiaProject";
+import { StringUtil } from "../../utils/StringUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeTagProgrammer } from "./SdkTypeTagProgrammer";
@@ -53,13 +54,12 @@ export namespace SdkTypeProgrammer {
         union.push(write_array(project)(importer)(array as MetadataArray));
       for (const object of meta.objects) {
         const target = object.type as MetadataObjectType;
-        if (
-          target.name === "object" ||
-          target.name === "__type" ||
-          target.name.startsWith("__type.") ||
-          target.name === "__object" ||
-          target.name.startsWith("__object.")
-        )
+        // One definition of "this type has no name to reference". This was a
+        // second copy of `StringUtil.isImplicit`, and the copies drifted: only
+        // the dotted spelling was listed here, so a duplicated anonymous type
+        // -- `__type-o1` under typia's current separator -- was referenced as a
+        // module that the declaration side had correctly refused to write.
+        if (StringUtil.isImplicit(target.name))
           union.push(write_object(project)(importer)(target));
         else union.push(writeAlias(project)(importer)(target));
       }
@@ -301,7 +301,13 @@ export namespace SdkTypeProgrammer {
     (importer: ImportDictionary) =>
     (meta: MetadataAliasType | MetadataObjectType): TypeNode => {
       importInternalFile(project)(importer)(meta.name);
-      return factory.createTypeReferenceNode(meta.name);
+      // The reference has to spell the accessor path the declaration was
+      // written under, not the raw metadata name: a duplicated name carries
+      // typia's `-o<counter>` marker, which declares as a namespace member and
+      // therefore refers as `IDirectory.o1`.
+      return factory.createTypeReferenceNode(
+        StringUtil.accessorsOf(meta.name).join("."),
+      );
     };
 
   const write_native = (name: string): TypeNode =>
@@ -377,12 +383,14 @@ const importInternalFile =
   (project: INestiaProject) =>
   (importer: ImportDictionary) =>
   (name: string) => {
-    const top: string = name.split(".")[0]!;
+    // The file is named after the first accessor, so a duplicated name lands
+    // in its base type's file rather than inventing `IDirectory-o1.ts`.
+    const top: string = StringUtil.accessorsOf(name)[0]!;
     if (importer.file === `${project.config.output}/structures/${top}.ts`)
       return;
     importer.internal({
       declaration: true,
-      file: `${project.config.output}/structures/${name.split(".")[0]}`,
+      file: `${project.config.output}/structures/${top}`,
       type: "element",
       name: top,
     });

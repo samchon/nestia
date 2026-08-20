@@ -48,7 +48,7 @@ export namespace SdkHttpCloneProgrammer {
     programmer: (importer: ImportDictionary) => Node;
   }) => {
     let next: Map<string, IModule> = props.dict;
-    const accessors: string[] = props.name.split(".");
+    const accessors: string[] = StringUtil.accessorsOf(props.name);
     const modulo: IPointer<IModule> = { value: null! };
 
     accessors.forEach((acc, i) => {
@@ -71,7 +71,7 @@ export namespace SdkHttpCloneProgrammer {
       FilePrinter.description(
         factory.createTypeAliasDeclaration(
           [factory.createToken(SyntaxKind.ExportKeyword)],
-          alias.name.split(".").at(-1)!,
+          StringUtil.accessorsOf(alias.name).at(-1)!,
           [],
           SdkTypeProgrammer.write(project)(importer)(alias.value) as TypeNode,
         ),
@@ -85,7 +85,7 @@ export namespace SdkHttpCloneProgrammer {
       return FilePrinter.description(
         factory.createTypeAliasDeclaration(
           [factory.createToken(SyntaxKind.ExportKeyword)],
-          object.name.split(".").at(-1)!,
+          StringUtil.accessorsOf(object.name).at(-1)!,
           [],
           SdkTypeProgrammer.write_object(project)(importer)(object) as TypeNode,
         ),

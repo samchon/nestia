@@ -7,6 +7,7 @@ import { IReflectType } from "../structures/IReflectType";
 import { ITypedApplication } from "../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { ITypedMcpRoute } from "../structures/ITypedMcpRoute";
+import { StringUtil } from "../utils/StringUtil";
 import { CloneGenerator } from "./CloneGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
@@ -145,11 +146,12 @@ export namespace SdkGenerator {
       });
   };
 
+  // Deliberately not `StringUtil.isImplicit`: that one also answers `object`,
+  // and this asks a different question -- whether a *return type* is unnamed
+  // enough to diagnose. Only the anonymous-marker list is shared, because that
+  // is the part that drifts when typia changes how it spells a duplicate.
   const isImplicitType = (type: IReflectType): boolean =>
-    type.name === "__type" ||
-    type.name === "__object" ||
-    type.name.startsWith("__type.") ||
-    type.name.startsWith("__object.") ||
+    StringUtil.isAnonymous(type.name) ||
     type.name.includes("readonly [") ||
     (!!type.typeArguments?.length && type.typeArguments.some(isImplicitType));
 
