@@ -66,7 +66,7 @@ Test workspaces point at `@nestia/core/native/transform.cjs`. Do not add a secon
 
 All tracked Go tests live in two dedicated modules, not beside the source:
 
-- `packages/core/test` (62 files), run by `pnpm --filter @nestia/core test:go`.
+- `packages/core/test` (61 files), run by `pnpm --filter @nestia/core test:go`.
 - `packages/sdk/test` (19 files), run by `pnpm --filter @nestia/sdk test:go`.
 
 Each module carries `replace` directives back to `../native` (and, for the SDK, to `../../core/native`) plus the pinned typescript-go shim redirects. Use one `Test*` function per file, named after the assertion, and mirror a nearby test's package, fixture, and cleanup pattern. Tests that exercise the CLI surface or the emit pipeline should invoke the real binary so the wrapper branches stay covered.
