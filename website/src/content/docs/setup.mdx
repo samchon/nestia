@@ -108,7 +108,7 @@ Replace NestJS CLI build commands with `ttsc` / `ttsx`.
   "scripts": {
     "build": "ttsc",
     "start": "node dist/main.js",
-    "start:dev": "concurrently \"ttsc --watch\" \"node --watch dist/main.js\"",
+    "start:dev": "ttsc && concurrently \"ttsc --watch\" \"node --watch dist/main.js\"",
     "start:script": "ttsx src/main.ts"
   }
 }
@@ -116,6 +116,24 @@ Replace NestJS CLI build commands with `ttsc` / `ttsx`.
 
 `nest build`, `nest start`, `tsc`, `ts-node`, and `tsx` do not run the Nestia
 transform. Use `ttsc` for builds and `ttsx` for direct TypeScript execution.
+
+`start:dev` builds once before starting the watchers on purpose. `concurrently` starts both commands immediately, and `node --watch` exits with `Cannot find module` if its entry does not exist yet — it only begins watching after a successful first load — so without the leading build it loses the race against the initial `ttsc --watch` compile and never comes back.
+
+### Plugin cache
+
+`ttsc` compiles the Nestia transform from Go source, which is why the first build reports `building source plugin "@nestia/core"`. It is compiled once per cache key and reused afterwards; the message appears again only when something in that key changes.
+
+Two caches decide whether that work repeats. The compiled plugin lives in `TTSC_CACHE_DIR`, defaulting to `<workspace>/node_modules/.cache/ttsc`, and the Go build cache lives in `TTSC_GO_CACHE_DIR` or `GOCACHE`. Neither falls back to a location outside the workspace, so `rm -rf node_modules` reclaims both — and discards both.
+
+The cache key covers the `ttsc` and TypeScript-Go versions, the platform, the Go toolchain, and the plugin's own source. **It does not cover your application code.** A container image that installs dependencies in one layer and copies sources in a later one can therefore warm the plugin during the dependency layer and keep it across every source change, or mount both caches:
+
+```dockerfile filename="Dockerfile" showLineNumbers copy
+RUN --mount=type=cache,target=/ttsc-cache \
+    --mount=type=cache,target=/go-cache \
+    TTSC_CACHE_DIR=/ttsc-cache TTSC_GO_CACHE_DIR=/go-cache pnpm build
+```
+
+`ttsc` needs a Go toolchain on `PATH`; point `TTSC_GO_BINARY` at an absolute path when the image keeps it somewhere unusual.
 
 ## Generate
 
