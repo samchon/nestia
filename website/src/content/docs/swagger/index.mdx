@@ -109,7 +109,7 @@ Watch mode writes the initial document, then regenerates it when controller, `ne
 
 ### OpenAPI versions
 
-The `openapi` field accepts `"3.1"` (default), `"3.0"`, or `"2.0"`. Nestia generates the spec at 3.1 internally and downgrades on the way out — your type fidelity is highest at 3.1, but the document is still legal at older versions.
+The `openapi` field accepts `"3.2"` (default), `"3.1"`, `"3.0"`, or `"2.0"`. Nestia composes the document at the newest version and downgrades on the way out — your type fidelity is highest at the newest version, but the document is still legal at older ones.
 
 ---
 
@@ -178,7 +178,7 @@ The `swagger` block of `INestiaConfig`:
 | Field        | Type                                  | Notes                                                          |
 | ------------ | ------------------------------------- | -------------------------------------------------------------- |
 | `output`     | `string`                              | File path. If a directory, writes `swagger.json` inside.       |
-| `openapi`    | `"3.1" \| "3.0" \| "2.0"`              | Defaults to `"3.1"`.                                           |
+| `openapi`    | `"3.2" \| "3.1" \| "3.0" \| "2.0"`     | Defaults to `"3.2"`.                                           |
 | `info`       | `Partial<OpenApi.IDocument.IInfo>`    | `title`, `version`, `description`. Falls back to `package.json`. |
 | `servers`    | `OpenApi.IServer[]`                   | One entry per environment.                                     |
 | `security`   | `Record<string, OpenApi.ISecurityScheme>` | Bearer, OAuth, API key, etc.                              |
