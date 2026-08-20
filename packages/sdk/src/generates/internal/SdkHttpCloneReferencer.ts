@@ -120,7 +120,7 @@ export namespace SdkHttpCloneReferencer {
   }): void => {
     const enroll = (key: string) => {
       if (key.length && StringUtil.isImplicit(key) === false)
-        p.unique.add(key.split(".")[0]!);
+        p.unique.add(StringUtil.accessorsOf(key)[0]!);
     };
     for (const alias of p.metadata.aliases) enroll(alias.type!.name);
     for (const array of p.metadata.arrays) enroll(array.type!.name);
