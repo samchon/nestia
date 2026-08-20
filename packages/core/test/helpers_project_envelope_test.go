@@ -15,9 +15,9 @@ import (
 // dropped struct tag would keep a producer-typed decode green while the real
 // consumer — `@ttsc/unplugin`, which reads this JSON — saw nothing.
 type projectTransformEnvelope struct {
-	Diagnostics []map[string]any        `json:"diagnostics"`
-	TypeScript  map[string]string       `json:"typescript"`
-	Graph       *projectTransformGraph  `json:"graph"`
+	Diagnostics []map[string]any       `json:"diagnostics"`
+	TypeScript  map[string]string      `json:"typescript"`
+	Graph       *projectTransformGraph `json:"graph"`
 }
 
 // projectTransformGraph mirrors ttsc's `ITtscCompilerTransformation.IReferenceGraph`.
