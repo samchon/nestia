@@ -1,0 +1,21 @@
+# Normalize line endings so every checkout is LF, on every platform.
+#
+# Prettier's `endOfLine` defaults to "lf" and `prettier.config.js` leaves it
+# there, so the formatter writes LF. Nothing else normalized the working tree,
+# which meant a Windows clone with the default `core.autocrlf=true` got CRLF on
+# checkout and `pnpm run format:check` -- gating every pull request since #1600
+# -- reported every unchanged file as a style violation, while `pnpm format`
+# rewrote hundreds of files that produced no commit.
+#
+# `eol=lf` fixes that at the checkout rather than by loosening the checker, so
+# the gate keeps its ability to reject a genuinely CRLF-committed file. Every
+# blob already in this repository's object store is LF, so this changes no
+# committed content -- only what lands in a working tree.
+* text=auto eol=lf
+
+# The two binary formats this repository actually tracks. `text=auto` already
+# detects both, so these only make the intent explicit and keep `git diff` from
+# rendering them as text. Deliberately not listing formats nothing tracks --
+# `*.svg` is XML and belongs with the text files above.
+*.png binary
+*.ico binary
