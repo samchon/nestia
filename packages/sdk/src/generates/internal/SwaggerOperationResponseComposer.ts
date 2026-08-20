@@ -51,11 +51,17 @@ export namespace SwaggerOperationResponseComposer {
       else if (oldbie === undefined)
         output[status] = {
           description: description,
-          content: {
-            "application/json": {
-              schema: {},
-            },
-          },
+          // The `{}` schema is what an undescribed payload looks like: the tag
+          // names a status and nothing about its body, so the response says a
+          // body exists without constraining it. That is a description, and it
+          // goes through the same helper as every other response rather than
+          // being the one place that still writes a media type by hand.
+          content: composeContent({
+            contentType: "application/json",
+            schema: {},
+            example: undefined,
+            examples: undefined,
+          }),
         };
     }
 
@@ -105,10 +111,11 @@ export namespace SwaggerOperationResponseComposer {
  * Swagger 2.0 downgrade refuses the whole document because a schemaless
  * `produces` entry carries no information at all.
  *
- * Every response this composer emits goes through here, because the success
- * response and a declared exception reach the same media type by the same route
- * and a rule applied to only one of them leaves the other producing the
- * document the other case was fixed for.
+ * Every response this composer emits goes through here. The success response, a
+ * declared exception, and a `@throws` tag all reach the same media type by the
+ * same route, so a rule applied to one of them leaves the others still emitting
+ * the shape it was written to remove -- which is exactly how the exception
+ * responses survived the fix to the success one.
  *
  * The test is what the metadata yields, not how the return type is spelled:
  * `void`, `undefined` and `never` all describe the same absent body. An example
