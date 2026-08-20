@@ -31,11 +31,11 @@ catalogs:
       version: 1.1.5
   samchon:
     '@typia/interface':
-      specifier: ^13.3.0
-      version: 13.3.0
+      specifier: ^14.0.0
+      version: 14.0.0
     '@typia/utils':
-      specifier: ^13.3.0
-      version: 13.3.0
+      specifier: ^14.0.0
+      version: 14.0.0
     tgrid:
       specifier: ^1.2.1
       version: 1.2.1
@@ -43,18 +43,18 @@ catalogs:
       specifier: ^3.0.0
       version: 3.0.0
     typia:
-      specifier: ^13.3.0
-      version: 13.3.0
+      specifier: ^14.0.0
+      version: 14.0.0
   typescript:
     '@trivago/prettier-plugin-sort-imports':
       specifier: ^4.3.0
       version: 4.3.0
     '@ttsc/factory':
-      specifier: ^0.20.0
-      version: 0.20.0
+      specifier: ^0.28.1
+      version: 0.28.1
     '@ttsc/unplugin':
-      specifier: ^0.20.0
-      version: 0.20.0
+      specifier: ^0.28.1
+      version: 0.28.1
     prettier:
       specifier: ^3.8.1
       version: 3.8.3
@@ -62,8 +62,8 @@ catalogs:
       specifier: ^1.8.0
       version: 1.8.0
     ttsc:
-      specifier: ^0.20.0
-      version: 0.20.0
+      specifier: ^0.28.1
+      version: 0.28.1
     typescript:
       specifier: ^7.0.2
       version: 7.0.2
@@ -114,7 +114,7 @@ importers:
         version: 0.3.2
       ttsc:
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
       typescript:
         specifier: catalog:typescript
         version: 7.0.2
@@ -171,7 +171,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 13.3.0(ttsc@0.20.0)
+        version: 14.0.0(ttsc@0.28.1)
     devDependencies:
       '@types/autocannon':
         specifier: ^7.9.0
@@ -193,13 +193,13 @@ importers:
         version: 6.1.3
       ttsc:
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
 
   config:
     devDependencies:
       '@ttsc/unplugin':
         specifier: catalog:typescript
-        version: 0.20.0(ttsc@0.20.0)
+        version: 0.28.1(ttsc@0.28.1)
       tinyglobby:
         specifier: ^0.2.16
         version: 0.2.16
@@ -245,10 +245,10 @@ importers:
         version: link:../fetcher
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
       get-function-location:
         specifier: ^2.0.0
         version: 2.0.0
@@ -272,7 +272,7 @@ importers:
         version: 1.2.1
       typia:
         specifier: catalog:samchon
-        version: 13.3.0(ttsc@0.20.0)
+        version: 14.0.0(ttsc@0.28.1)
       ws:
         specifier: ^7.5.3
         version: 7.5.10
@@ -309,7 +309,7 @@ importers:
         version: 3.0.0
       ttsc:
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
       typescript:
         specifier: catalog:typescript
         version: 7.0.2
@@ -333,7 +333,7 @@ importers:
         version: link:../migrate
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
       fflate:
         specifier: ^0.8.2
         version: 0.8.3
@@ -348,7 +348,7 @@ importers:
         version: 0.5.2(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/icons-material@5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(prop-types@15.8.1)
       typia:
         specifier: catalog:samchon
-        version: 13.3.0(ttsc@0.20.0)
+        version: 14.0.0(ttsc@0.28.1)
     devDependencies:
       '@eslint/js':
         specifier: ^9.13.0
@@ -367,7 +367,7 @@ importers:
         version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
       '@ttsc/unplugin':
         specifier: catalog:typescript
-        version: 0.20.0(ttsc@0.20.0)
+        version: 0.28.1(ttsc@0.28.1)
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
@@ -415,10 +415,10 @@ importers:
     dependencies:
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
     devDependencies:
       '@types/node':
         specifier: catalog:utils
@@ -437,13 +437,13 @@ importers:
         version: 4.3.0(prettier@3.8.3)
       '@ttsc/factory':
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
       commander:
         specifier: 10.0.0
         version: 10.0.0
@@ -461,7 +461,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 13.3.0(ttsc@0.20.0)
+        version: 14.0.0(ttsc@0.28.1)
     devDependencies:
       '@types/inquirer':
         specifier: ^9.0.7
@@ -492,13 +492,13 @@ importers:
         version: link:../fetcher
       '@ttsc/factory':
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
       get-function-location:
         specifier: ^2.0.0
         version: 2.0.0
@@ -519,10 +519,10 @@ importers:
         version: 3.0.0
       ttsc:
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
       typia:
         specifier: catalog:samchon
-        version: 13.3.0(ttsc@0.20.0)
+        version: 14.0.0(ttsc@0.28.1)
     devDependencies:
       '@modelcontextprotocol/sdk':
         specifier: catalog:modelcontextprotocol
@@ -571,7 +571,7 @@ importers:
         version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
       typia:
         specifier: catalog:samchon
-        version: 13.3.0(ttsc@0.20.0)
+        version: 14.0.0(ttsc@0.28.1)
       uuid:
         specifier: catalog:utils
         version: 13.0.2
@@ -593,7 +593,7 @@ importers:
         version: link:../../packages/cli
       ttsc:
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
 
   tests/test-cli:
     dependencies:
@@ -612,7 +612,7 @@ importers:
         version: link:../../packages/cli
       ttsc:
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
 
   tests/test-e2e:
     dependencies:
@@ -624,7 +624,7 @@ importers:
         version: link:../../packages/fetcher
       typia:
         specifier: catalog:samchon
-        version: 13.3.0(ttsc@0.20.0)
+        version: 14.0.0(ttsc@0.28.1)
     devDependencies:
       '@types/node':
         specifier: catalog:utils
@@ -634,7 +634,7 @@ importers:
         version: 10.1.0
       ttsc:
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
 
   tests/test-editor:
     dependencies:
@@ -656,7 +656,7 @@ importers:
         version: 0.8.3
       ttsc:
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
 
   tests/test-migrate:
     dependencies:
@@ -692,7 +692,7 @@ importers:
         version: 4.1.8
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
       chalk:
         specifier: 4.1.2
         version: 4.1.2
@@ -728,7 +728,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 13.3.0(ttsc@0.20.0)
+        version: 14.0.0(ttsc@0.28.1)
     devDependencies:
       '@nestia/sdk':
         specifier: workspace:^
@@ -753,7 +753,7 @@ importers:
         version: link:../../packages/cli
       ttsc:
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
       typescript:
         specifier: catalog:typescript
         version: 7.0.2
@@ -792,10 +792,10 @@ importers:
         version: 11.4.3(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.3.0
+        version: 14.0.0
       express:
         specifier: ^4.21.1
         version: 4.22.2
@@ -819,7 +819,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 13.3.0(ttsc@0.20.0)
+        version: 14.0.0(ttsc@0.28.1)
       uuid:
         specifier: catalog:utils
         version: 13.0.2
@@ -850,7 +850,7 @@ importers:
         version: link:../../packages/cli
       ttsc:
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
 
   tests/test-transform-options:
     dependencies:
@@ -865,7 +865,7 @@ importers:
         version: 11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       typia:
         specifier: catalog:samchon
-        version: 13.3.0(ttsc@0.20.0)
+        version: 14.0.0(ttsc@0.28.1)
     devDependencies:
       '@types/node':
         specifier: catalog:utils
@@ -878,7 +878,7 @@ importers:
         version: 6.1.3
       ttsc:
         specifier: catalog:typescript
-        version: 0.20.0
+        version: 0.28.1
 
 packages:
 
@@ -1843,46 +1843,46 @@ packages:
       '@vue/compiler-sfc':
         optional: true
 
-  '@ttsc/darwin-arm64@0.20.0':
-    resolution: {integrity: sha512-IwcWUVdlzsrNH8k7WwJcMPs32GCWtYM6Zwg62lwT0SHu0ppb5Igj+7qtub7fIuB98nqi2IHwvZfkARdNygvqdQ==}
+  '@ttsc/darwin-arm64@0.28.1':
+    resolution: {integrity: sha512-DNEcf5b/Z4RwFqfeHiN29+9aW/A/2XG+CUNLNBLftGCR24wbr6mlK+vgeurWEVyT3cVB4uVYfVpQo25VKvJ/gA==}
     cpu: [arm64]
     os: [darwin]
 
-  '@ttsc/darwin-x64@0.20.0':
-    resolution: {integrity: sha512-yK2sPlU3rWMiZQp8m3oHoFhW6o1Vqnq2xmshKSI/gi0HNAqI7uOsZ9onULgfsvVJDbaqH5kRR+gcDdag15hMGw==}
+  '@ttsc/darwin-x64@0.28.1':
+    resolution: {integrity: sha512-MCecQQ9d9GaSE+7n4I0xK6Z/UsB/NaWYcB35ZN7rVJ8WSb8o8WB1tvS+WTuYNXAuK4KVsnv6YVNwY8kyROfClw==}
     cpu: [x64]
     os: [darwin]
 
-  '@ttsc/factory@0.20.0':
-    resolution: {integrity: sha512-wUzouxE0gn7ZlYpqZWIJr4YAZ/BfsoHQvOmvo00zT9S1Qe07WL0LXCdh5y39aXN8R39U1hV7vXUWy1Y9ClXgFA==}
+  '@ttsc/factory@0.28.1':
+    resolution: {integrity: sha512-nUir/sT0p7Y9BhDRNoMnqUHDZUSMsUmSH+qc5EX6ViXo/mk0CBSvqUKKetSoE+AKWXx4nzAXiCnNgPkgUqLRbQ==}
 
-  '@ttsc/linux-arm64@0.20.0':
-    resolution: {integrity: sha512-uEKJ+VMQwgNBmK1omRqPCc65iVFJ3tCkTPTOCeLG1KaVY4XYC/HLnwUFCFyndv3dCCrOf9Hu0a39da6pGLj9mQ==}
+  '@ttsc/linux-arm64@0.28.1':
+    resolution: {integrity: sha512-pXAAJhdobYuEXQ7oKLMQ2y8RP8YDWFIrvayWPpPJQJdo4DViyX2iGC6rgUUYwpAkDXonxJ9Tk6qZtRZGBHNwSw==}
     cpu: [arm64]
     os: [linux]
 
-  '@ttsc/linux-arm@0.20.0':
-    resolution: {integrity: sha512-yVIli15crxsFQZYmOkplr5HV7Gs61GvxZTJAbfMb3bxmS3esXtnbId3rUCsDClOm03TQDfNscBYNJNwZgiIHjA==}
+  '@ttsc/linux-arm@0.28.1':
+    resolution: {integrity: sha512-8x2SyV7FC4r/IphhxJxS09BwrXHnKN3vQMj2gUwTDoZXKnXL7sJO1M0Ulm5N05F6tKvKkil9HPGu4Srhar5eoQ==}
     cpu: [arm]
     os: [linux]
 
-  '@ttsc/linux-x64@0.20.0':
-    resolution: {integrity: sha512-3MFQYUF5Uq7K51hwKZVrTMlMEaAMQUwT/H/WxcP1hcXipy3nlqJiKYjjLDy1pCc8T7BJLUULu6xhXNwMEwOQ4g==}
+  '@ttsc/linux-x64@0.28.1':
+    resolution: {integrity: sha512-2deTIhHV3Z9G1hbEzs4YsPTqxKXflnKkkKdup6LUD62ZEa/KQbNGZnsnIoFw41R8uaux+225kCMi8H77KAPocQ==}
     cpu: [x64]
     os: [linux]
 
-  '@ttsc/unplugin@0.20.0':
-    resolution: {integrity: sha512-VZZuc3Z7MDILUOxT6wTw/5dpch2Vho6If4tU3JbJLfymDfHpR6DRPAvalLVAa7ePPiF+4lLtlpiHxkqhIL0TOQ==}
+  '@ttsc/unplugin@0.28.1':
+    resolution: {integrity: sha512-JJzSXxWrOHYrlnM3yj3mNGd56HTdwLukzXpQ0ow1fZvCzntmB2+6QbtYrEcZM9H9cUeROT0PtfscAUuNLBncrA==}
     peerDependencies:
-      ttsc: ^0.20.0
+      ttsc: ^0.28.1
 
-  '@ttsc/win32-arm64@0.20.0':
-    resolution: {integrity: sha512-282rIcgx8UWpCQL17B9BGYMbFrb8LmOFKPQ+OSYvIdV6HWip+UqYLo1R3jhQmuoB/mJLjbAVIx9/M+7kGwro4A==}
+  '@ttsc/win32-arm64@0.28.1':
+    resolution: {integrity: sha512-JjHCOFYCQLyB9je0T+90RMn1NZY8BavMQHyJZi91qugiLbQLO6JzZMVISG8qQRuEPHpXNE8wqb8+B68NnGER/g==}
     cpu: [arm64]
     os: [win32]
 
-  '@ttsc/win32-x64@0.20.0':
-    resolution: {integrity: sha512-bi+lNfhVMo9EtsCKcUojBYPEVpGs1Q0fXejy9Bo7eE42H4Tf5DKa9YwPVXqMSlih4dQPtRTblBW/Z87DQvczTg==}
+  '@ttsc/win32-x64@0.28.1':
+    resolution: {integrity: sha512-dqvfvb0hXNHRm9eJEMt/YVkHfLd327/AFrZH1sNCemYEbLaCT543Zdv2qMMT4RyJiAGTo0TeXhyHBRaga63/BQ==}
     cpu: [x64]
     os: [win32]
 
@@ -2239,11 +2239,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@typia/interface@13.3.0':
-    resolution: {integrity: sha512-TJb21ylMKBqkUpKn9kQ21CMMJGaTTCNs5hU9u2LV3xUTO41Vctew9GjERCzOpgnpA2MlBqrCTSvuXk4krinWjA==}
+  '@typia/interface@14.0.0':
+    resolution: {integrity: sha512-rzueBuE8TQYJStfyunPuonx4Irqi9L0tDiTTpfJBt5ZKaVA7MYirJvtlBoj0SExhnoF6hcjabQzz906NF6u57w==}
 
-  '@typia/utils@13.3.0':
-    resolution: {integrity: sha512-W9NDW5SfqNBhMe/YwUwp/nyXfzsaovMwQs/eykmfsYqlGx6FoBJnXWK7zdBSfDBkjwF4AZzejqgBlndTxtluZg==}
+  '@typia/utils@14.0.0':
+    resolution: {integrity: sha512-zXJUft0gI/CJ8DxxBZUFb7HtyqxoUB1qhNkscvagCgTmQeuZFdQgkDIkgYMxKa48M9+pv4FbOFlDo7rDWO9Ytw==}
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -2270,11 +2270,6 @@ packages:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
-
-  acorn@8.16.0:
-    resolution: {integrity: sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==}
-    engines: {node: '>=0.4.0'}
-    hasBin: true
 
   acorn@8.18.0:
     resolution: {integrity: sha512-lGq+9yr1/GuAWaVYIHRjvvySG5/4VfKIvC8EWxStPdcDh/Ka7FG3twP6v4d5BkravUilhIAsG4Qj83t02LWUPQ==}
@@ -4204,8 +4199,8 @@ packages:
   tstl@3.0.0:
     resolution: {integrity: sha512-pR83y6/tbJx6jeGRqGJXk2t/eCUynaHEE6zsOLB0Zga8ej61LXtPfoeiROdhezpoCT15+1QMbqKB1Um5kasSKg==}
 
-  ttsc@0.20.0:
-    resolution: {integrity: sha512-OijwXn31DxqLca5umPcdQkn/VHM3q/m7ExwRK802I8ho62Tlmz+IMiVJP8zPtpv4K4qcKXFYkP5wB6gMK59Jjw==}
+  ttsc@0.28.1:
+    resolution: {integrity: sha512-OCUun5oRR+AjqOgcC3znvwd7DGyHxsueiwg5lI3H2EjUEP+VkY2Ix3ccQYLbX3vMUITYuuM4mir4r6ClkWHWLQ==}
     engines: {node: '>=22.15.0'}
     hasBin: true
 
@@ -4237,9 +4232,8 @@ packages:
     engines: {node: '>=16.20.0'}
     hasBin: true
 
-  typia@13.3.0:
-    resolution: {integrity: sha512-rgJsK244z2J/8zMnRNLEwcZWsWTI+POKgpm5REoox9uM8pdhIELcXCPOSu87KiP48s+Bw9NSUrZwMUqLZ9EPjg==}
-    hasBin: true
+  typia@14.0.0:
+    resolution: {integrity: sha512-lvuxoS8tFqlYwiwJ86t1FtDUhNPMrp4qjokvmI4+HLXHxlrVX3TUaOYDl9cdA4MUhrBUjt13J+sFwqq3WRA+AQ==}
     peerDependencies:
       ttsc: '>=0.19.2'
     peerDependenciesMeta:
@@ -5359,32 +5353,32 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@ttsc/darwin-arm64@0.20.0':
+  '@ttsc/darwin-arm64@0.28.1':
     optional: true
 
-  '@ttsc/darwin-x64@0.20.0':
+  '@ttsc/darwin-x64@0.28.1':
     optional: true
 
-  '@ttsc/factory@0.20.0': {}
+  '@ttsc/factory@0.28.1': {}
 
-  '@ttsc/linux-arm64@0.20.0':
+  '@ttsc/linux-arm64@0.28.1':
     optional: true
 
-  '@ttsc/linux-arm@0.20.0':
+  '@ttsc/linux-arm@0.28.1':
     optional: true
 
-  '@ttsc/linux-x64@0.20.0':
+  '@ttsc/linux-x64@0.28.1':
     optional: true
 
-  '@ttsc/unplugin@0.20.0(ttsc@0.20.0)':
+  '@ttsc/unplugin@0.28.1(ttsc@0.28.1)':
     dependencies:
-      ttsc: 0.20.0
+      ttsc: 0.28.1
       unplugin: 2.3.11
 
-  '@ttsc/win32-arm64@0.20.0':
+  '@ttsc/win32-arm64@0.28.1':
     optional: true
 
-  '@ttsc/win32-x64@0.20.0':
+  '@ttsc/win32-x64@0.28.1':
     optional: true
 
   '@tybys/wasm-util@0.10.3':
@@ -5734,11 +5728,11 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
-  '@typia/interface@13.3.0': {}
+  '@typia/interface@14.0.0': {}
 
-  '@typia/utils@13.3.0':
+  '@typia/utils@14.0.0':
     dependencies:
-      '@typia/interface': 13.3.0
+      '@typia/interface': 14.0.0
 
   '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@25.9.0)(terser@5.47.1))':
     dependencies:
@@ -5766,14 +5760,11 @@ snapshots:
       mime-types: 3.0.2
       negotiator: 1.0.0
 
-  acorn-jsx@5.3.2(acorn@8.16.0):
+  acorn-jsx@5.3.2(acorn@8.18.0):
     dependencies:
-      acorn: 8.16.0
+      acorn: 8.18.0
 
-  acorn@8.16.0: {}
-
-  acorn@8.18.0:
-    optional: true
+  acorn@8.18.0: {}
 
   agent-base@6.0.2:
     dependencies:
@@ -6473,8 +6464,8 @@ snapshots:
 
   espree@10.4.0:
     dependencies:
-      acorn: 8.16.0
-      acorn-jsx: 5.3.2(acorn@8.16.0)
+      acorn: 8.18.0
+      acorn-jsx: 5.3.2(acorn@8.18.0)
       eslint-visitor-keys: 4.2.1
 
   esquery@1.7.0:
@@ -8009,15 +8000,15 @@ snapshots:
 
   tstl@3.0.0: {}
 
-  ttsc@0.20.0:
+  ttsc@0.28.1:
     optionalDependencies:
-      '@ttsc/darwin-arm64': 0.20.0
-      '@ttsc/darwin-x64': 0.20.0
-      '@ttsc/linux-arm': 0.20.0
-      '@ttsc/linux-arm64': 0.20.0
-      '@ttsc/linux-x64': 0.20.0
-      '@ttsc/win32-arm64': 0.20.0
-      '@ttsc/win32-x64': 0.20.0
+      '@ttsc/darwin-arm64': 0.28.1
+      '@ttsc/darwin-x64': 0.28.1
+      '@ttsc/linux-arm': 0.28.1
+      '@ttsc/linux-arm64': 0.28.1
+      '@ttsc/linux-x64': 0.28.1
+      '@ttsc/win32-arm64': 0.28.1
+      '@ttsc/win32-x64': 0.28.1
 
   type-check@0.4.0:
     dependencies:
@@ -8063,17 +8054,14 @@ snapshots:
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
 
-  typia@13.3.0(ttsc@0.20.0):
+  typia@14.0.0(ttsc@0.28.1):
     dependencies:
       '@standard-schema/spec': 1.1.0
-      '@typia/interface': 13.3.0
-      '@typia/utils': 13.3.0
-      commander: 10.0.0
-      inquirer: 8.2.5
+      '@typia/interface': 14.0.0
+      '@typia/utils': 14.0.0
       randexp: 0.5.3
-      tinyglobby: 0.2.16
     optionalDependencies:
-      ttsc: 0.20.0
+      ttsc: 0.28.1
 
   uid@2.0.2:
     dependencies:
@@ -8096,7 +8084,7 @@ snapshots:
   unplugin@2.3.11:
     dependencies:
       '@jridgewell/remapping': 2.3.5
-      acorn: 8.16.0
+      acorn: 8.18.0
       picomatch: 4.0.4
       webpack-virtual-modules: 0.6.2
 
