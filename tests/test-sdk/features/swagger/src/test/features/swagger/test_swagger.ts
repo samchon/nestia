@@ -1,9 +1,15 @@
 import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
+import path from "path";
+import { pathToFileURL } from "url";
 
 export async function test_swagger(): Promise<void> {
+  // `import()` takes a URL specifier, not a filesystem path. On POSIX the two
+  // coincide for an absolute path; on Windows one starts with a drive letter,
+  // and Node's ESM loader reads `D:` as an unsupported protocol and refuses the
+  // whole module. `fs` below takes paths, so only this line needs the URL.
   const { NESTIA_CONFIG } = await import(
-    __dirname + "/../../../../nestia.config.ts"
+    pathToFileURL(path.join(__dirname, "../../../../nestia.config.ts")).href
   );
   const pack = JSON.parse(
     await fs.promises.readFile(__dirname + "/../../../../package.json", "utf8"),
