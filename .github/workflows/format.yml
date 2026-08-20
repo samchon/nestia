@@ -10,6 +10,10 @@ on:
       - '.github/workflows/format.yml'
       - '.prettierignore'
       - 'prettier.config.js'
+      # `.gitattributes` decides the line endings a checkout gets, and
+      # Prettier's `endOfLine` compares against them, so it can turn this
+      # check red on its own without any `*.ts` file changing.
+      - '.gitattributes'
       - 'packages/**/*.ts'
       - 'tests/**/*.ts'
       - 'pnpm-lock.yaml'
