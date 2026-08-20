@@ -12,7 +12,7 @@ catalogs:
     '@nestjs/platform-fastify': *nestjs
     rxjs: ^7.1.0
   samchon:
-    typia: &typia ^13.2.0
+    typia: &typia ^13.3.0
     '@typia/interface': *typia
     '@typia/utils': *typia
     tgrid: ^1.2.1
