@@ -17,6 +17,9 @@ import { Controller } from "@nestjs/common";
  * 2. Declare a `void` exception so one error response has none either.
  * 3. Declare a typed exception beside it, so the twin proves the rule narrows
  *    rather than drops every body, through the 2.0 downgrade this time.
+ * 4. Declare a `void` request body, and a shaped one beside it, so the same pair
+ *    holds on the request side -- where the rule is not the response's: a
+ *    request body needs a schema, an example cannot stand in for one.
  */
 @Controller("health")
 export class HealthController {
@@ -24,4 +27,20 @@ export class HealthController {
   @core.TypedException<string>({ status: 500 })
   @core.TypedRoute.Get()
   public get(): void {}
+
+  /** A request body with no shape: the same rule on the request side. */
+  @core.TypedRoute.Post("empty")
+  public empty(@core.TypedBody() input: void): void {
+    input;
+  }
+
+  /** The twin: a body that does have a shape keeps its media type. */
+  @core.TypedRoute.Post("typed")
+  public typed(@core.TypedBody() input: IHealthInput): IHealthInput {
+    return input;
+  }
+}
+
+export interface IHealthInput {
+  value: string;
 }
