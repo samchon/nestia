@@ -5,11 +5,12 @@ import {
 import { OpenApiV3_1 } from "@typia/interface";
 
 /**
- * Verifies SDK migration emits a runnable starter for a valid empty Paths Object.
+ * Verifies SDK migration emits a runnable starter for a valid empty Paths
+ * Object.
  *
- * Why:
- * OpenAPI permits a document to declare no operations, so migration must not select
- * a nonexistent route while constructing the template's `test/start.ts` command.
+ * Why: OpenAPI permits a document to declare no operations, so migration must
+ * not select a nonexistent route while constructing the template's
+ * `test/start.ts` command.
  *
  * 1. Migrate a minimal OpenAPI 3.1 document whose paths object is empty.
  * 2. Assert its retained starter contains no route-specific imports or calls.

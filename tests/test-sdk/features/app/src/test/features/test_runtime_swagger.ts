@@ -3,9 +3,8 @@ import typia, { OpenApi } from "typia";
 /**
  * Verifies the running application exposes a valid OpenAPI document.
  *
- * Why:
- * The runtime Swagger endpoint is consumed directly by clients, so its emitted
- * document must still conform to Nestia's OpenAPI contract.
+ * Why: The runtime Swagger endpoint is consumed directly by clients, so its
+ * emitted document must still conform to Nestia's OpenAPI contract.
  *
  * 1. Fetch the application's configured `/api-json` endpoint.
  * 2. Validate the response against the OpenAPI document type.

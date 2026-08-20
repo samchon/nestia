@@ -1,8 +1,8 @@
 import core from "@nestia/core";
 import { TestValidator } from "@nestia/e2e";
+import { NestiaSwaggerComposer } from "@nestia/sdk";
 import { Controller, INestApplication, Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import { NestiaSwaggerComposer } from "@nestia/sdk";
 
 @Controller("invalid")
 class InvalidRouteController {
@@ -18,11 +18,12 @@ class InvalidRouteController {
 class InvalidRouteModule {}
 
 /**
- * Verifies Swagger composition rejects invalid route metadata without leaking resources.
+ * Verifies Swagger composition rejects invalid route metadata without leaking
+ * resources.
  *
- * Why:
- * A controller can contain an unsupported return shape, and the public composer
- * must report that analysis failure while the temporary Nest application closes.
+ * Why: A controller can contain an unsupported return shape, and the public
+ * composer must report that analysis failure while the temporary Nest
+ * application closes.
  *
  * 1. Register invalid operation metadata on an isolated controller.
  * 2. Assert composition fails and close the application in every outcome.

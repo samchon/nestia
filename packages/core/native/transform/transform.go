@@ -19,6 +19,21 @@ import (
 type transformProjectOutput struct {
 	Diagnostics []transformCompilerDiagnostic `json:"diagnostics,omitempty"`
 	TypeScript  map[string]string             `json:"typescript"`
+	// Graph is the host-owned reference graph of the loaded program produced by
+	// the ttsc driver SDK (driver.NewTransformGraph): direct resolved reference
+	// edges, ambient global-scope files, the tsconfig extends chain, and the
+	// module-resolution candidates that outrank a selected target. Keys and
+	// values share TypeScript's keying through driver.TransformOutputKey, so a
+	// consumer joins the sections by key.
+	//
+	// A bundler erases type-only imports from its own module graph, so without
+	// this section nothing tells a persistent filesystem cache that a generated
+	// validator depends on the DTO declaration it was generated from, and the
+	// cache replays the stale module after the DTO's type changes. Stamping it
+	// also moves `@ttsc/unplugin` off the whole-snapshot revalidation path onto
+	// its narrow per-file one. Omitted only for a nil or unloaded program, which
+	// cannot happen here: LoadProgram failures return before this point.
+	Graph *driver.TransformGraph `json:"graph,omitempty"`
 }
 
 type transformCompilerDiagnostic struct {
@@ -123,11 +138,17 @@ func runTransformProject(
 		Diagnostics: []transformCompilerDiagnostic{},
 		TypeScript:  map[string]string{},
 	}
+	// Compute the reference graph from the loaded program before the transform
+	// loop runs: the graph must describe the original sources' resolved
+	// references, which are the transform's inputs, and the loop's printing pass
+	// sets parent pointers on the node tree it walks. ttsc's own `api-transform`
+	// host stamps it at the same point.
+	output.Graph = driver.NewTransformGraph(prog, cwd)
 	for _, sf := range prog.SourceFiles() {
 		if sf.IsDeclarationFile {
 			continue
 		}
-		key := sourceFileKey(cwd, filepath.ToSlash(sf.FileName()))
+		key := driver.TransformOutputKey(cwd, sf.FileName())
 		if filepath.IsAbs(key) || key == ".." || strings.HasPrefix(key, "../") {
 			continue
 		}
@@ -221,13 +242,6 @@ var (
 	normalizeParenNullishPattern   = regexp.MustCompile(`\| \((null|undefined)\)`)
 )
 
-func sourceFileKey(cwd string, file string) string {
-	rel, err := filepath.Rel(cwd, filepath.FromSlash(file))
-	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
-		return filepath.ToSlash(file)
-	}
-	return filepath.ToSlash(rel)
-}
 func transformDiagnosticToCompilerDiagnostic(
 	diag Diagnostic,
 ) transformCompilerDiagnostic {

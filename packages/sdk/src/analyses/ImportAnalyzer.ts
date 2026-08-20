@@ -84,13 +84,12 @@ export namespace ImportAnalyzer {
         const imported = instances.get(local)!;
         if (imported !== local) elementAliases[local] = imported;
       }
-      const target: IReflectImport =
-        defaultImports[0] ?? {
-          file,
-          elements: [],
-          default: null,
-          asterisk: null,
-        };
+      const target: IReflectImport = defaultImports[0] ?? {
+        file,
+        elements: [],
+        default: null,
+        asterisk: null,
+      };
       target.elements = elements;
       if (Object.keys(elementAliases).length !== 0)
         target.elementAliases = elementAliases;

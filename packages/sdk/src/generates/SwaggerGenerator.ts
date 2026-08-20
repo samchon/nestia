@@ -181,7 +181,16 @@ export namespace SwaggerGenerator {
       servers: config.servers ?? [
         {
           url: "https://github.com/samchon/nestia",
-          description: "insert your server url",
+          // The description is the hint that this url is a placeholder, and it
+          // is worth keeping wherever it fits. Swagger 2.0 has nowhere to put a
+          // server description, and the downgrader refuses to discard one
+          // silently — correctly, because a description in a user-supplied
+          // `servers` entry is their document content. This one is nestia's
+          // own, so it must not be the thing that makes a supported output
+          // version impossible to generate.
+          ...(config.openapi === "2.0"
+            ? {}
+            : { description: "insert your server url" }),
         },
       ],
       info: {

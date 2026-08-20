@@ -31,7 +31,9 @@ const main = async (): Promise<void> => {
       progresses.some((current) => current > 10) ||
       progresses[progresses.length - 1] !== 10
     )
-      throw new Error("DynamicBenchmarker progress exceeds the requested count.");
+      throw new Error(
+        "DynamicBenchmarker progress exceeds the requested count.",
+      );
     await fs.promises.writeFile(
       "BENCHMARK.md",
       DynamicBenchmarker.markdown(report),

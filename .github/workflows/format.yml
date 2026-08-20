@@ -1,0 +1,39 @@
+name: format
+# `build.yml` and `test.yml` both carry `paths:` filters narrower than the
+# formatter's target set, and a `paths:` filter is per workflow rather than per
+# job, so the check lives in its own workflow instead of a job inside one of
+# them. Without it a pull request that touches only `tests/**/*.ts` would skip
+# the check entirely.
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/format.yml'
+      - '.prettierignore'
+      - 'prettier.config.js'
+      - 'packages/**/*.ts'
+      - 'tests/**/*.ts'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      - uses: pnpm/action-setup@v4
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      # One Prettier invocation over both globs. Chaining them would let an
+      # unmatched pattern exit 2 and drop every target after it, which is how
+      # `tests/**/*.ts` once went unformatted for the whole life of the script.
+      - name: Check Formatting
+        run: pnpm run format:check

@@ -25,11 +25,10 @@ export const test_cli_repository_option_override = async (): Promise<void> => {
     url,
   ]);
 
-  TestValidator.equals(
-    "clone",
-    fake.commands[0],
-    { executable: "git", args: ["clone", url, "my-project"] },
-  );
+  TestValidator.equals("clone", fake.commands[0], {
+    executable: "git",
+    args: ["clone", url, "my-project"],
+  });
   TestValidator.equals("chdir", fake.chdirs, ["my-project"]);
 
   const reason: string | undefined = await CliTestHarness.expectHalt(() =>

@@ -33,6 +33,13 @@ export const test_cli_package_manager_missing_halt =
         reason.includes("corepack"),
     );
     TestValidator.equals("commands", fake.commands, [
-      { executable: "git", args: ["clone", "https://github.com/samchon/nestia-start", "my-project"] },
+      {
+        executable: "git",
+        args: [
+          "clone",
+          "https://github.com/samchon/nestia-start",
+          "my-project",
+        ],
+      },
     ]);
   };

@@ -66,10 +66,14 @@
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.3",
+    "ttsc": ">=0.19.2",
     "typia": "catalog:samchon"
   },
   "peerDependenciesMeta": {
     "@modelcontextprotocol/sdk": {
+      "optional": true
+    },
+    "ttsc": {
       "optional": true
     }
   },

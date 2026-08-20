@@ -27,7 +27,17 @@ const update = (content, options = {}) => {
         continue;
       if (key.startsWith("@nestia/") || key === "nestia")
         record[key] = `^${version}`;
-      else if (TYPIA[key]) record[key] = TYPIA[key].specifier;
+      // Both catalogs, and in the same order updateWorkspaceCatalog resolves
+      // them. A template can pin a version two ways -- a `catalog:` reference
+      // its pnpm-workspace.yaml resolves, or a plain specifier here -- and a
+      // rule that reads only one catalog on this path leaves the toolchain
+      // frozen at whatever the upstream template last wrote. That is how a
+      // generated SDK project ended up with ttsc ^0.18.2 beside a `@nestia/core`
+      // stamped to this repository's version.
+      else {
+        const catalog = TYPIA[key] ?? TYPESCRIPT[key];
+        if (catalog) record[key] = catalog.specifier;
+      }
     }
   migratePackageJson(parsed);
   if (options.sdkAggregate) {

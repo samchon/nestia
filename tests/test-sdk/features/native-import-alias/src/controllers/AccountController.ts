@@ -1,7 +1,7 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
-import { IAccount, IAccount as Account } from "../structures/IAccount";
+import { IAccount as Account, IAccount } from "../structures/IAccount";
 
 @Controller("accounts")
 export class AccountController {

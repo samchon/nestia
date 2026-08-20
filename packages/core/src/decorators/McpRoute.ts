@@ -138,11 +138,7 @@ export namespace McpRoute {
     value: IMcpRouteReflect.IArgument,
   ) => {
     const array: IMcpRouteReflect.IArgument[] | undefined =
-      Reflect.getOwnMetadata(
-        "nestia/McpRoute/Parameters",
-        target,
-        propertyKey,
-      );
+      Reflect.getOwnMetadata("nestia/McpRoute/Parameters", target, propertyKey);
     if (array !== undefined) array.push(value);
     else
       Reflect.defineMetadata(

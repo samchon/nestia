@@ -160,12 +160,11 @@ const emplaceArrayOfParameters = (
   target: Object,
   propertyKey: string | symbol,
 ): SwaggerExample.IData<any>[] => {
-  const array: SwaggerExample.IData<any>[] | undefined =
-    Reflect.getOwnMetadata(
-      "nestia/SwaggerExample/Parameters",
-      target,
-      propertyKey,
-    );
+  const array: SwaggerExample.IData<any>[] | undefined = Reflect.getOwnMetadata(
+    "nestia/SwaggerExample/Parameters",
+    target,
+    propertyKey,
+  );
   if (array !== undefined) return array;
   const newbie: SwaggerExample.IData<any>[] = [];
   Reflect.defineMetadata(
