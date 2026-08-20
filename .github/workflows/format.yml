@@ -25,7 +25,17 @@ permissions:
 
 jobs:
   format:
-    runs-on: ubuntu-latest
+    name: format (${{ matrix.os }})
+    # Both platforms, because the thing this gate can get wrong is
+    # platform-specific. Prettier compares against the line endings the
+    # checkout produced, so a formatting rule can hold on Linux and fail on
+    # Windows -- which is exactly what #1610 was, undetected for as long as
+    # this workflow ran on ubuntu alone.
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
