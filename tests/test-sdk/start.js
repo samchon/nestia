@@ -698,7 +698,16 @@ const runSwaggerWatchFeature = async () => {
     );
   } finally {
     await stopChild(child);
-    await fs.promises.rm(cwd, { force: true, recursive: true });
+    // Windows does not release a watcher's handles the instant the process
+    // exits, and rmdir fails while any remain. `maxRetries` is what Node
+    // documents for EBUSY / ENOTEMPTY / EPERM; without it a correct teardown
+    // still loses a race it cannot see.
+    await fs.promises.rm(cwd, {
+      force: true,
+      recursive: true,
+      maxRetries: 10,
+      retryDelay: 100,
+    });
   }
 };
 
@@ -981,17 +990,23 @@ const waitUntil = async (title, predicate, exit, output) => {
   );
 };
 
+// Stop a child and do not return until it is actually gone.
+//
+// The previous shape raced the exit against `delay(2000).then(() => kill())`,
+// and that second branch resolves as soon as SIGKILL has been *sent*. A child
+// that ignores the first signal for two seconds -- a watch-mode compiler in the
+// middle of work is entitled to -- therefore let this resolve while the process
+// was still shutting down, and callers that delete the child's working
+// directory next hit EBUSY on Windows, where an open handle blocks rmdir.
 const stopChild = async (child) => {
   if (child.exitCode !== null || child.signalCode !== null) return;
   const exited = new Promise((resolve) => child.once("exit", resolve));
   child.kill();
-  await Promise.race([
-    exited,
-    delay(2_000).then(() => {
-      if (child.exitCode === null && child.signalCode === null)
-        child.kill("SIGKILL");
-    }),
-  ]);
+  await Promise.race([exited, delay(2_000)]);
+  if (child.exitCode === null && child.signalCode === null) {
+    child.kill("SIGKILL");
+    await Promise.race([exited, delay(2_000)]);
+  }
 };
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
