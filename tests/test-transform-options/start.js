@@ -118,7 +118,30 @@ const main = () => {
         source,
         plugin: { llm: { strict: true } },
         fail: true,
+        expectedDiagnostics:
+          source === "llm-route"
+            ? [
+                "src/llm-route.ts:11:4 - error TS(nestia.core.TypedRoute): unsupported type detected",
+                "- IArticle.weak: WeakMap",
+                "- LLM schema does not support WeakMap type.",
+              ]
+            : undefined,
       });
+  });
+
+  measure("llm route no-emit diagnostics", () => {
+    compile({
+      name: "llm-route-no-emit",
+      source: "llm-route",
+      plugin: { llm: true },
+      noEmit: true,
+      fail: true,
+      expectedDiagnostics: [
+        "src/llm-route.ts:11:4 - error TS(nestia.core.TypedRoute): unsupported type detected",
+        "- IArticle.weak: WeakMap",
+        "- LLM schema does not support WeakMap type.",
+      ],
+    });
   });
 
   measure("disabled transform", () => {
@@ -339,9 +362,11 @@ const transformEnvelope = () => {
 
 const compile = (props) => {
   const project = writeProject(props);
+  const args = [TTSC, "--cache-dir", CACHE, "-p", project];
+  if (props.noEmit === true) args.push("--noEmit");
   const result = cp.spawnSync(
     NODE,
-    [TTSC, "--cache-dir", CACHE, "-p", project],
+    args,
     {
       cwd: __dirname,
       encoding: "utf8",
@@ -361,6 +386,20 @@ const compile = (props) => {
   if (props.fail === true) {
     if (result.status === 0)
       throw new Error(`${props.name}: compilation was expected to fail.`);
+    const diagnostics = `${result.stdout ?? ""}\n${result.stderr ?? ""}`.replaceAll(
+      "\\",
+      "/",
+    );
+    for (const expected of props.expectedDiagnostics ?? [])
+      assert(
+        diagnostics.includes(expected),
+        `${props.name}: diagnostic missing ${JSON.stringify(expected)}\n${diagnostics}`,
+      );
+    const output = path.join(LIB, props.name);
+    assert(
+      !fs.existsSync(output),
+      `${props.name}: failed compilation published ${output}`,
+    );
     return null;
   }
   if (result.status !== 0) {

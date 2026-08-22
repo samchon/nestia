@@ -68,23 +68,54 @@ func runBuild(args []string) int {
 		return 2
 	}
 	if len(diags) > 0 {
+		if prog != nil {
+			prog.Close()
+		}
 		driver.WritePrettyDiagnostics(stderr, diags, cwd)
 		return 2
 	}
-	defer prog.Close()
-	releaseTypiaRegistries := registerTypiaDefaultLibraryClassifier(prog)
-	defer releaseTypiaRegistries()
 	if profile {
 		started = time.Now()
 	}
 	if diags := prog.Diagnostics(); len(diags) > 0 {
 		profileBuildStep(profile, "diagnostics", started)
+		prog.Close()
 		driver.WritePrettyDiagnostics(stderr, diags, cwd)
 		return 2
 	}
 	profileBuildStep(profile, "diagnostics", started)
 
 	shouldEmit := !prog.ParsedConfig.ParsedConfig.CompilerOptions.NoEmit.IsTrue()
+	if !shouldEmit {
+		// Plugin transformers are part of tsgo's emit pipeline. Reload with emit
+		// enabled so check/noEmit traverses the same source set, then discard every
+		// generated output below. The original program already proved the project's
+		// diagnostics; diagnosing this private reload would reject valid analysis-
+		// only options such as allowImportingTsExtensions.
+		prog.Close()
+		if profile {
+			started = time.Now()
+		}
+		prog, diags, err = driver.LoadProgram(cwd, *tsconfigPath, driver.LoadProgramOptions{
+			ForceEmit: true,
+			OutDir:    *outDir,
+		})
+		profileBuildStep(profile, "load-transform-program", started)
+		if err != nil {
+			fmt.Fprintf(stderr, "ttsc-nestia build: %v\n", err)
+			return 2
+		}
+		if len(diags) > 0 {
+			if prog != nil {
+				prog.Close()
+			}
+			driver.WritePrettyDiagnostics(stderr, diags, cwd)
+			return 2
+		}
+	}
+	defer prog.Close()
+	releaseTypiaRegistries := registerTypiaDefaultLibraryClassifier(prog)
+	defer releaseTypiaRegistries()
 	if !*quiet {
 		fmt.Fprintf(
 			stdout,
@@ -96,9 +127,6 @@ func runBuild(args []string) int {
 			plan.Typia,
 			shouldEmit,
 		)
-	}
-	if !shouldEmit {
-		return 0
 	}
 
 	// AST-integration emit: typia's per-file transformer and @nestia/core's own
@@ -132,10 +160,14 @@ func runBuild(args []string) int {
 	transforms := append([]driver.PluginTransform{typiaTransform, coreTransform}, contributorTransforms...)
 
 	emitted := []string{}
+	pending := []buildPendingOutput{}
 	writeFile := shimcompiler.WriteFile(func(fileName, text string, data *shimcompiler.WriteFileData) error {
 		_ = data
-		emitted = append(emitted, fileName)
-		return driver.DefaultWriteFile(fileName, text)
+		if shouldEmit {
+			emitted = append(emitted, fileName)
+			pending = append(pending, buildPendingOutput{FileName: fileName, Text: text})
+		}
+		return nil
 	})
 
 	// Declaration emit: ttsc delegates the whole emit of a transform-plugin
@@ -145,7 +177,7 @@ func runBuild(args []string) int {
 	// core runtime transforms never change the public type surface, so the
 	// declarations are taken from the pristine program — done before the JS
 	// transform runs so it reads the un-mutated AST.
-	if prog.ParsedConfig.ParsedConfig.CompilerOptions.Declaration.IsTrue() {
+	if shouldEmit && prog.ParsedConfig.ParsedConfig.CompilerOptions.Declaration.IsTrue() {
 		if profile {
 			started = time.Now()
 		}
@@ -162,10 +194,6 @@ func runBuild(args []string) int {
 		fmt.Fprintf(stderr, "ttsc-nestia build: emit failed: %v\n", err)
 		return 3
 	}
-	if len(transformDiags) > 0 {
-		WriteTypiaTransformDiagnostics(stderr, transformDiags, cwd)
-		return 3
-	}
 	emitHasError := false
 	for _, d := range eDiags {
 		fmt.Fprintln(stderr, "  -", d.String())
@@ -173,29 +201,46 @@ func runBuild(args []string) int {
 			emitHasError = true
 		}
 	}
+	if len(transformDiags) > 0 {
+		WriteTypiaTransformDiagnostics(stderr, transformDiags, cwd)
+		return 3
+	}
 	if emitHasError {
 		return 3
 	}
-	if *manifestPath != "" {
-		data, err := json.Marshal(emitted)
-		if err != nil {
-			fmt.Fprintf(stderr, "ttsc-nestia build: manifest marshal failed: %v\n", err)
-			return 3
+	if shouldEmit {
+		for _, output := range pending {
+			if err := driver.DefaultWriteFile(output.FileName, output.Text); err != nil {
+				fmt.Fprintf(stderr, "ttsc-nestia build: emit write failed: %v\n", err)
+				return 3
+			}
 		}
-		if err := os.MkdirAll(filepath.Dir(*manifestPath), 0o755); err != nil {
-			fmt.Fprintf(stderr, "ttsc-nestia build: manifest mkdir failed: %v\n", err)
-			return 3
+		if *manifestPath != "" {
+			data, err := json.Marshal(emitted)
+			if err != nil {
+				fmt.Fprintf(stderr, "ttsc-nestia build: manifest marshal failed: %v\n", err)
+				return 3
+			}
+			if err := os.MkdirAll(filepath.Dir(*manifestPath), 0o755); err != nil {
+				fmt.Fprintf(stderr, "ttsc-nestia build: manifest mkdir failed: %v\n", err)
+				return 3
+			}
+			if err := os.WriteFile(*manifestPath, data, 0o644); err != nil {
+				fmt.Fprintf(stderr, "ttsc-nestia build: manifest write failed: %v\n", err)
+				return 3
+			}
 		}
-		if err := os.WriteFile(*manifestPath, data, 0o644); err != nil {
-			fmt.Fprintf(stderr, "ttsc-nestia build: manifest write failed: %v\n", err)
-			return 3
+		if !*quiet {
+			fmt.Fprintf(stdout, "// ttsc-nestia build: emitted=%d files\n", len(emitted))
 		}
-	}
-	if !*quiet {
-		fmt.Fprintf(stdout, "// ttsc-nestia build: emitted=%d files\n", len(emitted))
 	}
 	profileBuildStep(profile, "total", totalStarted)
 	return 0
+}
+
+type buildPendingOutput struct {
+	FileName string
+	Text     string
 }
 
 // emitDeclarations runs tsgo's standard declaration emitter for the program.
@@ -220,39 +265,7 @@ func emitDeclarations(prog *driver.Program, writeFile shimcompiler.WriteFile) {
 }
 
 func runCheck(args []string) int {
-	fs := flag.NewFlagSet("check", flag.ContinueOnError)
-	fs.SetOutput(stderr)
-	tsconfigPath := fs.String("tsconfig", "tsconfig.json", "path to tsconfig.json")
-	cwdOverride := fs.String("cwd", "", "override the working directory")
-	pluginsJSON := fs.String("plugins-json", "", "ordered ttsc plugin payload")
-	if err := fs.Parse(args); err != nil {
-		return 2
-	}
-	if _, err := plugin.ParsePlan(*pluginsJSON); err != nil {
-		fmt.Fprintf(stderr, "ttsc-nestia check: %v\n", err)
-		return 2
-	}
-	cwd, ok := resolveCWD("ttsc-nestia check", *cwdOverride)
-	if !ok {
-		return 2
-	}
-	prog, diags, err := driver.LoadProgram(cwd, *tsconfigPath, driver.LoadProgramOptions{
-		ForceNoEmit: true,
-	})
-	if err != nil {
-		fmt.Fprintf(stderr, "ttsc-nestia check: %v\n", err)
-		return 2
-	}
-	if len(diags) > 0 {
-		driver.WritePrettyDiagnostics(stderr, diags, cwd)
-		return 2
-	}
-	defer prog.Close()
-	if diags := prog.Diagnostics(); len(diags) > 0 {
-		driver.WritePrettyDiagnostics(stderr, diags, cwd)
-		return 2
-	}
-	return 0
+	return runBuild(append([]string{"--noEmit"}, args...))
 }
 
 type Diagnostic struct {
