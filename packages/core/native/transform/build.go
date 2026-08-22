@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	shimcompiler "github.com/microsoft/typescript-go/shim/compiler"
@@ -161,9 +162,15 @@ func runBuild(args []string) int {
 
 	emitted := []string{}
 	pending := []buildPendingOutput{}
+	var writeMu sync.Mutex
 	writeFile := shimcompiler.WriteFile(func(fileName, text string, data *shimcompiler.WriteFileData) error {
 		_ = data
 		if shouldEmit {
+			// TypeScript-Go emits declarations in parallel. Serialize the shared
+			// slices so buffering cannot lose an artifact or race while the
+			// declaration workers call this callback concurrently.
+			writeMu.Lock()
+			defer writeMu.Unlock()
 			emitted = append(emitted, fileName)
 			pending = append(pending, buildPendingOutput{FileName: fileName, Text: text})
 		}
