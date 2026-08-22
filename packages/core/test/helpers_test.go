@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"strings"
@@ -8,6 +9,20 @@ import (
 
 	"github.com/samchon/nestia/packages/core/native/transform"
 )
+
+type llmRouteBuildProject struct {
+	Root        string
+	OutDir      string
+	BuildInfo   string
+	Manifest    string
+	PluginsJSON string
+}
+
+type llmRouteBuildProjectOptions struct {
+	NoEmit                     bool
+	AllowImportingTsExtensions bool
+	Valid                      bool
+}
 
 // repoRootForCore walks up from the external test module directory
 // (packages/core/test) to the monorepo root so the in-process tests can point
@@ -80,6 +95,112 @@ func mustContainAll(t *testing.T, haystack string, needles ...string) {
 			t.Fatalf("output missing %q\n%s", needle, haystack)
 		}
 	}
+}
+
+// writeLlmRouteBuildProject creates an isolated TypeScript project whose
+// @nestia/core declaration is deliberately minimal: the native transform only
+// needs the real module specifier and decorator shape, while the return DTO
+// remains fully visible to the checker. Invalid projects use a tuple because
+// JSON supports it but the LLM schema does not, isolating the llm option from
+// ordinary response-stringifier validation.
+func writeLlmRouteBuildProject(t *testing.T, options llmRouteBuildProjectOptions) llmRouteBuildProject {
+	t.Helper()
+	root := t.TempDir()
+	src := filepath.Join(root, "src")
+	if err := os.MkdirAll(src, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	declaration := `declare module "@nestia/core" {
+  export namespace TypedRoute {
+    function Get(): MethodDecorator;
+  }
+}
+`
+	if err := os.WriteFile(filepath.Join(src, "core.d.ts"), []byte(declaration), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	property := `pair: [string, number];`
+	value := `{ pair: ["one", 1] }`
+	if options.Valid {
+		property = `value: string;`
+		value = `{ value: "ok" }`
+	}
+	source := `import { TypedRoute } from "@nestia/core";
+
+interface IResponse {
+  ` + property + `
+}
+
+export class Controller {
+  @TypedRoute.Get()
+  public get(): IResponse {
+    return ` + value + `;
+  }
+}
+`
+	if err := os.WriteFile(filepath.Join(src, "main.ts"), []byte(source), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	noEmit := ""
+	if options.NoEmit {
+		noEmit = `,
+    "noEmit": true`
+	}
+	allowImporting := ""
+	if options.AllowImportingTsExtensions {
+		allowImporting = `,
+    "allowImportingTsExtensions": true`
+	}
+	buildInfo := filepath.Join(root, "cache.tsbuildinfo")
+	config := `{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "ignoreDeprecations": "6.0",
+    "experimentalDecorators": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "incremental": true,
+    "tsBuildInfoFile": "cache.tsbuildinfo"` + noEmit + allowImporting + `
+  },
+  "files": ["src/core.d.ts", "src/main.ts"]
+}
+`
+	if err := os.WriteFile(filepath.Join(root, "tsconfig.json"), []byte(config), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return llmRouteBuildProject{
+		Root:      root,
+		OutDir:    filepath.Join(root, "dist"),
+		BuildInfo: buildInfo,
+		Manifest:  filepath.Join(root, "artifacts", "manifest.json"),
+		PluginsJSON: `[{
+  "name": "@nestia/core",
+  "stage": "transform",
+  "config": {
+    "transform": "@nestia/core/lib/transform",
+    "validate": "assert",
+    "stringify": "assert",
+    "llm": true
+  }
+}]`,
+	}
+}
+
+// runCoreNative captures both process streams around one in-process native
+// command. Tests stay sequential because RunWithOutput temporarily redirects
+// package-global writers.
+func runCoreNative(args []string) (string, string, int) {
+	var out bytes.Buffer
+	var errOut bytes.Buffer
+	code := transform.RunWithOutput(args, &out, &errOut)
+	return out.String(), errOut.String(), code
 }
 
 // writeExtendingTsconfig writes a tsconfig under temp that extends a feature

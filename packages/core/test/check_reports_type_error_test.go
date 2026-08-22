@@ -11,11 +11,11 @@ import (
 // TestCheckReportsTypeError verifies the check subcommand surfaces a genuine
 // tsgo type error as exit 2 via the prog.Diagnostics() branch.
 //
-// runCheck loads the program with ForceNoEmit and fails when either config
-// diagnostics or type diagnostics are present; the type-diagnostics branch is
-// the analysis half of the no-emit contract ttsc relies on for `--noEmit`. A
-// clean feature never reaches it, so we synthesize a one-line type error in a
-// temp source file (no tracked fixture) and assert check rejects it.
+// The check route first loads the program with ForceNoEmit and fails when either
+// config diagnostics or type diagnostics are present; only a TypeScript-clean
+// program proceeds to its private transform traversal. We synthesize a one-line
+// type error in a temp source file (no tracked fixture) and assert check rejects
+// it before transformation.
 //
 //  1. Write a temp .ts assigning a string to a number and a tsconfig including it.
 //  2. Run check against it.
