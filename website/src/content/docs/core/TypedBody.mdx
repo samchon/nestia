@@ -124,7 +124,9 @@ Validation failures throw `BadRequestException`, so global exception filters cat
 
 ## EncryptedBody
 
-`@EncryptedBody()` accepts an AES-128/256 CBC encrypted body (PKCS #5 padding, Base64 encoded). Slower than `@TypedBody()` but adds transport-level confidentiality; the generated SDK encrypts requests automatically so consumers send plaintext at the call site.
+`@EncryptedBody()` accepts an AES-128/256 CBC encrypted body (PKCS #5 padding, Base64 encoded). The generated SDK encrypts requests automatically so consumers send plaintext at the call site.
+
+This is an obfuscation layer to run on top of TLS — it hides the request payload from casual inspection (for example a reader opening the browser devtools) and satisfies environments that mandate a second encryption pass. It is not authenticated encryption and is not a substitute for TLS: AES-CBC here carries no message authentication code, so do not rely on it as your only confidentiality or integrity control. Keep HTTPS as the transport.
 
 Encrypted bodies do not appear in Swagger UI (the wire shape is opaque). Only the generated SDK can call them.
 

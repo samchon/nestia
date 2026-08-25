@@ -69,17 +69,35 @@ export function EncryptedBody<T>(
         : param;
 
     // PARSE AND VALIDATE DATA
-    const data: any = JSON.parse(decrypt(body, password.key, password.iv));
+    const data: any = decode(body, password.key, password.iv);
     const error: Error | null = checker(data);
     if (error !== null) throw error;
     return data;
   })();
 }
 
-/** @internal */
-const decrypt = (body: string, key: string, iv: string): string => {
+/**
+ * Decrypt and JSON-parse the request body behind a single failure response.
+ *
+ * `AesPkcs5` is AES-CBC without an authentication tag, so a MITM attacker can
+ * forge ciphertexts. Splitting the two failure modes of a forged body — a bad
+ * PKCS#5 padding (decryption throws) versus valid padding whose plaintext is
+ * not JSON (`JSON.parse` throws) — into two different HTTP status codes turns
+ * this decorator into a padding oracle: one observable bit per request lets the
+ * attacker recover the plaintext byte by byte without the key
+ * (GHSA-pqj4-gvf7-6fq5).
+ *
+ * Both failure modes must therefore collapse into one indistinguishable
+ * `BadRequestException` (identical status, message, and body). Only the
+ * downstream type validation of an already-parsed body may report its own
+ * distinct error, because reaching it requires plaintext the attacker cannot
+ * forge without already knowing it.
+ *
+ * @internal
+ */
+const decode = (body: string, key: string, iv: string): unknown => {
   try {
-    return AesPkcs5.decrypt(body, key, iv);
+    return JSON.parse(AesPkcs5.decrypt(body, key, iv));
   } catch (exp) {
     if (exp instanceof Error)
       throw new BadRequestException(

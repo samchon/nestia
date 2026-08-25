@@ -99,7 +99,9 @@ export namespace EncryptedRoute {
 }
 ```
 
-Same family, but the response body is **AES-128/256 CBC** encrypted with PKCS #5 padding and Base64 encoded. Slower than `TypedRoute`; use when you need transport-level confidentiality the SDK will decrypt automatically.
+Same family, but the response body is **AES-128/256 CBC** encrypted with PKCS #5 padding and Base64 encoded, and the SDK decrypts it automatically.
+
+Like `@EncryptedBody`, this is an obfuscation layer to run on top of TLS, not authenticated encryption. AES-CBC here carries no message authentication code, so treat it as a way to hide the payload from casual inspection or to satisfy a second-encryption-pass mandate, and keep HTTPS as the transport rather than relying on it as your only confidentiality or integrity control.
 
 Encrypted routes do not appear in Swagger UI because the response shape is encrypted. The **generated SDK** (`@nestia/sdk`) handles the decryption on the client side, so consumers see typed, decrypted data.
 
