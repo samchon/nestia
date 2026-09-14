@@ -183,6 +183,8 @@ The map of status codes comes from `@TypedRoute.*` (success) plus every `@TypedE
 
 `clone: true` makes the SDK self-contained — every DTO type used in any route gets copied into the SDK's own `structures/` directory, breaking the dependency on the server's source.
 
+Cloned properties preserve `?` when the server enables `exactOptionalPropertyTypes`: `optional?: boolean` stays `optional?: boolean`. Explicit `undefined` unions are retained. As with JSON serialization, properties whose values can be `undefined` may be omitted in the cloned type.
+
 Why you'd want this:
 
 - **Your DTOs come from an ORM** (Prisma `Article`, TypeORM entity). Without `clone`, consumers must install `@prisma/client` to compile the SDK.

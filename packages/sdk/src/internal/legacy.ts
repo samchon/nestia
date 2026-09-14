@@ -135,6 +135,10 @@ export const nameOf = (m: IMetadataSchema): string =>
 export const emptyOf = (m: IMetadataSchema): boolean =>
   (m as IReflectMetadata).empty ?? false;
 
+/** A property is required only when neither omission nor undefined is allowed. */
+export const isRequiredOf = (m: IMetadataSchema): boolean =>
+  m.required && !m.optional;
+
 /**
  * Equivalent of the legacy `MetadataSchema.isSoleLiteral()` method: `true` when
  * the schema represents exactly one constant literal value and nothing else.
