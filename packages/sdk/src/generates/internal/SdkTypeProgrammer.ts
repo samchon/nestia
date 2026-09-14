@@ -14,6 +14,7 @@ import {
   MetadataProperty,
   MetadataSchema,
   MetadataTuple,
+  isRequiredOf,
   isSoleLiteralOf,
   sizeOf,
 } from "../../internal/legacy";
@@ -255,7 +256,7 @@ export namespace SdkTypeProgrammer {
                 : factory.createStringLiteral(
                     String(p.key.constants[0]!.values[0]!.value),
                   ),
-              p.value.required === false
+              isRequiredOf(p.value) === false
                 ? factory.createToken(SyntaxKind.QuestionToken)
                 : undefined,
               SdkTypeProgrammer.write(project)(importer)(p.value),

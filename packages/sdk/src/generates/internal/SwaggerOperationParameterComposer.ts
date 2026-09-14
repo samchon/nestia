@@ -6,6 +6,7 @@ import { INestiaConfig } from "../../INestiaConfig";
 import {
   JsonSchemasProgrammer,
   MetadataObjectType,
+  isRequiredOf,
 } from "../../internal/legacy";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
@@ -146,7 +147,7 @@ export namespace SwaggerOperationParameterComposer {
           name: p.key.constants[0]!.values[0]!.value as string,
           in: props.parameter.category === "query" ? "query" : "header",
           schema: json.schemas[0]!,
-          required: p.value.required,
+          required: isRequiredOf(p.value),
           description: SwaggerDescriptionComposer.compose({
             description: p.description ?? null,
             jsDocTags: p.jsDocTags,

@@ -1,17 +1,11 @@
-// nestia-internal namespace of utility functions that fill the surface
-// the legacy `@typia/core` 12.x package exposed at JS runtime. typia v13
-// dropped that package because the equivalent logic lives in the Go-side
-// transform; the nestia native transform now embeds the pre-computed
-// results next to each metadata blob (see `packages/core/native/cmd/
-// ttsc-nestia/sdk_transform.go`), and the helpers here are thin
-// consumers — no runtime class wrapping, no vendored fork.
+// Internal utilities for the plain metadata emitted by the SDK's Go
+// contributor in `packages/sdk/native/sdk/sdk_transform.go`. These adapters
+// preserve the names formerly provided by `@typia/core` without rebuilding
+// its runtime classes.
 //
-// `MetadataComponents.from` is the only utility that performs a real
-// runtime transformation: it walks the aggregated `IMetadataComponents`
-// and indexes each entry by name so the analyzer can resolve
-// cross-reference lookups in O(1). Everything else either reads a
-// pre-baked field or short-circuits because typia's compile-time
-// transform already enforces the invariant.
+// The utilities index components, resolve references, read metadata flags
+// and precomputed fields, validate SDK policy, and compose schemas for
+// decomposed parameters whose metadata has no precomputed JSON schema.
 import type {
   IJsonSchemaCollection,
   IMetadataComponents,
@@ -135,6 +129,10 @@ export const nameOf = (m: IMetadataSchema): string =>
 export const emptyOf = (m: IMetadataSchema): boolean =>
   (m as IReflectMetadata).empty ?? false;
 
+/** A property is required only when neither omission nor undefined is allowed. */
+export const isRequiredOf = (m: IMetadataSchema): boolean =>
+  m.required && !m.optional;
+
 /**
  * Equivalent of the legacy `MetadataSchema.isSoleLiteral()` method: `true` when
  * the schema represents exactly one constant literal value and nothing else.
@@ -177,7 +175,7 @@ export namespace MetadataComponents {
 }
 
 // ---------------------------------------------------------------------
-//  `MetadataSchema.from(plain, _dictionary)` — passthrough.
+//  `MetadataSchema.from(plain, dictionary)` — reference resolution.
 // ---------------------------------------------------------------------
 
 export namespace MetadataSchema {
