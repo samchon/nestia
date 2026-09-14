@@ -1,0 +1,3194 @@
+{
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://localhost:10851",
+      "description": "fake"
+    },
+    {
+      "url": "https://api.iamport.kr",
+      "description": "real"
+    }
+  ],
+  "info": {
+    "title": "Iamport API",
+    "description": "Built by [fake-iamport-server](https://github.com/samchon/payments/tree/master/packages/fake-iamport-server) with [nestia](https://github.com/samchon/nestia)",
+    "version": "8.1.0",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/subscribe/customers/{customer_uid}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "customer_uid",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " 고객 (간편 결제 카드) 식별자 키"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "간편 결제 카드 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportSubscription"
+                }
+              }
+            }
+          }
+        },
+        "summary": "간편 결제 카드 정보 조회하기",
+        "description": "간편 결제 카드 정보 조회하기.\n\n`subscribe.customers.at` 은 고객이 {@link create} 나 혹은 아임포트가 제공하는\n간편 결제 카드 등록 창을 이용하여 저장한 간편 결제 카드 정보를 조회하는 API\n함수이다.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "customer_uid",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " 고객 (간편 결제 카드) 식별자 키"
+          }
+        ],
+        "requestBody": {
+          "description": "카드 입력 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIamportSubscription.ICreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "간편 결제 카드 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportSubscription"
+                }
+              }
+            }
+          }
+        },
+        "summary": "간편 결제 카드 등록하기",
+        "description": "간편 결제 카드 등록하기.\n\n`subscribe.customers.stoer` 는 고객이 자신의 카드를 서버에 등록해두고, 매번 결제가\n필요할 때마다 카드 정보를 반복 입력하는 일 없이, 간편하게 결제를 진행하고자 할 때\n사용하는 API 함수이다.\n\n참고로 `subscribe.customers.create` 는 클라이언트 어플리케이션이 아임포트가 제공하는\n간편 결제 카드 등록 창을 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서 호출하는\n일은 없을 것이다. 다만, 고객이 간편 결제 카드를 등록하는 상황을 시뮬레이션하기 위하여,\n테스트 자동화 프로그램 수준에서 사용될 수는 있다.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "customer_uid",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " 고객 (간편 결제 카드) 식별자 키"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "삭제된 간편 결제 카드 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportSubscription"
+                }
+              }
+            }
+          }
+        },
+        "summary": "간편 결제 카드 삭제하기",
+        "description": "간편 결제 카드 삭제하기.\n\n간편 결제를 위하여 등록한 카드를 제거한다.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/subscribe/payments/onetime": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "카드 결제 신청 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIamportSubscription.IOnetime"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "카드 결제 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportCardPayment"
+                }
+              }
+            }
+          }
+        },
+        "summary": "카드로 결제하기, 더불어 간편 결제용으로 등록 가능",
+        "description": "카드로 결제하기, 더불어 간편 결제용으로 등록 가능.\n\n`subscribe.payments.onetime` 은 카드를 매개로 한 결제를 하고자 할 때 호출하는 API\n함수이다. 더하여 입력 값에 {@link IIamportSubscription.IOnetime.customer_uid} 를\n기입하는 경우, 결제에 사용한 카드를 그대로 간편 결제용 카드\n{@link IIamportSubscription} 로 등록해버린다.\n\n다만, 정히 간편 카드 등록과 결제를 동시에 하고 싶다면,\n`subscribe.payments.onetime` 에 {@link IIamportSubscription.IOnetime.customer_uid}\n를 더하기보다, {@link subscribe.customers.create} 와 {@link subscribe.payments.again}\n을 각각 호출하는 것을 권장한다. 그것이 예외적인 상황에 보다 안전하게 대처할 수 있기\n때문이다.\n\n더하여 `subscribe.payments.onetime` 은 클라이언트 어플리케이션이 아임포트가 제공하는\n결제 창을 그대로 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서 호출하는 일은\n없을 것이다. 다만, 고객이 카드를 통하여 결제하는 상황을 시뮬레이션하기 위하여, 테스트\n자동화 프로그램 수준에서 사용될 수는 있다.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/subscribe/payments/again": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "미리 등록한 카드를 이용한 결제 신청 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIamportSubscription.IAgain"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "카드 결제 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportCardPayment"
+                }
+              }
+            }
+          }
+        },
+        "summary": "간편 결제에 등록된 카드로 결제하기",
+        "description": "간편 결제에 등록된 카드로 결제하기.\n\n`subscribe.payments.again` 은 고객이 간편 결제에 등록한 카드로 결제를 진행하고자 할 때\n호출하는 API 함수이다. 이는 간편하고 불편하고를 떠나, 본질적으로 카드 결제의 일환이기에,\n리턴값은 일반적인 카드 결제 때와 동일한 {@link IIamportCardPayment} 이다.\n\n그리고 `subscribe.payments.again` 은 결제 수단 중 유일하게, 클라이언트 어플리케이션이\n아임포트가 제공하는 결체 창을 사용할 수 없어, 오직 귀하의 백엔드 서버가 아임포트의 API\n함수를 직접 호출해야하는 경우에 해당한다. 따라서 간편 결제에 관하여 아임포트 서버와\n연동하는 백엔드 서버 및 프론트 어플리케이션을 개발할 때, 반드시 이 상황에 대한 별도의\n설계 및 개발이 필요하니, 이 점을 염두에 두기 바란다.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/certifications/{imp_uid}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "imp_uid",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " 대상 본인인증 정보의 {@link IIamportCertification.imp_uid}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "본인인증 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportCertification"
+                }
+              }
+            }
+          }
+        },
+        "summary": "본인인증 정보 열람하기",
+        "description": "본인인증 정보 열람하기.\n\n`certiciations.at` 은 본인인증 정보를 열람할 때 사용하는 API 함수이다.\n\n다만 이 API 함수를 통하여 열람한 본인인증 정보 {@link IIamportCertification} 이\n곧 OTP 인증까지 마쳐 본인인증을 모두 마친 레코드라는 보장은 없다. 본인인증의 완결\n여부는 오직, {@link IIamportCertification.certified} 값을 직접 검사해봐야만 알\n수 있기 때문이다.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "imp_uid",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " 대상 본인인증 정보의 {@link IIamportCertification.imp_uid}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "삭제된 본인인증 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportCertification"
+                }
+              }
+            }
+          }
+        },
+        "summary": "본인인증 정보 삭제하기",
+        "description": "본인인증 정보 삭제하기.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/certifications/otp/request": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "본인인증 요청 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIamportCertification.ICreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "진행 중인 본인인증의 식별자 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportCertification.IAccessor"
+                }
+              }
+            }
+          }
+        },
+        "summary": "본인인증 요청하기",
+        "description": "본인인증 요청하기.\n\n`certifications.otp.request` 는 아임포트 서버에 본인인증을 요청하는 API 함수이다.\n이 API 를 호출하면 본인인증 대상자의 핸드폰으로 OTP 문자가 전송되며, 본인인증\n대상자가 {@link certifications.otp.confirm} 을 통하여 이 OTP 번호를 정확히\n입력함으로써, 본인인증이 완결된다.\n\n또한 본인인증 대상자가 자신의 핸드폰으로 전송된 OTP 문자를 입력하기 전에도,\n여전히해당 본인인증 내역은 {@link certifications.at} 함수를 통하여 조회할 수 있다.\n다만, 이 때 리턴되는 {@link IIamportCertification} 에서 인증의 완결 여부를\n지칭하는 {@link IIamportCertification.certified} 값은 `false` 이다.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/certifications/otp/confirm/{imp_uid}": {
+      "post": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "imp_uid",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " 대상 본인인증 정보의 {@link IIamportCertification.imp_uid}"
+          }
+        ],
+        "requestBody": {
+          "description": "OTP 코드",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIamportCertification.IConfirm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "인증 완료된 본인인증 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportCertification"
+                }
+              }
+            }
+          }
+        },
+        "summary": "본인인증 시 발급된 OTP 코드 입력하기",
+        "description": "본인인증 시 발급된 OTP 코드 입력하기.\n\n`certifications.otp.confirm` 는 {@link certifications.otp.request} 를 통하여\n발급된 본인인증 건에 대하여, 본인인증 대상자의 휴대폰으로 전송된 OTP 번호를\n검증하고, 입력한 OTP 번호가 맞거든 해당 본인인증 건을 승인하여 완료 처리해주는\nAPI 함수이다.\n\n이처럼 본인인증을 완료하거든, 해당 본인인증 건 {@link IIamportCertification} 의\n{@link IIamportCertification.certified} 값이 비로소 `true` 로 변경되어,\n비로소 완결된다.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/internal/webhook": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "웹훅 이벤트 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIamportPayment.IWebhook"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "웹훅 이벤트 더미 리스너",
+        "description": "웹훅 이벤트 더미 리스너.\n\n`internal.webhook` 은 실제 아임포트의 서버에는 존재하지 않는 API 로써,\n`fake-impoart-server` 의 {@link Configuration.WEBHOOK_URL} 에 아무런 URL 을 설정하지\n않으면, `fake-iamport-server` 로부터 발생하는 모든 종류의 웹훅 이벤트는 이 곳으로 전달되어\n무의미하게 사라진다.\n\n따라서 `fake-iamport-server` 를 사용하여 아임포트 서버와의 연동을 미리 검증코자 할 때는,\n반드시 {@link Configuration.WEBHOOK_URL} 를 설정하여 웹훅 이벤트가 귀하의 백엔드 서버로\n제대로 전달되도록 하자."
+      }
+    },
+    "/internal/deposit/{imp_uid}": {
+      "put": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "imp_uid",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " 대상 결제의 {@link IIamportVBankPayment.imp_uid }"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "가상 계좌에 입금하기",
+        "description": "가상 계좌에 입금하기.\n\n`internal.deposit` 은 실제 아임포트 결제 서버에는 존재하지 않는 API 로써, 가상 계좌\n결제를 신청한 고객이, 이후 가상 계좌에 목표 금액을 입금하는 상황을 시뮬레이션 할 수 있는\n함수이다.\n\n즉, `internal.deposit` 는 고객이 스스로에게 가상으로 발급된 계좌에 입금을 하고, 그에 따라\n아임포트 서버에서 webhook 이벤트가 발생, 이를 귀하의 백엔드 서버로 전송하는 일련의 상황을\n시뮬레이션하기 위하여 설계된 테스트 함수다.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/payments/{imp_uid}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "imp_uid",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " 대상 결제 기록의 {@link IIamportPayment.imp_uid}"
+          },
+          {
+            "name": "extension",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "title": "페이팔의 경우, 이 값을 `true` 로 할 것",
+              "description": "페이팔의 경우, 이 값을 `true` 로 할 것."
+            },
+            "required": false,
+            "title": "페이팔의 경우, 이 값을 `true` 로 할 것",
+            "description": "페이팔의 경우, 이 값을 `true` 로 할 것."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "결제 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportPayment"
+                }
+              }
+            }
+          }
+        },
+        "summary": "결제 기록 열람하기",
+        "description": "결제 기록 열람하기.\n\n아임포트를 통하여 발생한 결제 기록을 열람한다.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/payments/cancel": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "결제 취소 입력 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIamportPaymentCancel.ICreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "취소된 결제 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportPayment"
+                }
+              }
+            }
+          }
+        },
+        "summary": "결제 취소하기",
+        "description": "결제 취소하기.\n\n만약 가상 계좌를 통한 결제였다면, 반드시 환불 계좌 정보를 입력해줘야 한다.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/receipts/{imp_uid}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "imp_uid",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " 귀속 결제의 {@link IIamportPayment.imp_uid}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "현금 영수증 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportReceipt"
+                }
+              }
+            }
+          }
+        },
+        "summary": "현금 영수증 조회하기",
+        "description": "현금 영수증 조회하기.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "imp_uid",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " 귀속 결제의 {@link IIamportPayment.imp_uid}"
+          }
+        ],
+        "requestBody": {
+          "description": "현금 영수증 입력 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIamportReceipt.ICreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "현금 영수증 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportReceipt"
+                }
+              }
+            }
+          }
+        },
+        "summary": "현금 영수증 발행하기",
+        "description": "현금 영수증 발행하기.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "imp_uid",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " 귀속 결제의 {@link IIamportPayment.imp_uid}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "취소된 현금 영수증 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportReceipt"
+                }
+              }
+            }
+          }
+        },
+        "summary": "현금 영수증 취소하기",
+        "description": "현금 영수증 취소하기.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/users/getToken": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "아임포트의 API 및 secret 키 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIamportUser.IAccessor"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "유저 인증 토큰 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportUser"
+                }
+              }
+            }
+          }
+        },
+        "summary": "유저 인증 토큰 발행하기",
+        "description": "유저 인증 토큰 발행하기.\n\n아임포트에 가입하여 부여받은 API 및 secret 키를 토대로, 유저 인증 토큰을 발행한다.\n\n단, 아임포트가 발급해주는 유저 인증 토큰에는 유효 시간 {@link IIamportUser.expired_at}\n이 있어, 해당 시간이 지나거든 기 발급 토큰이 만료되어 더 이상 쓸 수 없게 된다. 때문에\n아임포트의 이러한 시간 제한에 구애받지 않고 자유로이 아임포트의 API 를 이용하고 싶다면,\n`iamport-server-api` 에서 제공해주는 {@link IamportConnector} 를 활용하도록 하자."
+      }
+    },
+    "/vbanks": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "가상 계좌 입력 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIamportVBankPayment.ICreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "가상 계좌 결제 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportVBankPayment"
+                }
+              }
+            }
+          }
+        },
+        "summary": "가상 계좌 발급하기",
+        "description": "가상 계좌 발급하기.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "가상 계좌 편집 입력 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIamportVBankPayment.IUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "편집된 가상 계좌 결제 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IIamportResponseIIamportVBankPayment"
+                }
+              }
+            }
+          }
+        },
+        "summary": "가상 계좌 편집하기",
+        "description": "가상 계좌 편집하기.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IIamportResponseIIamportSubscription": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "title": "에러 코드",
+            "description": "에러 코드.\n\n값이 0 이면 오류가 없다는 뜻."
+          },
+          "message": {
+            "type": "string",
+            "title": "성공 또는 오류 메시지",
+            "description": "성공 또는 오류 메시지."
+          },
+          "response": {
+            "$ref": "#/components/schemas/IIamportSubscription",
+            "title": "응답 데이터, 사실상 본문",
+            "description": "응답 데이터, 사실상 본문."
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "response"
+        ],
+        "description": "아임포트 고유의 응답 데이터."
+      },
+      "IIamportSubscription": {
+        "type": "object",
+        "properties": {
+          "pg_provider": {
+            "type": "string"
+          },
+          "pg_id": {
+            "type": "string"
+          },
+          "card_name": {
+            "type": "string"
+          },
+          "card_code": {
+            "type": "string"
+          },
+          "card_number": {
+            "type": "string"
+          },
+          "card_type": {
+            "type": "string"
+          },
+          "customer_name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_tel": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_addr": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_postcode": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "inserted": {
+            "type": "number"
+          },
+          "updated": {
+            "type": "number"
+          },
+          "customer_uid": {
+            "type": "string",
+            "title": "고객 식별자 키",
+            "description": "고객 식별자 키.\n\n아임포트가 아닌, 이를 이용하는 서비스에서 자체적으로 관리하는 식별자 키.\n\n다만 고객이라기보다 실제로는 카드의 식별자 키로 써야함."
+          }
+        },
+        "required": [
+          "pg_provider",
+          "pg_id",
+          "card_name",
+          "card_code",
+          "card_number",
+          "card_type",
+          "customer_name",
+          "customer_tel",
+          "customer_email",
+          "customer_addr",
+          "customer_postcode",
+          "inserted",
+          "updated",
+          "customer_uid"
+        ],
+        "description": "간편 결제 카드 정보."
+      },
+      "IIamportSubscription.ICreate": {
+        "type": "object",
+        "properties": {
+          "card_number": {
+            "type": "string",
+            "pattern": "\\d{4}-\\d{4}-\\d{4}-\\d{4}",
+            "title": "카드 번호",
+            "description": "카드 번호.\n\n형식: XXXX-XXXX-XXXX-XXXX"
+          },
+          "expiry": {
+            "type": "string",
+            "pattern": "^([0-9]{4})-(0[1-9]|1[012])$",
+            "title": "카드 유효기간",
+            "description": "카드 유효기간.\n\n형식: YYYY-MM"
+          },
+          "birth": {
+            "type": "string",
+            "pattern": "^(([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))|(\\d{10})$",
+            "title": "생년월일 YYMMDD 또는 사업자등록번호 10자리",
+            "description": "생년월일 YYMMDD 또는 사업자등록번호 10자리."
+          },
+          "pwd_2digit": {
+            "type": "string",
+            "pattern": "\\d{2}",
+            "title": "카드 비밀번호 앞 두 자리",
+            "description": "카드 비밀번호 앞 두 자리."
+          },
+          "cvc": {
+            "type": "string",
+            "pattern": "\\d{2}",
+            "title": "카드 인증번호 (카드 뒷면 3 자리)",
+            "description": "카드 인증번호 (카드 뒷면 3 자리)."
+          },
+          "customer_name": {
+            "type": "string"
+          },
+          "customer_tel": {
+            "type": "string"
+          },
+          "customer_email": {
+            "type": "string",
+            "format": "email"
+          },
+          "customr_addr": {
+            "type": "string"
+          },
+          "customer_postcode": {
+            "type": "string"
+          },
+          "customer_uid": {
+            "type": "string",
+            "title": "고객 식별자 키",
+            "description": "고객 식별자 키.\n\n아임포트가 아닌, 이를 이용하는 서비스에서 자체적으로 관리하는 식별자 키.\n\n다만 고객이라기보다 실제로는 카드의 식별자 키로 써야함."
+          }
+        },
+        "required": [
+          "card_number",
+          "expiry",
+          "birth",
+          "customer_uid"
+        ],
+        "description": "간편 결제 카드 입력 정보."
+      },
+      "IIamportSubscription.IOnetime": {
+        "type": "object",
+        "properties": {
+          "customer_uid": {
+            "type": "string",
+            "title": "고객 식별자 키",
+            "description": "고객 식별자 키.\n\n아임포트가 아닌, 이를 이용하는 서비스에서 자체적으로 관리하는 식별자 키.\n\n다만 고객이라기보다 실제로는 카드의 식별자 키로 써야함.\n\n이를 생략시 단순 결제로만 그치며, 카드 정보가 간편 결제용으로 등록되지 아니함."
+          },
+          "card_number": {
+            "type": "string",
+            "pattern": "\\d{4}-\\d{4}-\\d{4}-\\d{4}",
+            "title": "카드 번호",
+            "description": "카드 번호.\n\n형식: XXXX-XXXX-XXXX-XXXX"
+          },
+          "expiry": {
+            "type": "string",
+            "pattern": "^([0-9]{4})-(0[1-9]|1[012])$",
+            "title": "카드 유효기간",
+            "description": "카드 유효기간.\n\n형식: YYYY-MM"
+          },
+          "birth": {
+            "type": "string",
+            "pattern": "^(([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))|(\\d{10})$",
+            "title": "생년월일 YYMMDD 또는 사업자등록번호 10자리",
+            "description": "생년월일 YYMMDD 또는 사업자등록번호 10자리."
+          },
+          "pwd_2digit": {
+            "type": "string",
+            "pattern": "\\d{2}",
+            "title": "카드 비밀번호 앞 두 자리",
+            "description": "카드 비밀번호 앞 두 자리."
+          },
+          "cvc": {
+            "type": "string",
+            "pattern": "\\d{2}",
+            "title": "카드 인증번호 (카드 뒷면 3 자리)",
+            "description": "카드 인증번호 (카드 뒷면 3 자리)."
+          },
+          "customer_name": {
+            "type": "string"
+          },
+          "customer_tel": {
+            "type": "string"
+          },
+          "customer_email": {
+            "type": "string",
+            "format": "email"
+          },
+          "customr_addr": {
+            "type": "string"
+          },
+          "customer_postcode": {
+            "type": "string"
+          },
+          "merchant_uid": {
+            "type": "string",
+            "title": "주문 식별자 키",
+            "description": "주문 식별자 키.\n\n아임포트가 아닌 이를 이용하는 서비스에서 자체적으로 관리하는 식별자 키."
+          },
+          "amount": {
+            "type": "number",
+            "title": "결제 총액",
+            "description": "결제 총액."
+          },
+          "name": {
+            "type": "string",
+            "title": "주문 이름",
+            "description": "주문 이름."
+          },
+          "currency": {
+            "oneOf": [
+              {
+                "const": "KRW"
+              },
+              {
+                "const": "USD"
+              },
+              {
+                "const": "EUR"
+              },
+              {
+                "const": "JPY"
+              }
+            ],
+            "title": "통화 정보",
+            "description": "통화 정보."
+          },
+          "tax_free": {
+            "type": "number",
+            "title": "면세 공급가액",
+            "description": "면세 공급가액.\n\n기본값은 0 로써, 알아서 amount 의 1/11 로써 부가세 처리됨."
+          },
+          "card_quota": {
+            "type": "number",
+            "title": "할부 개월 수",
+            "description": "할부 개월 수.\n\n일시불은 0."
+          },
+          "buyer_name": {
+            "type": "string"
+          },
+          "buyer_email": {
+            "type": "string",
+            "format": "email"
+          },
+          "buyer_tel": {
+            "type": "string"
+          },
+          "buyer_addr": {
+            "type": "string"
+          },
+          "buyer_postcode": {
+            "type": "string"
+          },
+          "interest_free_by_merchant": {
+            "type": "boolean",
+            "title": "카드할부처리할 때, 할부이자가 발생하는 경우 (카드사 무이자 프로모션 제외)",
+            "description": "카드할부처리할 때, 할부이자가 발생하는 경우 (카드사 무이자 프로모션 제외).\n\n부과되는 할부이자를 고객대신 가맹점이 지불하고자 PG사와 계약된 경우(현재, 나이스페이먼츠만 지원됨)"
+          },
+          "use_card_point": {
+            "type": "boolean",
+            "title": "승인요청시 카드사 포인트 차감하며 결제승인처리할지 flag",
+            "description": "승인요청시 카드사 포인트 차감하며 결제승인처리할지 flag.\n\nPG사 영업담당자와 계약 당시 사전 협의 필요(현재, 나이스페이먼츠만 지원됨)"
+          },
+          "custom_data": {
+            "type": "string",
+            "title": "임의 정보를 기재할 수 있다",
+            "description": "임의 정보를 기재할 수 있다."
+          },
+          "notice_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "결제 성공시 통지될 Notification, 웹훅 URL",
+            "description": "결제 성공시 통지될 Notification, 웹훅 URL."
+          }
+        },
+        "required": [
+          "card_number",
+          "expiry",
+          "birth",
+          "merchant_uid",
+          "amount",
+          "name"
+        ],
+        "description": "결제 신청 입력 정보."
+      },
+      "IIamportResponseIIamportCardPayment": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "title": "에러 코드",
+            "description": "에러 코드.\n\n값이 0 이면 오류가 없다는 뜻."
+          },
+          "message": {
+            "type": "string",
+            "title": "성공 또는 오류 메시지",
+            "description": "성공 또는 오류 메시지."
+          },
+          "response": {
+            "$ref": "#/components/schemas/IIamportCardPayment",
+            "title": "응답 데이터, 사실상 본문",
+            "description": "응답 데이터, 사실상 본문."
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "response"
+        ],
+        "description": "아임포트 고유의 응답 데이터."
+      },
+      "IIamportCardPayment": {
+        "type": "object",
+        "properties": {
+          "card_code": {
+            "type": "string",
+            "title": "카드 식별자 코드",
+            "description": "카드 식별자 코드."
+          },
+          "card_name": {
+            "type": "string",
+            "title": "카드 이름",
+            "description": "카드 이름."
+          },
+          "card_number": {
+            "type": "string",
+            "pattern": "\\d{4}-\\d{4}-\\d{4}-\\d{4}",
+            "title": "카드 번호",
+            "description": "카드 번호."
+          },
+          "card_quota": {
+            "type": "integer",
+            "title": "할부 개월 수",
+            "description": "할부 개월 수."
+          },
+          "apply_num": {
+            "type": "string",
+            "title": "카드사 승인번호",
+            "description": "카드사 승인번호."
+          },
+          "pay_method": {
+            "oneOf": [
+              {
+                "const": "card"
+              },
+              {
+                "const": "samsung"
+              }
+            ]
+          },
+          "imp_uid": {
+            "type": "string",
+            "title": "결제 정보 {@link IIamportPayment} 의 식별자 키",
+            "description": "결제 정보 {@link IIamportPayment} 의 식별자 키."
+          },
+          "merchant_uid": {
+            "type": "string",
+            "title": "주문 식별자 키",
+            "description": "주문 식별자 키.\n\n아임포트 서버가 아닌, 이를 사용하는 서비스가 자체적으로 발급하고 관리한다."
+          },
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "주문명, 누락 가능",
+            "description": "주문명, 누락 가능."
+          },
+          "amount": {
+            "type": "number",
+            "title": "결제 총액",
+            "description": "결제 총액."
+          },
+          "cancel_amount": {
+            "type": "number",
+            "title": "결제 취소, 환불 총액",
+            "description": "결제 취소, 환불 총액."
+          },
+          "currency": {
+            "$ref": "#/components/schemas/IIamportPayment.Currency",
+            "title": "통화 단위",
+            "description": "통화 단위."
+          },
+          "receipt_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "영수증 URL",
+            "description": "영수증 URL."
+          },
+          "cash_receipt_issue": {
+            "type": "boolean",
+            "title": "현금 영수증 발행 여부",
+            "description": "현금 영수증 발행 여부."
+          },
+          "channel": {
+            "type": "string"
+          },
+          "pg_provider": {
+            "type": "string"
+          },
+          "emb_pg_provider": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "pg_id": {
+            "type": "string"
+          },
+          "pg_tid": {
+            "type": "string"
+          },
+          "escrow": {
+            "type": "boolean"
+          },
+          "buyer_name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "email"
+              }
+            ]
+          },
+          "buyer_tel": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_addr": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_postcode": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_uid": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_uid_usage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "custom_data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "user_agent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/IIamportPayment.Status",
+            "title": "결제의 현재 (진행) 상태",
+            "description": "결제의 현재 (진행) 상태."
+          },
+          "started_at": {
+            "type": "number",
+            "title": "결제 신청 일시",
+            "description": "결제 신청 일시.\n\n리눅스 타임이 쓰임."
+          },
+          "paid_at": {
+            "type": "number",
+            "title": "결제 (지불) 완료 일시",
+            "description": "결제 (지불) 완료 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "failed_at": {
+            "type": "number",
+            "title": "결제 실패 일시",
+            "description": "결제 실패 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "cancelled_at": {
+            "type": "number",
+            "title": "결제 취소 일시",
+            "description": "결제 취소 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "fail_reason": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "cancel_reason": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "cancel_history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IIamportPaymentCancel"
+            }
+          }
+        },
+        "required": [
+          "card_code",
+          "card_name",
+          "card_number",
+          "card_quota",
+          "apply_num",
+          "pay_method",
+          "imp_uid",
+          "merchant_uid",
+          "name",
+          "amount",
+          "cancel_amount",
+          "currency",
+          "receipt_url",
+          "cash_receipt_issue",
+          "channel",
+          "pg_provider",
+          "emb_pg_provider",
+          "pg_id",
+          "pg_tid",
+          "escrow",
+          "buyer_name",
+          "buyer_email",
+          "buyer_tel",
+          "buyer_addr",
+          "buyer_postcode",
+          "customer_uid",
+          "customer_uid_usage",
+          "custom_data",
+          "user_agent",
+          "status",
+          "started_at",
+          "paid_at",
+          "failed_at",
+          "cancelled_at",
+          "fail_reason",
+          "cancel_reason",
+          "cancel_history"
+        ],
+        "description": "카드 결제 정보."
+      },
+      "IIamportPayment.Currency": {
+        "oneOf": [
+          {
+            "const": "KRW"
+          },
+          {
+            "const": "USD"
+          },
+          {
+            "const": "EUR"
+          },
+          {
+            "const": "JPY"
+          }
+        ]
+      },
+      "IIamportPayment.Status": {
+        "oneOf": [
+          {
+            "const": "paid"
+          },
+          {
+            "const": "ready"
+          },
+          {
+            "const": "failed"
+          },
+          {
+            "const": "cancelled"
+          }
+        ]
+      },
+      "IIamportPaymentCancel": {
+        "type": "object",
+        "properties": {
+          "pg_id": {
+            "type": "string"
+          },
+          "pg_tid": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "cancelled_at": {
+            "type": "number"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "receipt_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "pg_id",
+          "pg_tid",
+          "amount",
+          "cancelled_at",
+          "reason",
+          "receipt_url"
+        ],
+        "description": "결제 취소 정보."
+      },
+      "IIamportSubscription.IAgain": {
+        "type": "object",
+        "properties": {
+          "merchant_uid": {
+            "type": "string",
+            "title": "주문 식별자 키",
+            "description": "주문 식별자 키.\n\n아임포트가 아닌 이를 이용하는 서비스에서 자체적으로 관리하는 식별자 키."
+          },
+          "amount": {
+            "type": "number",
+            "title": "결제 총액",
+            "description": "결제 총액."
+          },
+          "name": {
+            "type": "string",
+            "title": "주문 이름",
+            "description": "주문 이름."
+          },
+          "currency": {
+            "oneOf": [
+              {
+                "const": "KRW"
+              },
+              {
+                "const": "USD"
+              },
+              {
+                "const": "EUR"
+              },
+              {
+                "const": "JPY"
+              }
+            ],
+            "title": "통화 정보",
+            "description": "통화 정보."
+          },
+          "tax_free": {
+            "type": "number",
+            "title": "면세 공급가액",
+            "description": "면세 공급가액.\n\n기본값은 0 로써, 알아서 amount 의 1/11 로써 부가세 처리됨."
+          },
+          "card_quota": {
+            "type": "number",
+            "title": "할부 개월 수",
+            "description": "할부 개월 수.\n\n일시불은 0."
+          },
+          "buyer_name": {
+            "type": "string"
+          },
+          "buyer_email": {
+            "type": "string",
+            "format": "email"
+          },
+          "buyer_tel": {
+            "type": "string"
+          },
+          "buyer_addr": {
+            "type": "string"
+          },
+          "buyer_postcode": {
+            "type": "string"
+          },
+          "interest_free_by_merchant": {
+            "type": "boolean",
+            "title": "카드할부처리할 때, 할부이자가 발생하는 경우 (카드사 무이자 프로모션 제외)",
+            "description": "카드할부처리할 때, 할부이자가 발생하는 경우 (카드사 무이자 프로모션 제외).\n\n부과되는 할부이자를 고객대신 가맹점이 지불하고자 PG사와 계약된 경우(현재, 나이스페이먼츠만 지원됨)"
+          },
+          "use_card_point": {
+            "type": "boolean",
+            "title": "승인요청시 카드사 포인트 차감하며 결제승인처리할지 flag",
+            "description": "승인요청시 카드사 포인트 차감하며 결제승인처리할지 flag.\n\nPG사 영업담당자와 계약 당시 사전 협의 필요(현재, 나이스페이먼츠만 지원됨)"
+          },
+          "custom_data": {
+            "type": "string",
+            "title": "임의 정보를 기재할 수 있다",
+            "description": "임의 정보를 기재할 수 있다."
+          },
+          "notice_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "결제 성공시 통지될 Notification, 웹훅 URL",
+            "description": "결제 성공시 통지될 Notification, 웹훅 URL."
+          },
+          "customer_uid": {
+            "type": "string",
+            "title": "고객 식별자 키",
+            "description": "고객 식별자 키.\n\n아임포트가 아닌, 이를 이용하는 서비스에서 자체적으로 관리하는 식별자 키.\n\n다만 고객이라기보다 실제로는 카드의 식별자 키로 써야함."
+          }
+        },
+        "required": [
+          "merchant_uid",
+          "amount",
+          "name",
+          "customer_uid"
+        ],
+        "description": "간편 결제 카드로 결제 신청 입력 정보."
+      },
+      "IIamportResponseIIamportCertification": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "title": "에러 코드",
+            "description": "에러 코드.\n\n값이 0 이면 오류가 없다는 뜻."
+          },
+          "message": {
+            "type": "string",
+            "title": "성공 또는 오류 메시지",
+            "description": "성공 또는 오류 메시지."
+          },
+          "response": {
+            "$ref": "#/components/schemas/IIamportCertification",
+            "title": "응답 데이터, 사실상 본문",
+            "description": "응답 데이터, 사실상 본문."
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "response"
+        ],
+        "description": "아임포트 고유의 응답 데이터."
+      },
+      "IIamportCertification": {
+        "type": "object",
+        "properties": {
+          "imp_uid": {
+            "type": "string",
+            "title": "아임포트가 발급해 준 식별자 번호",
+            "description": "아임포트가 발급해 준 식별자 번호."
+          },
+          "merchant_uid": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "서비스로부터의 식별자 키",
+            "description": "서비스로부터의 식별자 키.\n\n아임포트 서버가 아닌, 이를 사용하는 서비스가 자체적으로 발급하고 관리한다."
+          },
+          "name": {
+            "type": "string",
+            "title": "본인인증대상자 성명",
+            "description": "본인인증대상자 성명."
+          },
+          "gender": {
+            "type": "string",
+            "title": "성별",
+            "description": "성별."
+          },
+          "birth": {
+            "type": "number",
+            "title": "생년월일",
+            "description": "생년월일.\n\n리눅스 타임이 쓰인다."
+          },
+          "birthday": {
+            "type": "string",
+            "pattern": "^([0-9]{4})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$",
+            "title": "생년월일, YYYYMMDD 형식",
+            "description": "생년월일, YYYYMMDD 형식."
+          },
+          "foreigner": {
+            "type": "boolean",
+            "title": "외국인 여부",
+            "description": "외국인 여부."
+          },
+          "phone": {
+            "type": "string",
+            "title": "본인인증 대상자 핸드폰 번호",
+            "description": "본인인증 대상자 핸드폰 번호."
+          },
+          "carrier": {
+            "oneOf": [
+              {
+                "const": "SKT"
+              },
+              {
+                "const": "KT"
+              },
+              {
+                "const": "LGT"
+              }
+            ],
+            "title": "본인인증 대상자 통신사 코드",
+            "description": "본인인증 대상자 통신사 코드."
+          },
+          "certified": {
+            "type": "boolean",
+            "title": "OTP 인증 여부",
+            "description": "OTP 인증 여부."
+          },
+          "certified_at": {
+            "type": "number",
+            "title": "OTP 인증 일시",
+            "description": "OTP 인증 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "unique_key": {
+            "type": "string",
+            "description": "뭔지 잘 모름, 용도 아시는 분?"
+          },
+          "unique_in_site": {
+            "type": "string",
+            "description": "뭔지 잘 모름, 용도 아시는 분?"
+          },
+          "pg_tid": {
+            "type": "string",
+            "description": "뭔지 잘 모름, 용도 아시는 분?"
+          },
+          "pg_provider": {
+            "type": "string",
+            "title": "PG 제공자",
+            "description": "PG 제공자."
+          },
+          "origin": {
+            "type": "string",
+            "description": "뭔지 잘 모름, 용도 아시는 분?"
+          },
+          "__otp": {
+            "type": "string",
+            "title": "(테스트 전용) OTP 코드",
+            "description": "(테스트 전용) OTP 코드.\n\n오직 `fake-iamport-server` 에서만 쓰이는 속성으로써, 본인인증을 시뮬레이션할 때,\n어떠한 OTP 코드가 발급되었는 지를 확인하기 위하여 사용된다. 이를 이용하여\n{@link functional.certifications.otp.confirm} 함수를 호출하면, 본인인증을 완료할\n수 있다."
+          }
+        },
+        "required": [
+          "imp_uid",
+          "merchant_uid",
+          "name",
+          "gender",
+          "birth",
+          "birthday",
+          "foreigner",
+          "phone",
+          "carrier",
+          "certified",
+          "certified_at",
+          "unique_key",
+          "unique_in_site",
+          "pg_tid",
+          "pg_provider",
+          "origin"
+        ],
+        "description": "본인 인증 내역.\n\n`IIamportCertification` 은 아임포트의 본인인증 정보를 형상화한 자료구조 인터페이스이다.\n\n단, `IIamportCertification` 레코드의 존재가 곧 본인인증의 완결을 뜻하는 것은 아니다.\n{@link IIamportCertification.certified} 값이 `true` 여야만이 비로소, 본인인증\n대상자가 자신의 핸드폰 번호로 전송된 OTP 를 아임포트의 본인인증 팝업창에 정확히 적어,\n본인인증을 완료했음을 의미한다."
+      },
+      "IIamportCertification.ICreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "본인인증대상자 성명",
+            "description": "본인인증대상자 성명."
+          },
+          "phone": {
+            "type": "string",
+            "title": "본인인증 대상자 핸드폰 번호",
+            "description": "본인인증 대상자 핸드폰 번호.\n\n핸드폰 번호에 \"-\" 값이 들어가던 아니던 상관 없음.\n\n다만, 내부적으로는 \"-\" 값을 제거하여 처리한다."
+          },
+          "birth": {
+            "type": "string",
+            "pattern": "^([0-9]{4})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$",
+            "title": "생년월일",
+            "description": "생년월일.\n\nYYYYMMDD 형식."
+          },
+          "gender_digit": {
+            "type": "string",
+            "title": "주민등록 뒷부분 첫 자리",
+            "description": "주민등록 뒷부분 첫 자리."
+          },
+          "carrier": {
+            "oneOf": [
+              {
+                "const": "SKT"
+              },
+              {
+                "const": "KT"
+              },
+              {
+                "const": "LGT"
+              }
+            ],
+            "title": "본인인증 대상자 통신사 코드",
+            "description": "본인인증 대상자 통신사 코드."
+          },
+          "is_mvno": {
+            "type": "boolean",
+            "title": "알뜰폰 여부",
+            "description": "알뜰폰 여부."
+          },
+          "commpany": {
+            "type": "string",
+            "title": "가맹점 서비스 명칭 또는 domain URL",
+            "description": "가맹점 서비스 명칭 또는 domain URL.\n\nKISA 에서 대상자에게 발송하는 SMS에 안내될 서비스 명칭."
+          },
+          "merchant_uid": {
+            "type": "string",
+            "title": "귀사 서비스에서의 본인인증 식별자 키",
+            "description": "귀사 서비스에서의 본인인증 식별자 키.\n\n아임포트 서버가 아닌, 이를 사용하는 서비스가 자체적으로 발급하고 관리한다."
+          },
+          "pg": {
+            "type": "string",
+            "title": "PG 사 구분자",
+            "description": "PG 사 구분자.\n\n다날 상점아이디를 2개 이상 동시에 사용하시려는 경우에 설정하면 된다.\n\n**danal.{상점아이디}** 형태로 지정."
+          }
+        },
+        "required": [
+          "name",
+          "phone",
+          "birth",
+          "gender_digit",
+          "carrier"
+        ],
+        "description": "본인 인증 입력 정보."
+      },
+      "IIamportResponseIIamportCertification.IAccessor": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "title": "에러 코드",
+            "description": "에러 코드.\n\n값이 0 이면 오류가 없다는 뜻."
+          },
+          "message": {
+            "type": "string",
+            "title": "성공 또는 오류 메시지",
+            "description": "성공 또는 오류 메시지."
+          },
+          "response": {
+            "$ref": "#/components/schemas/IIamportCertification.IAccessor",
+            "title": "응답 데이터, 사실상 본문",
+            "description": "응답 데이터, 사실상 본문."
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "response"
+        ],
+        "description": "아임포트 고유의 응답 데이터."
+      },
+      "IIamportCertification.IAccessor": {
+        "type": "object",
+        "properties": {
+          "imp_uid": {
+            "type": "string",
+            "title": "본인인증정보의 식별자 키",
+            "description": "본인인증정보의 식별자 키."
+          }
+        },
+        "required": [
+          "imp_uid"
+        ],
+        "description": "본인인증 정보의 접근자 구조체."
+      },
+      "IIamportCertification.IConfirm": {
+        "type": "object",
+        "properties": {
+          "otp": {
+            "type": "string",
+            "title": "SMS 로 전송된 본인인증 번호",
+            "description": "SMS 로 전송된 본인인증 번호."
+          }
+        },
+        "required": [
+          "otp"
+        ],
+        "description": "본인인증 승인을 위한 입력 정보."
+      },
+      "IIamportPayment.IWebhook": {
+        "type": "object",
+        "properties": {
+          "imp_uid": {
+            "type": "string",
+            "title": "결제 정보 {@link IIamportPayment} 의 식별자 키",
+            "description": "결제 정보 {@link IIamportPayment} 의 식별자 키."
+          },
+          "merchant_uid": {
+            "type": "string",
+            "title": "주문 식별자 키",
+            "description": "주문 식별자 키.\n\n아임포트 서버가 아닌, 이를 사용하는 서비스가 자체적으로 발급하고 관리한다."
+          },
+          "status": {
+            "oneOf": [
+              {
+                "const": "paid"
+              },
+              {
+                "const": "ready"
+              },
+              {
+                "const": "failed"
+              },
+              {
+                "const": "cancelled"
+              }
+            ],
+            "title": "현재 상태",
+            "description": "현재 상태."
+          }
+        },
+        "required": [
+          "imp_uid",
+          "merchant_uid",
+          "status"
+        ],
+        "description": "웹훅 데이터."
+      },
+      "IIamportPayment.IQuery": {
+        "type": "object",
+        "properties": {
+          "extension": {
+            "type": "boolean",
+            "title": "페이팔의 경우, 이 값을 `true` 로 할 것",
+            "description": "페이팔의 경우, 이 값을 `true` 로 할 것."
+          }
+        },
+        "description": "결제 수단이 페이팔인 경우, 페이팔의 구매자 보호정책에 의해 결제 승인 시점에\nPending 상태를 만든 후, 내부 심사등을 통해 최종 결제 완료라고 변경함.\n\n`iamport` 의 기술적 이슈로 해당 상태를 status: failed 로 기록함. 추후\n페이팔에서 최종결제완료로 변경된 경우, `iamport` 에서 `paid` 로 변경 후,\n해당건에 대한 웹훅 발송. `iamport` 를 사용하는 고객사에서는, failed 로 이미\n처리된 결제건에 대한 paid 상태의 웹훅을 받는 문제점이 생김.\n\n이에, `iamport` 에서 제공하는 `/payment/{imp_uid}` 에 query-string 으로\n`extension=true` 옵션을 추가해야 함"
+      },
+      "IIamportResponseIIamportPayment": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "title": "에러 코드",
+            "description": "에러 코드.\n\n값이 0 이면 오류가 없다는 뜻."
+          },
+          "message": {
+            "type": "string",
+            "title": "성공 또는 오류 메시지",
+            "description": "성공 또는 오류 메시지."
+          },
+          "response": {
+            "$ref": "#/components/schemas/IIamportPayment",
+            "title": "응답 데이터, 사실상 본문",
+            "description": "응답 데이터, 사실상 본문."
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "response"
+        ],
+        "description": "아임포트 고유의 응답 데이터."
+      },
+      "IIamportPayment": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/IIamportCardPayment"
+          },
+          {
+            "$ref": "#/components/schemas/IIamportTransferPayment"
+          },
+          {
+            "$ref": "#/components/schemas/IIamportVBankPayment"
+          },
+          {
+            "$ref": "#/components/schemas/IIamportPayment.IBasephonekpaykakaopaypaycolpayssgpaytosspayculturelandsmartculturehappymoneybooknlifepoint"
+          }
+        ],
+        "description": "결제 정보.\n\n`IIamportPayment` 는 아임포트의 결제 정보를 형상화한 자료구조이자 유니언 타입의\n인터페이스로써, if condition 을 통하여 method 값을 특정하면, 파생 타입이 자동으로\n지정된다.\n\n```typescript\nif (payment.pay_method === \"card\")\n   payment.card_number; // payment be IIamportCardPayment\n```"
+      },
+      "IIamportTransferPayment": {
+        "type": "object",
+        "properties": {
+          "bank_code": {
+            "type": "string",
+            "title": "은행 식별자 코드",
+            "description": "은행 식별자 코드."
+          },
+          "bank_name": {
+            "type": "string",
+            "title": "은행 이름",
+            "description": "은행 이름."
+          },
+          "pay_method": {
+            "const": "trans"
+          },
+          "imp_uid": {
+            "type": "string",
+            "title": "결제 정보 {@link IIamportPayment} 의 식별자 키",
+            "description": "결제 정보 {@link IIamportPayment} 의 식별자 키."
+          },
+          "merchant_uid": {
+            "type": "string",
+            "title": "주문 식별자 키",
+            "description": "주문 식별자 키.\n\n아임포트 서버가 아닌, 이를 사용하는 서비스가 자체적으로 발급하고 관리한다."
+          },
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "주문명, 누락 가능",
+            "description": "주문명, 누락 가능."
+          },
+          "amount": {
+            "type": "number",
+            "title": "결제 총액",
+            "description": "결제 총액."
+          },
+          "cancel_amount": {
+            "type": "number",
+            "title": "결제 취소, 환불 총액",
+            "description": "결제 취소, 환불 총액."
+          },
+          "currency": {
+            "$ref": "#/components/schemas/IIamportPayment.Currency",
+            "title": "통화 단위",
+            "description": "통화 단위."
+          },
+          "receipt_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "영수증 URL",
+            "description": "영수증 URL."
+          },
+          "cash_receipt_issue": {
+            "type": "boolean",
+            "title": "현금 영수증 발행 여부",
+            "description": "현금 영수증 발행 여부."
+          },
+          "channel": {
+            "type": "string"
+          },
+          "pg_provider": {
+            "type": "string"
+          },
+          "emb_pg_provider": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "pg_id": {
+            "type": "string"
+          },
+          "pg_tid": {
+            "type": "string"
+          },
+          "escrow": {
+            "type": "boolean"
+          },
+          "buyer_name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "email"
+              }
+            ]
+          },
+          "buyer_tel": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_addr": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_postcode": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_uid": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_uid_usage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "custom_data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "user_agent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/IIamportPayment.Status",
+            "title": "결제의 현재 (진행) 상태",
+            "description": "결제의 현재 (진행) 상태."
+          },
+          "started_at": {
+            "type": "number",
+            "title": "결제 신청 일시",
+            "description": "결제 신청 일시.\n\n리눅스 타임이 쓰임."
+          },
+          "paid_at": {
+            "type": "number",
+            "title": "결제 (지불) 완료 일시",
+            "description": "결제 (지불) 완료 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "failed_at": {
+            "type": "number",
+            "title": "결제 실패 일시",
+            "description": "결제 실패 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "cancelled_at": {
+            "type": "number",
+            "title": "결제 취소 일시",
+            "description": "결제 취소 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "fail_reason": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "cancel_reason": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "cancel_history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IIamportPaymentCancel"
+            }
+          }
+        },
+        "required": [
+          "bank_code",
+          "bank_name",
+          "pay_method",
+          "imp_uid",
+          "merchant_uid",
+          "name",
+          "amount",
+          "cancel_amount",
+          "currency",
+          "receipt_url",
+          "cash_receipt_issue",
+          "channel",
+          "pg_provider",
+          "emb_pg_provider",
+          "pg_id",
+          "pg_tid",
+          "escrow",
+          "buyer_name",
+          "buyer_email",
+          "buyer_tel",
+          "buyer_addr",
+          "buyer_postcode",
+          "customer_uid",
+          "customer_uid_usage",
+          "custom_data",
+          "user_agent",
+          "status",
+          "started_at",
+          "paid_at",
+          "failed_at",
+          "cancelled_at",
+          "fail_reason",
+          "cancel_reason",
+          "cancel_history"
+        ],
+        "description": "계좌 이체 결제 정보."
+      },
+      "IIamportVBankPayment": {
+        "type": "object",
+        "properties": {
+          "vbank_code": {
+            "type": "string",
+            "title": "가상 계좌 식별자 코드",
+            "description": "가상 계좌 식별자 코드."
+          },
+          "vbank_name": {
+            "type": "string",
+            "description": "가상 게좌 이름"
+          },
+          "vbank_num": {
+            "type": "string",
+            "description": "가상 계좌 번호"
+          },
+          "vbank_holder": {
+            "type": "string",
+            "title": "가상 계좌 예금주",
+            "description": "가상 계좌 예금주."
+          },
+          "vbank_date": {
+            "type": "number",
+            "title": "가상 계좌 입금 만료 기한",
+            "description": "가상 계좌 입금 만료 기한."
+          },
+          "vbank_issued_at": {
+            "type": "number",
+            "title": "가상 계좌 개설 일시",
+            "description": "가상 계좌 개설 일시."
+          },
+          "pay_method": {
+            "const": "vbank"
+          },
+          "imp_uid": {
+            "type": "string",
+            "title": "결제 정보 {@link IIamportPayment} 의 식별자 키",
+            "description": "결제 정보 {@link IIamportPayment} 의 식별자 키."
+          },
+          "merchant_uid": {
+            "type": "string",
+            "title": "주문 식별자 키",
+            "description": "주문 식별자 키.\n\n아임포트 서버가 아닌, 이를 사용하는 서비스가 자체적으로 발급하고 관리한다."
+          },
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "주문명, 누락 가능",
+            "description": "주문명, 누락 가능."
+          },
+          "amount": {
+            "type": "number",
+            "title": "결제 총액",
+            "description": "결제 총액."
+          },
+          "cancel_amount": {
+            "type": "number",
+            "title": "결제 취소, 환불 총액",
+            "description": "결제 취소, 환불 총액."
+          },
+          "currency": {
+            "$ref": "#/components/schemas/IIamportPayment.Currency",
+            "title": "통화 단위",
+            "description": "통화 단위."
+          },
+          "receipt_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "영수증 URL",
+            "description": "영수증 URL."
+          },
+          "cash_receipt_issue": {
+            "type": "boolean",
+            "title": "현금 영수증 발행 여부",
+            "description": "현금 영수증 발행 여부."
+          },
+          "channel": {
+            "type": "string"
+          },
+          "pg_provider": {
+            "type": "string"
+          },
+          "emb_pg_provider": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "pg_id": {
+            "type": "string"
+          },
+          "pg_tid": {
+            "type": "string"
+          },
+          "escrow": {
+            "type": "boolean"
+          },
+          "buyer_name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "email"
+              }
+            ]
+          },
+          "buyer_tel": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_addr": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_postcode": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_uid": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_uid_usage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "custom_data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "user_agent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/IIamportPayment.Status",
+            "title": "결제의 현재 (진행) 상태",
+            "description": "결제의 현재 (진행) 상태."
+          },
+          "started_at": {
+            "type": "number",
+            "title": "결제 신청 일시",
+            "description": "결제 신청 일시.\n\n리눅스 타임이 쓰임."
+          },
+          "paid_at": {
+            "type": "number",
+            "title": "결제 (지불) 완료 일시",
+            "description": "결제 (지불) 완료 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "failed_at": {
+            "type": "number",
+            "title": "결제 실패 일시",
+            "description": "결제 실패 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "cancelled_at": {
+            "type": "number",
+            "title": "결제 취소 일시",
+            "description": "결제 취소 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "fail_reason": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "cancel_reason": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "cancel_history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IIamportPaymentCancel"
+            }
+          }
+        },
+        "required": [
+          "vbank_code",
+          "vbank_name",
+          "vbank_num",
+          "vbank_holder",
+          "vbank_date",
+          "vbank_issued_at",
+          "pay_method",
+          "imp_uid",
+          "merchant_uid",
+          "name",
+          "amount",
+          "cancel_amount",
+          "currency",
+          "receipt_url",
+          "cash_receipt_issue",
+          "channel",
+          "pg_provider",
+          "emb_pg_provider",
+          "pg_id",
+          "pg_tid",
+          "escrow",
+          "buyer_name",
+          "buyer_email",
+          "buyer_tel",
+          "buyer_addr",
+          "buyer_postcode",
+          "customer_uid",
+          "customer_uid_usage",
+          "custom_data",
+          "user_agent",
+          "status",
+          "started_at",
+          "paid_at",
+          "failed_at",
+          "cancelled_at",
+          "fail_reason",
+          "cancel_reason",
+          "cancel_history"
+        ],
+        "description": "가상 계좌 결제 정보."
+      },
+      "IIamportPayment.IBasephonekpaykakaopaypaycolpayssgpaytosspayculturelandsmartculturehappymoneybooknlifepoint": {
+        "type": "object",
+        "properties": {
+          "pay_method": {
+            "oneOf": [
+              {
+                "const": "phone"
+              },
+              {
+                "const": "kpay"
+              },
+              {
+                "const": "kakaopay"
+              },
+              {
+                "const": "payco"
+              },
+              {
+                "const": "lpay"
+              },
+              {
+                "const": "ssgpay"
+              },
+              {
+                "const": "tosspay"
+              },
+              {
+                "const": "cultureland"
+              },
+              {
+                "const": "smartculture"
+              },
+              {
+                "const": "happymoney"
+              },
+              {
+                "const": "booknlife"
+              },
+              {
+                "const": "point"
+              }
+            ]
+          },
+          "imp_uid": {
+            "type": "string",
+            "title": "결제 정보 {@link IIamportPayment} 의 식별자 키",
+            "description": "결제 정보 {@link IIamportPayment} 의 식별자 키."
+          },
+          "merchant_uid": {
+            "type": "string",
+            "title": "주문 식별자 키",
+            "description": "주문 식별자 키.\n\n아임포트 서버가 아닌, 이를 사용하는 서비스가 자체적으로 발급하고 관리한다."
+          },
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "주문명, 누락 가능",
+            "description": "주문명, 누락 가능."
+          },
+          "amount": {
+            "type": "number",
+            "title": "결제 총액",
+            "description": "결제 총액."
+          },
+          "cancel_amount": {
+            "type": "number",
+            "title": "결제 취소, 환불 총액",
+            "description": "결제 취소, 환불 총액."
+          },
+          "currency": {
+            "$ref": "#/components/schemas/IIamportPayment.Currency",
+            "title": "통화 단위",
+            "description": "통화 단위."
+          },
+          "receipt_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "영수증 URL",
+            "description": "영수증 URL."
+          },
+          "cash_receipt_issue": {
+            "type": "boolean",
+            "title": "현금 영수증 발행 여부",
+            "description": "현금 영수증 발행 여부."
+          },
+          "channel": {
+            "type": "string"
+          },
+          "pg_provider": {
+            "type": "string"
+          },
+          "emb_pg_provider": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "pg_id": {
+            "type": "string"
+          },
+          "pg_tid": {
+            "type": "string"
+          },
+          "escrow": {
+            "type": "boolean"
+          },
+          "buyer_name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "email"
+              }
+            ]
+          },
+          "buyer_tel": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_addr": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "buyer_postcode": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_uid": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "customer_uid_usage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "custom_data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "user_agent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/IIamportPayment.Status",
+            "title": "결제의 현재 (진행) 상태",
+            "description": "결제의 현재 (진행) 상태."
+          },
+          "started_at": {
+            "type": "number",
+            "title": "결제 신청 일시",
+            "description": "결제 신청 일시.\n\n리눅스 타임이 쓰임."
+          },
+          "paid_at": {
+            "type": "number",
+            "title": "결제 (지불) 완료 일시",
+            "description": "결제 (지불) 완료 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "failed_at": {
+            "type": "number",
+            "title": "결제 실패 일시",
+            "description": "결제 실패 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "cancelled_at": {
+            "type": "number",
+            "title": "결제 취소 일시",
+            "description": "결제 취소 일시.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          },
+          "fail_reason": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "cancel_reason": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "cancel_history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IIamportPaymentCancel"
+            }
+          }
+        },
+        "required": [
+          "pay_method",
+          "imp_uid",
+          "merchant_uid",
+          "name",
+          "amount",
+          "cancel_amount",
+          "currency",
+          "receipt_url",
+          "cash_receipt_issue",
+          "channel",
+          "pg_provider",
+          "emb_pg_provider",
+          "pg_id",
+          "pg_tid",
+          "escrow",
+          "buyer_name",
+          "buyer_email",
+          "buyer_tel",
+          "buyer_addr",
+          "buyer_postcode",
+          "customer_uid",
+          "customer_uid_usage",
+          "custom_data",
+          "user_agent",
+          "status",
+          "started_at",
+          "paid_at",
+          "failed_at",
+          "cancelled_at",
+          "fail_reason",
+          "cancel_reason",
+          "cancel_history"
+        ],
+        "description": "결제 기본 (공통) 정보."
+      },
+      "IIamportPaymentCancel.ICreate": {
+        "type": "object",
+        "properties": {
+          "imp_uid": {
+            "type": "string",
+            "title": "결제 정보 {@link IIamportPayment} 의 식별자 키",
+            "description": "결제 정보 {@link IIamportPayment} 의 식별자 키."
+          },
+          "merchant_uid": {
+            "type": "string",
+            "title": "주문 식별자 키",
+            "description": "주문 식별자 키.\n\n아임포트 서버가 아닌, 이를 사용하는 서비스가 자체적으로 발급하고 관리한다."
+          },
+          "amount": {
+            "type": "number",
+            "title": "취소 금액, 부분 취소도 가능하다",
+            "description": "취소 금액, 부분 취소도 가능하다.\n\n누락시 전액 취소."
+          },
+          "checksum": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              }
+            ],
+            "title": "취소 트랜잭션 수행 전, 현재 시점의 취소 가능한 잔액",
+            "description": "취소 트랜잭션 수행 전, 현재 시점의 취소 가능한 잔액.\n\nAPI요청자가 기록하고 있는 취소가능 잔액과 아임포트가 기록하고 있는 취소가능 잔액이\n일치하는지 사전에 검증하고, 검증에 실패하면 트랜잭션을 수행하지 않는다.\n\n`null` 인 경우에는 검증 프로세스를 생략."
+          },
+          "reason": {
+            "type": "string",
+            "title": "취소 사유",
+            "description": "취소 사유."
+          },
+          "tax_free": {
+            "type": "number",
+            "title": "취소요청금액 중 면세금액",
+            "description": "취소요청금액 중 면세금액."
+          },
+          "refund_holder": {
+            "type": "string",
+            "title": "환불계좌 예금주",
+            "description": "환불계좌 예금주."
+          },
+          "refund_bank": {
+            "type": "string",
+            "title": "환불계좌 은행 코드",
+            "description": "환불계좌 은행 코드."
+          },
+          "refund_account": {
+            "type": "string",
+            "title": "환불계좌 계좌번호",
+            "description": "환불계좌 계좌번호."
+          },
+          "refund_tel": {
+            "type": "string",
+            "description": "환불계좌 예금주 연락처"
+          }
+        },
+        "required": [
+          "imp_uid",
+          "merchant_uid",
+          "checksum",
+          "reason"
+        ],
+        "description": "결제 취소 입력 정보."
+      },
+      "IIamportResponseIIamportReceipt": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "title": "에러 코드",
+            "description": "에러 코드.\n\n값이 0 이면 오류가 없다는 뜻."
+          },
+          "message": {
+            "type": "string",
+            "title": "성공 또는 오류 메시지",
+            "description": "성공 또는 오류 메시지."
+          },
+          "response": {
+            "$ref": "#/components/schemas/IIamportReceipt",
+            "title": "응답 데이터, 사실상 본문",
+            "description": "응답 데이터, 사실상 본문."
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "response"
+        ],
+        "description": "아임포트 고유의 응답 데이터."
+      },
+      "IIamportReceipt": {
+        "type": "object",
+        "properties": {
+          "imp_uid": {
+            "type": "string",
+            "title": "귀속 결제의 {@link IIamportPayment.imp_uid}",
+            "description": "귀속 결제의 {@link IIamportPayment.imp_uid}."
+          },
+          "receipt_uid": {
+            "type": "string",
+            "title": "현금 영수증의 고유 식별자 ID",
+            "description": "현금 영수증의 고유 식별자 ID."
+          },
+          "apply_num": {
+            "type": "string",
+            "title": "승인 번호",
+            "description": "승인 번호."
+          },
+          "type": {
+            "$ref": "#/components/schemas/IIamportReceipt.Type",
+            "title": "발행 타입 (대상)",
+            "description": "발행 타입 (대상)."
+          },
+          "amount": {
+            "type": "number",
+            "title": "결제 총액",
+            "description": "결제 총액."
+          },
+          "vat": {
+            "type": "number",
+            "title": "부가세",
+            "description": "부가세."
+          },
+          "receipt_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "현금영수증 조회 URL",
+            "description": "현금영수증 조회 URL."
+          },
+          "applied_at": {
+            "type": "number",
+            "title": "현금영수증 발행 시간",
+            "description": "현금영수증 발행 시간."
+          },
+          "cancelled_at": {
+            "type": "number",
+            "title": "현금영수증 취소 시간",
+            "description": "현금영수증 취소 시간.\n\n리눅스 타임이 쓰이며, `null` 대신 0 을 씀."
+          }
+        },
+        "required": [
+          "imp_uid",
+          "receipt_uid",
+          "apply_num",
+          "type",
+          "amount",
+          "vat",
+          "receipt_url",
+          "applied_at",
+          "cancelled_at"
+        ],
+        "description": "현금 영수증 정보."
+      },
+      "IIamportReceipt.Type": {
+        "oneOf": [
+          {
+            "const": "person"
+          },
+          {
+            "const": "company"
+          }
+        ],
+        "description": "현금영수증 발행 타입 (대상)."
+      },
+      "IIamportReceipt.ICreate": {
+        "type": "object",
+        "properties": {
+          "imp_uid": {
+            "type": "string",
+            "title": "귀속 결제의 {@link IIamportPayment.imp_uid}",
+            "description": "귀속 결제의 {@link IIamportPayment.imp_uid}."
+          },
+          "identifier": {
+            "type": "string",
+            "title": "현금영수증 발생대상 식별정보",
+            "description": "현금영수증 발생대상 식별정보.\n\n  - 국세청현금영수증카드\n  - 휴대폰번호\n  - 주민등록번호\n  - 사업자등록번호"
+          },
+          "identifier_type": {
+            "oneOf": [
+              {
+                "const": "phone"
+              },
+              {
+                "const": "person"
+              },
+              {
+                "const": "business"
+              },
+              {
+                "const": "taxcard"
+              }
+            ],
+            "title": "현금영수증 발행대상 유형",
+            "description": "현금영수증 발행대상 유형.\n\n - person: 주민등록번호\n - business: 사업자등록번호\n - phone: 휴대폰번호\n - taxcard: 국세청현금영수증카드\n\n일부 PG 사의 경우 이 항목이 없어 된다는데, 어지간하면 그냥 쓰기 바람."
+          },
+          "type": {
+            "oneOf": [
+              {
+                "const": "person"
+              },
+              {
+                "const": "company"
+              }
+            ],
+            "title": "현금영수증 발행 타입 (대상)",
+            "description": "현금영수증 발행 타입 (대상).\n\n누락시 person 이 사용됨."
+          },
+          "buyer_name": {
+            "type": "string",
+            "title": "구매자 이름",
+            "description": "구매자 이름.\n\n형금영수증 발행건 사후 추적을 위해 가급 입력하기 바람."
+          },
+          "buyer_email": {
+            "type": "string",
+            "title": "구매자 이메일",
+            "description": "구매자 이메일."
+          },
+          "buyer_tel": {
+            "type": "string",
+            "title": "구매자 전화번호",
+            "description": "구매자 전화번호.\n\n현금영수증 발행건 사후 추적을 위해 가급 입력하기 바람."
+          },
+          "tax_free": {
+            "type": "number",
+            "title": "면세 금액",
+            "description": "면세 금액."
+          }
+        },
+        "required": [
+          "imp_uid",
+          "identifier"
+        ],
+        "description": "현금영수증 입력 정보."
+      },
+      "IIamportUser.IAccessor": {
+        "type": "object",
+        "properties": {
+          "imp_key": {
+            "type": "string",
+            "title": "API 키",
+            "description": "API 키."
+          },
+          "imp_secret": {
+            "type": "string",
+            "title": "Secret 키",
+            "description": "Secret 키."
+          }
+        },
+        "required": [
+          "imp_key",
+          "imp_secret"
+        ],
+        "description": "아임포트에서 부여해 준 API 및 secret 키."
+      },
+      "IIamportResponseIIamportUser": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "title": "에러 코드",
+            "description": "에러 코드.\n\n값이 0 이면 오류가 없다는 뜻."
+          },
+          "message": {
+            "type": "string",
+            "title": "성공 또는 오류 메시지",
+            "description": "성공 또는 오류 메시지."
+          },
+          "response": {
+            "$ref": "#/components/schemas/IIamportUser",
+            "title": "응답 데이터, 사실상 본문",
+            "description": "응답 데이터, 사실상 본문."
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "response"
+        ],
+        "description": "아임포트 고유의 응답 데이터."
+      },
+      "IIamportUser": {
+        "type": "object",
+        "properties": {
+          "now": {
+            "type": "number",
+            "title": "토큰 발행 시간",
+            "description": "토큰 발행 시간."
+          },
+          "expired_at": {
+            "type": "number",
+            "title": "토큰 만료 시간",
+            "description": "토큰 만료 시간.\n\n리눅스 타임이 기준이며, 이를 JS 에서 사용하려거든, 아래와 같이 변환해야 한다.\n\n```typescript\nnew Date(user.expired_at * 1_000);\n```"
+          },
+          "access_token": {
+            "type": "string",
+            "title": "유저 인증 토큰",
+            "description": "유저 인증 토큰."
+          }
+        },
+        "required": [
+          "now",
+          "expired_at",
+          "access_token"
+        ],
+        "description": "아임포트 유저 인증 정보.\n\n아임포트는 고객사에게 API 및 secret 키 정보, {@link IIamportUser.IAccessor} 를 발급해준다.\n\n하지만 이를 곧장 아임포트의 유저 인증에 사용할 수는 없고, 해당 API 및 secret 키를 토대로 유저\n인증 토큰을 발급받아야 하는데, 이 유저 인증 토큰에는 하필이면 만로 시간이라는 게 존재한다.\n`IIamportUser` 는 바로 이러한 유저 인증 토큰 및 그것의 만료 시간을 형상화한 자료구조\n인터페이스이다.\n\n더하여 이처럼 만료 시간이 존재하는 아임포트의 유저 인증 토큰의 특성상, 이것의 만료 시간이\n초과되지 않도록 관리하는 것은 매우 힘든 일이다. 이에 `iamport-server-api` 에서는 아임포트\n유저 인증 토큰이 만료될 때마다 자동 갱신해주는, {@link IamportConnector} 클래스를 제공한다."
+      },
+      "IIamportVBankPayment.ICreate": {
+        "type": "object",
+        "properties": {
+          "merchant_uid": {
+            "type": "string",
+            "title": "주문 식별자 키",
+            "description": "주문 식별자 키.\n\n아임포트 서버가 아닌, 이를 사용하는 서비스가 자체적으로 발급하고 관리한다."
+          },
+          "amount": {
+            "type": "number",
+            "title": "총액",
+            "description": "총액."
+          },
+          "vbank_code": {
+            "type": "string",
+            "title": "가상계좌 은행 코드",
+            "description": "가상계좌 은행 코드."
+          },
+          "vbank_due": {
+            "type": "number",
+            "title": "가상계좌 입금기한, 유닉스 타임",
+            "description": "가상계좌 입금기한, 유닉스 타임."
+          },
+          "vbank_holder": {
+            "type": "string",
+            "title": "예금주",
+            "description": "예금주."
+          },
+          "name": {
+            "type": "string"
+          },
+          "buyer_name": {
+            "type": "string"
+          },
+          "buyer_email": {
+            "type": "string"
+          },
+          "buyer_tel": {
+            "type": "string"
+          },
+          "buyer_addr": {
+            "type": "string"
+          },
+          "buyer_postcode": {
+            "type": "string"
+          },
+          "pg": {
+            "type": "string"
+          },
+          "notice_url": {
+            "type": "string",
+            "title": "가상 계좌 입금 정보를 수신할 URL",
+            "description": "가상 계좌 입금 정보를 수신할 URL.\n\n누락시 기본 웹훅 URL 사용."
+          },
+          "custom_data": {
+            "type": "string",
+            "title": "커스텀 데이터, 자유롭게 사용 가능",
+            "description": "커스텀 데이터, 자유롭게 사용 가능."
+          },
+          "pg_api_key": {
+            "type": "string",
+            "title": "[이니시스 전용] 가맹점 콘솔에서 확인한 API 값",
+            "description": "[이니시스 전용] 가맹점 콘솔에서 확인한 API 값."
+          }
+        },
+        "required": [
+          "merchant_uid",
+          "amount",
+          "vbank_code",
+          "vbank_due",
+          "vbank_holder"
+        ],
+        "description": "가상 계좌 결제 입력 정보.\n\n가상 계좌를 임의 생성할 수 있다.\n\n단, 일부 PG 사 혹은 `fake-iamport-server` 만 가능.\n\n  - 세틀뱅크\n  - 나이스페이먼츠\n  - KG이니시스"
+      },
+      "IIamportResponseIIamportVBankPayment": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "title": "에러 코드",
+            "description": "에러 코드.\n\n값이 0 이면 오류가 없다는 뜻."
+          },
+          "message": {
+            "type": "string",
+            "title": "성공 또는 오류 메시지",
+            "description": "성공 또는 오류 메시지."
+          },
+          "response": {
+            "$ref": "#/components/schemas/IIamportVBankPayment",
+            "title": "응답 데이터, 사실상 본문",
+            "description": "응답 데이터, 사실상 본문."
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "response"
+        ],
+        "description": "아임포트 고유의 응답 데이터."
+      },
+      "IIamportVBankPayment.IUpdate": {
+        "type": "object",
+        "properties": {
+          "imp_uid": {
+            "type": "string",
+            "title": "대상 결제 기록의 {@link IIamportPayment.imp_uid}",
+            "description": "대상 결제 기록의 {@link IIamportPayment.imp_uid}."
+          },
+          "amount": {
+            "type": "number",
+            "title": "수정할 결제 금액",
+            "description": "수정할 결제 금액."
+          },
+          "vbank_due": {
+            "type": "number",
+            "title": "수정할 가상계좌 입금 기한",
+            "description": "수정할 가상계좌 입금 기한."
+          }
+        },
+        "required": [
+          "imp_uid"
+        ],
+        "description": "가상 계좌 결제의 수정 입력 정보.\n\n아직 입금되지 않은 가상계좌의 입금기한 또는 입금금액을 수정할 수 있다.\n\n다만, 세틀뱅크 혹은 `fake-iamport-server` 만 가능."
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "tags": [],
+  "x-samchon-emended": true
+}
