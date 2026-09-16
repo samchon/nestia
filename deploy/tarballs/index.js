@@ -15,10 +15,7 @@ const build = (name) => {
   }
 
   console.log("Building package (tgz):", name);
-  // Lifecycle hooks are disabled on purpose: root `package:prepare` already
-  // built every package, so packing must only archive what is on disk.
-  // (`pnpm pack` has no `--ignore-scripts` flag; the config form is honored.)
-  cp.execSync("pnpm --config.ignore-scripts=true pack", {
+  cp.execSync("pnpm pack", {
     stdio: "inherit",
     cwd: packageDir,
   });

@@ -10,9 +10,9 @@
     "test:go": "pnpm --filter @nestia/core --filter @nestia/sdk -r run test:go && cd packages/core/native && go test ./...",
     "test": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" pnpm build && cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" pnpm test:go && cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" pnpm --filter=./tests/test-* --workspace-concurrency=1 -r start",
     "package:prepare": "pnpm build && node deploy/copy-readme.cjs",
-    "package:latest": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --ignore-scripts --tag latest",
-    "package:next": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --ignore-scripts --tag next",
-    "package:rc": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --ignore-scripts --tag rc",
+    "package:latest": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --tag latest",
+    "package:next": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --tag next",
+    "package:rc": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --tag rc",
     "package:tgz": "pnpm package:prepare && node deploy/tarballs",
     "release": "rimraf packages/migrate/assets && bumpp -r"
   },
