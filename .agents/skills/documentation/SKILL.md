@@ -7,7 +7,7 @@ description: Defines README, website-guide, and agent-instruction structure, aud
 
 ## The Root README Is The Only README
 
-`README.md` at the repository root is the single hand-maintained README. The root `package:prepare` script builds every package and then runs `deploy/copy-readme.cjs` once, which copies it into all eight `packages/*` directories; every `package:latest`, `package:next`, `package:rc`, and `package:tgz` run starts with that step, so published tarballs always ship it, including in CI. `.gitignore` excludes `packages/*/README.md` so no package carries a tracked copy. Never hand-write a package README expecting it to survive: edit the root README instead, and let the packaging step distribute it.
+`README.md` at the repository root is the single hand-maintained README. The root `package:prepare` script regenerates the migrate bundles, builds every package, and then runs `deploy/copy-readme.cjs` once, which copies it into all eight `packages/*` directories; every `package:latest`, `package:next`, `package:rc`, and `package:tgz` run starts with that step, so published tarballs always ship it, including in CI. `.gitignore` excludes `packages/*/README.md` so no package carries a tracked copy. Never hand-write a package README expecting it to survive: edit the root README instead, and let the packaging step distribute it.
 
 Because one file serves every package, keep it oriented to the reader arriving at any one of them: what nestia is, the feature list per package, installation, the smallest working setup, and links onward to the guides. Move deep explanations into the website guides rather than growing the README to cover them.
 
