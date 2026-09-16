@@ -19,7 +19,7 @@
     "@typia/interface": "catalog:samchon",
     "@typia/utils": "catalog:samchon",
     "express": "^4.21.1",
-    "fastify": "^4.0.0",
+    "fastify": "^5.12.1",
     "fastify-multer": "^2.0.3",
     "multer": "^2.0.2",
     "rxjs": "catalog:nestjs",
