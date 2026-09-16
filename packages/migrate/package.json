@@ -14,7 +14,6 @@
     "build": "rimraf lib && ttsc && tsc --emitDeclarationOnly && rolldown -c && node ../../deploy/verify-package-exports.cjs --esm",
     "bundle": "node src/executable/bundle.js",
     "dev": "rimraf lib && ttsc --watch",
-    "prepack": "pnpm run build",
     "prepare": "pnpm run bundle",
     "test": "node lib/test"
   },

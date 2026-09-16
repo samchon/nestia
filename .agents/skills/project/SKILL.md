@@ -63,7 +63,7 @@ Five of them additionally set `TTSC_GO_BINARY=go` and pin `TTSC_CACHE_DIR` so th
 - `config/`: `@nestia/config`, the private workspace holding the shared rolldown and tsconfig build configuration.
 - `benchmark/`: `@samchon/nestia-benchmark`, the private measurement workspace, with committed per-CPU results under `benchmark/results/**`. See `.agents/skills/benchmark/SKILL.md`.
 - `website/`: the Nextra site published at https://nestia.io, with guides under `website/src/content/docs/**`. See `.agents/skills/documentation/SKILL.md`.
-- `deploy/`: release scripts — `tarballs/index.js` (topologically ordered `pnpm pack`), `README.bash` (distributes the root README), `release-guard.cjs` (release context and version uniformity), and `verify-package-exports.cjs` (proves every `main`, `types`, `bin`, and `exports` leaf resolves).
+- `deploy/`: release scripts — `tarballs/index.js` (topologically ordered `pnpm pack`), `copy-readme.cjs` (copies the root README into every `packages/*` directory; root `package:prepare` runs it after the full build), `release-guard.cjs` (release context and version uniformity), and `verify-package-exports.cjs` (proves every `main`, `types`, `bin`, and `exports` leaf resolves).
 
 ## Commands
 
@@ -84,4 +84,4 @@ pnpm test
 
 Keep those targets in one invocation. A chained `&&` lets an unmatched pattern silently drop every target after it: the script once chained three invocations, the second over an `internals/**/*.ts` directory that does not exist, and because Prettier exits 2 on a glob that matches nothing, `tests/**/*.ts` was never formatted at all.
 
-Release-time commands (most contributors skip these): `pnpm package:rc`, `pnpm package:next`, `pnpm package:latest`, and `pnpm release`. `pnpm package:tgz` stages local tarballs in `deploy/tarballs/`, which the website build then installs. See `.agents/skills/pull-request/SKILL.md` for the remote delivery flow.
+Release-time commands (most contributors skip these): `pnpm package:rc`, `pnpm package:next`, `pnpm package:latest`, and `pnpm release`. Every `package:*` command first runs `package:prepare`, which builds all packages and copies the root README into each of them, and only then publishes or packs; no package has a `prepack` hook, so a build failure aborts before anything is published rather than after some packages already went out. `pnpm package:tgz` stages local tarballs in `deploy/tarballs/`, which the website build then installs. See `.agents/skills/pull-request/SKILL.md` for the remote delivery flow.

@@ -21,7 +21,6 @@
   "scripts": {
     "build": "rimraf lib && ttsc",
     "dev": "ttsc --watch",
-    "prepack": "pnpm run build",
     "test:go": "cd test && go test ./..."
   },
   "repository": {
