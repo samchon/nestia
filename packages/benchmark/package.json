@@ -9,8 +9,7 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
-    "dev": "rimraf lib && ttsc --watch",
-    "prepack": "pnpm run build"
+    "dev": "rimraf lib && ttsc --watch"
   },
   "keywords": [
     "e2e",

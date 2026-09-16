@@ -13,7 +13,6 @@
     "build:lib": "rimraf lib && ttsc --project tsconfig.lib.json && tsc --project tsconfig.lib.json --emitDeclarationOnly && rolldown -c && node ../../deploy/verify-package-exports.cjs --esm-static",
     "dev": "vite",
     "lint": "eslint .",
-    "prepack": "pnpm run build",
     "preview": "vite preview"
   },
   "repository": {
