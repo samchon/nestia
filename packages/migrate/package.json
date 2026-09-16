@@ -11,7 +11,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rimraf lib && ttsc && tsc --emitDeclarationOnly && rolldown -c && node ../../deploy/verify-package-exports.cjs --esm",
+    "build": "pnpm run bundle && rimraf lib && ttsc && tsc --emitDeclarationOnly && rolldown -c && node ../../deploy/verify-package-exports.cjs --esm",
     "bundle": "node src/executable/bundle.js",
     "dev": "rimraf lib && ttsc --watch",
     "prepare": "pnpm run bundle",
