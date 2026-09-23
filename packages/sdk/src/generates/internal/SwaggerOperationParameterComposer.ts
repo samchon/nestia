@@ -164,14 +164,15 @@ export namespace SwaggerOperationParameterComposer {
           schema: json.schemas[0],
           metadata: p.value,
         });
-        if (Object.keys(json.components.schemas ?? {}).length !== 0) {
-          props.document.components ??= {};
-          props.document.components.schemas ??= {};
-          Object.assign(
-            props.document.components.schemas,
-            json.components.schemas,
-          );
-        }
+        // Only what the document lacks: the parameter's own schema already
+        // brought every component its properties reach, emended for readonly
+        // arrays, and this copy is not.
+        props.document.components ??= {};
+        props.document.components.schemas ??= {};
+        for (const [name, schema] of Object.entries(
+          json.components.schemas ?? {},
+        ))
+          props.document.components.schemas[name] ??= schema;
         return {
           name: key,
           in: props.parameter.category === "query" ? "query" : "header",

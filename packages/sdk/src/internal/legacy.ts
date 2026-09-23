@@ -435,6 +435,12 @@ export namespace JsonSchemasProgrammer {
    * without one falls back to a minimal JS-side converter that reads only the
    * atomic kinds — no type tags, template patterns, or constant annotations —
    * so it is no substitute for the bake.
+   *
+   * The schemas and components are copies. The bake belongs to the route
+   * metadata, which every composition in the process reads, while the composer
+   * edits what it is given in place (the readonly-array emender), and so can a
+   * `SwaggerCustomizer`; handing the bake out by reference let each document
+   * inherit the previous one's edits.
    */
   export const writeSchemas = (props: {
     version: "3.0" | "3.1";
@@ -445,7 +451,7 @@ export namespace JsonSchemasProgrammer {
     for (const m of props.metadatas) {
       const baked = (m as IReflectMetadata).jsonSchema;
       if (baked !== undefined) {
-        schemas.push(baked.schema);
+        schemas.push(copy(baked.schema));
         Object.assign(
           (components.schemas ??= {}),
           baked.components.schemas ?? {},
@@ -454,6 +460,9 @@ export namespace JsonSchemasProgrammer {
         schemas.push(schemaFromMetadata(m));
       }
     }
+    // Copied once the last bake of each name has won, rather than per bake.
+    if (components.schemas !== undefined)
+      components.schemas = copy(components.schemas);
     return {
       version: props.version,
       components,
@@ -467,12 +476,11 @@ export namespace JsonSchemasProgrammer {
    *
    * Reads the schema baked beside `metadata`'s own schema (see
    * {@link IReflectJsonSchema.properties}), resolved against the same
-   * components. The schema is a copy: the metadata outlives one document, and a
-   * `SwaggerCustomizer` or a second composition must not see another's edits.
-   * Returns `null` when that bake exists but has no entry for the property,
-   * because typia's object schema omits it, so no parameter describes it
-   * either. Only metadata the transform did not bake falls back to
-   * {@link writeSchemas} over the property value.
+   * components. The schema and components are copies, for the reason
+   * {@link writeSchemas} gives. Returns `null` when that bake exists but has no
+   * entry for the property, because typia's object schema omits it, so no
+   * parameter describes it either. Only metadata the transform did not bake
+   * falls back to {@link writeSchemas} over the property value.
    */
   export const writeProperty = (props: {
     version: "3.0" | "3.1";
@@ -492,11 +500,16 @@ export namespace JsonSchemasProgrammer {
       return null;
     return {
       version: props.version,
-      components: (props.metadata as IReflectMetadata).jsonSchema!.components,
-      schemas: [JSON.parse(JSON.stringify(properties[props.key]))],
+      components: copy(
+        (props.metadata as IReflectMetadata).jsonSchema!.components,
+      ),
+      schemas: [copy(properties[props.key]!)],
     } as IJsonSchemaCollection;
   };
 }
+
+/** Deep copy of baked data, which is parsed JSON, so JSON copies it exactly. */
+const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
 const schemaFromMetadata = (m: IMetadataSchema): OpenApi.IJsonSchema => {
   const union: OpenApi.IJsonSchema[] = [];

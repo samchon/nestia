@@ -211,7 +211,8 @@ export namespace SwaggerGenerator {
         schemas: {},
         securitySchemes: config.security,
       },
-      tags: config.tags ?? [],
+      // a copy, because composing pushes each route's tags into this list
+      tags: JSON.parse(JSON.stringify(config.tags ?? [])),
       "x-typia-emended-v12": true,
     };
   };
@@ -278,14 +279,14 @@ export namespace SwaggerGenerator {
 
     // COMPOSE OPERATIONS
     for (const r of props.routes) {
-      const operation: OpenApi.IOperation = SwaggerOperationComposer.compose({
-        ...props,
-        route: r,
-      });
+      const method: OpenApi.Method = r.method.toLowerCase() as OpenApi.Method;
       const path: string = getPath(r);
       props.document.paths ??= {};
       props.document.paths[path] ??= {};
-      props.document.paths[path][r.method.toLowerCase() as "get"] = operation;
+      props.document.paths[path][method] = SwaggerOperationComposer.compose({
+        ...props,
+        route: r,
+      });
 
       const closure: Function | Function[] | undefined = Reflect.getMetadata(
         "nestia/SwaggerCustomizer",
@@ -300,7 +301,7 @@ export namespace SwaggerGenerator {
               swagger: props.document,
               method: r.method,
               path,
-              route: operation,
+              route: props.document.paths![path]![method]!,
               at: (func: Function) => neighbor.at.get().get(func),
               get: (accessor: Accessor) => neighbor.get.get()(accessor),
             } satisfies SwaggerCustomizer.IProps);
@@ -308,8 +309,28 @@ export namespace SwaggerGenerator {
       }
     }
 
-    // DO CUSTOMIZE
+    // DETACH, then DO CUSTOMIZE
+    detach(props.document);
     for (const fn of customizers) fn();
+  };
+
+  /**
+   * Replaces every member of the composed document with a deep copy, in place.
+   *
+   * Operations still hold values nestia does not own by reference: decorator
+   * examples, `@ApiExtension` values, security requirements, and the configured
+   * servers, security schemes, and document info. They outlive the document,
+   * since route metadata and the configuration serve every composition in the
+   * process, so a `SwaggerCustomizer` or a caller editing one document edited
+   * all of them, and the next composition started from the edit. A document is
+   * written as JSON, so a JSON copy is exactly what it holds. It runs before
+   * the customizers, which may then edit freely.
+   */
+  const detach = (document: OpenApi.IDocument): void => {
+    const copy: OpenApi.IDocument = JSON.parse(JSON.stringify(document));
+    for (const key of Object.keys(document))
+      delete (document as unknown as Record<string, unknown>)[key];
+    Object.assign(document, copy);
   };
 
   const getPath = (route: ITypedHttpRoute): string => {
