@@ -6,6 +6,7 @@ import { INestiaConfig } from "../../INestiaConfig";
 import {
   JsonSchemasProgrammer,
   MetadataObjectType,
+  MetadataProperty,
   isRequiredOf,
   isSoleLiteralOf,
 } from "../../internal/legacy";
@@ -111,14 +112,19 @@ export namespace SwaggerOperationParameterComposer {
       in: props.parameter.category === "query" ? "query" : "header",
       schema: props.schema,
       description: parameterDescription(props),
-      // An object is mandatory only when it needs one of its named keys; an
-      // object whose named properties are all optional, a `Record` included,
-      // is satisfied by an empty query string.
+      // An unnamed object's keys are the request's own query keys or headers,
+      // so it is mandatory only when every object it may be needs one of the
+      // keys the document describes; an object whose described properties are
+      // all optional, a `Record` included, is satisfied when the request sends
+      // none of them. A field-named parameter is one key, required as declared.
       required:
         props.parameter.metadata.required &&
-        (object === undefined ||
-          object.properties.some(
-            (p) => isSoleLiteralOf(p.key) && isRequiredOf(p.value),
+        (props.parameter.field !== null ||
+          props.parameter.metadata.objects.every(
+            (o) =>
+              (o.type as MetadataObjectType | undefined)?.properties.some(
+                (p) => isDescribed(p) && isRequiredOf(p.value),
+              ) ?? true,
           )),
       example: props.parameter.example,
       examples: props.parameter.examples,
@@ -142,15 +148,7 @@ export namespace SwaggerOperationParameterComposer {
     // the property's schema, and in the parameter's own fields its
     // description, deprecation, and share of the object's examples.
     return object.properties
-      .filter((p) => isSoleLiteralOf(p.key))
-      .filter((p) =>
-        p.jsDocTags.every(
-          (tag) =>
-            tag.name !== "hidden" &&
-            tag.name !== "ignore" &&
-            tag.name !== "internal",
-        ),
-      )
+      .filter(isDescribed)
       .map((p): IDecomposedParameter | null => {
         const key: string = String(p.key.constants[0]!.values[0]!.value);
         const json: IJsonSchemaCollection | null =
@@ -207,6 +205,18 @@ export namespace SwaggerOperationParameterComposer {
 type IDecomposedParameter = OpenApi.IOperation.IParameter & {
   deprecated?: boolean;
 };
+
+/**
+ * Whether the document can describe a property on its own: it has a literal key
+ * to name it, and none of the `@hidden`, `@ignore`, and `@internal` tags
+ * typia's object schema drops it for.
+ */
+const isDescribed = (p: MetadataProperty): boolean =>
+  isSoleLiteralOf(p.key) &&
+  p.jsDocTags.every(
+    (tag) =>
+      tag.name !== "hidden" && tag.name !== "ignore" && tag.name !== "internal",
+  );
 
 /** The `key` member of an object example, if the example has one. */
 const memberOf = (example: unknown, key: string): unknown =>

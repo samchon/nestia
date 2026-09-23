@@ -4,6 +4,11 @@ import { Controller, Query } from "@nestjs/common";
 import { INestQuery } from "@api/lib/structures/INestQuery";
 import { IOptionalQuery } from "@api/lib/structures/IOptionalQuery";
 import { IQuery } from "@api/lib/structures/IQuery";
+import {
+  IFilter,
+  IInternalQuery,
+  IUnionQuery,
+} from "@api/lib/structures/IRequiredShapes";
 
 @Controller("query")
 export class QueryController {
@@ -27,6 +32,21 @@ export class QueryController {
     @TypedQuery() query: IOptionalQuery,
   ): Promise<IOptionalQuery> {
     return query;
+  }
+
+  @TypedRoute.Get("union")
+  public async union(@Query() query: IUnionQuery): Promise<void> {
+    query;
+  }
+
+  @TypedRoute.Get("internal")
+  public async internal(@TypedQuery() query: IInternalQuery): Promise<void> {
+    query;
+  }
+
+  @TypedRoute.Get("field")
+  public async field(@Query("filter") filter: IFilter): Promise<void> {
+    filter;
   }
 
   @TypedRoute.Get("individual")
