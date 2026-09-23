@@ -1,7 +1,6 @@
 import { type Node } from "@ttsc/factory";
 import { IJsDocTagInfo } from "typia";
 
-import { INestiaConfig } from "../../INestiaConfig";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { FilePrinter } from "./FilePrinter";
@@ -17,12 +16,17 @@ export namespace SdkHttpRouteProgrammer {
     (route: ITypedHttpRoute): Node[] => [
       FilePrinter.description(
         SdkHttpFunctionProgrammer.write(project)(importer)(route),
-        describe(project.config, route),
+        describe(project, route),
       ),
       SdkHttpNamespaceProgrammer.write(project)(importer)(route),
     ];
 
-  const describe = (config: INestiaConfig, route: ITypedHttpRoute): string => {
+  const describe = (
+    project: INestiaProject,
+    route: ITypedHttpRoute,
+  ): string => {
+    const names: SdkHttpParameterProgrammer.INames =
+      SdkHttpParameterProgrammer.getNames({ project, route });
     // MAIN DESCRIPTION
     const descriptionComments: string[] = route.description
       ? route.description.split("\n")
@@ -42,7 +46,11 @@ export namespace SdkHttpRouteProgrammer {
           .substring(p.name.length);
       if (!description?.length) continue;
 
-      const name: string = config.keyword === true ? `props.${p.name}` : p.name;
+      // the name the SDK function declares, which yields on a collision
+      const name: string =
+        project.config.keyword === true
+          ? `${names.props}.${p.name}`
+          : names.parameter(p);
       tagComments.push(
         `@param ${name} ${description
           .split("\n")

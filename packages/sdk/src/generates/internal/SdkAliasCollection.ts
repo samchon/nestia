@@ -16,6 +16,7 @@ import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
+import type { SdkWebSocketParameterProgrammer } from "./SdkWebSocketParameterProgrammer";
 
 export namespace SdkAliasCollection {
   export const name = ({ type }: { type: IReflectType }): TypeNode =>
@@ -82,7 +83,10 @@ export namespace SdkAliasCollection {
           .flat(),
       );
 
-  export const websocketProps = (route: ITypedWebSocketRoute): TypeNode =>
+  export const websocketProps = (
+    route: ITypedWebSocketRoute,
+    names: SdkWebSocketParameterProgrammer.INames,
+  ): TypeNode =>
     factory.createTypeLiteralNode([
       ...route.pathParameters.map((p) =>
         factory.createPropertySignature(
@@ -96,7 +100,7 @@ export namespace SdkAliasCollection {
         ? [
             factory.createPropertySignature(
               undefined,
-              "query",
+              names.query,
               undefined,
               factory.createTypeReferenceNode("Query"),
             ),
@@ -104,7 +108,7 @@ export namespace SdkAliasCollection {
         : []),
       factory.createPropertySignature(
         undefined,
-        "provider",
+        names.provider,
         undefined,
         factory.createTypeReferenceNode("Provider"),
       ),

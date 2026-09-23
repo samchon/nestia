@@ -11,7 +11,6 @@ import { IJsDocTagInfo } from "typia";
 import { IdentifierFactory } from "../../factories/IdentifierFactory";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
-import { StringUtil } from "../../utils/StringUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkImportWizard } from "./SdkImportWizard";
@@ -67,9 +66,8 @@ export namespace SdkWebSocketRouteProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedWebSocketRoute): Statement => {
-      const connection: string = StringUtil.escapeDuplicate([route.name])(
-        "connection",
-      );
+      const names: SdkWebSocketParameterProgrammer.INames =
+        SdkWebSocketParameterProgrammer.getNames({ project, route });
       return factory.createFunctionDeclaration(
         [
           factory.createModifier(SyntaxKind.ExportKeyword),
@@ -80,7 +78,7 @@ export namespace SdkWebSocketRouteProgrammer {
         undefined,
         [
           IdentifierFactory.parameter(
-            connection,
+            names.connection,
             factory.createTypeReferenceNode(
               SdkImportWizard.IConnection(importer),
               [factory.createTypeReferenceNode(`${route.name}.Header`)],
@@ -97,7 +95,7 @@ export namespace SdkWebSocketRouteProgrammer {
           factory.createTypeReferenceNode(`${route.name}.Output`),
         ]),
         factory.createBlock(
-          writeFunctionBody(project)(importer)(route)(connection),
+          writeFunctionBody(project)(importer)(route)(names),
           true,
         ),
       );
@@ -107,18 +105,11 @@ export namespace SdkWebSocketRouteProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedWebSocketRoute) =>
-    (connection: string): Statement[] => {
-      const access = (key: string) =>
-        project.config.keyword === true
-          ? factory.createPropertyAccessExpression(
-              factory.createIdentifier("props"),
-              key,
-            )
-          : factory.createIdentifier(key);
+    (names: SdkWebSocketParameterProgrammer.INames): Statement[] => {
       return [
-        local("url")(factory.createTypeReferenceNode("string"))(
+        local(names.url)(factory.createTypeReferenceNode("string"))(
           joinPath(
-            connection,
+            names.connection,
             factory.createCallExpression(
               factory.createPropertyAccessExpression(
                 factory.createIdentifier(route.name),
@@ -127,7 +118,7 @@ export namespace SdkWebSocketRouteProgrammer {
               [],
               project.config.keyword === true &&
                 SdkWebSocketParameterProgrammer.isPathEmpty(route) === false
-                ? [factory.createIdentifier("props")]
+                ? [factory.createIdentifier(names.props)]
                 : SdkWebSocketParameterProgrammer.getEntries({
                     project,
                     route,
@@ -137,7 +128,7 @@ export namespace SdkWebSocketRouteProgrammer {
             ),
           ),
         ),
-        local("connector")(
+        local(names.connector)(
           factory.createTypeReferenceNode(
             importer.external({
               declaration: false,
@@ -166,7 +157,7 @@ export namespace SdkWebSocketRouteProgrammer {
               factory.createAsExpression(
                 factory.createBinaryExpression(
                   factory.createPropertyAccessExpression(
-                    factory.createIdentifier(connection),
+                    factory.createIdentifier(names.connection),
                     "headers",
                   ),
                   factory.createToken(SyntaxKind.QuestionQuestionToken),
@@ -174,7 +165,7 @@ export namespace SdkWebSocketRouteProgrammer {
                 ),
                 factory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
               ),
-              access("provider"),
+              names.access(names.provider),
             ],
           ),
         ),
@@ -182,15 +173,15 @@ export namespace SdkWebSocketRouteProgrammer {
           factory.createAwaitExpression(
             factory.createCallExpression(
               factory.createPropertyAccessExpression(
-                factory.createIdentifier("connector"),
+                factory.createIdentifier(names.connector),
                 "connect",
               ),
               undefined,
-              [factory.createIdentifier("url")],
+              [factory.createIdentifier(names.url)],
             ),
           ),
         ),
-        local("driver")(
+        local(names.driver)(
           factory.createTypeReferenceNode(
             importer.external({
               declaration: true,
@@ -203,7 +194,7 @@ export namespace SdkWebSocketRouteProgrammer {
         )(
           factory.createCallExpression(
             factory.createPropertyAccessExpression(
-              factory.createIdentifier("connector"),
+              factory.createIdentifier(names.connector),
               "getDriver",
             ),
             undefined,
@@ -213,8 +204,8 @@ export namespace SdkWebSocketRouteProgrammer {
         factory.createReturnStatement(
           factory.createObjectLiteralExpression(
             [
-              factory.createShorthandPropertyAssignment("connector"),
-              factory.createShorthandPropertyAssignment("driver"),
+              writeOutputMember("connector", names.connector),
+              writeOutputMember("driver", names.driver),
               factory.createPropertyAssignment(
                 factory.createIdentifier("reconnect"),
                 factory.createArrowFunction(
@@ -226,11 +217,11 @@ export namespace SdkWebSocketRouteProgrammer {
                   factory.createAwaitExpression(
                     factory.createCallExpression(
                       factory.createPropertyAccessExpression(
-                        factory.createIdentifier("connector"),
+                        factory.createIdentifier(names.connector),
                         factory.createIdentifier("connect"),
                       ),
                       undefined,
-                      [factory.createIdentifier("url")],
+                      [factory.createIdentifier(names.url)],
                     ),
                   ),
                 ),
@@ -242,6 +233,12 @@ export namespace SdkWebSocketRouteProgrammer {
       ];
     };
 }
+
+/** A member of the returned `Output`, shorthand when its local has its name. */
+const writeOutputMember = (key: string, local: string) =>
+  key === local
+    ? factory.createShorthandPropertyAssignment(key)
+    : factory.createPropertyAssignment(key, factory.createIdentifier(local));
 
 const local = (name: string) => (type: TypeNode) => (expression: Expression) =>
   factory.createVariableStatement(

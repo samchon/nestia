@@ -212,8 +212,8 @@ export namespace SdkHttpNamespaceProgrammer {
       if (parameters.length === 0)
         return out(factory.createStringLiteral(route.path));
 
-      const access = (name: string) =>
-        project.config.keyword === true ? `props.${name}` : name;
+      const names: SdkHttpParameterProgrammer.INames =
+        SdkHttpParameterProgrammer.getNames({ project, route });
       const template = () => {
         const split: string[] = route.path.split(":");
         if (split.length === 1) return factory.createStringLiteral(route.path);
@@ -229,11 +229,8 @@ export namespace SdkHttpNamespaceProgrammer {
                   factory.createBinaryExpression(
                     factory.createCallChain(
                       factory.createPropertyAccessChain(
-                        factory.createIdentifier(
-                          access(
-                            route.pathParameters.find((p) => p.field === name)!
-                              .name,
-                          ),
+                        names.access(
+                          route.pathParameters.find((p) => p.field === name)!,
                         ),
                         factory.createToken(SyntaxKind.QuestionDotToken),
                         "toString",
@@ -258,11 +255,7 @@ export namespace SdkHttpNamespaceProgrammer {
         return out(template());
 
       const block = (expr: Expression) => {
-        const computeName = (str: string): string =>
-          parameters.find((p) => p.name === str) !== undefined
-            ? computeName("_" + str)
-            : str;
-        const variables: string = computeName("variables");
+        const variables: string = names.variables;
         return factory.createBlock(
           [
             local(variables)("URLSearchParams")(
@@ -281,13 +274,13 @@ export namespace SdkHttpNamespaceProgrammer {
                       factory.createBindingElement(
                         undefined,
                         undefined,
-                        factory.createIdentifier("key"),
+                        factory.createIdentifier(names.key),
                         undefined,
                       ),
                       factory.createBindingElement(
                         undefined,
                         undefined,
-                        factory.createIdentifier("value"),
+                        factory.createIdentifier(names.value),
                         undefined,
                       ),
                     ]),
@@ -306,19 +299,19 @@ export namespace SdkHttpNamespaceProgrammer {
               factory.createIfStatement(
                 factory.createStrictEquality(
                   factory.createIdentifier("undefined"),
-                  factory.createIdentifier("value"),
+                  factory.createIdentifier(names.value),
                 ),
                 factory.createContinueStatement(),
                 factory.createIfStatement(
                   factory.createCallExpression(
                     factory.createIdentifier("Array.isArray"),
                     undefined,
-                    [factory.createIdentifier("value")],
+                    [factory.createIdentifier(names.value)],
                   ),
                   factory.createExpressionStatement(
                     factory.createCallExpression(
                       factory.createPropertyAccessExpression(
-                        factory.createIdentifier("value"),
+                        factory.createIdentifier(names.value),
                         factory.createIdentifier("forEach"),
                       ),
                       undefined,
@@ -326,7 +319,7 @@ export namespace SdkHttpNamespaceProgrammer {
                         factory.createArrowFunction(
                           undefined,
                           undefined,
-                          [IdentifierFactory.parameter("elem")],
+                          [IdentifierFactory.parameter(names.elem)],
                           undefined,
                           undefined,
                           factory.createCallExpression(
@@ -336,11 +329,11 @@ export namespace SdkHttpNamespaceProgrammer {
                             ),
                             undefined,
                             [
-                              factory.createIdentifier("key"),
+                              factory.createIdentifier(names.key),
                               factory.createCallExpression(
                                 factory.createIdentifier("String"),
                                 undefined,
-                                [factory.createIdentifier("elem")],
+                                [factory.createIdentifier(names.elem)],
                               ),
                             ],
                           ),
@@ -356,11 +349,11 @@ export namespace SdkHttpNamespaceProgrammer {
                       ),
                       undefined,
                       [
-                        factory.createIdentifier("key"),
+                        factory.createIdentifier(names.key),
                         factory.createCallExpression(
                           factory.createIdentifier("String"),
                           undefined,
-                          [factory.createIdentifier("value")],
+                          [factory.createIdentifier(names.value)],
                         ),
                       ],
                     ),
@@ -368,7 +361,7 @@ export namespace SdkHttpNamespaceProgrammer {
                 ),
               ),
             ),
-            local("location")("string")(template()),
+            local(names.location)("string")(template()),
             factory.createReturnStatement(
               factory.createConditionalExpression(
                 factory.createStrictEquality(
@@ -379,13 +372,13 @@ export namespace SdkHttpNamespaceProgrammer {
                   ),
                 ),
                 undefined,
-                factory.createIdentifier("location"),
+                factory.createIdentifier(names.location),
                 undefined,
                 factory.createTemplateExpression(
                   factory.createTemplateHead(""),
                   [
                     factory.createTemplateSpan(
-                      factory.createIdentifier("location"),
+                      factory.createIdentifier(names.location),
                       factory.createTemplateMiddle("?"),
                     ),
                     factory.createTemplateSpan(
@@ -412,11 +405,11 @@ export namespace SdkHttpNamespaceProgrammer {
           block(
             route.queryObject.metadata.required === false
               ? factory.createBinaryExpression(
-                  factory.createIdentifier(route.queryObject.name),
+                  names.access(route.queryObject),
                   factory.createToken(SyntaxKind.QuestionQuestionToken),
                   factory.createObjectLiteralExpression([], false),
                 )
-              : factory.createIdentifier(access(route.queryObject.name)),
+              : names.access(route.queryObject),
           ),
         );
       return out(
@@ -426,7 +419,7 @@ export namespace SdkHttpNamespaceProgrammer {
               ...(route.queryObject
                 ? [
                     factory.createSpreadAssignment(
-                      factory.createIdentifier(access(route.queryObject.name)),
+                      names.access(route.queryObject),
                     ),
                   ]
                 : []),
@@ -435,7 +428,7 @@ export namespace SdkHttpNamespaceProgrammer {
                   NamingConvention.variable(q.field!)
                     ? q.field!
                     : factory.createStringLiteral(q.field!),
-                  factory.createIdentifier(access(q.name)),
+                  names.access(q),
                 ),
               ),
             ],

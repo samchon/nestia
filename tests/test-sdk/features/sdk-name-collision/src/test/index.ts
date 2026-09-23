@@ -12,7 +12,10 @@ async function main(): Promise<void> {
     parameters: () => [
       {
         host: `http://127.0.0.1:${process.env.TEST_SDK_PORT ?? 37_000}`,
-        path: "/mcp",
+        encryption: {
+          key: "A".repeat(32),
+          iv: "B".repeat(16),
+        },
       },
     ],
     location: `${__dirname}/features`,
