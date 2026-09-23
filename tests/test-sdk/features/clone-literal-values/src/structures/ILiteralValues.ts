@@ -23,7 +23,7 @@ export interface ILiteralValues {
 }
 
 /**
- * A bound no literal type spells, reachable through a vanilla decorator, which
+ * A bound no literal type spells, reachable through a vanilla `@Body()`, which
  * no transform validates.
  */
 export interface INaNBound {

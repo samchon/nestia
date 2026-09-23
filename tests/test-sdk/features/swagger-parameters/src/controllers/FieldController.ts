@@ -1,5 +1,5 @@
 import core from "@nestia/core";
-import { Controller, Headers, Query } from "@nestjs/common";
+import { Controller, Headers, Param, Query } from "@nestjs/common";
 import { tags } from "typia";
 
 import { IAbsentFields } from "@api/lib/structures/IAbsentFields";
@@ -29,6 +29,17 @@ export class FieldController {
     id;
     headers;
     trace;
+  }
+
+  @core.TypedRoute.Get("vanilla/:kind")
+  public vanilla(
+    @Param("kind") kind: "x" | "y",
+    @Query("ids") ids: string[],
+    @Query("mode") mode?: "a" | "b",
+  ): void {
+    kind;
+    ids;
+    mode;
   }
 
   @core.TypedRoute.Post("absent")

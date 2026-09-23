@@ -713,12 +713,17 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 	if baked := nestiaSDKTryBakeJsonSchema(prog, typeNode, result.Data, properties); baked != nil {
 		metadataLiteral["jsonSchema"] = baked
 	}
+	data := map[string]any{
+		"components": nestiaSDKMetadataComponentsLiteral(nestiaSDKVisitedMetadataComponents(context.collection, result.Data)),
+		"metadata":   metadataLiteral,
+	}
+	if properties {
+		// the resolved schema of a route parameter, the one its HTTP rules judge
+		data["http"] = nestiaSDKHttpRules(prog.Checker, typ)
+	}
 	value := map[string]any{
 		"success": true,
-		"data": map[string]any{
-			"components": nestiaSDKMetadataComponentsLiteral(nestiaSDKVisitedMetadataComponents(context.collection, result.Data)),
-			"metadata":   metadataLiteral,
-		},
+		"data":    data,
 	}
 	context.schemaCache[key] = value
 	return value

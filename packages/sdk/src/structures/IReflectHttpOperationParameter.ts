@@ -37,7 +37,12 @@ export namespace IReflectHttpOperationParameter {
     type: IReflectType;
     metadata: IMetadataSchema;
     components: IMetadataComponents;
-    validate: MetadataFactory.Validator;
+
+    /**
+     * SDK policy checked over the metadata, for a JSON or text body. An HTTP
+     * input's wire rules are typia's instead, baked beside its metadata.
+     */
+    validate?: MetadataFactory.Validator;
     example?: any;
     examples?: Record<string, any>;
     description: string | null;

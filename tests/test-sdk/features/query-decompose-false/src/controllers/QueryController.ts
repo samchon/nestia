@@ -4,11 +4,7 @@ import { Controller, Query } from "@nestjs/common";
 import { INestQuery } from "@api/lib/structures/INestQuery";
 import { IOptionalQuery } from "@api/lib/structures/IOptionalQuery";
 import { IQuery } from "@api/lib/structures/IQuery";
-import {
-  IFilter,
-  IIgnoredQuery,
-  IUnionQuery,
-} from "@api/lib/structures/IRequiredShapes";
+import { IIgnoredQuery } from "@api/lib/structures/IRequiredShapes";
 
 @Controller("query")
 export class QueryController {
@@ -34,19 +30,9 @@ export class QueryController {
     return query;
   }
 
-  @TypedRoute.Get("union")
-  public async union(@Query() query: IUnionQuery): Promise<void> {
-    query;
-  }
-
   @TypedRoute.Get("ignored")
   public async ignored(@TypedQuery() query: IIgnoredQuery): Promise<void> {
     query;
-  }
-
-  @TypedRoute.Get("field")
-  public async field(@Query("filter") filter: IFilter): Promise<void> {
-    filter;
   }
 
   @TypedRoute.Get("individual")

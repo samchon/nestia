@@ -12,7 +12,7 @@ export interface IReflectHttpOperationSuccess {
   encrypted: boolean;
   components: IMetadataComponents;
   metadata: IMetadataSchema;
-  validate: MetadataFactory.Validator;
+  validate?: MetadataFactory.Validator;
   example?: any;
   examples?: Record<string, any>;
 }

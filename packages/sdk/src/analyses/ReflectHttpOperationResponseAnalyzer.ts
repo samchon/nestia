@@ -5,11 +5,7 @@ import {
   INTERCEPTORS_METADATA,
 } from "@nestjs/common/constants";
 
-import {
-  HttpQueryProgrammer,
-  JsonMetadataFactory,
-  sizeOf,
-} from "../internal/legacy";
+import { JsonMetadataFactory, sizeOf } from "../internal/legacy";
 import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";
@@ -102,7 +98,9 @@ export namespace ReflectHttpOperationResponseAnalyzer {
           : contentType === "application/json" || encrypted === true
             ? JsonMetadataFactory.validate
             : contentType === "application/x-www-form-urlencoded"
-              ? HttpQueryProgrammer.validate
+              ? // a typed query response, held to typia's query rules by the
+                // core transform
+                undefined
               : contentType === "text/plain"
                 ? TextPlainValidator.validate
                 : (next) =>

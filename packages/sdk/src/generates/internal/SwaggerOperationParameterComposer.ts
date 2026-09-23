@@ -113,34 +113,28 @@ export namespace SwaggerOperationParameterComposer {
       schema: props.schema,
       description: parameterDescription(props),
       // An unnamed object's keys are the request's own query keys or headers,
-      // so it is mandatory only when every object it may be needs one of the
-      // keys the document describes; an object whose described properties are
-      // all optional, a `Record` included, is satisfied when the request sends
-      // none of them. A field-named parameter is one key, required as declared.
+      // so it is mandatory only when one of the keys the document describes
+      // is; an object whose described properties are all optional is satisfied
+      // when the request sends none of them. A field-named parameter is one
+      // key, required as declared.
       required:
         props.parameter.metadata.required &&
         (props.parameter.field !== null ||
-          props.parameter.metadata.objects.every(
-            (o) =>
-              (o.type as MetadataObjectType | undefined)?.properties.some(
-                (p) => isDescribed(p) && isRequiredOf(p.value),
-              ) ?? true,
-          )),
+          (object?.properties.some(
+            (p) => isDescribed(p) && isRequiredOf(p.value),
+          ) ??
+            true)),
       example: props.parameter.example,
       examples: props.parameter.examples,
     };
-    if (props.config.decompose === false || object === undefined)
-      return [param];
-    // A dynamic key (an index signature, a `Record`) has no name to give a
-    // parameter. OpenAPI 3.x can still describe a query object that has one: a
-    // form-style parameter explodes the object into arbitrary keys, so the
-    // object stays that one parameter. A header has no such form and Swagger 2.0
-    // has no object query parameter, so there only the known keys become
-    // parameters; nothing in those formats describes the dynamic part.
+    // A field-named parameter is one key, which typia's HTTP rules (#1648)
+    // keep atomic, and a query or headers object passed them: one object of
+    // statically named atomic or array-of-atomic properties, so each has a
+    // name to give its parameter.
     if (
-      props.parameter.category === "query" &&
-      props.config.openapi !== "2.0" &&
-      object.properties.some((p) => isSoleLiteralOf(p.key) === false)
+      props.config.decompose === false ||
+      props.parameter.field !== null ||
+      object === undefined
     )
       return [param];
     // One parameter per property typia's object schema describes, so the

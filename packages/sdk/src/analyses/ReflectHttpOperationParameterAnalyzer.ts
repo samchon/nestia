@@ -2,19 +2,11 @@ import { SwaggerExample } from "@nestia/core";
 import { ROUTE_ARGS_METADATA } from "@nestjs/common/constants";
 import { RouteParamtypes } from "@nestjs/common/enums/route-paramtypes.enum";
 
-import {
-  HttpFormDataProgrammer,
-  HttpHeadersProgrammer,
-  HttpParameterProgrammer,
-  HttpQueryProgrammer,
-  JsonMetadataFactory,
-} from "../internal/legacy";
+import { JsonMetadataFactory } from "../internal/legacy";
 import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperationParameter";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
-import { HttpHeadersValidator } from "../validators/HttpHeadersValidator";
-import { HttpQueryValidator } from "../validators/HttpQueryValidator";
 import { TextPlainValidator } from "../validators/TextPlainValidator";
 
 export namespace ReflectHttpOperationParameterAnalyzer {
@@ -132,19 +124,30 @@ export namespace ReflectHttpOperationParameterAnalyzer {
           pErrorContents.push(`Failed to get the type info.`);
 
         // CONSIDER KIND
-        const schema: IOperationMetadata.ISchema | null = (() => {
+        const pipe = (() => {
           if (matched === undefined) return null;
-          const result =
-            p.category === "body" &&
+          return p.category === "body" &&
             (p.contentType === "application/json" || p.encrypted === true)
-              ? matched.primitive
-              : matched.resolved;
-          return result.success ? result.data : null;
+            ? matched.primitive
+            : matched.resolved;
         })();
+        const schema: IOperationMetadata.ISchema | null =
+          pipe?.success === true ? pipe.data : null;
+        // A type the metadata analysis could not read has no SDK or Swagger
+        // form; dropping the parameter would leave a function that cannot
+        // send what the route requires.
+        if (pipe?.success === false) pErrorContents.push(...pipe.errors);
         if (p.category === "body" && p.field !== undefined)
           pErrorContents.push(`@Body() must not have a field name.`);
         else if (p.category === "param" && p.field === undefined)
           pErrorContents.push(`@Param() must have a field name.`);
+
+        // The wire rules of the parameter's HTTP input: a type they reject
+        // cannot be carried as a query string, headers, a path segment, or a
+        // form, so the SDK would send garbage and the document would lie.
+        const rule: keyof IOperationMetadata.IHttpRules | null = httpRuleOf(p);
+        if (rule !== null && schema !== null)
+          pErrorContents.push(...(schema.http?.[rule] ?? []));
 
         if (pErrorContents.length) return report();
         else if (
@@ -153,6 +156,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
           schema === null
         )
           return null; // unreachable
+        const { http: _http, ...shape } = schema;
 
         const example: SwaggerExample.IData<any> | undefined = (
           Reflect.getMetadata(
@@ -170,12 +174,11 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             field: p.field!,
             name: matched.name,
             type: matched.type,
-            validate: HttpParameterProgrammer.validate,
             description: matched.description,
             jsDocTags: matched.jsDocTags,
             example: example?.example,
             examples: example?.examples,
-            ...schema,
+            ...shape,
           };
         else if (p.category === "query")
           return {
@@ -184,14 +187,11 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             field: p.field ?? null,
             name: matched.name,
             type: matched.type,
-            validate: p.field
-              ? HttpQueryValidator.validate
-              : HttpQueryProgrammer.validate,
             description: matched.description,
             jsDocTags: matched.jsDocTags,
             example: example?.example,
             examples: example?.examples,
-            ...schema,
+            ...shape,
           };
         else if (p.category === "headers")
           return {
@@ -200,14 +200,11 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             field: p.field ?? null,
             name: matched.name,
             type: matched.type,
-            validate: p.field
-              ? HttpHeadersValidator.validate
-              : HttpHeadersProgrammer.validate,
             description: matched.description,
             jsDocTags: matched.jsDocTags,
             example: example?.example,
             examples: example?.examples,
-            ...schema,
+            ...shape,
           };
         else if (p.category === "body")
           return {
@@ -220,16 +217,14 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             validate:
               p.contentType === "application/json" || p.encrypted === true
                 ? JsonMetadataFactory.validate
-                : p.contentType === "application/x-www-form-urlencoded"
-                  ? HttpQueryProgrammer.validate
-                  : p.contentType === "multipart/form-data"
-                    ? HttpFormDataProgrammer.validate
-                    : TextPlainValidator.validate,
+                : p.contentType === "text/plain"
+                  ? TextPlainValidator.validate
+                  : undefined,
             description: matched.description,
             jsDocTags: matched.jsDocTags,
             example: example?.example,
             examples: example?.examples,
-            ...schema,
+            ...shape,
           };
         else {
           pErrorContents.push(`Unknown kind of the parameter.`);
@@ -249,6 +244,30 @@ export namespace ReflectHttpOperationParameterAnalyzer {
       });
     if (errors.length) ctx.errors.push(...errors);
     return parameters;
+  };
+
+  /**
+   * The HTTP input rules a parameter's type must satisfy, or `null` for a JSON
+   * or text body, whose policies are checked on the TypeScript side.
+   *
+   * The rules are typia's, baked per parameter by the SDK transform (see
+   * `nestiaSDKHttpRules`), because only this analyzer knows the decorator. A
+   * typed decorator was already held to them by the core transform, so the
+   * verdict is only news for a vanilla `@Query()`, `@Headers()`, or `@Param()`,
+   * which no transform touches.
+   */
+  const httpRuleOf = (
+    p: IReflectHttpOperationParameter.IPreconfigured,
+  ): keyof IOperationMetadata.IHttpRules | null => {
+    if (p.category === "param") return "param";
+    else if (p.category === "query")
+      return p.field !== undefined ? "field" : "query";
+    else if (p.category === "headers")
+      return p.field !== undefined ? "field" : "headers";
+    else if (p.contentType === "application/x-www-form-urlencoded")
+      return "query";
+    else if (p.contentType === "multipart/form-data") return "formData";
+    return null;
   };
 
   /**

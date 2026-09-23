@@ -54,7 +54,7 @@ export namespace TypedHttpRouteAnalyzer {
       next: {
         metadata: IMetadataSchema;
         components: IMetadataComponents;
-        validate: MetadataFactory.Validator;
+        validate?: MetadataFactory.Validator;
       },
       from: string,
       escape: boolean,
@@ -66,16 +66,19 @@ export namespace TypedHttpRouteAnalyzer {
         next.metadata,
         components.dictionary,
       );
-      const metaErrors: MetadataFactory.IError[] = MetadataFactory.validate({
-        options: {
-          escape,
-          constant: true,
-          absorb: true,
-          validate: next.validate, // @todo -> CHECK IN TYPIA
-        },
-        functor: next.validate, // @todo -> CHECK IN TYPIA
-        metadata,
-      });
+      const metaErrors: MetadataFactory.IError[] =
+        next.validate === undefined
+          ? []
+          : MetadataFactory.validate({
+              options: {
+                escape,
+                constant: true,
+                absorb: true,
+                validate: next.validate,
+              },
+              functor: next.validate,
+              metadata,
+            });
       if (metaErrors.length)
         errors.push({
           file: props.controller.file,

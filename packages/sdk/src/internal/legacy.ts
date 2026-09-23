@@ -439,22 +439,6 @@ export namespace JsonMetadataFactory {
   };
 }
 
-export namespace HttpQueryProgrammer {
-  export const validate: MetadataFactory.Validator = () => [];
-}
-
-export namespace HttpHeadersProgrammer {
-  export const validate: MetadataFactory.Validator = () => [];
-}
-
-export namespace HttpParameterProgrammer {
-  export const validate: MetadataFactory.Validator = () => [];
-}
-
-export namespace HttpFormDataProgrammer {
-  export const validate: MetadataFactory.Validator = () => [];
-}
-
 // ---------------------------------------------------------------------
 //  `JsonSchemasProgrammer.writeSchemas` — consumes the per-metadata
 //  pre-baked `jsonSchema` field the nestia transform emits.
