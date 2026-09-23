@@ -48,6 +48,14 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     "websocket-error-invalid-acceptor-arity",
     "@WebSocketRoute.Acceptor() must have three type arguments.",
   ],
+  [
+    "payload-error-vanilla",
+    [
+      "@UploadedFile() is not supported",
+      "@UploadedFiles() is not supported",
+      "@RawBody() is not supported",
+    ],
+  ],
 ]);
 // One command compiles each compatible native-diagnostic cohort. Each entry
 // names its source fixture and exact diagnostic-line count; SDK reflection
@@ -284,9 +292,14 @@ const feature = async (name, port) => {
         "all",
         ...generationTail(name),
       ]);
-      if (output.includes(expected) === false)
+      // each entry must appear: a feature may pin several contradictions,
+      // and the report lists them all at once
+      const missing = [expected]
+        .flat()
+        .filter((line) => output.includes(line) === false);
+      if (missing.length !== 0)
         throw new Error(
-          `${name} did not report its expected diagnostic:\n${output}`,
+          `${name} did not report its expected diagnostic(s) ${JSON.stringify(missing)}:\n${output}`,
         );
       return;
     }

@@ -60,6 +60,8 @@ A `POST /webhooks/token` with body `bad!!!` returns 400; with body `eyJhbGc...` 
 
 For structured data, prefer `@TypedBody()` — JSON is easier to evolve.
 
+`@nestia/sdk` cannot describe a body read through NestJS's vanilla `@RawBody()`: a raw buffer has no type to put in the SDK or the Swagger document, so such a route fails generation with a diagnostic. Take a text body with `@PlainBody()` and a JSON one with `@TypedBody()`, or tag the method `@ignore` to leave it out of the generators.
+
 ---
 
 ## See also
