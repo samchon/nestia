@@ -30,6 +30,10 @@ export class SocketController {
     });
   }
 
+  /**
+   * @param query Path segment named like the query parameter
+   * @param search Shadow to search
+   */
   @WebSocketRoute("query/:query")
   public async query(
     @WebSocketRoute.Acceptor()

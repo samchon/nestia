@@ -101,37 +101,62 @@ export namespace SdkHttpParameterProgrammer {
             ...locals.values(),
           ])(p.name),
         );
+    // An SDK-own identifier avoids the fixed names and the other own ones of
+    // its scope, and the positional parameters whose values its scope reads
+    // where it is visible: the SDK function's and simulate()'s parameters and
+    // locals see every one; in path(), `variables` and `location` see its
+    // parameters, the loop's `key` and `value` the query values its header
+    // reads, and `elem` none.
+    const declared = (list: ITypedHttpRouteParameter[]): string[] =>
+      list
+        .map((p) => locals.get(p))
+        .filter((name): name is string => name !== undefined);
+    const queries: ITypedHttpRouteParameter[] = [
+      ...route.queryParameters,
+      ...(route.queryObject ? [route.queryObject] : []),
+    ];
     const own =
-      (fixed: string[], taken: string[]) =>
+      (fixed: string[], reads: string[], taken: string[]) =>
       (name: string): string => {
         const escaped: string = StringUtil.escapeDuplicate([
           ...fixed,
-          ...locals.values(),
+          ...reads,
           ...taken,
         ])(name);
         taken.push(escaped);
         return escaped;
       };
+    const every: string[] = declared(parameters);
     const shared: string[] = [];
     const $props: string = own(
       [...functional, ...path, ...simulation],
+      every,
       shared,
     )("props");
     const $connection: string = own(
       [...functional, ...simulation],
+      every,
       shared,
     )("connection");
-    const inPath = own(path, [...shared]);
+    const inPath: string[] = [...shared];
     const names: Omit<INames, "parameter" | "access"> = {
       props: $props,
       connection: $connection,
-      output: own(functional, [...shared])("output"),
-      assert: own(simulation, [...shared])("assert"),
-      variables: inPath("variables"),
-      location: inPath("location"),
-      key: inPath("key"),
-      value: inPath("value"),
-      elem: inPath("elem"),
+      output: own(functional, every, [...shared])("output"),
+      assert: own(simulation, every, [...shared])("assert"),
+      variables: own(
+        path,
+        declared([...route.pathParameters, ...queries]),
+        inPath,
+      )("variables"),
+      location: own(
+        path,
+        declared([...route.pathParameters, ...queries]),
+        inPath,
+      )("location"),
+      key: own(path, declared(queries), inPath)("key"),
+      value: own(path, declared(queries), inPath)("value"),
+      elem: own(path, [], inPath)("elem"),
     };
     return {
       ...names,

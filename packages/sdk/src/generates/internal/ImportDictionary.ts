@@ -59,6 +59,17 @@ export class ImportDictionary {
     }
   }
 
+  /** Every identifier the imports bind in the file. */
+  public locals(): string[] {
+    const output: string[] = [];
+    for (const { second: c } of this.components_) {
+      if (c.asterisk !== null) output.push(c.asterisk);
+      if (c.default !== null) output.push(c.default);
+      for (const { first: local } of c.elements) output.push(local);
+    }
+    return output;
+  }
+
   public external(props: ImportDictionary.IProps): string {
     const file: string = `node_modules/${props.file}`;
     return this.internal({

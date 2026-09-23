@@ -9,8 +9,15 @@ import fs from "fs";
  * `props` (#1647), so a `@param props.x` tag would name a member of a parameter
  * that no longer exists, and an IDE would show the function undocumented.
  *
+ * The WebSocket function documents its `props` keys the same way: the query
+ * object's key yields to a path parameter named `query`, and a tag naming the
+ * controller's parameter would describe no key.
+ *
  * 1. Read the generated SDK file of `ShadowController`.
  * 2. Assert the `props` function documents its argument as `_props.props`.
+ * 3. Read the generated SDK file of `SocketController`.
+ * 4. Assert the `query` function documents the path parameter as `props.query` and
+ *    the query object as `props._query`.
  */
 export const test_sdk_name_collision_keyword_jsdoc =
   async (): Promise<void> => {
@@ -21,6 +28,23 @@ export const test_sdk_name_collision_keyword_jsdoc =
     TestValidator.equals(
       "@param",
       content.includes("@param _props.props Shadow to echo"),
+      true,
+    );
+
+    const socket: string = await fs.promises.readFile(
+      `${__dirname}/../../api/functional/socket/index.ts`,
+      "utf8",
+    );
+    TestValidator.equals(
+      "@param path",
+      socket.includes(
+        "@param props.query Path segment named like the query parameter",
+      ),
+      true,
+    );
+    TestValidator.equals(
+      "@param query",
+      socket.includes("@param props._query Shadow to search"),
       true,
     );
   };

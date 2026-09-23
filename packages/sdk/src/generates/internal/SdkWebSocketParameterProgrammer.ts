@@ -73,40 +73,46 @@ export namespace SdkWebSocketParameterProgrammer {
             ...locals.values(),
           ])(p.name),
         );
-    const users: string[] = route.pathParameters.map(
+    // `query` and `provider` sit beside the path parameters, as parameters or
+    // as `props` keys. Every other own identifier avoids the positional
+    // path parameters its scope reads where it is visible: all of them for
+    // the function's locals, `variables`, and `location`, none for the
+    // loop's `key` and `value`, whose header reads only the query, and for
+    // `elem`.
+    const keys: string[] = route.pathParameters.map(
       (p) => locals.get(p) ?? p.name,
     );
+    const positional: string[] = [...locals.values()];
     const own =
-      (fixed: string[], taken: string[]) =>
+      (fixed: string[], reads: string[], taken: string[]) =>
       (name: string): string => {
         const escaped: string = StringUtil.escapeDuplicate([
           ...fixed,
-          ...users,
+          ...reads,
           ...taken,
         ])(name);
         taken.push(escaped);
         return escaped;
       };
     const shared: string[] = [];
-    const $props: string = own([...functional, ...path], shared)("props");
-    const $query: string = own([...functional, ...path], shared)("query");
-    const $provider: string = own(functional, shared)("provider");
-    const inFunction = own(functional, [...shared]);
-    const $connection: string = inFunction("connection");
-    const inPath = own(path, [...shared]);
+    const $props: string = own([...functional, ...path], [], shared)("props");
+    const $query: string = own([...functional, ...path], keys, shared)("query");
+    const $provider: string = own(functional, keys, shared)("provider");
+    const inFunction: string[] = [...shared];
+    const inPath: string[] = [...shared];
     const names: Omit<INames, "parameter" | "access"> = {
       props: $props,
       query: $query,
       provider: $provider,
-      connection: $connection,
-      url: inFunction("url"),
-      connector: inFunction("connector"),
-      driver: inFunction("driver"),
-      variables: inPath("variables"),
-      location: inPath("location"),
-      key: inPath("key"),
-      value: inPath("value"),
-      elem: inPath("elem"),
+      connection: own(functional, positional, inFunction)("connection"),
+      url: own(functional, positional, inFunction)("url"),
+      connector: own(functional, positional, inFunction)("connector"),
+      driver: own(functional, positional, inFunction)("driver"),
+      variables: own(path, positional, inPath)("variables"),
+      location: own(path, positional, inPath)("location"),
+      key: own(path, [], inPath)("key"),
+      value: own(path, [], inPath)("value"),
+      elem: own(path, [], inPath)("elem"),
     };
     return {
       ...names,

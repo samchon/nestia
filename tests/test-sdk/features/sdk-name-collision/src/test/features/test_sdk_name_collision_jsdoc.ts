@@ -8,8 +8,15 @@ import fs from "fs";
  * (#1647); a `@param` tag still naming the old identifier would describe no
  * parameter, and an IDE would show the function undocumented.
  *
+ * The WebSocket function documents its parameters the same way: its query
+ * parameter yields to a path parameter named `query`, and a tag naming the
+ * controller's parameter would describe no parameter.
+ *
  * 1. Read the generated SDK file of `ShadowController`.
  * 2. Assert the `props` function documents its renamed `_props` parameter.
+ * 3. Read the generated SDK file of `SocketController`.
+ * 4. Assert the `query` function documents the path parameter as `query` and the
+ *    query object as `_query`.
  */
 export const test_sdk_name_collision_jsdoc = async (): Promise<void> => {
   const content: string = await fs.promises.readFile(
@@ -19,6 +26,21 @@ export const test_sdk_name_collision_jsdoc = async (): Promise<void> => {
   TestValidator.equals(
     "@param",
     content.includes("@param _props Shadow to echo"),
+    true,
+  );
+
+  const socket: string = await fs.promises.readFile(
+    `${__dirname}/../../api/functional/socket/index.ts`,
+    "utf8",
+  );
+  TestValidator.equals(
+    "@param path",
+    socket.includes("@param query Path segment named like the query parameter"),
+    true,
+  );
+  TestValidator.equals(
+    "@param query",
+    socket.includes("@param _query Shadow to search"),
     true,
   );
 };
