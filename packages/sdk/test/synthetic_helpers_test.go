@@ -1,6 +1,7 @@
 package test
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -82,4 +83,42 @@ func buildSyntheticMetadata(t *testing.T, controller string) string {
 	defer prog.Close()
 
 	return strings.Join(collectEmittedMetadata(t, prog), "\n")
+}
+
+// decodeSyntheticMetadata parses the single OperationMetadata JSON literal
+// buildSyntheticMetadata returns for a one-method controller.
+func decodeSyntheticMetadata(t *testing.T, literal string) map[string]any {
+	t.Helper()
+	output := map[string]any{}
+	if err := json.Unmarshal([]byte(literal), &output); err != nil {
+		t.Fatalf("decode metadata: %v\n%s", err, literal)
+	}
+	return output
+}
+
+// syntheticField reads one member of a decoded metadata object.
+func syntheticField(t *testing.T, input any, name string) any {
+	t.Helper()
+	object, ok := input.(map[string]any)
+	if !ok {
+		t.Fatalf("expected an object holding %q, got %v", name, input)
+	}
+	value, ok := object[name]
+	if !ok {
+		t.Fatalf("metadata has no %q member: %v", name, object)
+	}
+	return value
+}
+
+// syntheticJsonSchema returns the baked `jsonSchema` of a parameter's or
+// response's primitive or resolved schema pipe.
+func syntheticJsonSchema(t *testing.T, response any, pipe string) map[string]any {
+	t.Helper()
+	data := syntheticField(t, syntheticField(t, response, pipe), "data")
+	metadata := syntheticField(t, data, "metadata")
+	baked, ok := syntheticField(t, metadata, "jsonSchema").(map[string]any)
+	if !ok {
+		t.Fatalf("%s schema has no baked jsonSchema", pipe)
+	}
+	return baked
 }
