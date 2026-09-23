@@ -1,8 +1,10 @@
 package sdk
 
 import (
+	"encoding"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -180,13 +182,95 @@ func nestiaSDKMetadataText(context *nestiaSDKContext, file *shimast.SourceFile, 
 const nestiaSDKLiteralNull = "__NESTIA_LITERAL_NULL__"
 
 func nestiaSDKMetadataLiteralText(metadata map[string]any) (string, error) {
-	data, err := json.Marshal(metadata)
+	data, err := json.Marshal(nestiaSDKFiniteLiteral(metadata))
 	if err != nil {
 		return "", err
 	}
 	text := string(data)
 	text = strings.ReplaceAll(text, `"`+nestiaSDKLiteralNull+`"`, "null")
 	return text, nil
+}
+
+// nestiaSDKFiniteLiteral copies a metadata value for encoding/json, writing
+// every non-finite number as null, the way JavaScript's `JSON.stringify` does.
+//
+// typia hands over NaN and ±Infinity wherever a type or a comment spells one: a
+// numeric literal type such as `1e999`, a type tag argument such as
+// `tags.Minimum<1e999>`, and a JSDoc `@x-` extension whose text parses as
+// a float, which `NaN`, `Infinity`, and `inf` all do. encoding/json
+// refuses those values, so one of them anywhere in the types a route reaches
+// used to abort the whole metadata pass. The metadata is marshaled only here,
+// so walking it here gives every value, baked schema and metadata literal
+// alike, the same rule.
+//
+// The walk rebuilds maps, slices, and typia's ordered objects, whose
+// MarshalJSON would otherwise marshal a non-finite member itself. A null is
+// written as typia's explicit `LiteralFactory_Null` marker rather than a Go
+// nil, because an ordered object drops a nil member instead of printing it,
+// while `JSON.stringify({ a: NaN })` keeps the key. Any other value that
+// marshals itself is left as it is.
+func nestiaSDKFiniteLiteral(input any) any {
+	switch value := input.(type) {
+	case nil:
+		return nil
+	case nativefactories.LiteralFactory_OrderedObject:
+		return nestiaSDKFiniteOrderedLiteral(value)
+	case *nativefactories.LiteralFactory_OrderedObject:
+		if value == nil {
+			return value
+		}
+		return nestiaSDKFiniteOrderedLiteral(*value)
+	case json.Marshaler, encoding.TextMarshaler:
+		return value
+	}
+	reflected := reflect.ValueOf(input)
+	switch reflected.Kind() {
+	case reflect.Float32, reflect.Float64:
+		// by kind, because the checker's numbers are typescript-go's named
+		// `jsnum.Number`, not a plain float64
+		if number := reflected.Float(); math.IsNaN(number) || math.IsInf(number, 0) {
+			return nativefactories.LiteralFactory_Null{}
+		}
+		return input
+	case reflect.Map:
+		if reflected.IsNil() || reflected.Type().Key().Kind() != reflect.String {
+			return input
+		}
+		output := make(map[string]any, reflected.Len())
+		iterator := reflected.MapRange()
+		for iterator.Next() {
+			output[iterator.Key().String()] = nestiaSDKFiniteLiteral(iterator.Value().Interface())
+		}
+		return output
+	case reflect.Slice, reflect.Array:
+		if (reflected.Kind() == reflect.Slice && reflected.IsNil()) || reflected.Type().Elem().Kind() == reflect.Uint8 {
+			return input
+		}
+		output := make([]any, reflected.Len())
+		for i := range output {
+			output[i] = nestiaSDKFiniteLiteral(reflected.Index(i).Interface())
+		}
+		return output
+	case reflect.Pointer, reflect.Interface:
+		if reflected.IsNil() {
+			return input
+		}
+		return nestiaSDKFiniteLiteral(reflected.Elem().Interface())
+	}
+	return input
+}
+
+func nestiaSDKFiniteOrderedLiteral(
+	input nativefactories.LiteralFactory_OrderedObject,
+) nativefactories.LiteralFactory_OrderedObject {
+	output := nativefactories.LiteralFactory_OrderedObject{
+		Keys:   input.Keys,
+		Values: make(map[string]any, len(input.Values)),
+	}
+	for key, value := range input.Values {
+		output.Values[key] = nestiaSDKFiniteLiteral(value)
+	}
+	return output
 }
 
 type nestiaSDKJSDoc struct {
