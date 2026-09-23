@@ -308,6 +308,8 @@ const report = (props: {
   console.log("");
   print_title(`Nestia ${StringUtil.capitalize(props.type)} Report`);
 
+  // every contradiction at once, not only the first function's
+  const messages: string[] = [];
   for (const {
     first: { error },
     second: contents,
@@ -325,17 +327,19 @@ const report = (props: {
           if (typeof c === "string") return `  - ${c}`;
           else
             return [
+              // the property the type was found at, when there is one
               c.accessor
-                ? `  - ${c.name}: `
-                : `  - ${c.name} (${c.accessor}): `,
+                ? `  - ${c.name} (${c.accessor}): `
+                : `  - ${c.name}: `,
               ...c.messages.map((msg) => `    - ${msg}`),
             ].join("\n");
         })
         .join("\n"),
     ].join("");
-    if (props.type === "error") throw new Error(message);
+    if (props.type === "error") messages.push(message);
     else console.log(message);
   }
+  if (messages.length !== 0) throw new Error(messages.join("\n\n"));
 };
 
 const wrapPaths = (paths: string[]): string[] =>

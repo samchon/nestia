@@ -139,8 +139,8 @@ const report = (props: {
             else
               return [
                 c.accessor
-                  ? `  - ${c.name}: `
-                  : `  - ${c.name} (${c.accessor}): `,
+                  ? `  - ${c.name} (${c.accessor}): `
+                  : `  - ${c.name}: `,
                 ...c.messages.map((msg) => `    - ${msg}`),
               ].join("\n");
           })
@@ -148,7 +148,9 @@ const report = (props: {
       ].join(""),
     );
   }
-  throw new Error(`Error on NestiaSwaggerComposer.compose():\n${messages}`);
+  throw new Error(
+    `Error on NestiaSwaggerComposer.compose():\n${messages.join("\n\n")}`,
+  );
 };
 
 const wrapPaths = (paths: string[]): string[] =>
