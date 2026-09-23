@@ -84,7 +84,7 @@ Reach for the vanilla decorator when:
 - The header carries opaque data (`Authorization: Bearer …`) and you delegate parsing to a guard.
 - You need every header, not a known subset — declare the parameter as `Record<string, string>` with `@Headers()`.
 
-Vanilla `@Headers()` is invisible to `@nestia/sdk`'s generators.
+`@nestia/sdk` still reads the declared type of a vanilla `@Headers()` parameter into the SDK and the Swagger document, but the request goes through without coercion or validation. A header object with a dynamic key, such as `Record<string, string>`, stays one parameter in Swagger, because its headers have no names to decompose into.
 
 ---
 

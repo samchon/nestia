@@ -183,7 +183,7 @@ The `swagger` block of `INestiaConfig`:
 | `servers`    | `OpenApi.IServer[]`                   | One entry per environment.                                     |
 | `security`   | `Record<string, OpenApi.ISecurityScheme>` | Bearer, OAuth, API key, etc.                              |
 | `tags`       | `OpenApi.IDocument.ITag[]`            | Tag descriptions (also overridable per-route via JSDoc `@tag`). |
-| `decompose`  | `boolean`                             | Split query-DTO into one parameter per leaf field.             |
+| `decompose`  | `boolean`                             | Defaults to `true`: one parameter per property of a query or headers DTO. `false` keeps each DTO as one parameter. |
 | `operationId`| `(props) => string`                   | Custom operationId generator.                                  |
 | `beautify`   | `boolean`                             | Pretty-print the JSON output.                                  |
 
@@ -193,6 +193,6 @@ Decomposed query and header properties marked with `?` produce parameters with `
 
 ## See also
 
-- **[Swagger → Strategy](./strategy)** — JSDoc tags, security schemes, decomposition.
+- **[Swagger → Strategy](./strategy)** — JSDoc descriptions, namespaces, function hiding, specialization.
 - **[Swagger → Editor](./editor)** — embed an in-browser TS playground with Swagger UI.
 - **[Swagger → Chat](./chat)** — convert your OpenAPI document into an LLM agent.

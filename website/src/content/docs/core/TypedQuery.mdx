@@ -1,6 +1,6 @@
 ---
 title: "Reference · TypedQuery"
-description: "Type-safe query-string decorators. Parses and validates URL parameters against a TypeScript DTO, with full support for nested objects, nullables, and application/x-www-form-urlencoded request bodies."
+description: "Type-safe query-string decorators. Parses and validates URL parameters against a flat TypeScript DTO, coercing numbers, booleans, bigints, and nulls, and handles application/x-www-form-urlencoded request bodies."
 ---
 
 import { Tabs } from "nextra/components";
@@ -69,20 +69,22 @@ Things `@TypedQuery()` does that vanilla `@Query()` does not:
 
 ---
 
-## Nested DTOs and Swagger decomposition
+## Flat DTOs and Swagger decomposition
 
-A flat DTO is the typical case, but nested objects work too:
+A query DTO is flat: every property is an atomic value (`string`, `number`, `bigint`, `boolean`), a literal or template literal, or an array of one of those, optionally `| null`. A nested object does not compile:
 
 ```ts
 interface ISearchQuery {
   filter?: {
     section?: string;
-    after?: string & tags.Format<"date-time">;
   };
 }
+// error TS(nestia.core.TypedQuery): unsupported type detected
+// - ISearchQuery.filter: (__type | undefined)
+//   - nested object type is not allowed.
 ```
 
-By default, Swagger documents the whole object as a single `query` schema. To **decompose** it into one query parameter per leaf field (the more conventional OpenAPI style), set `swagger.decompose: true` in `nestia.config.ts`:
+Swagger documents each property of the DTO as its own query parameter by default. Each parameter keeps what the property's type says: `tags.*` constraints, the `integer` type of `tags.Type<"int32">`, the `pattern` of a template literal, the JSDoc description and `@deprecated`, and its share of any `@SwaggerExample.Parameter()` example. To document the whole DTO as one `query` parameter with an object schema instead, set `swagger.decompose` to `false` in `nestia.config.ts`:
 
 ```ts filename="nestia.config.ts" {6}
 const config: INestiaConfig = {
@@ -90,12 +92,12 @@ const config: INestiaConfig = {
   output: "src/api",
   swagger: {
     output: "dist/swagger.json",
-    decompose: true,
+    decompose: false,
   },
 };
 ```
 
-The runtime parsing is identical either way — `decompose` only affects the generated OpenAPI schema.
+The same setting applies to [`@TypedHeaders()`](./TypedHeaders) objects. The runtime parsing is identical either way — `decompose` only affects the generated OpenAPI schema.
 
 ---
 
@@ -132,7 +134,7 @@ Reach for the vanilla decorator when:
 - You need raw strings without coercion or validation (rare).
 - A single route was working with `@Query()` and you don't want the migration churn.
 
-Vanilla query parameters are invisible to `@nestia/sdk`'s generators.
+`@nestia/sdk` still reads the declared type of a vanilla `@Query()` parameter into the SDK and the Swagger document, but the request goes through without coercion or validation.
 
 ---
 
