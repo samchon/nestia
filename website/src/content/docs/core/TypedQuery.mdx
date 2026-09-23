@@ -84,7 +84,7 @@ interface ISearchQuery {
 //   - nested object type is not allowed.
 ```
 
-Swagger documents each property of the DTO as its own query parameter by default. Each parameter keeps what the property's type says: `tags.*` constraints, the `integer` type of `tags.Type<"int32">`, the `pattern` of a template literal, the JSDoc description and `@deprecated`, and its share of any `@SwaggerExample.Parameter()` example. To document the whole DTO as one `query` parameter with an object schema instead, set `swagger.decompose` to `false` in `nestia.config.ts`:
+Swagger documents each property of the DTO as its own query parameter by default, skipping `@hidden`, `@ignore`, and `@internal` ones. Each parameter keeps what the property's type says: `tags.*` constraints, the `integer` type of `tags.Type<"int32">`, the `pattern` of a template literal, the JSDoc description, `@deprecated` (except in Swagger 2.0, which has no such field), and its share of any `@SwaggerExample.Parameter()` example. To document the whole DTO as one `query` parameter with an object schema instead, set `swagger.decompose` to `false` in `nestia.config.ts`:
 
 ```ts filename="nestia.config.ts" {6}
 const config: INestiaConfig = {

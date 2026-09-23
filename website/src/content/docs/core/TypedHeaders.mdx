@@ -16,7 +16,6 @@ Drop-in replacement for `@Headers()` from `@nestjs/common`. Behavior is identica
 - Each declared header is **validated** against the declared TypeScript type.
 - Header values are **coerced** — `"42"` → `42`, `"true"` → `true`, repeated headers → `string[]`.
 - A type mismatch returns **`400 Bad Request`**.
-- The decorator is **visible to `@nestia/sdk`** — header schema appears in the generated SDK and Swagger document.
 
 <Callout type="info">
 **For auth tokens** (`Authorization` header) and other identity carries, the typical NestJS pattern is a custom `@User()` decorator backed by a guard — not `@TypedHeaders`. Use this decorator for **application-defined headers** that carry data your handler needs: tenant codes, language preferences, custom `x-…` headers.
@@ -84,7 +83,7 @@ Reach for the vanilla decorator when:
 - The header carries opaque data (`Authorization: Bearer …`) and you delegate parsing to a guard.
 - You need every header, not a known subset — declare the parameter as `Record<string, string>` with `@Headers()`.
 
-`@nestia/sdk` still reads the declared type of a vanilla `@Headers()` parameter into the SDK and the Swagger document, but the request goes through without coercion or validation. A header object with a dynamic key, such as `Record<string, string>`, stays one parameter in Swagger, because its headers have no names to decompose into.
+`@nestia/sdk` reads the declared type of `@TypedHeaders()` and vanilla `@Headers()` parameters alike into the SDK and the Swagger document; the vanilla decorator only skips coercion and validation. A header object with a dynamic key, such as `Record<string, string>`, contributes only its known header names to Swagger, because OpenAPI cannot list arbitrary headers.
 
 ---
 
