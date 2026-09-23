@@ -102,7 +102,11 @@ export namespace SwaggerOperationResponseComposer {
         example: props.route.success.example,
         examples: named(props.route.success.examples),
       }),
-      ...(props.route.success.encrypted ? { "x-nestia-encrypted": true } : {}),
+      // Swagger 2.0 has no place for the flag, and the downgrader refuses the
+      // whole document rather than lose it; the description keeps the warning.
+      ...(props.route.success.encrypted && props.config.openapi !== "2.0"
+        ? { "x-nestia-encrypted": true }
+        : {}),
     };
     return output;
   };

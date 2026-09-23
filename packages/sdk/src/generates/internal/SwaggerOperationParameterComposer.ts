@@ -1,4 +1,5 @@
 import { OpenApi } from "@typia/interface";
+import { OpenApiTypeChecker } from "@typia/utils";
 import { VariadicSingleton } from "tstl";
 import { IJsDocTagInfo, IJsonSchemaCollection } from "typia";
 
@@ -35,8 +36,8 @@ export namespace SwaggerOperationParameterComposer {
           : header({ ...props, parameter: props.parameter });
 
   export const body = (
-    props: Omit<IProps<ITypedHttpRouteParameter.IBody>, "document">,
-  ): OpenApi.IOperation.IRequestBody => {
+    props: IProps<ITypedHttpRouteParameter.IBody>,
+  ): OpenApi.IOperation.IRequestBody | undefined => {
     const description: string | undefined =
       props.parameter.description ??
       SwaggerDescriptionComposer.descriptionFromJsDocTag({
@@ -44,26 +45,70 @@ export namespace SwaggerOperationParameterComposer {
         tag: "param",
         parameter: props.parameter.name,
       });
-    return {
+    const output: OpenApi.IOperation.IRequestBody = {
       description: props.parameter.encrypted
         ? `${warning.get(!!description)}${description ?? ""}`
         : description,
       content: {
         [props.parameter.contentType]: {
           schema: props.schema,
-          // Swagger 2.0 has no request body example: its body parameter holds
-          // only a schema, and the downgrader refuses the whole document
-          // rather than lose one (#1649).
-          ...(props.config.openapi === "2.0"
-            ? {}
-            : {
-                example: props.parameter.example,
-                examples: props.parameter.examples,
-              }),
+          example: props.parameter.example,
+          examples: props.parameter.examples,
         },
       },
       required: props.parameter.metadata.required,
       ...(props.parameter.encrypted ? { "x-nestia-encrypted": true } : {}),
+    };
+    return props.config.openapi === "2.0"
+      ? swaggerV2Body(props, output)
+      : output;
+  };
+
+  /**
+   * The request body a Swagger 2.0 document can hold.
+   *
+   * Typia's downgrader refuses what 2.0 has no place for rather than lose it,
+   * so one route used to fail the whole document (#1649). A 2.0 body parameter
+   * holds only a schema: no example, and no `x-nestia-encrypted` flag, whose
+   * warning the description keeps. A form becomes one `formData` parameter per
+   * field, which carry neither the body's description nor the form object's own
+   * attributes, and are each required or not; so a form keeps only its fields,
+   * is required when one of them is, and without fields has no body to list.
+   */
+  const swaggerV2Body = (
+    props: IProps<ITypedHttpRouteParameter.IBody>,
+    body: OpenApi.IOperation.IRequestBody,
+  ): OpenApi.IOperation.IRequestBody | undefined => {
+    const contentType: string = props.parameter.contentType;
+    if (
+      contentType !== "multipart/form-data" &&
+      contentType !== "application/x-www-form-urlencoded"
+    )
+      return {
+        description: body.description,
+        content: { [contentType]: { schema: props.schema } },
+        required: body.required,
+      };
+    const object: OpenApi.IJsonSchema.IObject | undefined = resolveObject(
+      props.document,
+      props.schema,
+    );
+    if (
+      object === undefined ||
+      Object.keys(object.properties ?? {}).length === 0
+    )
+      return undefined;
+    return {
+      content: {
+        [contentType]: {
+          schema: {
+            type: "object",
+            properties: object.properties,
+            required: object.required,
+          },
+        },
+      },
+      required: (object.required ?? []).length !== 0,
     };
   };
 
@@ -225,6 +270,25 @@ const isDescribed = (p: MetadataProperty): boolean =>
     (tag) =>
       tag.name !== "hidden" && tag.name !== "ignore" && tag.name !== "internal",
   );
+
+/** The object schema `schema` is or refers to, if it is one. */
+const resolveObject = (
+  document: OpenApi.IDocument,
+  schema: OpenApi.IJsonSchema,
+): OpenApi.IJsonSchema.IObject | undefined => {
+  const visited: Set<string> = new Set();
+  while (OpenApiTypeChecker.isReference(schema)) {
+    if (visited.has(schema.$ref)) return undefined;
+    visited.add(schema.$ref);
+    const next: OpenApi.IJsonSchema | undefined =
+      document.components?.schemas?.[
+        schema.$ref.substring("#/components/schemas/".length)
+      ];
+    if (next === undefined) return undefined;
+    schema = next;
+  }
+  return OpenApiTypeChecker.isObject(schema) ? schema : undefined;
+};
 
 /** The `key` member of an object example, if the example has one. */
 const memberOf = (example: unknown, key: string): unknown =>

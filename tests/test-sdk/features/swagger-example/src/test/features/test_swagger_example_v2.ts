@@ -5,18 +5,24 @@ import typia from "typia";
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 /**
- * Verifies a Swagger 2.0 document generates from routes with named examples.
+ * Verifies a Swagger 2.0 document generates from routes whose bodies or
+ * responses carry what 2.0 has no place for.
  *
  * Swagger 2.0 keys a response's examples by MIME type and gives a body
  * parameter only a schema, so it holds neither named examples nor a request
- * body example. typia's downgrader refuses a document that has them, so a
- * project with one named body example could not generate 2.0 at all (#1649).
- * The generator leaves out what 2.0 cannot hold and keeps the single response
- * example, which 2.0 carries under its MIME type.
+ * body example, nor an encryption flag. It spreads a form into one `formData`
+ * parameter per field, which carry neither the body's description nor the form
+ * object's attributes, and are each required or not. typia's downgrader refuses
+ * a document that has any of them, so one such route made a project unable to
+ * generate 2.0 at all (#1649). The generator leaves out what 2.0 cannot hold,
+ * keeping the single response example and the encryption warning.
  *
  * 1. Read the Swagger 2.0 document the second configuration generated.
  * 2. Assert the create and update bodies carry no example.
  * 3. Assert each success response carries its single example by MIME type.
+ * 4. Assert the encrypted route keeps its warning without the flag.
+ * 5. Assert each form lists its fields, required as declared.
+ * 6. Assert the exception with named examples lists none.
  */
 export const test_swagger_example_v2 = async (): Promise<void> => {
   const swagger: any = JSON.parse(
@@ -48,5 +54,38 @@ export const test_swagger_example_v2 = async (): Promise<void> => {
     swagger.paths["/bbs/articles/{id}"].put.responses["200"].examples[
       "application/json"
     ],
+  );
+
+  const encrypted: any = swagger.paths["/downgrade/encrypted"].post;
+  const body: any = encrypted.parameters.find((p: any) => p.in === "body");
+  TestValidator.equals(
+    "encrypted flag",
+    [
+      body["x-nestia-encrypted"],
+      encrypted.responses["201"]["x-nestia-encrypted"],
+    ],
+    [undefined, undefined],
+  );
+  TestValidator.equals(
+    "encrypted warning",
+    body.description.includes("Request body must be encrypted."),
+    true,
+  );
+
+  const fields = (path: string): string[] =>
+    swagger.paths[path].post.parameters
+      .map((p: any) => `${p.in}:${p.name}:${p.required === true}`)
+      .sort();
+  TestValidator.equals("form", fields("/downgrade/form"), [
+    "formData:memo:false",
+    "formData:title:true",
+  ]);
+  TestValidator.equals("optional form", fields("/downgrade/optional-form"), [
+    "formData:memo:false",
+  ]);
+  TestValidator.equals(
+    "exception examples",
+    swagger.paths["/downgrade/exception"].get.responses["404"].examples,
+    undefined,
   );
 };
