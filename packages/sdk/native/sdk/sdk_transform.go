@@ -307,12 +307,14 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 		if strings.HasPrefix(text, "@") {
 			inTags = true
 			name, body := nestiaSDKParseJSDocTag(text)
-			doc.Tags = append(doc.Tags, nestiaSDKJSDocTag(name, body))
 			if name == "param" {
 				param, desc := nestiaSDKParseParamTag(body)
+				doc.Tags = append(doc.Tags, nestiaSDKJSDocParamTag(param, desc))
 				if param != "" {
 					doc.Params[param] = desc
 				}
+			} else {
+				doc.Tags = append(doc.Tags, nestiaSDKJSDocTag(name, body))
 			}
 			continue
 		}
@@ -399,6 +401,33 @@ func nestiaSDKJSDocTag(name string, text string) map[string]any {
 				"kind": "text",
 			},
 		},
+	}
+}
+
+// nestiaSDKJSDocParamTag writes a `@param` tag the way TypeScript's
+// `JSDocTagInfo` does, which the SDK generators read: the parameter's name
+// as its own `parameterName` part, then a space and the description. Written
+// as one text part, the name could not be matched, so a WebSocket route lost
+// every `@param` line and the generators' tag fallbacks never applied.
+func nestiaSDKJSDocParamTag(param string, desc string) map[string]any {
+	if param == "" {
+		return nestiaSDKJSDocTag("param", "")
+	}
+	text := []any{
+		map[string]any{
+			"text": param,
+			"kind": "parameterName",
+		},
+	}
+	if desc != "" {
+		text = append(text,
+			map[string]any{"text": " ", "kind": "space"},
+			map[string]any{"text": desc, "kind": "text"},
+		)
+	}
+	return map[string]any{
+		"name": "param",
+		"text": text,
 	}
 }
 
