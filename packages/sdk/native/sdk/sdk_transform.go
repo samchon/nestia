@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
@@ -40,9 +42,10 @@ type nestiaSDKContext struct {
 }
 
 type nestiaSDKSchemaCacheKey struct {
-	Type   *shimchecker.Type
-	Text   string
-	Escape bool
+	Type       *shimchecker.Type
+	Text       string
+	Escape     bool
+	Properties bool
 }
 
 func newNestiaSDKContext(prog *driver.Program) *nestiaSDKContext {
@@ -148,7 +151,7 @@ func nestiaSDKMetadataText(context *nestiaSDKContext, file *shimast.SourceFile, 
 		for index, param := range methodDecl.Parameters.Nodes {
 			typ := prog.Checker.GetTypeAtLocation(param)
 			name := nestiaSDKParameterName(param)
-			response := nestiaSDKResponse(context, imports, typ, nestiaSDKParameterTypeNode(param))
+			response := nestiaSDKResponse(context, imports, typ, nestiaSDKParameterTypeNode(param), true)
 			parameters = append(parameters, map[string]any{
 				"name":        name,
 				"index":       index,
@@ -166,7 +169,7 @@ func nestiaSDKMetadataText(context *nestiaSDKContext, file *shimast.SourceFile, 
 	exceptions := nestiaSDKExceptionResponses(context, imports, method)
 	metadata := map[string]any{
 		"parameters":  parameters,
-		"success":     nestiaSDKResponse(context, imports, returnType, returnTypeNode),
+		"success":     nestiaSDKResponse(context, imports, returnType, returnTypeNode, false),
 		"exceptions":  exceptions,
 		"description": nestiaSDKNullableString(doc.Description),
 		"jsDocTags":   doc.Tags,
@@ -335,7 +338,7 @@ func nestiaSDKExceptionResponses(
 		if exception == nil {
 			continue
 		}
-		responses = append(responses, nestiaSDKResponse(context, imports, exception.Type, exception.Node))
+		responses = append(responses, nestiaSDKResponse(context, imports, exception.Type, exception.Node, false))
 	}
 	return responses
 }
@@ -538,11 +541,16 @@ func nestiaSDKImportLiteral(imp nestiaSDKImportInfo, prefixes map[string]bool) m
 	return output
 }
 
+// nestiaSDKResponse reflects one route input or output. `parameter` marks a
+// method parameter: the Swagger generator reads query and headers parameters
+// from the resolved schema and may decompose their object into one OpenAPI
+// parameter per property, so only that schema bakes the property schemas.
 func nestiaSDKResponse(
 	context *nestiaSDKContext,
 	imports []nestiaSDKImportInfo,
 	typ *shimchecker.Type,
 	typeNode *shimast.Node,
+	parameter bool,
 ) map[string]any {
 	prog := context.prog
 	refType, refImports := nestiaSDKReflectType(prog, imports, typ, typeNode)
@@ -552,17 +560,18 @@ func nestiaSDKResponse(
 	return map[string]any{
 		"type":      refType,
 		"imports":   refImports,
-		"primitive": nestiaSDKSchemaPipe(context, typ, typeNode, true),
-		"resolved":  nestiaSDKSchemaPipe(context, typ, typeNode, false),
+		"primitive": nestiaSDKSchemaPipe(context, typ, typeNode, true, false),
+		"resolved":  nestiaSDKSchemaPipe(context, typ, typeNode, false, parameter),
 	}
 }
 
-func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeNode *shimast.Node, escape bool) any {
+func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeNode *shimast.Node, escape bool, properties bool) any {
 	prog := context.prog
 	key := nestiaSDKSchemaCacheKey{
-		Type:   typ,
-		Text:   nestiaSDKTypeNodeText(typeNode),
-		Escape: escape,
+		Type:       typ,
+		Text:       nestiaSDKTypeNodeText(typeNode),
+		Escape:     escape,
+		Properties: properties,
 	}
 	if cached, ok := context.schemaCache[key]; ok {
 		context.schemaHits++
@@ -617,7 +626,7 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 	// and omit the field — the sdk generator falls back to its own derived
 	// schema path. This must never mask a real bug, so re-raise anything we
 	// don't recognize as a transformer error from the typia runtime.
-	if baked := nestiaSDKTryBakeJsonSchema(prog, typeNode, result.Data); baked != nil {
+	if baked := nestiaSDKTryBakeJsonSchema(prog, typeNode, result.Data, properties); baked != nil {
 		metadataLiteral["jsonSchema"] = baked
 	}
 	value := map[string]any{
@@ -636,10 +645,15 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 // when typia signals the metadata has no JSON-schema representation (e.g.
 // `void` returns, function-only types) — the JS-side reader handles missing
 // `jsonSchema` fields. Any other panic is re-raised so real bugs surface.
+//
+// With `properties`, the literal also carries the schema of each property of
+// the metadata's first object type, for the Swagger generator to decompose into
+// individual parameters (see `nestiaSDKPropertySchemas`).
 func nestiaSDKTryBakeJsonSchema(
 	prog *driver.Program,
 	typeNode *shimast.Node,
 	metadata *schemametadata.MetadataSchema,
+	properties bool,
 ) (baked map[string]any) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -660,6 +674,12 @@ func nestiaSDKTryBakeJsonSchema(
 	if len(collection.Schemas) == 0 {
 		return nil
 	}
+	// Baked before the components are flattened: the property schemas share
+	// the parent's components, so any component they reach must be included.
+	var propertySchemas map[string]any
+	if properties && collection.Components != nil {
+		propertySchemas = nestiaSDKPropertySchemas(metadata, collection.Components)
+	}
 	// `iterate.OpenApi_IComponents` has no JSON tags on its Schemas field,
 	// so default Go marshaling would emit `"Schemas"` (capital). The JS
 	// side reads `components.schemas`, so flatten to a plain map here.
@@ -667,17 +687,232 @@ func nestiaSDKTryBakeJsonSchema(
 	if collection.Components != nil && collection.Components.Schemas != nil {
 		schemasLiteral := map[string]any{}
 		for key, val := range collection.Components.Schemas {
-			schemasLiteral[key] = map[string]any(val)
+			schemasLiteral[key] = nestiaSDKJsonSchemaLiteral(val)
 		}
 		componentsLiteral["schemas"] = schemasLiteral
 	}
 	baked = map[string]any{
 		"version":    collection.Version,
 		"components": componentsLiteral,
-		"schema":     map[string]any(collection.Schemas[0]),
+		"schema":     nestiaSDKJsonSchemaLiteral(collection.Schemas[0]),
+	}
+	if propertySchemas != nil {
+		baked["properties"] = propertySchemas
 	}
 	nestiaSDKMarkReadonlyArrayJsonSchema(prog, typeNode, baked)
 	return baked
+}
+
+// nestiaSDKPropertySchemas bakes the schema of each property of the metadata's
+// first object type, keyed by property name, for a decomposed query or headers
+// parameter. It is the property schema typia's object writer produces, minus
+// the fields the OpenAPI parameter carries in its own members: typia merges the
+// property's title, description, and deprecation into that schema, plus
+// readOnly, which has no meaning for a request parameter. What remains is the
+// value schema, written by typia's `Json_schema_station` exactly as
+// `WriteSchemas` writes one metadata but against the parent's components, so a
+// named type the value reaches resolves to the component the parent already
+// carries, and the property's `x-` JSDoc extensions.
+//
+// Only properties typia's object schema describes are baked: a property must
+// have a literal key and no `@hidden`, `@ignore`, or `@internal` tag (the
+// filter `json_schema_object` applies), and a value with no JSON form
+// (function-only or `never`) yields no schema. Skipping them here also keeps
+// their types out of the shared components.
+func nestiaSDKPropertySchemas(
+	metadata *schemametadata.MetadataSchema,
+	components *nativeiterate.OpenApi_IComponents,
+) map[string]any {
+	if len(metadata.Objects) == 0 || metadata.Objects[0].Type == nil {
+		return nil
+	}
+	output := map[string]any{}
+	for _, property := range metadata.Objects[0].Type.Properties {
+		if property == nil || property.Key == nil || property.Value == nil {
+			continue
+		}
+		key := property.Key.GetSoleLiteral()
+		if key == nil || nestiaSDKHasJSDocTag(property.JsDocTags, "hidden", "ignore", "internal") {
+			continue
+		}
+		schema := nativeiterate.Json_schema_station(nativeiterate.Json_schema_station_props{
+			BlockNever: true,
+			Components: components,
+			Attribute:  nativeiterate.JsonSchema{},
+			Metadata:   property.Value,
+		})
+		if schema == nil {
+			continue
+		}
+		nestiaSDKJsDocExtensions(schema, property.JsDocTags)
+		output[*key] = nestiaSDKJsonSchemaLiteral(schema)
+	}
+	return output
+}
+
+// nestiaSDKJsDocExtensions writes a property's `x-` JSDoc tags into its schema
+// the way typia's object writer does (`json_schema_jsDocTags`, unexported):
+// the first text part, trimmed, read as a boolean, a number, null, or else a
+// string.
+func nestiaSDKJsDocExtensions(schema nativeiterate.JsonSchema, tags []schemametadata.IJsDocTagInfo) {
+	for _, tag := range tags {
+		if strings.HasPrefix(tag.Name, "x-") == false {
+			continue
+		}
+		for _, text := range tag.Text {
+			if text.Kind != "text" {
+				continue
+			}
+			value := strings.ReplaceAll(strings.TrimSpace(text.Text), "\r\n", "\n")
+			if value == "true" || value == "false" {
+				schema[tag.Name] = value == "true"
+			} else if number, err := strconv.ParseFloat(value, 64); err == nil {
+				schema[tag.Name] = number
+			} else if value == "null" {
+				schema[tag.Name] = nil
+			} else {
+				schema[tag.Name] = value
+			}
+			break
+		}
+	}
+}
+
+func nestiaSDKHasJSDocTag(tags []schemametadata.IJsDocTagInfo, names ...string) bool {
+	for _, tag := range tags {
+		for _, name := range names {
+			if tag.Name == name {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// nestiaSDKJsonSchemaLiteral prepares one typia JSON schema for the
+// encoding/json serialization of the SDK metadata, dropping the members typia
+// leaves absent.
+//
+// typia's schema writer stores a Go nil for an absent member: a constant with
+// no `@title` gets a nil *string title and description, and `any` gets a nil
+// type. typia's own literal printer skips nil object members, but encoding/json
+// prints them as null, which JSON Schema rejects for those keywords. A nil
+// cannot be dropped everywhere, though: in an instance-valued keyword (`const`,
+// `default`, `enum`, `example`, `examples`) or a vendor extension it is a real
+// null, such as the one `tags.Examples<{ none: null }>` declares, which typia
+// writes as a bare nil too until its explicit null marker (samchon/typia#2403).
+//
+// So the walk follows JSON Schema structure: it drops a nil member of a schema
+// object, recurses through the applicator keywords into subschemas, and leaves
+// every other value, instance data included, as it is.
+func nestiaSDKJsonSchemaLiteral(input any) any {
+	reflected := reflect.ValueOf(input)
+	if reflected.Kind() != reflect.Map || reflected.Type().Key().Kind() != reflect.String {
+		return input // a boolean schema, or a value that is no schema object
+	}
+	output := make(map[string]any, reflected.Len())
+	iterator := reflected.MapRange()
+	for iterator.Next() {
+		key := iterator.Key().String()
+		member := iterator.Value().Interface()
+		if nestiaSDKJsonSchemaInstanceKeyword(key) {
+			output[key] = member
+		} else if nestiaSDKIsNilLike(member) == false {
+			output[key] = nestiaSDKJsonSchemaMember(key, member)
+		}
+	}
+	return output
+}
+
+// nestiaSDKJsonSchemaMember recurses into the subschemas a JSON Schema 2020-12
+// applicator keyword holds, and returns any other keyword value unchanged.
+func nestiaSDKJsonSchemaMember(key string, member any) any {
+	switch key {
+	case "items", "additionalItems", "additionalProperties", "unevaluatedItems",
+		"unevaluatedProperties", "contains", "propertyNames", "not", "if", "then",
+		"else", "contentSchema":
+		return nestiaSDKJsonSchemaLiteral(member)
+	case "allOf", "anyOf", "oneOf", "prefixItems":
+		reflected := reflect.ValueOf(member)
+		if reflected.Kind() != reflect.Slice && reflected.Kind() != reflect.Array {
+			return member
+		}
+		output := make([]any, reflected.Len())
+		for i := range output {
+			output[i] = nestiaSDKJsonSchemaLiteral(reflected.Index(i).Interface())
+		}
+		return output
+	case "properties", "patternProperties", "dependentSchemas", "$defs", "definitions":
+		return nestiaSDKJsonSchemaNamedLiteral(member)
+	}
+	return member
+}
+
+// nestiaSDKJsonSchemaNamedLiteral normalizes each schema of a name-keyed schema
+// map, such as `properties`, keeping the order of typia's ordered objects.
+func nestiaSDKJsonSchemaNamedLiteral(input any) any {
+	switch value := input.(type) {
+	case nativefactories.LiteralFactory_OrderedObject:
+		return nestiaSDKJsonSchemaOrderedLiteral(value)
+	case *nativefactories.LiteralFactory_OrderedObject:
+		if value == nil {
+			return nil
+		}
+		return nestiaSDKJsonSchemaOrderedLiteral(*value)
+	}
+	reflected := reflect.ValueOf(input)
+	if reflected.Kind() != reflect.Map || reflected.Type().Key().Kind() != reflect.String {
+		return input
+	}
+	output := make(map[string]any, reflected.Len())
+	iterator := reflected.MapRange()
+	for iterator.Next() {
+		output[iterator.Key().String()] = nestiaSDKJsonSchemaLiteral(iterator.Value().Interface())
+	}
+	return output
+}
+
+func nestiaSDKJsonSchemaOrderedLiteral(
+	input nativefactories.LiteralFactory_OrderedObject,
+) nativefactories.LiteralFactory_OrderedObject {
+	output := nativefactories.LiteralFactory_OrderedObject{
+		Keys:   make([]string, 0, len(input.Keys)),
+		Values: make(map[string]any, len(input.Keys)),
+	}
+	for _, key := range input.Keys {
+		value, ok := input.Values[key]
+		if ok == false || nestiaSDKIsNilLike(value) {
+			continue
+		}
+		output.Keys = append(output.Keys, key)
+		output.Values[key] = nestiaSDKJsonSchemaLiteral(value)
+	}
+	return output
+}
+
+// nestiaSDKJsonSchemaInstanceKeyword reports a keyword whose value is JSON
+// instance data, where null is a legitimate value: the instance keywords of
+// JSON Schema and OpenAPI, and `x-` vendor extensions.
+func nestiaSDKJsonSchemaInstanceKeyword(key string) bool {
+	switch key {
+	case "const", "default", "enum", "example", "examples":
+		return true
+	}
+	return strings.HasPrefix(key, "x-")
+}
+
+// nestiaSDKIsNilLike mirrors typia's `literalFactory_isNilLike`.
+func nestiaSDKIsNilLike(value any) bool {
+	if value == nil {
+		return true
+	}
+	reflected := reflect.ValueOf(value)
+	switch reflected.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
+		return reflected.IsNil()
+	default:
+		return false
+	}
 }
 
 func nestiaSDKMarkReadonlyArrayJsonSchema(prog *driver.Program, typeNode *shimast.Node, baked map[string]any) {

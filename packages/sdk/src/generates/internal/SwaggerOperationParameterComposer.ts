@@ -6,7 +6,9 @@ import { INestiaConfig } from "../../INestiaConfig";
 import {
   JsonSchemasProgrammer,
   MetadataObjectType,
+  MetadataProperty,
   isRequiredOf,
+  isSoleLiteralOf,
 } from "../../internal/legacy";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
@@ -103,33 +105,60 @@ export namespace SwaggerOperationParameterComposer {
       ITypedHttpRouteParameter.IHeaders | ITypedHttpRouteParameter.IQuery
     >,
   ): OpenApi.IOperation.IParameter[] => {
+    const object: MetadataObjectType | undefined = props.parameter.metadata
+      .objects[0]?.type as MetadataObjectType | undefined;
     const param: OpenApi.IOperation.IParameter = {
       name: props.parameter.field ?? props.parameter.name,
       in: props.parameter.category === "query" ? "query" : "header",
       schema: props.schema,
       description: parameterDescription(props),
-      required: props.parameter.metadata.required,
+      // An unnamed object's keys are the request's own query keys or headers,
+      // so it is mandatory only when every object it may be needs one of the
+      // keys the document describes; an object whose described properties are
+      // all optional, a `Record` included, is satisfied when the request sends
+      // none of them. A field-named parameter is one key, required as declared.
+      required:
+        props.parameter.metadata.required &&
+        (props.parameter.field !== null ||
+          props.parameter.metadata.objects.every(
+            (o) =>
+              (o.type as MetadataObjectType | undefined)?.properties.some(
+                (p) => isDescribed(p) && isRequiredOf(p.value),
+              ) ?? true,
+          )),
       example: props.parameter.example,
       examples: props.parameter.examples,
     };
+    if (props.config.decompose === false || object === undefined)
+      return [param];
+    // A dynamic key (an index signature, a `Record`) has no name to give a
+    // parameter. OpenAPI 3.x can still describe a query object that has one: a
+    // form-style parameter explodes the object into arbitrary keys, so the
+    // object stays that one parameter. A header has no such form and Swagger 2.0
+    // has no object query parameter, so there only the known keys become
+    // parameters; nothing in those formats describes the dynamic part.
     if (
-      props.config.decompose === false ||
-      props.parameter.metadata.objects.length === 0
+      props.parameter.category === "query" &&
+      props.config.openapi !== "2.0" &&
+      object.properties.some((p) => isSoleLiteralOf(p.key) === false)
     )
       return [param];
-    return (
-      props.parameter.metadata.objects[0]!.type as MetadataObjectType
-    ).properties
-      .filter((p) =>
-        p.jsDocTags.every(
-          (tag) => tag.name !== "hidden" && tag.name !== "ignore",
-        ),
-      )
-      .map((p) => {
-        const json: IJsonSchemaCollection = JsonSchemasProgrammer.writeSchemas({
-          version: "3.1",
-          metadatas: [p.value],
-        }) as IJsonSchemaCollection;
+    // One parameter per property typia's object schema describes, so the
+    // decomposed form says what `decompose: false` would say about the object:
+    // the property's schema, and in the parameter's own fields its
+    // description, deprecation, and share of the object's examples.
+    return object.properties
+      .filter(isDescribed)
+      .map((p): IDecomposedParameter | null => {
+        const key: string = String(p.key.constants[0]!.values[0]!.value);
+        const json: IJsonSchemaCollection | null =
+          JsonSchemasProgrammer.writeProperty({
+            version: "3.1",
+            metadata: props.parameter.metadata,
+            key,
+            value: p.value,
+          });
+        if (json === null) return null;
         SwaggerReadonlyArrayEmender.emend({
           components: json.components,
           schema: json.schemas[0],
@@ -144,7 +173,7 @@ export namespace SwaggerOperationParameterComposer {
           );
         }
         return {
-          name: p.key.constants[0]!.values[0]!.value as string,
+          name: key,
           in: props.parameter.category === "query" ? "query" : "header",
           schema: json.schemas[0]!,
           required: isRequiredOf(p.value),
@@ -153,10 +182,64 @@ export namespace SwaggerOperationParameterComposer {
             jsDocTags: p.jsDocTags,
             kind: "title",
           }).description,
+          // Swagger 2.0 defines no `deprecated` on a parameter, and the
+          // downgrader copies the field through rather than refusing it.
+          deprecated:
+            props.config.openapi !== "2.0" &&
+            p.jsDocTags.some((tag) => tag.name === "deprecated")
+              ? true
+              : undefined,
+          example: memberOf(props.parameter.example, key),
+          examples: membersOf(props.parameter.examples, key),
         };
-      });
+      })
+      .filter((p): p is IDecomposedParameter => p !== null);
   };
 }
+
+/**
+ * A decomposed parameter. OpenAPI 3.0 through 3.2 define `deprecated` on the
+ * Parameter Object, which typia's `OpenApi.IOperation.IParameter` does not
+ * model; its 3.x downgraders carry the field through unchanged.
+ */
+type IDecomposedParameter = OpenApi.IOperation.IParameter & {
+  deprecated?: boolean;
+};
+
+/**
+ * Whether the document can describe a property on its own: it has a literal key
+ * to name it, and none of the `@hidden`, `@ignore`, and `@internal` tags
+ * typia's object schema drops it for.
+ */
+const isDescribed = (p: MetadataProperty): boolean =>
+  isSoleLiteralOf(p.key) &&
+  p.jsDocTags.every(
+    (tag) =>
+      tag.name !== "hidden" && tag.name !== "ignore" && tag.name !== "internal",
+  );
+
+/** The `key` member of an object example, if the example has one. */
+const memberOf = (example: unknown, key: string): unknown =>
+  typeof example === "object" &&
+  example !== null &&
+  Object.prototype.hasOwnProperty.call(example, key)
+    ? (example as Record<string, unknown>)[key]
+    : undefined;
+
+/**
+ * Named object examples narrowed to the ones that have a `key` member, in the
+ * same representation the undecomposed parameter carries them.
+ */
+const membersOf = (
+  examples: Record<string, any> | undefined,
+  key: string,
+): Record<string, any> | undefined => {
+  if (examples === undefined) return undefined;
+  const entries: [string, unknown][] = Object.entries(examples)
+    .map(([name, value]): [string, unknown] => [name, memberOf(value, key)])
+    .filter(([, value]) => value !== undefined);
+  return entries.length !== 0 ? Object.fromEntries(entries) : undefined;
+};
 
 const warning = new VariadicSingleton((described: boolean): string => {
   const summary = "Request body must be encrypted.";

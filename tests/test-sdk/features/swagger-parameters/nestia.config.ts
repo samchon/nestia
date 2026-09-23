@@ -1,0 +1,12 @@
+import { INestiaConfig } from "@nestia/sdk";
+
+// `swagger.decompose` is left unset on purpose: decomposition is the default.
+export const NESTIA_CONFIG: INestiaConfig = {
+  input: ["src/controllers"],
+  output: "src/api",
+  swagger: {
+    output: "swagger.json",
+    beautify: true,
+  },
+};
+export default NESTIA_CONFIG;
