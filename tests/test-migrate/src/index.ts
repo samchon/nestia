@@ -20,6 +20,7 @@ import { test_migrate_dto_import_type } from "./features/test_migrate_dto_import
 import { test_migrate_nest_dto_package_import } from "./features/test_migrate_nest_dto_package_import";
 import { test_migrate_nest_keyword_config_path } from "./features/test_migrate_nest_keyword_config_path";
 import { test_migrate_nest_monorepo_layout } from "./features/test_migrate_nest_monorepo_layout";
+import { test_migrate_nest_named_examples } from "./features/test_migrate_nest_named_examples";
 import { test_migrate_nest_workspace_catalog_stamp } from "./features/test_migrate_nest_workspace_catalog_stamp";
 import { test_migrate_sdk_dependency_catalog_stamp } from "./features/test_migrate_sdk_dependency_catalog_stamp";
 import {
@@ -251,6 +252,7 @@ const main = async (): Promise<void> => {
     test_migrate_api_response_header_tags();
     test_migrate_dto_import_type();
     test_migrate_nest_monorepo_layout();
+    test_migrate_nest_named_examples(document);
     test_migrate_nest_dto_package_import();
     test_migrate_nest_workspace_catalog_stamp();
     test_migrate_nest_keyword_config_path();

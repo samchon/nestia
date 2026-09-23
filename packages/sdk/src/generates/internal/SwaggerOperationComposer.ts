@@ -102,6 +102,7 @@ export namespace SwaggerOperationComposer {
         .flat(),
       requestBody: writeRequestBody(props),
       responses: SwaggerOperationResponseComposer.compose({
+        config: props.config,
         schema: props.schema,
         route: props.route,
       }),
@@ -136,6 +137,7 @@ export namespace SwaggerOperationComposer {
  * helper across two rules that disagree would trade one defect for another.
  */
 const writeRequestBody = (props: {
+  config: Omit<INestiaConfig.ISwaggerConfig, "output">;
   schema: (metadata: MetadataSchema) => OpenApi.IJsonSchema | undefined;
   route: ITypedHttpRoute;
 }): OpenApi.IOperation.IRequestBody | undefined => {
@@ -145,6 +147,7 @@ const writeRequestBody = (props: {
   );
   if (schema === undefined) return undefined;
   return SwaggerOperationParameterComposer.body({
+    config: props.config,
     schema,
     jsDocTags: props.route.jsDocTags,
     parameter: props.route.body,

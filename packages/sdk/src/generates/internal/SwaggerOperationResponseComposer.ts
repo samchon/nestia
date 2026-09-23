@@ -1,6 +1,7 @@
 import { OpenApi } from "@typia/interface";
 import { VariadicSingleton } from "tstl";
 
+import { INestiaConfig } from "../../INestiaConfig";
 import { MetadataSchema } from "../../internal/legacy";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { StringUtil } from "../../utils/StringUtil";
@@ -8,9 +9,17 @@ import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
 
 export namespace SwaggerOperationResponseComposer {
   export const compose = (props: {
+    config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     schema: (metadata: MetadataSchema) => OpenApi.IJsonSchema | undefined;
     route: ITypedHttpRoute;
   }): Record<string, OpenApi.IOperation.IResponse> => {
+    // Swagger 2.0 keys a response's examples by MIME type, one each, so it has
+    // no named examples; the downgrader refuses the whole document rather than
+    // lose them (#1649). The single example still fits.
+    const named = (
+      examples: Record<string, OpenApi.IExample> | undefined,
+    ): Record<string, OpenApi.IExample> | undefined =>
+      props.config.openapi === "2.0" ? undefined : examples;
     const output: Record<string, OpenApi.IOperation.IResponse> = {};
     // FROM DECORATOR
     for (const [status, error] of Object.entries(props.route.exceptions))
@@ -20,7 +29,7 @@ export namespace SwaggerOperationResponseComposer {
           contentType: "application/json",
           schema: props.schema(error.metadata),
           example: error.example,
-          examples: error.examples,
+          examples: named(error.examples),
         }),
       };
 
@@ -91,7 +100,7 @@ export namespace SwaggerOperationResponseComposer {
             }
           : props.schema(props.route.success.metadata),
         example: props.route.success.example,
-        examples: props.route.success.examples,
+        examples: named(props.route.success.examples),
       }),
       ...(props.route.success.encrypted ? { "x-nestia-encrypted": true } : {}),
     };
@@ -126,7 +135,7 @@ const composeContent = (props: {
   contentType: string | null | undefined;
   schema: OpenApi.IJsonSchema | undefined;
   example: any;
-  examples: Record<string, any> | undefined;
+  examples: Record<string, OpenApi.IExample> | undefined;
 }): OpenApi.IOperation.IContent | undefined => {
   if (!props.contentType) return undefined;
   const described: boolean =

@@ -1,3 +1,4 @@
+import { OpenApi } from "@typia/interface";
 import { IJsDocTagInfo } from "typia";
 
 import { MetadataSchema } from "../internal/legacy";
@@ -34,7 +35,8 @@ export namespace ITypedHttpRouteParameter {
     type: IReflectType;
     metadata: MetadataSchema;
     example?: any;
-    examples?: Record<string, any>;
+    /** Named examples, as OpenAPI Example Objects. */
+    examples?: Record<string, OpenApi.IExample>;
     description: string | null;
     jsDocTags: IJsDocTagInfo[];
   }

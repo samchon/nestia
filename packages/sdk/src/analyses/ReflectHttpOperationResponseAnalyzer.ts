@@ -12,6 +12,7 @@ import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperatio
 import { IReflectOperationError } from "../structures/IReflectOperationError";
 import { HttpResponseContentTypeUtil } from "../utils/HttpResponseContentTypeUtil";
 import { TextPlainValidator } from "../validators/TextPlainValidator";
+import { SwaggerExampleAnalyzer } from "./SwaggerExampleAnalyzer";
 
 export namespace ReflectHttpOperationResponseAnalyzer {
   export interface IContext {
@@ -108,7 +109,7 @@ export namespace ReflectHttpOperationResponseAnalyzer {
                       ? ["HEAD method must not have any return value."]
                       : [],
       example: example?.example,
-      examples: example?.examples,
+      examples: SwaggerExampleAnalyzer.examples(example),
     };
   };
 

@@ -35,7 +35,7 @@ export namespace SwaggerOperationParameterComposer {
           : header({ ...props, parameter: props.parameter });
 
   export const body = (
-    props: Omit<IProps<ITypedHttpRouteParameter.IBody>, "config" | "document">,
+    props: Omit<IProps<ITypedHttpRouteParameter.IBody>, "document">,
   ): OpenApi.IOperation.IRequestBody => {
     const description: string | undefined =
       props.parameter.description ??
@@ -51,8 +51,15 @@ export namespace SwaggerOperationParameterComposer {
       content: {
         [props.parameter.contentType]: {
           schema: props.schema,
-          example: props.parameter.example,
-          examples: props.parameter.examples,
+          // Swagger 2.0 has no request body example: its body parameter holds
+          // only a schema, and the downgrader refuses the whole document
+          // rather than lose one (#1649).
+          ...(props.config.openapi === "2.0"
+            ? {}
+            : {
+                example: props.parameter.example,
+                examples: props.parameter.examples,
+              }),
         },
       },
       required: props.parameter.metadata.required,
@@ -228,17 +235,20 @@ const memberOf = (example: unknown, key: string): unknown =>
     : undefined;
 
 /**
- * Named object examples narrowed to the ones that have a `key` member, in the
- * same representation the undecomposed parameter carries them.
+ * Named object examples narrowed to the ones whose value has a `key` member,
+ * each an Example Object of that member.
  */
 const membersOf = (
-  examples: Record<string, any> | undefined,
+  examples: Record<string, OpenApi.IExample> | undefined,
   key: string,
-): Record<string, any> | undefined => {
+): Record<string, OpenApi.IExample> | undefined => {
   if (examples === undefined) return undefined;
-  const entries: [string, unknown][] = Object.entries(examples)
-    .map(([name, value]): [string, unknown] => [name, memberOf(value, key)])
-    .filter(([, value]) => value !== undefined);
+  const entries: [string, OpenApi.IExample][] = Object.entries(examples)
+    .map(([name, example]): [string, OpenApi.IExample] => [
+      name,
+      { ...example, value: memberOf(example.value, key) },
+    ])
+    .filter(([, example]) => example.value !== undefined);
   return entries.length !== 0 ? Object.fromEntries(entries) : undefined;
 };
 

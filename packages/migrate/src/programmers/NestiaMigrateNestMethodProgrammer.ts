@@ -380,7 +380,7 @@ export namespace NestiaMigrateNestMethodProgrammer {
             ),
           ]
         : []),
-      ...Object.entries(media.examples ?? {}).map(([key, value]) =>
+      ...Object.entries(media.examples ?? {}).map(([key, example]) =>
         factory.createDecorator(
           factory.createCallExpression(
             IdentifierFactory.access(
@@ -394,9 +394,43 @@ export namespace NestiaMigrateNestMethodProgrammer {
               kind,
             ),
             [],
-            [factory.createStringLiteral(key), LiteralFactory.write(value)],
+            [
+              factory.createStringLiteral(key),
+              LiteralFactory.write(exampleValue(example)),
+            ],
           ),
         ),
       ),
     ];
 }
+
+/**
+ * The value a named example stands for.
+ *
+ * OpenAPI names examples with Example Objects, whose `value` holds the value,
+ * and a `$ref` to one arrives resolved. Documents from earlier nestia versions
+ * held the values themselves, so an object is read as an Example Object only
+ * when it is one: it has a `value`, and every other key is an Example Object
+ * field or an extension. A raw value of exactly that shape is ambiguous and is
+ * read as an Example Object, as a conforming document means it.
+ */
+const exampleValue = (example: unknown): unknown =>
+  isExampleObject(example) ? example.value : example;
+
+const isExampleObject = (
+  example: unknown,
+): example is OpenApi.IExample & { value: unknown } =>
+  typeof example === "object" &&
+  example !== null &&
+  Array.isArray(example) === false &&
+  Object.prototype.hasOwnProperty.call(example, "value") &&
+  Object.keys(example).every(
+    (key) => EXAMPLE_OBJECT_KEYS.has(key) || key.startsWith("x-"),
+  );
+
+const EXAMPLE_OBJECT_KEYS: Set<string> = new Set([
+  "summary",
+  "description",
+  "value",
+  "externalValue",
+]);

@@ -71,6 +71,12 @@ export class ArticlesController {
     status: "draft",
     labels: ["fixture"],
   })
+  @core.SwaggerExample.Response<IArticle.ISummary>("published", {
+    id: "00000000-0000-0000-0000-000000000001",
+    title: "published fixture",
+    status: "published",
+    labels: [],
+  })
   @core.TypedException<IProblem>({
     status: 422,
     description: "invalid article payload",
@@ -85,6 +91,10 @@ export class ArticlesController {
       title: "fixture",
       body: { type: "markdown", markdown: "# Fixture", toc: true },
       labels: ["fixture"],
+    })
+    @core.SwaggerExample.Parameter<IArticle.ICreate>("minimal", {
+      title: "minimal",
+      body: { type: "text", text: "minimal" },
     })
     @core.TypedBody()
     input: IArticle.ICreate,

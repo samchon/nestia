@@ -8,6 +8,7 @@ import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperationParameter";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
 import { TextPlainValidator } from "../validators/TextPlainValidator";
+import { SwaggerExampleAnalyzer } from "./SwaggerExampleAnalyzer";
 
 export namespace ReflectHttpOperationParameterAnalyzer {
   export interface IContext {
@@ -177,7 +178,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             description: matched.description,
             jsDocTags: matched.jsDocTags,
             example: example?.example,
-            examples: example?.examples,
+            examples: SwaggerExampleAnalyzer.examples(example),
             ...shape,
           };
         else if (p.category === "query")
@@ -190,7 +191,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             description: matched.description,
             jsDocTags: matched.jsDocTags,
             example: example?.example,
-            examples: example?.examples,
+            examples: SwaggerExampleAnalyzer.examples(example),
             ...shape,
           };
         else if (p.category === "headers")
@@ -203,7 +204,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             description: matched.description,
             jsDocTags: matched.jsDocTags,
             example: example?.example,
-            examples: example?.examples,
+            examples: SwaggerExampleAnalyzer.examples(example),
             ...shape,
           };
         else if (p.category === "body")
@@ -223,7 +224,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             description: matched.description,
             jsDocTags: matched.jsDocTags,
             example: example?.example,
-            examples: example?.examples,
+            examples: SwaggerExampleAnalyzer.examples(example),
             ...shape,
           };
         else {

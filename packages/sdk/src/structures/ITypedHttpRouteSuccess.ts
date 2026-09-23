@@ -1,3 +1,5 @@
+import { OpenApi } from "@typia/interface";
+
 import { MetadataSchema } from "../internal/legacy";
 import { HttpResponseContentTypeUtil } from "../utils/HttpResponseContentTypeUtil";
 import { IReflectType } from "./IReflectType";
@@ -10,7 +12,8 @@ export interface ITypedHttpRouteSuccess {
   encrypted: boolean;
   metadata: MetadataSchema;
   example?: any;
-  examples?: Record<string, any>;
+  /** Named examples, as OpenAPI Example Objects. */
+  examples?: Record<string, OpenApi.IExample>;
   setHeaders: Array<
     | { type: "setter"; source: string; target?: string }
     | { type: "assigner"; source: string }
