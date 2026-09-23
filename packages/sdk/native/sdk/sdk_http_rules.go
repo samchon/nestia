@@ -176,11 +176,27 @@ func nestiaSDKHttpRuleErrors(errors []nativefactories.MetadataFactory_IError) []
 
 var nestiaSDKVariableName = regexp.MustCompile(`^[A-Za-z_$][A-Za-z0-9_$]*$`)
 
+// nestiaSDKHttpRuleAccessor names the property a violation was found at:
+// `IType.key`, `IType["x-key"]`, or `IType[key]` for a dynamic one. typia
+// hands over the key, or, for a violation in the property's comment tags, the
+// property itself.
 func nestiaSDKHttpRuleAccessor(explore nativefactories.MetadataFactory_IExplore) any {
 	if explore.Object == nil {
 		return nestiaSDKLiteralNull
 	}
-	switch key := explore.Property.(type) {
+	key := explore.Property
+	if property, ok := key.(*schemametadata.MetadataProperty); ok && property != nil {
+		key = nil
+		if property.Key != nil &&
+			len(property.Key.Constants) == 1 &&
+			len(property.Key.Constants[0].Values) == 1 {
+			key = property.Key.Constants[0].Values[0].Value
+		}
+		if key == nil {
+			return explore.Object.Name + "[key]"
+		}
+	}
+	switch key := key.(type) {
 	case nil:
 		return explore.Object.Name
 	case string:

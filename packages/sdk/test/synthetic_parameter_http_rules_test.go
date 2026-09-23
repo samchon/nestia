@@ -20,12 +20,13 @@ import (
 // rejected shape, and the accessor naming the offending property is asserted
 // too. A `Date` property is judged as the transform judges it, a native
 // object, although the SDK's own metadata of the same type already holds the
-// string its JSON escapes it to.
+// string its JSON escapes it to, and a type typia cannot analyze at all is
+// reported in every category, at the property whose comment tag it refused.
 //
 //  1. Author one route whose parameters are a flat object, objects with a
 //     nested object, a dynamic key, a union, a nullable property, and a
-//     `Date`, an atomic, an array of atomics, a field object, an array of
-//     field objects, and a union of atomics.
+//     `Date`, an invalid comment tag, an atomic, an array of atomics, a field
+//     object, an array of field objects, and a union of atomics.
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert each parameter's verdict per category.
 func TestSyntheticParameterHttpRules(t *testing.T) {
@@ -38,6 +39,10 @@ export interface IDynamic { [key: string]: string }
 export type IUnion = { a: string } | { b: string };
 export interface INullable { "x-a": string | null }
 export interface IDated { when?: Date }
+export interface ITagged {
+  /** @minimum NaN */
+  n: number;
+}
 
 export class SyntheticController {
   @core.TypedRoute.Get("rules")
@@ -48,6 +53,7 @@ export class SyntheticController {
     @Query() union: IUnion,
     @Query() nullable: INullable,
     @Query() dated: IDated,
+    @Query() tagged: ITagged,
     @Query("id") id: string,
     @Query("ids") ids: string[],
     @Query("object") object: { section: string },
@@ -92,6 +98,8 @@ export class SyntheticController {
 		{"nullable", "query", nil},
 		{"nullable", "headers", []string{`INullable["x-a"]: nullable type is not allowed.`}},
 		{"dated", "query", []string{"IDated.when: nested object type is not allowed."}},
+		{"tagged", "query", []string{"ITagged.n: invalid number"}},
+		{"tagged", "param", []string{"ITagged.n: invalid number"}},
 		// field-named parameters
 		{"id", "field", nil},
 		{"ids", "field", nil},
