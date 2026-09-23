@@ -11,9 +11,9 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  * dynamic key has none, so a plain `@Headers()` or `@Query()` typed
  * `Record<string, string>` crashed Swagger generation (#1645). OpenAPI 3.x
  * describes a query object with a dynamic key as one form-style parameter that
- * explodes into arbitrary keys, so such an object stays one parameter. No
- * header can describe arbitrary names, so a header object contributes its known
- * keys only.
+ * explodes into arbitrary keys, so such an object stays one parameter, required
+ * only when one of its named keys is. No header can describe arbitrary names,
+ * so a header object contributes its known keys only.
  *
  * 1. Read the generated Swagger document, which exists only if generation did not
  *    crash.
@@ -22,6 +22,7 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  * 3. Assert each query object with a dynamic key is one parameter whose schema
  *    keeps the dynamic part as `additionalProperties`, and the mixed one keeps
  *    its known `page` property too.
+ * 4. Assert only the object with a required named key is a required parameter.
  */
 export const test_swagger_dynamic_key_objects = async (): Promise<void> => {
   const document: OpenApi.IDocument = await SwaggerParameterReader.document();
@@ -41,12 +42,17 @@ export const test_swagger_dynamic_key_objects = async (): Promise<void> => {
     "header:x-tenant",
   ]);
 
-  for (const path of ["/record/query", "/record/mixed"]) {
+  for (const path of ["/record/query", "/record/mixed", "/record/required"]) {
     TestValidator.equals(path, summary(path), ["query:query"]);
     const schema: OpenApi.IJsonSchema.IObject = resolve(
       SwaggerParameterReader.parameters(document, path, "get")[0]!.schema,
     );
     TestValidator.equals(`${path} type`, schema.type, "object");
+    TestValidator.equals(
+      `${path} required`,
+      SwaggerParameterReader.parameters(document, path, "get")[0]!.required,
+      path === "/record/required",
+    );
     TestValidator.equals(
       `${path} additionalProperties`,
       SwaggerParameterReader.canonical(schema.additionalProperties),

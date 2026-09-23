@@ -646,9 +646,9 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 // `void` returns, function-only types) — the JS-side reader handles missing
 // `jsonSchema` fields. Any other panic is re-raised so real bugs surface.
 //
-// With `properties`, the literal also carries the value schema of each property
-// of the metadata's first object type, for the Swagger generator to decompose
-// into individual parameters (see `nestiaSDKPropertySchemas`).
+// With `properties`, the literal also carries the schema of each property of
+// the metadata's first object type, for the Swagger generator to decompose into
+// individual parameters (see `nestiaSDKPropertySchemas`).
 func nestiaSDKTryBakeJsonSchema(
 	prog *driver.Program,
 	typeNode *shimast.Node,
@@ -799,8 +799,8 @@ func nestiaSDKHasJSDocTag(tags []schemametadata.IJsDocTagInfo, names ...string) 
 // prints them as null, which JSON Schema rejects for those keywords. A nil
 // cannot be dropped everywhere, though: in an instance-valued keyword (`const`,
 // `default`, `enum`, `example`, `examples`) or a vendor extension it is a real
-// null, such as `tags.Example<null>`, which typia writes as a bare nil before
-// its explicit null marker (samchon/typia#2403).
+// null, such as the one `tags.Examples<{ none: null }>` declares, which typia
+// writes as a bare nil too until its explicit null marker (samchon/typia#2403).
 //
 // So the walk follows JSON Schema structure: it drops a nil member of a schema
 // object, recurses through the applicator keywords into subschemas, and leaves

@@ -104,22 +104,27 @@ export namespace SwaggerOperationParameterComposer {
       ITypedHttpRouteParameter.IHeaders | ITypedHttpRouteParameter.IQuery
     >,
   ): OpenApi.IOperation.IParameter[] => {
+    const object: MetadataObjectType | undefined = props.parameter.metadata
+      .objects[0]?.type as MetadataObjectType | undefined;
     const param: OpenApi.IOperation.IParameter = {
       name: props.parameter.field ?? props.parameter.name,
       in: props.parameter.category === "query" ? "query" : "header",
       schema: props.schema,
       description: parameterDescription(props),
-      required: props.parameter.metadata.required,
+      // An object is mandatory only when it needs one of its named keys; an
+      // object whose named properties are all optional, a `Record` included,
+      // is satisfied by an empty query string.
+      required:
+        props.parameter.metadata.required &&
+        (object === undefined ||
+          object.properties.some(
+            (p) => isSoleLiteralOf(p.key) && isRequiredOf(p.value),
+          )),
       example: props.parameter.example,
       examples: props.parameter.examples,
     };
-    if (
-      props.config.decompose === false ||
-      props.parameter.metadata.objects.length === 0
-    )
+    if (props.config.decompose === false || object === undefined)
       return [param];
-    const object: MetadataObjectType = props.parameter.metadata.objects[0]!
-      .type as MetadataObjectType;
     // A dynamic key (an index signature, a `Record`) has no name to give a
     // parameter. OpenAPI 3.x can still describe a query object that has one: a
     // form-style parameter explodes the object into arbitrary keys, so the
@@ -134,7 +139,7 @@ export namespace SwaggerOperationParameterComposer {
       return [param];
     // One parameter per property typia's object schema describes, so the
     // decomposed form says what `decompose: false` would say about the object:
-    // the property's value schema, and in the parameter's own fields its
+    // the property's schema, and in the parameter's own fields its
     // description, deprecation, and share of the object's examples.
     return object.properties
       .filter((p) => isSoleLiteralOf(p.key))
