@@ -120,17 +120,24 @@ export namespace SwaggerOperationParameterComposer {
       return [param];
     const object: MetadataObjectType = props.parameter.metadata.objects[0]!
       .type as MetadataObjectType;
-    // Only an object whose every key is known splits into named parameters. A
-    // dynamic key (an index signature, a `Record`) has no name to give one, and
-    // splitting off the known keys would drop it, so the undecomposed parameter
-    // remains the complete description.
-    if (object.properties.some((p) => isSoleLiteralOf(p.key) === false))
+    // A dynamic key (an index signature, a `Record`) has no name to give a
+    // parameter. OpenAPI 3.x can still describe a query object that has one: a
+    // form-style parameter explodes the object into arbitrary keys, so the
+    // object stays that one parameter. A header has no such form and Swagger 2.0
+    // has no object query parameter, so there only the known keys become
+    // parameters; nothing in those formats describes the dynamic part.
+    if (
+      props.parameter.category === "query" &&
+      props.config.openapi !== "2.0" &&
+      object.properties.some((p) => isSoleLiteralOf(p.key) === false)
+    )
       return [param];
     // One parameter per property typia's object schema describes, so the
     // decomposed form says what `decompose: false` would say about the object:
     // the property's value schema, and in the parameter's own fields its
     // description, deprecation, and share of the object's examples.
     return object.properties
+      .filter((p) => isSoleLiteralOf(p.key))
       .filter((p) =>
         p.jsDocTags.every(
           (tag) =>

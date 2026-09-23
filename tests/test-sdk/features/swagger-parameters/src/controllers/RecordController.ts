@@ -1,12 +1,18 @@
 import core from "@nestia/core";
 import { Controller, Headers, Query } from "@nestjs/common";
 
+import { IMixedHeaders } from "@api/lib/structures/IMixedHeaders";
 import { IMixedQuery } from "@api/lib/structures/IMixedQuery";
 
 @Controller("record")
 export class RecordController {
   @core.TypedRoute.Get("headers")
   public recordHeaders(@Headers() headers: Record<string, string>): void {
+    headers;
+  }
+
+  @core.TypedRoute.Get("mixed-headers")
+  public mixedHeaders(@Headers() headers: IMixedHeaders): void {
     headers;
   }
 

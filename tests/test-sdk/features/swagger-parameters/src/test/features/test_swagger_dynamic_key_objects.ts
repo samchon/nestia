@@ -4,25 +4,31 @@ import { OpenApi } from "typia";
 import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
 
 /**
- * Verifies a header or query object with a dynamic key stays one parameter
- * instead of being decomposed.
+ * Verifies header and query objects with a dynamic key are documented as far as
+ * OpenAPI can describe them.
  *
  * Decomposition named each parameter after its property's literal key, and a
  * dynamic key has none, so a plain `@Headers()` or `@Query()` typed
- * `Record<string, string>` crashed Swagger generation (#1645). Such an object
- * cannot be split into named parameters, and splitting off its known keys would
- * drop the dynamic part, so the undecomposed parameter with typia's object
- * schema is the complete description.
+ * `Record<string, string>` crashed Swagger generation (#1645). OpenAPI 3.x
+ * describes a query object with a dynamic key as one form-style parameter that
+ * explodes into arbitrary keys, so such an object stays one parameter. No
+ * header can describe arbitrary names, so a header object contributes its known
+ * keys only.
  *
  * 1. Read the generated Swagger document, which exists only if generation did not
  *    crash.
- * 2. Assert each dynamic-key route has exactly one parameter, named after the
- *    handler parameter, in the right location.
- * 3. Assert its schema keeps the dynamic part as `additionalProperties`, and the
- *    mixed object keeps its known `page` property too.
+ * 2. Assert the pure-`Record` header object yields no parameter, and the mixed one
+ *    yields its known header.
+ * 3. Assert each query object with a dynamic key is one parameter whose schema
+ *    keeps the dynamic part as `additionalProperties`, and the mixed one keeps
+ *    its known `page` property too.
  */
 export const test_swagger_dynamic_key_objects = async (): Promise<void> => {
   const document: OpenApi.IDocument = await SwaggerParameterReader.document();
+  const summary = (path: string): string[] =>
+    SwaggerParameterReader.parameters(document, path, "get").map(
+      (p) => `${p.in}:${p.name}`,
+    );
   const resolve = (schema: OpenApi.IJsonSchema): OpenApi.IJsonSchema.IObject =>
     ("$ref" in schema
       ? document.components.schemas![
@@ -30,19 +36,16 @@ export const test_swagger_dynamic_key_objects = async (): Promise<void> => {
         ]
       : schema) as OpenApi.IJsonSchema.IObject;
 
-  for (const [path, location, name] of [
-    ["/record/headers", "header", "headers"],
-    ["/record/query", "query", "query"],
-    ["/record/mixed", "query", "query"],
-  ] as const) {
-    const parameters: SwaggerParameterReader.IParameter[] =
-      SwaggerParameterReader.parameters(document, path, "get");
-    TestValidator.equals(
-      `${path} parameters`,
-      parameters.map((p) => `${p.in}:${p.name}`),
-      [`${location}:${name}`],
+  TestValidator.equals("record headers", summary("/record/headers"), []);
+  TestValidator.equals("mixed headers", summary("/record/mixed-headers"), [
+    "header:x-tenant",
+  ]);
+
+  for (const path of ["/record/query", "/record/mixed"]) {
+    TestValidator.equals(path, summary(path), ["query:query"]);
+    const schema: OpenApi.IJsonSchema.IObject = resolve(
+      SwaggerParameterReader.parameters(document, path, "get")[0]!.schema,
     );
-    const schema: OpenApi.IJsonSchema.IObject = resolve(parameters[0]!.schema);
     TestValidator.equals(`${path} type`, schema.type, "object");
     TestValidator.equals(
       `${path} additionalProperties`,

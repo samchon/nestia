@@ -5,6 +5,7 @@ import { Controller, INestApplication, Module, Query } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { OpenApi } from "typia";
 
+import { HandWrittenMetadata } from "../internal/HandWrittenMetadata";
 import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
 
 @Controller("fallback")
@@ -39,8 +40,8 @@ class FallbackModule {}
  *    schema that differs from the fallback's, one without the bake.
  * 2. Compose the document at runtime with `NestiaSwaggerComposer`.
  * 3. Assert the baked route uses the baked schema, and the unbaked route falls
- *    back to the atomic schema while omitting the `@internal`, `@hidden`, and
- *    `@ignore` properties on both.
+ *    back to the atomic schema, both omitting the `@internal`, `@hidden`, and
+ *    `@ignore` members.
  */
 export const test_swagger_decomposed_fallback = async (): Promise<void> => {
   for (const [method, baked] of [
@@ -49,7 +50,10 @@ export const test_swagger_decomposed_fallback = async (): Promise<void> => {
   ] as const)
     Reflect.defineMetadata(
       "nestia/OperationMetadata",
-      operation(baked),
+      HandWrittenMetadata.operation({
+        baked,
+        members: ["internal", "hidden", "ignored"],
+      }),
       FallbackController.prototype,
       method,
     );
@@ -83,126 +87,3 @@ export const test_swagger_decomposed_fallback = async (): Promise<void> => {
     await app.close();
   }
 };
-
-const operation = (baked: boolean) => ({
-  parameters: [
-    {
-      name: "query",
-      index: 0,
-      description: null,
-      jsDocTags: [],
-      type: { name: "IFallbackQuery" },
-      imports: [],
-      primitive: pipe(baked),
-      resolved: pipe(baked),
-    },
-  ],
-  success: {
-    type: { name: "void" },
-    imports: [],
-    primitive: void_(),
-    resolved: void_(),
-  },
-  exceptions: [],
-  description: null,
-  jsDocTags: [],
-});
-
-const pipe = (baked: boolean) => ({
-  success: true,
-  data: {
-    components: {
-      objects: [
-        {
-          name: "IFallbackQuery",
-          properties: ["visible", "internal", "hidden", "ignored"].map(
-            (key) => ({
-              key: constant(key),
-              value: atomic("number"),
-              description: null,
-              jsDocTags:
-                key === "visible"
-                  ? []
-                  : [{ name: key === "ignored" ? "ignore" : key, text: [] }],
-              mutability: null,
-            }),
-          ),
-          description: null,
-          jsDocTags: [],
-          index: 0,
-          recursive: false,
-          nullables: [false],
-        },
-      ],
-      aliases: [],
-      arrays: [],
-      tuples: [],
-    },
-    metadata: {
-      ...schema(),
-      objects: [{ name: "IFallbackQuery", tags: [] }],
-      size: 1,
-      name: "IFallbackQuery",
-      empty: false,
-      jsonSchema: {
-        version: "3.1",
-        components: {
-          schemas: {
-            IFallbackQuery: {
-              type: "object",
-              properties: { visible: { type: "number", minimum: 1 } },
-              required: ["visible"],
-            },
-          },
-        },
-        schema: { $ref: "#/components/schemas/IFallbackQuery" },
-        ...(baked
-          ? { properties: { visible: { type: "number", minimum: 1 } } }
-          : {}),
-      },
-    },
-  },
-});
-
-const void_ = () => ({
-  success: true,
-  data: {
-    components: { objects: [], aliases: [], arrays: [], tuples: [] },
-    metadata: { ...schema(), required: false, optional: true, size: 0 },
-  },
-});
-
-const constant = (value: string) => ({
-  ...schema(),
-  constants: [
-    {
-      type: "string",
-      values: [{ value, tags: [], description: null, jsDocTags: [] }],
-    },
-  ],
-});
-
-const atomic = (type: string) => ({
-  ...schema(),
-  atomics: [{ type, tags: [] }],
-});
-
-const schema = () => ({
-  any: false,
-  required: true,
-  optional: false,
-  nullable: false,
-  functions: [],
-  atomics: [],
-  constants: [],
-  templates: [],
-  escaped: null,
-  rest: null,
-  arrays: [],
-  tuples: [],
-  objects: [],
-  aliases: [],
-  natives: [],
-  sets: [],
-  maps: [],
-});
