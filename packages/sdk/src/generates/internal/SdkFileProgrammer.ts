@@ -124,11 +124,19 @@ export namespace SdkFileProgrammer {
         scope.has(r.name),
       );
       if (shadowing.length !== 0) {
-        const escape = StringUtil.escapeDuplicate([
+        // each local name distinct from the scope, the routes, and the other
+        // locals
+        const taken: string[] = [
           ...scope,
           ...directory.routes.map((r) => r.name),
-        ]);
-        file = write(new Map(shadowing.map((r) => [r, escape(r.name)])));
+        ];
+        const locals: Map<AnyRoute, string> = new Map();
+        for (const route of shadowing) {
+          const local: string = StringUtil.escapeDuplicate(taken)(route.name);
+          taken.push(local);
+          locals.set(route, local);
+        }
+        file = write(locals);
       }
       const importer: ImportDictionary = file.importer;
       statements.push(...file.statements);

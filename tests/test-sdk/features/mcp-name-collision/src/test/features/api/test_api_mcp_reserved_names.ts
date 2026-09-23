@@ -17,7 +17,9 @@ export interface IConnection {
  * `first` locals, and reads its tool name from `<tool>.METADATA` beside or
  * after them. A tool of one of those names therefore read its own parameter or
  * a local still in its temporal dead zone, and the SDK failed to compile
- * (#1647). The wrapper's identifiers now yield to the tool name.
+ * (#1647). The wrapper's identifiers now yield to the tool name. A tool named
+ * `JSON`, a global the wrapper calls, is declared under a local name and
+ * exported as itself.
  *
  * 1. Connect an MCP SDK client to the test transport.
  * 2. Call each wrapper and assert the tool it reached echoes the message.
@@ -39,6 +41,7 @@ export const test_api_mcp_reserved_names = async (
       ["raw", mcp.raw],
       ["result", mcp.result],
       ["first", mcp.first],
+      ["JSON", mcp.JSON],
     ] as const)
       TestValidator.equals(
         name,

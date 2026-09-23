@@ -14,8 +14,9 @@ import api from "@api";
  *
  * 1. Connect to the route whose path parameters are named after the locals, with a
  *    query parameter not named `query`, and read its echo.
- * 2. Connect to the route with a path parameter named `query` and to the route
- *    named `url`, and read their echoes.
+ * 2. Connect to the route with a path parameter named `query`, to the route named
+ *    `url`, and to the route named `exports`, which TypeScript reserves in a
+ *    CommonJS module's scope, and read their echoes.
  */
 export const test_sdk_name_collision_websocket = async (
   connection: api.IConnection,
@@ -45,4 +46,7 @@ export const test_sdk_name_collision_websocket = async (
     ["path", "search"],
   );
   TestValidator.equals("url", await echo(sockets.url(socket, null)), ["url"]);
+  TestValidator.equals("exports", await echo(sockets.exports(socket, null)), [
+    "exports",
+  ]);
 };

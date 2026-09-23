@@ -13,8 +13,9 @@ import api from "@api";
  *
  * 1. Connect to the route with path parameters named after the SDK's locals and
  *    its `provider` key, with a query parameter not named `query`.
- * 2. Connect to the route with a path parameter named `query`, and to the route
- *    named `url`, and read their echoes.
+ * 2. Connect to the route with a path parameter named `query`, to the route named
+ *    `url`, and to the route named `exports`, which TypeScript reserves in a
+ *    CommonJS module's scope, and read their echoes.
  */
 export const test_sdk_name_collision_keyword_websocket = async (
   connection: api.IConnection,
@@ -61,5 +62,10 @@ export const test_sdk_name_collision_keyword_websocket = async (
     "url",
     await echo(sockets.url(socket, { provider: null })),
     ["url"],
+  );
+  TestValidator.equals(
+    "exports",
+    await echo(sockets.exports(socket, { provider: null })),
+    ["exports"],
   );
 };

@@ -44,6 +44,14 @@ export class SocketController {
     await acceptor.accept({ echo: () => [query, search.value] });
   }
 
+  @WebSocketRoute("exports")
+  public async exports(
+    @WebSocketRoute.Acceptor()
+    acceptor: WebSocketAcceptor<undefined, IEcho, null>,
+  ): Promise<void> {
+    await acceptor.accept({ echo: () => ["exports"] });
+  }
+
   @WebSocketRoute("url")
   public async url(
     @WebSocketRoute.Acceptor()

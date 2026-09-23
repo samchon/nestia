@@ -11,7 +11,7 @@ export interface IEchoOutput {
 
 /**
  * MCP tools named after the identifiers the generated MCP SDK function declares
- * next to its `<method>.METADATA` reference.
+ * next to its `<method>.METADATA` reference, or after a global its body calls.
  */
 @Controller()
 export class ReservedNameController {
@@ -41,6 +41,13 @@ export class ReservedNameController {
     @core.McpRoute.Params() params: IEchoInput,
   ): Promise<IEchoOutput> {
     return { message: `result:${params.message}` };
+  }
+
+  @core.McpRoute("JSON")
+  public async JSON(
+    @core.McpRoute.Params() params: IEchoInput,
+  ): Promise<IEchoOutput> {
+    return { message: `JSON:${params.message}` };
   }
 
   @core.McpRoute("first")
