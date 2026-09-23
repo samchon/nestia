@@ -4,8 +4,8 @@
 // its runtime classes.
 //
 // The utilities index components, resolve references, read metadata flags
-// and precomputed fields, validate SDK policy, and compose schemas for
-// decomposed parameters whose metadata has no precomputed JSON schema.
+// and precomputed fields, validate SDK policy, and read the precomputed JSON
+// schemas, including the per-property ones decomposed parameters use.
 import type {
   IJsonSchemaCollection,
   IMetadataComponents,
@@ -53,6 +53,17 @@ export interface IReflectJsonSchema {
   version: "3.0" | "3.1";
   components: OpenApi.IComponents;
   schema: OpenApi.IJsonSchema;
+
+  /**
+   * The typia schema of each property value of the first object type, keyed by
+   * property name and resolved against {@link components}.
+   *
+   * Baked on the resolved schema of route parameters only, for the Swagger
+   * generator to decompose a query or headers object into one parameter per
+   * property. A property typia's object schema omits (`@hidden`, `@ignore`,
+   * `@internal`, or a value with no JSON form) has no entry.
+   */
+  properties?: Record<string, OpenApi.IJsonSchema>;
 }
 
 /**
@@ -418,12 +429,10 @@ export namespace JsonSchemasProgrammer {
   /**
    * Consumes the per-metadata `jsonSchema` field the nestia transform
    * pre-bakes. Top-level route metadata (success / parameter / exception)
-   * always carries a baked schema; for nested metadata (object property values
-   * reached by the decomposed-query path), the bake is absent and this function
-   * falls back to a minimal JS-side converter that handles the schema shapes
-   * decompose actually emits — atomics, constants, templates, arrays of those,
-   * named references — without re-implementing the typia native programmer
-   * wholesale.
+   * carries a baked schema whenever typia can describe the type. Metadata
+   * without one falls back to a minimal JS-side converter that reads only the
+   * atomic kinds — no type tags, template patterns, or constant annotations —
+   * so it is no substitute for the bake.
    */
   export const writeSchemas = (props: {
     version: "3.0" | "3.1";
@@ -447,6 +456,40 @@ export namespace JsonSchemasProgrammer {
       version: props.version,
       components,
       schemas,
+    } as IJsonSchemaCollection;
+  };
+
+  /**
+   * Writes the schema of one property of `metadata`'s first object type, for a
+   * decomposed query or headers parameter.
+   *
+   * Reads the value schema typia baked beside `metadata`'s own schema (see
+   * {@link IReflectJsonSchema.properties}), resolved against the same
+   * components. Returns `null` when that bake exists but has no entry for the
+   * property, because typia's object schema omits it, so no parameter describes
+   * it either. Only metadata the transform did not bake falls back to
+   * {@link writeSchemas} over the property value.
+   */
+  export const writeProperty = (props: {
+    version: "3.0" | "3.1";
+    metadata: IMetadataSchema;
+    key: string;
+    value: IMetadataSchema;
+  }): IJsonSchemaCollection | null => {
+    const properties: Record<string, OpenApi.IJsonSchema> | undefined = (
+      props.metadata as IReflectMetadata
+    ).jsonSchema?.properties;
+    if (properties === undefined)
+      return writeSchemas({
+        version: props.version,
+        metadatas: [props.value],
+      });
+    if (Object.prototype.hasOwnProperty.call(properties, props.key) === false)
+      return null;
+    return {
+      version: props.version,
+      components: (props.metadata as IReflectMetadata).jsonSchema!.components,
+      schemas: [properties[props.key]!],
     } as IJsonSchemaCollection;
   };
 }

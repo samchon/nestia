@@ -87,6 +87,7 @@ export namespace SwaggerOperationComposer {
         ...props.route.pathParameters,
         ...props.route.queryParameters,
         ...(props.route.queryObject ? [props.route.queryObject] : []),
+        ...props.route.headerParameters,
         ...(props.route.headerObject ? [props.route.headerObject] : []),
       ]
         .map((p) =>

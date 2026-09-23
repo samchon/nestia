@@ -117,19 +117,31 @@ export namespace SwaggerOperationParameterComposer {
       props.parameter.metadata.objects.length === 0
     )
       return [param];
+    // One parameter per property typia's object schema describes, so the
+    // decomposed form says what `decompose: false` would say about the object:
+    // the property's value schema, and in the parameter's own fields its
+    // description, deprecation, and share of the object's examples.
     return (
       props.parameter.metadata.objects[0]!.type as MetadataObjectType
     ).properties
       .filter((p) =>
         p.jsDocTags.every(
-          (tag) => tag.name !== "hidden" && tag.name !== "ignore",
+          (tag) =>
+            tag.name !== "hidden" &&
+            tag.name !== "ignore" &&
+            tag.name !== "internal",
         ),
       )
-      .map((p) => {
-        const json: IJsonSchemaCollection = JsonSchemasProgrammer.writeSchemas({
-          version: "3.1",
-          metadatas: [p.value],
-        }) as IJsonSchemaCollection;
+      .map((p): IDecomposedParameter | null => {
+        const key: string = String(p.key.constants[0]!.values[0]!.value);
+        const json: IJsonSchemaCollection | null =
+          JsonSchemasProgrammer.writeProperty({
+            version: "3.1",
+            metadata: props.parameter.metadata,
+            key,
+            value: p.value,
+          });
+        if (json === null) return null;
         SwaggerReadonlyArrayEmender.emend({
           components: json.components,
           schema: json.schemas[0],
@@ -144,7 +156,7 @@ export namespace SwaggerOperationParameterComposer {
           );
         }
         return {
-          name: p.key.constants[0]!.values[0]!.value as string,
+          name: key,
           in: props.parameter.category === "query" ? "query" : "header",
           schema: json.schemas[0]!,
           required: isRequiredOf(p.value),
@@ -153,10 +165,48 @@ export namespace SwaggerOperationParameterComposer {
             jsDocTags: p.jsDocTags,
             kind: "title",
           }).description,
+          deprecated: p.jsDocTags.some((tag) => tag.name === "deprecated")
+            ? true
+            : undefined,
+          example: memberOf(props.parameter.example, key),
+          examples: membersOf(props.parameter.examples, key),
         };
-      });
+      })
+      .filter((p): p is IDecomposedParameter => p !== null);
   };
 }
+
+/**
+ * A decomposed parameter. OpenAPI 3.0 through 3.2 define `deprecated` on the
+ * Parameter Object, which typia's `OpenApi.IOperation.IParameter` does not
+ * model; its downgraders carry the field through unchanged.
+ */
+type IDecomposedParameter = OpenApi.IOperation.IParameter & {
+  deprecated?: boolean;
+};
+
+/** The `key` member of an object example, if the example has one. */
+const memberOf = (example: unknown, key: string): unknown =>
+  typeof example === "object" &&
+  example !== null &&
+  Object.prototype.hasOwnProperty.call(example, key)
+    ? (example as Record<string, unknown>)[key]
+    : undefined;
+
+/**
+ * Named object examples narrowed to the ones that have a `key` member, in the
+ * same representation the undecomposed parameter carries them.
+ */
+const membersOf = (
+  examples: Record<string, any> | undefined,
+  key: string,
+): Record<string, any> | undefined => {
+  if (examples === undefined) return undefined;
+  const entries: [string, unknown][] = Object.entries(examples)
+    .map(([name, value]): [string, unknown] => [name, memberOf(value, key)])
+    .filter(([, value]) => value !== undefined);
+  return entries.length !== 0 ? Object.fromEntries(entries) : undefined;
+};
 
 const warning = new VariadicSingleton((described: boolean): string => {
   const summary = "Request body must be encrypted.";
