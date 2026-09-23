@@ -147,6 +147,30 @@ export const isRequiredOf = (m: IMetadataSchema): boolean =>
   m.required && !m.optional;
 
 /**
+ * Reads a constant's or a type tag's value as the SDK's Go contributor writes
+ * it.
+ *
+ * JSON holds neither a bigint nor NaN or ±Infinity, so the metadata carries a
+ * bigint value as its decimal digits and a non-finite number by its name
+ * (`"Infinity"`), both as strings. `type` is the value's own type, the
+ * constant's type or the tag's target, and the only type such a string can
+ * stand for; every other value, a composite one included, is returned as it
+ * is.
+ */
+export const decodeMetadataValue = (type: string, value: unknown): unknown => {
+  if (type === "bigint")
+    return (typeof value === "string" && /^-?[0-9]+$/.test(value)) ||
+      (typeof value === "number" && Number.isInteger(value))
+      ? BigInt(value)
+      : value;
+  else if (type === "number")
+    return value === "NaN" || value === "Infinity" || value === "-Infinity"
+      ? Number(value)
+      : value;
+  return value;
+};
+
+/**
  * Equivalent of the legacy `MetadataSchema.isSoleLiteral()` method: `true` when
  * the schema represents exactly one constant literal value and nothing else.
  * Used by sdk's type printer to fall back to literal emission instead of a
@@ -519,7 +543,7 @@ const schemaFromMetadata = (m: IMetadataSchema): OpenApi.IJsonSchema => {
   for (const constant of m.constants)
     for (const value of constant.values)
       union.push({
-        const: value.value,
+        const: jsonValue(decodeMetadataValue(constant.type, value.value)),
       } as unknown as OpenApi.IJsonSchema);
   for (const tpl of m.templates) {
     union.push({ type: "string" } as OpenApi.IJsonSchema);
@@ -550,6 +574,17 @@ const schemaFromMetadata = (m: IMetadataSchema): OpenApi.IJsonSchema => {
   if (union.length === 1) return union[0]!;
   return { oneOf: union } as unknown as OpenApi.IJsonSchema;
 };
+
+/**
+ * A value as a JSON document holds it: the number a bigint is, and null for a
+ * non-finite number, as `JSON.stringify` writes it.
+ */
+const jsonValue = (value: unknown): unknown =>
+  typeof value === "bigint"
+    ? Number(value)
+    : typeof value === "number" && Number.isFinite(value) === false
+      ? null
+      : value;
 
 const schemaFromAtomic = (atomic: IMetadataSchema.IAtomic): unknown => {
   if (atomic.type === "boolean") return { type: "boolean" };

@@ -39,7 +39,8 @@ const typiaNativeModulePath = "github.com/samchon/typia/packages/typia/native"
 //     replace directive redirecting it.
 //  3. Assert the pinned source tree equals the npm-installed typia `native`
 //     directory of both @nestia/core and @nestia/sdk, file by file, ignoring
-//     `LICENSE` (absent from the Go module zip) and `_test.go` files.
+//     `LICENSE` (in the Go module zip, absent from the npm package) and
+//     `_test.go` files.
 func TestTypiaGoPinMatchesNpmTypia(t *testing.T) {
 	root := repoRootForCore(t)
 	modules := []string{

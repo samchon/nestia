@@ -1,6 +1,11 @@
 package sdk
 
-import schemametadata "github.com/samchon/typia/packages/typia/native/core/schemas/metadata"
+import (
+	"math"
+	"reflect"
+
+	schemametadata "github.com/samchon/typia/packages/typia/native/core/schemas/metadata"
+)
 
 func nestiaSDKMetadataComponentsLiteral(
 	components schemametadata.IMetadataComponents,
@@ -94,7 +99,7 @@ func nestiaSDKMetadataConstants(
 		values := []any{}
 		for _, value := range constant.Values {
 			values = append(values, map[string]any{
-				"value":       value.Value,
+				"value":       nestiaSDKMetadataValue(value.Value),
 				"tags":        nestiaSDKMetadataTagMatrix(value.Tags),
 				"description": nestiaSDKOptionalString(value.Description),
 				"jsDocTags":   nestiaSDKJSDocTags(value.JsDocTags),
@@ -277,7 +282,7 @@ func nestiaSDKMetadataTypeTag(tag schemametadata.IMetadataTypeTag) map[string]an
 		"name":      tag.Name,
 		"kind":      tag.Kind,
 		"exclusive": tag.Exclusive,
-		"value":     tag.Value,
+		"value":     nestiaSDKMetadataValue(tag.Value),
 		"schema":    tag.Schema,
 	}
 	if tag.Validate != "" {
@@ -324,4 +329,53 @@ func nestiaSDKOptionalInt(input *int) any {
 		return nestiaSDKLiteralNull
 	}
 	return *input
+}
+
+// nestiaSDKMetadataValue writes a constant's or a type tag's value for the
+// metadata literal, keeping what a JSON number cannot hold.
+//
+// The SDK generator reads these values to write types back, the literal type
+// `5n` or the tag `tags.Minimum<1e999>` of a cloned DTO, so a lossy value
+// becomes a wrong or uncompilable type. typia marshals a bigint as a bare JSON
+// number, which the generator's `JSON.parse` rounds past 2^53, and JSON has no
+// NaN or ±Infinity at all. So a bigint is written as its decimal digits and a
+// non-finite number by its JavaScript name (`"NaN"`, `"Infinity"`,
+// `"-Infinity"`), as strings the generator reads back by the constant's type
+// or the tag's target, where no such string is otherwise possible.
+//
+// Only the value itself is encoded. A composite one, such as the object
+// `tags.Examples` or `tags.JsonSchemaPlugin` takes, may hold any string, so
+// an encoded member could not be told apart; its members keep what a JSON
+// document holds, as the tag's `schema` and the baked JSON schemas do
+// (nestiaSDKFiniteLiteral).
+func nestiaSDKMetadataValue(input any) any {
+	switch value := input.(type) {
+	case schemametadata.MetadataBigint:
+		return nestiaSDKBigintText(value)
+	case *schemametadata.MetadataBigint:
+		if value != nil {
+			return nestiaSDKBigintText(*value)
+		}
+		return input
+	}
+	reflected := reflect.ValueOf(input)
+	if reflected.Kind() != reflect.Float32 && reflected.Kind() != reflect.Float64 {
+		return input
+	}
+	number := reflected.Float()
+	if math.IsNaN(number) {
+		return "NaN"
+	} else if math.IsInf(number, 1) {
+		return "Infinity"
+	} else if math.IsInf(number, -1) {
+		return "-Infinity"
+	}
+	return input
+}
+
+func nestiaSDKBigintText(value schemametadata.MetadataBigint) string {
+	if value.Text == "" {
+		return "0"
+	}
+	return value.Text
 }

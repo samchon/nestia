@@ -5,8 +5,9 @@ import (
 	"testing"
 )
 
-// Verifies non-finite numbers in the SDK metadata are written as null, the way
-// JavaScript's `JSON.stringify` writes them, instead of aborting generation.
+// Verifies non-finite numbers in the SDK metadata no longer abort generation:
+// JSON schemas write them as null, the way JavaScript's `JSON.stringify` does,
+// and constant and type tag values keep them by name.
 //
 // typia hands over NaN and ±Infinity wherever a type or a comment spells one:
 // a JSDoc `@x-` extension whose text parses as a float (`NaN`, `Infinity`,
@@ -14,19 +15,25 @@ import (
 // and a type tag argument such as `tags.Minimum<1e999>`. The SDK serializes
 // its metadata with encoding/json, which refuses those values, so a single one
 // anywhere in the types a route reaches used to fail `nestia sdk` and
-// `nestia swagger` for the whole project with "json: unsupported value". The
-// values sit in both halves of the metadata, the baked JSON schema and the
-// metadata literal (constants and type tags), and inside typia's ordered
-// objects, which marshal themselves, so each is asserted. A null replaces the
-// value but keeps its key, as `JSON.stringify({ a: NaN })` does, and a finite
-// number next to it must stay a number.
+// `nestia swagger` for the whole project with "json: unsupported value".
+//
+// Two halves of the metadata differ. A JSON schema is document content, so
+// the baked schemas and a tag's `schema` hold what a JSON document can: null
+// in place of the value, with its key kept as `JSON.stringify({ a: NaN })`
+// keeps it. A constant's or a tag's value is what the SDK generator writes a
+// type back from, and a null there lost the sign and made a cloned DTO fail
+// to compile, so it carries the JavaScript name, `"Infinity"` or
+// `"-Infinity"`. A bigint value is carried as its digits for the same reason:
+// typia marshals it as a JSON number, which `JSON.parse` rounds past 2^53.
+// Finite numbers next to them stay numbers.
 //
 //  1. Author a query object carrying every non-finite source next to finite
 //     twins, and run the SDK metadata pass over it in-process.
 //  2. Assert the component and the decomposed property schemas write each
 //     non-finite value as a present null and keep the finite ones.
 //  3. Assert the metadata literal writes the non-finite constant and type tag
-//     values as null and keeps the finite ones.
+//     values by name, the bigint ones as digits, and each tag's schema as a
+//     JSON schema, keeping the finite ones.
 func TestSyntheticNonFiniteValuesBecomeNull(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 import { tags } from "typia";
@@ -56,6 +63,8 @@ export interface INonFinite {
   samples: number & tags.Examples<{ big: 1e999; small: 1 }>;
   plugin: number & tags.JsonSchemaPlugin<{ "x-plugin": 1e999 }>;
   bounded: number & tags.Minimum<3>;
+  big: 12345678901234567890n;
+  ranged: bigint & tags.Maximum<5n>;
 }
 
 export class SyntheticController {
@@ -119,20 +128,22 @@ export class SyntheticController {
 		}
 	}
 	for key, value := range map[string]string{
-		"literal": `[null]`,
-		"union":   `[null,1]`,
-		"level":   `[null,1]`,
+		"literal": `["Infinity"]`,
+		"union":   `["-Infinity",1]`,
+		"level":   `["Infinity",1]`,
+		"big":     `["12345678901234567890"]`,
 	} {
 		if values[key] != value {
 			t.Fatalf("metadata constant %q values are %s, expected %s", key, values[key], value)
 		}
 	}
 	for key, tag := range map[string]string{
-		"minimum":  `{"schema":{"minimum":null},"value":null}`,
-		"fallback": `{"schema":{"default":null},"value":null}`,
-		"sample":   `{"schema":{"example":null},"value":null}`,
+		"minimum":  `{"schema":{"minimum":null},"value":"Infinity"}`,
+		"fallback": `{"schema":{"default":null},"value":"Infinity"}`,
+		"sample":   `{"schema":{"example":null},"value":"-Infinity"}`,
 		"plugin":   `{"schema":{"x-plugin":null},"value":null}`,
 		"bounded":  `{"schema":{"minimum":3},"value":3}`,
+		"ranged":   `{"schema":{"maximum":5},"value":"5"}`,
 	} {
 		if tags[key] != tag {
 			t.Fatalf("metadata type tag of %q is %s, expected %s", key, tags[key], tag)

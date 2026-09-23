@@ -1,4 +1,4 @@
-import { type Expression, factory } from "@ttsc/factory";
+import { type Expression, SyntaxKind, factory } from "@ttsc/factory";
 
 import { ExpressionFactory } from "./ExpressionFactory";
 import { IdentifierFactory } from "./IdentifierFactory";
@@ -30,7 +30,12 @@ export namespace LiteralFactory {
     if (typeof input === "number") return ExpressionFactory.number(input);
     if (typeof input === "string") return factory.createStringLiteral(input);
     if (typeof input === "bigint")
-      return factory.createStringLiteral(input.toString());
+      return input < BigInt(0)
+        ? factory.createPrefixUnaryExpression(
+            SyntaxKind.MinusToken,
+            factory.createBigIntLiteral((-input).toString()),
+          )
+        : factory.createBigIntLiteral(input.toString());
     if (typeof input === "function")
       return factory.createIdentifier("undefined");
     throw new TypeError("LiteralFactory.write: unsupported input type.");
