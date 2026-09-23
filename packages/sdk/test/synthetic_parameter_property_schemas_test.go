@@ -5,21 +5,22 @@ import (
 	"testing"
 )
 
-// Verifies the SDK bake writes typia's value schema for each property of a
-// parameter's object type, only on the parameter's resolved schema.
+// Verifies the SDK bake writes typia's schema of each property of a parameter's
+// object type, only on the parameter's resolved schema.
 //
 // The Swagger generator decomposes a query or headers object into one OpenAPI
 // parameter per property. Those parameters used to take their schemas from a
 // JS fallback that read only the atomic kind, so every type tag, integer type,
 // template-literal pattern and constant annotation disappeared, and a literal
 // object became a `$ref` to a component typia never writes. The bake has to
-// come from typia's own schema writer, skip exactly the properties typia's
-// object schema omits, and stay off the schemas nothing decomposes.
+// come from typia's own schema writer, keep the property's `x-` JSDoc
+// extensions the way typia's object schema does, skip exactly the properties
+// that schema omits, and stay off the schemas nothing decomposes.
 //
-//  1. Author a controller whose query object covers tagged atomics, an integer
-//     type, a template literal, a tagged array, a literal object, a
-//     function-only member and `@internal` / `@hidden` / `@ignore` members, and
-//     that returns the same object.
+//  1. Author a controller whose query object covers tagged atomics, an `x-`
+//     JSDoc extension, an integer type, a template literal, a tagged array, a
+//     literal object, a function-only member and `@internal` / `@hidden` /
+//     `@ignore` members, and that returns the same object.
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert the resolved parameter schema carries typia's value schemas for
 //     the described properties and none for the omitted ones.
@@ -30,6 +31,7 @@ func TestSyntheticParameterPropertySchemasBakeTypiaValueSchemas(t *testing.T) {
 import { tags } from "typia";
 
 interface IQuery {
+  /** @x-foo bar */
   from: string & tags.Format<"date-time">;
   limit: number & tags.Minimum<1> & tags.Maximum<100> & tags.Default<10>;
   int32: number & tags.Type<"int32">;
@@ -60,7 +62,7 @@ export class SyntheticController {
 		t.Fatalf("resolved parameter schema carries no property schemas\n%v", parameter)
 	}
 	expected := map[string]any{
-		"from": map[string]any{"type": "string", "format": "date-time"},
+		"from": map[string]any{"type": "string", "format": "date-time", "x-foo": "bar"},
 		"limit": map[string]any{
 			"type":    "number",
 			"minimum": 1.0,

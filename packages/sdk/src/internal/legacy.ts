@@ -55,8 +55,10 @@ export interface IReflectJsonSchema {
   schema: OpenApi.IJsonSchema;
 
   /**
-   * The typia schema of each property value of the first object type, keyed by
-   * property name and resolved against {@link components}.
+   * The schema of each property of the first object type, keyed by property
+   * name and resolved against {@link components}: the property schema typia's
+   * object schema holds, without the title, description, deprecation, and
+   * readOnly an OpenAPI parameter carries in its own fields or cannot use.
    *
    * Baked on the resolved schema of route parameters only, for the Swagger
    * generator to decompose a query or headers object into one parameter per
@@ -463,11 +465,13 @@ export namespace JsonSchemasProgrammer {
    * Writes the schema of one property of `metadata`'s first object type, for a
    * decomposed query or headers parameter.
    *
-   * Reads the value schema typia baked beside `metadata`'s own schema (see
+   * Reads the schema baked beside `metadata`'s own schema (see
    * {@link IReflectJsonSchema.properties}), resolved against the same
-   * components. Returns `null` when that bake exists but has no entry for the
-   * property, because typia's object schema omits it, so no parameter describes
-   * it either. Only metadata the transform did not bake falls back to
+   * components. The schema is a copy: the metadata outlives one document, and a
+   * `SwaggerCustomizer` or a second composition must not see another's edits.
+   * Returns `null` when that bake exists but has no entry for the property,
+   * because typia's object schema omits it, so no parameter describes it
+   * either. Only metadata the transform did not bake falls back to
    * {@link writeSchemas} over the property value.
    */
   export const writeProperty = (props: {
@@ -489,7 +493,7 @@ export namespace JsonSchemasProgrammer {
     return {
       version: props.version,
       components: (props.metadata as IReflectMetadata).jsonSchema!.components,
-      schemas: [properties[props.key]!],
+      schemas: [JSON.parse(JSON.stringify(properties[props.key]))],
     } as IJsonSchemaCollection;
   };
 }

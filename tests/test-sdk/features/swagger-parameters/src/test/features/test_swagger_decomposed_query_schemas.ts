@@ -61,6 +61,7 @@ export const test_swagger_decomposed_query_schemas =
       pin("commentFormat", { type: "string", format: "uuid" });
       pin("described", { type: "string", maxLength: 8 });
       pin("readonlyProp", { type: "string" });
+      pin("custom", { type: "string", "x-custom": "value" });
       pin("kind", {
         oneOf: [
           { const: "a", description: "First kind." },

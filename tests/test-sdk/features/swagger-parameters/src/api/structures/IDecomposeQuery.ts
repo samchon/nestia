@@ -40,10 +40,10 @@ export interface IDecomposeQuery {
   plugin: string & tags.JsonSchemaPlugin<{ "x-foo": "bar" }>;
   example: string & tags.Example<"xyz">;
   anything: any;
+  /** @x-custom value */
+  custom: string;
   /** @internal */
   internal?: string;
-  /** @ignore */
-  hidden?: string;
   /** @ignore */
   ignored?: string;
 }

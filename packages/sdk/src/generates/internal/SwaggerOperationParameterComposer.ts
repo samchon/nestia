@@ -172,9 +172,13 @@ export namespace SwaggerOperationParameterComposer {
             jsDocTags: p.jsDocTags,
             kind: "title",
           }).description,
-          deprecated: p.jsDocTags.some((tag) => tag.name === "deprecated")
-            ? true
-            : undefined,
+          // Swagger 2.0 defines no `deprecated` on a parameter, and the
+          // downgrader copies the field through rather than refusing it.
+          deprecated:
+            props.config.openapi !== "2.0" &&
+            p.jsDocTags.some((tag) => tag.name === "deprecated")
+              ? true
+              : undefined,
           example: memberOf(props.parameter.example, key),
           examples: membersOf(props.parameter.examples, key),
         };
@@ -186,7 +190,7 @@ export namespace SwaggerOperationParameterComposer {
 /**
  * A decomposed parameter. OpenAPI 3.0 through 3.2 define `deprecated` on the
  * Parameter Object, which typia's `OpenApi.IOperation.IParameter` does not
- * model; its downgraders carry the field through unchanged.
+ * model; its 3.x downgraders carry the field through unchanged.
  */
 type IDecomposedParameter = OpenApi.IOperation.IParameter & {
   deprecated?: boolean;

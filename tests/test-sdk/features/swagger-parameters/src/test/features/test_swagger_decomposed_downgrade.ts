@@ -10,14 +10,16 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  *
  * `nestia swagger` and `NestiaSwaggerComposer` both write the 3.2 document and
  * hand it to `OpenApiConverter.downgradeDocument` for an older version. The
- * constraints the decomposed parameters now carry, the deprecation flag, and
- * the field header must survive that conversion, including Swagger 2.0, whose
- * parameters inline their schema.
+ * constraints the decomposed parameters now carry and the field header must
+ * survive that conversion, including Swagger 2.0, whose parameters inline their
+ * schema. The deprecation flag must survive into 3.x; Swagger 2.0 has no
+ * parameter `deprecated`, and the generator leaves it out when it targets 2.0,
+ * which the `openapi_v2` feature pins.
  *
  * 1. Read the generated 3.2 document and downgrade it to 3.1, 3.0, and 2.0.
  * 2. In each version, assert the format, range, integer, array, and pattern
- *    constraints of the decomposed query parameters.
- * 3. Assert the deprecated parameter and the field header survive.
+ *    constraints of the decomposed query parameters and the field header.
+ * 3. Assert the deprecated parameter survives into 3.1 and 3.0.
  */
 export const test_swagger_decomposed_downgrade = async (): Promise<void> => {
   const document: OpenApi.IDocument = await SwaggerParameterReader.document();
@@ -67,13 +69,14 @@ export const test_swagger_decomposed_downgrade = async (): Promise<void> => {
       typeof query("tpl").pattern,
       "string",
     );
-    TestValidator.equals(
-      `${version} deprecated`,
-      (downgraded.paths["/example/query"].get.parameters as any[]).find(
-        (p) => p.name === "page",
-      )?.deprecated,
-      true,
-    );
+    if (version !== "2.0")
+      TestValidator.equals(
+        `${version} deprecated`,
+        (downgraded.paths["/example/query"].get.parameters as any[]).find(
+          (p) => p.name === "page",
+        )?.deprecated,
+        true,
+      );
     TestValidator.equals(
       `${version} field header`,
       parameter("/field/{id}", "x-trace").format,

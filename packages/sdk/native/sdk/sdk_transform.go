@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
@@ -702,15 +703,16 @@ func nestiaSDKTryBakeJsonSchema(
 	return baked
 }
 
-// nestiaSDKPropertySchemas bakes typia's JSON schema of each property value of
-// the metadata's first object type, keyed by property name. A decomposed query
-// or headers parameter needs exactly that value schema: the object's own
-// component describes the property instead, with its title, description,
-// deprecation, and readOnly merged in, which belong to the OpenAPI parameter
-// rather than to its schema. Each schema is written by typia's
-// `Json_schema_station`, which is what `WriteSchemas` runs per metadata, but
-// against the parent's components, so a named type the value reaches resolves
-// to the component the parent already carries.
+// nestiaSDKPropertySchemas bakes the schema of each property of the metadata's
+// first object type, keyed by property name, for a decomposed query or headers
+// parameter. It is the property schema typia's object writer produces, minus
+// the fields the OpenAPI parameter carries in its own members: typia merges the
+// property's title, description, and deprecation into that schema, plus
+// readOnly, which has no meaning for a request parameter. What remains is the
+// value schema, written by typia's `Json_schema_station` exactly as
+// `WriteSchemas` writes one metadata but against the parent's components, so a
+// named type the value reaches resolves to the component the parent already
+// carries, and the property's `x-` JSDoc extensions.
 //
 // Only properties typia's object schema describes are baked: a property must
 // have a literal key and no `@hidden`, `@ignore`, or `@internal` tag (the
@@ -742,9 +744,38 @@ func nestiaSDKPropertySchemas(
 		if schema == nil {
 			continue
 		}
+		nestiaSDKJsDocExtensions(schema, property.JsDocTags)
 		output[*key] = nestiaSDKJsonSchemaLiteral(schema)
 	}
 	return output
+}
+
+// nestiaSDKJsDocExtensions writes a property's `x-` JSDoc tags into its schema
+// the way typia's object writer does (`json_schema_jsDocTags`, unexported):
+// the first text part, trimmed, read as a boolean, a number, null, or else a
+// string.
+func nestiaSDKJsDocExtensions(schema nativeiterate.JsonSchema, tags []schemametadata.IJsDocTagInfo) {
+	for _, tag := range tags {
+		if strings.HasPrefix(tag.Name, "x-") == false {
+			continue
+		}
+		for _, text := range tag.Text {
+			if text.Kind != "text" {
+				continue
+			}
+			value := strings.ReplaceAll(strings.TrimSpace(text.Text), "\r\n", "\n")
+			if value == "true" || value == "false" {
+				schema[tag.Name] = value == "true"
+			} else if number, err := strconv.ParseFloat(value, 64); err == nil {
+				schema[tag.Name] = number
+			} else if value == "null" {
+				schema[tag.Name] = nil
+			} else {
+				schema[tag.Name] = value
+			}
+			break
+		}
+	}
 }
 
 func nestiaSDKHasJSDocTag(tags []schemametadata.IJsDocTagInfo, names ...string) bool {

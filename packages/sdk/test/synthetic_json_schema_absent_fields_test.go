@@ -15,17 +15,21 @@ import (
 // nil `type`. typia's own literal printer skips those, but the SDK metadata is
 // serialized with encoding/json, which printed `"title": null` and
 // `"type": null` into every generated Swagger document, and neither is valid
-// JSON Schema. Two twins bound the fix: a documented constant must keep its
-// real annotations, and a null inside instance data or a vendor extension
-// (`tags.Examples`, `tags.JsonSchemaPlugin`) is a real value that typia also
+// JSON Schema. The walk has to reach every subschema, including array items,
+// tuple members and record values. Two twins bound the fix: a documented
+// constant must keep its real annotations, and a null in an instance keyword
+// (`example`, `default`), inside instance data (`tags.Examples`), or in a
+// vendor extension (`tags.JsonSchemaPlugin`) is a real value that typia also
 // writes as a bare nil, so it must stay null.
 //
-//  1. Author a controller whose query object and response carry an undocumented
-//     literal union, `any`, a documented enum, and null example and extension
-//     values.
+//  1. Author a controller whose query object and response carry undocumented
+//     literal unions (alone, as array items, as tuple members, and as record
+//     values), `any`, a documented enum, and declared null instance and
+//     extension values.
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Walk every baked schema, components and property schemas included, and
-//     assert the only null members are the example and extension values.
+//     assert the only null members are the declared instance and extension
+//     values.
 //  4. Assert the documented enum member keeps its description.
 func TestSyntheticJsonSchemaOmitsTypiaAbsentFields(t *testing.T) {
 	const controller = `import core from "@nestia/core";
@@ -43,6 +47,10 @@ interface IAbsent {
   kind: Kind;
   plugin: string & tags.JsonSchemaPlugin<{ "x-empty": null }>;
   named: string & tags.Examples<{ none: null; some: "a" }>;
+  instance: string & tags.JsonSchemaPlugin<{ example: null; default: null }>;
+  items: Array<"p" | "q">;
+  tuple: ["x", "y"];
+  record: Record<string, "m" | "n">;
 }
 
 export class SyntheticController {
@@ -66,14 +74,21 @@ export class SyntheticController {
 			baked := syntheticJsonSchema(t, target.response, pipe)
 			nulls := syntheticNullMembers(baked, "")
 			sort.Strings(nulls)
-			expected := []string{
-				".components.schemas.IAbsent.properties.named.examples.none",
-				".components.schemas.IAbsent.properties.plugin.x-empty",
-			}
+			expected := []string{}
+			prefixes := []string{".components.schemas.IAbsent.properties"}
 			if _, decomposed := baked["properties"]; decomposed {
-				expected = append(expected, ".properties.named.examples.none", ".properties.plugin.x-empty")
-				sort.Strings(expected)
+				prefixes = append(prefixes, ".properties")
 			}
+			for _, prefix := range prefixes {
+				expected = append(
+					expected,
+					prefix+".instance.default",
+					prefix+".instance.example",
+					prefix+".named.examples.none",
+					prefix+".plugin.x-empty",
+				)
+			}
+			sort.Strings(expected)
 			if strings.Join(nulls, ",") != strings.Join(expected, ",") {
 				t.Fatalf("%s.%s null members are %v, expected %v", target.name, pipe, nulls, expected)
 			}
