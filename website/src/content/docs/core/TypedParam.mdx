@@ -76,7 +76,7 @@ Reach for the vanilla decorator when:
 - The param is consumed by NestJS-only middleware that expects raw strings.
 - You're migrating a route piecewise and don't want to add the dependency yet.
 
-Vanilla params are invisible to `@nestia/sdk`'s generators.
+`@nestia/sdk` reads vanilla params too: the SDK function takes the argument and the Swagger document lists the path parameter, typed as declared. The SDK generators still hold the declared type to the rules `@TypedParam()` enforces, a single atomic or constant type, and report a diagnostic otherwise; only the handler receives the raw string, without coercion or validation.
 
 ---
 

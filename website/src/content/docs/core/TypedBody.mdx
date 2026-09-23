@@ -95,7 +95,7 @@ Mixing is fine. Reach for the vanilla decorator when:
 - The body is opaque to your handler (e.g. you forward it as-is to another service).
 - You're A/B-testing two validator stacks.
 
-Vanilla `@Body()` routes are invisible to `@nestia/sdk` — they don't appear in the generated SDK, Swagger document, or e2e suite.
+`@nestia/sdk` reads a vanilla `@Body()` parameter too: the route appears in the generated SDK, the Swagger document, and the e2e suite with the declared body type. Only the runtime validation is skipped.
 
 ---
 
@@ -128,7 +128,7 @@ Validation failures throw `BadRequestException`, so global exception filters cat
 
 This is an obfuscation layer to run on top of TLS — it hides the request payload from casual inspection (for example a reader opening the browser devtools) and satisfies environments that mandate a second encryption pass. It is not authenticated encryption and is not a substitute for TLS: AES-CBC here carries no message authentication code, so do not rely on it as your only confidentiality or integrity control. Keep HTTPS as the transport.
 
-Encrypted bodies do not appear in Swagger UI (the wire shape is opaque). Only the generated SDK can call them.
+Encrypted bodies appear in the Swagger document as a `text/plain` request body, because the wire carries ciphertext; the body is marked `x-nestia-encrypted: true` and its description starts with a warning. Only the generated SDK can call them.
 
 ---
 
