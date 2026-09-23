@@ -99,7 +99,7 @@ func nestiaSDKMetadataConstants(
 		values := []any{}
 		for _, value := range constant.Values {
 			values = append(values, map[string]any{
-				"value":       nestiaSDKMetadataValue(value.Value),
+				"value":       nestiaSDKMetadataConstantValue(value.Value),
 				"tags":        nestiaSDKMetadataTagMatrix(value.Tags),
 				"description": nestiaSDKOptionalString(value.Description),
 				"jsDocTags":   nestiaSDKJSDocTags(value.JsDocTags),
@@ -277,13 +277,20 @@ func nestiaSDKMetadataTagMatrix(
 }
 
 func nestiaSDKMetadataTypeTag(tag schemametadata.IMetadataTypeTag) map[string]any {
+	value, encoding := nestiaSDKMetadataValue(tag.Value)
 	output := map[string]any{
 		"target":    tag.Target,
 		"name":      tag.Name,
 		"kind":      tag.Kind,
 		"exclusive": tag.Exclusive,
-		"value":     nestiaSDKMetadataValue(tag.Value),
+		"value":     value,
 		"schema":    tag.Schema,
+	}
+	// A tag's target is the type it tags, not its value's: `tags.Sequence<1>`
+	// on a bigint holds a number, `tags.Example<"Infinity">` on a number a
+	// string. So an encoded value names the type it stands for.
+	if encoding != "" {
+		output["encoding"] = encoding
 	}
 	if tag.Validate != "" {
 		output["validate"] = tag.Validate
@@ -331,8 +338,17 @@ func nestiaSDKOptionalInt(input *int) any {
 	return *input
 }
 
+// nestiaSDKMetadataConstantValue writes a constant's value for the metadata
+// literal. The constant's type is its value's own, so a string the value is
+// encoded as is read back by that type.
+func nestiaSDKMetadataConstantValue(input any) any {
+	value, _ := nestiaSDKMetadataValue(input)
+	return value
+}
+
 // nestiaSDKMetadataValue writes a constant's or a type tag's value for the
-// metadata literal, keeping what a JSON number cannot hold.
+// metadata literal, keeping what a JSON number cannot hold, and returns the
+// type an encoded value stands for.
 //
 // The SDK generator reads these values to write types back, the literal type
 // `5n` or the tag `tags.Minimum<1e999>` of a cloned DTO, so a lossy value
@@ -340,37 +356,37 @@ func nestiaSDKOptionalInt(input *int) any {
 // number, which the generator's `JSON.parse` rounds past 2^53, and JSON has no
 // NaN or ±Infinity at all. So a bigint is written as its decimal digits and a
 // non-finite number by its JavaScript name (`"NaN"`, `"Infinity"`,
-// `"-Infinity"`), as strings the generator reads back by the constant's type
-// or the tag's target, where no such string is otherwise possible.
+// `"-Infinity"`), as strings the generator reads back as `"bigint"` or
+// `"number"`.
 //
 // Only the value itself is encoded. A composite one, such as the object
 // `tags.Examples` or `tags.JsonSchemaPlugin` takes, may hold any string, so
 // an encoded member could not be told apart; its members keep what a JSON
 // document holds, as the tag's `schema` and the baked JSON schemas do
 // (nestiaSDKFiniteLiteral).
-func nestiaSDKMetadataValue(input any) any {
+func nestiaSDKMetadataValue(input any) (any, string) {
 	switch value := input.(type) {
 	case schemametadata.MetadataBigint:
-		return nestiaSDKBigintText(value)
+		return nestiaSDKBigintText(value), "bigint"
 	case *schemametadata.MetadataBigint:
 		if value != nil {
-			return nestiaSDKBigintText(*value)
+			return nestiaSDKBigintText(*value), "bigint"
 		}
-		return input
+		return input, ""
 	}
 	reflected := reflect.ValueOf(input)
 	if reflected.Kind() != reflect.Float32 && reflected.Kind() != reflect.Float64 {
-		return input
+		return input, ""
 	}
 	number := reflected.Float()
 	if math.IsNaN(number) {
-		return "NaN"
+		return "NaN", "number"
 	} else if math.IsInf(number, 1) {
-		return "Infinity"
+		return "Infinity", "number"
 	} else if math.IsInf(number, -1) {
-		return "-Infinity"
+		return "-Infinity", "number"
 	}
-	return input
+	return input, ""
 }
 
 func nestiaSDKBigintText(value schemametadata.MetadataBigint) string {

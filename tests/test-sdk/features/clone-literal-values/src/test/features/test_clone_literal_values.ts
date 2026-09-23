@@ -2,6 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
 import { ILiteralValues as Cloned } from "@api/lib/structures/ILiteralValues";
+import { INaNBound as ClonedNaN } from "@api/lib/structures/INaNBound";
 
 import { ILiteralValues as Source } from "../../structures/ILiteralValues";
 
@@ -9,6 +10,9 @@ type Equal<X, Y> =
   (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2
     ? true
     : false;
+type TagValue<T extends { "typia.tag"?: { value: unknown } }> = NonNullable<
+  T["typia.tag"]
+>["value"];
 
 /**
  * Verifies the cloned DTO keeps the bigint and non-finite values its source
@@ -17,13 +21,19 @@ type Equal<X, Y> =
  * JSON holds neither, and the SDK metadata once carried a bigint as a JSON
  * number, which lost digits past 2^53 and printed `5` for `5n`, and a
  * non-finite number as null, which made the clone writer throw (#1655). The
- * clone is checked against its source: literal types must be the same type, and
- * each tagged type must accept exactly what the source accepts.
+ * clone is checked against its source: literal types must be the same type,
+ * each tag value the same value, even where its type is not the tagged type's,
+ * and each tagged type must accept exactly what the source accepts.
  *
  * 1. Assert at compile time that every literal property of the clone is the
  *    source's type.
- * 2. Validate boundary values against the tagged properties of both types and
+ * 2. Assert at compile time that the tags whose values are a number on a bigint or
+ *    a string on a number or bigint carry the source's values.
+ * 3. Validate boundary values against the tagged properties of both types and
  *    assert the same verdicts.
+ * 4. Validate them against the clone of the NaN bound, which typia refuses to
+ *    validate in its comment-tag source, and assert every one is rejected, as
+ *    `NaN <= $input` is for every number.
  */
 export const test_clone_literal_values = (): void => {
   const literals: [
@@ -34,6 +44,12 @@ export const test_clone_literal_values = (): void => {
     Equal<Cloned["union"], Source["union"]>,
   ] = [true, true, true, true, true];
   literals;
+  const tagged: [
+    Equal<TagValue<Cloned["sequenced"]>, TagValue<Source["sequenced"]>>,
+    Equal<TagValue<Cloned["named"]>, TagValue<Source["named"]>>,
+    Equal<TagValue<Cloned["digits"]>, TagValue<Source["digits"]>>,
+  ] = [true, true, true];
+  tagged;
 
   const verdicts = (validate: (input: unknown) => boolean, values: unknown[]) =>
     values.map(validate);
@@ -63,5 +79,13 @@ export const test_clone_literal_values = (): void => {
     "upper",
     verdicts(typia.createIs<Cloned["upper"]>(), numbers),
     verdicts(typia.createIs<Source["upper"]>(), numbers),
+  );
+  TestValidator.equals(
+    "nan",
+    verdicts(
+      typia.createIs<ClonedNaN>(),
+      numbers.map((nan) => ({ nan })),
+    ),
+    numbers.map(() => false),
   );
 };

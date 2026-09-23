@@ -2,7 +2,7 @@ import { type TypeNode, factory } from "@ttsc/factory";
 import { IMetadataTypeTag } from "@typia/interface";
 
 import { LiteralFactory } from "../../factories/LiteralFactory";
-import { decodeMetadataValue } from "../../internal/legacy";
+import { decodeTagValue } from "../../internal/legacy";
 import { ImportDictionary } from "./ImportDictionary";
 
 export namespace SdkTypeTagProgrammer {
@@ -12,7 +12,7 @@ export namespace SdkTypeTagProgrammer {
     tag: IMetadataTypeTag,
   ): TypeNode => {
     const name: string = tag.name.split("<")[0]!;
-    const value: unknown = decodeMetadataValue(tag.target ?? from, tag.value);
+    const value: unknown = decodeTagValue(tag);
     if (PREDEFINED[from]?.has(name) === true && isWritable(name, value))
       return factory.createTypeReferenceNode(
         factory.createQualifiedName(

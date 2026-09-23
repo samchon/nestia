@@ -147,28 +147,37 @@ export const isRequiredOf = (m: IMetadataSchema): boolean =>
   m.required && !m.optional;
 
 /**
- * Reads a constant's or a type tag's value as the SDK's Go contributor writes
- * it.
+ * Reads a constant's value as the SDK's Go contributor writes it.
  *
  * JSON holds neither a bigint nor NaN or ±Infinity, so the metadata carries a
  * bigint value as its decimal digits and a non-finite number by its name
- * (`"Infinity"`), both as strings. `type` is the value's own type, the
- * constant's type or the tag's target, and the only type such a string can
- * stand for; every other value, a composite one included, is returned as it
- * is.
+ * (`"Infinity"`), both as strings. `type` is the constant's type, which is its
+ * value's own, so a bigint or number constant's string is always one of those;
+ * every other value is returned as it is.
  */
-export const decodeMetadataValue = (type: string, value: unknown): unknown => {
-  if (type === "bigint")
-    return (typeof value === "string" && /^-?[0-9]+$/.test(value)) ||
-      (typeof value === "number" && Number.isInteger(value))
+export const decodeMetadataValue = (type: string, value: unknown): unknown =>
+  typeof value !== "string"
+    ? value
+    : type === "bigint"
       ? BigInt(value)
-      : value;
-  else if (type === "number")
-    return value === "NaN" || value === "Infinity" || value === "-Infinity"
-      ? Number(value)
-      : value;
-  return value;
-};
+      : type === "number"
+        ? Number(value)
+        : value;
+
+/**
+ * Reads a type tag's value as the SDK's Go contributor writes it.
+ *
+ * A tag's `target` is the type it tags, not its value's: `tags.Sequence<1>` on
+ * a bigint holds a number, and `tags.Example<"Infinity">` on a number holds a
+ * string. So a value encoded as a string, a bigint's digits or a non-finite
+ * number's name, arrives with the type it stands for in `encoding`.
+ */
+export const decodeTagValue = (
+  tag: IMetadataTypeTag & { encoding?: "bigint" | "number" },
+): unknown =>
+  tag.encoding !== undefined
+    ? decodeMetadataValue(tag.encoding, tag.value)
+    : tag.value;
 
 /**
  * Equivalent of the legacy `MetadataSchema.isSoleLiteral()` method: `true` when

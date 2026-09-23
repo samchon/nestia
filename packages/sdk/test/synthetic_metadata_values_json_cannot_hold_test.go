@@ -5,9 +5,10 @@ import (
 	"testing"
 )
 
-// Verifies non-finite numbers in the SDK metadata no longer abort generation:
-// JSON schemas write them as null, the way JavaScript's `JSON.stringify` does,
-// and constant and type tag values keep them by name.
+// Verifies the SDK metadata carries values JSON cannot hold: non-finite numbers
+// no longer abort generation, JSON schemas write them as null, the way
+// JavaScript's `JSON.stringify` does, and constant and type tag values keep
+// them, and bigints, exactly.
 //
 // typia hands over NaN and ±Infinity wherever a type or a comment spells one:
 // a JSDoc `@x-` extension whose text parses as a float (`NaN`, `Infinity`,
@@ -25,16 +26,20 @@ import (
 // to compile, so it carries the JavaScript name, `"Infinity"` or
 // `"-Infinity"`. A bigint value is carried as its digits for the same reason:
 // typia marshals it as a JSON number, which `JSON.parse` rounds past 2^53.
-// Finite numbers next to them stay numbers.
+// Finite numbers next to them stay numbers. A tag's target is the type it
+// tags, not its value's, so an encoded tag value names the type it stands for,
+// and a tag value that only looks like one, a number on a bigint or a digit
+// string, is not marked.
 //
 //  1. Author a query object carrying every non-finite source next to finite
 //     twins, and run the SDK metadata pass over it in-process.
 //  2. Assert the component and the decomposed property schemas write each
 //     non-finite value as a present null and keep the finite ones.
 //  3. Assert the metadata literal writes the non-finite constant and type tag
-//     values by name, the bigint ones as digits, and each tag's schema as a
-//     JSON schema, keeping the finite ones.
-func TestSyntheticNonFiniteValuesBecomeNull(t *testing.T) {
+//     values by name, the bigint ones as digits, each encoded tag value with
+//     the type it stands for, and each tag's schema as a JSON schema, keeping
+//     the finite and string ones as they are.
+func TestSyntheticMetadataValuesJsonCannotHold(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 import { tags } from "typia";
 
@@ -65,6 +70,9 @@ export interface INonFinite {
   bounded: number & tags.Minimum<3>;
   big: 12345678901234567890n;
   ranged: bigint & tags.Maximum<5n>;
+  sequenced: bigint & tags.Sequence<1>;
+  named: number & tags.Example<"Infinity">;
+  digits: bigint & tags.Example<"12345678901234567890">;
 }
 
 export class SyntheticController {
@@ -119,10 +127,14 @@ export class SyntheticController {
 		if atomics := syntheticField(t, value, "atomics").([]any); len(atomics) != 0 {
 			for _, row := range syntheticField(t, atomics[0], "tags").([]any) {
 				for _, tag := range row.([]any) {
-					tags[key.(string)] = canonicalJSON(t, map[string]any{
+					entry := map[string]any{
 						"value":  syntheticField(t, tag, "value"),
 						"schema": syntheticField(t, tag, "schema"),
-					})
+					}
+					if encoding, ok := tag.(map[string]any)["encoding"]; ok {
+						entry["encoding"] = encoding
+					}
+					tags[key.(string)] = canonicalJSON(t, entry)
 				}
 			}
 		}
@@ -138,12 +150,15 @@ export class SyntheticController {
 		}
 	}
 	for key, tag := range map[string]string{
-		"minimum":  `{"schema":{"minimum":null},"value":"Infinity"}`,
-		"fallback": `{"schema":{"default":null},"value":"Infinity"}`,
-		"sample":   `{"schema":{"example":null},"value":"-Infinity"}`,
-		"plugin":   `{"schema":{"x-plugin":null},"value":null}`,
-		"bounded":  `{"schema":{"minimum":3},"value":3}`,
-		"ranged":   `{"schema":{"maximum":5},"value":"5"}`,
+		"minimum":   `{"encoding":"number","schema":{"minimum":null},"value":"Infinity"}`,
+		"fallback":  `{"encoding":"number","schema":{"default":null},"value":"Infinity"}`,
+		"sample":    `{"encoding":"number","schema":{"example":null},"value":"-Infinity"}`,
+		"plugin":    `{"schema":{"x-plugin":null},"value":null}`,
+		"bounded":   `{"schema":{"minimum":3},"value":3}`,
+		"ranged":    `{"encoding":"bigint","schema":{"maximum":5},"value":"5"}`,
+		"sequenced": `{"schema":{"x-protobuf-sequence":1},"value":1}`,
+		"named":     `{"schema":{"example":"Infinity"},"value":"Infinity"}`,
+		"digits":    `{"schema":{"example":"12345678901234567890"},"value":"12345678901234567890"}`,
 	} {
 		if tags[key] != tag {
 			t.Fatalf("metadata type tag of %q is %s, expected %s", key, tags[key], tag)

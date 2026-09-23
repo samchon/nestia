@@ -16,6 +16,10 @@ export interface ILiteralValues {
   finite: number & tags.Minimum<3>;
   /** @maximum Infinity */
   upper: number;
+  /** Tag values whose type is not the tagged one. */
+  sequenced: bigint & tags.Sequence<1>;
+  named: number & tags.Example<"Infinity">;
+  digits: bigint & tags.Example<"12345678901234567890">;
 }
 
 /**
