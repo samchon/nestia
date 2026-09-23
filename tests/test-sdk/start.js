@@ -49,6 +49,15 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     "@WebSocketRoute.Acceptor() must have three type arguments.",
   ],
   [
+    "parameter-error-duplicated-key",
+    [
+      'Query key "keyword" is declared both by a field parameter and by the query object.',
+      'Header "X-Tenant" is declared both by a field parameter and by the headers object.',
+      "DuplicatedController.fields()",
+      "Duplicated field names of headers are not allowed.",
+    ],
+  ],
+  [
     "payload-error-vanilla",
     [
       "@UploadedFile() is not supported",

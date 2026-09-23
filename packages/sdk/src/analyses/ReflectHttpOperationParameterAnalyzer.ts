@@ -90,7 +90,9 @@ export namespace ReflectHttpOperationParameterAnalyzer {
         preconfigured
           .filter((x) => x.category === "headers")
           .map((x) => x.field)
-          .filter((field) => field !== undefined),
+          .filter((field) => field !== undefined)
+          // NestJS reads `req.headers[name.toLowerCase()]`
+          .map((field) => field.toLowerCase()),
       ) === false
     )
       contradict(`Duplicated field names of headers are not allowed.`);
@@ -236,6 +238,15 @@ export namespace ReflectHttpOperationParameterAnalyzer {
       })
       .filter((x): x is IReflectHttpOperationParameter => x !== null);
 
+    const duplicated: string[] = findDuplicatedKeys(parameters);
+    if (duplicated.length)
+      errors.push({
+        file: ctx.controller.file,
+        class: ctx.controller.class.name,
+        function: ctx.functionName,
+        from: "",
+        contents: duplicated,
+      });
     if (errors.length) ctx.errors.push(...errors);
     return parameters;
   };
@@ -268,6 +279,52 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             : null,
       )
       .filter((message): message is string => message !== null);
+  };
+
+  /**
+   * Reports a query key or header both a field parameter and the object
+   * parameter of its category declare.
+   *
+   * On the wire they are one key: NestJS hands both parameters the same
+   * `req.query.keyword`, and header names match case-insensitively, as NestJS
+   * lowercases the name a `@Headers("X-Tenant")` reads. Documenting both lists
+   * one `name` + `in` pair twice, which OpenAPI forbids, and the SDK would ask
+   * its caller for the same key twice and send one of the two values. Like two
+   * field parameters of the same name, the declaration is contradictory.
+   */
+  const findDuplicatedKeys = (
+    parameters: IReflectHttpOperationParameter[],
+  ): string[] => {
+    const messages: string[] = [];
+    for (const [category, normalize, noun] of [
+      ["query", (key: string) => key, "Query key"],
+      ["headers", (key: string) => key.toLowerCase(), "Header"],
+    ] as const) {
+      const fields: Map<string, string> = new Map();
+      for (const p of parameters)
+        if (p.category === category && p.field !== null)
+          fields.set(normalize(p.field), p.field);
+      for (const p of parameters) {
+        if (p.category !== category || p.field !== null) continue;
+        for (const key of objectKeys(p)) {
+          const field: string | undefined = fields.get(normalize(key));
+          if (field !== undefined)
+            messages.push(
+              `${noun} ${JSON.stringify(field)} is declared both by a field parameter and by the ${category} object.`,
+            );
+        }
+      }
+    }
+    return messages;
+  };
+
+  /** Literal property keys of an object parameter's object type. */
+  const objectKeys = (p: IReflectHttpOperationParameter): string[] => {
+    const name: string | undefined = p.metadata.objects[0]?.name;
+    const object = p.components.objects.find((o) => o.name === name);
+    return (object?.properties ?? [])
+      .map((property) => property.key.constants[0]?.values[0]?.value)
+      .filter((key): key is string => typeof key === "string");
   };
 
   const analyzePreconfigured = (
