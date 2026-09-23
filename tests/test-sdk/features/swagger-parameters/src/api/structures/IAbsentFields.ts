@@ -8,4 +8,7 @@ export interface IAbsentFields {
   kind: DecomposeKind;
   plugin: string & tags.JsonSchemaPlugin<{ "x-empty": null }>;
   named: string & tags.Examples<{ none: null; some: "a" }>;
+  single: string & tags.Example<null>;
+  /** @x-nothing null */
+  jsdoc: string;
 }

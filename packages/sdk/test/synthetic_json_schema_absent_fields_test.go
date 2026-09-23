@@ -19,8 +19,10 @@ import (
 // tuple members and record values. Two twins bound the fix: a documented
 // constant must keep its real annotations, and a null in an instance keyword
 // (`example`, `default`), inside instance data (`tags.Examples`), or in a
-// vendor extension (`tags.JsonSchemaPlugin`) is a real value that typia also
-// writes as a bare nil, so it must stay null. Only the SDK contributor runs
+// vendor extension (`tags.JsonSchemaPlugin`, a JSDoc `@x-` tag) is a real
+// value, so it must stay null. typia marks the nulls a type declares, but a
+// JSDoc `@x-nothing null` still arrives as a bare nil, the same Go value as an
+// absent field, so it is the case that pins the rule. Only the SDK contributor runs
 // in-process, so the query object can hold the tuple and record members core's
 // HttpQuery validation would reject in a real build; the bake treats every
 // parameter alike.
@@ -54,6 +56,8 @@ interface IAbsent {
   items: Array<"p" | "q">;
   tuple: ["x", "y"];
   record: Record<string, "m" | "n">;
+  /** @x-nothing null */
+  jsdoc: string;
 }
 
 export class SyntheticController {
@@ -89,6 +93,7 @@ export class SyntheticController {
 					prefix+".instance.example",
 					prefix+".named.examples.none",
 					prefix+".plugin.x-empty",
+					prefix+".jsdoc.x-nothing",
 				)
 			}
 			sort.Strings(expected)

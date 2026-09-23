@@ -798,9 +798,11 @@ func nestiaSDKHasJSDocTag(tags []schemametadata.IJsDocTagInfo, names ...string) 
 // type. typia's own literal printer skips nil object members, but encoding/json
 // prints them as null, which JSON Schema rejects for those keywords. A nil
 // cannot be dropped everywhere, though: in an instance-valued keyword (`const`,
-// `default`, `enum`, `example`, `examples`) or a vendor extension it is a real
-// null, such as the one `tags.Examples<{ none: null }>` declares, which typia
-// writes as a bare nil too until its explicit null marker (samchon/typia#2403).
+// `default`, `enum`, `example`, `examples`) or a vendor extension it can be a
+// real null. typia marks the nulls a type declares, such as
+// `tags.Example<null>`, with `LiteralFactory_Null`, which is no nil and
+// marshals as null, but a JSDoc `@x-foo null` still reaches the schema as a
+// bare nil, from typia's object writer and from nestiaSDKJsDocExtensions alike.
 //
 // So the walk follows JSON Schema structure: it drops a nil member of a schema
 // object, recurses through the applicator keywords into subschemas, and leaves
