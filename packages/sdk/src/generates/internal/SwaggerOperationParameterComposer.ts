@@ -7,6 +7,7 @@ import {
   JsonSchemasProgrammer,
   MetadataObjectType,
   isRequiredOf,
+  isSoleLiteralOf,
 } from "../../internal/legacy";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
@@ -117,13 +118,19 @@ export namespace SwaggerOperationParameterComposer {
       props.parameter.metadata.objects.length === 0
     )
       return [param];
+    const object: MetadataObjectType = props.parameter.metadata.objects[0]!
+      .type as MetadataObjectType;
+    // Only an object whose every key is known splits into named parameters. A
+    // dynamic key (an index signature, a `Record`) has no name to give one, and
+    // splitting off the known keys would drop it, so the undecomposed parameter
+    // remains the complete description.
+    if (object.properties.some((p) => isSoleLiteralOf(p.key) === false))
+      return [param];
     // One parameter per property typia's object schema describes, so the
     // decomposed form says what `decompose: false` would say about the object:
     // the property's value schema, and in the parameter's own fields its
     // description, deprecation, and share of the object's examples.
-    return (
-      props.parameter.metadata.objects[0]!.type as MetadataObjectType
-    ).properties
+    return object.properties
       .filter((p) =>
         p.jsDocTags.every(
           (tag) =>
