@@ -245,7 +245,12 @@ export namespace INestiaConfig {
      * If you configure this property to be `true`, the query DTO would be
      * decomposed into individual query parameters per each property. Otherwise
      * you set it to be `false`, the query DTO would be one object type which
-     * contains all of query parameters.
+     * contains all of query parameters, spread into its keys by `style: form`
+     * and `explode: true`.
+     *
+     * Swagger 2.0 has no object query parameter, and no OpenAPI version can
+     * spread an object into headers, so a query DTO of a Swagger 2.0 document
+     * and a headers DTO are decomposed regardless of this property.
      *
      * @default true
      */

@@ -131,12 +131,18 @@ export namespace SwaggerOperationParameterComposer {
     // keep atomic, and a query or headers object passed them: one object of
     // statically named atomic or array-of-atomic properties, so each has a
     // name to give its parameter.
+    if (props.parameter.field !== null || object === undefined) return [param];
+    // `decompose: false` keeps a query object one parameter where the format
+    // can say so: OpenAPI 3.x spreads it into its keys with `style: form` and
+    // `explode: true`. Swagger 2.0 has no object query parameter, and no
+    // format spreads an object into headers, so one parameter would be a key
+    // or header no request carries (#1653); those are always decomposed.
     if (
-      props.config.decompose === false ||
-      props.parameter.field !== null ||
-      object === undefined
+      props.config.decompose === false &&
+      props.parameter.category === "query" &&
+      props.config.openapi !== "2.0"
     )
-      return [param];
+      return [{ ...param, style: "form", explode: true }];
     // One parameter per property typia's object schema describes, so the
     // decomposed form says what `decompose: false` would say about the object:
     // the property's schema, and in the parameter's own fields its

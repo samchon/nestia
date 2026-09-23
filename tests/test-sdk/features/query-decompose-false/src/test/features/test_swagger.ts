@@ -12,6 +12,8 @@ export const test_swagger = async () => {
       in: "query",
       schema: { $ref: "#/components/schemas/IQuery" },
       required: true,
+      style: "form",
+      explode: true,
     },
     content.paths["/query/typed"].get.parameters.find(
       (p: any) => p.in === "query",

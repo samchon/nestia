@@ -84,7 +84,7 @@ interface ISearchQuery {
 //   - nested object type is not allowed.
 ```
 
-Swagger documents each property of the DTO as its own query parameter by default, skipping the ones typia's JSON schema leaves out, such as `@hidden`, `@ignore`, and `@internal` properties. Each parameter keeps what the property's type says: `tags.*` constraints, the `integer` type of `tags.Type<"int32">`, the `pattern` of a template literal, the JSDoc description, `@deprecated` (except in Swagger 2.0, which has no such field), and its share of any `@SwaggerExample.Parameter()` example. To document the whole DTO as one `query` parameter with an object schema instead, set `swagger.decompose` to `false` in `nestia.config.ts`:
+Swagger documents each property of the DTO as its own query parameter by default, skipping the ones typia's JSON schema leaves out, such as `@hidden`, `@ignore`, and `@internal` properties. Each parameter keeps what the property's type says: `tags.*` constraints, the `integer` type of `tags.Type<"int32">`, the `pattern` of a template literal, the JSDoc description, `@deprecated` (except in Swagger 2.0, which has no such field), and its share of any `@SwaggerExample.Parameter()` example. To document the whole DTO as one `query` parameter with an object schema instead, spread into its keys by `style: form` and `explode: true`, set `swagger.decompose` to `false` in `nestia.config.ts`:
 
 ```ts filename="nestia.config.ts" {6}
 const config: INestiaConfig = {
@@ -97,7 +97,7 @@ const config: INestiaConfig = {
 };
 ```
 
-The same setting applies to [`@TypedHeaders()`](./TypedHeaders) objects. The runtime parsing is identical either way — `decompose` only affects the generated OpenAPI schema.
+Swagger 2.0 has no object query parameter, so a Swagger 2.0 document decomposes the DTO whatever the setting says. Header objects are always decomposed too, because no OpenAPI version can spread one object into several headers. The runtime parsing is identical either way — `decompose` only affects the generated OpenAPI schema.
 
 ---
 

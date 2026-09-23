@@ -183,7 +183,7 @@ The `swagger` block of `INestiaConfig`:
 | `servers`    | `OpenApi.IServer[]`                   | One entry per environment.                                     |
 | `security`   | `Record<string, OpenApi.ISecurityScheme>` | Bearer, OAuth, API key, etc.                              |
 | `tags`       | `OpenApi.IDocument.ITag[]`            | Tag descriptions (also overridable per-route via JSDoc `@tag`). |
-| `decompose`  | `boolean`                             | Defaults to `true`: one parameter per property of a query or headers DTO. `false` keeps each DTO as one parameter. |
+| `decompose`  | `boolean`                             | Defaults to `true`: one parameter per property of a query DTO. `false` keeps it one `style: form` parameter, except in Swagger 2.0. Headers DTOs are always decomposed. |
 | `operationId`| `(props) => string`                   | Custom operationId generator.                                  |
 | `beautify`   | `boolean`                             | Pretty-print the JSON output.                                  |
 

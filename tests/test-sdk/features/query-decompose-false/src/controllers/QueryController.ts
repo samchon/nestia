@@ -1,9 +1,10 @@
-import { TypedQuery, TypedRoute } from "@nestia/core";
+import { TypedHeaders, TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller, Query } from "@nestjs/common";
 
 import { INestQuery } from "@api/lib/structures/INestQuery";
 import { IOptionalQuery } from "@api/lib/structures/IOptionalQuery";
 import { IQuery } from "@api/lib/structures/IQuery";
+import { IQueryHeaders } from "@api/lib/structures/IQueryHeaders";
 import { IIgnoredQuery } from "@api/lib/structures/IRequiredShapes";
 
 @Controller("query")
@@ -33,6 +34,15 @@ export class QueryController {
   @TypedRoute.Get("ignored")
   public async ignored(@TypedQuery() query: IIgnoredQuery): Promise<void> {
     query;
+  }
+
+  @TypedRoute.Get("headers")
+  public async headers(
+    @TypedQuery() query: IQuery,
+    @TypedHeaders() headers: IQueryHeaders,
+  ): Promise<IQueryHeaders> {
+    query;
+    return headers;
   }
 
   @TypedRoute.Get("individual")
