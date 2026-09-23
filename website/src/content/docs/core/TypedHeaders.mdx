@@ -83,7 +83,7 @@ Reach for the vanilla decorator when:
 - The header carries opaque data (`Authorization: Bearer …`) and you delegate parsing to a guard.
 - You need every header, not a known subset — declare the parameter as `Record<string, string>` with `@Headers()`.
 
-`@nestia/sdk` reads the declared type of `@TypedHeaders()` and vanilla `@Headers()` parameters alike into the SDK and the Swagger document; the vanilla decorator only skips coercion and validation. A header object with a dynamic key, such as `Record<string, string>`, contributes only its known header names to Swagger, because OpenAPI cannot list arbitrary headers.
+`@nestia/sdk` reads the declared type of `@TypedHeaders()` and vanilla `@Headers()` parameters alike into the SDK and the Swagger document; the vanilla decorator only skips coercion and validation. When Swagger decomposes a header object (the default), a dynamic key adds no parameter, because OpenAPI cannot list arbitrary headers: a `Record<string, string>` object adds none, and an object that mixes named headers with an index signature adds the named ones.
 
 ---
 

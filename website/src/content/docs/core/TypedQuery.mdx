@@ -84,7 +84,7 @@ interface ISearchQuery {
 //   - nested object type is not allowed.
 ```
 
-Swagger documents each property of the DTO as its own query parameter by default, skipping `@hidden`, `@ignore`, and `@internal` ones. Each parameter keeps what the property's type says: `tags.*` constraints, the `integer` type of `tags.Type<"int32">`, the `pattern` of a template literal, the JSDoc description, `@deprecated` (except in Swagger 2.0, which has no such field), and its share of any `@SwaggerExample.Parameter()` example. To document the whole DTO as one `query` parameter with an object schema instead, set `swagger.decompose` to `false` in `nestia.config.ts`:
+Swagger documents each property of the DTO as its own query parameter by default, skipping the ones typia's JSON schema leaves out, such as `@hidden`, `@ignore`, and `@internal` properties. Each parameter keeps what the property's type says: `tags.*` constraints, the `integer` type of `tags.Type<"int32">`, the `pattern` of a template literal, the JSDoc description, `@deprecated` (except in Swagger 2.0, which has no such field), and its share of any `@SwaggerExample.Parameter()` example. To document the whole DTO as one `query` parameter with an object schema instead, set `swagger.decompose` to `false` in `nestia.config.ts`:
 
 ```ts filename="nestia.config.ts" {6}
 const config: INestiaConfig = {
@@ -134,7 +134,7 @@ Reach for the vanilla decorator when:
 - You need raw strings without coercion or validation (rare).
 - A single route was working with `@Query()` and you don't want the migration churn.
 
-`@nestia/sdk` still reads the declared type of a vanilla `@Query()` parameter into the SDK and the Swagger document, but the request goes through without coercion or validation.
+`@nestia/sdk` still reads the declared type of a vanilla `@Query()` parameter into the SDK and the Swagger document, but the request goes through without coercion or validation. A vanilla query object may also have a dynamic key, such as `Record<string, string>`; OpenAPI 3.x documents it as one query parameter that explodes into arbitrary keys, while Swagger 2.0, which has no such parameter, lists only its named keys.
 
 ---
 
