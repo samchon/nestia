@@ -4,7 +4,7 @@ import { OpenApi } from "typia";
 import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
 
 /**
- * Verifies each decomposed query parameter carries typia's value schema of its
+ * Verifies each decomposed query parameter carries typia's schema of its
  * property, for `@TypedQuery()` and plain `@Query()` alike.
  *
  * The decomposed schemas used to come from a JS fallback that kept only the
@@ -17,14 +17,15 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  *
  * 1. Read the generated Swagger document.
  * 2. For both query routes, compare every decomposed parameter's schema with the
- *    component's value schema of that property.
+ *    component's schema of that property, minus the fields a parameter carries
+ *    itself.
  * 3. Pin the format, range, integer, array, template, enum, and nullable cells.
  */
 export const test_swagger_decomposed_query_schemas =
   async (): Promise<void> => {
     const document: OpenApi.IDocument = await SwaggerParameterReader.document();
     const expected: Record<string, OpenApi.IJsonSchema> =
-      SwaggerParameterReader.valueSchemas(document, "IDecomposeQuery");
+      SwaggerParameterReader.parameterSchemas(document, "IDecomposeQuery");
     for (const path of ["/decompose/typed-query", "/decompose/nest-query"]) {
       const parameters: SwaggerParameterReader.IParameter[] =
         SwaggerParameterReader.parameters(document, path, "get");

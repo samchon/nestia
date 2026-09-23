@@ -17,16 +17,23 @@ import (
 // extensions the way typia's object schema does, skip exactly the properties
 // that schema omits, and stay off the schemas nothing decomposes.
 //
+// Only the SDK contributor runs in-process, so the fixture can hold members
+// core's HttpQuery validation would reject at compile time (a nested object, a
+// function); in a real build they reach the bake through a plain `@Query()` or
+// a body parameter, whose resolved schema is baked the same way. typia's
+// metadata drops the `@internal` member before the bake sees it; `@hidden` and
+// `@ignore` are what the bake's own skip handles.
+//
 //  1. Author a controller whose query object covers tagged atomics, an `x-`
 //     JSDoc extension, an integer type, a template literal, a tagged array, a
 //     literal object, a function-only member and `@internal` / `@hidden` /
 //     `@ignore` members, and that returns the same object.
 //  2. Run the SDK metadata pass over it in-process.
-//  3. Assert the resolved parameter schema carries typia's value schemas for
-//     the described properties and none for the omitted ones.
+//  3. Assert the resolved parameter schema carries typia's schemas for the
+//     described properties and none for the omitted ones.
 //  4. Assert neither the primitive parameter schema nor the response schema
 //     carries property schemas.
-func TestSyntheticParameterPropertySchemasBakeTypiaValueSchemas(t *testing.T) {
+func TestSyntheticParameterPropertySchemasBakeTypiaSchemas(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 import { tags } from "typia";
 

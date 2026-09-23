@@ -20,7 +20,10 @@ import (
 // constant must keep its real annotations, and a null in an instance keyword
 // (`example`, `default`), inside instance data (`tags.Examples`), or in a
 // vendor extension (`tags.JsonSchemaPlugin`) is a real value that typia also
-// writes as a bare nil, so it must stay null.
+// writes as a bare nil, so it must stay null. Only the SDK contributor runs
+// in-process, so the query object can hold the tuple and record members core's
+// HttpQuery validation would reject in a real build; the bake treats every
+// parameter alike.
 //
 //  1. Author a controller whose query object and response carry undocumented
 //     literal unions (alone, as array items, as tuple members, and as record

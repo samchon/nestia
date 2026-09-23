@@ -27,17 +27,18 @@ export namespace SwaggerParameterReader {
   };
 
   /**
-   * The typia value schema of each property of an object component.
+   * The schema each property of an object component gives its decomposed
+   * parameter.
    *
-   * A component property is written by typia as the property value's schema
-   * with the property's own `title`, `description`, `deprecated`, and
-   * `readOnly` merged in. Removing those yields the value schema, which is what
-   * a decomposed parameter's `schema` must be; the parameter carries the rest
-   * in its own fields. Only valid for properties whose value schema has no
-   * top-level annotation of its own, which holds for every DTO in this
-   * feature.
+   * Typia writes a component property as the property value's schema with the
+   * property's own `title`, `description`, `deprecated`, and `readOnly` merged
+   * in, plus its `x-` JSDoc extensions. A decomposed parameter carries the
+   * first four in its own fields or cannot use them, so its `schema` is the
+   * component property without them. Only valid for properties whose value
+   * schema has no top-level annotation of its own, which holds for every DTO in
+   * this feature.
    */
-  export const valueSchemas = (
+  export const parameterSchemas = (
     document: OpenApi.IDocument,
     component: string,
   ): Record<string, OpenApi.IJsonSchema> => {

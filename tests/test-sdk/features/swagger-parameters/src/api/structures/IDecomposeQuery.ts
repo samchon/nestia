@@ -5,7 +5,7 @@ import { DecomposeKind } from "./DecomposeKind";
 /**
  * Query object covering every schema shape a decomposed parameter must keep.
  *
- * Each property's parameter schema must equal typia's own value schema of the
+ * Each property's parameter schema must equal typia's own schema of the
  * property: the `IDecomposeQuery` component with the property-level fields
  * (`title`, `description`, `deprecated`, `readOnly`) removed.
  */

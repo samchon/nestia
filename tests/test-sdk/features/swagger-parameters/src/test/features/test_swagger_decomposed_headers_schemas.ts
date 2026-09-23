@@ -4,7 +4,7 @@ import { OpenApi } from "typia";
 import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
 
 /**
- * Verifies each decomposed header parameter carries typia's value schema of its
+ * Verifies each decomposed header parameter carries typia's schema of its
  * property, for `@TypedHeaders()` and plain `@Headers()` alike.
  *
  * Header objects decompose through the same code path as query objects and lost
@@ -14,14 +14,15 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  *
  * 1. Read the generated Swagger document.
  * 2. For both header routes, compare every decomposed parameter's schema with the
- *    component's value schema of that property.
+ *    component's schema of that property, minus the fields a parameter carries
+ *    itself.
  * 3. Pin the range, integer, array, and template cells.
  */
 export const test_swagger_decomposed_headers_schemas =
   async (): Promise<void> => {
     const document: OpenApi.IDocument = await SwaggerParameterReader.document();
     const expected: Record<string, OpenApi.IJsonSchema> =
-      SwaggerParameterReader.valueSchemas(document, "IDecomposeHeaders");
+      SwaggerParameterReader.parameterSchemas(document, "IDecomposeHeaders");
     for (const path of [
       "/decompose/typed-headers",
       "/decompose/nest-headers",
