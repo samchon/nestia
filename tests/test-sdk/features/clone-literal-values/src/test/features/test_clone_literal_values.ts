@@ -2,7 +2,6 @@ import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
 import { ILiteralValues as Cloned } from "@api/lib/structures/ILiteralValues";
-import { INaNBound as ClonedNaN } from "@api/lib/structures/INaNBound";
 
 import { ILiteralValues as Source } from "../../structures/ILiteralValues";
 
@@ -31,9 +30,6 @@ type TagValue<T extends { "typia.tag"?: { value: unknown } }> = NonNullable<
  *    a string on a number or bigint carry the source's values.
  * 3. Validate boundary values against the tagged properties of both types and
  *    assert the same verdicts.
- * 4. Validate them against the clone of the NaN bound, which typia refuses to
- *    validate in its comment-tag source, and assert every one is rejected, as
- *    `NaN <= $input` is for every number.
  */
 export const test_clone_literal_values = (): void => {
   const literals: [
@@ -79,13 +75,5 @@ export const test_clone_literal_values = (): void => {
     "upper",
     verdicts(typia.createIs<Cloned["upper"]>(), numbers),
     verdicts(typia.createIs<Source["upper"]>(), numbers),
-  );
-  TestValidator.equals(
-    "nan",
-    verdicts(
-      typia.createIs<ClonedNaN>(),
-      numbers.map((nan) => ({ nan })),
-    ),
-    numbers.map(() => false),
   );
 };

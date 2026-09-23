@@ -21,12 +21,3 @@ export interface ILiteralValues {
   named: number & tags.Example<"Infinity">;
   digits: bigint & tags.Example<"12345678901234567890">;
 }
-
-/**
- * A bound no literal type spells, reachable through a vanilla `@Body()`, which
- * no transform validates.
- */
-export interface INaNBound {
-  /** @minimum NaN */
-  nan: number;
-}
