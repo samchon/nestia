@@ -7,13 +7,12 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  * Verifies decomposition emits exactly the properties typia's object schema
  * describes.
  *
- * The object schema typia writes omits `@internal`, `@hidden`, and `@ignore`
- * members. Decomposition used to omit only the latter two, so an `@internal`
- * member that `decompose: false` keeps out of the document still surfaced as a
- * public parameter. The decomposed parameter names must equal the component's
- * property names, in declaration order, with matching required flags. The
- * formatter rewrites `@hidden` to `@ignore` in these sources, so `@hidden` is
- * pinned by the SDK's Go tests instead.
+ * The decomposed parameters must be exactly the properties the object schema
+ * typia writes describes: the same names, in declaration order, with matching
+ * required flags. typia drops `@internal` members from the metadata itself and
+ * `@hidden` and `@ignore` members from the schema, so none of them may become a
+ * parameter. The formatter rewrites `@hidden` to `@ignore` in these sources, so
+ * `@hidden` is pinned by the SDK's Go tests instead.
  *
  * 1. Read the generated Swagger document.
  * 2. For each decomposed route, compare parameter names and required flags with

@@ -15,7 +15,7 @@ import fs from "fs";
  *
  * 1. Read the generated Swagger document.
  * 2. Assert the all-optional DTO, a union with an all-optional member, and a DTO
- *    whose only required property is `@internal` are not required.
+ *    whose only required property is `@ignore`d are not required.
  * 3. Assert the DTO with a required property and a field-named object parameter
  *    are required.
  */
@@ -28,7 +28,7 @@ export const test_swagger_optional_object = async (): Promise<void> => {
       ?.required;
   TestValidator.equals("optional", required("/query/optional"), false);
   TestValidator.equals("union", required("/query/union"), false);
-  TestValidator.equals("internal", required("/query/internal"), false);
+  TestValidator.equals("ignored", required("/query/ignored"), false);
   TestValidator.equals("typed", required("/query/typed"), true);
   TestValidator.equals("field", required("/query/field"), true);
 };

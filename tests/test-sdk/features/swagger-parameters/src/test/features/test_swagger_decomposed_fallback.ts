@@ -30,11 +30,12 @@ class FallbackModule {}
  *
  * The SDK transform bakes `jsonSchema.properties` for every parameter object,
  * so the JS fallback that reads only the atomic kind is left for metadata the
- * transform did not bake. On that path nothing filters for typia, so the
- * composer must itself skip what typia's object schema omits: `@internal`
- * joined `@hidden` and `@ignore` there (#1639). The metadata is registered by
- * hand, because these tests are compiled without the SDK transform, and because
- * the formatter would rewrite a `@hidden` tag in a source file.
+ * transform did not bake. On that path no bake filters for typia, so the
+ * composer itself skips what typia's object schema omits: `@hidden` and
+ * `@ignore` members, and `@internal` ones, which typia's metadata normally
+ * drops before the composer sees them. The metadata is registered by hand,
+ * because these tests are compiled without the SDK transform, and because the
+ * formatter would rewrite a `@hidden` tag in a source file.
  *
  * 1. Register one query object's metadata on two routes: one baked with a property
  *    schema that differs from the fallback's, one without the bake.

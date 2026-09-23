@@ -1,8 +1,8 @@
 export type IUnionQuery = { name: string } | { page?: string };
 
-export interface IInternalQuery {
+export interface IIgnoredQuery {
   keyword?: string;
-  /** @internal */
+  /** @ignore */
   tenant: string;
 }
 

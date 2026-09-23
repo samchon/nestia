@@ -6,7 +6,7 @@ import { IOptionalQuery } from "@api/lib/structures/IOptionalQuery";
 import { IQuery } from "@api/lib/structures/IQuery";
 import {
   IFilter,
-  IInternalQuery,
+  IIgnoredQuery,
   IUnionQuery,
 } from "@api/lib/structures/IRequiredShapes";
 
@@ -39,8 +39,8 @@ export class QueryController {
     query;
   }
 
-  @TypedRoute.Get("internal")
-  public async internal(@TypedQuery() query: IInternalQuery): Promise<void> {
+  @TypedRoute.Get("ignored")
+  public async ignored(@TypedQuery() query: IIgnoredQuery): Promise<void> {
     query;
   }
 
