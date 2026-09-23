@@ -134,7 +134,7 @@ Reach for the vanilla decorator when:
 - You need raw strings without coercion or validation (rare).
 - A single route was working with `@Query()` and you don't want the migration churn.
 
-`@nestia/sdk` still reads the declared type of a vanilla `@Query()` parameter into the SDK and the Swagger document, but the request goes through without coercion or validation. A vanilla query object may also have a dynamic key, such as `Record<string, string>`; OpenAPI 3.x documents it as one query parameter that explodes into arbitrary keys, while Swagger 2.0, which has no such parameter, lists only its named keys.
+`@nestia/sdk` still reads the declared type of a vanilla `@Query()` parameter into the SDK and the Swagger document, but the request goes through without coercion or validation. A vanilla query object may also have a dynamic key, such as `Record<string, string>`; OpenAPI 3.x documents it as one query parameter that explodes into arbitrary keys, while Swagger 2.0, which has no such parameter, lists only its named keys when decomposing (the default).
 
 ---
 
