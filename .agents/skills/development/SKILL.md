@@ -71,7 +71,9 @@ All tracked Go tests live in two dedicated modules, not beside the source:
 
 Each module carries `replace` directives back to `../native` (and, for the SDK, to `../../core/native`) plus the pinned typescript-go shim redirects. Use one `Test*` function per file, named after the assertion, and mirror a nearby test's package, fixture, and cleanup pattern. Tests that exercise the CLI surface or the emit pipeline should invoke the real binary so the wrapper branches stay covered.
 
-`packages/core/native` and `packages/sdk/native` currently contain no `*_test.go`. Root `pnpm test:go` appends a bare `go test ./...` in `packages/core/native` only, so a colocated test added there would run but one added under `packages/sdk/native` would be invisible to every script. Prefer the existing `test/` modules unless the case genuinely requires same-package access, and wire up a runner if it does.
+`packages/core/native` and `packages/sdk/native` currently contain no `*_test.go`. Root `pnpm test:go` appends `go test -count=1 ./...` in `packages/core/native` only, so a colocated test added there would run but one added under `packages/sdk/native` would be invisible to every script. Prefer the existing `test/` modules unless the case genuinely requires same-package access, and wire up a runner if it does.
+
+Every `test:go` script passes `-count=1`, and so should a hand-run `go test`. Cacheable mode instruments the test binary to record every file a test opens, and these tests open the whole TypeScript program and its `node_modules` typings, which on Windows made one package take minutes instead of seconds. A cached pass would also be stale, because the tests read the pnpm-installed toolchain and fixtures outside Go's view.
 
 ### TypeScript suites
 
@@ -126,7 +128,7 @@ A test that only feeds a controller its ordinary valid input and asserts a 200 p
 
 Run the narrowest command that proves the change first, then a broader command when shared behavior, the transform, packaging, or documentation changed. Report any command that could not be run.
 
-- **One Go module:** `pnpm --filter @nestia/core test:go` or `pnpm --filter @nestia/sdk test:go`; root `pnpm test:go` runs both plus `go test ./...` in `packages/core/native`.
+- **One Go module:** `pnpm --filter @nestia/core test:go` or `pnpm --filter @nestia/sdk test:go`; root `pnpm test:go` runs both plus `go test -count=1 ./...` in `packages/core/native`.
 - **One TypeScript workspace:** `pnpm --filter ./tests/<name> start`.
 - **One `test-sdk` feature:** `pnpm --filter ./tests/test-sdk start -- --only <substring>`, which runs only the features whose name contains that substring. `--from <name>` resumes lexicographically, and `TEST_SDK_SKIP_BUILD=1` reuses the current package builds.
 - **One package:** `pnpm --filter ./packages/<name> build`.
