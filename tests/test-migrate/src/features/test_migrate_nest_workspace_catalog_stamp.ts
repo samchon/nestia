@@ -14,11 +14,15 @@ import path from "path";
  * moved from package.json dependency rewriting to catalog rewriting. Dependabot
  * compatibility requires explicit `@nestia/*` entries instead of YAML aliases,
  * and every one must track this repository's version without disturbing the
- * upstream catalog layout.
+ * upstream catalog layout. typia is no caret range: nestia's Go plugins link
+ * one typia release's transform while the generated code calls the installed
+ * runtime, so the project must resolve exactly that release, or its build stops
+ * on the mismatch (#1663).
  *
  * 1. Generate a nest project from a synthetic OpenAPI document.
  * 2. Assert every Nestia catalog entry pins the current version explicitly.
- * 3. Assert the TypeScript and typia catalog entries keep caret versions.
+ * 3. Assert the TypeScript catalog entries keep caret versions, and the typia
+ *    entry pins exactly the release @nestia/migrate resolves.
  * 4. Assert package.json dependencies keep their `catalog:` indirections.
  */
 export const test_migrate_nest_workspace_catalog_stamp = (): void => {
@@ -56,8 +60,19 @@ export const test_migrate_nest_workspace_catalog_stamp = (): void => {
     throw new Error("The ttsc catalog entry must keep a caret version.");
   if (/^\s+typescript: \^\d/m.test(workspace) === false)
     throw new Error("The typescript catalog entry must keep a caret version.");
-  if (/^\s+typia: \^\d/m.test(workspace) === false)
-    throw new Error("The typia catalog entry must keep a caret version.");
+  const typia: string = (
+    createRequire(
+      createRequire(path.join(process.cwd(), "package.json")).resolve(
+        "@nestia/migrate/package.json",
+      ),
+    )("typia/package.json") as { version: string }
+  ).version;
+  if (
+    workspace
+      .split(/\r?\n/)
+      .some((line) => line.trim() === `typia: ${typia}`) === false
+  )
+    throw new Error(`The typia catalog entry must pin exactly ${typia}.`);
 
   const backend: string | undefined = files["packages/backend/package.json"];
   if (backend === undefined)
