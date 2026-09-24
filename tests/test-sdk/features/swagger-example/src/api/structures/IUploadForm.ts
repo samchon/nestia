@@ -4,6 +4,9 @@ export interface IUploadForm {
   memo?: string;
   attachments: File[];
   thumbnail: File | null;
+  /** Any of a file or a blob. */
+  mixed: Array<File | Blob>;
+  maybe: Array<File | null>;
 }
 
 /** Form whose fields are all optional. */

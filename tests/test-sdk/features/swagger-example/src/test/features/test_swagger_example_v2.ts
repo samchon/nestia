@@ -24,8 +24,8 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
  * 3. Assert each success response carries its single example by MIME type.
  * 4. Assert the encrypted route keeps its warning without the flag, and its JSON
  *    exception its status and description without a body.
- * 5. Assert each form lists its fields, required as declared, with a file array
- *    and a nullable file as one file each.
+ * 5. Assert each form lists its fields, a file array, a nullable file, and an
+ *    array of file unions as one optional file each, keeping its description.
  * 6. Assert the exception with named examples lists none.
  */
 export const test_swagger_example_v2 = async (): Promise<void> => {
@@ -84,17 +84,25 @@ export const test_swagger_example_v2 = async (): Promise<void> => {
       .map((p: any) => `${p.in}:${p.name}:${p.required === true}`)
       .sort();
   TestValidator.equals("form", fields("/downgrade/form"), [
-    "formData:attachments:true",
+    "formData:attachments:false",
+    "formData:maybe:false",
     "formData:memo:false",
-    "formData:thumbnail:true",
+    "formData:mixed:false",
+    "formData:thumbnail:false",
     "formData:title:true",
   ]);
+  const files: any[] = swagger.paths["/downgrade/form"].post.parameters.filter(
+    (p: any) => ["attachments", "thumbnail", "mixed", "maybe"].includes(p.name),
+  );
   TestValidator.equals(
     "form files",
-    swagger.paths["/downgrade/form"].post.parameters
-      .filter((p: any) => p.name === "attachments" || p.name === "thumbnail")
-      .map((p: any) => p.type),
-    ["file", "file"],
+    files.map((p) => p.type),
+    ["file", "file", "file", "file"],
+  );
+  TestValidator.equals(
+    "form file description",
+    files.find((p) => p.name === "mixed")?.description,
+    "Any of a file or a blob.",
   );
   TestValidator.equals("optional form", fields("/downgrade/optional-form"), [
     "formData:memo:false",
