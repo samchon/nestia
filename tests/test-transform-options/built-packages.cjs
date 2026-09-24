@@ -2,7 +2,7 @@
 // manifests point at TypeScript sources, which plain node cannot load.
 const Module = require("module");
 const path = require("path");
-const root = path.resolve(__dirname, "../../..");
+const root = path.resolve(__dirname, "../..");
 const map = {
   "@nestia/core": path.join(root, "packages/core/lib/index.js"),
   "@nestia/fetcher": path.join(root, "packages/fetcher/lib/index.js"),
