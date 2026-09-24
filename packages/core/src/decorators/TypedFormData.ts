@@ -5,6 +5,7 @@ import {
 } from "@nestjs/common";
 import type { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import type express from "express";
+import fs from "fs";
 import type ExpressMulter from "multer";
 
 import type { IRequestFormDataProps } from "../options/IRequestFormDataProps";
@@ -69,9 +70,11 @@ export namespace TypedFormData {
    *
    * Much easier and type safer than `@nest.UploadFile()` decorator.
    *
-   * @param factory Factory function ncreating the `multer` or `fastify-multer`
+   * @param factory Factory function creating the `multer` or `fastify-multer`
    *   instance. In the factory function, you also can specify the multer
-   *   composition options like `storage` engine.
+   *   composition options like `storage` engine: memory and disk storage
+   *   deliver the uploaded bytes, and an engine keeping neither the buffer nor
+   *   a file path is rejected.
    */
   export function Body<Multer extends IMulterBase>(
     factory: () => Multer | Promise<Multer>,
@@ -160,7 +163,7 @@ const decode = <T>(
       if (Array.isArray(value))
         for (const elem of value) data.append(key, String(elem));
       else data.append(key, String(value));
-    if (socket.request.files) parseFiles(data)(socket.request.files);
+    if (socket.request.files) await parseFiles(data)(socket.request.files);
     return data;
   };
 };
@@ -168,22 +171,34 @@ const decode = <T>(
 /** @internal */
 const parseFiles =
   (data: FormData) =>
-  (files: Express.Multer.File[] | Record<string, Express.Multer.File[]>) => {
-    if (Array.isArray(files))
-      for (const file of files)
-        data.append(
-          file.fieldname,
-          new File([file.buffer as any], file.originalname, {
-            type: file.mimetype,
-          }),
+  async (
+    files: Express.Multer.File[] | Record<string, Express.Multer.File[]>,
+  ): Promise<void> => {
+    const entries: Array<[string, Express.Multer.File]> = Array.isArray(files)
+      ? files.map((file) => [file.fieldname, file])
+      : Object.entries(files).flatMap(([key, value]) =>
+          value.map((file): [string, Express.Multer.File] => [key, file]),
         );
-    else
-      for (const [key, value] of Object.entries(files))
-        for (const file of value)
-          data.append(
-            key,
-            new File([file.buffer as any], file.originalname, {
-              type: file.mimetype,
-            }),
-          );
+    for (const [key, file] of entries) data.append(key, await toFile(file));
   };
+
+/**
+ * The uploaded file as a `File`: memory storage keeps its bytes in `buffer`,
+ * disk storage in the file at `path`. An engine keeping neither cannot deliver
+ * it, which must not pass as an empty or placeholder file.
+ *
+ * @internal
+ */
+const toFile = async (file: Express.Multer.File): Promise<File> => {
+  const bytes: Buffer | undefined =
+    file.buffer !== undefined
+      ? file.buffer
+      : typeof file.path === "string"
+        ? await fs.promises.readFile(file.path)
+        : undefined;
+  if (bytes === undefined)
+    throw new Error(
+      `Error on TypedFormData.Body(): the multer storage engine kept neither the buffer nor the path of the uploaded file ${JSON.stringify(file.fieldname)}, so it cannot be read as a File. Use memory or disk storage.`,
+    );
+  return new File([bytes as any], file.originalname, { type: file.mimetype });
+};

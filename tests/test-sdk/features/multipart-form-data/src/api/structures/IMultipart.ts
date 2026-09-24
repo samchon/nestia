@@ -15,4 +15,14 @@ export namespace IMultipart {
     flags: number[];
     notes?: string[];
   }
+
+  export interface IDisk {
+    file: File;
+  }
+
+  export interface IDiskContent {
+    name: string;
+    size: number;
+    text: string;
+  }
 }
