@@ -332,6 +332,13 @@ const feature = async (name, port) => {
       [],
       "inherit",
     );
+  if (name === "output-directory-diagnostics")
+    return runNode(
+      ROOT,
+      path.join(__dirname, "output-directory-diagnostics.js"),
+      [],
+      "inherit",
+    );
 
   const cwd = featureDirectory(name);
   const configFile =
@@ -1379,6 +1386,8 @@ const main = async () => {
       names.push("cli-argument-diagnostics");
     if (filter("cli-dependencies")) names.push("cli-dependencies");
     if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
+    if (filter("output-directory-diagnostics"))
+      names.push("output-directory-diagnostics");
     await runFeatures(names);
   });
 };
