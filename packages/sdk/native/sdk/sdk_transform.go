@@ -314,12 +314,16 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 		tag = nil
 	}
 	for _, line := range strings.Split(comment, "\n") {
-		text := strings.TrimSpace(line)
+		// past the comment's `* ` margin a line keeps its indentation, as
+		// TypeScript keeps it, so an indented code block stays one
+		text := strings.TrimLeft(line, " \t")
 		text = strings.TrimPrefix(text, "*")
-		text = strings.TrimSpace(text)
-		if strings.HasPrefix(text, "@") {
+		text = strings.TrimPrefix(text, " ")
+		text = strings.TrimRight(text, " \t\r")
+		trimmed := strings.TrimSpace(text)
+		if strings.HasPrefix(trimmed, "@") {
 			flush()
-			name, body := nestiaSDKParseJSDocTag(text)
+			name, body := nestiaSDKParseJSDocTag(trimmed)
 			tag = &nestiaSDKPendingTag{name: name, lines: []string{body}}
 			continue
 		}
@@ -327,7 +331,7 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 			tag.lines = append(tag.lines, text)
 			continue
 		}
-		if text == "" {
+		if trimmed == "" {
 			if len(description) != 0 {
 				description = append(description, "")
 			}
@@ -419,12 +423,21 @@ func nestiaSDKParseParamTag(body string) (string, string) {
 		}
 	}
 	if strings.HasPrefix(body, "[") {
-		if end := strings.Index(body, "]"); end != -1 {
-			name := strings.TrimSpace(body[1:end])
-			if equal := strings.Index(name, "="); equal != -1 {
-				name = strings.TrimSpace(name[:equal])
+		// the bracket that closes the first, past any in a default value
+		depth := 0
+		for end, char := range body {
+			if char == '[' {
+				depth++
+			} else if char == ']' {
+				depth--
+				if depth == 0 {
+					name := strings.TrimSpace(body[1:end])
+					if equal := strings.Index(name, "="); equal != -1 {
+						name = strings.TrimSpace(name[:equal])
+					}
+					return name, strings.TrimSpace(body[end+1:])
+				}
 			}
-			return name, strings.TrimSpace(body[end+1:])
 		}
 	}
 	parts := strings.Fields(body)
