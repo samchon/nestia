@@ -102,8 +102,7 @@ const main = () => {
       });
       const captured = load(file);
       const route = first(captured["TypedRoute.Get"])?.[0];
-      if (expectedType === null)
-        assert(route === null, "null stringify failed");
+      if (expectedType === null) assert(route === null, "null stringify failed");
       else
         assert(
           route?.type === expectedType,
@@ -367,14 +366,18 @@ const compile = (props) => {
   const project = writeProject(props);
   const args = [TTSC, "--cache-dir", CACHE, "-p", project];
   if (props.noEmit === true) args.push("--noEmit");
-  const result = cp.spawnSync(NODE, args, {
-    cwd: __dirname,
-    encoding: "utf8",
-    env: {
-      ...process.env,
-      TTSC_CACHE_DIR: CACHE,
+  const result = cp.spawnSync(
+    NODE,
+    args,
+    {
+      cwd: __dirname,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        TTSC_CACHE_DIR: CACHE,
+      },
     },
-  });
+  );
   // A compiler that never started is not a compiler that rejected the input.
   // Check this before the `fail: true` branch, or a spawn failure would satisfy
   // every expected-failure case and the suite would pass vacuously.
@@ -385,8 +388,10 @@ const compile = (props) => {
   if (props.fail === true) {
     if (result.status === 0)
       throw new Error(`${props.name}: compilation was expected to fail.`);
-    const diagnostics =
-      `${result.stdout ?? ""}\n${result.stderr ?? ""}`.replaceAll("\\", "/");
+    const diagnostics = `${result.stdout ?? ""}\n${result.stderr ?? ""}`.replaceAll(
+      "\\",
+      "/",
+    );
     for (const expected of props.expectedDiagnostics ?? [])
       assert(
         diagnostics.includes(expected),
@@ -562,8 +567,7 @@ const load = (file) => {
     "TypedRoute.Get": [],
     "TypedRoute.Post": [],
   };
-  const decorator =
-    (key) =>
+  const decorator = (key) =>
     (...args) => {
       captured[key].push(args);
       return () => undefined;
@@ -615,17 +619,11 @@ const assertValidate = (option, validator) => {
   else if (option === "validate")
     assert(validator.validate(extra()).success, "validate rejected extra");
   else if (option === "assertEquals")
-    assertThrows(
-      () => validator.assert(extra()),
-      "assertEquals accepted extra",
-    );
+    assertThrows(() => validator.assert(extra()), "assertEquals accepted extra");
   else if (option === "equals")
     assert(!validator.is(extra()), "equals accepted extra");
   else if (option === "validateEquals")
-    assert(
-      !validator.validate(extra()).success,
-      "validateEquals accepted extra",
-    );
+    assert(!validator.validate(extra()).success, "validateEquals accepted extra");
   else if (option === "assertClone") {
     const input = extra();
     const output = validator.assert(input);
