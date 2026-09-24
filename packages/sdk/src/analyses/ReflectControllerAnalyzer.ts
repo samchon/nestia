@@ -12,6 +12,7 @@ import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
 import { IReflectMcpOperation } from "../structures/IReflectMcpOperation";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
 import { ArrayUtil } from "../utils/ArrayUtil";
+import { PathAnalyzer } from "./PathAnalyzer";
 import { ReflectHttpOperationAnalyzer } from "./ReflectHttpOperationAnalyzer";
 import { ReflectMcpOperationAnalyzer } from "./ReflectMcpOperationAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
@@ -38,27 +39,33 @@ export namespace ReflectControllerAnalyzer {
     )
       return null;
 
+    // a controller no path of which can be composed is left out as a whole,
+    // rather than mounted at the root
+    const paths: string[] = ReflectMetadataAnalyzer.paths(
+      props.controller.class,
+    ).filter((str) => {
+      const reason = PathAnalyzer.unsupported(str);
+      if (reason === null) return true;
+      props.project.warnings.push({
+        file: props.controller.location,
+        class: props.controller.class.name,
+        function: null,
+        from: null,
+        contents: [
+          `@nestia/sdk does not compose ${reason} controller (${JSON.stringify(str)}).`,
+        ],
+      });
+      return false;
+    });
+    if (paths.length === 0) return null;
+
     // BASIC INFO
     const controller: IReflectController = {
       class: props.controller.class,
       file: props.controller.location,
       operations: [],
       prefixes: props.controller.prefixes,
-      paths: ReflectMetadataAnalyzer.paths(props.controller.class).filter(
-        (str) => {
-          if (str.includes("*") === true) {
-            props.project.warnings.push({
-              file: props.controller.location,
-              class: props.controller.class.name,
-              function: null,
-              from: null,
-              contents: ["@nestia/sdk does not compose wildcard controller."],
-            });
-            return false;
-          }
-          return true;
-        },
-      ),
+      paths,
       versions: ReflectMetadataAnalyzer.versions(props.controller.class),
       security: ReflectMetadataAnalyzer.securities(props.controller.class),
       tags:

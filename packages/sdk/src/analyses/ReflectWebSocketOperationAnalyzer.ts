@@ -27,6 +27,24 @@ export namespace ReflectWebSocketOperationAnalyzer {
     );
     if (route === undefined) return null;
 
+    // a route no path of which can be composed is left out as a whole; one
+    // declaring no path at all serves the controller's own
+    const paths: string[] = route.paths.filter((str) => {
+      const reason = PathAnalyzer.unsupported(str);
+      if (reason === null) return true;
+      ctx.project.warnings.push({
+        file: ctx.controller.file,
+        class: ctx.controller.class.name,
+        function: ctx.name,
+        from: "",
+        contents: [
+          `@nestia/sdk does not compose ${reason} method (${JSON.stringify(str)}).`,
+        ],
+      });
+      return false;
+    });
+    if (paths.length === 0 && route.paths.length !== 0) return null;
+
     // @todo -> detailing is required
     const errors: string[] = [];
     const preconfigured: IReflectWebSocketOperationParameter.IPreconfigured[] =
@@ -144,9 +162,8 @@ export namespace ReflectWebSocketOperationAnalyzer {
       .filter((field): field is string => !!field?.length)
       .sort();
     for (const cLoc of ctx.controller.paths)
-      for (const mLoc of route.paths) {
+      for (const mLoc of paths) {
         const location: string = PathAnalyzer.join(cLoc, mLoc);
-        if (location.includes("*")) continue;
 
         const binded: string[] | null = PathAnalyzer.parameters(location);
         if (binded === null)
@@ -171,7 +188,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
     return {
       protocol: "websocket",
       name: ctx.name,
-      paths: route.paths,
+      paths,
       function: ctx.function,
       versions: ReflectMetadataAnalyzer.versions(ctx.function),
       parameters,
