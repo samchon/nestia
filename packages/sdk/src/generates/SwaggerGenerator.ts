@@ -401,10 +401,12 @@ export namespace SwaggerGenerator {
 
   /**
    * The violations of an operation's security requirements against the
-   * configured `swagger.security` schemes: a scheme it never declares, scopes
-   * on a scheme other than OAuth2 or OpenID Connect, and an OAuth2 scope no
-   * flow of the scheme declares. An OpenID Connect scheme lists no scopes of
-   * its own, so its scopes are not checked.
+   * configured `swagger.security` schemes: a scheme it never declares, an
+   * OAuth2 scope no flow of the scheme declares, and, for an OpenAPI 3.0 or
+   * Swagger 2.0 document, scopes on a scheme other than OAuth2 or OpenID
+   * Connect, which those versions require to be empty. From 3.1 on, such a
+   * scheme's array lists the role names the operation requires. An OpenID
+   * Connect scheme lists no scopes of its own, so its scopes are not checked.
    */
   const validateSecurity = (props: {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;
@@ -425,11 +427,13 @@ export namespace SwaggerGenerator {
           report(`target security scheme "${name}" does not exist.`);
         else if (scopes.length === 0 || scheme.type === "openIdConnect")
           continue;
-        else if (scheme.type !== "oauth2")
-          report(
-            `target security scheme "${name}" is neither "oauth2" nor "openIdConnect" type, but you've configured the scopes.`,
-          );
-        else {
+        else if (scheme.type !== "oauth2") {
+          const version: string = props.config.openapi ?? "3.2";
+          if (version === "3.0" || version === "2.0")
+            report(
+              `target security scheme "${name}" is neither "oauth2" nor "openIdConnect" type, but you've configured the scopes, which OpenAPI ${version} requires to be empty.`,
+            );
+        } else {
           const declared: Set<string> = new Set(
             Object.values(scheme.flows ?? {}).flatMap((flow) =>
               Object.keys(

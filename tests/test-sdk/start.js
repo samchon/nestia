@@ -135,7 +135,7 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
   ],
   [
     "security-error-not-oauth2",
-    `target security scheme "bearer" is neither "oauth2" nor "openIdConnect" type, but you've configured the scopes.`,
+    `target security scheme "bearer" is neither "oauth2" nor "openIdConnect" type, but you've configured the scopes, which OpenAPI 3.0 requires to be empty.`,
   ],
   [
     "security-error-out-of-scopes",
