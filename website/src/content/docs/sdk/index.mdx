@@ -187,6 +187,8 @@ The map of status codes comes from `@TypedRoute.*` (success) plus every `@TypedE
 
 Cloned properties preserve `?` when the server enables `exactOptionalPropertyTypes`: `optional?: boolean` stays `optional?: boolean`. Explicit `undefined` unions are retained. As with JSON serialization, properties whose values can be `undefined` may be omitted in the cloned type.
 
+Type tags are copied as written: `number & tags.Minimum<3>` stays `number & tags.Minimum<3>`. A tag of your own, even one named like a typia tag, is copied as the equivalent `tags.TagBase<{ ... }>`, and a JSDoc comment tag such as `@format uri` becomes the type tag it names, `tags.Format<"uri">`.
+
 Why you'd want this:
 
 - **Your DTOs come from an ORM** (Prisma `Article`, TypeORM entity). Without `clone`, consumers must install `@prisma/client` to compile the SDK.
