@@ -2001,18 +2001,33 @@ func nestiaSDKParentClassName(node *shimast.Node) string {
 	return ""
 }
 
+// nestiaSDKMethodName names a decorated method's site. The contributor visits
+// every decorated method of the program, controller or not, and a computed
+// name such as `[key]` has no identifier: it reads as its literal key when it
+// has one, and as its source otherwise. The metadata still reaches the method,
+// because a decorator attaches it under the key the runtime computes.
 func nestiaSDKMethodName(node *shimast.Node) string {
 	if node == nil || node.Name() == nil {
 		return ""
 	}
-	return strings.Trim(node.Name().Text(), "\"'")
+	name := node.Name()
+	if name.Kind == shimast.KindComputedPropertyName {
+		switch expression := name.AsComputedPropertyName().Expression; expression.Kind {
+		case shimast.KindStringLiteral, shimast.KindNumericLiteral, shimast.KindNoSubstitutionTemplateLiteral:
+			return expression.Text()
+		}
+	}
+	return strings.Trim(shimast.NodeText(name), "\"'")
 }
 
+// nestiaSDKParameterName reads a parameter's identifier, or "" for a
+// destructuring pattern such as `{ organizationId }`, which declares no name
+// the SDK could reuse; the SDK names such a parameter after its role.
 func nestiaSDKParameterName(node *shimast.Node) string {
-	if node == nil || node.Name() == nil {
+	if node == nil || node.Name() == nil || node.Name().Kind != shimast.KindIdentifier {
 		return ""
 	}
-	return strings.Trim(node.Name().Text(), "\"'")
+	return node.Name().Text()
 }
 func nestiaSDKParameterTypeNode(node *shimast.Node) *shimast.Node {
 	if node != nil && node.AsParameterDeclaration() != nil {

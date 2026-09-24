@@ -7,6 +7,7 @@ import { IReflectImport } from "../structures/IReflectImport";
 import { IReflectMcpOperation } from "../structures/IReflectMcpOperation";
 import { IReflectMcpOperationParameter } from "../structures/IReflectMcpOperationParameter";
 import { ImportAnalyzer } from "./ImportAnalyzer";
+import { ParameterNameAnalyzer } from "./ParameterNameAnalyzer";
 
 export namespace ReflectMcpOperationAnalyzer {
   export interface IProps {
@@ -60,7 +61,7 @@ export namespace ReflectMcpOperationAnalyzer {
       );
 
     const imports: IReflectImport[] = [];
-    const parameters: IReflectMcpOperationParameter[] = preconfigured
+    const declared: IReflectMcpOperationParameter[] = preconfigured
       .map((p) => {
         const matched: IOperationMetadata.IParameter | undefined =
           ctx.metadata.parameters.find(
@@ -90,6 +91,9 @@ export namespace ReflectMcpOperationAnalyzer {
         };
       })
       .filter((p): p is IReflectMcpOperationParameter => !!p);
+    // a destructured parameter declares no name, so it is given one
+    const parameters: IReflectMcpOperationParameter[] =
+      ParameterNameAnalyzer.name(declared);
 
     if (ctx.metadata.success?.imports?.length)
       imports.push(...ctx.metadata.success.imports);

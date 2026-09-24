@@ -123,6 +123,8 @@ The generated Swagger response is emitted as `type: "string"` with
 | `json`         | `boolean`                                                         | Use `typia.assertStringify` for 10× faster JSON serialization in the SDK. |
 | `keyword`      | `boolean`                                                         | Pass SDK function arguments as a single keyword object instead of positional (default `false`). |
 
+An SDK function's parameters take the handler's parameter names, which are the argument object's keys when `keyword` is `true`. A destructured parameter, such as `@TypedBody() { title }: IArticle.ICreate`, declares no name, so the SDK names it after what it carries: its field in camel case (`@Query("page-size")` becomes `pageSize`), otherwise its kind (`body`, `query`, `headers`), with a `_` prefix when another parameter of the handler already has that name.
+
 ---
 
 ## How `input` finds controllers

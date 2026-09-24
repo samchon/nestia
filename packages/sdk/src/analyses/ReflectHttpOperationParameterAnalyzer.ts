@@ -8,6 +8,7 @@ import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperationParameter";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
 import { TextPlainValidator } from "../validators/TextPlainValidator";
+import { ParameterNameAnalyzer } from "./ParameterNameAnalyzer";
 import { SwaggerExampleAnalyzer } from "./SwaggerExampleAnalyzer";
 
 export namespace ReflectHttpOperationParameterAnalyzer {
@@ -101,7 +102,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
     //----
     // COMPOSE PARAMETERS
     //----
-    const parameters: IReflectHttpOperationParameter[] = preconfigured
+    const declared: IReflectHttpOperationParameter[] = preconfigured
       .map((p): IReflectHttpOperationParameter | null => {
         // METADATA INFO
         const pErrorContents: Array<string | IOperationMetadata.IError> = [];
@@ -233,6 +234,9 @@ export namespace ReflectHttpOperationParameterAnalyzer {
         }
       })
       .filter((x): x is IReflectHttpOperationParameter => x !== null);
+    // a destructured parameter declares no name, so it is given one
+    const parameters: IReflectHttpOperationParameter[] =
+      ParameterNameAnalyzer.name(declared);
 
     const duplicated: string[] = findDuplicatedKeys(parameters);
     if (duplicated.length)
