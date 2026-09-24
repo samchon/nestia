@@ -11,7 +11,7 @@
     "@nestjs/common": "catalog:nestjs",
     "@nestjs/core": "catalog:nestjs",
     "@nestjs/platform-express": "catalog:nestjs",
-    "multer": "^2.0.2",
+    "multer": "^2.3.0",
     "rxjs": "catalog:nestjs",
     "typia": "catalog:samchon"
   },
