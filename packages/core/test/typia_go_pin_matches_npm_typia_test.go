@@ -41,6 +41,8 @@ const typiaNativeModulePath = "github.com/samchon/typia/packages/typia/native"
 //     directory of both @nestia/core and @nestia/sdk, file by file, ignoring
 //     `LICENSE` (in the Go module zip, absent from the npm package) and
 //     `_test.go` files.
+//  4. Assert the pnpm catalog the published packages depend through pins
+//     typia to exactly that installed release, not a range (#1663).
 func TestTypiaGoPinMatchesNpmTypia(t *testing.T) {
 	root := repoRootForCore(t)
 	modules := []string{
@@ -75,6 +77,46 @@ func TestTypiaGoPinMatchesNpmTypia(t *testing.T) {
 			)
 		}
 	}
+
+	// The published packages must hold consumers at that very release: the
+	// transform is compiled from the pin while the emitted code calls the
+	// installed runtime, so a range would let a consumer resolve a later typia
+	// under the pinned transform (#1663).
+	installed := npmPackageVersion(t, filepath.Join(root, "packages", "core", "node_modules", "typia", "package.json"))
+	if catalog := catalogTypiaSpecifier(t, filepath.Join(root, "pnpm-workspace.yaml")); catalog != installed {
+		t.Fatalf("the pnpm catalog gives typia %q, but the Go pin's source is typia %s; pin the catalog to exactly %s", catalog, installed, installed)
+	}
+}
+
+// npmPackageVersion reads the version of an installed npm package manifest.
+func npmPackageVersion(t *testing.T, manifest string) string {
+	t.Helper()
+	var pack struct {
+		Version string
+	}
+	if err := json.Unmarshal(mustReadBytes(t, manifest), &pack); err != nil {
+		t.Fatalf("read %s: %v", manifest, err)
+	}
+	return pack.Version
+}
+
+// catalogTypiaSpecifier reads the typia specifier of the pnpm workspace's
+// `samchon` catalog, which every published package's typia dependency uses.
+func catalogTypiaSpecifier(t *testing.T, workspace string) string {
+	t.Helper()
+	inCatalog := false
+	for _, line := range strings.Split(strings.ReplaceAll(string(mustReadBytes(t, workspace)), "\r\n", "\n"), "\n") {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(line, "  ") && strings.HasPrefix(line, "    ") == false {
+			inCatalog = trimmed == "samchon:"
+			continue
+		}
+		if inCatalog && strings.HasPrefix(trimmed, "typia:") {
+			return strings.TrimSpace(strings.TrimPrefix(trimmed, "typia:"))
+		}
+	}
+	t.Fatalf("%s has no typia entry in the samchon catalog", workspace)
+	return ""
 }
 
 type typiaModule struct {

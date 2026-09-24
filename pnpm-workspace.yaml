@@ -12,8 +12,10 @@ catalogs:
     '@nestjs/platform-fastify': *nestjs
     rxjs: ^7.1.0
   samchon:
-    typia: &typia ^15.0.0
-    '@typia/interface': *typia
+    # Exact: the Go plugins link this release's transform, while the code it
+    # emits calls the installed runtime (#1663).
+    typia: 15.0.0
+    '@typia/interface': &typia ^15.0.0
     '@typia/utils': *typia
     tgrid: ^1.2.1
     tstl: ^3.0.0
