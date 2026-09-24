@@ -57,7 +57,8 @@ export namespace SdkHttpRouteProgrammer {
           .map((str) => str.trim())
           .map((str, i) => {
             if (i === 0) return str;
-            const rpad: number = p.name.length + 8;
+            // under the description, past `@param <declared name> `
+            const rpad: number = name.length + 8;
             return `${" ".repeat(rpad)}${str}`;
           })
           .join("\n")}`,

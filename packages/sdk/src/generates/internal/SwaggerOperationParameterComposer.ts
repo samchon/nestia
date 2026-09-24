@@ -75,8 +75,8 @@ export namespace SwaggerOperationParameterComposer {
    * attributes, and are each required or not; so a form keeps only its fields,
    * is required when one of them is, and without fields has no body to list. A
    * `formData` file is one file, never an array, a union, or null, so a field
-   * taking several files, or none, is listed as an optional file
-   * ({@link swaggerV2FormField}).
+   * taking several files, or none, is listed as one file, optional unless it
+   * requires one ({@link swaggerV2FormField}).
    */
   const swaggerV2Body = (
     props: IProps<ITypedHttpRouteParameter.IBody>,

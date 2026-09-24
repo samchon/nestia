@@ -38,7 +38,8 @@ export class ShadowController {
   /**
    * Echo the shadow.
    *
-   * @param props Shadow to echo
+   * @param props Shadow to echo, described at a length the formatter wraps onto
+   *   a second line
    */
   @core.TypedRoute.Get("props")
   public props(@core.TypedQuery() props: IShadow): IShadow {
