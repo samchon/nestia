@@ -196,6 +196,11 @@ class EncryptedRouteInterceptor implements NestInterceptor {
             : param;
 
         if (body === undefined) return body;
+        // the ciphertext is text/plain, as the document declares; set on the
+        // success path alone, so an error keeps its JSON body's type (Express
+        // would otherwise send a string as text/html)
+        const response: express.Response = http.getResponse();
+        response.header("Content-Type", "text/plain");
         return AesPkcs5.encrypt(body, password.key, password.iv);
       }),
       catchError((err) => route_error(http.getRequest(), err)),
