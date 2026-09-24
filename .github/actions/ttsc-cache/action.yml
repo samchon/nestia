@@ -1,0 +1,44 @@
+name: ttsc plugin cache
+description: >-
+  Restores, and optionally saves, the ttsc source-plugin cache: the compiled
+  plugin binaries and the Go object cache ttsc builds them with. A cold build
+  of the nestia and typia plugins takes minutes in every job; ttsc keys each
+  binary by its own inputs, so a restored entry that no longer matches is
+  simply not used and the cache can never serve a stale plugin. The Go object
+  store also holds the compiled Go test binaries, so the key covers the Go
+  test sources too.
+inputs:
+  save:
+    description: Save the cache at the end of the job when its key missed.
+    required: false
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - id: key
+      shell: bash
+      run: |
+        echo "go=$(go env GOVERSION 2>/dev/null || echo none)" >> "$GITHUB_OUTPUT"
+
+    # ttsc's default cache root, shared by every package build and harness
+    - if: inputs.save == 'true'
+      uses: actions/cache@v4
+      with:
+        path: |
+          node_modules/.cache/ttsc/plugins
+          node_modules/.cache/ttsc/go-build
+        key: ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**') }}
+        restore-keys: |
+          ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-
+          ttsc-${{ runner.os }}-${{ runner.arch }}-
+
+    - if: inputs.save != 'true'
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          node_modules/.cache/ttsc/plugins
+          node_modules/.cache/ttsc/go-build
+        key: ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**') }}
+        restore-keys: |
+          ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-
+          ttsc-${{ runner.os }}-${{ runner.arch }}-

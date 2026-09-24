@@ -130,7 +130,7 @@ Run the narrowest command that proves the change first, then a broader command w
 
 - **One Go module:** `pnpm --filter @nestia/core test:go` or `pnpm --filter @nestia/sdk test:go`; root `pnpm test:go` runs both plus `go test -count=1 ./...` in `packages/core/native`.
 - **One TypeScript workspace:** `pnpm --filter ./tests/<name> start`.
-- **One `test-sdk` feature:** `pnpm --filter ./tests/test-sdk start -- --only <substring>`, which runs only the features whose name contains that substring. `--from <name>` resumes lexicographically, and `TEST_SDK_SKIP_BUILD=1` reuses the current package builds.
+- **One `test-sdk` feature:** `pnpm --filter ./tests/test-sdk start -- --only <substring>`, which runs only the features whose name contains that substring. `--from <name>` resumes lexicographically, `--shard <index>/<count>` (or `TEST_SDK_SHARD`) runs one of `count` disjoint slices of the selected features, as the CI `sdk` jobs do, and `TEST_SDK_SKIP_BUILD=1` reuses the current package builds, refusing to run when a package source is newer than its build. The harness runs the `nestia` CLI from its build (`packages/cli/bin`) under plain node, with `tests/test-sdk/built-packages.cjs` serving each workspace package from the entries its `publishConfig.exports` names, as a published install resolves them.
 - **One package:** `pnpm --filter ./packages/<name> build`.
 - **Transform, decorators, or generators broadly:** `pnpm test`; use `pnpm build` as the faster compilation gate.
 - **Packaging:** run root `pnpm package:tgz`, then inspect or smoke-test a clean install. `deploy/verify-package-exports.cjs` already runs inside the `fetcher`, `migrate`, and `editor` builds; trust its failure over a green typecheck.
@@ -143,7 +143,7 @@ Verification shape depends on the change type:
 - **Refactor:** name what should stay unchanged; rely on the existing test suite or a behavior-locking probe.
 - **Review:** name concrete risks, missing tests, or regressions.
 
-A `test-sdk` e2e feature gets three silent attempts and then one final attempt with inherited stdio, so the output you see belongs to a fourth run. Do not read a pass that needed retries as a clean result; an intermittent failure is a finding.
+A `test-sdk` e2e feature gets three quiet attempts and then one final attempt with inherited stdio, so the output you see belongs to a fourth run. A pass that needed a retry is still reported: the feature line names each failed attempt, the run ends with the list of retried features, and on GitHub Actions each one is a warning annotation. Do not read such a pass as a clean result; an intermittent failure is a finding.
 
 ## Change Integrity
 

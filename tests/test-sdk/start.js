@@ -7,11 +7,17 @@ const ROOT = path.join(__dirname, "../..");
 const NODE = process.execPath;
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const PROJECT_CONFIG = "tsconfig.project.json";
-// The cli is launched from its TypeScript source through ttsx: the workspace
-// packages resolve each other's src/*.ts entries, which plain `node` cannot
-// load (`--no-experimental-strip-types`), while ttsx installs runtime hooks
-// that propagate to child processes via NODE_OPTIONS.
-const CLI_MAIN = path.join(ROOT, "packages/cli/src/index.ts");
+// The cli runs as users run it: its built `bin` under plain node, with every
+// workspace package served from the built entries its publishConfig exports
+// name (the workspace manifests point at TypeScript sources, which plain node
+// cannot load). main() builds those packages first. Launching the cli from
+// its sources through ttsx instead started a second TypeScript loader and
+// re-evaluated the plugin descriptor before every generation.
+const CLI = [
+  "-r",
+  path.join(__dirname, "built-packages.cjs"),
+  path.join(ROOT, "packages/cli/bin/index.js"),
+];
 const TTSC_BIN = packageBin("ttsc", "ttsc");
 const TTSX_BIN = packageBin("ttsc", "ttsx");
 const BASE_PORT = 37_000;
@@ -23,6 +29,15 @@ process.env.NODE_OPTIONS = [
 ]
   .filter(Boolean)
   .join(" ");
+// One ttsc cache for every process the harness starts. The children run from
+// the repository root (the package build), this directory (the diagnostic
+// cohorts), and each feature directory, so a relative TTSC_CACHE_DIR would
+// name a different directory in each, some outside the repository, and every
+// such process would build the plugins from cold. It is resolved here, once.
+process.env.TTSC_CACHE_DIR = path.resolve(
+  __dirname,
+  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".cache", "ttsc"),
+);
 process.env.NODE_PATH = [
   path.join(ROOT, "node_modules"),
   path.join(ROOT, "node_modules", ".pnpm", "node_modules"),
@@ -330,11 +345,11 @@ const runNode = (cwd, script, args, stdio = "ignore", env = undefined) =>
   run(NODE, [script, ...args], { cwd, env, stdio });
 
 const runNestia = (cwd, args, stdio = "ignore") =>
-  runNode(cwd, TTSX_BIN, [CLI_MAIN, ...args], stdio);
+  run(NODE, [...CLI, ...args], { cwd, stdio });
 
 const runNestiaForError = (cwd, args) =>
   new Promise((resolve, reject) => {
-    const child = cp.spawn(NODE, [TTSX_BIN, CLI_MAIN, ...args], {
+    const child = cp.spawn(NODE, [...CLI, ...args], {
       cwd,
       env: process.env,
       stdio: ["ignore", "pipe", "pipe"],
@@ -348,13 +363,13 @@ const runNestiaForError = (cwd, args) =>
       if (code === 0)
         reject(
           new Error(
-            `${[NODE, TTSX_BIN, CLI_MAIN, ...args].join(" ")} unexpectedly succeeded.`,
+            `${[NODE, ...CLI, ...args].join(" ")} unexpectedly succeeded.`,
           ),
         );
       else if (signal !== null)
         reject(
           new Error(
-            `${[NODE, TTSX_BIN, CLI_MAIN, ...args].join(" ")} ended with ${signal}.`,
+            `${[NODE, ...CLI, ...args].join(" ")} ended with ${signal}.`,
           ),
         );
       else resolve(output);
@@ -509,11 +524,18 @@ const feature = async (name, port) => {
   assertGeneratedImportsAreExtensionless(cwd);
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (hasTtsxTestFiles(cwd)) {
+    // a pass that needed a retry is reported, never passed off as clean: an
+    // intermittent failure is a finding
+    const failures = [];
     for (let i = 0; i < 3; ++i)
       try {
         await runTtsxTest(cwd, "ignore", port);
+        if (failures.length !== 0) reportRetries(name, failures);
         return;
-      } catch {}
+      } catch (error) {
+        failures.push(error);
+      }
+    reportRetries(name, failures);
     await runTtsxTest(cwd, "inherit", port);
   } else {
     try {
@@ -874,7 +896,7 @@ const runCliArgumentDiagnosticsFeature = async () => {
     // missing message and hides the real cause.
     const invoke = (args) =>
       new Promise((resolve, reject) => {
-        const child = cp.spawn(NODE, [TTSX_BIN, CLI_MAIN, ...args], {
+        const child = cp.spawn(NODE, [...CLI, ...args], {
           cwd,
           env: { ...process.env },
           stdio: ["ignore", "pipe", "pipe"],
@@ -945,8 +967,7 @@ const runCliDependenciesFeature = async () => {
     await run(
       NODE,
       [
-        TTSX_BIN,
-        CLI_MAIN,
+        ...CLI,
         "dependencies",
         "--manager",
         `node ${JSON.stringify(manager)}`,
@@ -988,7 +1009,7 @@ const runSwaggerWatchFeature = async () => {
   await fs.promises.rm(cwd, { force: true, recursive: true });
   await writeSwaggerWatchFixture(cwd);
 
-  const child = cp.spawn(NODE, [TTSX_BIN, CLI_MAIN, "swagger", "--watch"], {
+  const child = cp.spawn(NODE, [...CLI, "swagger", "--watch"], {
     cwd,
     env: { ...process.env },
     stdio: ["ignore", "pipe", "pipe"],
@@ -1486,6 +1507,25 @@ const featureFilter = () => {
   return () => true;
 };
 
+// `--shard <index>/<count>` (or TEST_SDK_SHARD) runs one of `count` disjoint
+// slices of the selected features, so CI can spread the suite over parallel
+// jobs. Every feature falls in exactly one slice: the names are sorted and
+// dealt out in turn, which also splits consecutive expensive neighbors such as
+// the distribute features.
+const featureShard = () => {
+  const raw = argumentValue("--shard") ?? process.env.TEST_SDK_SHARD;
+  if (raw === undefined) return (names) => names;
+  const matched = /^(\d+)\/(\d+)$/.exec(raw);
+  const index = matched === null ? NaN : Number(matched[1]);
+  const count = matched === null ? NaN : Number(matched[2]);
+  if (!(count >= 1 && index >= 1 && index <= count))
+    throw new Error(
+      `invalid shard ${JSON.stringify(raw)}: expected "<index>/<count>" with 1 <= index <= count.`,
+    );
+  return (names) =>
+    [...names].sort().filter((_, position) => position % count === index - 1);
+};
+
 const concurrency = (count) => {
   const fallback = Math.min(
     8,
@@ -1514,6 +1554,20 @@ const measure = (title) => async (task) => {
 // features compiled on the same machine (#1695).
 const EXCLUSIVE_FEATURES = new Set(["swagger-watch"]);
 
+// Features whose e2e run failed before one passed, with each failure's reason.
+const RETRIED_FEATURES = [];
+const reportRetries = (name, failures) => {
+  const reasons = failures.map((error) =>
+    String(error instanceof Error ? error.message : error)
+      .split("\n")[0]
+      .slice(0, 200),
+  );
+  RETRIED_FEATURES.push({ name, reasons });
+  console.log(
+    `  - ${name}: e2e failed ${failures.length} time(s) before the attempt that decides it: ${reasons.join("; ")}`,
+  );
+};
+
 const runFeatures = async (names) => {
   const pooled = names.filter((name) => !EXCLUSIVE_FEATURES.has(name));
   const exclusive = names.filter((name) => EXCLUSIVE_FEATURES.has(name));
@@ -1541,28 +1595,64 @@ const runFeatures = async (names) => {
   await Promise.all(Array.from({ length: parallel }, worker));
   for (const [index, name] of exclusive.entries())
     await runFeature(name, BASE_PORT + pooled.length + index);
+  for (const { name, reasons } of RETRIED_FEATURES)
+    if (process.env.GITHUB_ACTIONS === "true")
+      console.log(
+        `::warning title=test-sdk retry::${name} passed its e2e run only after ${reasons.length} failure(s): ${reasons.join("; ")}`,
+      );
+  if (RETRIED_FEATURES.length !== 0)
+    console.log(
+      `\nFeatures whose e2e run needed a retry: ${RETRIED_FEATURES.map((f) => f.name).join(", ")}`,
+    );
   if (failures.length !== 0)
     throw new Error(
       `Failed test-sdk features: ${failures.map((f) => f.name).join(", ")}`,
     );
 };
 
+// The packages the cli runs from their builds, with the directory each emits.
+const BUILT_PACKAGES = [
+  ["fetcher", "lib"],
+  ["cli", "bin"],
+  ["core", "lib"],
+  ["sdk", "lib"],
+  ["e2e", "lib"],
+];
+
+// With TEST_SDK_SKIP_BUILD=1 the cli runs whatever was built last; a source
+// edited since would otherwise go untested while every feature passes.
+const assertFreshBuilds = () => {
+  const newest = (location) => {
+    if (fs.existsSync(location) === false) return -Infinity;
+    const stats = fs.statSync(location);
+    if (stats.isDirectory() === false) return stats.mtimeMs;
+    return Math.max(
+      stats.mtimeMs,
+      ...fs
+        .readdirSync(location)
+        .map((entry) => newest(path.join(location, entry))),
+    );
+  };
+  const stale = BUILT_PACKAGES.filter(
+    ([name, output]) =>
+      newest(path.join(ROOT, "packages", name, "src")) >
+      newest(path.join(ROOT, "packages", name, output)),
+  ).map(([name]) => name);
+  if (stale.length !== 0)
+    throw new Error(
+      `TEST_SDK_SKIP_BUILD=1, but the sources of ${stale.join(", ")} are newer than their builds. Build them, or unset TEST_SDK_SKIP_BUILD.`,
+    );
+};
+
 const main = async () => {
-  if (process.env.TEST_SDK_SKIP_BUILD !== "1")
+  const shard = featureShard();
+  if (process.env.TEST_SDK_SKIP_BUILD === "1") assertFreshBuilds();
+  else
     await run(
       PNPM,
       [
         "--workspace-concurrency=1",
-        "--filter",
-        "@nestia/fetcher",
-        "--filter",
-        "nestia",
-        "--filter",
-        "@nestia/core",
-        "--filter",
-        "@nestia/sdk",
-        "--filter",
-        "@nestia/e2e",
+        ...BUILT_PACKAGES.flatMap(([name]) => ["--filter", `./packages/${name}`]),
         "-r",
         "run",
         "build",
@@ -1597,7 +1687,7 @@ const main = async () => {
     if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
     if (filter("output-directory-diagnostics"))
       names.push("output-directory-diagnostics");
-    await runFeatures(names);
+    await runFeatures(shard(names));
   });
 };
 

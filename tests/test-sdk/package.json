@@ -3,7 +3,7 @@
   "name": "@nestia/test-sdk",
   "version": "14.0.0",
   "scripts": {
-    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node start.js"
+    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node start.js"
   },
   "dependencies": {
     "@fastify/multipart": "^8.1.0",
