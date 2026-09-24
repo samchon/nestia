@@ -172,6 +172,8 @@ const main = () => {
   // erases `import type` from its own module graph, so without `graph` nothing
   // connects `controller.ts`'s generated validator to the DTO in `dto.ts`, and a
   // kept filesystem cache replays the stale module after that type changes.
+  measure("no-transform fallbacks", noTransformFallbacks);
+
   measure("transform envelope graph", () => {
     const result = transformEnvelope();
     assert(
@@ -508,6 +510,51 @@ const typiaVersionGuard = () => {
     fs.existsSync(path.join(mismatched, "out")) === false,
     "typia guard: the mismatched build emitted output",
   );
+};
+
+// With the transform off and `doNotThrowTransformError(false)`, a request
+// decorator hands the handler the request value as it arrived (#1666): the
+// headers object, the query and form-urlencoded body with repeated keys as
+// arrays, and the multipart fields and files. The headers used to arrive as an
+// array of entries, and the urlencoded and multipart bodies threw.
+const noTransformFallbacks = () => {
+  const file = compile({
+    name: "fallbacks",
+    source: "fallbacks",
+    plugin: { enabled: false },
+  });
+  // plain node cannot load the workspace manifests' TypeScript entries, so
+  // @nestia/* requests are served from the packages' built lib/
+  const result = cp.spawnSync(
+    NODE,
+    ["-r", path.join(__dirname, "built-packages.cjs"), file],
+    { cwd: __dirname, encoding: "utf8" },
+  );
+  if (result.error !== undefined) throw result.error;
+  assert(
+    result.status === 0,
+    `fallbacks: server script failed (exit ${result.status})\n${result.stdout}\n${result.stderr}`,
+  );
+  const line = (result.stdout ?? "")
+    .split(/\r?\n/)
+    .reverse()
+    .find((text) => text.startsWith("{"));
+  assert(line !== undefined, `fallbacks: no result printed\n${result.stdout}`);
+  const output = JSON.parse(line);
+  const expect = (key, status, body) =>
+    assert(
+      output[key].status === status &&
+        JSON.stringify(output[key].body) === JSON.stringify(body),
+      `fallbacks: ${key} answered ${JSON.stringify(output[key])}`,
+    );
+  expect("headers", 200, { isArray: false, name: "abc" });
+  expect("query", 200, { title: "hello", tags: ["a", "b"] });
+  expect("urlencoded", 201, { title: "hello", tags: ["a", "b"] });
+  expect("multipart", 201, {
+    title: "hello",
+    tags: ["a", "b"],
+    file: { name: "note.txt", text: "content" },
+  });
 };
 
 function packageBin(name, key) {

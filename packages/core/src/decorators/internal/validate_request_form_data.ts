@@ -3,6 +3,7 @@ import typia, { IValidation, TypeGuardError } from "typia";
 
 import { IRequestFormDataProps } from "../../options/IRequestFormDataProps";
 import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
+import { group_entries } from "./group_entries";
 
 /** @internal */
 export const validate_request_form_data = <T>(
@@ -10,7 +11,8 @@ export const validate_request_form_data = <T>(
 ): ((value: FormData) => T | Error) => {
   if (!props) {
     NoTransformConfigurationError("TypedFormData.Body");
-    return (input: FormData) => Object.entries(input) as T;
+    // no transform: the fields and files as they arrived
+    return (input: FormData) => group_entries(input) as T;
   } else if (props.validator.type === "assert")
     return assert(props.validator.assert);
   else if (props.validator.type === "is") return is(props.validator.is);

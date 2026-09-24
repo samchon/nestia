@@ -9,9 +9,14 @@
     "@nestia/core": "workspace:^",
     "@nestia/sdk": "workspace:^",
     "@nestjs/common": "catalog:nestjs",
+    "@nestjs/core": "catalog:nestjs",
+    "@nestjs/platform-express": "catalog:nestjs",
+    "multer": "^2.0.2",
+    "rxjs": "catalog:nestjs",
     "typia": "catalog:samchon"
   },
   "devDependencies": {
+    "@types/multer": "^1.4.12",
     "@types/node": "catalog:utils",
     "cross-env": "catalog:utils",
     "rimraf": "catalog:utils",

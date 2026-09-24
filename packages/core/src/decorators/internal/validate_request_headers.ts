@@ -10,8 +10,8 @@ export const validate_request_headers = <T>(
 ): ((input: Record<string, string | string[] | undefined>) => T | Error) => {
   if (!validator) {
     NoTransformConfigurationError("TypedHeaders");
-    return (input: Record<string, string | string[] | undefined>) =>
-      Object.entries(input) as T;
+    // no transform: the headers as they arrived
+    return (input: Record<string, string | string[] | undefined>) => input as T;
   } else if (validator.type === "assert") return assert(validator.assert);
   else if (validator.type === "is") return is(validator.is);
   else if (validator.type === "validate") return validate(validator.validate);

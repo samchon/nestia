@@ -88,7 +88,7 @@ export namespace TypedFormData {
       );
     const checker = validate_request_form_data(props);
     const uploader = new Singleton(async () =>
-      decode((await factory()) as ExpressMulter.Multer, props!),
+      decode((await factory()) as ExpressMulter.Multer, props),
     );
     return createParamDecorator(async function TypedFormDataBody(
       _unknown: any,
@@ -130,14 +130,18 @@ export namespace TypedFormData {
 /** @internal */
 const decode = <T>(
   multer: ExpressMulter.Multer,
-  props: IRequestFormDataProps<T>,
+  props: IRequestFormDataProps<T> | undefined,
 ) => {
-  const upload = multer.fields(
-    props!.files.map((file) => ({
-      name: file.name,
-      ...(file.limit === 1 ? { maxCount: 1 } : {}),
-    })),
-  );
+  // without the transform nothing names the file fields, so accept every file
+  const upload =
+    props === undefined
+      ? multer.any()
+      : multer.fields(
+          props.files.map((file) => ({
+            name: file.name,
+            ...(file.limit === 1 ? { maxCount: 1 } : {}),
+          })),
+        );
   const interceptor = (request: express.Request, response: express.Response) =>
     new Promise<void>((resolve, reject) =>
       upload(request, response, (error) => {

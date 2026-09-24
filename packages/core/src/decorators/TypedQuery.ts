@@ -186,6 +186,10 @@ class FakeURLSearchParams {
     return this.target[key] !== undefined;
   }
 
+  public keys(): string[] {
+    return Object.keys(this.target).filter((key) => this.has(key));
+  }
+
   public get(key: string): string | null {
     const value = this.target[key];
     return value === undefined
