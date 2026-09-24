@@ -37,15 +37,26 @@ export namespace SdkDistributionComposer {
         root,
         websocket: props.websocket,
       });
+      // one install per dependency kind: each npm run resolves and reifies the
+      // whole tree again, and the runtime set lands together or not at all, so
+      // an interrupted setup never leaves @nestia/fetcher, which marks the
+      // package configured, without its peers
       execute(
         `npm install --save-dev rimraf ttsc@${v.ttsc} typescript@${v.typescript}`,
       );
-      execute(`npm install --save @nestia/fetcher@${v.version}`);
-      execute(`npm install --save typia@${v.typia}`);
-      if (props.mcp && v.mcp !== undefined)
-        execute(`npm install --save @modelcontextprotocol/sdk@${v.mcp}`);
-      if (props.websocket && v.tgrid !== undefined)
-        execute(`npm install --save tgrid@${v.tgrid}`);
+      execute(
+        [
+          "npm install --save",
+          `@nestia/fetcher@${v.version}`,
+          `typia@${v.typia}`,
+          ...(props.mcp && v.mcp !== undefined
+            ? [`@modelcontextprotocol/sdk@${v.mcp}`]
+            : []),
+          ...(props.websocket && v.tgrid !== undefined
+            ? [`tgrid@${v.tgrid}`]
+            : []),
+        ].join(" "),
+      );
     } finally {
       process.chdir(root);
     }
