@@ -123,6 +123,8 @@ The generated Swagger response is emitted as `type: "string"` with
 | `json`         | `boolean`                                                         | Use `typia.assertStringify` for 10× faster JSON serialization in the SDK. |
 | `keyword`      | `boolean`                                                         | Pass SDK function arguments as a single keyword object instead of positional (default `false`). |
 
+An SDK function's parameters take the handler's parameter names, which are the argument object's keys when `keyword` is `true`. A destructured parameter, such as `@TypedBody() { title }: IArticle.ICreate`, declares no name, so the SDK names it after what it carries: its field in camel case (`@Query("page-size")` becomes `pageSize`), otherwise its kind (`body`, `query`, `headers`), with a `_` prefix when another parameter of the handler already has that name.
+
 ---
 
 ## How `input` finds controllers
@@ -184,6 +186,8 @@ The map of status codes comes from `@TypedRoute.*` (success) plus every `@TypedE
 `clone: true` makes the SDK self-contained — every DTO type used in any route gets copied into the SDK's own `structures/` directory, breaking the dependency on the server's source.
 
 Cloned properties preserve `?` when the server enables `exactOptionalPropertyTypes`: `optional?: boolean` stays `optional?: boolean`. Explicit `undefined` unions are retained. As with JSON serialization, properties whose values can be `undefined` may be omitted in the cloned type.
+
+Type tags are copied as written: `number & tags.Minimum<3>` stays `number & tags.Minimum<3>`. A tag of your own, even one named like a typia tag, is copied as the equivalent `tags.TagBase<{ ... }>`, and a JSDoc comment tag such as `@format uri` becomes the type tag it names, `tags.Format<"uri">`.
 
 Why you'd want this:
 

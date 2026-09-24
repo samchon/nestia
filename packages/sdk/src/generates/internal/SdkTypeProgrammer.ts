@@ -108,10 +108,7 @@ export namespace SdkTypeProgrammer {
       )
         return factory.createIntersectionTypeNode([
           TypeFactory.keyword("string"),
-          SdkTypeTagProgrammer.write(importer, "string", {
-            name: "Format",
-            value: "date-time",
-          } as IMetadataTypeTag),
+          SdkTypeTagProgrammer.writePredefined(importer, "Format", "date-time"),
         ]);
       return write(project)(importer)(meta.returns, true);
     };

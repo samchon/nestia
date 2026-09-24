@@ -111,6 +111,8 @@ const main = () => {
     }
   });
 
+  measure("typia version guard", typiaVersionGuard);
+
   measure("llm strict diagnostics", () => {
     for (const source of LLM_CASES)
       compile({
@@ -410,6 +412,102 @@ const compile = (props) => {
     );
   }
   return path.join(LIB, props.name, `${props.source}.js`);
+};
+
+// The @nestia/core descriptor refuses a project whose typia differs from the
+// one its Go plugin links, naming both versions, because the transform is
+// built from nestia's pinned typia source while the emitted code calls the
+// installed runtime (#1663). The descriptor is checked directly for a matching,
+// a missing, and a mismatched typia, and a whole ttsc build of a project
+// resolving another typia must fail with the same message.
+const typiaVersionGuard = () => {
+  const descriptor = require(
+    path.join(ROOT, "packages/core/native/transform.cjs"),
+  );
+  const expected = JSON.parse(
+    fs.readFileSync(
+      require.resolve("typia/package.json", {
+        paths: [path.join(ROOT, "packages/core/native")],
+      }),
+      "utf8",
+    ),
+  ).version;
+  const other = `${expected.split(".")[0]}.99.0`;
+  const project = (name, version) => {
+    const root = path.join(LIB, name);
+    if (version !== null) {
+      const typia = path.join(root, "node_modules", "typia");
+      fs.mkdirSync(typia, { recursive: true });
+      fs.writeFileSync(
+        path.join(typia, "package.json"),
+        JSON.stringify({ name: "typia", version }),
+        "utf8",
+      );
+    } else fs.mkdirSync(root, { recursive: true });
+    return root;
+  };
+
+  const matching = project("typia-matching", expected);
+  const plugin = descriptor({ projectRoot: matching });
+  assert(
+    plugin.hostInputs.some((file) => file.startsWith(matching)),
+    "typia guard: the project's typia manifest is not watched",
+  );
+  descriptor({
+    projectRoot: fs.mkdtempSync(
+      path.join(require("os").tmpdir(), "nestia-typia-"),
+    ),
+  });
+  const mismatched = project("typia-mismatch", other);
+  let message = "";
+  try {
+    descriptor({ projectRoot: mismatched });
+  } catch (error) {
+    message = error.message;
+  }
+  assert(
+    message.includes(`typia ${expected} transform`) &&
+      message.includes(`typia ${other}`),
+    `typia guard: the mismatch was not reported with both versions (${message})`,
+  );
+
+  fs.writeFileSync(
+    path.join(mismatched, "tsconfig.json"),
+    JSON.stringify({
+      extends: "../../tsconfig.base.json",
+      compilerOptions: {
+        outDir: "./out",
+        rootDir: "../../src",
+        plugins: [
+          { transform: "typia/lib/transform", enabled: false },
+          { transform: "@nestia/core/native/transform.cjs" },
+        ],
+      },
+      include: ["../../src/validate.ts"],
+    }),
+    "utf8",
+  );
+  const result = cp.spawnSync(
+    NODE,
+    [TTSC, "--cache-dir", CACHE, "-p", path.join(mismatched, "tsconfig.json")],
+    {
+      cwd: __dirname,
+      encoding: "utf8",
+      env: { ...process.env, TTSC_CACHE_DIR: CACHE },
+    },
+  );
+  if (result.error !== undefined) throw result.error;
+  const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+  assert(
+    result.status !== 0 &&
+      output.includes(`typia ${expected} transform`) &&
+      output.includes(`typia ${other}`),
+    `typia guard: the build of a mismatched project did not fail naming both versions (exit ${result.status})\n${output}`,
+  );
+  assert(
+    fs.existsSync(path.join(mismatched, "out")) === false,
+    "typia guard: the mismatched build emitted output",
+  );
 };
 
 function packageBin(name, key) {

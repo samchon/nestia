@@ -65,6 +65,7 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
       "only atomic or array of atomic types are allowed.",
       "PlainQueryController.fields()",
       "only atomic types are allowed in array.",
+      "PlainQueryController.destructured() from parameter of 0 th",
     ],
   ],
   [
@@ -319,6 +320,7 @@ const feature = async (name, port) => {
   if (name === "bundle-preserve") return runBundlePreserveFeature();
   if (name === "cli-argument-diagnostics")
     return runCliArgumentDiagnosticsFeature();
+  if (name === "cli-dependencies") return runCliDependenciesFeature();
   if (name === "distribute-cwd-restore")
     return runNode(
       ROOT,
@@ -711,6 +713,63 @@ const runCliArgumentDiagnosticsFeature = async () => {
       control.includes("endsWith") === false,
       `a supplied --config value must not surface a TypeError, got:\n${control}`,
     );
+  } finally {
+    await fs.promises.rm(cwd, { force: true, recursive: true });
+  }
+};
+
+// `nestia dependencies` installs typia at the release @nestia/core's transform
+// links, saved exactly. A bare `typia` would take the latest release, which
+// @nestia/core refuses whenever typia publishes ahead of nestia (#1663). A fake
+// package manager records the commands in place of installing anything.
+const runCliDependenciesFeature = async () => {
+  const cwd = featureDirectory(`.tmp-cli-dependencies-${process.pid}`);
+  await fs.promises.rm(cwd, { force: true, recursive: true });
+  await fs.promises.mkdir(cwd, { recursive: true });
+  try {
+    const log = path.join(cwd, "commands.jsonl");
+    const manager = path.join(cwd, "manager.js");
+    await fs.promises.writeFile(
+      manager,
+      `require("fs").appendFileSync(${JSON.stringify(log)}, JSON.stringify(process.argv.slice(2)) + "\\n");`,
+      "utf8",
+    );
+    await run(
+      NODE,
+      [
+        TTSX_BIN,
+        CLI_MAIN,
+        "dependencies",
+        "--manager",
+        `node ${JSON.stringify(manager)}`,
+      ],
+      { cwd, stdio: "ignore" },
+    );
+
+    const expected = JSON.parse(
+      await fs.promises.readFile(
+        require.resolve("typia/package.json", {
+          paths: [path.join(ROOT, "packages/core")],
+        }),
+        "utf8",
+      ),
+    ).version;
+    const commands = (await fs.promises.readFile(log, "utf8"))
+      .split("\n")
+      .filter((line) => line.length !== 0)
+      .map((line) => JSON.parse(line));
+    const actual = JSON.stringify(commands);
+    if (
+      actual !==
+      JSON.stringify([
+        ["install", "@nestia/e2e"],
+        ["install", "@nestia/fetcher"],
+        ["install", `typia@${expected}`, "-E"],
+      ])
+    )
+      throw new Error(
+        `cli-dependencies: "nestia dependencies" must install typia@${expected} exactly, got ${actual}`,
+      );
   } finally {
     await fs.promises.rm(cwd, { force: true, recursive: true });
   }
@@ -1314,6 +1373,7 @@ const main = async () => {
     if (filter("bundle-preserve")) names.push("bundle-preserve");
     if (filter("cli-argument-diagnostics"))
       names.push("cli-argument-diagnostics");
+    if (filter("cli-dependencies")) names.push("cli-dependencies");
     if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
     await runFeatures(names);
   });

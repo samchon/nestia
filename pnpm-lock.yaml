@@ -43,7 +43,7 @@ catalogs:
       specifier: ^3.0.0
       version: 3.0.0
     typia:
-      specifier: ^15.0.0
+      specifier: 15.0.0
       version: 15.0.0
   typescript:
     '@trivago/prettier-plugin-sort-imports':

@@ -46,6 +46,8 @@ composition both resolve it while the Nestia transform attaches route metadata.
 
 `ttsc` must be 0.19.2 or newer. `ttsc` compiles the Nestia transform from Go source on first use, and that source reports the compiled project's reference graph through an API older releases do not have, so an older `ttsc` fails the plugin build instead of silently producing a transform without it. `@nestia/core` declares the floor as an optional peer dependency.
 
+`typia` must be the exact release your `@nestia/core` is built for. The Nestia transform is compiled from that typia release's Go source, while the code it emits calls the `typia` package installed in your project, so another version would mix two releases. `@nestia/core` depends on and peers that exact version, so npm refuses a different one at install, and when another is resolved anyway the build stops with an error naming both versions. `npm view @nestia/core dependencies.typia` prints the version to install.
+
 ## tsconfig.json
 
 Keep the NestJS decorator metadata flags. Do not add `compilerOptions.plugins`

@@ -41,6 +41,12 @@ export class PlainQueryController {
     filter;
   }
 
+  // a destructured parameter, whose diagnostic names its position
+  @core.TypedRoute.Get("destructured")
+  public destructured(@Query() { filter }: INestedQuery): void {
+    filter;
+  }
+
   @core.TypedRoute.Get("fields")
   public fields(@Query("filters") filters: IFilter[]): void {
     filters;

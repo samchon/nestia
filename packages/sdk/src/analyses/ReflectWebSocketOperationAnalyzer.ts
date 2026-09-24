@@ -8,6 +8,7 @@ import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOpera
 import { IReflectWebSocketOperationParameter } from "../structures/IReflectWebSocketOperationParameter";
 import { StringUtil } from "../utils/StringUtil";
 import { ImportAnalyzer } from "./ImportAnalyzer";
+import { ParameterNameAnalyzer } from "./ParameterNameAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
 
@@ -51,7 +52,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
       );
 
     const imports: IReflectImport[] = [];
-    const parameters: IReflectWebSocketOperationParameter[] = preconfigured
+    const declared: IReflectWebSocketOperationParameter[] = preconfigured
       .map((p) => {
         const reject = (message: string): null => {
           errors.push(message);
@@ -69,7 +70,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
           );
         else if (matched.type === null)
           return reject(
-            `Failed to analyze the parameter type of the ${JSON.stringify(matched.name)}.`,
+            `Failed to analyze the parameter type of the ${matched.name ? JSON.stringify(matched.name) : `${p.index} th parameter`}.`,
           );
         else if (
           p.category === "param" &&
@@ -133,6 +134,9 @@ export namespace ReflectWebSocketOperationAnalyzer {
         }
       })
       .filter((p): p is IReflectWebSocketOperationParameter => !!p);
+    // a destructured parameter declares no name, so it is given one
+    const parameters: IReflectWebSocketOperationParameter[] =
+      ParameterNameAnalyzer.name(declared);
 
     const fields: string[] = preconfigured
       .filter((p) => p.category === "param")
