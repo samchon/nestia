@@ -292,16 +292,21 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 	if comment == "" {
 		return doc
 	}
-	// A tag runs until the next one, as TypeScript reads it: the lines after a
-	// tag's first continue its text, which used to be dropped, so a `@param`
-	// described over two lines lost its second.
+	// A tag runs until the next one, and each line loses the comment's margin
+	// as TypeScript takes it off: the `*`, then the indentation up to the
+	// column the text began at. That is the description's first line, the
+	// text after a tag's name, or, when the tag's text starts on the next line,
+	// the tag itself, so an `@example` keeps its code's indentation while a
+	// wrapped `@param` description does not.
 	description := []string{}
+	descriptionMargin := -1
 	var tag *nestiaSDKPendingTag
 	flush := func() {
 		if tag == nil {
 			return
 		}
-		body := strings.TrimSpace(strings.Join(tag.lines, "\n"))
+		body := strings.TrimLeft(strings.Join(tag.lines, "\n"), "\n")
+		body = strings.TrimRight(body, " \t\n")
 		if tag.name == "param" {
 			param, desc := nestiaSDKParseParamTag(body)
 			doc.Tags = append(doc.Tags, nestiaSDKJSDocParamTag(param, desc))
@@ -314,21 +319,23 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 		tag = nil
 	}
 	for _, line := range strings.Split(comment, "\n") {
-		// past the comment's `* ` margin a line keeps its indentation, as
-		// TypeScript keeps it, so an indented code block stays one
-		text := strings.TrimLeft(line, " \t")
-		text = strings.TrimPrefix(text, "*")
-		text = strings.TrimPrefix(text, " ")
-		text = strings.TrimRight(text, " \t\r")
-		trimmed := strings.TrimSpace(text)
+		rest := strings.TrimLeft(line, " \t")
+		rest = strings.TrimPrefix(rest, "*")
+		rest = strings.TrimRight(rest, " \t\r")
+		trimmed := strings.TrimSpace(rest)
 		if strings.HasPrefix(trimmed, "@") {
 			flush()
 			name, body := nestiaSDKParseJSDocTag(trimmed)
-			tag = &nestiaSDKPendingTag{name: name, lines: []string{body}}
+			margin := nestiaSDKJSDocIndent(rest)
+			if body != "" {
+				after := trimmed[1+len(name):]
+				margin += 1 + len(name) + len(after) - len(strings.TrimLeft(after, " \t"))
+			}
+			tag = &nestiaSDKPendingTag{name: name, lines: []string{body}, margin: margin}
 			continue
 		}
 		if tag != nil {
-			tag.lines = append(tag.lines, text)
+			tag.lines = append(tag.lines, nestiaSDKJSDocOutdent(rest, tag.margin))
 			continue
 		}
 		if trimmed == "" {
@@ -337,7 +344,16 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 			}
 			continue
 		}
-		description = append(description, text)
+		if descriptionMargin == -1 {
+			// text on the opening `/**` line has no `*` to measure from, so the
+			// lines after it keep the usual `* ` margin
+			if strings.HasPrefix(strings.TrimLeft(line, " \t"), "*") {
+				descriptionMargin = nestiaSDKJSDocIndent(rest)
+			} else {
+				descriptionMargin = 1
+			}
+		}
+		description = append(description, nestiaSDKJSDocOutdent(rest, descriptionMargin))
 	}
 	flush()
 	doc.Description = strings.TrimSpace(strings.Join(description, "\n"))
@@ -398,8 +414,23 @@ func nestiaSDKParseJSDocTag(text string) (string, string) {
 // nestiaSDKPendingTag is a JSDoc tag whose text may continue on the next
 // lines.
 type nestiaSDKPendingTag struct {
-	name  string
-	lines []string
+	name   string
+	lines  []string
+	margin int
+}
+
+// nestiaSDKJSDocIndent counts the spaces and tabs a JSDoc line starts with.
+func nestiaSDKJSDocIndent(line string) int {
+	return len(line) - len(strings.TrimLeft(line, " \t"))
+}
+
+// nestiaSDKJSDocOutdent takes up to margin spaces and tabs off a JSDoc line.
+func nestiaSDKJSDocOutdent(line string, margin int) string {
+	indent := nestiaSDKJSDocIndent(line)
+	if indent > margin {
+		indent = margin
+	}
+	return line[indent:]
 }
 
 // nestiaSDKParseParamTag splits a `@param` body into the parameter's name and

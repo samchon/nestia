@@ -29,7 +29,7 @@ export const test_swagger_multiline_tags = async (): Promise<void> => {
   TestValidator.equals(
     "throws",
     operation.responses["404"]?.description,
-    "When nothing is found under the key it was asked for, even\n  after the fallback was consulted",
+    "When nothing is found under the key it was asked for, even\nafter the fallback was consulted",
   );
   TestValidator.equals("security", operation.security, [
     { bearer: ["read", "write"] },
