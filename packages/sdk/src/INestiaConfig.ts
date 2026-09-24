@@ -224,7 +224,10 @@ export namespace INestiaConfig {
      *
      * When generating `swagger.json` file through `nestia`, if your controllers
      * or theirs methods have a security key which is not enrolled in here
-     * property, it would be an error.
+     * property, it would be an error. So would an OAuth2 scope none of the
+     * scheme's flows declares, and, for an OpenAPI `3.0` or `2.0` document,
+     * scopes on a scheme other than OAuth2 or OpenID Connect, which those
+     * versions require to be empty; from `3.1` on they list role names.
      */
     security?: Record<string, OpenApi.ISecurityScheme>;
 
