@@ -46,7 +46,11 @@ const TYPESCRIPT_ERROR_FEATURES = new Set([
 const EXPECTED_ERROR_DIAGNOSTICS = new Map([
   [
     "websocket-error-invalid-acceptor-arity",
-    "@WebSocketRoute.Acceptor() must have three type arguments.",
+    'parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.',
+  ],
+  [
+    "websocket-error-acceptor-alias-argument",
+    '@WebSocketRoute.Acceptor() parameter "acceptor" is typed by a type alias whose WebSocketAcceptor type argument "IRoom<Member>" uses a type parameter of the alias inside it',
   ],
   [
     "query-error-plain",

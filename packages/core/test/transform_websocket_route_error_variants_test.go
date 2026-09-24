@@ -11,17 +11,21 @@ import (
 // remaining diagnostic branches of validateNestiaCoreWebSocketRoute and
 // nestiaCoreWebSocketParameterCategory.
 //
-// The clean-controller test pins the success branch; these three error fixtures
-// pin the failure categories — an invalid acceptor type, an unrecognized
-// parameter decorator, and a missing acceptor. Each must surface as a transform
-// diagnostic (exit 3), not silently pass. Running every fixture in one table keeps
-// the per-category branches covered without three near-identical files.
+// The clean-controller test pins the success branch; these error fixtures pin
+// the failure categories — an invalid acceptor type, a locally declared type
+// named WebSocketAcceptor, an unrecognized parameter decorator, and a missing
+// acceptor. The acceptor is recognized by its type, not its spelling (#1671),
+// so a type that only shares tgrid's name must still be rejected. Each must
+// surface as a transform diagnostic (exit 3), not silently pass. Running every
+// fixture in one table keeps the per-category branches covered without
+// near-identical files.
 //
 //  1. For each websocket-error fixture, transform its CalculateController.
 //  2. Assert the transform fails (exit 3) for every variant.
 func TestTransformWebSocketRouteErrorVariants(t *testing.T) {
 	features := []string{
 		"websocket-error-invalid-acceptor",
+		"websocket-error-invalid-acceptor-arity",
 		"websocket-error-invalid-parameter",
 		"websocket-error-no-acceptor",
 	}
