@@ -94,14 +94,15 @@ func nestiaCoreWebSocketParameterTypeNode(param *shimast.Node) *shimast.Node {
 }
 
 // NestiaCoreWebSocketTypeReference follows a parameter's type annotation
-// through renamed imports and type aliases to the tgrid type reference it
-// spells, such as `WebSocketAcceptor<Header, Provider, Listener>` or
-// `Driver<Listener>`, so the transform and the SDK accept every spelling of the
-// same type and still reject another type of the same name. It returns the
-// type references it passed, from the annotation to the tgrid reference, each
-// after the first written in the type alias the one before it names, and the
-// name tgrid declares the type by; or nil and "" when the annotation leads to
-// no tgrid type.
+// through renamed imports, import types, and type aliases to the tgrid type
+// reference it spells, such as `WebSocketAcceptor<Header, Provider, Listener>`
+// or `Driver<Listener>`, so the transform and the SDK accept every spelling of
+// the same type and still reject another type of the same name. It returns the
+// type references it passed, each a type reference or an import type such as
+// `import("tgrid").Driver<Listener>`, from the annotation to the tgrid
+// reference, each after the first written in the type alias the one before it
+// names, and the name tgrid declares the type by; or nil and "" when the
+// annotation leads to no tgrid type.
 func NestiaCoreWebSocketTypeReference(prog *driver.Program, node *shimast.Node) ([]*shimast.Node, string) {
 	chain := []*shimast.Node{}
 	for depth := 0; node != nil && depth < 32; depth++ {
@@ -109,11 +110,12 @@ func NestiaCoreWebSocketTypeReference(prog *driver.Program, node *shimast.Node) 
 			node = node.AsParenthesizedTypeNode().Type
 			continue
 		}
-		if node.Kind != shimast.KindTypeReference || prog == nil || prog.Checker == nil {
+		name := nestiaCoreTypeReferenceName(node)
+		if name == nil || prog == nil || prog.Checker == nil {
 			return nil, ""
 		}
 		chain = append(chain, node)
-		symbol := prog.Checker.GetSymbolAtLocation(node.AsTypeReferenceNode().TypeName)
+		symbol := prog.Checker.GetSymbolAtLocation(name)
 		if symbol != nil && symbol.Flags&shimast.SymbolFlagsAlias != 0 {
 			if aliased := shimchecker.Checker_getAliasedSymbol(prog.Checker, symbol); aliased != nil {
 				symbol = aliased
@@ -141,6 +143,23 @@ func NestiaCoreWebSocketTypeReference(prog *driver.Program, node *shimast.Node) 
 		node = alias.AsTypeAliasDeclaration().Type
 	}
 	return nil, ""
+}
+
+// nestiaCoreTypeReferenceName is the entity a type names: the `A.B` of
+// `A.B<T>`, or the qualifier of an import type such as `import("m").A.B<T>`.
+// It is nil for any other type, including `typeof import("m")`, the type of a
+// module's value.
+func nestiaCoreTypeReferenceName(node *shimast.Node) *shimast.Node {
+	switch node.Kind {
+	case shimast.KindTypeReference:
+		return node.AsTypeReferenceNode().TypeName
+	case shimast.KindImportType:
+		if node.AsImportTypeNode().IsTypeOf {
+			return nil
+		}
+		return node.AsImportTypeNode().Qualifier
+	}
+	return nil
 }
 
 func nestiaCoreIsTgridDeclarations(declarations []*shimast.Node) bool {

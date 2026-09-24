@@ -96,7 +96,7 @@ A second `tsconfig.json` controls how the package is built for distribution (tar
 }
 ```
 
-`nestia sdk` writes this `package.json` and `tsconfig.json` itself, installing the `@nestia/fetcher` of the running release and the typia, ttsc, and TypeScript your project uses, so the versions above only illustrate. `compile` runs `ttsc`, which applies typia's transform to the SDK's `assert` and `simulate` code. Most teams change `target` and `module` to match their consumers (ESM vs CJS, modern vs legacy browsers).
+`nestia sdk` writes this `package.json` and `tsconfig.json` itself, installing the `@nestia/fetcher` of the running release and the typia, ttsc, and TypeScript your project uses, plus its `tgrid` and `@modelcontextprotocol/sdk` when the SDK has WebSocket or MCP functions, so the versions above only illustrate. `compile` runs `ttsc`, which applies typia's transform to the SDK's `assert` and `simulate` code. Most teams change `target` and `module` to match their consumers (ESM vs CJS, modern vs legacy browsers).
 
 If the SDK uses `paths` aliases (rare; usually for cross-cutting structures), keep them aligned between this `tsconfig.json` and your server's.
 

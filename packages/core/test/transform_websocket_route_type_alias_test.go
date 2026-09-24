@@ -14,7 +14,8 @@ import (
 // `Acceptor<...>` and every type alias failed the build although the type was
 // exactly tgrid's (#1671). The websocket-type-alias fixture spells both through
 // a renamed import, a local alias, an imported alias, a generic alias with and
-// without its default, and an alias of a generic alias.
+// without its default, an alias of a generic alias, and import types of tgrid's
+// types and of a generic alias, which the text comparison had accepted.
 //
 //  1. Transform the fixture's controller.
 //  2. Assert the transform exits 0, reporting no WebSocket diagnostic.

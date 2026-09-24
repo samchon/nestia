@@ -13,9 +13,10 @@ import (
 //
 // The clean-controller test pins the success branch; these error fixtures pin
 // the failure categories — an invalid acceptor type, a locally declared type
-// named WebSocketAcceptor, an unrecognized parameter decorator, and a missing
-// acceptor. The acceptor is recognized by its type, not its spelling (#1671),
-// so a type that only shares tgrid's name must still be rejected. Each must
+// named WebSocketAcceptor, referenced by name or by an import type, an
+// unrecognized parameter decorator, and a missing acceptor. The acceptor is
+// recognized by its type, not its spelling (#1671), so a type that only shares
+// tgrid's name must still be rejected, however it is referenced. Each must
 // surface as a transform diagnostic (exit 3), not silently pass. Running every
 // fixture in one table keeps the per-category branches covered without
 // near-identical files.
@@ -26,6 +27,7 @@ func TestTransformWebSocketRouteErrorVariants(t *testing.T) {
 	features := []string{
 		"websocket-error-invalid-acceptor",
 		"websocket-error-invalid-acceptor-arity",
+		"websocket-error-invalid-acceptor-import",
 		"websocket-error-invalid-parameter",
 		"websocket-error-no-acceptor",
 	}

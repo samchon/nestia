@@ -91,26 +91,53 @@ export namespace SdkDistributionComposer {
   /**
    * The version of a package the project installed, exactly: the staged package
    * must run the typia, and compile with the ttsc and TypeScript, the project
-   * itself uses. A workspace's `catalog:` specifier names no version npm could
-   * install, so the specifier is only the fallback.
+   * itself uses, with the tgrid and MCP SDK its WebSocket and MCP functions
+   * import. `@nestia/sdk`'s own specifier is only the fallback, and a
+   * workspace's `catalog:` one names no version npm could install.
    */
   const installed = (
     root: string,
     name: string,
     fallback: string | undefined,
-  ): string | undefined => {
-    try {
-      const file: string = require.resolve(`${name}/package.json`, {
-        paths: [root, __dirname],
-      });
-      const version: unknown = JSON.parse(
-        fs.readFileSync(file, "utf8"),
-      ).version;
-      if (typeof version === "string" && version.length !== 0) return version;
-    } catch {}
-    return fallback !== undefined && fallback.startsWith("catalog:") === false
+  ): string | undefined =>
+    manifestVersion(root, name) ??
+    (fallback !== undefined && fallback.startsWith("catalog:") === false
       ? fallback
-      : undefined;
+      : undefined);
+
+  /**
+   * The version in the manifest of the package as installed. Not every package
+   * exports its `package.json`, as tgrid does not, and a subpath export may map
+   * it to a nested manifest of no name, as `@modelcontextprotocol/sdk` maps it
+   * to `dist/cjs/package.json`; so the manifest is the nearest `package.json`
+   * naming the package, at or above what the request resolves to.
+   */
+  const manifestVersion = (root: string, name: string): string | undefined => {
+    for (const request of [`${name}/package.json`, name]) {
+      let file: string;
+      try {
+        file = require.resolve(request, { paths: [root, __dirname] });
+      } catch {
+        continue;
+      }
+      for (let directory: string = path.dirname(file); ; ) {
+        try {
+          const json: { name?: unknown; version?: unknown } = JSON.parse(
+            fs.readFileSync(path.join(directory, "package.json"), "utf8"),
+          );
+          if (
+            json.name === name &&
+            typeof json.version === "string" &&
+            json.version.length !== 0
+          )
+            return json.version;
+        } catch {}
+        const parent: string = path.dirname(directory);
+        if (parent === directory) break;
+        directory = parent;
+      }
+    }
+    return undefined;
   };
 
   const dependencies = async (opts: {

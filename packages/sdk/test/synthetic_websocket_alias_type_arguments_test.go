@@ -11,20 +11,22 @@ import (
 )
 
 // Verifies the SDK reflects an @WebSocketRoute.Acceptor() or .Driver()
-// parameter typed through a type alias as the tgrid type the alias declares,
-// with each type argument the generated client needs.
+// parameter typed through a type alias or an import type as the tgrid type it
+// spells, with each type argument the generated client needs.
 //
 // The SDK reads the acceptor's Header, Provider and Listener from the type
 // arguments of the annotation, which an alias does not write: `LocalAcceptor`
 // has none and `ProviderAcceptor<IProvider>` has one (#1671). The arguments
 // live in the alias declaration, and a generic alias's are its own type
 // parameters, so each is followed back to what the annotation passes, or to the
-// parameter's default, through any number of aliases.
+// parameter's default, through any number of aliases. The annotation's own
+// reflection reads an import type such as `import("tgrid").Driver<IListener>`
+// as a name without arguments, so it is read the same way.
 //
 //  1. Author routes typing the acceptor by a local alias, a generic alias with
 //     and without its default, a parenthesized parameter, an alias of a generic
-//     alias, and a generic alias passing its parameter to another, and the
-//     driver by an alias.
+//     alias, a generic alias passing its parameter to another, and an import
+//     type, and the driver by an alias and an import type.
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert every acceptor reflects `WebSocketAcceptor<IHeader, IProvider,
 //     IListener>` and the driver `Driver<IListener>`.
@@ -74,11 +76,17 @@ export class SyntheticController {
   public async outer(
     @core.WebSocketRoute.Acceptor() acceptor: OuterAcceptor<IProvider>,
   ): Promise<void> {}
+
+  @core.WebSocketRoute("imported")
+  public async imported(
+    @core.WebSocketRoute.Acceptor() acceptor: import("tgrid").WebSocketAcceptor<IHeader, IProvider, IListener>,
+    @core.WebSocketRoute.Driver() driver: import("tgrid").Driver<IListener>,
+  ): Promise<void> {}
 }
 `
 	literals := strings.Split(buildSyntheticMetadata(t, controller), "\n")
-	if len(literals) != 6 {
-		t.Fatalf("expected metadata of 6 routes, got %d", len(literals))
+	if len(literals) != 7 {
+		t.Fatalf("expected metadata of 7 routes, got %d", len(literals))
 	}
 	for index, literal := range literals {
 		parameters, _ := syntheticField(t, decodeSyntheticMetadata(t, literal), "parameters").([]any)
@@ -86,7 +94,7 @@ export class SyntheticController {
 			t.Fatalf("route %d has no parameter metadata", index)
 		}
 		assertSyntheticReflectedType(t, syntheticField(t, parameters[0], "type"), "WebSocketAcceptor", "IHeader", "IProvider", "IListener")
-		if index == 0 {
+		if index == 0 || index == 6 {
 			assertSyntheticReflectedType(t, syntheticField(t, parameters[1], "type"), "Driver", "IListener")
 		}
 	}

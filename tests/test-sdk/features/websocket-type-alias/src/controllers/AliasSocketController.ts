@@ -67,6 +67,28 @@ export class AliasSocketController {
   ): Promise<void> {
     await accept("chained", acceptor, acceptor.getDriver());
   }
+
+  @core.WebSocketRoute("imported")
+  public async imported(
+    @core.WebSocketRoute.Acceptor()
+    acceptor: import("tgrid").WebSocketAcceptor<
+      IAliasHeader,
+      IAliasProvider,
+      IAliasListener
+    >,
+    @core.WebSocketRoute.Driver()
+    driver: import("tgrid").Driver<IAliasListener>,
+  ): Promise<void> {
+    await accept("imported", acceptor, driver);
+  }
+
+  @core.WebSocketRoute("importedAlias")
+  public async importedAlias(
+    @core.WebSocketRoute.Acceptor()
+    acceptor: import("@api/lib/structures/IAliasSocket").ProviderAcceptor<IAliasProvider>,
+  ): Promise<void> {
+    await accept("importedAlias", acceptor, acceptor.getDriver());
+  }
 }
 
 const accept = (

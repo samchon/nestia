@@ -130,6 +130,10 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     'parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.',
   ],
   [
+    "websocket-error-invalid-acceptor-import",
+    'parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.',
+  ],
+  [
     "security-error-not-found",
     'target security scheme "oauth2" does not exist. (SecurityController.oauth2() at "GET /oauth2")',
   ],
@@ -785,6 +789,79 @@ const runDistributeFeature = async (cwd, name) => {
   );
   if (fs.existsSync(path.join(stage, "lib", "index.js")) === false)
     throw new Error(`${name}: the staged SDK package emitted no lib/index.js.`);
+
+  // A published package must declare every package its code imports. Inside
+  // the workspace an undeclared one still resolves from an ancestor
+  // node_modules, so the compile alone cannot tell.
+  const read = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
+  const staged = read(path.join(stage, "package.json"));
+  const undeclared = [...emittedPackageImports(path.join(stage, "lib"))].filter(
+    (name) => staged.dependencies?.[name] === undefined,
+  );
+  if (undeclared.length !== 0)
+    throw new Error(
+      `${name}: the staged SDK package imports ${undeclared.join(", ")} without declaring it in its dependencies.`,
+    );
+
+  // The stage installs exactly the packages the project resolves: typia,
+  // ttsc, and TypeScript, and the tgrid and MCP SDK its WebSocket and MCP
+  // functions import, whether or not a package exports its package.json.
+  for (const dependency of Object.keys({
+    ...staged.dependencies,
+    ...staged.devDependencies,
+  })) {
+    if (dependency === "rimraf" || dependency === "@nestia/fetcher") continue;
+    const expected = projectVersion(cwd, dependency);
+    const actual = read(
+      path.join(stage, "node_modules", dependency, "package.json"),
+    ).version;
+    if (actual !== expected)
+      throw new Error(
+        `${name}: the staged SDK package installed ${dependency}@${actual}, but the project resolves ${expected}.`,
+      );
+  }
+};
+
+// The packages the emitted JavaScript and declarations under `directory`
+// import, by package name, leaving out relative paths and Node's built-in
+// modules: a consumer loads the first and type-checks against the second.
+const emittedPackageImports = (directory) => {
+  const output = new Set();
+  const visit = (location) => {
+    for (const entry of fs.readdirSync(location, { withFileTypes: true })) {
+      const file = path.join(location, entry.name);
+      if (entry.isDirectory()) visit(file);
+      else if (entry.name.endsWith(".js") || entry.name.endsWith(".d.ts"))
+        for (const [, specifier] of fs
+          .readFileSync(file, "utf8")
+          .matchAll(
+            /(?:\brequire\(\s*|\bimport\(\s*|\bfrom\s+)["']([^"']+)["']/g,
+          )) {
+          if (specifier.startsWith(".") || specifier.startsWith("node:"))
+            continue;
+          const segments = specifier.split("/");
+          const name = specifier.startsWith("@")
+            ? segments.slice(0, 2).join("/")
+            : segments[0];
+          if (require("module").builtinModules.includes(name) === false)
+            output.add(name);
+        }
+    }
+  };
+  visit(directory);
+  return output;
+};
+
+// The version of the package Node would load from `cwd`, found as Node finds
+// it: in the nearest `node_modules` holding it.
+const projectVersion = (cwd, name) => {
+  for (let directory = cwd; ; directory = path.dirname(directory)) {
+    const file = path.join(directory, "node_modules", name, "package.json");
+    if (fs.existsSync(file))
+      return JSON.parse(fs.readFileSync(file, "utf8")).version;
+    if (path.dirname(directory) === directory)
+      throw new Error(`${name} is not installed above ${cwd}.`);
+  }
 };
 
 const runCliArgumentDiagnosticsFeature = async () => {

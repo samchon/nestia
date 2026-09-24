@@ -2027,14 +2027,14 @@ func nestiaSDKMethodName(node *shimast.Node) string {
 }
 
 // nestiaSDKWebSocketParameterType reflects an @WebSocketRoute.Acceptor() or
-// .Driver() parameter annotated through a type alias as the tgrid reference the
-// alias declares, such as `WebSocketAcceptor<Header, Provider, Listener>`,
-// because the generated client needs those type arguments. Each argument is
-// reflected in the file that writes it, and one naming a type parameter of a
-// generic alias is replaced by what the annotation passes for it. It returns
-// nil for an annotation spelling the tgrid reference itself, and an error for
-// an alias using its type parameter inside an argument, such as `IRoom<P>`,
-// which no written node spells.
+// .Driver() parameter annotated through a type alias or an import type as the
+// tgrid reference it spells, such as `WebSocketAcceptor<Header, Provider,
+// Listener>`, because the generated client needs those type arguments. Each
+// argument is reflected in the file that writes it, and one naming a type
+// parameter of a generic alias is replaced by what the annotation passes for
+// it. It returns nil for an annotation writing the tgrid reference itself as a
+// type reference, and an error for an alias using its type parameter inside an
+// argument, such as `IRoom<P>`, which no written node spells.
 func nestiaSDKWebSocketParameterType(
 	context *nestiaSDKContext,
 	param *shimast.Node,
@@ -2046,14 +2046,15 @@ func nestiaSDKWebSocketParameterType(
 		return nil, nil, nil
 	}
 	chain, name := transform.NestiaCoreWebSocketTypeReference(context.prog, nestiaSDKParameterTypeNode(param))
-	if len(chain) < 2 {
+	// the annotation's own reflection serves a tgrid reference written as a
+	// plain type reference, but reflects an import type without its arguments
+	if len(chain) == 0 || (len(chain) == 1 && chain[0].Kind == shimast.KindTypeReference) {
 		return nil, nil, nil
 	}
-	target := chain[len(chain)-1].AsTypeReferenceNode()
 	args := []any{}
 	groups := [][]any{}
-	if target.TypeArguments != nil {
-		for _, node := range target.TypeArguments.Nodes {
+	if target := chain[len(chain)-1].TypeArgumentList(); target != nil {
+		for _, node := range target.Nodes {
 			argument := nestiaSDKWebSocketTypeArgument(context.prog, chain, node)
 			if argument == nil {
 				return nil, nil, fmt.Errorf(
@@ -2105,9 +2106,10 @@ func nestiaSDKWebSocketTypeArgument(prog *driver.Program, chain []*shimast.Node,
 			}
 			return node
 		}
-		reference := chain[level-1].AsTypeReferenceNode()
-		if reference.TypeArguments != nil && index < len(reference.TypeArguments.Nodes) {
-			node = reference.TypeArguments.Nodes[index]
+		// the reference naming the alias, a type reference or an import type
+		reference := chain[level-1].TypeArgumentList()
+		if reference != nil && index < len(reference.Nodes) {
+			node = reference.Nodes[index]
 			level--
 			continue
 		}
