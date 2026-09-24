@@ -7,11 +7,17 @@ const ROOT = path.join(__dirname, "../..");
 const NODE = process.execPath;
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const PROJECT_CONFIG = "tsconfig.project.json";
-// The cli is launched from its TypeScript source through ttsx: the workspace
-// packages resolve each other's src/*.ts entries, which plain `node` cannot
-// load (`--no-experimental-strip-types`), while ttsx installs runtime hooks
-// that propagate to child processes via NODE_OPTIONS.
-const CLI_MAIN = path.join(ROOT, "packages/cli/src/index.ts");
+// The cli runs as users run it: its built `bin` under plain node, with every
+// workspace package served from the built entries its publishConfig exports
+// name (the workspace manifests point at TypeScript sources, which plain node
+// cannot load). main() builds those packages first. Launching the cli from
+// its sources through ttsx instead started a second TypeScript loader and
+// re-evaluated the plugin descriptor before every generation.
+const CLI = [
+  "-r",
+  path.join(__dirname, "built-packages.cjs"),
+  path.join(ROOT, "packages/cli/bin/index.js"),
+];
 const TTSC_BIN = packageBin("ttsc", "ttsc");
 const TTSX_BIN = packageBin("ttsc", "ttsx");
 const BASE_PORT = 37_000;
@@ -330,11 +336,11 @@ const runNode = (cwd, script, args, stdio = "ignore", env = undefined) =>
   run(NODE, [script, ...args], { cwd, env, stdio });
 
 const runNestia = (cwd, args, stdio = "ignore") =>
-  runNode(cwd, TTSX_BIN, [CLI_MAIN, ...args], stdio);
+  run(NODE, [...CLI, ...args], { cwd, stdio });
 
 const runNestiaForError = (cwd, args) =>
   new Promise((resolve, reject) => {
-    const child = cp.spawn(NODE, [TTSX_BIN, CLI_MAIN, ...args], {
+    const child = cp.spawn(NODE, [...CLI, ...args], {
       cwd,
       env: process.env,
       stdio: ["ignore", "pipe", "pipe"],
@@ -348,13 +354,13 @@ const runNestiaForError = (cwd, args) =>
       if (code === 0)
         reject(
           new Error(
-            `${[NODE, TTSX_BIN, CLI_MAIN, ...args].join(" ")} unexpectedly succeeded.`,
+            `${[NODE, ...CLI, ...args].join(" ")} unexpectedly succeeded.`,
           ),
         );
       else if (signal !== null)
         reject(
           new Error(
-            `${[NODE, TTSX_BIN, CLI_MAIN, ...args].join(" ")} ended with ${signal}.`,
+            `${[NODE, ...CLI, ...args].join(" ")} ended with ${signal}.`,
           ),
         );
       else resolve(output);
@@ -881,7 +887,7 @@ const runCliArgumentDiagnosticsFeature = async () => {
     // missing message and hides the real cause.
     const invoke = (args) =>
       new Promise((resolve, reject) => {
-        const child = cp.spawn(NODE, [TTSX_BIN, CLI_MAIN, ...args], {
+        const child = cp.spawn(NODE, [...CLI, ...args], {
           cwd,
           env: { ...process.env },
           stdio: ["ignore", "pipe", "pipe"],
@@ -952,8 +958,7 @@ const runCliDependenciesFeature = async () => {
     await run(
       NODE,
       [
-        TTSX_BIN,
-        CLI_MAIN,
+        ...CLI,
         "dependencies",
         "--manager",
         `node ${JSON.stringify(manager)}`,
@@ -995,7 +1000,7 @@ const runSwaggerWatchFeature = async () => {
   await fs.promises.rm(cwd, { force: true, recursive: true });
   await writeSwaggerWatchFixture(cwd);
 
-  const child = cp.spawn(NODE, [TTSX_BIN, CLI_MAIN, "swagger", "--watch"], {
+  const child = cp.spawn(NODE, [...CLI, "swagger", "--watch"], {
     cwd,
     env: { ...process.env },
     stdio: ["ignore", "pipe", "pipe"],
@@ -1596,23 +1601,49 @@ const runFeatures = async (names) => {
     );
 };
 
+// The packages the cli runs from their builds, with the directory each emits.
+const BUILT_PACKAGES = [
+  ["fetcher", "lib"],
+  ["cli", "bin"],
+  ["core", "lib"],
+  ["sdk", "lib"],
+  ["e2e", "lib"],
+];
+
+// With TEST_SDK_SKIP_BUILD=1 the cli runs whatever was built last; a source
+// edited since would otherwise go untested while every feature passes.
+const assertFreshBuilds = () => {
+  const newest = (location) => {
+    if (fs.existsSync(location) === false) return -Infinity;
+    const stats = fs.statSync(location);
+    if (stats.isDirectory() === false) return stats.mtimeMs;
+    return Math.max(
+      stats.mtimeMs,
+      ...fs
+        .readdirSync(location)
+        .map((entry) => newest(path.join(location, entry))),
+    );
+  };
+  const stale = BUILT_PACKAGES.filter(
+    ([name, output]) =>
+      newest(path.join(ROOT, "packages", name, "src")) >
+      newest(path.join(ROOT, "packages", name, output)),
+  ).map(([name]) => name);
+  if (stale.length !== 0)
+    throw new Error(
+      `TEST_SDK_SKIP_BUILD=1, but the sources of ${stale.join(", ")} are newer than their builds. Build them, or unset TEST_SDK_SKIP_BUILD.`,
+    );
+};
+
 const main = async () => {
   const shard = featureShard();
-  if (process.env.TEST_SDK_SKIP_BUILD !== "1")
+  if (process.env.TEST_SDK_SKIP_BUILD === "1") assertFreshBuilds();
+  else
     await run(
       PNPM,
       [
         "--workspace-concurrency=1",
-        "--filter",
-        "@nestia/fetcher",
-        "--filter",
-        "nestia",
-        "--filter",
-        "@nestia/core",
-        "--filter",
-        "@nestia/sdk",
-        "--filter",
-        "@nestia/e2e",
+        ...BUILT_PACKAGES.flatMap(([name]) => ["--filter", `./packages/${name}`]),
         "-r",
         "run",
         "build",
