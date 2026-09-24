@@ -8,8 +8,8 @@ import { OpenApiV3, OpenApiV3_1 } from "@typia/interface";
  * The emended schema migrate reads holds `exclusiveMinimum` and
  * `exclusiveMaximum` as the bounds themselves, as OpenAPI 3.1 does, with
  * OpenAPI 3.0's boolean form converted into them; migrate read them as booleans
- * beside `minimum` / `maximum`, so every exclusive bound was lost or
- * mis-valued. It also narrowed every integer to int32 (#1684).
+ * beside `minimum` / `maximum`, so every exclusive bound was lost or took the
+ * wrong value. It also narrowed every integer to int32 (#1684).
  *
  * 1. Migrate a 3.1 and a 3.0 document holding exclusive bounds and integer
  *    formats.
