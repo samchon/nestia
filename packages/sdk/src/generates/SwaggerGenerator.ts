@@ -318,7 +318,7 @@ export namespace SwaggerGenerator {
     if (violations.length !== 0)
       throw new Error(
         [
-          `Error on NestiaApplication.swagger(): invalid security requirements. Declare every scheme a route names, with its scopes, in the "swagger.security" property of "nestia.config.ts".`,
+          `Error on Swagger composition: invalid security requirements. Declare every scheme a route names, with its scopes, in the "security" of the Swagger configuration: "swagger.security" of "nestia.config.ts", or the configuration given to NestiaSwaggerComposer.document().`,
           "",
           "List of violations:",
           ...violations,

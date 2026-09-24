@@ -765,12 +765,24 @@ const runDistributeFeature = async (cwd, name) => {
     throw new Error(`${name} configures no distribute location.`);
   const stage = path.join(cwd, distribute);
   await fs.promises.rm(stage, { force: true, recursive: true });
-  await runNestia(cwd, ["sdk", ...generationTail(name)], "inherit");
-  await run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "compile"], {
-    cwd: stage,
-    stdio: "inherit",
-    shell: process.platform === "win32",
-  });
+  // quiet like every other feature, and repeated with the output on failure
+  const quietly = async (task) => {
+    try {
+      await task("ignore");
+    } catch {
+      await task("inherit");
+    }
+  };
+  await quietly((stdio) =>
+    runNestia(cwd, ["sdk", ...generationTail(name)], stdio),
+  );
+  await quietly((stdio) =>
+    run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "compile"], {
+      cwd: stage,
+      stdio,
+      shell: process.platform === "win32",
+    }),
+  );
   if (fs.existsSync(path.join(stage, "lib", "index.js")) === false)
     throw new Error(`${name}: the staged SDK package emitted no lib/index.js.`);
 };
@@ -1432,7 +1444,7 @@ const runFeatures = async (names) => {
   console.log(`Test Features (concurrency: ${parallel})`);
 
   const failures = [];
-  const run = async (name, port) => {
+  const runFeature = async (name, port) => {
     try {
       await measure(`  - ${name}`)(() => feature(name, port));
     } catch (error) {
@@ -1445,13 +1457,13 @@ const runFeatures = async (names) => {
   const worker = async () => {
     while (cursor < pooled.length) {
       const index = cursor++;
-      await run(pooled[index], BASE_PORT + index);
+      await runFeature(pooled[index], BASE_PORT + index);
     }
   };
 
   await Promise.all(Array.from({ length: parallel }, worker));
   for (const [index, name] of exclusive.entries())
-    await run(name, BASE_PORT + pooled.length + index);
+    await runFeature(name, BASE_PORT + pooled.length + index);
   if (failures.length !== 0)
     throw new Error(
       `Failed test-sdk features: ${failures.map((f) => f.name).join(", ")}`,

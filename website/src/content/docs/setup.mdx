@@ -48,6 +48,8 @@ composition both resolve it while the Nestia transform attaches route metadata.
 
 `typia` must be the exact release your `@nestia/core` is built for. The Nestia transform is compiled from that typia release's Go source, while the code it emits calls the `typia` package installed in your project, so another version would mix two releases. `@nestia/core` depends on and peers that exact version, so npm refuses a different one at install, and when another is resolved anyway the build stops with an error naming both versions. `npm view @nestia/core dependencies.typia` prints the version to install.
 
+NestJS must be 11 or newer, with `rxjs` 7.1 or newer, the versions Nestia builds and tests against. `@nestia/core` declares both as peer dependencies.
+
 ## tsconfig.json
 
 Keep the NestJS decorator metadata flags. Do not add `compilerOptions.plugins`
