@@ -47,8 +47,13 @@ export namespace ExceptionManager {
     const index: number = tuples.findIndex((tuple) => tuple[0] === creator);
     if (index !== -1) tuples.splice(index, 1);
 
-    tuples.push([creator, closure]);
-    tuples.sort(([x], [y]) => (x.prototype instanceof y ? -1 : 1));
+    // an error converts by the first class it is an instance of, so a class
+    // must precede every superclass of it: insert before the first one
+    const ancestor: number = tuples.findIndex(
+      ([registered]) => creator.prototype instanceof registered,
+    );
+    if (ancestor === -1) tuples.push([creator, closure]);
+    else tuples.splice(ancestor, 0, [creator, closure]);
   }
 
   /**
