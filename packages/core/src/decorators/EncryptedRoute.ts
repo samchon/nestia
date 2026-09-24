@@ -20,7 +20,7 @@ import typia from "typia";
 import { IResponseBodyStringifier } from "../options/IResponseBodyStringifier";
 import { Singleton } from "../utils/Singleton";
 import { TypedRoute } from "./TypedRoute";
-import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
+import { get_encryption_password } from "./internal/get_encryption_password";
 import { get_path_and_stringify } from "./internal/get_path_and_stringify";
 import { headers_to_object } from "./internal/headers_to_object";
 import { route_error } from "./internal/route_error";
@@ -168,10 +168,7 @@ class EncryptedRouteInterceptor implements NestInterceptor {
         const param:
           | IEncryptionPassword
           | IEncryptionPassword.Closure
-          | undefined = Reflect.getMetadata(
-          ENCRYPTION_METADATA_KEY,
-          context.getClass(),
-        );
+          | undefined = get_encryption_password(context.getClass());
         if (!param)
           throw new Error(
             `Error on EncryptedRoute.${this.method}(): no password found.`,

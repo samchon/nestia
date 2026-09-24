@@ -1,7 +1,7 @@
 import { IEncryptionPassword } from "@nestia/fetcher";
 import { Controller } from "@nestjs/common";
 
-import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
+import { ENCRYPTION_CONTROLLER_METADATA_KEY } from "./internal/EncryptedConstant";
 
 /**
  * Encrypted controller.
@@ -34,7 +34,11 @@ export function EncryptedController(
   password: IEncryptionPassword | IEncryptionPassword.Closure,
 ): ClassDecorator {
   return function (target: any) {
-    Reflect.defineMetadata(ENCRYPTION_METADATA_KEY, password, target);
+    Reflect.defineMetadata(
+      ENCRYPTION_CONTROLLER_METADATA_KEY,
+      password,
+      target,
+    );
     Controller(path)(target);
   };
 }
