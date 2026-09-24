@@ -27,7 +27,7 @@ export namespace NestiaMigrateControllerAnalyzer {
     const controllers: INestiaMigrateController[] = [...collection.values()];
     for (const col of controllers) {
       const splitPath = (r: IHttpMigrateRoute): string[] =>
-        r.emendedPath.split("/");
+        routePath(r).split("/");
       const splitLocation = (r: IHttpMigrateRoute): string[] =>
         splitPath(r).filter((s) => s.length !== 0 && s[0] !== ":");
 
@@ -42,6 +42,23 @@ export namespace NestiaMigrateControllerAnalyzer {
     }
     return controllers;
   };
+
+  /**
+   * The route's path as NestJS reads it: each path parameter under the key its
+   * handler reads with `@TypedParam()`. The document's name, such as `item-id`,
+   * is no path-to-regexp parameter name; it would read as `item` followed by
+   * the literal `-id`, and the handler's lookup would miss.
+   */
+  export const routePath = (route: IHttpMigrateRoute): string =>
+    route.emendedPath
+      .split("/")
+      .map((segment) => {
+        if (segment[0] !== ":") return segment;
+        const parameter: IHttpMigrateRoute.IParameter | undefined =
+          route.parameters.find((p) => p.name === segment.slice(1));
+        return parameter !== undefined ? `:${parameter.key}` : segment;
+      })
+      .join("/");
 }
 
 const getSplitIndex = (x: string[], y: string[]) => {

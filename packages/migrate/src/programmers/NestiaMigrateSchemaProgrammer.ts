@@ -123,11 +123,28 @@ export namespace NestiaMigrateSchemaProgrammer {
     writeNumeric({
       factory: () => [
         TypeFactory.keyword("number"),
-        props.importer.tag("Type", "int32"),
+        props.importer.tag("Type", integerType(props.schema)),
       ],
       importer: props.importer,
       schema: props.schema,
     });
+
+  /**
+   * The typia integer type admitting what the schema admits: its own `format`
+   * when it names one typia has, else `int64`, as an integer schema without a
+   * format admits any integer.
+   */
+  const integerType = (
+    schema: OpenApi.IJsonSchema.IInteger,
+  ): "int32" | "uint32" | "int64" | "uint64" => {
+    const format: unknown = (schema as { format?: unknown }).format;
+    return format === "int32" ||
+      format === "uint32" ||
+      format === "int64" ||
+      format === "uint64"
+      ? format
+      : "int64";
+  };
 
   const writeNumber = (props: {
     importer: NestiaMigrateImportProgrammer;
@@ -147,19 +164,19 @@ export namespace NestiaMigrateSchemaProgrammer {
     const intersection: ts.TypeNode[] = props.factory();
     if (props.schema.default !== undefined)
       intersection.push(props.importer.tag("Default", props.schema.default));
+    // the emended schema holds each bound as a number, as OpenAPI 3.1 does;
+    // an OpenAPI 3.0 boolean `exclusiveMinimum` is converted into that form
     if (props.schema.minimum !== undefined)
+      intersection.push(props.importer.tag("Minimum", props.schema.minimum));
+    if (typeof props.schema.exclusiveMinimum === "number")
       intersection.push(
-        props.importer.tag(
-          props.schema.exclusiveMinimum ? "ExclusiveMinimum" : "Minimum",
-          props.schema.minimum,
-        ),
+        props.importer.tag("ExclusiveMinimum", props.schema.exclusiveMinimum),
       );
     if (props.schema.maximum !== undefined)
+      intersection.push(props.importer.tag("Maximum", props.schema.maximum));
+    if (typeof props.schema.exclusiveMaximum === "number")
       intersection.push(
-        props.importer.tag(
-          props.schema.exclusiveMaximum ? "ExclusiveMaximum" : "Maximum",
-          props.schema.maximum,
-        ),
+        props.importer.tag("ExclusiveMaximum", props.schema.exclusiveMaximum),
       );
     if (props.schema.multipleOf !== undefined)
       intersection.push(
