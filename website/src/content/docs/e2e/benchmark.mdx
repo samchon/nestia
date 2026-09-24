@@ -181,6 +181,8 @@ The main program is executed by user (`npm run benchmark` command in the playgro
 
 The servant program is executed by the main program multiply in parallel, and actually runs the e2e test functions for benchmarking. Composing the servant program, you have to specify the directory where the e2e test functions are located. Also, composing the main program of benchmark, you also have to specify the file location of the servant program.
 
+`count` and `simultaneous` are both divided among the `threads` servants, so the requests in flight at once never exceed `simultaneous`. Because each servant runs at least one request at a time, `simultaneous` must not be less than `threads`; `master()` rejects such a configuration.
+
 If you want to see more benchmark program cases, visit below links:
 
 Project                | Main | Servant | Report
