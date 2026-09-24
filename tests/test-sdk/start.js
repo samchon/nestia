@@ -29,6 +29,15 @@ process.env.NODE_OPTIONS = [
 ]
   .filter(Boolean)
   .join(" ");
+// One ttsc cache for every process the harness starts. The children run from
+// the repository root (the package build), this directory (the diagnostic
+// cohorts), and each feature directory, so a relative TTSC_CACHE_DIR would
+// name a different directory in each, some outside the repository, and every
+// such process would build the plugins from cold. It is resolved here, once.
+process.env.TTSC_CACHE_DIR = path.resolve(
+  __dirname,
+  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".cache", "ttsc"),
+);
 process.env.NODE_PATH = [
   path.join(ROOT, "node_modules"),
   path.join(ROOT, "node_modules", ".pnpm", "node_modules"),

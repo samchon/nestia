@@ -49,7 +49,7 @@ Five of them additionally set `TTSC_GO_BINARY=go` and pin `TTSC_CACHE_DIR` so th
 | Workspace | Cache it pins |
 | --- | --- |
 | `test-e2e`, `test-migrate`, `test-benchmark` | the shared root cache |
-| `test-sdk` | the same shared cache, reached from inside `features/<name>/` |
+| `test-sdk` | the same shared cache, resolved to an absolute path when `start.js` starts, so the package build, the diagnostic cohorts, and every feature directory share it |
 | `test-transform-options` | a deliberately workspace-local cache |
 
 `test-cli` and `test-editor` set neither variable, because they build the package under test first and exercise its built artifacts rather than compiling through the plugin.
