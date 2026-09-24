@@ -189,6 +189,8 @@ The `swagger` block of `INestiaConfig`:
 
 Decomposed query and header properties marked with `?` produce parameters with `required: false`, including when `exactOptionalPropertyTypes` is enabled.
 
+A Swagger 2.0 document holds less than an OpenAPI 3.x one, so with `openapi: "2.0"` the generator leaves out or narrows what 2.0 has no place for instead of failing: named examples and request body examples, the `x-nestia-encrypted` flag (the description keeps the encryption warning), a form body's own description, and the bodies of exceptions whose media type differs from the success body's. A form field taking several files, or a file or null, is listed as one optional file.
+
 ---
 
 ## See also
