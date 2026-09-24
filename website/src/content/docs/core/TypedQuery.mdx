@@ -134,7 +134,7 @@ Reach for the vanilla decorator when:
 - You need raw strings without coercion or validation (rare).
 - A single route was working with `@Query()` and you don't want the migration churn.
 
-`@nestia/sdk` still reads the declared type of a vanilla `@Query()` parameter into the SDK and the Swagger document, and holds it to the rules `@TypedQuery()` enforces at compile time, because the SDK has to write it as a query string: one object of statically named atomic, constant, or array-of-atomic properties, and a field-named `@Query("key")` of an atomic type or an array of them. A nested object, a dynamic key such as `Record<string, string>`, or a union of objects is reported as a diagnostic that names the property. Only the request goes through without coercion or validation.
+`@nestia/sdk` still reads the declared type of a vanilla `@Query()` parameter into the SDK and the Swagger document, and holds it to the rules `@TypedQuery()` enforces at compile time, because the SDK has to write it as a query string: one object of statically named atomic, constant, or array-of-atomic properties, and a field-named `@Query("key")` of an atomic type or an array of them. A nested object, a dynamic key such as `Record<string, string>`, or a union of objects is reported as a diagnostic naming the type at fault and, inside an object, the property it sits at. Only the request goes through without coercion or validation.
 
 ---
 
