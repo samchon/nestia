@@ -60,9 +60,9 @@ jobs:
           (cd packages/sdk/test && go test -count=1 -run '^$' ./...)
           (cd packages/core/native && go test -count=1 -run '^$' ./...)
 
-  # Warms the Windows cache on master, which test's Windows job restores.
+  # The one Windows job that saves the cache: builds on Windows, and warms the
+  # Windows cache test's Windows job restores.
   Windows:
-    if: github.event_name == 'push'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4

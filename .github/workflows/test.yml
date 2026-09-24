@@ -100,10 +100,7 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      # the only Windows job saves the Windows cache
       - uses: ./.github/actions/ttsc-cache
-        with:
-          save: ${{ matrix.os == 'windows-latest' }}
 
       - name: Use System Go For Source Plugin Build
         shell: bash
