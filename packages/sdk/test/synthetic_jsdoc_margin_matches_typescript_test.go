@@ -13,15 +13,21 @@ import (
 // them trimmed every line whole, so an indented code block in a description
 // lost its indentation, and then kept too much once tags ran over lines. The
 // margin is the `*` and the indentation up to the column the text began at:
-// the description's first line, the text after a tag's name, or, when a tag's
-// text starts on the next line, the tag itself. Each expectation below is what
-// TypeScript 5.9's `getJsDocTags` and `getDocumentationComment` return for the
-// same comment.
+// the description's first line, the text after a tag's name, a `@param`
+// description past the parameter's type and name, a `@returns` one past its
+// type, or, when a tag's text starts on the next line, the tag itself. The
+// reader first took a `@param`'s margin at its name, so a description
+// continued in line with its first line kept the name's width as indentation,
+// and it kept a `@returns` type in the text TypeScript leaves it out of. Each
+// expectation below is what TypeScript 5.9's `getJsDocTags` and
+// `getDocumentationComment` return for the same comment.
 //
 //  1. Author one method per comment shape: a wrapped `@param` below a
 //     two-paragraph description, a description starting on the opening line,
 //     an indented code block, an `@example` whose code starts on the next
-//     line, and a two-space margin.
+//     line, a two-space margin, `@param` descriptions continued in line with
+//     their first line, starting on the next line, past a type, and past extra
+//     spaces, and typed `@returns` and `@return` descriptions.
 //  2. Run the SDK metadata pass over each in-process.
 //  3. Assert the description and each tag's text equal TypeScript's.
 func TestSyntheticJSDocMarginMatchesTypeScript(t *testing.T) {
@@ -54,6 +60,36 @@ func TestSyntheticJSDocMarginMatchesTypeScript(t *testing.T) {
 			comment:     "/**\n   *  Double space margin\n   *  second line\n   */",
 			description: "Double space margin\nsecond line",
 			tags:        `[]`,
+		},
+		{
+			comment:     "/**\n   * @param query Content to store,\n   *              across two lines\n   */",
+			description: nil,
+			tags:        `[{"name":"param","text":"query Content to store,\nacross two lines"}]`,
+		},
+		{
+			comment:     "/**\n   * @param query\n   *   The query to run\n   *     deeper\n   */",
+			description: nil,
+			tags:        `[{"name":"param","text":"query   The query to run\n    deeper"}]`,
+		},
+		{
+			comment:     "/**\n   * @param {string} query first\n   *                        deep\n   */",
+			description: nil,
+			tags:        `[{"name":"param","text":"query first\n deep"}]`,
+		},
+		{
+			comment:     "/**\n   * @param  query   first\n   *                  deep\n   */",
+			description: nil,
+			tags:        `[{"name":"param","text":"query first\n deep"}]`,
+		},
+		{
+			comment:     "/**\n   * @returns {string} the result\n   *                   deep\n   */",
+			description: nil,
+			tags:        `[{"name":"returns","text":"the result\ndeep"}]`,
+		},
+		{
+			comment:     "/**\n   * @return {{ a: string }} nested braces\n   *                            deep\n   */",
+			description: nil,
+			tags:        `[{"name":"return","text":"nested braces\n   deep"}]`,
 		},
 	} {
 		controller := "import core from \"@nestia/core\";\n\nexport class SyntheticController {\n  " +

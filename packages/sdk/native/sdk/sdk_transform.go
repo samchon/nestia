@@ -295,9 +295,10 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 	// A tag runs until the next one, and each line loses the comment's margin
 	// as TypeScript takes it off: the `*`, then the indentation up to the
 	// column the text began at. That is the description's first line, the
-	// text after a tag's name, or, when the tag's text starts on the next line,
-	// the tag itself, so an `@example` keeps its code's indentation while a
-	// wrapped `@param` description does not.
+	// text after a tag's name, a `@param` description past the parameter's
+	// name, a `@returns` one past its type, or, when the tag's text starts on
+	// the next line, the tag itself, so an `@example` keeps its code's
+	// indentation while a wrapped `@param` description does not.
 	description := []string{}
 	descriptionMargin := -1
 	var tag *nestiaSDKPendingTag
@@ -314,6 +315,10 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 				doc.Params[param] = desc
 			}
 		} else {
+			if nestiaSDKIsReturnTag(tag.name) {
+				// TypeScript's text leaves out a type the tag declares
+				body = strings.TrimLeft(body[nestiaSDKReturnTypeEnd(body):], "\n")
+			}
 			doc.Tags = append(doc.Tags, nestiaSDKJSDocTag(tag.name, body))
 		}
 		tag = nil
@@ -327,9 +332,17 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 			flush()
 			name, body := nestiaSDKParseJSDocTag(trimmed)
 			margin := nestiaSDKJSDocIndent(rest)
-			if body != "" {
+			// where the text begins in the body: a `@param` description after
+			// the parameter's name, a `@returns` one after its type
+			text := 0
+			if name == "param" {
+				_, text = nestiaSDKParamTagName(body)
+			} else if nestiaSDKIsReturnTag(name) {
+				text = nestiaSDKReturnTypeEnd(body)
+			}
+			if text < len(body) {
 				after := trimmed[1+len(name):]
-				margin += 1 + len(name) + len(after) - len(strings.TrimLeft(after, " \t"))
+				margin += 1 + len(name) + len(after) - len(strings.TrimLeft(after, " \t")) + text
 			}
 			tag = &nestiaSDKPendingTag{name: name, lines: []string{body}, margin: margin}
 			continue
@@ -434,50 +447,85 @@ func nestiaSDKJSDocOutdent(line string, margin int) string {
 }
 
 // nestiaSDKParseParamTag splits a `@param` body into the parameter's name and
-// its description, as TypeScript does: a leading `{Type}` is not the name,
-// and an optional parameter's brackets and default, `[name=value]`, are not
-// part of it.
+// its description, as TypeScript does. A description that starts on the next
+// line keeps the indentation its margin leaves it.
 func nestiaSDKParseParamTag(body string) (string, string) {
-	body = strings.TrimSpace(body)
-	if strings.HasPrefix(body, "{") {
-		depth := 0
-		for i, char := range body {
-			if char == '{' {
-				depth++
-			} else if char == '}' {
-				depth--
-				if depth == 0 {
-					body = strings.TrimSpace(body[i+1:])
-					break
-				}
-			}
-		}
+	param, text := nestiaSDKParamTagName(body)
+	return param, strings.TrimLeft(body[text:], "\n")
+}
+
+// nestiaSDKParamTagName reads the parameter a `@param` body names, as
+// TypeScript does: a leading `{Type}` is not the name, and an optional
+// parameter's brackets and default, `[name=value]`, are not part of it. It
+// also returns where the description begins, past the spaces after the name.
+func nestiaSDKParamTagName(body string) (string, int) {
+	offset := nestiaSDKSkipBlank(body, 0, true)
+	if end := nestiaSDKClosing(body, offset, '{', '}'); end != -1 {
+		offset = nestiaSDKSkipBlank(body, end+1, true)
 	}
-	if strings.HasPrefix(body, "[") {
+	name := ""
+	if end := nestiaSDKClosing(body, offset, '[', ']'); end != -1 {
 		// the bracket that closes the first, past any in a default value
-		depth := 0
-		for end, char := range body {
-			if char == '[' {
-				depth++
-			} else if char == ']' {
-				depth--
-				if depth == 0 {
-					name := strings.TrimSpace(body[1:end])
-					if equal := strings.Index(name, "="); equal != -1 {
-						name = strings.TrimSpace(name[:equal])
-					}
-					return name, strings.TrimSpace(body[end+1:])
-				}
+		name = body[offset+1 : end]
+		if equal := strings.Index(name, "="); equal != -1 {
+			name = name[:equal]
+		}
+		name = strings.TrimSpace(name)
+		offset = end + 1
+	} else {
+		start := offset
+		for offset < len(body) && strings.IndexByte(" \t\n", body[offset]) == -1 {
+			offset++
+		}
+		name = body[start:offset]
+	}
+	return name, nestiaSDKSkipBlank(body, offset, false)
+}
+
+// nestiaSDKIsReturnTag tells a `@returns` tag, which TypeScript also reads as
+// `@return`.
+func nestiaSDKIsReturnTag(name string) bool {
+	return name == "returns" || name == "return"
+}
+
+// nestiaSDKReturnTypeEnd returns where a `@returns` body's text begins past a
+// leading `{Type}`, which TypeScript reads as the type rather than the text,
+// and the spaces after it; 0 without a type.
+func nestiaSDKReturnTypeEnd(body string) int {
+	if end := nestiaSDKClosing(body, nestiaSDKSkipBlank(body, 0, true), '{', '}'); end != -1 {
+		return nestiaSDKSkipBlank(body, end+1, false)
+	}
+	return 0
+}
+
+// nestiaSDKClosing finds the bracket closing the one text opens at start, or
+// -1 when text opens none there or never closes it.
+func nestiaSDKClosing(text string, start int, open byte, close byte) int {
+	if start >= len(text) || text[start] != open {
+		return -1
+	}
+	depth := 0
+	for i := start; i < len(text); i++ {
+		if text[i] == open {
+			depth++
+		} else if text[i] == close {
+			depth--
+			if depth == 0 {
+				return i
 			}
 		}
 	}
-	parts := strings.Fields(body)
-	if len(parts) == 0 {
-		return "", ""
+	return -1
+}
+
+// nestiaSDKSkipBlank moves offset past spaces and tabs, and line breaks too
+// when newline is set.
+func nestiaSDKSkipBlank(text string, offset int, newline bool) int {
+	for offset < len(text) &&
+		(text[offset] == ' ' || text[offset] == '\t' || (newline && text[offset] == '\n')) {
+		offset++
 	}
-	param := parts[0]
-	desc := strings.TrimSpace(strings.TrimPrefix(body, param))
-	return param, desc
+	return offset
 }
 
 func nestiaSDKJSDocTag(name string, text string) map[string]any {
