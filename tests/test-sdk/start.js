@@ -509,11 +509,18 @@ const feature = async (name, port) => {
   assertGeneratedImportsAreExtensionless(cwd);
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (hasTtsxTestFiles(cwd)) {
+    // a pass that needed a retry is reported, never passed off as clean: an
+    // intermittent failure is a finding
+    const failures = [];
     for (let i = 0; i < 3; ++i)
       try {
         await runTtsxTest(cwd, "ignore", port);
+        if (failures.length !== 0) reportRetries(name, failures);
         return;
-      } catch {}
+      } catch (error) {
+        failures.push(error);
+      }
+    reportRetries(name, failures);
     await runTtsxTest(cwd, "inherit", port);
   } else {
     try {
@@ -1486,6 +1493,25 @@ const featureFilter = () => {
   return () => true;
 };
 
+// `--shard <index>/<count>` (or TEST_SDK_SHARD) runs one of `count` disjoint
+// slices of the selected features, so CI can spread the suite over parallel
+// jobs. Every feature falls in exactly one slice: the names are sorted and
+// dealt out in turn, which also splits consecutive expensive neighbors such as
+// the distribute features.
+const featureShard = () => {
+  const raw = argumentValue("--shard") ?? process.env.TEST_SDK_SHARD;
+  if (raw === undefined) return (names) => names;
+  const matched = /^(\d+)\/(\d+)$/.exec(raw);
+  const index = matched === null ? NaN : Number(matched[1]);
+  const count = matched === null ? NaN : Number(matched[2]);
+  if (!(count >= 1 && index >= 1 && index <= count))
+    throw new Error(
+      `invalid shard ${JSON.stringify(raw)}: expected "<index>/<count>" with 1 <= index <= count.`,
+    );
+  return (names) =>
+    [...names].sort().filter((_, position) => position % count === index - 1);
+};
+
 const concurrency = (count) => {
   const fallback = Math.min(
     8,
@@ -1514,6 +1540,20 @@ const measure = (title) => async (task) => {
 // features compiled on the same machine (#1695).
 const EXCLUSIVE_FEATURES = new Set(["swagger-watch"]);
 
+// Features whose e2e run failed before one passed, with each failure's reason.
+const RETRIED_FEATURES = [];
+const reportRetries = (name, failures) => {
+  const reasons = failures.map((error) =>
+    String(error instanceof Error ? error.message : error)
+      .split("\n")[0]
+      .slice(0, 200),
+  );
+  RETRIED_FEATURES.push({ name, reasons });
+  console.log(
+    `  - ${name}: e2e failed ${failures.length} time(s) before the attempt that decides it: ${reasons.join("; ")}`,
+  );
+};
+
 const runFeatures = async (names) => {
   const pooled = names.filter((name) => !EXCLUSIVE_FEATURES.has(name));
   const exclusive = names.filter((name) => EXCLUSIVE_FEATURES.has(name));
@@ -1541,6 +1581,15 @@ const runFeatures = async (names) => {
   await Promise.all(Array.from({ length: parallel }, worker));
   for (const [index, name] of exclusive.entries())
     await runFeature(name, BASE_PORT + pooled.length + index);
+  for (const { name, reasons } of RETRIED_FEATURES)
+    if (process.env.GITHUB_ACTIONS === "true")
+      console.log(
+        `::warning title=test-sdk retry::${name} passed its e2e run only after ${reasons.length} failure(s): ${reasons.join("; ")}`,
+      );
+  if (RETRIED_FEATURES.length !== 0)
+    console.log(
+      `\nFeatures whose e2e run needed a retry: ${RETRIED_FEATURES.map((f) => f.name).join(", ")}`,
+    );
   if (failures.length !== 0)
     throw new Error(
       `Failed test-sdk features: ${failures.map((f) => f.name).join(", ")}`,
@@ -1548,6 +1597,7 @@ const runFeatures = async (names) => {
 };
 
 const main = async () => {
+  const shard = featureShard();
   if (process.env.TEST_SDK_SKIP_BUILD !== "1")
     await run(
       PNPM,
@@ -1597,7 +1647,7 @@ const main = async () => {
     if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
     if (filter("output-directory-diagnostics"))
       names.push("output-directory-diagnostics");
-    await runFeatures(names);
+    await runFeatures(shard(names));
   });
 };
 

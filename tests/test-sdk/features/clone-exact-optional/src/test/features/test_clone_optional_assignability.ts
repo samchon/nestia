@@ -68,10 +68,15 @@ const invalidTuple: IOptional["tuple"] = [];
         files: ["consumer.ts"],
       }),
     );
-    const manifest = require.resolve("ttsc/package.json");
+    // TypeScript's own compiler, the one ttsc wraps: assignability is the
+    // compiler's semantics alone, and a ttsc launch from this unrelated
+    // project root would build a transform plugin the check never uses
+    const manifest = require.resolve("typescript/package.json", {
+      paths: [path.dirname(require.resolve("ttsc/package.json"))],
+    });
     const binary = path.resolve(
       path.dirname(manifest),
-      require(manifest).bin.ttsc,
+      require(manifest).bin.tsc,
     );
     const result = await promisify(execFile)(
       process.execPath,
