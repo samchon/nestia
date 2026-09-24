@@ -2,15 +2,17 @@ import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 
 import { ITagged as Cloned } from "@api/lib/structures/ITagged";
+import { IUnaccepted as ClonedUnaccepted } from "@api/lib/structures/IUnaccepted";
 
 import { ITagged as Source } from "../../structures/ITagged";
+import { IUnaccepted as SourceUnaccepted } from "../../structures/IUnaccepted";
 
 type Equal<X, Y> =
   (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2
     ? true
     : false;
-type Same<T> = {
-  [K in keyof T]: K extends keyof Cloned ? Equal<T[K], Cloned[K]> : false;
+type Same<T, U> = {
+  [K in keyof T]: K extends keyof U ? Equal<T[K], U[K]> : false;
 };
 
 /**
@@ -25,14 +27,18 @@ type Same<T> = {
  * validation differs from `tags.Minimum<7>`, keeps the `TagBase` form. The
  * expansion is compared as JSON holds it, so `tags.Minimum<1e999>`, whose
  * schema bound JSON writes as null, is recognized too. A JSDoc comment tag,
- * `@format uri`, keeps printing as the tag it names.
+ * `@format uri`, keeps printing as the tag it names. A custom tag expanding
+ * like a predefined tag given an argument that tag does not accept, such as
+ * `tags.Format<"phone">`, keeps the `TagBase` form too, as the predefined form
+ * would not compile.
  *
- * 1. Assert at compile time that every property of the clone is the source's type.
- * 2. Read the cloned DTO and assert each predefined tag is written as in the
- *    source, and the custom tag in the `TagBase` form.
+ * 1. Assert at compile time that every property of the clones is the source's
+ *    type.
+ * 2. Read the cloned DTOs and assert each predefined tag is written as in the
+ *    source, and the custom tags in the `TagBase` form.
  */
 export const test_clone_predefined_tags = async (): Promise<void> => {
-  const same: Same<Source> = {
+  const same: Same<Source, Cloned> = {
     minimum: true,
     negative: true,
     maximum: true,
@@ -63,13 +69,21 @@ export const test_clone_predefined_tags = async (): Promise<void> => {
     commented: false,
   };
   same;
+  const unaccepted: Same<SourceUnaccepted, ClonedUnaccepted> = {
+    nested: true,
+    listed: true,
+    phone: true,
+  };
+  unaccepted;
 
-  const content: string = (
-    await fs.promises.readFile(
-      `${__dirname}/../../api/structures/ITagged.ts`,
-      "utf8",
-    )
-  ).replace(/\s+/g, " ");
+  const read = async (name: string): Promise<string> =>
+    (
+      await fs.promises.readFile(
+        `${__dirname}/../../api/structures/${name}.ts`,
+        "utf8",
+      )
+    ).replace(/\s+/g, " ");
+  const content: string = await read("ITagged");
   for (const needle of [
     "minimum: number & tags.Minimum<3>;",
     "negative: number & tags.Minimum<-1.5>;",
@@ -100,4 +114,12 @@ export const test_clone_predefined_tags = async (): Promise<void> => {
     'commented: string & tags.Format<"uri">;',
   ])
     TestValidator.equals(needle, content.includes(needle), true);
+
+  const unacceptedContent: string = await read("IUnaccepted");
+  for (const needle of [
+    'nested: number[][] & tags.TagBase<{ target: "array"; kind: "default"; value: [[1]];',
+    'listed: string & tags.TagBase<{ target: "string"; kind: "examples"; value: ["x"];',
+    'phone: string & tags.TagBase<{ target: "string"; kind: "format"; value: "phone";',
+  ])
+    TestValidator.equals(needle, unacceptedContent.includes(needle), true);
 };

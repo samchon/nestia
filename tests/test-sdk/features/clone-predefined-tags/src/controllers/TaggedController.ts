@@ -1,16 +1,22 @@
 import core from "@nestia/core";
-import { Controller, Query } from "@nestjs/common";
+import { Body, Controller, Query } from "@nestjs/common";
 
 import { ITagged } from "../structures/ITagged";
+import { IUnaccepted } from "../structures/IUnaccepted";
 
 /**
- * A route whose DTO the SDK clones. Vanilla `@Query()` keeps the server from
- * generating a validator: only the cloned SDK is under test here.
+ * Routes whose DTOs the SDK clones. Vanilla `@Query()` and `@Body()` keep the
+ * server from generating a validator: only the cloned SDK is under test here.
  */
 @Controller("tagged")
 export class TaggedController {
   @core.TypedRoute.Get()
   public get(@Query() query: ITagged): void {
     query;
+  }
+
+  @core.TypedRoute.Post("unaccepted")
+  public unaccepted(@Body() body: IUnaccepted): void {
+    body;
   }
 }

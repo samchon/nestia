@@ -18,9 +18,10 @@ export namespace SdkTypeTagProgrammer {
    * Writes a type tag of a cloned DTO.
    *
    * A tag prints as the predefined typia tag it matches, `tags.Minimum<3>`,
-   * only when that tag, given the argument, expands to exactly the tag the
-   * metadata carries; then the two are the same type. Anything else prints in
-   * the generic `tags.TagBase<{ ... }>` form, which is always the same type.
+   * only when that tag accepts the argument and, given it, expands to exactly
+   * the tag the metadata carries; then the two are the same type. Anything else
+   * prints in the generic `tags.TagBase<{ ... }>` form, which is always the
+   * same type.
    *
    * The tag's name cannot decide it. The SDK names a tag after its object type
    * with the brackets and quotes a component name drops, `Minimum3` or
@@ -149,7 +150,10 @@ const argumentOf = (
   return Number.isNaN(argument) ? undefined : argument;
 };
 
-/** What a predefined tag, given its argument, bakes into the metadata. */
+/**
+ * What a predefined tag, given its argument, bakes into the metadata. A tag
+ * whose type parameter constraint rejects the argument expands to nothing.
+ */
 interface IExpansion {
   validate: string | undefined;
   exclusive: boolean | string[];
@@ -223,6 +227,39 @@ const TYPE_VALIDATE: Record<string, string | Record<string, string>> = {
   float: `$importInternal("isTypeFloat")($input)`,
   double: `true`,
 };
+
+/** `Format.Value` of typia's `Format` tag. */
+const FORMATS: Set<string> = new Set([
+  "byte",
+  "password",
+  "regex",
+  "uuid",
+  "email",
+  "hostname",
+  "idn-email",
+  "idn-hostname",
+  "iri",
+  "iri-reference",
+  "ipv4",
+  "ipv6",
+  "uri",
+  "uri-reference",
+  "uri-template",
+  "url",
+  "date-time",
+  "date",
+  "time",
+  "duration",
+  "json-pointer",
+  "relative-json-pointer",
+]);
+
+/** `DefaultAtomic` of typia's `Default` tag. */
+const isDefaultAtomic = (value: unknown): boolean =>
+  typeof value === "boolean" ||
+  typeof value === "bigint" ||
+  typeof value === "number" ||
+  typeof value === "string";
 
 /** `PascalizeString` of typia's `Format` tag: `date-time` as `DateTime`. */
 const pascalize = (value: string): string =>
@@ -325,7 +362,7 @@ const DEFINITIONS: Record<string, IDefinition> = {
   format: {
     name: "Format",
     expand: (from, argument) =>
-      from === "string" && typeof argument === "string"
+      from === "string" && typeof argument === "string" && FORMATS.has(argument)
         ? {
             validate: `$importInternal("isFormat${pascalize(argument)}")($input)`,
             exclusive: ["format", "pattern"],
@@ -418,7 +455,9 @@ const DEFINITIONS: Record<string, IDefinition> = {
     expand: (from, argument) =>
       from ===
       (Array.isArray(argument)
-        ? "array"
+        ? argument.every(isDefaultAtomic)
+          ? "array"
+          : null
         : typeof argument === "boolean"
           ? "boolean"
           : typeof argument === "bigint"
@@ -450,7 +489,10 @@ const DEFINITIONS: Record<string, IDefinition> = {
   examples: {
     name: "Examples",
     expand: (_from, argument) =>
-      typeof argument === "object" && argument !== null
+      typeof argument === "object" &&
+      argument !== null &&
+      Array.isArray(argument) === false &&
+      Object.values(argument).every((value) => value !== undefined)
         ? {
             validate: undefined,
             exclusive: true,
