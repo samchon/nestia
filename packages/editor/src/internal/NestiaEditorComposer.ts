@@ -29,6 +29,18 @@ export namespace NestiaEditorComposer {
     files: Record<string, string>;
     openFile: string;
     startScript: string[];
+    /**
+     * Operations `@nestia/migrate` could not convert, left out of the files.
+     *
+     * The CLI prints them; the editor reports them to its user, so a project
+     * lacking an operation never passes for a complete one.
+     */
+    skipped: ISkipped[];
+  }
+  export interface ISkipped {
+    method: string;
+    path: string;
+    messages: string[];
   }
 
   export const nest = (props: IProps): Promise<IValidation<IOutput>> =>
@@ -59,6 +71,7 @@ export namespace NestiaEditorComposer {
             files: props.files,
             openFile: config.openFile,
             startScript: config.startScript,
+            skipped: [],
           },
         };
       const result: IValidation<NestiaMigrateApplication> =
@@ -83,6 +96,11 @@ export namespace NestiaEditorComposer {
           files,
           openFile: config.openFile,
           startScript: config.startScript,
+          skipped: app.getData().errors.map((error) => ({
+            method: error.method.toUpperCase(),
+            path: error.path,
+            messages: error.messages,
+          })),
         },
       } satisfies IValidation<IOutput>;
     };
