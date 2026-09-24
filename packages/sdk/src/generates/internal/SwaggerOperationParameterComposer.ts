@@ -73,7 +73,10 @@ export namespace SwaggerOperationParameterComposer {
    * warning the description keeps. A form becomes one `formData` parameter per
    * field, which carry neither the body's description nor the form object's own
    * attributes, and are each required or not; so a form keeps only its fields,
-   * is required when one of them is, and without fields has no body to list.
+   * is required when one of them is, and without fields has no body to list. A
+   * `formData` file is one file, never an array or null, so a field taking
+   * several files, or none as null, is listed as the one file every request it
+   * accepts may carry.
    */
   const swaggerV2Body = (
     props: IProps<ITypedHttpRouteParameter.IBody>,
@@ -103,7 +106,12 @@ export namespace SwaggerOperationParameterComposer {
         [contentType]: {
           schema: {
             type: "object",
-            properties: object.properties,
+            properties: Object.fromEntries(
+              Object.entries(object.properties ?? {}).map(([key, value]) => [
+                key,
+                swaggerV2FormField(value),
+              ]),
+            ),
             required: object.required,
           },
         },
@@ -270,6 +278,47 @@ const isDescribed = (p: MetadataProperty): boolean =>
     (tag) =>
       tag.name !== "hidden" && tag.name !== "ignore" && tag.name !== "internal",
   );
+
+/**
+ * A form field as a Swagger 2.0 `formData` parameter can hold it: an array of
+ * files, or a file or null, becomes the one file, keeping the field's own
+ * description.
+ */
+const swaggerV2FormField = (
+  schema: OpenApi.IJsonSchema,
+): OpenApi.IJsonSchema => {
+  const file: OpenApi.IJsonSchema | undefined = OpenApiTypeChecker.isOneOf(
+    schema,
+  )
+    ? (() => {
+        const others: OpenApi.IJsonSchema[] = schema.oneOf.filter(
+          (s) => OpenApiTypeChecker.isNull(s) === false,
+        );
+        return others.length === 1 &&
+          others.length !== schema.oneOf.length &&
+          isFiles(others[0]!)
+          ? others[0]
+          : undefined;
+      })()
+    : isFiles(schema)
+      ? schema
+      : undefined;
+  if (file === undefined) return schema;
+  const binary: OpenApi.IJsonSchema = OpenApiTypeChecker.isArray(file)
+    ? file.items
+    : file;
+  const description: string | undefined =
+    schema.description ?? file.description ?? binary.description;
+  return description !== undefined ? { ...binary, description } : binary;
+};
+
+/** Whether `schema` is a file, or an array of files. */
+const isFiles = (schema: OpenApi.IJsonSchema): boolean =>
+  isBinary(schema) ||
+  (OpenApiTypeChecker.isArray(schema) && isBinary(schema.items));
+
+const isBinary = (schema: OpenApi.IJsonSchema): boolean =>
+  OpenApiTypeChecker.isString(schema) && schema.format === "binary";
 
 /** The object schema `schema` is or refers to, if it is one. */
 const resolveObject = (

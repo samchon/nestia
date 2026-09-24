@@ -84,10 +84,11 @@ export namespace SwaggerOperationResponseComposer {
         jsDocTags: props.route.jsDocTags,
         tag: "return",
       });
-    output[
+    const status: string = String(
       props.route.success.status ??
-        (props.route.method.toLowerCase() === "post" ? 201 : 200)
-    ] = {
+        (props.route.method.toLowerCase() === "post" ? 201 : 200),
+    );
+    output[status] = {
       description: props.route.success.encrypted
         ? `${warning.get(!!description, props.route.method)}${description ?? ""}`
         : (description ?? ""),
@@ -108,8 +109,38 @@ export namespace SwaggerOperationResponseComposer {
         ? { "x-nestia-encrypted": true }
         : {}),
     };
+    if (props.config.openapi === "2.0") swaggerV2Produces(output, status);
     return output;
   };
+
+  /**
+   * Makes every response body of a Swagger 2.0 operation share one media type.
+   *
+   * 2.0 declares the media types an operation `produces` once for all of its
+   * responses, and the downgrader refuses an operation whose responses disagree
+   * rather than list a type a response does not use (#1649). A route whose
+   * success body is not JSON, such as an encrypted or a query-string one, still
+   * documents its exceptions as JSON, so where the success body has another
+   * type, the exceptions keep their status and description without a body.
+   */
+  const swaggerV2Produces = (
+    output: Record<string, OpenApi.IOperation.IResponse>,
+    success: string,
+  ): void => {
+    const kept: string | undefined = mediaOf(output[success]!);
+    if (kept === undefined) return;
+    for (const [status, response] of Object.entries(output))
+      if (status !== success && mediaOf(response) !== kept)
+        delete response.content;
+  };
+
+  /** The media types of a response body, or `undefined` without one. */
+  const mediaOf = (
+    response: OpenApi.IOperation.IResponse,
+  ): string | undefined =>
+    response.content === undefined
+      ? undefined
+      : Object.keys(response.content).sort().join(" ");
 }
 
 /**
