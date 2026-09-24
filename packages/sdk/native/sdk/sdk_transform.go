@@ -292,36 +292,50 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 	if comment == "" {
 		return doc
 	}
+	// A tag runs until the next one, as TypeScript reads it: the lines after a
+	// tag's first continue its text, which used to be dropped, so a `@param`
+	// described over two lines lost its second.
 	description := []string{}
-	inTags := false
+	var tag *nestiaSDKPendingTag
+	flush := func() {
+		if tag == nil {
+			return
+		}
+		body := strings.TrimSpace(strings.Join(tag.lines, "\n"))
+		if tag.name == "param" {
+			param, desc := nestiaSDKParseParamTag(body)
+			doc.Tags = append(doc.Tags, nestiaSDKJSDocParamTag(param, desc))
+			if param != "" {
+				doc.Params[param] = desc
+			}
+		} else {
+			doc.Tags = append(doc.Tags, nestiaSDKJSDocTag(tag.name, body))
+		}
+		tag = nil
+	}
 	for _, line := range strings.Split(comment, "\n") {
 		text := strings.TrimSpace(line)
 		text = strings.TrimPrefix(text, "*")
 		text = strings.TrimSpace(text)
+		if strings.HasPrefix(text, "@") {
+			flush()
+			name, body := nestiaSDKParseJSDocTag(text)
+			tag = &nestiaSDKPendingTag{name: name, lines: []string{body}}
+			continue
+		}
+		if tag != nil {
+			tag.lines = append(tag.lines, text)
+			continue
+		}
 		if text == "" {
-			if inTags == false && len(description) != 0 {
+			if len(description) != 0 {
 				description = append(description, "")
 			}
 			continue
 		}
-		if strings.HasPrefix(text, "@") {
-			inTags = true
-			name, body := nestiaSDKParseJSDocTag(text)
-			if name == "param" {
-				param, desc := nestiaSDKParseParamTag(body)
-				doc.Tags = append(doc.Tags, nestiaSDKJSDocParamTag(param, desc))
-				if param != "" {
-					doc.Params[param] = desc
-				}
-			} else {
-				doc.Tags = append(doc.Tags, nestiaSDKJSDocTag(name, body))
-			}
-			continue
-		}
-		if inTags == false {
-			description = append(description, text)
-		}
+		description = append(description, text)
 	}
+	flush()
 	doc.Description = strings.TrimSpace(strings.Join(description, "\n"))
 	return doc
 }
@@ -377,7 +391,42 @@ func nestiaSDKParseJSDocTag(text string) (string, string) {
 	return name, body
 }
 
+// nestiaSDKPendingTag is a JSDoc tag whose text may continue on the next
+// lines.
+type nestiaSDKPendingTag struct {
+	name  string
+	lines []string
+}
+
+// nestiaSDKParseParamTag splits a `@param` body into the parameter's name and
+// its description, as TypeScript does: a leading `{Type}` is not the name,
+// and an optional parameter's brackets and default, `[name=value]`, are not
+// part of it.
 func nestiaSDKParseParamTag(body string) (string, string) {
+	body = strings.TrimSpace(body)
+	if strings.HasPrefix(body, "{") {
+		depth := 0
+		for i, char := range body {
+			if char == '{' {
+				depth++
+			} else if char == '}' {
+				depth--
+				if depth == 0 {
+					body = strings.TrimSpace(body[i+1:])
+					break
+				}
+			}
+		}
+	}
+	if strings.HasPrefix(body, "[") {
+		if end := strings.Index(body, "]"); end != -1 {
+			name := strings.TrimSpace(body[1:end])
+			if equal := strings.Index(name, "="); equal != -1 {
+				name = strings.TrimSpace(name[:equal])
+			}
+			return name, strings.TrimSpace(body[end+1:])
+		}
+	}
 	parts := strings.Fields(body)
 	if len(parts) == 0 {
 		return "", ""
