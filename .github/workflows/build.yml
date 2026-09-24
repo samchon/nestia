@@ -49,6 +49,17 @@ jobs:
       - name: Build Packages
         run: pnpm build
 
+      # Compiles, without running, the Go test binaries into the cache's Go
+      # object store, which test's go job restores: compiling them from cold is
+      # nearly all of that job. Go keys each object by its inputs.
+      - name: Compile Go Tests
+        env:
+          GOCACHE: ${{ github.workspace }}/node_modules/.cache/ttsc/go-build
+        run: |
+          (cd packages/core/test && go test -count=1 -run '^$' ./...)
+          (cd packages/sdk/test && go test -count=1 -run '^$' ./...)
+          (cd packages/core/native && go test -count=1 -run '^$' ./...)
+
   # Warms the Windows cache on master, which test's Windows job restores.
   Windows:
     if: github.event_name == 'push'

@@ -31,8 +31,9 @@ jobs:
       matrix:
         include:
           # the Go tests read the TypeScript sources and the installed typings,
-          # not the built packages, so they skip the build
-          - { name: go, run: "pnpm test:go", skip_build: true }
+          # not the built packages, so they skip the build; GOCACHE is the
+          # restored Go object store build.yml compiles the Go tests into
+          - { name: go, run: "GOCACHE=\"$GITHUB_WORKSPACE/node_modules/.cache/ttsc/go-build\" pnpm test:go", skip_build: true }
           # test-sdk is the longest suite by far: five disjoint shards run it
           # in parallel, and its harness builds the packages it runs itself
           - { name: sdk (1/5), run: "pnpm --filter ./tests/test-sdk start --shard 1/5", skip_build: true }
