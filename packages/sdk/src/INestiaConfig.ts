@@ -199,10 +199,12 @@ export namespace INestiaConfig {
      * Whether to include additional information or not.
      *
      * If configured to be `true`, those properties would be added into each API
-     * endpoinnt.
+     * endpoint.
      *
-     * - `x-nestia-method`
-     * - `x-nestia-namespace` ` `x-nestia-jsDocTags`
+     * - `x-nestia-method`: the HTTP method, such as `"GET"`
+     * - `x-nestia-namespace`: the SDK function's accessor, such as
+     *   `"bbs.articles.index"`
+     * - `x-nestia-jsDocTags`: the JSDoc tags of the controller method
      *
      * @default false
      */

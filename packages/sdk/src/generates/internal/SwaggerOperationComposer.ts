@@ -111,6 +111,13 @@ export namespace SwaggerOperationComposer {
       ...(props.route.extensions ?? {}),
       "x-samchon-accessor": props.route.accessor,
       "x-samchon-controller": props.route.controller.class.name,
+      ...(props.config.additional === true
+        ? {
+            "x-nestia-method": props.route.method,
+            "x-nestia-namespace": props.route.accessor.join("."),
+            "x-nestia-jsDocTags": props.route.jsDocTags,
+          }
+        : {}),
     };
   };
 }

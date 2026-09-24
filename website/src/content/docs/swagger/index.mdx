@@ -188,6 +188,7 @@ The `swagger` block of `INestiaConfig`:
 | `decompose`  | `boolean`                             | Defaults to `true`: one parameter per property of a query DTO. `false` keeps it one `style: form` parameter, except in Swagger 2.0. Headers DTOs are always decomposed. |
 | `operationId`| `(props) => string`                   | Custom operationId generator.                                  |
 | `beautify`   | `boolean`                             | Pretty-print the JSON output.                                  |
+| `additional` | `boolean`                             | Adds `x-nestia-method`, `x-nestia-namespace` (the SDK accessor), and `x-nestia-jsDocTags` to each operation. |
 
 Decomposed query and header properties marked with `?` produce parameters with `required: false`, including when `exactOptionalPropertyTypes` is enabled.
 
