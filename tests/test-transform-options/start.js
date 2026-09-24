@@ -163,6 +163,8 @@ const main = () => {
     );
   });
 
+  measure("no-transform fallbacks", noTransformFallbacks);
+
   // The transform envelope, read through ttsc's own programmatic API rather
   // than the CLI. Every other case here reads the *emitted JavaScript*, so none
   // of them can see the envelope's side channels at all: `graph` never reaches a
@@ -172,8 +174,6 @@ const main = () => {
   // erases `import type` from its own module graph, so without `graph` nothing
   // connects `controller.ts`'s generated validator to the DTO in `dto.ts`, and a
   // kept filesystem cache replays the stale module after that type changes.
-  measure("no-transform fallbacks", noTransformFallbacks);
-
   measure("transform envelope graph", () => {
     const result = transformEnvelope();
     assert(
@@ -328,6 +328,43 @@ const main = () => {
     assert(
       first(captured["TypedRoute.Post"])?.[1]?.type === "assert",
       "aliased TypedRoute.Post was not transformed",
+    );
+  });
+
+  // The three plugin entries nestia v11 documented. `@nestia/core/lib/transform`
+  // resolves to the native descriptor, so ttsc deduplicates it with the entry
+  // the package manifest registers and composes typia into one host; with a
+  // descriptor of its own it built a second native host and ttsc refused the
+  // emit (#1690). The options still apply, and the SDK entry still attaches its
+  // metadata once per route, as v11 did.
+  measure("v11 plugin list", () => {
+    const file = compile({
+      name: "v11-plugins",
+      source: "validate",
+      plugins: [
+        { transform: "typia/lib/transform" },
+        {
+          transform: "@nestia/core/lib/transform",
+          validate: "assert",
+          stringify: "assert",
+        },
+        { transform: "@nestia/sdk/lib/transform" },
+      ],
+    });
+    const captured = load(file);
+    assert(
+      first(captured.TypedBody)?.[0]?.type === "assert",
+      "the v11 plugin list lost its validate option",
+    );
+    assert(
+      first(captured["TypedRoute.Post"])?.[1]?.type === "assert",
+      "the v11 plugin list lost its stringify option",
+    );
+    const metadata =
+      fs.readFileSync(file, "utf8").match(/\.OperationMetadata\(/g)?.length ?? 0;
+    assert(
+      metadata === captured["TypedRoute.Post"].length + captured["TypedRoute.Get"].length,
+      `the v11 plugin list attached ${metadata} SDK metadata decorators`,
     );
   });
 };
@@ -581,7 +618,7 @@ const writeProject = (props) => {
           outDir: `./${props.name}`,
           rootDir: "../src",
           ...props.compilerOptions,
-          plugins: [
+          plugins: props.plugins ?? [
             {
               transform: "typia/lib/transform",
               enabled: false,

@@ -209,3 +209,4 @@ A persistent bundler cache stays correct across builds without any extra configu
   adapter to the bundler config.
 - **Plugin build fails on an unknown Go symbol**: `ttsc` is older than 0.19.2.
   Upgrade it; the version floor is listed under [Install](#install).
+- **`multiple compiler native backends cannot share one emit pass`**: the plugin list names a second native host, such as nestia v11's `@nestia/core/lib/transform` on a release before it resolved to the native descriptor. Remove `compilerOptions.plugins`, or list only the disabled `typia` entry and `@nestia/core/native/transform.cjs` as shown above.

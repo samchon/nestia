@@ -5,9 +5,8 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./lib/transform": "./src/transform.ts",
+    "./lib/transform": "./native/transform.cjs",
     "./native/transform.cjs": "./native/transform.cjs",
-    "./src/transform.ts": "./src/transform.ts",
     "./package.json": "./package.json"
   },
   "tsp": {
@@ -113,10 +112,7 @@
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
       },
-      "./lib/transform": {
-        "types": "./lib/transform.d.ts",
-        "default": "./lib/transform.js"
-      },
+      "./lib/transform": "./native/transform.cjs",
       "./native/transform.cjs": "./native/transform.cjs",
       "./package.json": "./package.json"
     }

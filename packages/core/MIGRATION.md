@@ -93,6 +93,26 @@ Add `compilerOptions.plugins` only when you want to override those options:
 The `typia` entry is a host tombstone for tools that inspect plugin arrays.
 The actual typia transform is composed by the native Nestia binary.
 
+### A plugin list kept from nestia v11
+
+A project upgraded from nestia v11 may still list the plugins that version documented:
+
+```jsonc
+{
+  "compilerOptions": {
+    "plugins": [
+      { "transform": "typia/lib/transform" },
+      { "transform": "@nestia/core/lib/transform", "validate": "assert", "stringify": "assert" },
+      { "transform": "@nestia/sdk/lib/transform" }
+    ]
+  }
+}
+```
+
+It builds unchanged. `@nestia/core/lib/transform` resolves to the same descriptor as `@nestia/core/native/transform.cjs`, which composes the `typia` entry and applies the `validate` and `stringify` options. The `@nestia/sdk/lib/transform` entry attaches SDK metadata in every build, as it did in v11, so `@nestia/sdk` must stay installed at runtime. Replace the list with the override above, or remove it for the defaults.
+
+Releases before this change gave `@nestia/core/lib/transform` a host of its own, and ttsc stopped with `multiple compiler native backends cannot share one emit pass`. On such a release, replace the list as above.
+
 ## CLI setup flow
 
 The CLI no longer provides an interactive setup command. Install packages and
