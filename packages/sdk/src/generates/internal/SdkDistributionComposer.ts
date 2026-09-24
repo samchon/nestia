@@ -29,17 +29,23 @@ export namespace SdkDistributionComposer {
         await replace({ root, output })(file);
 
       // INSTALL PACKAGES
+      //
+      // The package compiles with ttsc, which applies the typia transform the
+      // SDK's `assert` and `simulate` code needs through typia's own plugin;
+      // typia removed its `setup` command in 14.0.0.
       const v: IDependencies = await dependencies({
+        root,
         websocket: props.websocket,
       });
-      execute("npm install --save-dev rimraf");
+      execute(
+        `npm install --save-dev rimraf ttsc@${v.ttsc} typescript@${v.typescript}`,
+      );
       execute(`npm install --save @nestia/fetcher@${v.version}`);
       execute(`npm install --save typia@${v.typia}`);
       if (props.mcp && v.mcp !== undefined)
         execute(`npm install --save @modelcontextprotocol/sdk@${v.mcp}`);
       if (props.websocket && v.tgrid !== undefined)
         execute(`npm install --save tgrid@${v.tgrid}`);
-      execute("npx typia setup --manager npm");
     } finally {
       process.chdir(root);
     }
@@ -82,7 +88,33 @@ export namespace SdkDistributionComposer {
       );
     };
 
+  /**
+   * The version of a package the project installed, exactly: the staged package
+   * must run the typia, and compile with the ttsc and TypeScript, the project
+   * itself uses. A workspace's `catalog:` specifier names no version npm could
+   * install, so the specifier is only the fallback.
+   */
+  const installed = (
+    root: string,
+    name: string,
+    fallback: string | undefined,
+  ): string | undefined => {
+    try {
+      const file: string = require.resolve(`${name}/package.json`, {
+        paths: [root, __dirname],
+      });
+      const version: unknown = JSON.parse(
+        fs.readFileSync(file, "utf8"),
+      ).version;
+      if (typeof version === "string" && version.length !== 0) return version;
+    } catch {}
+    return fallback !== undefined && fallback.startsWith("catalog:") === false
+      ? fallback
+      : undefined;
+  };
+
   const dependencies = async (opts: {
+    root: string;
     websocket: boolean;
   }): Promise<IDependencies> => {
     const content: string = await fs.promises.readFile(
@@ -98,20 +130,22 @@ export namespace SdkDistributionComposer {
       ...json.devDependencies,
       ...json.dependencies,
     };
-    const required = (key: "version" | "typia"): string => {
-      const value: string | undefined =
-        key === "version" ? json.version : dependencies[key];
+    const required = (key: string, value: string | undefined): string => {
       if (typeof value !== "string" || value.length === 0)
         throw new Error(
           `Unable to resolve ${key} version for SDK distribution.`,
         );
       return value;
     };
+    const version = (name: string): string | undefined =>
+      installed(opts.root, name, dependencies[name]);
     return {
-      version: required("version"),
-      typia: required("typia"),
-      tgrid: opts.websocket ? dependencies.tgrid : undefined,
-      mcp: dependencies["@modelcontextprotocol/sdk"],
+      version: required("@nestia/fetcher", json.version),
+      typia: required("typia", version("typia")),
+      ttsc: required("ttsc", version("ttsc")),
+      typescript: required("typescript", version("typescript")),
+      tgrid: opts.websocket ? version("tgrid") : undefined,
+      mcp: version("@modelcontextprotocol/sdk"),
     };
   };
 }
@@ -119,6 +153,8 @@ export namespace SdkDistributionComposer {
 interface IDependencies {
   version: string;
   typia: string;
+  ttsc: string;
+  typescript: string;
   tgrid: string | undefined;
   mcp: string | undefined;
 }

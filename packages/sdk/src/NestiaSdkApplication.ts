@@ -302,7 +302,7 @@ const assertDirectory = async (props: {
 }): Promise<void> => {
   const stats: fs.Stats | null = await fs.promises
     .stat(props.directory)
-    .catch((error: NodeJS.ErrnoException) => {
+    .catch((error: NodeJS.ErrnoException): null => {
       if (error.code === "ENOENT" || error.code === "ENOTDIR") return null;
       throw error;
     });

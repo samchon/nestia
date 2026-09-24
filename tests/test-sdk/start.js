@@ -34,13 +34,97 @@ delete process.env.npm_config_dir;
 delete process.env.npm_config_verify_deps_before_run;
 
 const featureDirectory = (name = "") => path.join(__dirname, "features", name);
-const TYPESCRIPT_ERROR_FEATURES = new Set([
-  "body-error-get",
-  "body-error-implicit",
-  "method-error-head-non-void",
-  "route-invalid-path-error",
-]);
+// Every error feature names the diagnostic it exists for, with the location
+// that reports it, so a feature failing for another reason fails the run
+// instead of passing (#1694).
 const EXPECTED_ERROR_DIAGNOSTICS = new Map([
+  [
+    "body-error-get",
+    [
+      "TypedBodyController.store():",
+      "@Body() is not allowed in the GET method.",
+    ],
+  ],
+  [
+    "body-error-property",
+    [
+      'BbsArticlesController.update() from parameter "content":',
+      "@Body() must not have a field name.",
+    ],
+  ],
+  [
+    "exception-error-bigint",
+    [
+      "HealthController.get() from exception (status: 499):",
+      "does not allow bigint type in JSON.",
+    ],
+  ],
+  [
+    "implicit-error",
+    [
+      "ImplicitController.array() from success:",
+      "ImplicitController.matrix() from success:",
+      "implicit (unnamed) return type.",
+    ],
+  ],
+  [
+    "mcp-error-duplicate-accessor",
+    [
+      'McpErrorController.first() from @McpRoute("same-name"):',
+      'MCP tool name "same-name" conflicts on generated SDK accessor "api.functional.mcp.same_name".',
+      'McpErrorController.second() from @McpRoute("same_name"):',
+    ],
+  ],
+  [
+    "mcp-error-duplicate-tool-name",
+    [
+      'McpErrorController.first() from @McpRoute("duplicated_tool"):',
+      'McpErrorController.second() from @McpRoute("duplicated_tool"):',
+      'Duplicate MCP tool name "duplicated_tool" is not allowed.',
+    ],
+  ],
+  [
+    "mcp-error-mixed-http",
+    [
+      "McpErrorController.run() from run:",
+      "@McpRoute must not be combined with HTTP or WebSocket route decorators on the same method.",
+    ],
+  ],
+  [
+    "method-error-get-body",
+    [
+      "MethodController.body():",
+      "@Body() is not allowed in the GET method.",
+    ],
+  ],
+  [
+    "method-error-head-body",
+    [
+      "MethodController.body():",
+      "@Body() is not allowed in the HEAD method.",
+    ],
+  ],
+  [
+    "method-error-head-non-void",
+    [
+      "MethodController.response() from success:",
+      "HEAD method must not have any return value.",
+    ],
+  ],
+  [
+    "route-error-implicit",
+    [
+      "BbsArticlesController.at() from success:",
+      "implicit (unnamed) return type.",
+    ],
+  ],
+  [
+    "route-invalid-path-error",
+    [
+      "InvalidRouteController.get() from {parameters}:",
+      'invalid path ("/invalid/::id")',
+    ],
+  ],
   [
     "websocket-error-invalid-acceptor-arity",
     'parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.',
@@ -382,14 +466,9 @@ const feature = async (name, port) => {
         );
       return;
     }
-    try {
-      if (TYPESCRIPT_ERROR_FEATURES.has(name)) await runTsc(cwd);
-      await generate("all", true);
-      if (hasTtsxTestFiles(cwd)) await runTtsxTest(cwd, "ignore", port);
-    } catch {
-      return;
-    }
-    throw new Error("compile error must be occurred.");
+    throw new Error(
+      `${name} is an error feature without an expected diagnostic in EXPECTED_ERROR_DIAGNOSTICS.`,
+    );
   }
 
   await removePaths(cwd, [
@@ -404,7 +483,7 @@ const feature = async (name, port) => {
     ...(name === "nested-output-directories" ? ["generated"] : []),
   ]);
 
-  if (name.includes("distribute")) return;
+  if (name.includes("distribute")) return runDistributeFeature(cwd, name);
   else if (name === "all") {
     const config = fs.readFileSync(path.join(cwd, configFile), "utf8");
     {
@@ -675,6 +754,26 @@ const CLI_ARGUMENT_DIAGNOSTIC_CASES = [
     message: "config file must be provided",
   },
 ];
+
+// `nestia sdk` stages the distribution package and installs what it needs;
+// the staged package must then compile, emitting `lib/` (#1676). Each run
+// starts from a fresh stage, as the composer leaves a configured one alone.
+const runDistributeFeature = async (cwd, name) => {
+  const config = fs.readFileSync(path.join(cwd, "nestia.config.ts"), "utf8");
+  const distribute = config.match(/distribute:\s*"([^"]+)"/)?.[1];
+  if (distribute === undefined)
+    throw new Error(`${name} configures no distribute location.`);
+  const stage = path.join(cwd, distribute);
+  await fs.promises.rm(stage, { force: true, recursive: true });
+  await runNestia(cwd, ["sdk", ...generationTail(name)], "inherit");
+  await run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "compile"], {
+    cwd: stage,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
+  if (fs.existsSync(path.join(stage, "lib", "index.js")) === false)
+    throw new Error(`${name}: the staged SDK package emitted no lib/index.js.`);
+};
 
 const runCliArgumentDiagnosticsFeature = async () => {
   const cwd = featureDirectory(`.tmp-cli-arguments-${process.pid}`);
@@ -1320,27 +1419,39 @@ const measure = (title) => async (task) => {
   return output;
 };
 
+// A feature bounded by a wall-clock limit runs alone after the pool, so the
+// limit measures the feature rather than the load of the features beside it:
+// swagger-watch's first generation outlasted its limit while up to seven other
+// features compiled on the same machine (#1695).
+const EXCLUSIVE_FEATURES = new Set(["swagger-watch"]);
+
 const runFeatures = async (names) => {
-  const parallel = concurrency(names.length);
+  const pooled = names.filter((name) => !EXCLUSIVE_FEATURES.has(name));
+  const exclusive = names.filter((name) => EXCLUSIVE_FEATURES.has(name));
+  const parallel = concurrency(pooled.length);
   console.log(`Test Features (concurrency: ${parallel})`);
 
   const failures = [];
+  const run = async (name, port) => {
+    try {
+      await measure(`  - ${name}`)(() => feature(name, port));
+    } catch (error) {
+      failures.push({ name, error });
+      console.error(`  - ${name}: failed`);
+      console.error(error);
+    }
+  };
   let cursor = 0;
   const worker = async () => {
-    while (cursor < names.length) {
+    while (cursor < pooled.length) {
       const index = cursor++;
-      const name = names[index];
-      try {
-        await measure(`  - ${name}`)(() => feature(name, BASE_PORT + index));
-      } catch (error) {
-        failures.push({ name, error });
-        console.error(`  - ${name}: failed`);
-        console.error(error);
-      }
+      await run(pooled[index], BASE_PORT + index);
     }
   };
 
   await Promise.all(Array.from({ length: parallel }, worker));
+  for (const [index, name] of exclusive.entries())
+    await run(name, BASE_PORT + pooled.length + index);
   if (failures.length !== 0)
     throw new Error(
       `Failed test-sdk features: ${failures.map((f) => f.name).join(", ")}`,
