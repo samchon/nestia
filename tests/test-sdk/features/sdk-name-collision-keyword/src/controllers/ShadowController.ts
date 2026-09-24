@@ -106,7 +106,9 @@ export class ShadowController {
 
   /**
    * @setHeader value x-value
+   *   the echoed value, as a header
    * @assignHeaders headers
+   *   every header the output carries
    */
   @core.TypedRoute.Get("output")
   public output(@Query("output") output: string): IShadow.IHeaders {

@@ -41,8 +41,8 @@ export namespace SwaggerOperationResponseComposer {
       )?.text;
       if (text === undefined) continue;
 
-      const elements: string[] = text.split(" ").map((str) => str.trim());
-      const status: string = elements[0]!;
+      // the status is the first word; a tag's text may run over lines
+      const status: string = text.trim().split(/\s+/)[0]!;
       if (
         isNaN(Number(status)) &&
         status !== "2XX" &&
@@ -52,8 +52,8 @@ export namespace SwaggerOperationResponseComposer {
       )
         continue;
 
-      const description: string | undefined =
-        elements.length === 1 ? undefined : elements.slice(1).join(" ");
+      const rest: string = text.trim().substring(status.length).trim();
+      const description: string | undefined = rest.length ? rest : undefined;
       const oldbie = output[status];
       if (description && oldbie !== undefined)
         oldbie.description ??= description;
