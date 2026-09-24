@@ -10,7 +10,7 @@ export interface IEcho {
 
 /**
  * WebSocket routes whose path parameters are named after the SDK's own
- * positional parameters and locals, or whose name is one of those locals.
+ * positional parameters and locals, or whose name is one of those.
  */
 @Controller("socket")
 export class SocketController {
@@ -58,5 +58,14 @@ export class SocketController {
     acceptor: WebSocketAcceptor<undefined, IEcho, null>,
   ): Promise<void> {
     await acceptor.accept({ echo: () => ["url"] });
+  }
+
+  @WebSocketRoute("provider")
+  public async provider(
+    @WebSocketRoute.Acceptor()
+    acceptor: WebSocketAcceptor<undefined, IEcho, null>,
+    @WebSocketRoute.Query() query: IShadow,
+  ): Promise<void> {
+    await acceptor.accept({ echo: () => ["provider", query.value] });
   }
 }

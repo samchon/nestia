@@ -25,7 +25,8 @@ export namespace SdkWebSocketParameterProgrammer {
    * Path parameters are the user's names. `query` and `provider` are the SDK's
    * own: the positional parameters, or the `props` keys in keyword mode, that
    * carry the query object and the provider, so they yield to a path parameter
-   * of the same name instead of repeating it.
+   * of the same name instead of repeating it. A `props` key shadows nothing, so
+   * it yields to nothing else.
    */
   export interface INames {
     connection: string;
@@ -96,8 +97,13 @@ export namespace SdkWebSocketParameterProgrammer {
       };
     const shared: string[] = [];
     const $props: string = own([...functional, ...path], [], shared)("props");
-    const $query: string = own([...functional, ...path], keys, shared)("query");
-    const $provider: string = own(functional, keys, shared)("provider");
+    // Positional `query` and `provider` also yield to the names their scopes
+    // reference; as `props` keys they shadow nothing, so a route named
+    // `query` keeps its `query` key.
+    const beside = (fixed: string[]) =>
+      own(project.config.keyword === true ? [] : fixed, keys, shared);
+    const $query: string = beside([...functional, ...path])("query");
+    const $provider: string = beside(functional)("provider");
     const inFunction: string[] = [...shared];
     const inPath: string[] = [...shared];
     const names: Omit<INames, "parameter" | "access"> = {
