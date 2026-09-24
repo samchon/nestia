@@ -37,8 +37,9 @@ export namespace SdkHttpParameterProgrammer {
    * IDE shows and which is a `props` key in keyword mode, unless the name is
    * one the SDK cannot change; then the positional parameter alone is renamed,
    * which positional callers never see. The fixed names are only those the
-   * generated code actually references for this route and configuration, so a
-   * route without a collision is written exactly as before.
+   * generated code actually references for this route and configuration, and an
+   * own identifier yields only to the names its scope can see, so nothing is
+   * renamed where no name is shadowed.
    */
   export interface INames {
     connection: string;

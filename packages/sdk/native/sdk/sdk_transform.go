@@ -796,7 +796,7 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 		"metadata":   metadataLiteral,
 	}
 	if properties {
-		// the resolved schema of a route parameter, the one its HTTP rules judge
+		// a route parameter's HTTP rule verdicts, from its own analysis
 		data["http"] = nestiaSDKHttpRules(prog.Checker, typ)
 	}
 	value := map[string]any{
