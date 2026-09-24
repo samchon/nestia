@@ -67,7 +67,7 @@ export const test_api_bbs_article_create = async (
     const article: IBbsArticle = await response.json();
     return typia.assert(article);
   })();
-  TestValidator.equals("written")(article)(read);
+  TestValidator.equals("written", article, read);
 };
 ```
   </Tabs.Tab>
@@ -95,7 +95,7 @@ export const test_provider_bbs_article_create = async (): Promise<void> => {
   // Therefore, unit test had been loved in the past era
   const read: IBbsArticle = await BbsArticleProvider.at(article.id);
   typia.assert(read);
-  TestValidator.equals("written")(article)(read);
+  TestValidator.equals("written", article, read);
 };
 ```
   </Tabs.Tab>
@@ -151,7 +151,7 @@ export const test_provider_bbs_article_create = async (
     article.id,
   );
   typia.assert(read);
-  TestValidator.equals("written")(article)(read);
+  TestValidator.equals("written", article, read);
 };
 ```
   </Tabs.Tab>
@@ -180,7 +180,7 @@ export const test_provider_bbs_article_create = async (): Promise<void> => {
   // This is the reason why I've adopted the e2e test paradigm
   const read: IBbsArticle = await BbsArticleProvider.at(article.id);
   typia.assert(read);
-  TestValidator.equals("written")(article)(read);
+  TestValidator.equals("written", article, read);
 };
 ```
   </Tabs.Tab>
@@ -270,7 +270,7 @@ async function main(): Promise<void> {
 
   await backend.close();
 
-  const failures: DynamicExecutor.IReport.IExecution[] =
+  const failures: DynamicExecutor.IExecution[] =
     report.executions.filter((exec) => exec.error !== null);
   if (failures.length === 0) {
     console.log("Success");
@@ -311,8 +311,8 @@ export async function test_api_bbs_article_create(
     "general",
     {
       writer: RandomGenerator.name(),
-      title: RandomGenerator.paragraph(3)(),
-      body: RandomGenerator.content(8)()(),
+      title: RandomGenerator.paragraph({ sentences: 3 }),
+      body: RandomGenerator.content({ paragraphs: 8 }),
       format: "txt",
       files: [
         {
@@ -331,7 +331,7 @@ export async function test_api_bbs_article_create(
     stored.section,
     stored.id,
   );
-  TestValidator.equals("created")(stored)(read);
+  TestValidator.equals("created", stored, read);
 }
 ```
   </Tabs.Tab>
@@ -348,11 +348,11 @@ export async function test_api_bbs_article_index_search(
 ): Promise<void> {
   // GENERATE 100 ARTICLES
   const section: string = "general";
-  const articles: IBbsArticle[] = await ArrayUtil.asyncRepeat(100)(() =>
+  const articles: IBbsArticle[] = await ArrayUtil.asyncRepeat(100, () =>
     api.functional.bbs.articles.create(connection, section, {
       writer: RandomGenerator.name(),
-      title: RandomGenerator.paragraph(4)(),
-      body: RandomGenerator.content(3)()(),
+      title: RandomGenerator.paragraph({ sentences: 4 }),
+      body: RandomGenerator.content({ paragraphs: 3 }),
       format: "txt",
       files: [],
       password: RandomGenerator.alphabets(8),
@@ -367,7 +367,8 @@ export async function test_api_bbs_article_index_search(
     });
 
   // PREPARE SEARCH FUNCTION
-  const search = TestValidator.search("BbsArticleProvider.index()")(
+  const search = TestValidator.search(
+    "BbsArticleProvider.index()",
     async (input: IBbsArticle.IRequest.ISearch) => {
       const page: IPage<IBbsArticle.ISummary> =
         await api.functional.bbs.articles.index(connection, section, {
@@ -377,7 +378,9 @@ export async function test_api_bbs_article_index_search(
         });
       return page.data;
     },
-  )(total.data, 10);
+    total.data,
+    10,
+  );
 
   // SEARCH TITLE
   await search({
@@ -591,8 +594,8 @@ export async function test_api_bbs_article_create(
     "general",
     {
       writer: RandomGenerator.name(),
-      title: RandomGenerator.paragraph(3)(),
-      body: RandomGenerator.content(8)()(),
+      title: RandomGenerator.paragraph({ sentences: 3 }),
+      body: RandomGenerator.content({ paragraphs: 8 }),
       format: "txt",
       files: [
         {
@@ -611,7 +614,7 @@ export async function test_api_bbs_article_create(
     stored.section,
     stored.id,
   );
-  TestValidator.equals("created")(stored)(read);
+  TestValidator.equals("created", stored, read);
 }
 ```
   </Tabs.Tab>
@@ -628,11 +631,11 @@ export async function test_api_bbs_article_index_search(
 ): Promise<void> {
   // GENERATE 100 ARTICLES
   const section: string = "general";
-  const articles: IBbsArticle[] = await ArrayUtil.asyncRepeat(100)(() =>
+  const articles: IBbsArticle[] = await ArrayUtil.asyncRepeat(100, () =>
     api.functional.bbs.articles.create(connection, section, {
       writer: RandomGenerator.name(),
-      title: RandomGenerator.paragraph(4)(),
-      body: RandomGenerator.content(3)()(),
+      title: RandomGenerator.paragraph({ sentences: 4 }),
+      body: RandomGenerator.content({ paragraphs: 3 }),
       format: "txt",
       files: [],
       password: RandomGenerator.alphabets(8),
@@ -647,7 +650,8 @@ export async function test_api_bbs_article_index_search(
     });
 
   // PREPARE SEARCH FUNCTION
-  const search = TestValidator.search("BbsArticleProvider.index()")(
+  const search = TestValidator.search(
+    "BbsArticleProvider.index()",
     async (input: IBbsArticle.IRequest.ISearch) => {
       const page: IPage<IBbsArticle.ISummary> =
         await api.functional.bbs.articles.index(connection, section, {
@@ -657,7 +661,9 @@ export async function test_api_bbs_article_index_search(
         });
       return page.data;
     },
-  )(total.data, 10);
+    total.data,
+    10,
+  );
 
   // SEARCH TITLE
   await search({

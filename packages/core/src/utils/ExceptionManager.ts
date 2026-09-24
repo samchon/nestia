@@ -14,18 +14,17 @@ import { Creator } from "../typings/Creator";
  * {@link EncryptedRoute} instead of the basic router decorator functions like
  * {@link nest.Get} or {@link nest.Post} and the API function throws a custom
  * error whose class has been {@link ExceptionManager.insert inserted} in this
- * `EntityManager`, the error would be automatically converted to the regular
+ * `ExceptionManager`, the error would be automatically converted to the regular
  * {@link nest.HttpException} instance by the {@link ExceptionManager.Closure}
  * function.
  *
  * Therefore, with this `ExceptionManager` and {@link TypedRoute} or
  * {@link EncryptedRoute}, you can manage your custom error classes much
- * systemtically. You can avoid 500 internal server error or hard coding
+ * systematically. You can avoid 500 internal server error or hard coding
  * implementation about the custom error classes.
  *
- * Below error classes are defaultly configured in this `ExceptionManager`
+ * Below error class is configured in this `ExceptionManager` by default.
  *
- * - `typia.TypeGuardError`
  * - `@nestia/fetcher.HttpError`
  *
  * @author Jeongho Nam - https://github.com/samchon

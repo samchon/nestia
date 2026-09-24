@@ -117,7 +117,7 @@ export namespace TypedQuery {
   export const Post = Generator("Post");
 
   /**
-   * Router decorator function for the PATH method.
+   * Router decorator function for the PATCH method.
    *
    * @param path Path of the HTTP request
    * @returns Method decorator

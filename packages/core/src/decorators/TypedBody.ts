@@ -23,7 +23,7 @@ import { validate_request_body } from "./internal/validate_request_body";
  * `T`, `BadRequestException` error (status code: 400) would be thrown.
  *
  * @author Jeongho Nam - https://github.com/samchon
- * @param validator Custom validator if required. Default is `typia.assert()`
+ * @param validator Custom validator if required. Default is `typia.validate()`
  */
 export function TypedBody<T>(
   validator?: IRequestBodyValidator<T>,

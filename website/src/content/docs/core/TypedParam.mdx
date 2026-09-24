@@ -1,6 +1,6 @@
 ---
 title: "Reference · TypedParam"
-description: "Type-safe path-parameter decorator. Infers the param type from the TypeScript signature, coerces strings into numbers / booleans / dates, and validates formats like uuid."
+description: "Type-safe path-parameter decorator. Infers the param type from the TypeScript signature, coerces strings into numbers / bigints / booleans / null, and validates formats like uuid."
 ---
 
 # `@TypedParam`
@@ -11,7 +11,7 @@ export function TypedParam(name: string): ParameterDecorator;
 
 Drop-in replacement for `@Param("name")` from `@nestjs/common`. Identical behavior *plus*:
 
-- The path parameter is **coerced** to the TypeScript type (`"42"` → `42`, `"true"` → `true`, `"null"` → `null`).
+- The path parameter is **coerced** to the TypeScript type (`"42"` → `42`, `"42"` → `42n` for a `bigint`, `"true"` → `true`, `"null"` → `null`). A string with a format, such as a date, stays a string and is validated.
 - The coerced value is **validated** — invalid `uuid`, out-of-range `number`, malformed `date`, etc. become a `400 Bad Request`.
 - The parameter is **visible to `@nestia/sdk`** — appears in the generated SDK with the same type your handler sees.
 
@@ -58,6 +58,7 @@ The string `"42"` arrives at the wire, but `page` in your handler is already a `
 | `string & tags.Format<"date">`      | `"2024-04-01"`       | `"2024-04-01"` (validated) |
 | `number`                            | `"42"`               | `42`                   |
 | `number & tags.Type<"uint32">`      | `"42"`               | `42` (validated)       |
+| `bigint`                            | `"42"`               | `42n`                  |
 | `boolean`                           | `"true"` / `"false"` | `true` / `false`       |
 | `null`                              | `"null"`             | `null`                 |
 | `"a" \| "b" \| "c"`                 | `"a"`                | `"a"` (validated)      |

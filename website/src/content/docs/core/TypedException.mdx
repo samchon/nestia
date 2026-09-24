@@ -17,7 +17,7 @@ export function TypedException<T extends object>(props: {
   status: number | "2XX" | "3XX" | "4XX" | "5XX";
   description?: string;
   example?: T;
-  examples?: Record<string, T>;
+  examples?: Record<string, TypedException.IExample<T>>;
 }): MethodDecorator;
 ```
 
@@ -26,7 +26,7 @@ Declare an error response a route can return — typed, documented, optionally e
 The decorator **does not affect runtime behavior** — your handler still throws / returns whatever it normally would. It tells the Swagger generator and the SDK what shape that error has, so the OpenAPI document and the **propagation-mode SDK** both pick it up with full type information.
 
 <Callout type="info">
-**When you'd reach for this:** any route where 4xx / 5xx responses carry a structured body that the client cares about. Validation errors are auto-documented by `@TypedBody`, so you don't need it for those — but business errors (`"order locked"`, `"insufficient funds"`) deserve a `@TypedException`.
+**When you'd reach for this:** any route where 4xx / 5xx responses carry a structured body that the client cares about. Validation failures are not documented automatically: declare the 400 response with `@TypedException<T>(400)`, `T` being the body your validation errors carry, when clients should see it, and a `@TypedException` for each business error (`"order locked"`, `"insufficient funds"`).
 </Callout>
 
 ---

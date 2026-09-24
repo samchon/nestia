@@ -69,7 +69,7 @@ A request without `x-tenant` returns 400. A request with `x-version: abc` return
 | `boolean`               | `"true"` / `"false"`  | `true` / `false` |
 | `"a" \| "b"`            | `"a"`                 | `"a"` (validated)|
 | `string[]`              | repeated header       | `["v1","v2"]`    |
-| `number[]`              | comma-separated `"1,2,3"` | `[1, 2, 3]`  |
+| `number[]`              | repeated header, or `"1, 2, 3"` as Node joins repeats | `[1, 2, 3]`  |
 | Optional (`?`)          | header absent         | `undefined`      |
 
 Tags layered on top (`MinLength`, `Pattern`, etc.) work the same as on body / query types.

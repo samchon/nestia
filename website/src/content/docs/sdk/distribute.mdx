@@ -57,16 +57,17 @@ The default `packages/api/package.json` is a placeholder. Edit at least these fi
   "scripts": {
     "build":     "npm run build:sdk && npm run compile",
     "build:sdk": "rimraf ../../api/functional && cd ../.. && npx nestia sdk && cd packages/api",
-    "compile":   "rimraf lib && tsc",
+    "compile":   "rimraf lib && ttsc",
     "deploy":    "npm run build && npm publish"
   },
   "dependencies": {
-    "@nestia/fetcher": "^4.2.0",
-    "typia":           "^8.0.0"
+    "@nestia/fetcher": "14.0.0",
+    "typia":           "15.0.0"
   },
   "devDependencies": {
-    "rimraf":     "^5.0.0",
-    "typescript": "^5.4.2"
+    "rimraf":     "^6.0.0",
+    "ttsc":       "0.28.1",
+    "typescript": "7.0.2"
   },
   "files": ["lib", "package.json", "README.md"]
 }
@@ -77,8 +78,12 @@ A second `tsconfig.json` controls how the package is built for distribution (tar
 ```json filename="packages/api/tsconfig.json" copy
 {
   "compilerOptions": {
-    "target":     "ES2020",
-    "module":     "commonjs",
+    "target":     "ESNext",
+    "lib":        ["DOM", "ESNext"],
+    "module":     "nodenext",
+    "moduleResolution": "nodenext",
+    "rootDir":    "../../api",
+    "types":      ["*"],
     "declaration": true,
     "sourceMap":   true,
     "outDir":      "./lib",
@@ -91,7 +96,7 @@ A second `tsconfig.json` controls how the package is built for distribution (tar
 }
 ```
 
-Most teams change `target` and `module` to match their consumers (ESM vs CJS, modern vs legacy browsers).
+`nestia sdk` writes this `package.json` and `tsconfig.json` itself, installing the `@nestia/fetcher` of the running release and the typia, ttsc, and TypeScript your project uses, so the versions above only illustrate. `compile` runs `ttsc`, which applies typia's transform to the SDK's `assert` and `simulate` code. Most teams change `target` and `module` to match their consumers (ESM vs CJS, modern vs legacy browsers).
 
 If the SDK uses `paths` aliases (rare; usually for cross-cutting structures), keep them aligned between this `tsconfig.json` and your server's.
 

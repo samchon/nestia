@@ -174,12 +174,11 @@ export namespace INestiaConfig {
     /**
      * OpenAPI version.
      *
-     * If you configure this property to be `2.0` or `3.0`, the newly generated
-     * `swagger.json` file would follow the specified OpenAPI version. The newly
-     * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
-     * specification by {@link OpenApi.downgrade} method.
+     * If you configure this property to be `2.0`, `3.0`, or `3.1`, the newly
+     * generated `swagger.json` file would follow the specified OpenAPI version,
+     * downgraded from the OpenAPI v3.2 specification.
      *
-     * @default 3.1
+     * @default 3.2
      */
     openapi?: "2.0" | "3.0" | "3.1" | "3.2";
 

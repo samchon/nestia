@@ -13,7 +13,14 @@ export namespace TypedFormData {
     factory: () => Multer | Promise<Multer>,
   ): ParameterDecorator;
 
-  export type IMulterBase = ExpressMulter.Multer | FastifyMulter.Multer;
+  /** Base type of the `multer` or `fastify-multer` instance. */
+  export interface IMulterBase {
+    single(fieldName: string): any;
+    array(fieldName: string, maxCount?: number): any;
+    fields(fields: readonly object[]): any;
+    any(): any;
+    none(): any;
+  }
 }
 ```
 

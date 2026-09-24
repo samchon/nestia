@@ -63,7 +63,7 @@ Things `@TypedQuery()` does that vanilla `@Query()` does not:
 
 - Coerce `"42"` → `42` when the field is typed `number`.
 - Coerce `"true"` / `"false"` → `boolean`.
-- Coerce `"null"` → `null`, `"123n"` → `bigint`.
+- Coerce `"null"` → `null`, and `"123"` → `123n` when the field is typed `bigint` (`BigInt()` reads the digits; `"123n"` is rejected with 400).
 - Validate `tags.*` constraints (`Format`, `MinLength`, `Maximum`, …).
 - Accept arrays via repeated keys (`?tag=ts&tag=node` → `tags: ["ts", "node"]`).
 
