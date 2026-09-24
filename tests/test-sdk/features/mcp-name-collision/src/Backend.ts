@@ -1,0 +1,32 @@
+import core from "@nestia/core";
+import { INestApplication, Module } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { Singleton } from "tstl";
+
+import { ReservedNameController } from "./controllers/ReservedNameController";
+
+@Module({
+  controllers: [ReservedNameController],
+})
+class McpModule {}
+
+export class Backend {
+  public readonly application: Singleton<Promise<INestApplication>> =
+    new Singleton(async () => {
+      const app: INestApplication = await NestFactory.create(McpModule, {
+        logger: false,
+      });
+      await core.McpAdaptor.upgrade(app, { path: "/mcp" });
+      return app;
+    });
+
+  public async open(): Promise<void> {
+    return (await this.application.get()).listen(
+      Number(process.env.TEST_SDK_PORT ?? 37_000),
+    );
+  }
+
+  public async close(): Promise<void> {
+    return (await this.application.get()).close();
+  }
+}

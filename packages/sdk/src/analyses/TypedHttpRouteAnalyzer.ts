@@ -54,7 +54,7 @@ export namespace TypedHttpRouteAnalyzer {
       next: {
         metadata: IMetadataSchema;
         components: IMetadataComponents;
-        validate: MetadataFactory.Validator;
+        validate?: MetadataFactory.Validator;
       },
       from: string,
       escape: boolean,
@@ -66,16 +66,19 @@ export namespace TypedHttpRouteAnalyzer {
         next.metadata,
         components.dictionary,
       );
-      const metaErrors: MetadataFactory.IError[] = MetadataFactory.validate({
-        options: {
-          escape,
-          constant: true,
-          absorb: true,
-          validate: next.validate, // @todo -> CHECK IN TYPIA
-        },
-        functor: next.validate, // @todo -> CHECK IN TYPIA
-        metadata,
-      });
+      const metaErrors: MetadataFactory.IError[] =
+        next.validate === undefined
+          ? []
+          : MetadataFactory.validate({
+              options: {
+                escape,
+                constant: true,
+                absorb: true,
+                validate: next.validate,
+              },
+              functor: next.validate,
+              metadata,
+            });
       if (metaErrors.length)
         errors.push({
           file: props.controller.file,
@@ -137,18 +140,23 @@ export namespace TypedHttpRouteAnalyzer {
             t.text[0]!.text &&
             (t.name === "setHeader" || t.name === "assignHeaders"),
         )
-        .map((t) =>
-          t.name === "setHeader"
+        .map((t) => {
+          // the words of the first line; the next lines only describe
+          const words: string[] = t
+            .text![0]!.text.split("\n")[0]!
+            .trim()
+            .split(/\s+/);
+          return t.name === "setHeader"
             ? {
-                type: "setter",
-                source: t.text![0]!.text.split(" ")[0]!.trim(),
-                target: t.text![0]!.text.split(" ")[1]?.trim(),
+                type: "setter" as const,
+                source: words[0]!,
+                target: words[1],
               }
             : {
-                type: "assigner",
-                source: t.text![0]!.text,
-              },
-        ),
+                type: "assigner" as const,
+                source: words[0]!,
+              };
+        }),
     };
     if (errors.length) {
       props.errors.push(...errors);

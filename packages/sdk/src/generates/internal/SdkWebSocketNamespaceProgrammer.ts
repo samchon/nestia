@@ -50,7 +50,13 @@ export namespace SdkWebSocketNamespaceProgrammer {
         );
 
       if (project.config.keyword === true)
-        declare("Props", SdkAliasCollection.websocketProps(route));
+        declare(
+          "Props",
+          SdkAliasCollection.websocketProps(
+            route,
+            SdkWebSocketParameterProgrammer.getNames({ project, route }),
+          ),
+        );
       declare(
         "Output",
         factory.createTypeLiteralNode([
@@ -147,14 +153,8 @@ export namespace SdkWebSocketNamespaceProgrammer {
         );
       if (route.pathParameters.length === 0 && route.query === null)
         return out(factory.createStringLiteral(route.path));
-
-      const access = (key: string) =>
-        project.config.keyword === true
-          ? factory.createPropertyAccessExpression(
-              factory.createIdentifier("props"),
-              key,
-            )
-          : factory.createIdentifier(key);
+      const names: SdkWebSocketParameterProgrammer.INames =
+        SdkWebSocketParameterProgrammer.getNames({ project, route });
       const template = () => {
         const split: string[] = route.path.split(":");
         if (split.length === 1) return factory.createStringLiteral(route.path);
@@ -170,9 +170,10 @@ export namespace SdkWebSocketNamespaceProgrammer {
                   factory.createBinaryExpression(
                     factory.createCallChain(
                       factory.createPropertyAccessChain(
-                        access(
-                          route.pathParameters.find((p) => p.field === name)!
-                            .name,
+                        names.access(
+                          names.parameter(
+                            route.pathParameters.find((p) => p.field === name)!,
+                          ),
                         ),
                         factory.createToken(SyntaxKind.QuestionDotToken),
                         "toString",
@@ -196,13 +197,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
       if (route.query === null) return out(template());
 
       const block = (expr: Expression) => {
-        const computeName = (str: string): string =>
-          [...route.pathParameters, ...(route.query ? [route.query] : [])].find(
-            (p) => p.name === str,
-          ) !== undefined
-            ? computeName("_" + str)
-            : str;
-        const variables: string = computeName("variables");
+        const variables: string = names.variables;
         return factory.createBlock(
           [
             local(variables)("URLSearchParams")(
@@ -221,13 +216,13 @@ export namespace SdkWebSocketNamespaceProgrammer {
                       factory.createBindingElement(
                         undefined,
                         undefined,
-                        factory.createIdentifier("key"),
+                        factory.createIdentifier(names.key),
                         undefined,
                       ),
                       factory.createBindingElement(
                         undefined,
                         undefined,
-                        factory.createIdentifier("value"),
+                        factory.createIdentifier(names.value),
                         undefined,
                       ),
                     ]),
@@ -246,19 +241,19 @@ export namespace SdkWebSocketNamespaceProgrammer {
               factory.createIfStatement(
                 factory.createStrictEquality(
                   factory.createIdentifier("undefined"),
-                  factory.createIdentifier("value"),
+                  factory.createIdentifier(names.value),
                 ),
                 factory.createContinueStatement(),
                 factory.createIfStatement(
                   factory.createCallExpression(
                     factory.createIdentifier("Array.isArray"),
                     undefined,
-                    [factory.createIdentifier("value")],
+                    [factory.createIdentifier(names.value)],
                   ),
                   factory.createExpressionStatement(
                     factory.createCallExpression(
                       factory.createPropertyAccessExpression(
-                        factory.createIdentifier("value"),
+                        factory.createIdentifier(names.value),
                         factory.createIdentifier("forEach"),
                       ),
                       undefined,
@@ -266,7 +261,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
                         factory.createArrowFunction(
                           undefined,
                           undefined,
-                          [IdentifierFactory.parameter("elem")],
+                          [IdentifierFactory.parameter(names.elem)],
                           undefined,
                           undefined,
                           factory.createCallExpression(
@@ -276,11 +271,11 @@ export namespace SdkWebSocketNamespaceProgrammer {
                             ),
                             undefined,
                             [
-                              factory.createIdentifier("key"),
+                              factory.createIdentifier(names.key),
                               factory.createCallExpression(
                                 factory.createIdentifier("String"),
                                 undefined,
-                                [factory.createIdentifier("elem")],
+                                [factory.createIdentifier(names.elem)],
                               ),
                             ],
                           ),
@@ -296,11 +291,11 @@ export namespace SdkWebSocketNamespaceProgrammer {
                       ),
                       undefined,
                       [
-                        factory.createIdentifier("key"),
+                        factory.createIdentifier(names.key),
                         factory.createCallExpression(
                           factory.createIdentifier("String"),
                           undefined,
-                          [factory.createIdentifier("value")],
+                          [factory.createIdentifier(names.value)],
                         ),
                       ],
                     ),
@@ -308,7 +303,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
                 ),
               ),
             ),
-            local("location")("string")(template()),
+            local(names.location)("string")(template()),
             factory.createReturnStatement(
               factory.createConditionalExpression(
                 factory.createStrictEquality(
@@ -319,13 +314,13 @@ export namespace SdkWebSocketNamespaceProgrammer {
                   ),
                 ),
                 undefined,
-                factory.createIdentifier("location"),
+                factory.createIdentifier(names.location),
                 undefined,
                 factory.createTemplateExpression(
                   factory.createTemplateHead(""),
                   [
                     factory.createTemplateSpan(
-                      factory.createIdentifier("location"),
+                      factory.createIdentifier(names.location),
                       factory.createTemplateMiddle("?"),
                     ),
                     factory.createTemplateSpan(
@@ -347,7 +342,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
           true,
         );
       };
-      return out(block(access(route.query.name)));
+      return out(block(names.access(names.query)));
     };
 }
 

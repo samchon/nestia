@@ -380,8 +380,10 @@ export namespace NestiaMigrateNestMethodProgrammer {
             ),
           ]
         : []),
-      ...Object.entries(media.examples ?? {}).map(([key, value]) =>
-        factory.createDecorator(
+      ...Object.entries(media.examples ?? {}).flatMap(([key, example]) => {
+        const value: { value: unknown } | null = exampleValue(example);
+        if (value === null) return [];
+        return factory.createDecorator(
           factory.createCallExpression(
             IdentifierFactory.access(
               factory.createIdentifier(
@@ -394,9 +396,57 @@ export namespace NestiaMigrateNestMethodProgrammer {
               kind,
             ),
             [],
-            [factory.createStringLiteral(key), LiteralFactory.write(value)],
+            [
+              factory.createStringLiteral(key),
+              LiteralFactory.write(value.value),
+            ],
           ),
-        ),
-      ),
+        );
+      }),
     ];
 }
+
+/**
+ * The value a named example stands for, or `null` when it names none.
+ *
+ * OpenAPI names examples with Example Objects, whose `value` (or, since 3.2,
+ * `dataValue`) holds the value, and a `$ref` to one arrives resolved. Documents
+ * from earlier nestia versions held the values themselves, so an object is read
+ * as an Example Object only when it is one: it has one of the value fields, and
+ * every other key is an Example Object field or an extension. A raw value of
+ * exactly that shape is ambiguous and is read as an Example Object, as a
+ * conforming document means it. An Example Object that only points at its value
+ * (`externalValue`) or only serializes it (`serializedValue`) gives
+ * `SwaggerExample` nothing to hold.
+ */
+const exampleValue = (example: unknown): { value: unknown } | null => {
+  if (isExampleObject(example) === false) return { value: example };
+  const record = example as Record<string, unknown>;
+  if (Object.prototype.hasOwnProperty.call(record, "value"))
+    return { value: record.value };
+  if (Object.prototype.hasOwnProperty.call(record, "dataValue"))
+    return { value: record.dataValue };
+  return null;
+};
+
+const isExampleObject = (example: unknown): boolean =>
+  typeof example === "object" &&
+  example !== null &&
+  Array.isArray(example) === false &&
+  VALUE_KEYS.some((key) =>
+    Object.prototype.hasOwnProperty.call(example, key),
+  ) &&
+  Object.keys(example).every(
+    (key) =>
+      VALUE_KEYS.includes(key) ||
+      key === "summary" ||
+      key === "description" ||
+      key.startsWith("x-"),
+  );
+
+const VALUE_KEYS: string[] = [
+  "value",
+  "dataValue",
+  "serializedValue",
+  "externalValue",
+];

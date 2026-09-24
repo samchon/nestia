@@ -22,9 +22,11 @@ Decorators that attach example values to a controller method's response body and
 Each decorator has two overloads:
 
 - **`(value)`** — single default example. Becomes the OpenAPI `example` field.
-- **`(key, value)`** — one named example. Becomes an entry under `examples[key]`. Apply multiple times to attach several named examples to the same target.
+- **`(key, value)`** — one named example. Becomes an OpenAPI Example Object `{ value }` under `examples[key]`. Apply multiple times to attach several named examples to the same target.
 
 Both forms can coexist; a method (or parameter) may carry both a single default `example` and a map of named `examples`.
+
+Swagger 2.0 has no named examples and no request body example, so a document generated with `swagger.openapi: "2.0"` leaves those out and keeps each response's single example, which 2.0 files under the response's MIME type.
 
 
 

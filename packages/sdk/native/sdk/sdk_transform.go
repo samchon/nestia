@@ -1,8 +1,10 @@
 package sdk
 
 import (
+	"encoding"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -180,13 +182,95 @@ func nestiaSDKMetadataText(context *nestiaSDKContext, file *shimast.SourceFile, 
 const nestiaSDKLiteralNull = "__NESTIA_LITERAL_NULL__"
 
 func nestiaSDKMetadataLiteralText(metadata map[string]any) (string, error) {
-	data, err := json.Marshal(metadata)
+	data, err := json.Marshal(nestiaSDKFiniteLiteral(metadata))
 	if err != nil {
 		return "", err
 	}
 	text := string(data)
 	text = strings.ReplaceAll(text, `"`+nestiaSDKLiteralNull+`"`, "null")
 	return text, nil
+}
+
+// nestiaSDKFiniteLiteral copies a metadata value for encoding/json, writing
+// every non-finite number as null, the way JavaScript's `JSON.stringify` does.
+//
+// typia hands over NaN and ±Infinity wherever a type or a comment spells one: a
+// numeric literal type such as `1e999`, a type tag argument such as
+// `tags.Minimum<1e999>`, and a JSDoc `@x-` extension whose text parses as
+// a float, which `NaN`, `Infinity`, and `inf` all do. encoding/json
+// refuses those values, so one of them anywhere in the types a route reaches
+// used to abort the whole metadata pass. The metadata is marshaled only here,
+// so walking it here gives every value, baked schema and metadata literal
+// alike, the same rule.
+//
+// The walk rebuilds maps, slices, and typia's ordered objects, whose
+// MarshalJSON would otherwise marshal a non-finite member itself. A null is
+// written as typia's explicit `LiteralFactory_Null` marker rather than a Go
+// nil, because an ordered object drops a nil member instead of printing it,
+// while `JSON.stringify({ a: NaN })` keeps the key. Any other value that
+// marshals itself is left as it is.
+func nestiaSDKFiniteLiteral(input any) any {
+	switch value := input.(type) {
+	case nil:
+		return nil
+	case nativefactories.LiteralFactory_OrderedObject:
+		return nestiaSDKFiniteOrderedLiteral(value)
+	case *nativefactories.LiteralFactory_OrderedObject:
+		if value == nil {
+			return value
+		}
+		return nestiaSDKFiniteOrderedLiteral(*value)
+	case json.Marshaler, encoding.TextMarshaler:
+		return value
+	}
+	reflected := reflect.ValueOf(input)
+	switch reflected.Kind() {
+	case reflect.Float32, reflect.Float64:
+		// by kind, because the checker's numbers are typescript-go's named
+		// `jsnum.Number`, not a plain float64
+		if number := reflected.Float(); math.IsNaN(number) || math.IsInf(number, 0) {
+			return nativefactories.LiteralFactory_Null{}
+		}
+		return input
+	case reflect.Map:
+		if reflected.IsNil() || reflected.Type().Key().Kind() != reflect.String {
+			return input
+		}
+		output := make(map[string]any, reflected.Len())
+		iterator := reflected.MapRange()
+		for iterator.Next() {
+			output[iterator.Key().String()] = nestiaSDKFiniteLiteral(iterator.Value().Interface())
+		}
+		return output
+	case reflect.Slice, reflect.Array:
+		if (reflected.Kind() == reflect.Slice && reflected.IsNil()) || reflected.Type().Elem().Kind() == reflect.Uint8 {
+			return input
+		}
+		output := make([]any, reflected.Len())
+		for i := range output {
+			output[i] = nestiaSDKFiniteLiteral(reflected.Index(i).Interface())
+		}
+		return output
+	case reflect.Pointer, reflect.Interface:
+		if reflected.IsNil() {
+			return input
+		}
+		return nestiaSDKFiniteLiteral(reflected.Elem().Interface())
+	}
+	return input
+}
+
+func nestiaSDKFiniteOrderedLiteral(
+	input nativefactories.LiteralFactory_OrderedObject,
+) nativefactories.LiteralFactory_OrderedObject {
+	output := nativefactories.LiteralFactory_OrderedObject{
+		Keys:   input.Keys,
+		Values: make(map[string]any, len(input.Values)),
+	}
+	for key, value := range input.Values {
+		output.Values[key] = nestiaSDKFiniteLiteral(value)
+	}
+	return output
 }
 
 type nestiaSDKJSDoc struct {
@@ -208,34 +292,83 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 	if comment == "" {
 		return doc
 	}
+	// A tag runs until the next one, and each line loses the comment's margin
+	// as TypeScript takes it off: the `*`, then the indentation up to the
+	// column the text began at. That is the description's first line, the
+	// text after a tag's name, a `@param` description past the parameter's
+	// name, a `@returns` one past its type, or, when the tag's text starts on
+	// the next line, the tag itself, so an `@example` keeps its code's
+	// indentation while a wrapped `@param` description does not.
 	description := []string{}
-	inTags := false
+	descriptionMargin := -1
+	var tag *nestiaSDKPendingTag
+	flush := func() {
+		if tag == nil {
+			return
+		}
+		body := strings.TrimLeft(strings.Join(tag.lines, "\n"), "\n")
+		body = strings.TrimRight(body, " \t\n")
+		if tag.name == "param" {
+			param, desc := nestiaSDKParseParamTag(body)
+			doc.Tags = append(doc.Tags, nestiaSDKJSDocParamTag(param, desc))
+			if param != "" {
+				doc.Params[param] = desc
+			}
+		} else {
+			if nestiaSDKIsReturnTag(tag.name) {
+				// TypeScript's text leaves out a type the tag declares
+				body = strings.TrimLeft(body[nestiaSDKReturnTypeEnd(body):], "\n")
+			}
+			doc.Tags = append(doc.Tags, nestiaSDKJSDocTag(tag.name, body))
+		}
+		tag = nil
+	}
 	for _, line := range strings.Split(comment, "\n") {
-		text := strings.TrimSpace(line)
-		text = strings.TrimPrefix(text, "*")
-		text = strings.TrimSpace(text)
-		if text == "" {
-			if inTags == false && len(description) != 0 {
+		rest := strings.TrimLeft(line, " \t")
+		rest = strings.TrimPrefix(rest, "*")
+		rest = strings.TrimRight(rest, " \t\r")
+		trimmed := strings.TrimSpace(rest)
+		if strings.HasPrefix(trimmed, "@") {
+			flush()
+			name, body := nestiaSDKParseJSDocTag(trimmed)
+			margin := nestiaSDKJSDocIndent(rest)
+			// where the text begins in the body: a `@param` description after
+			// the parameter's name, a `@returns` one after its type
+			text := 0
+			if name == "param" {
+				_, text = nestiaSDKParamTagName(body)
+			} else if nestiaSDKIsReturnTag(name) {
+				text = nestiaSDKReturnTypeEnd(body)
+			}
+			if text < len(body) {
+				after := trimmed[1+len(name):]
+				margin += 1 + len(name) + len(after) - len(strings.TrimLeft(after, " \t")) + text
+			}
+			tag = &nestiaSDKPendingTag{name: name, lines: []string{body}, margin: margin}
+			continue
+		}
+		if tag != nil {
+			tag.lines = append(tag.lines, nestiaSDKJSDocOutdent(rest, tag.margin))
+			continue
+		}
+		if trimmed == "" {
+			if len(description) != 0 {
 				description = append(description, "")
 			}
 			continue
 		}
-		if strings.HasPrefix(text, "@") {
-			inTags = true
-			name, body := nestiaSDKParseJSDocTag(text)
-			doc.Tags = append(doc.Tags, nestiaSDKJSDocTag(name, body))
-			if name == "param" {
-				param, desc := nestiaSDKParseParamTag(body)
-				if param != "" {
-					doc.Params[param] = desc
-				}
+		if descriptionMargin == -1 {
+			// text on the opening `/**` line has no `*` to measure from, so the
+			// lines after it keep the usual `* ` margin
+			if strings.HasPrefix(strings.TrimLeft(line, " \t"), "*") {
+				descriptionMargin = nestiaSDKJSDocIndent(rest)
+			} else {
+				descriptionMargin = 1
 			}
-			continue
 		}
-		if inTags == false {
-			description = append(description, text)
-		}
+		description = append(description, nestiaSDKJSDocOutdent(rest, descriptionMargin))
 	}
+	flush()
 	doc.Description = strings.TrimSpace(strings.Join(description, "\n"))
 	return doc
 }
@@ -291,14 +424,108 @@ func nestiaSDKParseJSDocTag(text string) (string, string) {
 	return name, body
 }
 
-func nestiaSDKParseParamTag(body string) (string, string) {
-	parts := strings.Fields(body)
-	if len(parts) == 0 {
-		return "", ""
+// nestiaSDKPendingTag is a JSDoc tag whose text may continue on the next
+// lines.
+type nestiaSDKPendingTag struct {
+	name   string
+	lines  []string
+	margin int
+}
+
+// nestiaSDKJSDocIndent counts the spaces and tabs a JSDoc line starts with.
+func nestiaSDKJSDocIndent(line string) int {
+	return len(line) - len(strings.TrimLeft(line, " \t"))
+}
+
+// nestiaSDKJSDocOutdent takes up to margin spaces and tabs off a JSDoc line.
+func nestiaSDKJSDocOutdent(line string, margin int) string {
+	indent := nestiaSDKJSDocIndent(line)
+	if indent > margin {
+		indent = margin
 	}
-	param := parts[0]
-	desc := strings.TrimSpace(strings.TrimPrefix(body, param))
-	return param, desc
+	return line[indent:]
+}
+
+// nestiaSDKParseParamTag splits a `@param` body into the parameter's name and
+// its description, as TypeScript does. A description that starts on the next
+// line keeps the indentation its margin leaves it.
+func nestiaSDKParseParamTag(body string) (string, string) {
+	param, text := nestiaSDKParamTagName(body)
+	return param, strings.TrimLeft(body[text:], "\n")
+}
+
+// nestiaSDKParamTagName reads the parameter a `@param` body names, as
+// TypeScript does: a leading `{Type}` is not the name, and an optional
+// parameter's brackets and default, `[name=value]`, are not part of it. It
+// also returns where the description begins, past the spaces after the name.
+func nestiaSDKParamTagName(body string) (string, int) {
+	offset := nestiaSDKSkipBlank(body, 0, true)
+	if end := nestiaSDKClosing(body, offset, '{', '}'); end != -1 {
+		offset = nestiaSDKSkipBlank(body, end+1, true)
+	}
+	name := ""
+	if end := nestiaSDKClosing(body, offset, '[', ']'); end != -1 {
+		// the bracket that closes the first, past any in a default value
+		name = body[offset+1 : end]
+		if equal := strings.Index(name, "="); equal != -1 {
+			name = name[:equal]
+		}
+		name = strings.TrimSpace(name)
+		offset = end + 1
+	} else {
+		start := offset
+		for offset < len(body) && strings.IndexByte(" \t\n", body[offset]) == -1 {
+			offset++
+		}
+		name = body[start:offset]
+	}
+	return name, nestiaSDKSkipBlank(body, offset, false)
+}
+
+// nestiaSDKIsReturnTag tells a `@returns` tag, which TypeScript also reads as
+// `@return`.
+func nestiaSDKIsReturnTag(name string) bool {
+	return name == "returns" || name == "return"
+}
+
+// nestiaSDKReturnTypeEnd returns where a `@returns` body's text begins past a
+// leading `{Type}`, which TypeScript reads as the type rather than the text,
+// and the spaces after it; 0 without a type.
+func nestiaSDKReturnTypeEnd(body string) int {
+	if end := nestiaSDKClosing(body, nestiaSDKSkipBlank(body, 0, true), '{', '}'); end != -1 {
+		return nestiaSDKSkipBlank(body, end+1, false)
+	}
+	return 0
+}
+
+// nestiaSDKClosing finds the bracket closing the one text opens at start, or
+// -1 when text opens none there or never closes it.
+func nestiaSDKClosing(text string, start int, open byte, close byte) int {
+	if start >= len(text) || text[start] != open {
+		return -1
+	}
+	depth := 0
+	for i := start; i < len(text); i++ {
+		if text[i] == open {
+			depth++
+		} else if text[i] == close {
+			depth--
+			if depth == 0 {
+				return i
+			}
+		}
+	}
+	return -1
+}
+
+// nestiaSDKSkipBlank moves offset past spaces and tabs, and line breaks too
+// when newline is set.
+func nestiaSDKSkipBlank(text string, offset int, newline bool) int {
+	for offset < len(text) &&
+		(text[offset] == ' ' || text[offset] == '\t' || (newline && text[offset] == '\n')) {
+		offset++
+	}
+	return offset
 }
 
 func nestiaSDKJSDocTag(name string, text string) map[string]any {
@@ -315,6 +542,33 @@ func nestiaSDKJSDocTag(name string, text string) map[string]any {
 				"kind": "text",
 			},
 		},
+	}
+}
+
+// nestiaSDKJSDocParamTag writes a `@param` tag the way TypeScript's
+// `JSDocTagInfo` does, which the SDK generators read: the parameter's name
+// as its own `parameterName` part, then a space and the description. Written
+// as one text part, the name could not be matched, so a WebSocket route lost
+// every `@param` line and the generators' tag fallbacks never applied.
+func nestiaSDKJSDocParamTag(param string, desc string) map[string]any {
+	if param == "" {
+		return nestiaSDKJSDocTag("param", "")
+	}
+	text := []any{
+		map[string]any{
+			"text": param,
+			"kind": "parameterName",
+		},
+	}
+	if desc != "" {
+		text = append(text,
+			map[string]any{"text": " ", "kind": "space"},
+			map[string]any{"text": desc, "kind": "text"},
+		)
+	}
+	return map[string]any{
+		"name": "param",
+		"text": text,
 	}
 }
 
@@ -629,12 +883,17 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 	if baked := nestiaSDKTryBakeJsonSchema(prog, typeNode, result.Data, properties); baked != nil {
 		metadataLiteral["jsonSchema"] = baked
 	}
+	data := map[string]any{
+		"components": nestiaSDKMetadataComponentsLiteral(nestiaSDKVisitedMetadataComponents(context.collection, result.Data)),
+		"metadata":   metadataLiteral,
+	}
+	if properties {
+		// a route parameter's HTTP rule verdicts, from its own analysis
+		data["http"] = nestiaSDKHttpRules(prog.Checker, typ)
+	}
 	value := map[string]any{
 		"success": true,
-		"data": map[string]any{
-			"components": nestiaSDKMetadataComponentsLiteral(nestiaSDKVisitedMetadataComponents(context.collection, result.Data)),
-			"metadata":   metadataLiteral,
-		},
+		"data":    data,
 	}
 	context.schemaCache[key] = value
 	return value
@@ -798,9 +1057,11 @@ func nestiaSDKHasJSDocTag(tags []schemametadata.IJsDocTagInfo, names ...string) 
 // type. typia's own literal printer skips nil object members, but encoding/json
 // prints them as null, which JSON Schema rejects for those keywords. A nil
 // cannot be dropped everywhere, though: in an instance-valued keyword (`const`,
-// `default`, `enum`, `example`, `examples`) or a vendor extension it is a real
-// null, such as the one `tags.Examples<{ none: null }>` declares, which typia
-// writes as a bare nil too until its explicit null marker (samchon/typia#2403).
+// `default`, `enum`, `example`, `examples`) or a vendor extension it can be a
+// real null. typia marks the nulls a type declares, such as
+// `tags.Example<null>`, with `LiteralFactory_Null`, which is no nil and
+// marshals as null, but a JSDoc `@x-foo null` still reaches the schema as a
+// bare nil, from typia's object writer and from nestiaSDKJsDocExtensions alike.
 //
 // So the walk follows JSON Schema structure: it drops a nil member of a schema
 // object, recurses through the applicator keywords into subschemas, and leaves

@@ -65,6 +65,8 @@ export namespace SdkHttpSimulationProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): Node => {
+      const names: SdkHttpParameterProgrammer.INames =
+        SdkHttpParameterProgrammer.getNames({ project, route });
       const output: boolean =
         project.config.propagate === true ||
         route.success.binary === true ||
@@ -83,8 +85,8 @@ export namespace SdkHttpSimulationProgrammer {
             IdentifierFactory.parameter(
               SdkHttpParameterProgrammer.getSignificant(route, true).length !==
                 0
-                ? "connection"
-                : "_connection",
+                ? names.connection
+                : `_${names.connection}`,
               factory.createTypeReferenceNode(
                 SdkImportWizard.IConnection(importer),
                 route.headerObject
@@ -104,7 +106,7 @@ export namespace SdkHttpSimulationProgrammer {
           undefined,
           factory.createBlock(
             [
-              ...assert(project)(importer)(route),
+              ...assert(project)(importer)(route)(names),
               factory.createReturnStatement(
                 project.config.propagate
                   ? factory.createAsExpression(
@@ -145,13 +147,14 @@ export namespace SdkHttpSimulationProgrammer {
   const assert =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): Statement[] => {
+    (route: ITypedHttpRoute) =>
+    (names: SdkHttpParameterProgrammer.INames): Statement[] => {
       const parameters = SdkHttpParameterProgrammer.getSignificant(route, true);
       if (parameters.length === 0) return [];
 
       const typia = SdkImportWizard.typia(importer);
       const validator = StatementFactory.constant({
-        name: "assert",
+        name: names.assert,
         value: factory.createCallExpression(
           IdentifierFactory.access(
             factory.createIdentifier(
@@ -174,7 +177,10 @@ export namespace SdkHttpSimulationProgrammer {
                 ),
                 factory.createPropertyAssignment(
                   "host",
-                  factory.createIdentifier("connection.host"),
+                  IdentifierFactory.access(
+                    factory.createIdentifier(names.connection),
+                    "host",
+                  ),
                 ),
                 factory.createPropertyAssignment(
                   "path",
@@ -205,7 +211,7 @@ export namespace SdkHttpSimulationProgrammer {
           factory.createCallExpression(
             (() => {
               const base = IdentifierFactory.access(
-                factory.createIdentifier("assert"),
+                factory.createIdentifier(names.assert),
                 p.category,
               );
               if (p.category !== "param") return base;
@@ -227,11 +233,7 @@ export namespace SdkHttpSimulationProgrammer {
                     "assert",
                   ),
                   undefined,
-                  [
-                    project.config.keyword === true
-                      ? factory.createIdentifier(`props.${p.name}`)
-                      : factory.createIdentifier(p.name),
-                  ],
+                  [names.access(p)],
                 ),
               ),
             ],

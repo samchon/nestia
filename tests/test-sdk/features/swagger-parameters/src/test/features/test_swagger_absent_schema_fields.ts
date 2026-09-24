@@ -10,13 +10,17 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  * An absent field is a Go nil in typia's writer: an undocumented constant has a
  * nil `title` and `description`, and `any` has a nil `type`. The SDK used to
  * serialize those as JSON null (#1640), which JSON Schema rejects. A null
- * inside instance data or a vendor extension is the negative twin: typia also
- * writes it as a bare nil, but it is the value the user declared, so it must
- * stay.
+ * inside instance data or a vendor extension is the negative twin: it is the
+ * value the user declared, so it must stay. `tags.Example<null>` is one; the
+ * typia linked before #1646 dropped it entirely. A JSDoc `@x-nothing null` is
+ * another, and typia still writes that one as a bare nil. So is an `@x-` value
+ * that reads as a non-finite number, which JSON can only write as null
+ * (#1655).
  *
  * 1. Read the generated Swagger document.
  * 2. Walk every member and collect the ones that are null.
- * 3. Assert the only nulls are the declared `examples` and `x-empty` values.
+ * 3. Assert the only nulls are the declared `example`, `examples`, `x-empty`, and
+ *    `x-nothing` values, and the non-finite `x-level` ones.
  * 4. Assert `any` becomes an empty schema, in the component and in a decomposed
  *    parameter.
  */
@@ -32,10 +36,25 @@ export const test_swagger_absent_schema_fields = async (): Promise<void> => {
         else visit(member, `${path}.${key}`);
   };
   visit(document, "$");
-  TestValidator.equals("null members", nulls.sort(), [
-    "$.components.schemas.IAbsentFields.properties.named.examples.none",
-    "$.components.schemas.IAbsentFields.properties.plugin.x-empty",
-  ]);
+  const nonFinite: string[] = ["nan", "infinity", "negative", "short"];
+  TestValidator.equals(
+    "null members",
+    nulls.sort(),
+    [
+      "$.components.schemas.IAbsentFields.properties.jsdoc.x-nothing",
+      "$.components.schemas.IAbsentFields.properties.named.examples.none",
+      "$.components.schemas.IAbsentFields.properties.plugin.x-empty",
+      "$.components.schemas.IAbsentFields.properties.single.example",
+      ...nonFinite.map(
+        (key) =>
+          `$.components.schemas.INonFiniteExtensions.properties.${key}.x-level`,
+      ),
+      ...nonFinite.map(
+        (_key, i) =>
+          `$.paths./extension/non-finite.get.parameters[${i}].schema.x-level`,
+      ),
+    ].sort(),
+  );
 
   const component = document.components.schemas![
     "IAbsentFields"

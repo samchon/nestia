@@ -20,7 +20,7 @@ class McpModule {}
 
 /**
  * NestJS test backend that boots the MCP feature's controllers and mounts the
- * MCP transport at `/mcp` on port 37000.
+ * MCP transport at `/mcp` on the port the test harness assigns.
  *
  * @author wildduck - https://github.com/wildduck2
  */
@@ -35,7 +35,9 @@ export class Backend {
     });
 
   public async open(): Promise<void> {
-    return (await this.application.get()).listen(37_000);
+    return (await this.application.get()).listen(
+      Number(process.env.TEST_SDK_PORT ?? 37_000),
+    );
   }
 
   public async close(): Promise<void> {

@@ -9,8 +9,9 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  *
  * With `decompose: false` the object parameter carries the decorator's
  * `example` and `examples`; decomposition, the default, used to drop both
- * (#1642). Each parameter must take its own member of every example, and a
- * parameter whose member an example lacks takes nothing from that example.
+ * (#1642). Each parameter must take its own member of every example, a named
+ * one as an Example Object of the member (#1649), and a parameter whose member
+ * an example lacks takes nothing from that example.
  *
  * 1. Read the generated Swagger document.
  * 2. Assert the query parameters split the default and named examples by key.
@@ -33,13 +34,16 @@ export const test_swagger_decomposed_examples = async (): Promise<void> => {
     examples("keyword"),
     SwaggerParameterReader.canonical({
       example: "nestia",
-      examples: { typia: "typia", paged: "ttsc" },
+      examples: { typia: { value: "typia" }, paged: { value: "ttsc" } },
     }),
   );
   TestValidator.equals(
     "page",
     examples("page"),
-    SwaggerParameterReader.canonical({ example: 3, examples: { paged: 7 } }),
+    SwaggerParameterReader.canonical({
+      example: 3,
+      examples: { paged: { value: 7 } },
+    }),
   );
   TestValidator.equals(
     "size",

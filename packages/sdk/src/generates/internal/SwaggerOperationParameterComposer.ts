@@ -1,4 +1,5 @@
 import { OpenApi } from "@typia/interface";
+import { OpenApiTypeChecker } from "@typia/utils";
 import { VariadicSingleton } from "tstl";
 import { IJsDocTagInfo, IJsonSchemaCollection } from "typia";
 
@@ -35,8 +36,8 @@ export namespace SwaggerOperationParameterComposer {
           : header({ ...props, parameter: props.parameter });
 
   export const body = (
-    props: Omit<IProps<ITypedHttpRouteParameter.IBody>, "config" | "document">,
-  ): OpenApi.IOperation.IRequestBody => {
+    props: IProps<ITypedHttpRouteParameter.IBody>,
+  ): OpenApi.IOperation.IRequestBody | undefined => {
     const description: string | undefined =
       props.parameter.description ??
       SwaggerDescriptionComposer.descriptionFromJsDocTag({
@@ -44,7 +45,7 @@ export namespace SwaggerOperationParameterComposer {
         tag: "param",
         parameter: props.parameter.name,
       });
-    return {
+    const output: OpenApi.IOperation.IRequestBody = {
       description: props.parameter.encrypted
         ? `${warning.get(!!description)}${description ?? ""}`
         : description,
@@ -57,6 +58,68 @@ export namespace SwaggerOperationParameterComposer {
       },
       required: props.parameter.metadata.required,
       ...(props.parameter.encrypted ? { "x-nestia-encrypted": true } : {}),
+    };
+    return props.config.openapi === "2.0"
+      ? swaggerV2Body(props, output)
+      : output;
+  };
+
+  /**
+   * The request body a Swagger 2.0 document can hold.
+   *
+   * Typia's downgrader refuses what 2.0 has no place for rather than lose it,
+   * so one route used to fail the whole document (#1649). A 2.0 body parameter
+   * holds only a schema: no example, and no `x-nestia-encrypted` flag, whose
+   * warning the description keeps. A form becomes one `formData` parameter per
+   * field, which carry neither the body's description nor the form object's own
+   * attributes, and are each required or not; so a form keeps only its fields,
+   * is required when one of them is, and without fields has no body to list. A
+   * `formData` file is one file, never an array, a union, or null, so a field
+   * taking several files, or none, is listed as one file, optional unless it
+   * requires one ({@link swaggerV2FormField}).
+   */
+  const swaggerV2Body = (
+    props: IProps<ITypedHttpRouteParameter.IBody>,
+    body: OpenApi.IOperation.IRequestBody,
+  ): OpenApi.IOperation.IRequestBody | undefined => {
+    const contentType: string = props.parameter.contentType;
+    if (
+      contentType !== "multipart/form-data" &&
+      contentType !== "application/x-www-form-urlencoded"
+    )
+      return {
+        description: body.description,
+        content: { [contentType]: { schema: props.schema } },
+        required: body.required,
+      };
+    const object: OpenApi.IJsonSchema.IObject | undefined = resolveObject(
+      props.document,
+      props.schema,
+    );
+    if (
+      object === undefined ||
+      Object.keys(object.properties ?? {}).length === 0
+    )
+      return undefined;
+    const fields: [string, ISwaggerV2FormField][] = Object.entries(
+      object.properties ?? {},
+    ).map(([key, value]) => [key, swaggerV2FormField(value)]);
+    const required: string[] = (object.required ?? []).filter(
+      (key) => fields.find(([name]) => name === key)?.[1].optional !== true,
+    );
+    return {
+      content: {
+        [contentType]: {
+          schema: {
+            type: "object",
+            properties: Object.fromEntries(
+              fields.map(([key, field]) => [key, field.schema]),
+            ),
+            required,
+          },
+        },
+      },
+      required: required.length !== 0,
     };
   };
 
@@ -113,36 +176,36 @@ export namespace SwaggerOperationParameterComposer {
       schema: props.schema,
       description: parameterDescription(props),
       // An unnamed object's keys are the request's own query keys or headers,
-      // so it is mandatory only when every object it may be needs one of the
-      // keys the document describes; an object whose described properties are
-      // all optional, a `Record` included, is satisfied when the request sends
-      // none of them. A field-named parameter is one key, required as declared.
+      // so it is mandatory only when one of the keys the document describes
+      // is; an object whose described properties are all optional is satisfied
+      // when the request sends none of them. A field-named parameter is one
+      // key, required as declared.
       required:
         props.parameter.metadata.required &&
         (props.parameter.field !== null ||
-          props.parameter.metadata.objects.every(
-            (o) =>
-              (o.type as MetadataObjectType | undefined)?.properties.some(
-                (p) => isDescribed(p) && isRequiredOf(p.value),
-              ) ?? true,
-          )),
+          (object?.properties.some(
+            (p) => isDescribed(p) && isRequiredOf(p.value),
+          ) ??
+            true)),
       example: props.parameter.example,
       examples: props.parameter.examples,
     };
-    if (props.config.decompose === false || object === undefined)
-      return [param];
-    // A dynamic key (an index signature, a `Record`) has no name to give a
-    // parameter. OpenAPI 3.x can still describe a query object that has one: a
-    // form-style parameter explodes the object into arbitrary keys, so the
-    // object stays that one parameter. A header has no such form and Swagger 2.0
-    // has no object query parameter, so there only the known keys become
-    // parameters; nothing in those formats describes the dynamic part.
+    // A field-named parameter is one key, which typia's HTTP rules (#1648)
+    // keep atomic, and a query or headers object passed them: one object of
+    // statically named atomic or array-of-atomic properties, so each has a
+    // name to give its parameter.
+    if (props.parameter.field !== null || object === undefined) return [param];
+    // `decompose: false` keeps a query object one parameter where the format
+    // can say so: OpenAPI 3.x spreads it into its keys with `style: form` and
+    // `explode: true`. Swagger 2.0 has no object query parameter, and no
+    // format spreads an object into headers, so one parameter would be a key
+    // or header no request carries (#1653); those are always decomposed.
     if (
+      props.config.decompose === false &&
       props.parameter.category === "query" &&
-      props.config.openapi !== "2.0" &&
-      object.properties.some((p) => isSoleLiteralOf(p.key) === false)
+      props.config.openapi !== "2.0"
     )
-      return [param];
+      return [{ ...param, style: "form", explode: true }];
     // One parameter per property typia's object schema describes, so the
     // decomposed form says what `decompose: false` would say about the object:
     // the property's schema, and in the parameter's own fields its
@@ -164,14 +227,15 @@ export namespace SwaggerOperationParameterComposer {
           schema: json.schemas[0],
           metadata: p.value,
         });
-        if (Object.keys(json.components.schemas ?? {}).length !== 0) {
-          props.document.components ??= {};
-          props.document.components.schemas ??= {};
-          Object.assign(
-            props.document.components.schemas,
-            json.components.schemas,
-          );
-        }
+        // Only what the document lacks: the parameter's own schema already
+        // brought every component its properties reach, emended for readonly
+        // arrays, and this copy is not.
+        props.document.components ??= {};
+        props.document.components.schemas ??= {};
+        for (const [name, schema] of Object.entries(
+          json.components.schemas ?? {},
+        ))
+          props.document.components.schemas[name] ??= schema;
         return {
           name: key,
           in: props.parameter.category === "query" ? "query" : "header",
@@ -218,6 +282,105 @@ const isDescribed = (p: MetadataProperty): boolean =>
       tag.name !== "hidden" && tag.name !== "ignore" && tag.name !== "internal",
   );
 
+/** A form field as a Swagger 2.0 `formData` parameter holds it. */
+interface ISwaggerV2FormField {
+  schema: OpenApi.IJsonSchema;
+
+  /** Whether a request may leave the field out though its type requires it. */
+  optional: boolean;
+}
+
+/**
+ * A form field as a Swagger 2.0 `formData` parameter can hold it.
+ *
+ * A 2.0 file is one file: never an array, a union, or null. A field whose value
+ * is made of files, a union of files or one of them or null, or an array of
+ * those, becomes the one file a request may carry, keeping the field's title,
+ * description, and deprecation. A request may then carry none, since the server
+ * reads a missing field as null or an empty array, so such a field is not
+ * required unless its array requires an item; a plain file is kept as it is.
+ */
+const swaggerV2FormField = (
+  schema: OpenApi.IJsonSchema,
+): ISwaggerV2FormField => {
+  const file: IFileOf | undefined = fileOf(schema, true);
+  if (file === undefined || file.binary === schema)
+    return { schema, optional: false };
+  const attributes = schema as OpenApi.IJsonSchema.IString;
+  return {
+    schema: {
+      ...file.binary,
+      ...(attributes.title !== undefined ? { title: attributes.title } : {}),
+      ...(attributes.description !== undefined
+        ? { description: attributes.description }
+        : {}),
+      ...(attributes.deprecated !== undefined
+        ? { deprecated: attributes.deprecated }
+        : {}),
+    },
+    optional: file.optional,
+  };
+};
+
+interface IFileOf {
+  binary: OpenApi.IJsonSchema;
+  optional: boolean;
+}
+
+/** The file a field's value is made of, if it is made of files only. */
+const fileOf = (
+  schema: OpenApi.IJsonSchema,
+  top: boolean,
+): IFileOf | undefined => {
+  if (isBinary(schema)) return { binary: schema, optional: false };
+  if (OpenApiTypeChecker.isOneOf(schema)) {
+    const members: OpenApi.IJsonSchema[] = schema.oneOf.filter(
+      (s) => OpenApiTypeChecker.isNull(s) === false,
+    );
+    const files: Array<IFileOf | undefined> = members.map((s) =>
+      fileOf(s, top),
+    );
+    if (files.length === 0 || files.some((f) => f === undefined))
+      return undefined;
+    return {
+      binary: files[0]!.binary,
+      optional:
+        members.length !== schema.oneOf.length ||
+        files.some((f) => f!.optional),
+    };
+  }
+  if (top && OpenApiTypeChecker.isArray(schema)) {
+    const item: IFileOf | undefined = fileOf(schema.items, false);
+    // an empty array is a request without the field, unless one file is due
+    return item === undefined
+      ? undefined
+      : { binary: item.binary, optional: (schema.minItems ?? 0) === 0 };
+  }
+  return undefined;
+};
+
+const isBinary = (schema: OpenApi.IJsonSchema): boolean =>
+  OpenApiTypeChecker.isString(schema) && schema.format === "binary";
+
+/** The object schema `schema` is or refers to, if it is one. */
+const resolveObject = (
+  document: OpenApi.IDocument,
+  schema: OpenApi.IJsonSchema,
+): OpenApi.IJsonSchema.IObject | undefined => {
+  const visited: Set<string> = new Set();
+  while (OpenApiTypeChecker.isReference(schema)) {
+    if (visited.has(schema.$ref)) return undefined;
+    visited.add(schema.$ref);
+    const next: OpenApi.IJsonSchema | undefined =
+      document.components?.schemas?.[
+        schema.$ref.substring("#/components/schemas/".length)
+      ];
+    if (next === undefined) return undefined;
+    schema = next;
+  }
+  return OpenApiTypeChecker.isObject(schema) ? schema : undefined;
+};
+
 /** The `key` member of an object example, if the example has one. */
 const memberOf = (example: unknown, key: string): unknown =>
   typeof example === "object" &&
@@ -227,17 +390,20 @@ const memberOf = (example: unknown, key: string): unknown =>
     : undefined;
 
 /**
- * Named object examples narrowed to the ones that have a `key` member, in the
- * same representation the undecomposed parameter carries them.
+ * Named object examples narrowed to the ones whose value has a `key` member,
+ * each an Example Object of that member.
  */
 const membersOf = (
-  examples: Record<string, any> | undefined,
+  examples: Record<string, OpenApi.IExample> | undefined,
   key: string,
-): Record<string, any> | undefined => {
+): Record<string, OpenApi.IExample> | undefined => {
   if (examples === undefined) return undefined;
-  const entries: [string, unknown][] = Object.entries(examples)
-    .map(([name, value]): [string, unknown] => [name, memberOf(value, key)])
-    .filter(([, value]) => value !== undefined);
+  const entries: [string, OpenApi.IExample][] = Object.entries(examples)
+    .map(([name, example]): [string, OpenApi.IExample] => [
+      name,
+      { ...example, value: memberOf(example.value, key) },
+    ])
+    .filter(([, example]) => example.value !== undefined);
   return entries.length !== 0 ? Object.fromEntries(entries) : undefined;
 };
 

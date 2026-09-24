@@ -15,7 +15,6 @@ import { TypeFactory } from "../../factories/TypeFactory";
 import { sizeOf } from "../../internal/legacy";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
-import { StringUtil } from "../../utils/StringUtil";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
@@ -26,6 +25,8 @@ export namespace SdkHttpFunctionProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): Node => {
+      const names: SdkHttpParameterProgrammer.INames =
+        SdkHttpParameterProgrammer.getNames({ project, route });
       return factory.createFunctionDeclaration(
         [
           factory.createModifier(SyntaxKind.ExportKeyword),
@@ -36,7 +37,7 @@ export namespace SdkHttpFunctionProgrammer {
         undefined,
         [
           IdentifierFactory.parameter(
-            "connection",
+            names.connection,
             factory.createTypeReferenceNode(
               SdkImportWizard.IConnection(importer),
               route.headerObject !== null
@@ -59,21 +60,15 @@ export namespace SdkHttpFunctionProgrammer {
             ? factory.createTypeReferenceNode(`${route.name}.Output`)
             : factory.createTypeReferenceNode("void"),
         ]),
-        factory.createBlock(writeBody(project)(importer)(route), true),
+        factory.createBlock(writeBody(project)(importer)(route)(names), true),
       );
     };
 
   const writeBody =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): Statement[] => {
-      const access = (name: string): Expression =>
-        project.config.keyword === true
-          ? factory.createPropertyAccessExpression(
-              factory.createIdentifier("props"),
-              name,
-            )
-          : factory.createIdentifier(name);
+    (route: ITypedHttpRoute) =>
+    (names: SdkHttpParameterProgrammer.INames): Statement[] => {
       const fetch = () =>
         factory.createCallExpression(
           IdentifierFactory.access(
@@ -95,7 +90,7 @@ export namespace SdkHttpFunctionProgrammer {
               ? factory.createObjectLiteralExpression(
                   [
                     factory.createSpreadAssignment(
-                      factory.createIdentifier("connection"),
+                      factory.createIdentifier(names.connection),
                     ),
                     factory.createPropertyAssignment(
                       "headers",
@@ -103,7 +98,7 @@ export namespace SdkHttpFunctionProgrammer {
                         [
                           factory.createSpreadAssignment(
                             IdentifierFactory.access(
-                              factory.createIdentifier("connection"),
+                              factory.createIdentifier(names.connection),
                               "headers",
                             ),
                           ),
@@ -120,7 +115,7 @@ export namespace SdkHttpFunctionProgrammer {
                   ],
                   true,
                 )
-              : factory.createIdentifier("connection"),
+              : factory.createIdentifier(names.connection),
             factory.createObjectLiteralExpression(
               [
                 factory.createSpreadAssignment(
@@ -157,7 +152,7 @@ export namespace SdkHttpFunctionProgrammer {
               ],
               true,
             ),
-            ...(route.body ? [access(route.body.name)] : []),
+            ...(route.body ? [names.access(route.body)] : []),
             ...(project.config.json &&
             route.body !== null &&
             (route.body.contentType === "application/json" ||
@@ -171,14 +166,17 @@ export namespace SdkHttpFunctionProgrammer {
           ? factory.createConditionalExpression(
               factory.createStrictEquality(
                 factory.createTrue(),
-                factory.createIdentifier("connection.simulate"),
+                IdentifierFactory.access(
+                  factory.createIdentifier(names.connection),
+                  "simulate",
+                ),
               ),
               undefined,
               factory.createCallExpression(
                 factory.createIdentifier(`${route.name}.simulate`),
                 [],
                 [
-                  factory.createIdentifier("connection"),
+                  factory.createIdentifier(names.connection),
                   ...(SdkHttpParameterProgrammer.getArguments({
                     project,
                     route,
@@ -201,15 +199,15 @@ export namespace SdkHttpFunctionProgrammer {
                     factory.createIdentifier(SdkImportWizard.typia(importer)),
                     "assert",
                   ),
-                  [factory.createTypeQueryNode(access(p.name) as EntityName)],
-                  [access(p.name)],
+                  [factory.createTypeQueryNode(names.access(p) as EntityName)],
+                  [names.access(p)],
                 ),
               ),
             )
           : []),
         ...(route.success.setHeaders.length === 0
           ? [factory.createReturnStatement(output(false))]
-          : writeSetHeaders(project)(importer)(route)(output(true))),
+          : writeSetHeaders(project)(importer)(route)(names)(output(true))),
       ];
     };
 
@@ -217,16 +215,12 @@ export namespace SdkHttpFunctionProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute) =>
+    (names: SdkHttpParameterProgrammer.INames) =>
     (condition: Expression): Statement[] => {
       const accessor = (x: string) => (y: string) =>
         x[0] === "[" ? `${x}${y}` : `${x}.${y}`;
-      const output: string = StringUtil.escapeDuplicate([
-        "connection",
-        ...SdkHttpParameterProgrammer.getSignificant(route, true).map(
-          (p) => p.name,
-        ),
-      ])("output");
-      const headers: string = accessor("connection")("headers");
+      const output: string = names.output;
+      const headers: string = accessor(names.connection)("headers");
       const data: string = project.config.propagate
         ? accessor(output)("data")
         : output;
@@ -248,9 +242,13 @@ export namespace SdkHttpFunctionProgrammer {
                 ],
               )
             : factory.createBinaryExpression(
-                factory.createIdentifier(
-                  accessor(headers)(tuple.target ?? tuple.source),
-                ),
+                // a target is a header name, which usually is no identifier
+                tuple.target !== undefined
+                  ? IdentifierFactory.access(
+                      factory.createIdentifier(headers),
+                      tuple.target,
+                    )
+                  : factory.createIdentifier(accessor(headers)(tuple.source)),
                 factory.createToken(SyntaxKind.EqualsToken),
                 factory.createIdentifier(accessor(data)(tuple.source)),
               ),

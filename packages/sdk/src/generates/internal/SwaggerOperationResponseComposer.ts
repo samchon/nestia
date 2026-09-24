@@ -1,6 +1,7 @@
 import { OpenApi } from "@typia/interface";
 import { VariadicSingleton } from "tstl";
 
+import { INestiaConfig } from "../../INestiaConfig";
 import { MetadataSchema } from "../../internal/legacy";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { StringUtil } from "../../utils/StringUtil";
@@ -8,9 +9,17 @@ import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
 
 export namespace SwaggerOperationResponseComposer {
   export const compose = (props: {
+    config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     schema: (metadata: MetadataSchema) => OpenApi.IJsonSchema | undefined;
     route: ITypedHttpRoute;
   }): Record<string, OpenApi.IOperation.IResponse> => {
+    // Swagger 2.0 keys a response's examples by MIME type, one each, so it has
+    // no named examples; the downgrader refuses the whole document rather than
+    // lose them (#1649). The single example still fits.
+    const named = (
+      examples: Record<string, OpenApi.IExample> | undefined,
+    ): Record<string, OpenApi.IExample> | undefined =>
+      props.config.openapi === "2.0" ? undefined : examples;
     const output: Record<string, OpenApi.IOperation.IResponse> = {};
     // FROM DECORATOR
     for (const [status, error] of Object.entries(props.route.exceptions))
@@ -20,7 +29,7 @@ export namespace SwaggerOperationResponseComposer {
           contentType: "application/json",
           schema: props.schema(error.metadata),
           example: error.example,
-          examples: error.examples,
+          examples: named(error.examples),
         }),
       };
 
@@ -32,8 +41,8 @@ export namespace SwaggerOperationResponseComposer {
       )?.text;
       if (text === undefined) continue;
 
-      const elements: string[] = text.split(" ").map((str) => str.trim());
-      const status: string = elements[0]!;
+      // the status is the first word; a tag's text may run over lines
+      const status: string = text.trim().split(/\s+/)[0]!;
       if (
         isNaN(Number(status)) &&
         status !== "2XX" &&
@@ -43,8 +52,8 @@ export namespace SwaggerOperationResponseComposer {
       )
         continue;
 
-      const description: string | undefined =
-        elements.length === 1 ? undefined : elements.slice(1).join(" ");
+      const rest: string = text.trim().substring(status.length).trim();
+      const description: string | undefined = rest.length ? rest : undefined;
       const oldbie = output[status];
       if (description && oldbie !== undefined)
         oldbie.description ??= description;
@@ -75,10 +84,11 @@ export namespace SwaggerOperationResponseComposer {
         jsDocTags: props.route.jsDocTags,
         tag: "return",
       });
-    output[
+    const status: string = String(
       props.route.success.status ??
-        (props.route.method.toLowerCase() === "post" ? 201 : 200)
-    ] = {
+        (props.route.method.toLowerCase() === "post" ? 201 : 200),
+    );
+    output[status] = {
       description: props.route.success.encrypted
         ? `${warning.get(!!description, props.route.method)}${description ?? ""}`
         : (description ?? ""),
@@ -91,12 +101,46 @@ export namespace SwaggerOperationResponseComposer {
             }
           : props.schema(props.route.success.metadata),
         example: props.route.success.example,
-        examples: props.route.success.examples,
+        examples: named(props.route.success.examples),
       }),
-      ...(props.route.success.encrypted ? { "x-nestia-encrypted": true } : {}),
+      // Swagger 2.0 has no place for the flag, and the downgrader refuses the
+      // whole document rather than lose it; the description keeps the warning.
+      ...(props.route.success.encrypted && props.config.openapi !== "2.0"
+        ? { "x-nestia-encrypted": true }
+        : {}),
     };
+    if (props.config.openapi === "2.0") swaggerV2Produces(output, status);
     return output;
   };
+
+  /**
+   * Makes every response body of a Swagger 2.0 operation share one media type.
+   *
+   * 2.0 declares the media types an operation `produces` once for all of its
+   * responses, and the downgrader refuses an operation whose responses disagree
+   * rather than list a type a response does not use (#1649). A route whose
+   * success body is not JSON, such as an encrypted or a query-string one, still
+   * documents its exceptions as JSON, so where the success body has another
+   * type, the exceptions keep their status and description without a body.
+   */
+  const swaggerV2Produces = (
+    output: Record<string, OpenApi.IOperation.IResponse>,
+    success: string,
+  ): void => {
+    const kept: string | undefined = mediaOf(output[success]!);
+    if (kept === undefined) return;
+    for (const [status, response] of Object.entries(output))
+      if (status !== success && mediaOf(response) !== kept)
+        delete response.content;
+  };
+
+  /** The media types of a response body, or `undefined` without one. */
+  const mediaOf = (
+    response: OpenApi.IOperation.IResponse,
+  ): string | undefined =>
+    response.content === undefined
+      ? undefined
+      : Object.keys(response.content).sort().join(" ");
 }
 
 /**
@@ -126,7 +170,7 @@ const composeContent = (props: {
   contentType: string | null | undefined;
   schema: OpenApi.IJsonSchema | undefined;
   example: any;
-  examples: Record<string, any> | undefined;
+  examples: Record<string, OpenApi.IExample> | undefined;
 }): OpenApi.IOperation.IContent | undefined => {
   if (!props.contentType) return undefined;
   const described: boolean =

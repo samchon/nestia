@@ -5,17 +5,14 @@ import {
   INTERCEPTORS_METADATA,
 } from "@nestjs/common/constants";
 
-import {
-  HttpQueryProgrammer,
-  JsonMetadataFactory,
-  sizeOf,
-} from "../internal/legacy";
+import { JsonMetadataFactory, sizeOf } from "../internal/legacy";
 import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
 import { HttpResponseContentTypeUtil } from "../utils/HttpResponseContentTypeUtil";
 import { TextPlainValidator } from "../validators/TextPlainValidator";
+import { SwaggerExampleAnalyzer } from "./SwaggerExampleAnalyzer";
 
 export namespace ReflectHttpOperationResponseAnalyzer {
   export interface IContext {
@@ -102,7 +99,9 @@ export namespace ReflectHttpOperationResponseAnalyzer {
           : contentType === "application/json" || encrypted === true
             ? JsonMetadataFactory.validate
             : contentType === "application/x-www-form-urlencoded"
-              ? HttpQueryProgrammer.validate
+              ? // a typed query response, held to typia's query rules by the
+                // core transform
+                undefined
               : contentType === "text/plain"
                 ? TextPlainValidator.validate
                 : (next) =>
@@ -110,7 +109,7 @@ export namespace ReflectHttpOperationResponseAnalyzer {
                       ? ["HEAD method must not have any return value."]
                       : [],
       example: example?.example,
-      examples: example?.examples,
+      examples: SwaggerExampleAnalyzer.examples(example),
     };
   };
 

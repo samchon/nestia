@@ -1,6 +1,8 @@
 package transform
 
 import (
+	"sync"
+
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimprinter "github.com/microsoft/typescript-go/shim/printer"
 	shimscanner "github.com/microsoft/typescript-go/shim/scanner"
@@ -22,6 +24,10 @@ func nestiaTypiaNodeTransform(
 ) driver.PluginTransform {
 	transformOptions := pluginOptions.TransformOptions()
 	extras := nativecontext.ITypiaContext_Extras{
+		// One cache for the whole program, as typia's own hosts share it: left
+		// nil, typia makes one per file, and a program-wide analysis such as
+		// `llm.evaluation`'s `@probability` scan reruns for every file.
+		Shared: &sync.Map{},
 		AddDiagnostic: func(diag *nativecontext.ITypiaDiagnostic) int {
 			addDiagnostic(nestiaTypiaDiagnosticFrom(diag))
 			return 1

@@ -3,6 +3,7 @@ import { NamingConvention } from "@typia/utils";
 import { IJsDocTagInfo, IMetadataTypeTag } from "typia";
 
 import { ExpressionFactory } from "../../factories/ExpressionFactory";
+import { LiteralFactory } from "../../factories/LiteralFactory";
 import { TypeFactory } from "../../factories/TypeFactory";
 import {
   MetadataAliasType,
@@ -14,6 +15,7 @@ import {
   MetadataProperty,
   MetadataSchema,
   MetadataTuple,
+  decodeMetadataValue,
   isRequiredOf,
   isSoleLiteralOf,
   sizeOf,
@@ -43,7 +45,7 @@ export namespace SdkTypeProgrammer {
 
       // ATOMIC TYPES
       for (const c of meta.constants)
-        for (const value of c.values) union.push(write_constant(value));
+        for (const value of c.values) union.push(write_constant(c.type, value));
       for (const tpl of meta.templates)
         union.push(write_template(project)(importer)(tpl.row ?? tpl));
       for (const atom of meta.atomics) union.push(write_atomic(importer)(atom));
@@ -117,26 +119,24 @@ export namespace SdkTypeProgrammer {
   /* -----------------------------------------------------------
     ATOMICS
   ----------------------------------------------------------- */
-  const write_constant = (value: MetadataConstantValue) => {
-    if (typeof value.value === "boolean")
+  const write_constant = (
+    type: string,
+    constant: MetadataConstantValue,
+  ): TypeNode => {
+    const value: unknown = decodeMetadataValue(type, constant.value);
+    if (typeof value === "boolean")
       return factory.createLiteralTypeNode(
-        value.value ? factory.createTrue() : factory.createFalse(),
+        value ? factory.createTrue() : factory.createFalse(),
       );
-    else if (typeof value.value === "bigint")
-      return factory.createLiteralTypeNode(
-        value.value < BigInt(0)
-          ? factory.createPrefixUnaryExpression(
-              SyntaxKind.MinusToken,
-              factory.createBigIntLiteral((-value.value).toString()),
-            )
-          : factory.createBigIntLiteral(value.value.toString()),
-      );
-    else if (typeof value.value === "number")
-      return factory.createLiteralTypeNode(
-        ExpressionFactory.number(value.value),
-      );
+    else if (typeof value === "bigint")
+      return factory.createLiteralTypeNode(LiteralFactory.write(value) as any);
+    else if (typeof value === "number")
+      // NaN is the one number with no literal type
+      return Number.isNaN(value)
+        ? TypeFactory.keyword("number")
+        : factory.createLiteralTypeNode(ExpressionFactory.number(value));
     return factory.createLiteralTypeNode(
-      factory.createStringLiteral(value.value as string),
+      factory.createStringLiteral(value as string),
     );
   };
 

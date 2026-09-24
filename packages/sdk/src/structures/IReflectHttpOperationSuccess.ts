@@ -1,4 +1,8 @@
-import { IMetadataComponents, IMetadataSchema } from "@typia/interface";
+import {
+  IMetadataComponents,
+  IMetadataSchema,
+  OpenApi,
+} from "@typia/interface";
 
 import { MetadataFactory } from "../internal/legacy";
 import { HttpResponseContentTypeUtil } from "../utils/HttpResponseContentTypeUtil";
@@ -12,7 +16,8 @@ export interface IReflectHttpOperationSuccess {
   encrypted: boolean;
   components: IMetadataComponents;
   metadata: IMetadataSchema;
-  validate: MetadataFactory.Validator;
+  validate?: MetadataFactory.Validator;
   example?: any;
-  examples?: Record<string, any>;
+  /** Named examples, as OpenAPI Example Objects. */
+  examples?: Record<string, OpenApi.IExample>;
 }

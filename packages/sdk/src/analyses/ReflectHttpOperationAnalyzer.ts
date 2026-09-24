@@ -117,8 +117,8 @@ export namespace ReflectHttpOperationAnalyzer {
       jsDocTags: props.metadata.jsDocTags,
       operationId: props.metadata.jsDocTags
         .find(({ name }) => name === "operationId")
-        ?.text?.[0]?.text.split(" ")[0]
-        ?.trim(),
+        ?.text?.[0]?.text.trim()
+        .split(/\s+/)[0],
       extensions: ReflectMetadataAnalyzer.extensions(props.function),
     };
 

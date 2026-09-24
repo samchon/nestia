@@ -54,6 +54,36 @@ export class CustomController {
     return id.toString();
   }
 
+  // Customizers run in the order they are declared from the method upwards,
+  // so the move runs first and the edit then finds the moved operation.
+  @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
+    (props.route as any)["x-after-move"] = true;
+  })
+  @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
+    const paths = props.swagger.paths!;
+    paths["/custom/moved"] = paths[props.path]!;
+    delete paths[props.path];
+  })
+  @TypedRoute.Get("movable")
+  public movable(): string {
+    return "movable";
+  }
+
+  // JSON has no bigint, so the example is written only after this converts it.
+  @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
+    for (const parameter of props.route.parameters ?? [])
+      if (typeof parameter.example === "bigint")
+        parameter.example = parameter.example.toString();
+  })
+  @TypedRoute.Get("bigint/:value")
+  public bigint(
+    @SwaggerExample.Parameter(BigInt("12345678901234567890"))
+    @TypedParam("value")
+    value: bigint,
+  ): string {
+    return value.toString();
+  }
+
   @TypedRoute.Get("readonly-array")
   public readonlyArray(): IReadonlyArrayDto {
     return {

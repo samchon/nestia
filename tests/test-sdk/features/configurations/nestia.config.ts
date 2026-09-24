@@ -1,6 +1,7 @@
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
 
+import { ApplicationModule } from "./src/modules/ApplicationModule";
 import { BbsModule } from "./src/modules/BbsModule";
 import { CommonModule } from "./src/modules/CommonModule";
 
@@ -31,6 +32,14 @@ export const NESTIA_CONFIGURATIONS: INestiaConfig[] = [
           type: "apiKey",
         },
       },
+    },
+  },
+  // composes CommonModule's routes a second time in the same process
+  {
+    input: () => NestFactory.create(ApplicationModule),
+    swagger: {
+      output: "application.swagger.json",
+      beautify: true,
     },
   },
 ];

@@ -2,6 +2,7 @@ import {
   IJsDocTagInfo,
   IMetadataComponents,
   IMetadataSchema,
+  OpenApi,
 } from "@typia/interface";
 
 import { MetadataFactory } from "../internal/legacy";
@@ -37,9 +38,15 @@ export namespace IReflectHttpOperationParameter {
     type: IReflectType;
     metadata: IMetadataSchema;
     components: IMetadataComponents;
-    validate: MetadataFactory.Validator;
+
+    /**
+     * SDK policy checked over the metadata, for a JSON or text body. An HTTP
+     * input's wire rules are typia's instead, baked beside its metadata.
+     */
+    validate?: MetadataFactory.Validator;
     example?: any;
-    examples?: Record<string, any>;
+    /** Named examples, as OpenAPI Example Objects. */
+    examples?: Record<string, OpenApi.IExample>;
     description: string | null;
     jsDocTags: IJsDocTagInfo[];
   }

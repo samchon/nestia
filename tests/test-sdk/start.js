@@ -48,6 +48,71 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     "websocket-error-invalid-acceptor-arity",
     "@WebSocketRoute.Acceptor() must have three type arguments.",
   ],
+  [
+    "query-error-plain",
+    [
+      "PlainQueryController.nested()",
+      "(INestedQuery.filter)",
+      "nested object type is not allowed.",
+      "PlainQueryController.dynamic()",
+      "dynamic property is not allowed.",
+      "PlainQueryController.union()",
+      "only one object type is allowed.",
+      "PlainQueryController.native()",
+      "(INativeQuery.tags)",
+      "(INativeQuery.when)",
+      "PlainQueryController.field()",
+      "only atomic or array of atomic types are allowed.",
+      "PlainQueryController.fields()",
+      "only atomic types are allowed in array.",
+    ],
+  ],
+  [
+    "headers-error-plain",
+    [
+      "PlainHeadersController.nested()",
+      "nested object type is not allowed.",
+      "PlainHeadersController.dynamic()",
+      "dynamic property is not allowed.",
+      "PlainHeadersController.union()",
+      "only one object type is allowed.",
+      "PlainHeadersController.nullable()",
+      "nullable type is not allowed.",
+      "PlainHeadersController.native()",
+      "(INativeHeaders[\"x-tags\"])",
+      "PlainHeadersController.field()",
+      "only atomic or array of atomic types are allowed.",
+    ],
+  ],
+  [
+    "param-error-plain",
+    [
+      "PlainParamController.object()",
+      "only atomic or constant types are allowed",
+      "PlainParamController.native()",
+      "PlainParamController.dynamic()",
+      "PlainParamController.union()",
+      "do not allow union type",
+    ],
+  ],
+  [
+    "parameter-error-duplicated-key",
+    [
+      'Query key "keyword" is declared both by a field parameter and by the query object.',
+      'Header "X-Tenant" is declared both by a field parameter and by the headers object.',
+      // a contradiction names the function alone, with no dangling "from"
+      "DuplicatedController.fields():",
+      "Duplicated field names of headers are not allowed.",
+    ],
+  ],
+  [
+    "payload-error-vanilla",
+    [
+      "@UploadedFile() is not supported",
+      "@UploadedFiles() is not supported",
+      "@RawBody() is not supported",
+    ],
+  ],
 ]);
 // One command compiles each compatible native-diagnostic cohort. Each entry
 // names its source fixture and exact diagnostic-line count; SDK reflection
@@ -284,9 +349,14 @@ const feature = async (name, port) => {
         "all",
         ...generationTail(name),
       ]);
-      if (output.includes(expected) === false)
+      // each entry must appear: a feature may pin several contradictions,
+      // and the report lists them all at once
+      const missing = [expected]
+        .flat()
+        .filter((line) => output.includes(line) === false);
+      if (missing.length !== 0)
         throw new Error(
-          `${name} did not report its expected diagnostic:\n${output}`,
+          `${name} did not report its expected diagnostic(s) ${JSON.stringify(missing)}:\n${output}`,
         );
       return;
     }

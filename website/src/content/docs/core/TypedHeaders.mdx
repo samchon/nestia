@@ -81,9 +81,9 @@ Tags layered on top (`MinLength`, `Pattern`, etc.) work the same as on body / qu
 Reach for the vanilla decorator when:
 
 - The header carries opaque data (`Authorization: Bearer …`) and you delegate parsing to a guard.
-- You need every header, not a known subset — declare the parameter as `Record<string, string>` with `@Headers()`.
+- You need every header, not a known subset — read them from `@Req()`, which the SDK ignores; the SDK and Swagger cannot describe arbitrary header names.
 
-`@nestia/sdk` reads the declared type of `@TypedHeaders()` and vanilla `@Headers()` parameters alike into the SDK and the Swagger document; the vanilla decorator only skips coercion and validation. When Swagger [decomposes](./TypedQuery#flat-dtos-and-swagger-decomposition) a header object (the default), a dynamic key adds no parameter, because OpenAPI cannot list arbitrary headers: a `Record<string, string>` object adds none, and an object that mixes named headers with an index signature adds the named ones.
+`@nestia/sdk` reads the declared type of `@TypedHeaders()` and vanilla `@Headers()` parameters alike into the SDK and the Swagger document, and holds both to the same header rules: one object of statically named atomic properties, none nullable, arrays only where a header may repeat, and a field-named `@Headers("key")` of an atomic type or an array of them. A dynamic key such as `Record<string, string>` is reported as a diagnostic, because no document can list arbitrary headers and the SDK could not send them. The vanilla decorator only skips coercion and validation.
 
 ---
 

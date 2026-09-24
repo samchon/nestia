@@ -12,6 +12,7 @@ import {
 import { IdentifierFactory } from "../../factories/IdentifierFactory";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedMcpRoute } from "../../structures/ITypedMcpRoute";
+import { StringUtil } from "../../utils/StringUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 
@@ -39,6 +40,16 @@ export namespace SdkMcpRouteProgrammer {
     (_project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedMcpRoute): Node => {
+      // The body reads `<route>.METADATA` next to these, so they yield to a
+      // tool of the same name, as the HTTP and WebSocket SDKs' own do.
+      const own = StringUtil.escapeDuplicate([route.name]);
+      const names = {
+        client: own("client"),
+        args: own("args"),
+        raw: own("raw"),
+        result: own("result"),
+        first: own("first"),
+      };
       const clientType = factory.createTypeReferenceNode(
         importer.external({
           declaration: true,
@@ -75,7 +86,7 @@ export namespace SdkMcpRouteProgrammer {
         factory.createParameterDeclaration(
           undefined,
           undefined,
-          "client",
+          names.client,
           undefined,
           clientType,
           undefined,
@@ -86,7 +97,7 @@ export namespace SdkMcpRouteProgrammer {
           factory.createParameterDeclaration(
             undefined,
             undefined,
-            "args",
+            names.args,
             undefined,
             inputRef,
             undefined,
@@ -110,7 +121,7 @@ export namespace SdkMcpRouteProgrammer {
             "arguments",
             factory.createAsExpression(
               factory.createAsExpression(
-                factory.createIdentifier("args"),
+                factory.createIdentifier(names.args),
                 factory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
               ),
               factory.createTypeReferenceNode("Record", [
@@ -128,13 +139,13 @@ export namespace SdkMcpRouteProgrammer {
             factory.createVariableDeclarationList(
               [
                 factory.createVariableDeclaration(
-                  "raw",
+                  names.raw,
                   undefined,
                   undefined,
                   factory.createAwaitExpression(
                     factory.createCallExpression(
                       factory.createPropertyAccessExpression(
-                        factory.createIdentifier("client"),
+                        factory.createIdentifier(names.client),
                         "callTool",
                       ),
                       undefined,
@@ -165,7 +176,7 @@ export namespace SdkMcpRouteProgrammer {
               ),
               undefined,
               [
-                factory.createIdentifier("raw"),
+                factory.createIdentifier(names.raw),
                 factory.createStringLiteral("toolResult"),
               ],
             ),
@@ -179,11 +190,11 @@ export namespace SdkMcpRouteProgrammer {
             factory.createVariableDeclarationList(
               [
                 factory.createVariableDeclaration(
-                  "result",
+                  names.result,
                   undefined,
                   factory.createTypeReferenceNode(callToolResultTypeName),
                   factory.createAsExpression(
-                    factory.createIdentifier("raw"),
+                    factory.createIdentifier(names.raw),
                     factory.createTypeReferenceNode(callToolResultTypeName),
                   ),
                 ),
@@ -194,7 +205,7 @@ export namespace SdkMcpRouteProgrammer {
           factory.createIfStatement(
             factory.createBinaryExpression(
               factory.createPropertyAccessExpression(
-                factory.createIdentifier("result"),
+                factory.createIdentifier(names.result),
                 "isError",
               ),
               factory.createToken(SyntaxKind.EqualsEqualsEqualsToken),
@@ -210,13 +221,13 @@ export namespace SdkMcpRouteProgrammer {
                   factory.createVariableDeclarationList(
                     [
                       factory.createVariableDeclaration(
-                        "first",
+                        names.first,
                         undefined,
                         undefined,
                         factory.createCallExpression(
                           factory.createPropertyAccessExpression(
                             factory.createPropertyAccessExpression(
-                              factory.createIdentifier("result"),
+                              factory.createIdentifier(names.result),
                               "content",
                             ),
                             "find",
@@ -249,7 +260,7 @@ export namespace SdkMcpRouteProgrammer {
                 ),
                 factory.createIfStatement(
                   factory.createBinaryExpression(
-                    factory.createIdentifier("first"),
+                    factory.createIdentifier(names.first),
                     factory.createToken(SyntaxKind.EqualsEqualsEqualsToken),
                     factory.createIdentifier("undefined"),
                   ),
@@ -258,7 +269,7 @@ export namespace SdkMcpRouteProgrammer {
                 factory.createIfStatement(
                   factory.createBinaryExpression(
                     factory.createPropertyAccessExpression(
-                      factory.createIdentifier("first"),
+                      factory.createIdentifier(names.first),
                       "type",
                     ),
                     factory.createToken(SyntaxKind.EqualsEqualsEqualsToken),
@@ -274,7 +285,7 @@ export namespace SdkMcpRouteProgrammer {
                         undefined,
                         [
                           factory.createPropertyAccessExpression(
-                            factory.createIdentifier("first"),
+                            factory.createIdentifier(names.first),
                             "text",
                           ),
                         ],

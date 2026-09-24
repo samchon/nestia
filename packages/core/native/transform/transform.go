@@ -169,7 +169,14 @@ func runTransformProject(
 		sf := prog.SourceFile(fileName)
 		return sf != nil && prog.TSProgram.IsLibFile(sf)
 	})
-	schemametadata.MetadataDependency_listen(prog.Checker, collector.Touch)
+	// `File` alone is the whole listener this host needs. `Callee` falls back
+	// to it, and the two channels differ only in whether a default library
+	// withholds a completeness declaration, which this host never makes;
+	// `Unbounded` is ignorable for the same reason, since an unreported input
+	// is still watched through the reference graph.
+	schemametadata.MetadataDependency_listen(prog.Checker, schemametadata.MetadataDependency_IListener{
+		File: collector.Touch,
+	})
 	defer schemametadata.MetadataDependency_release(prog.Checker)
 	for _, sf := range prog.SourceFiles() {
 		if sf.IsDeclarationFile {

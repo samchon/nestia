@@ -22,7 +22,7 @@ export namespace SwaggerOperationComposer {
       ...SwaggerDescriptionComposer.getJsDocTexts({
         jsDocTags: props.route.jsDocTags,
         name: "tag",
-      }).map((t) => t.split(" ")[0]!),
+      }).map((t) => t.trim().split(/\s+/)[0]!),
     ]);
     if (tags.size) {
       props.document.tags ??= [];
@@ -33,11 +33,13 @@ export namespace SwaggerOperationComposer {
         jsDocTags: props.route.jsDocTags,
         name: "tag",
       })) {
-        const [name, ...description] = texts.split(" ");
+        // the name is the first word; a tag's text may run over lines
+        const name: string = texts.trim().split(/\s+/)[0]!;
+        const description: string = texts.trim().substring(name.length).trim();
         if (description.length)
           props.document.tags.find(
             (elem) => elem.name === name,
-          )!.description ??= description.join(" ");
+          )!.description ??= description;
       }
     }
 
@@ -52,8 +54,7 @@ export namespace SwaggerOperationComposer {
             ? [{}]
             : tag.text.map((text) => {
                 const line: string[] = text.text
-                  .split(" ")
-                  .filter((s) => s.trim())
+                  .split(/\s+/)
                   .filter((s) => !!s.length);
                 if (line.length === 0) return {};
                 return {
@@ -102,6 +103,7 @@ export namespace SwaggerOperationComposer {
         .flat(),
       requestBody: writeRequestBody(props),
       responses: SwaggerOperationResponseComposer.compose({
+        config: props.config,
         schema: props.schema,
         route: props.route,
       }),
@@ -136,6 +138,8 @@ export namespace SwaggerOperationComposer {
  * helper across two rules that disagree would trade one defect for another.
  */
 const writeRequestBody = (props: {
+  config: Omit<INestiaConfig.ISwaggerConfig, "output">;
+  document: OpenApi.IDocument;
   schema: (metadata: MetadataSchema) => OpenApi.IJsonSchema | undefined;
   route: ITypedHttpRoute;
 }): OpenApi.IOperation.IRequestBody | undefined => {
@@ -145,6 +149,8 @@ const writeRequestBody = (props: {
   );
   if (schema === undefined) return undefined;
   return SwaggerOperationParameterComposer.body({
+    config: props.config,
+    document: props.document,
     schema,
     jsDocTags: props.route.jsDocTags,
     parameter: props.route.body,

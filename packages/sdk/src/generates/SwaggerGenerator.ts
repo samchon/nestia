@@ -211,7 +211,8 @@ export namespace SwaggerGenerator {
         schemas: {},
         securitySchemes: config.security,
       },
-      tags: config.tags ?? [],
+      // a copy, because composing pushes each route's tags into this list
+      tags: clone(config.tags ?? []),
       "x-typia-emended-v12": true,
     };
   };
@@ -238,7 +239,12 @@ export namespace SwaggerGenerator {
     routes: ITypedHttpRoute[];
   }): void => {
     // SWAGGER CUSTOMIZER
-    const customizers: Array<() => void> = [];
+    const customizers: Array<{
+      route: ITypedHttpRoute;
+      method: OpenApi.Method;
+      path: string;
+      closures: Function[];
+    }> = [];
     const neighbor = {
       at: new Singleton(() => {
         const functor: Map<Function, Endpoint> = new Map();
@@ -278,38 +284,101 @@ export namespace SwaggerGenerator {
 
     // COMPOSE OPERATIONS
     for (const r of props.routes) {
-      const operation: OpenApi.IOperation = SwaggerOperationComposer.compose({
-        ...props,
-        route: r,
-      });
+      const method: OpenApi.Method = r.method.toLowerCase() as OpenApi.Method;
       const path: string = getPath(r);
       props.document.paths ??= {};
       props.document.paths[path] ??= {};
-      props.document.paths[path][r.method.toLowerCase() as "get"] = operation;
+      props.document.paths[path][method] = SwaggerOperationComposer.compose({
+        ...props,
+        route: r,
+      });
 
       const closure: Function | Function[] | undefined = Reflect.getMetadata(
         "nestia/SwaggerCustomizer",
         r.controller.class.prototype,
         r.name,
       );
-      if (closure !== undefined) {
-        const array: Function[] = Array.isArray(closure) ? closure : [closure];
-        customizers.push(() => {
-          for (const closure of array)
-            closure({
-              swagger: props.document,
-              method: r.method,
-              path,
-              route: operation,
-              at: (func: Function) => neighbor.at.get().get(func),
-              get: (accessor: Accessor) => neighbor.get.get()(accessor),
-            } satisfies SwaggerCustomizer.IProps);
+      if (closure !== undefined)
+        customizers.push({
+          route: r,
+          method,
+          path,
+          closures: Array.isArray(closure) ? closure : [closure],
         });
-      }
     }
 
-    // DO CUSTOMIZE
-    for (const fn of customizers) fn();
+    // DETACH, then DO CUSTOMIZE
+    detach(props.document);
+    // Each customizer receives the operation composed for its own route, found
+    // before any customizer runs, since one may move or delete paths.
+    const operations: OpenApi.IOperation[] = customizers.map(
+      (c) => props.document.paths![c.path]![c.method]!,
+    );
+    customizers.forEach((c, i) => {
+      for (const closure of c.closures)
+        closure({
+          swagger: props.document,
+          method: c.route.method,
+          path: c.path,
+          route: operations[i]!,
+          at: (func: Function) => neighbor.at.get().get(func),
+          get: (accessor: Accessor) => neighbor.get.get()(accessor),
+        } satisfies SwaggerCustomizer.IProps);
+    });
+  };
+
+  /**
+   * Replaces every member of the composed document with a copy, in place.
+   *
+   * Operations still hold values nestia does not own by reference: decorator
+   * examples, `@ApiExtension` values, security requirements, and the configured
+   * servers, security schemes, and document info. They outlive the document,
+   * since route metadata and the configuration serve every composition in the
+   * process, so a `SwaggerCustomizer` or a caller editing one document edited
+   * all of them, and the next composition started from the edit. It runs before
+   * the customizers, which may then edit freely.
+   */
+  const detach = (document: OpenApi.IDocument): void => {
+    const copy: OpenApi.IDocument = clone(document);
+    for (const key of Object.keys(document))
+      delete (document as unknown as Record<string, unknown>)[key];
+    Object.assign(document, copy);
+  };
+
+  /**
+   * Copies the arrays and plain objects `value` is built of, keeping every
+   * other value as it is.
+   *
+   * A document is edited as the tree its JSON is, so every reference to an
+   * array or plain object gets its own copy, except a reference back to an
+   * enclosing one, which stays circular. Values are not converted: a JSON copy
+   * would throw on a bigint example or turn a `Date` into a string before the
+   * customizer or caller that handles it runs.
+   */
+  const clone = <T>(
+    value: T,
+    ancestors: Map<object, object> = new Map(),
+  ): T => {
+    if (typeof value !== "object" || value === null) return value;
+    const prototype: unknown = Object.getPrototypeOf(value);
+    const array: boolean = Array.isArray(value);
+    if (!array && prototype !== Object.prototype && prototype !== null)
+      return value;
+    const circular: object | undefined = ancestors.get(value);
+    if (circular !== undefined) return circular as T;
+    const output: Record<string, unknown> = (
+      array ? new Array((value as unknown[]).length) : {}
+    ) as Record<string, unknown>;
+    ancestors.set(value, output);
+    for (const key of Object.keys(value))
+      Object.defineProperty(output, key, {
+        value: clone((value as Record<string, unknown>)[key], ancestors),
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      });
+    ancestors.delete(value);
+    return output as T;
   };
 
   const getPath = (route: ITypedHttpRoute): string => {

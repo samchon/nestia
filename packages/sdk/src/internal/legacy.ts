@@ -147,6 +147,39 @@ export const isRequiredOf = (m: IMetadataSchema): boolean =>
   m.required && !m.optional;
 
 /**
+ * Reads a constant's value as the SDK's Go contributor writes it.
+ *
+ * JSON holds neither a bigint nor NaN or ±Infinity, so the metadata carries a
+ * bigint value as its decimal digits and a non-finite number by its name
+ * (`"Infinity"`), both as strings. `type` is the constant's type, which is its
+ * value's own, so a bigint or number constant's string is always one of those;
+ * every other value is returned as it is.
+ */
+export const decodeMetadataValue = (type: string, value: unknown): unknown =>
+  typeof value !== "string"
+    ? value
+    : type === "bigint"
+      ? BigInt(value)
+      : type === "number"
+        ? Number(value)
+        : value;
+
+/**
+ * Reads a type tag's value as the SDK's Go contributor writes it.
+ *
+ * A tag's `target` is the type it tags, not its value's: `tags.Sequence<1>` on
+ * a bigint holds a number, and `tags.Example<"Infinity">` on a number holds a
+ * string. So a value encoded as a string, a bigint's digits or a non-finite
+ * number's name, arrives with the type it stands for in `encoding`.
+ */
+export const decodeTagValue = (
+  tag: IMetadataTypeTag & { encoding?: "bigint" | "number" },
+): unknown =>
+  tag.encoding !== undefined
+    ? decodeMetadataValue(tag.encoding, tag.value)
+    : tag.value;
+
+/**
  * Equivalent of the legacy `MetadataSchema.isSoleLiteral()` method: `true` when
  * the schema represents exactly one constant literal value and nothing else.
  * Used by sdk's type printer to fall back to literal emission instead of a
@@ -406,22 +439,6 @@ export namespace JsonMetadataFactory {
   };
 }
 
-export namespace HttpQueryProgrammer {
-  export const validate: MetadataFactory.Validator = () => [];
-}
-
-export namespace HttpHeadersProgrammer {
-  export const validate: MetadataFactory.Validator = () => [];
-}
-
-export namespace HttpParameterProgrammer {
-  export const validate: MetadataFactory.Validator = () => [];
-}
-
-export namespace HttpFormDataProgrammer {
-  export const validate: MetadataFactory.Validator = () => [];
-}
-
 // ---------------------------------------------------------------------
 //  `JsonSchemasProgrammer.writeSchemas` — consumes the per-metadata
 //  pre-baked `jsonSchema` field the nestia transform emits.
@@ -435,6 +452,12 @@ export namespace JsonSchemasProgrammer {
    * without one falls back to a minimal JS-side converter that reads only the
    * atomic kinds — no type tags, template patterns, or constant annotations —
    * so it is no substitute for the bake.
+   *
+   * The schemas and components are copies. The bake belongs to the route
+   * metadata, which every composition in the process reads, while the composer
+   * edits what it is given in place (the readonly-array emender), and so can a
+   * `SwaggerCustomizer`; handing the bake out by reference let each document
+   * inherit the previous one's edits.
    */
   export const writeSchemas = (props: {
     version: "3.0" | "3.1";
@@ -445,7 +468,7 @@ export namespace JsonSchemasProgrammer {
     for (const m of props.metadatas) {
       const baked = (m as IReflectMetadata).jsonSchema;
       if (baked !== undefined) {
-        schemas.push(baked.schema);
+        schemas.push(copy(baked.schema));
         Object.assign(
           (components.schemas ??= {}),
           baked.components.schemas ?? {},
@@ -454,6 +477,9 @@ export namespace JsonSchemasProgrammer {
         schemas.push(schemaFromMetadata(m));
       }
     }
+    // Copied once the last bake of each name has won, rather than per bake.
+    if (components.schemas !== undefined)
+      components.schemas = copy(components.schemas);
     return {
       version: props.version,
       components,
@@ -467,12 +493,11 @@ export namespace JsonSchemasProgrammer {
    *
    * Reads the schema baked beside `metadata`'s own schema (see
    * {@link IReflectJsonSchema.properties}), resolved against the same
-   * components. The schema is a copy: the metadata outlives one document, and a
-   * `SwaggerCustomizer` or a second composition must not see another's edits.
-   * Returns `null` when that bake exists but has no entry for the property,
-   * because typia's object schema omits it, so no parameter describes it
-   * either. Only metadata the transform did not bake falls back to
-   * {@link writeSchemas} over the property value.
+   * components. The schema and components are copies, for the reason
+   * {@link writeSchemas} gives. Returns `null` when that bake exists but has no
+   * entry for the property, because typia's object schema omits it, so no
+   * parameter describes it either. Only metadata the transform did not bake
+   * falls back to {@link writeSchemas} over the property value.
    */
   export const writeProperty = (props: {
     version: "3.0" | "3.1";
@@ -492,11 +517,16 @@ export namespace JsonSchemasProgrammer {
       return null;
     return {
       version: props.version,
-      components: (props.metadata as IReflectMetadata).jsonSchema!.components,
-      schemas: [JSON.parse(JSON.stringify(properties[props.key]))],
+      components: copy(
+        (props.metadata as IReflectMetadata).jsonSchema!.components,
+      ),
+      schemas: [copy(properties[props.key]!)],
     } as IJsonSchemaCollection;
   };
 }
+
+/** Deep copy of baked data, which is parsed JSON, so JSON copies it exactly. */
+const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
 const schemaFromMetadata = (m: IMetadataSchema): OpenApi.IJsonSchema => {
   const union: OpenApi.IJsonSchema[] = [];
@@ -506,7 +536,7 @@ const schemaFromMetadata = (m: IMetadataSchema): OpenApi.IJsonSchema => {
   for (const constant of m.constants)
     for (const value of constant.values)
       union.push({
-        const: value.value,
+        const: jsonValue(decodeMetadataValue(constant.type, value.value)),
       } as unknown as OpenApi.IJsonSchema);
   for (const tpl of m.templates) {
     union.push({ type: "string" } as OpenApi.IJsonSchema);
@@ -537,6 +567,17 @@ const schemaFromMetadata = (m: IMetadataSchema): OpenApi.IJsonSchema => {
   if (union.length === 1) return union[0]!;
   return { oneOf: union } as unknown as OpenApi.IJsonSchema;
 };
+
+/**
+ * A value as a JSON document holds it: the number a bigint is, and null for a
+ * non-finite number, as `JSON.stringify` writes it.
+ */
+const jsonValue = (value: unknown): unknown =>
+  typeof value === "bigint"
+    ? Number(value)
+    : typeof value === "number" && Number.isFinite(value) === false
+      ? null
+      : value;
 
 const schemaFromAtomic = (atomic: IMetadataSchema.IAtomic): unknown => {
   if (atomic.type === "boolean") return { type: "boolean" };

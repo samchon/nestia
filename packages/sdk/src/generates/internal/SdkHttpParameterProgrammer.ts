@@ -1,8 +1,15 @@
-import { type Node, SyntaxKind, type TypeNode, factory } from "@ttsc/factory";
+import {
+  type Expression,
+  type Node,
+  SyntaxKind,
+  type TypeNode,
+  factory,
+} from "@ttsc/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
+import { StringUtil } from "../../utils/StringUtil";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 
@@ -13,6 +20,157 @@ export namespace SdkHttpParameterProgrammer {
     type: TypeNode;
     parameter: ITypedHttpRouteParameter;
   }
+
+  /**
+   * The identifiers one route's SDK function, `path()`, and `simulate()` use,
+   * decided once so the three cannot disagree.
+   *
+   * A user parameter shares those scopes with identifiers the SDK writes: its
+   * own `connection` and `props` parameters and locals, and names it cannot
+   * change — the route's function and namespace, which are public, and the
+   * imports, namespace members, and globals the bodies reference. Nothing kept
+   * them apart, so a parameter named like its method or `connection` produced
+   * an SDK that does not compile (#1647).
+   *
+   * The SDK's own identifiers are escaped with `_` prefixes, as it already
+   * escaped `output` and `variables`. A user parameter keeps its name, which an
+   * IDE shows and which is a `props` key in keyword mode, unless the name is
+   * one the SDK cannot change; then the positional parameter alone is renamed,
+   * which positional callers never see. The fixed names are only those the
+   * generated code actually references for this route and configuration, and an
+   * own identifier yields only to the names its scope can see, so nothing is
+   * renamed where no name is shadowed.
+   */
+  export interface INames {
+    connection: string;
+    props: string;
+    output: string;
+    assert: string;
+    variables: string;
+    location: string;
+    key: string;
+    value: string;
+    elem: string;
+
+    /** Local identifier of a significant parameter in positional mode. */
+    parameter: (p: ITypedHttpRouteParameter) => string;
+
+    /** Reads a significant parameter: `props.<name>` or its local. */
+    access: (p: ITypedHttpRouteParameter) => Expression;
+  }
+
+  export const getNames = (props: {
+    project: INestiaProject;
+    route: ITypedHttpRoute;
+  }): INames => {
+    const { project, route } = props;
+    const parameters: ITypedHttpRouteParameter[] = getSignificant(route, true);
+    const simulate: boolean =
+      project.config.simulate === true && parameters.length !== 0;
+
+    // names each scope references and the SDK cannot change
+    const functional: string[] = [
+      route.name,
+      !!route.body?.encrypted || route.success.encrypted
+        ? "EncryptedFetcher"
+        : "PlainFetcher",
+      ...(project.config.assert === true ? ["typia"] : []),
+      ...(route.success.setHeaders.some((h) => h.type === "assigner")
+        ? ["Object"]
+        : []),
+    ];
+    const path: string[] = [
+      ...(route.pathParameters.length !== 0 ? ["encodeURIComponent"] : []),
+      ...(route.queryObject !== null || route.queryParameters.length !== 0
+        ? ["URLSearchParams", "Object", "Array", "String", "undefined"]
+        : []),
+    ];
+    const simulation: string[] = simulate
+      ? ["NestiaSimulator", "METADATA", "path", "random", "typia"]
+      : [];
+
+    const locals: Map<ITypedHttpRouteParameter, string> = new Map();
+    if (project.config.keyword !== true)
+      for (const p of parameters)
+        locals.set(
+          p,
+          StringUtil.escapeDuplicate([
+            ...functional,
+            ...simulation,
+            ...(p.category !== "body" ? path : []),
+            ...parameters.filter((q) => q !== p).map((q) => q.name),
+            ...locals.values(),
+          ])(p.name),
+        );
+    // An SDK-own identifier avoids the fixed names and the other own ones of
+    // its scope, and the positional parameters whose values its scope reads
+    // where it is visible: the SDK function's and simulate()'s parameters and
+    // locals see every one; in path(), `variables` and `location` see its
+    // parameters, the loop's `key` and `value` the query values its header
+    // reads, and `elem` none.
+    const declared = (list: ITypedHttpRouteParameter[]): string[] =>
+      list
+        .map((p) => locals.get(p))
+        .filter((name): name is string => name !== undefined);
+    const queries: ITypedHttpRouteParameter[] = [
+      ...route.queryParameters,
+      ...(route.queryObject ? [route.queryObject] : []),
+    ];
+    const own =
+      (fixed: string[], reads: string[], taken: string[]) =>
+      (name: string): string => {
+        const escaped: string = StringUtil.escapeDuplicate([
+          ...fixed,
+          ...reads,
+          ...taken,
+        ])(name);
+        taken.push(escaped);
+        return escaped;
+      };
+    const every: string[] = declared(parameters);
+    const shared: string[] = [];
+    const $props: string = own(
+      [...functional, ...path, ...simulation],
+      every,
+      shared,
+    )("props");
+    const $connection: string = own(
+      [...functional, ...simulation],
+      every,
+      shared,
+    )("connection");
+    const inPath: string[] = [...shared];
+    const names: Omit<INames, "parameter" | "access"> = {
+      props: $props,
+      connection: $connection,
+      output: own(functional, every, [...shared])("output"),
+      assert: own(simulation, every, [...shared])("assert"),
+      variables: own(
+        path,
+        declared([...route.pathParameters, ...queries]),
+        inPath,
+      )("variables"),
+      location: own(
+        path,
+        declared([...route.pathParameters, ...queries]),
+        inPath,
+      )("location"),
+      key: own(path, declared(queries), inPath)("key"),
+      value: own(path, declared(queries), inPath)("value"),
+      elem: own(path, [], inPath)("elem"),
+    };
+    return {
+      ...names,
+      parameter: (p) => locals.get(p) ?? p.name,
+      access: (p) =>
+        project.config.keyword === true
+          ? factory.createPropertyAccessExpression(
+              factory.createIdentifier(names.props),
+              p.name,
+            )
+          : factory.createIdentifier(locals.get(p) ?? p.name),
+    };
+  };
 
   export const getAll = (
     route: ITypedHttpRoute,
@@ -113,7 +271,8 @@ export namespace SdkHttpParameterProgrammer {
   }): Node[] => {
     const entries: IEntry[] = getEntries(props);
     if (entries.length === 0) return [];
-    else if (props.project.config.keyword === true) {
+    const names: INames = getNames(props);
+    if (props.project.config.keyword === true) {
       const typeName: string = props.prefix
         ? `${props.route.name}.Props`
         : "Props";
@@ -130,7 +289,7 @@ export namespace SdkHttpParameterProgrammer {
         factory.createParameterDeclaration(
           undefined,
           undefined,
-          "props",
+          names.props,
           undefined,
           node,
           undefined,
@@ -141,7 +300,7 @@ export namespace SdkHttpParameterProgrammer {
       factory.createParameterDeclaration(
         undefined,
         undefined,
-        e.key,
+        names.parameter(e.parameter),
         e.required ? undefined : factory.createToken(SyntaxKind.QuestionToken),
         e.type,
         undefined,
@@ -156,8 +315,9 @@ export namespace SdkHttpParameterProgrammer {
   }): Node[] => {
     const parameters = getSignificant(props.route, props.body);
     if (parameters.length === 0) return [];
-    else if (props.project.config.keyword === true)
-      return [factory.createIdentifier("props")];
-    return parameters.map((p) => factory.createIdentifier(p.name));
+    const names: INames = getNames(props);
+    if (props.project.config.keyword === true)
+      return [factory.createIdentifier(names.props)];
+    return parameters.map((p) => factory.createIdentifier(names.parameter(p)));
   };
 }

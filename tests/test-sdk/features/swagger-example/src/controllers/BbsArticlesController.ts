@@ -39,6 +39,7 @@ export class BbsArticlesController {
   @core.TypedRoute.Put(":id")
   public async update(
     @core.SwaggerExample.Parameter(v4())
+    @core.SwaggerExample.Parameter("n", v4())
     @core.TypedParam("id")
     id: string & tags.Format<"uuid">,
     @core.SwaggerExample.Parameter(typia.random<IBbsArticle.IUpdate>())
