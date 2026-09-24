@@ -16,10 +16,12 @@ import { IPathEcho } from "@api/lib/structures/IPathEcho";
  * kept the operation with no path, so Swagger described it at the controller's
  * own path with a parameter the path lacks and `nestia sdk` crashed; it read
  * the optional segment as a required parameter; and a controller whose only
- * path was a wildcard was mounted at the root (#1677).
+ * path was a wildcard was mounted at the root (#1677). Such a controller keeps
+ * its MCP tools, which no path names.
  *
  * 1. Assert the server serves every route as Express 5 routes it.
- * 2. Assert the Swagger document and the SDK hold the describable route only.
+ * 2. Assert the Swagger document and the SDK hold the describable route, and the
+ *    wildcard controller's MCP tool, only.
  * 3. Call that route through the SDK.
  */
 export const test_route_unsupported_paths = async (
@@ -51,7 +53,14 @@ export const test_route_unsupported_paths = async (
     fs.readFileSync(path.resolve(__dirname, "../../../swagger.json"), "utf8"),
   );
   TestValidator.equals("swagger", Object.keys(document.paths), ["/paths/ping"]);
-  TestValidator.equals("sdk", Object.keys(api.functional), ["paths"]);
+  // the wildcard controller's MCP tool is named apart from any path
+  TestValidator.equals("sdk", Object.keys(api.functional).sort(), [
+    "mcp",
+    "paths",
+  ]);
+  TestValidator.equals("sdk mcp", Object.keys(api.functional.mcp), [
+    "echo_asset",
+  ]);
   TestValidator.equals("sdk paths", Object.keys(api.functional.paths), [
     "ping",
   ]);

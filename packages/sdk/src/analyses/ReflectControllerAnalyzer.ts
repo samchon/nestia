@@ -39,8 +39,9 @@ export namespace ReflectControllerAnalyzer {
     )
       return null;
 
-    // a controller no path of which can be composed is left out as a whole,
-    // rather than mounted at the root
+    // the HTTP and WebSocket routes of a controller no path of which can be
+    // composed are left out, rather than mounted at the root; its MCP tools
+    // are named apart from any path and stay
     const paths: string[] = ReflectMetadataAnalyzer.paths(
       props.controller.class,
     ).filter((str) => {
@@ -57,7 +58,7 @@ export namespace ReflectControllerAnalyzer {
       });
       return false;
     });
-    if (paths.length === 0) return null;
+    const routable: boolean = paths.length !== 0;
 
     // BASIC INFO
     const controller: IReflectController = {
@@ -96,11 +97,13 @@ export namespace ReflectControllerAnalyzer {
         | IReflectMcpOperation
         | null =
         ReflectMcpOperationAnalyzer.analyze(next) ??
-        ReflectWebSocketOperationAnalyzer.analyze(next) ??
-        ReflectHttpOperationAnalyzer.analyze(next);
+        (routable
+          ? (ReflectWebSocketOperationAnalyzer.analyze(next) ??
+            ReflectHttpOperationAnalyzer.analyze(next))
+          : null);
       if (child !== null) controller.operations.push(child);
     }
-    return controller;
+    return routable || controller.operations.length !== 0 ? controller : null;
   };
 
   function _Get_prototype_entries(creator: any): Array<[string, unknown]> {
