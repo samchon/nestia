@@ -113,15 +113,30 @@ public async upload(
 ): Promise<void> { ... }
 ```
 
-On Fastify, use `@fastify/multipart` instead:
+On Fastify, pass a [`fastify-multer`](https://www.npmjs.com/package/fastify-multer) instance instead:
 
 ```ts copy
-import FastifyMultipart from "@fastify/multipart";
+import FastifyMulter from "fastify-multer";
 
 @TypedRoute.Post()
 public async upload(
-  @TypedFormData.Body(() => FastifyMultipart()) input: IUpload,
+  @TypedFormData.Body(() => FastifyMulter()) input: IUpload,
 ): Promise<void> { ... }
+```
+
+Fastify also needs a `multipart/form-data` content type parser that leaves the request stream to `fastify-multer`; without one it answers every multipart request with 415. Register it when composing the application. `fastify-multer`'s own `contentParser` plugin declares the content type `multipart` without a subtype, which Fastify 5 (NestJS 11) refuses to register.
+
+```ts copy
+const app = await NestFactory.create<NestFastifyApplication>(
+  AppModule,
+  new FastifyAdapter(),
+);
+app
+  .getHttpAdapter()
+  .getInstance()
+  .addContentTypeParser("multipart/form-data", (_req, _payload, done) =>
+    done(null),
+  );
 ```
 
 ---

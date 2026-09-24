@@ -36,10 +36,13 @@ import { validate_request_form_data } from "./internal/validate_request_form_dat
  *    types are allowed
  * 4. By the way, union type never be not allowed
  *
- * By the way, if you're using `fastify`, you have to setup `fastify-multer` and
- * configure like below when composing the NestJS application. If you don't do
- * that, `@TypedFormData.Body()` will not work properly, and throw 500 internal
- * server error when `Blob` or `File` type being utilized.
+ * By the way, if you're using `fastify`, pass a `fastify-multer` instance as
+ * the factory, and register a `multipart/form-data` content type parser that
+ * leaves the request stream to it when composing the NestJS application.
+ * Without the parser, Fastify rejects every multipart request with 415.
+ * `fastify-multer`'s own `contentParser` plugin declares the content type
+ * `multipart` without a subtype, which Fastify 5 (NestJS 11) refuses to
+ * register.
  *
  * ```typescript
  * import { NestFactory } from "@nestjs/core";
@@ -47,16 +50,25 @@ import { validate_request_form_data } from "./internal/validate_request_form_dat
  *   FastifyAdapter,
  *   NestFastifyApplication,
  * } from "@nestjs/platform-fastify";
- * import fastifyMulter from "fastify-multer";
  *
  * export async function main() {
  *   const app = await NestFactory.create<NestFastifyApplication>(
  *     AppModule,
  *     new FastifyAdapter(),
  *   );
- *   app.register(fastifyMulter.contentParser);
+ *   app
+ *     .getHttpAdapter()
+ *     .getInstance()
+ *     .addContentTypeParser("multipart/form-data", (_req, _payload, done) =>
+ *       done(null),
+ *     );
  *   await app.listen(3000);
  * }
+ *
+ * // in the controller, with `import FastifyMulter from "fastify-multer"`
+ * public async upload(
+ *   @TypedFormData.Body(() => FastifyMulter()) body: IMultipart,
+ * ): Promise<void> {}
  * ```
  *
  * @author Jeongho Nam - https://github.com/samchon
