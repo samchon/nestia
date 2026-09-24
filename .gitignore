@@ -20,3 +20,6 @@ packages/*/README.md
 package-lock.json
 *.log
 .env
+
+# TypeScript incremental build caches
+*.tsbuildinfo

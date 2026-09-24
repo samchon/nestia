@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
@@ -262,22 +261,6 @@ func SourceFileText(target any) (string, bool) {
 	}
 	return file.Text(), true
 }
-
-// These patterns run once per transformed file in cleanupTypeScriptTransformText
-// / normalizeParenthesizedTypeAnnotations. Compiling them at package scope keeps
-// the per-file cost to a match instead of a recompile (the SDK `transform` path
-// runs this for every emitted source file).
-var (
-	cleanupImportTypeBlockPattern   = regexp.MustCompile(`(?m)^import type \{([^{}\n]+)\} from`)
-	cleanupImportTypeLinePattern    = regexp.MustCompile(`^import type \{\s*([^{}\n]+?)\s*\} from`)
-	cleanupImportBlankLinePattern   = regexp.MustCompile(`(?m)(^import [^\n]+;\n)\n+(const |let |var |export )`)
-	cleanupInputIsParenPattern      = regexp.MustCompile(`input is \(([A-Za-z_$][A-Za-z0-9_$.]*)\)`)
-	cleanupCollapseBlankCallPattern = regexp.MustCompile(`\n\n([A-Za-z_$][A-Za-z0-9_$]*\([^;\n]*\);?)`)
-)
-var (
-	normalizeParenArrowTypePattern = regexp.MustCompile(`: \(([A-Za-z_$][A-Za-z0-9_$.]*(<[^()\n;{}]*>)?)\)(\s*=>)`)
-	normalizeParenNullishPattern   = regexp.MustCompile(`\| \((null|undefined)\)`)
-)
 
 func transformDiagnosticToCompilerDiagnostic(
 	diag Diagnostic,
