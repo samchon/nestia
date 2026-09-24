@@ -113,7 +113,8 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             file: ctx.controller.file,
             class: ctx.controller.class.name,
             function: ctx.functionName,
-            from: `parameter ${matched ? JSON.stringify(matched.name) : `of ${p.index} th`}`,
+            // a destructured parameter has no name to report
+            from: `parameter ${matched?.name ? JSON.stringify(matched.name) : `of ${p.index} th`}`,
             contents: pErrorContents,
           });
           return null;

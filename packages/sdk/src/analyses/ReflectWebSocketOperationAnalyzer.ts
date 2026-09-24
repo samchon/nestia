@@ -70,7 +70,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
           );
         else if (matched.type === null)
           return reject(
-            `Failed to analyze the parameter type of the ${JSON.stringify(matched.name)}.`,
+            `Failed to analyze the parameter type of the ${matched.name ? JSON.stringify(matched.name) : `${p.index} th parameter`}.`,
           );
         else if (
           p.category === "param" &&

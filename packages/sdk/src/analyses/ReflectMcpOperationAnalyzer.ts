@@ -75,7 +75,7 @@ export namespace ReflectMcpOperationAnalyzer {
         }
         if (matched.type === null) {
           errors.push(
-            `Failed to analyze the parameter type of ${JSON.stringify(matched.name)}.`,
+            `Failed to analyze the parameter type of ${matched.name ? JSON.stringify(matched.name) : `the ${p.index} (th) argument`}.`,
           );
           return null;
         }

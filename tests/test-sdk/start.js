@@ -65,6 +65,7 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
       "only atomic or array of atomic types are allowed.",
       "PlainQueryController.fields()",
       "only atomic types are allowed in array.",
+      "PlainQueryController.destructured() from parameter of 0 th",
     ],
   ],
   [
