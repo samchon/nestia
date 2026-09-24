@@ -28,8 +28,8 @@ type TagValue<T extends { "typia.tag"?: { value: unknown } }> = NonNullable<
  *    source's type.
  * 2. Assert at compile time that the tags whose values are a number on a bigint or
  *    a string on a number or bigint carry the source's values.
- * 3. Validate boundary values against the tagged properties of both types and
- *    assert the same verdicts.
+ * 3. Validate boundary values against the tagged properties of both types, the NaN
+ *    bound an enum member spells included, and assert the same verdicts.
  */
 export const test_clone_literal_values = (): void => {
   const literals: [
@@ -75,5 +75,10 @@ export const test_clone_literal_values = (): void => {
     "upper",
     verdicts(typia.createIs<Cloned["upper"]>(), numbers),
     verdicts(typia.createIs<Source["upper"]>(), numbers),
+  );
+  TestValidator.equals(
+    "nanBound",
+    verdicts(typia.createIs<Cloned["nanBound"]>(), numbers),
+    verdicts(typia.createIs<Source["nanBound"]>(), numbers),
   );
 };

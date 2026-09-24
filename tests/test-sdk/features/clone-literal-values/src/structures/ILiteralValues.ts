@@ -1,5 +1,10 @@
 import { tags } from "typia";
 
+/** A number no literal type spells, reachable as an enum member. */
+export enum NotANumber {
+  Value = NaN,
+}
+
 /**
  * Values JSON cannot hold, which the SDK metadata carries by name or by digits
  * and the cloned DTO must write back exactly.
@@ -20,4 +25,6 @@ export interface ILiteralValues {
   sequenced: bigint & tags.Sequence<1>;
   named: number & tags.Example<"Infinity">;
   digits: bigint & tags.Example<"12345678901234567890">;
+  /** A bound whose value is NaN. */
+  nanBound: number & tags.Minimum<NotANumber.Value>;
 }
