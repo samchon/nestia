@@ -350,10 +350,12 @@ const visitMethod = (props: {
                 } else if (p.category === "param")
                   args.push(p.assert(input.params[p.field]!));
                 else if (p.category === "query") {
+                  // the query is all after the first "?", which it may hold too
+                  const index: number = input.acceptor.path.indexOf("?");
                   const query: any | Error = p.validate(
                     new URLSearchParams(
-                      input.acceptor.path.indexOf("?") !== -1
-                        ? input.acceptor.path.split("?")[1]
+                      index !== -1
+                        ? input.acceptor.path.substring(index + 1)
                         : "",
                     ),
                   );
