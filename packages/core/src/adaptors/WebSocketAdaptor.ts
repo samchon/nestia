@@ -107,10 +107,10 @@ const visitApplication = async (
       return versioning === undefined || versioning.type !== VersioningType.URI
         ? undefined
         : {
+            // as NestJS's RoutePathFactory.getVersionPrefix(): `false` is no
+            // prefix at all, and only an absent one is the default "v"
             prefix:
-              versioning.prefix === undefined || versioning.prefix === false
-                ? "v"
-                : versioning.prefix,
+              versioning.prefix === false ? "" : (versioning.prefix ?? "v"),
             defaultVersion: versioning.defaultVersion,
           };
     })(),
