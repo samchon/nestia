@@ -9,6 +9,7 @@ jobs:
       - name: Checkout Actions Repository
         uses: actions/checkout@v4
 
-      - uses: crate-ci/typos@master
+      # a fixed release: @master changed the dictionary under every pull request
+      - uses: crate-ci/typos@v1.50.2
         with:
           config: ./typos.toml
