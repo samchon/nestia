@@ -283,6 +283,7 @@ export namespace SwaggerGenerator {
     };
 
     // COMPOSE OPERATIONS
+    const violations: string[] = [];
     for (const r of props.routes) {
       const method: OpenApi.Method = r.method.toLowerCase() as OpenApi.Method;
       const path: string = getPath(r);
@@ -292,6 +293,13 @@ export namespace SwaggerGenerator {
         ...props,
         route: r,
       });
+      violations.push(
+        ...validateSecurity({
+          config: props.config,
+          route: r,
+          security: props.document.paths[path][method]!.security,
+        }),
+      );
 
       const closure: Function | Function[] | undefined = Reflect.getMetadata(
         "nestia/SwaggerCustomizer",
@@ -306,6 +314,16 @@ export namespace SwaggerGenerator {
           closures: Array.isArray(closure) ? closure : [closure],
         });
     }
+
+    if (violations.length !== 0)
+      throw new Error(
+        [
+          `Error on NestiaApplication.swagger(): invalid security requirements. Declare every scheme a route names, with its scopes, in the "swagger.security" property of "nestia.config.ts".`,
+          "",
+          "List of violations:",
+          ...violations,
+        ].join("\n"),
+      );
 
     // DETACH, then DO CUSTOMIZE
     detach(props.document);
@@ -379,6 +397,55 @@ export namespace SwaggerGenerator {
       });
     ancestors.delete(value);
     return output as T;
+  };
+
+  /**
+   * The violations of an operation's security requirements against the
+   * configured `swagger.security` schemes: a scheme it never declares, scopes
+   * on a scheme other than OAuth2 or OpenID Connect, and an OAuth2 scope no
+   * flow of the scheme declares. An OpenID Connect scheme lists no scopes of
+   * its own, so its scopes are not checked.
+   */
+  const validateSecurity = (props: {
+    config: Omit<INestiaConfig.ISwaggerConfig, "output">;
+    route: ITypedHttpRoute;
+    security: Record<string, string[]>[] | undefined;
+  }): string[] => {
+    const violations: string[] = [];
+    const report = (message: string): void => {
+      violations.push(
+        `  - ${message} (${props.route.controller.class.name}.${props.route.name}() at "${props.route.method} ${props.route.path}")`,
+      );
+    };
+    for (const requirement of props.security ?? [])
+      for (const [name, scopes] of Object.entries(requirement)) {
+        const scheme: OpenApi.ISecurityScheme | undefined =
+          props.config.security?.[name];
+        if (scheme === undefined)
+          report(`target security scheme "${name}" does not exist.`);
+        else if (scopes.length === 0 || scheme.type === "openIdConnect")
+          continue;
+        else if (scheme.type !== "oauth2")
+          report(
+            `target security scheme "${name}" is neither "oauth2" nor "openIdConnect" type, but you've configured the scopes.`,
+          );
+        else {
+          const declared: Set<string> = new Set(
+            Object.values(scheme.flows ?? {}).flatMap((flow) =>
+              Object.keys(
+                (flow as { scopes?: Record<string, string> } | undefined)
+                  ?.scopes ?? {},
+              ),
+            ),
+          );
+          for (const scope of scopes)
+            if (declared.has(scope) === false)
+              report(
+                `target security scheme "${name}" does not have a specific scope "${scope}".`,
+              );
+        }
+      }
+    return violations;
   };
 
   const getPath = (route: ITypedHttpRoute): string => {

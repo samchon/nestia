@@ -39,14 +39,23 @@ const TYPESCRIPT_ERROR_FEATURES = new Set([
   "body-error-implicit",
   "method-error-head-non-void",
   "route-invalid-path-error",
-  "security-error-not-found",
-  "security-error-not-oauth2",
-  "security-error-out-of-scopes",
 ]);
 const EXPECTED_ERROR_DIAGNOSTICS = new Map([
   [
     "websocket-error-invalid-acceptor-arity",
     'parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.',
+  ],
+  [
+    "security-error-not-found",
+    'target security scheme "oauth2" does not exist. (SecurityController.oauth2() at "GET /oauth2")',
+  ],
+  [
+    "security-error-not-oauth2",
+    `target security scheme "bearer" is neither "oauth2" nor "openIdConnect" type, but you've configured the scopes.`,
+  ],
+  [
+    "security-error-out-of-scopes",
+    'target security scheme "oauth2" does not have a specific scope "read:pets".',
   ],
   [
     "websocket-error-acceptor-alias-argument",
