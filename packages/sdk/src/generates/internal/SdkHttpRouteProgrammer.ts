@@ -41,9 +41,7 @@ export namespace SdkHttpRouteProgrammer {
           ?.text ??
         route.jsDocTags
           .find((tag) => tag.name === "param" && tag.text?.[0]?.text === p.name)
-          ?.text?.map((e) => e.text)
-          .join("")
-          .substring(p.name.length);
+          ?.text?.find((e) => e.kind === "text")?.text;
       if (!description?.length) continue;
 
       // the name the SDK function declares, which yields on a collision
@@ -51,18 +49,7 @@ export namespace SdkHttpRouteProgrammer {
         project.config.keyword === true
           ? `${names.props}.${p.name}`
           : names.parameter(p);
-      tagComments.push(
-        `@param ${name} ${description
-          .split("\n")
-          .map((str) => str.trim())
-          .map((str, i) => {
-            if (i === 0) return str;
-            // under the description, past `@param <declared name> `
-            const rpad: number = name.length + 8;
-            return `${" ".repeat(rpad)}${str}`;
-          })
-          .join("\n")}`,
-      );
+      tagComments.push(FilePrinter.jsDocTag(`param ${name}`, description));
     }
 
     // COMMENT TAGS
@@ -71,18 +58,7 @@ export namespace SdkHttpRouteProgrammer {
     );
     if (tags.length !== 0) {
       const content: string[] = tags.map((t) =>
-        t.text?.length
-          ? `@${t.name} ${t.text
-              .map((e) => e.text)
-              .join("")
-              .split("\n")
-              .map((str) => str.trim())
-              .map((str, i) => {
-                if (i === 0) return str;
-                return `${" ".repeat(t.name.length + 1)} ${str}`;
-              })
-              .join("\n")}`
-          : `@${t.name}`,
+        FilePrinter.jsDocTag(t.name, t.text?.map((e) => e.text).join("") ?? ""),
       );
       tagComments.push(...new Set(content));
     }

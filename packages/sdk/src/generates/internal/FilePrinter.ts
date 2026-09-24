@@ -31,6 +31,34 @@ export namespace FilePrinter {
     );
   };
 
+  /**
+   * Writes a JSDoc tag so TypeScript reads its text back as it is.
+   *
+   * TypeScript takes a continued line's margin off up to the column the text
+   * began at: past `@<head> ` when the text starts on the tag's line, or the
+   * tag's own column when it starts on the next one. So a text whose first line
+   * is indented, such as an `@example`'s code, starts on the next line, and any
+   * other text continues at its first line's column. Either way every line
+   * keeps the indentation it has beyond the margin.
+   *
+   * @param head The tag's name, followed by a `@param` tag's parameter name
+   * @param text The tag's text
+   */
+  export const jsDocTag = (head: string, text: string): string => {
+    const lines: string[] = text.split("\n").map((line) => line.trimEnd());
+    while (lines.length !== 0 && lines[0] === "") lines.shift();
+    while (lines.length !== 0 && lines.at(-1) === "") lines.pop();
+    if (lines.length === 0) return `@${head}`;
+    else if (/^\s/.test(lines[0]!)) return [`@${head}`, ...lines].join("\n");
+    const margin: string = " ".repeat(head.length + 2);
+    return [
+      `@${head} ${lines[0]}`,
+      ...lines
+        .slice(1)
+        .map((line) => (line.length ? `${margin}${line}` : line)),
+    ].join("\n");
+  };
+
   export const enter = () =>
     factory.createExpressionStatement(factory.createIdentifier("\n"));
 

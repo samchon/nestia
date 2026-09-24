@@ -60,6 +60,16 @@ export class SocketController {
     await acceptor.accept({ echo: () => ["url"] });
   }
 
+  /**
+   * @example
+   *   const { connector, driver } = await provider(connection, query, null);
+   *   if (driver !== null) {
+   *     await connector.close();
+   *   }
+   *
+   * @param query Shadow to search, described at a length the formatter wraps
+   *   onto a second line
+   */
   @WebSocketRoute("provider")
   public async provider(
     @WebSocketRoute.Acceptor()

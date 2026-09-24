@@ -9,6 +9,12 @@ export class MultilineController {
   /**
    * Read with tags whose text runs over lines.
    *
+   * @example
+   *   const article = await api.functional.multiline.read(connection);
+   *   if (article.title.length !== 0) {
+   *     console.log(article.title);
+   *   }
+   *
    * @throws 404 When nothing is found under the key it was asked for, even
    *   after the fallback was consulted
    * @tag Multiline

@@ -6,7 +6,6 @@ import {
   type TypeNode,
   factory,
 } from "@ttsc/factory";
-import { IJsDocTagInfo } from "typia";
 
 import { IdentifierFactory } from "../../factories/IdentifierFactory";
 import { INestiaProject } from "../../structures/INestiaProject";
@@ -58,26 +57,25 @@ export namespace SdkWebSocketRouteProgrammer {
           ? `${names.props}.${key}`
           : key;
     };
-    const tags: IJsDocTagInfo[] = route.jsDocTags
-      .map((tag): IJsDocTagInfo | null => {
-        if (tag.name !== "param") return tag;
+    const tags: string[] = route.jsDocTags
+      .map((tag): string | null => {
+        if (tag.name !== "param")
+          return FilePrinter.jsDocTag(
+            tag.name,
+            tag.text?.map((e) => e.text).join("") ?? "",
+          );
         const name: string | null = declared(tag.text?.[0]?.text);
         return name === null
           ? null
-          : {
-              ...tag,
-              text: [{ ...tag.text![0]!, text: name }, ...tag.text!.slice(1)],
-            };
+          : FilePrinter.jsDocTag(
+              `param ${name}`,
+              tag.text?.find((e) => e.kind === "text")?.text ?? "",
+            );
       })
-      .filter((tag): tag is IJsDocTagInfo => tag !== null);
-    if (tags.length !== 0) {
-      const content: string[] = tags.map((t) =>
-        t.text?.length
-          ? `@${t.name} ${t.text.map((e) => e.text).join("")}`
-          : `@${t.name}`,
-      );
-      comments.push("", ...new Set(content));
-    }
+      .filter((tag): tag is string => tag !== null);
+    // apart from the description, when there is one
+    if (tags.length !== 0)
+      comments.push(...(comments.length !== 0 ? [""] : []), ...new Set(tags));
 
     // POSTFIX
     if (!!comments.length) comments.push("");

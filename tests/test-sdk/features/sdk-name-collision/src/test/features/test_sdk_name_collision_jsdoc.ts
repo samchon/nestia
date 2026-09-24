@@ -11,7 +11,10 @@ import fs from "fs";
  * The WebSocket function documents its parameters the same way. In a route
  * named `query`, the path parameter `query` yields to the route as `_query`,
  * and the query object to both as `__query`; a tag naming the controller's
- * parameter would describe no parameter.
+ * parameter would describe no parameter. It also continues a tag's text where
+ * TypeScript reads it back as written: a wrapped description under its first
+ * line, and an `@example`'s code, which starts on the next line, with its own
+ * indentation. A route without a description opens with its first tag.
  *
  * 1. Read the generated SDK file of `ShadowController`.
  * 2. Assert the `props` function documents its renamed `_props` parameter, its
@@ -19,6 +22,9 @@ import fs from "fs";
  * 3. Read the generated SDK file of `SocketController`.
  * 4. Assert the `query` function documents the path parameter as `_query` and the
  *    query object as `__query`.
+ * 5. Assert the `provider` function's comment opens with its `@example`, keeps the
+ *    code's indentation, and continues its wrapped `@param` under its
+ *    description.
  */
 export const test_sdk_name_collision_jsdoc = async (): Promise<void> => {
   const content: string = await fs.promises.readFile(
@@ -52,6 +58,27 @@ export const test_sdk_name_collision_jsdoc = async (): Promise<void> => {
   TestValidator.equals(
     "@param query",
     socket.includes("@param __query Shadow to search"),
+    true,
+  );
+  TestValidator.equals(
+    "WebSocket @param continued under its description",
+    socket.includes(
+      `\n * ${" ".repeat("@param query ".length)}onto a second line\n`,
+    ),
+    true,
+  );
+  TestValidator.equals(
+    "WebSocket @example",
+    socket.includes(
+      [
+        "/**",
+        " * @example",
+        " *   const { connector, driver } = await provider(connection, query, null);",
+        " *   if (driver !== null) {",
+        " *     await connector.close();",
+        " *   }",
+      ].join("\n"),
+    ),
     true,
   );
 };
