@@ -298,7 +298,7 @@ interface ISwaggerV2FormField {
  * those, becomes the one file a request may carry, keeping the field's title,
  * description, and deprecation. A request may then carry none, since the server
  * reads a missing field as null or an empty array, so such a field is not
- * required; a plain file is kept as it is.
+ * required unless its array requires an item; a plain file is kept as it is.
  */
 const swaggerV2FormField = (
   schema: OpenApi.IJsonSchema,
@@ -351,9 +351,10 @@ const fileOf = (
   }
   if (top && OpenApiTypeChecker.isArray(schema)) {
     const item: IFileOf | undefined = fileOf(schema.items, false);
+    // an empty array is a request without the field, unless one file is due
     return item === undefined
       ? undefined
-      : { binary: item.binary, optional: true };
+      : { binary: item.binary, optional: (schema.minItems ?? 0) === 0 };
   }
   return undefined;
 };

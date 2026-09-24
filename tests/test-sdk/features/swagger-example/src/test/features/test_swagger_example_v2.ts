@@ -25,7 +25,8 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
  * 4. Assert the encrypted route keeps its warning without the flag, and its JSON
  *    exception its status and description without a body.
  * 5. Assert each form lists its fields, a file array, a nullable file, and an
- *    array of file unions as one optional file each, keeping its description.
+ *    array of file unions as one optional file each, keeping its description,
+ *    and a file array requiring an item as one required file.
  * 6. Assert the exception with named examples lists none.
  */
 export const test_swagger_example_v2 = async (): Promise<void> => {
@@ -85,6 +86,7 @@ export const test_swagger_example_v2 = async (): Promise<void> => {
       .sort();
   TestValidator.equals("form", fields("/downgrade/form"), [
     "formData:attachments:false",
+    "formData:cover:true",
     "formData:maybe:false",
     "formData:memo:false",
     "formData:mixed:false",

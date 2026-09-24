@@ -1,3 +1,5 @@
+import { tags } from "typia";
+
 /** Form of an upload. */
 export interface IUploadForm {
   title: string;
@@ -7,6 +9,8 @@ export interface IUploadForm {
   /** Any of a file or a blob. */
   mixed: Array<File | Blob>;
   maybe: Array<File | null>;
+  /** At least one file. */
+  cover: File[] & tags.MinItems<1>;
 }
 
 /** Form whose fields are all optional. */

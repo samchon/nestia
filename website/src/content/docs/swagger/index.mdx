@@ -111,6 +111,8 @@ Watch mode writes the initial document, then regenerates it when controller, `ne
 
 The `openapi` field accepts `"3.2"` (default), `"3.1"`, `"3.0"`, or `"2.0"`. Nestia composes the document at the newest version and downgrades on the way out — your type fidelity is highest at the newest version, but the document is still legal at older ones.
 
+A Swagger 2.0 document holds less than an OpenAPI 3.x one, so with `openapi: "2.0"` the generator leaves out or narrows what 2.0 has no place for instead of failing: named examples and request body examples, the `x-nestia-encrypted` flag (the description keeps the encryption warning), a form body's own description, and the bodies of exceptions whose media type differs from the success body's. A form field taking several files, or a file or null, is listed as one file, optional unless the field requires at least one.
+
 ---
 
 ## What ends up in the schema
@@ -188,8 +190,6 @@ The `swagger` block of `INestiaConfig`:
 | `beautify`   | `boolean`                             | Pretty-print the JSON output.                                  |
 
 Decomposed query and header properties marked with `?` produce parameters with `required: false`, including when `exactOptionalPropertyTypes` is enabled.
-
-A Swagger 2.0 document holds less than an OpenAPI 3.x one, so with `openapi: "2.0"` the generator leaves out or narrows what 2.0 has no place for instead of failing: named examples and request body examples, the `x-nestia-encrypted` flag (the description keeps the encryption warning), a form body's own description, and the bodies of exceptions whose media type differs from the success body's. A form field taking several files, or a file or null, is listed as one optional file.
 
 ---
 
