@@ -42,7 +42,11 @@ export const test_sdk_destructured_http = async (
     }),
     "tenant",
   );
-  TestValidator.equals("field", await destructured.field(connection, "abc"), 3);
+  TestValidator.equals(
+    "field",
+    await destructured.field(connection, "abc"),
+    "field",
+  );
   TestValidator.equals(
     "collide",
     await destructured.collide(connection, "path", { title: "t", body: "b" }),

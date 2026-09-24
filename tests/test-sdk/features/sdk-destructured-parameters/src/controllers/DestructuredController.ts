@@ -35,8 +35,9 @@ export class DestructuredController {
   }
 
   @core.TypedRoute.Get("field")
-  public field(@Query("page-size") { length }: string): number {
-    return length;
+  // an empty pattern reads nothing of a value Express may give as an array
+  public field(@Query("page-size") {}: string): string {
+    return "field";
   }
 
   @core.TypedRoute.Post("collide/:body")

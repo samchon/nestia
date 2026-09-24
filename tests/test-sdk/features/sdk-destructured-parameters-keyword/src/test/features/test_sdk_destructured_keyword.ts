@@ -36,7 +36,7 @@ export const test_sdk_destructured_keyword = async (
   TestValidator.equals(
     "field",
     await destructured.field(connection, { pageSize: "abc" }),
-    3,
+    "field",
   );
   TestValidator.equals(
     "collide",
