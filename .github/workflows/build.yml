@@ -1,8 +1,9 @@
 name: build
-on: 
+on:
   pull_request:
     paths:
       - '.github/workflows/build.yml'
+      - '.github/actions/**'
       - 'config/**'
       # every file a package build reads: sources, bundler and TypeScript
       # configs, and the deploy scripts the build scripts run
@@ -11,6 +12,15 @@ on:
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - 'package.json'
+  # a build on master saves the ttsc plugin cache every pull request restores
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/build.yml'
+      - '.github/actions/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
 jobs:
   Ubuntu:
     runs-on: ubuntu-latest
@@ -28,5 +38,44 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
+      # the one Linux job that saves the cache the test jobs restore
+      - uses: ./.github/actions/ttsc-cache
+        with:
+          save: true
+
+      - name: Use System Go For Source Plugin Build
+        run: echo "TTSC_GO_BINARY=$(go env GOROOT)/bin/go" >> "$GITHUB_ENV"
+
       - name: Build Packages
+        run: pnpm build
+
+  # Warms the Windows cache on master, which test's Windows job restores.
+  Windows:
+    if: github.event_name == 'push'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: packages/core/native/go.mod
+          cache-dependency-path: packages/core/native/go.sum
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - uses: ./.github/actions/ttsc-cache
+        with:
+          save: true
+
+      - name: Use System Go For Source Plugin Build
+        shell: bash
+        run: echo "TTSC_GO_BINARY=$(go env GOROOT)/bin/go" >> "$GITHUB_ENV"
+
+      - name: Build Packages
+        env:
+          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
         run: pnpm build

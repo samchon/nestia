@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/test.yml'
+      - '.github/actions/**'
       - 'config/**'
       - 'benchmark/**'
       # every file a package build or a test reads: sources, bundler and
@@ -29,8 +30,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: go, run: "pnpm test:go" }
-          - { name: sdk, run: "pnpm --filter ./tests/test-sdk start" }
+          # the Go tests read the TypeScript sources and the installed typings,
+          # not the built packages, so they skip the build
+          - { name: go, run: "pnpm test:go", build: false }
+          # test-sdk is the longest suite by far: five disjoint shards run it
+          # in parallel, and its harness builds the packages it runs itself
+          - { name: sdk (1/5), run: "pnpm --filter ./tests/test-sdk start --shard 1/5", build: false }
+          - { name: sdk (2/5), run: "pnpm --filter ./tests/test-sdk start --shard 2/5", build: false }
+          - { name: sdk (3/5), run: "pnpm --filter ./tests/test-sdk start --shard 3/5", build: false }
+          - { name: sdk (4/5), run: "pnpm --filter ./tests/test-sdk start --shard 4/5", build: false }
+          - { name: sdk (5/5), run: "pnpm --filter ./tests/test-sdk start --shard 5/5", build: false }
           - { name: migrate, run: "pnpm --filter ./tests/test-migrate start" }
           - { name: transform-options, run: "pnpm --filter ./tests/test-transform-options start" }
           - { name: e2e, run: "pnpm --filter ./tests/test-e2e start" }
@@ -51,11 +60,13 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
+      - uses: ./.github/actions/ttsc-cache
+
       - name: Use System Go For Source Plugin Build
         run: echo "TTSC_GO_BINARY=$(go env GOROOT)/bin/go" >> "$GITHUB_ENV"
 
       - name: Build Packages
-        if: matrix.name != 'sdk'
+        if: matrix.build != false
         env:
           NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
         run: pnpm build
@@ -85,6 +96,11 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install
+
+      # the only Windows job saves the Windows cache
+      - uses: ./.github/actions/ttsc-cache
+        with:
+          save: ${{ matrix.os == 'windows-latest' }}
 
       - name: Use System Go For Source Plugin Build
         shell: bash
