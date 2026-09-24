@@ -15,7 +15,7 @@ import {
 import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
-import { catchError, map } from "rxjs";
+import { catchError, map } from "rxjs/operators";
 import typia from "typia";
 
 import { IRequestQueryValidator } from "../options/IRequestQueryValidator";
