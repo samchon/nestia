@@ -63,6 +63,15 @@ export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
           name: NestiaEditorArchiver.name(name),
           files: result.data.files,
         });
+        if (result.data.skipped.length !== 0)
+          handleError(
+            [
+              "The project leaves out operations that could not be converted:",
+              ...result.data.skipped.map(
+                (s) => `  - ${s.method} ${s.path}: ${s.messages.join(" ")}`,
+              ),
+            ].join("\n"),
+          );
       } else {
         handleError(JSON.stringify(result.errors, null, 2));
       }

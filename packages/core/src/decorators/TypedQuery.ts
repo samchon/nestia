@@ -15,7 +15,7 @@ import {
 import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
-import { catchError, map } from "rxjs";
+import { catchError, map } from "rxjs/operators";
 import typia from "typia";
 
 import { IRequestQueryValidator } from "../options/IRequestQueryValidator";
@@ -117,7 +117,7 @@ export namespace TypedQuery {
   export const Post = Generator("Post");
 
   /**
-   * Router decorator function for the PATH method.
+   * Router decorator function for the PATCH method.
    *
    * @param path Path of the HTTP request
    * @returns Method decorator
@@ -184,6 +184,10 @@ class FakeURLSearchParams {
 
   public has(key: string): boolean {
     return this.target[key] !== undefined;
+  }
+
+  public keys(): string[] {
+    return Object.keys(this.target).filter((key) => this.has(key));
   }
 
   public get(key: string): string | null {

@@ -174,12 +174,11 @@ export namespace INestiaConfig {
     /**
      * OpenAPI version.
      *
-     * If you configure this property to be `2.0` or `3.0`, the newly generated
-     * `swagger.json` file would follow the specified OpenAPI version. The newly
-     * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
-     * specification by {@link OpenApi.downgrade} method.
+     * If you configure this property to be `2.0`, `3.0`, or `3.1`, the newly
+     * generated `swagger.json` file would follow the specified OpenAPI version,
+     * downgraded from the OpenAPI v3.2 specification.
      *
-     * @default 3.1
+     * @default 3.2
      */
     openapi?: "2.0" | "3.0" | "3.1" | "3.2";
 
@@ -199,10 +198,12 @@ export namespace INestiaConfig {
      * Whether to include additional information or not.
      *
      * If configured to be `true`, those properties would be added into each API
-     * endpoinnt.
+     * endpoint.
      *
-     * - `x-nestia-method`
-     * - `x-nestia-namespace` ` `x-nestia-jsDocTags`
+     * - `x-nestia-method`: the HTTP method, such as `"GET"`
+     * - `x-nestia-namespace`: the SDK function's accessor, such as
+     *   `"bbs.articles.index"`
+     * - `x-nestia-jsDocTags`: the JSDoc tags of the controller method
      *
      * @default false
      */
@@ -223,7 +224,10 @@ export namespace INestiaConfig {
      *
      * When generating `swagger.json` file through `nestia`, if your controllers
      * or theirs methods have a security key which is not enrolled in here
-     * property, it would be an error.
+     * property, it would be an error. So would an OAuth2 scope none of the
+     * scheme's flows declares, and, for an OpenAPI `3.0` or `2.0` document,
+     * scopes on a scheme other than OAuth2 or OpenID Connect, which those
+     * versions require to be empty; from `3.1` on they list role names.
      */
     security?: Record<string, OpenApi.ISecurityScheme>;
 

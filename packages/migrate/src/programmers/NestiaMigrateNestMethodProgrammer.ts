@@ -2,6 +2,7 @@ import { SyntaxKind, factory } from "@ttsc/factory";
 import { IHttpMigrateRoute } from "@typia/interface";
 import { OpenApi } from "typia";
 
+import { NestiaMigrateControllerAnalyzer } from "../analyzers/NestiaMigrateControllerAnalyzer";
 import { ExpressionFactory } from "../factories/ExpressionFactory";
 import { IdentifierFactory } from "../factories/IdentifierFactory";
 import { LiteralFactory } from "../factories/LiteralFactory";
@@ -121,7 +122,9 @@ export namespace NestiaMigrateNestMethodProgrammer {
       );
 
     // ROUTER
-    const localPath: string = ctx.route.emendedPath
+    const localPath: string = NestiaMigrateControllerAnalyzer.routePath(
+      ctx.route,
+    )
       .slice(ctx.controller.path.length)
       .split("/")
       .filter((str) => !!str.length)
@@ -139,30 +142,26 @@ export namespace NestiaMigrateNestMethodProgrammer {
             : undefined,
         ),
       );
+    // a vanilla NestJS method decorator, relative to the controller like the
+    // nestia ones: the document's full path would be joined onto the
+    // controller's again
+    const nest = (method: string) =>
+      factory.createDecorator(
+        factory.createCallExpression(
+          external("@nestjs/common", method),
+          [],
+          localPath.length
+            ? [factory.createStringLiteral(localPath)]
+            : undefined,
+        ),
+      );
     if (ctx.route.success?.["x-nestia-encrypted"])
       decorators.push(router("EncryptedRoute"));
     else if (ctx.route.success?.type === "text/plain")
-      decorators.push(
-        factory.createDecorator(
-          factory.createCallExpression(
-            external("@nestjs/common", StringUtil.capitalize(ctx.route.method)),
-            [],
-            [factory.createStringLiteral(ctx.route.path)],
-          ),
-        ),
-      );
+      decorators.push(nest(StringUtil.capitalize(ctx.route.method)));
     else if (ctx.route.success?.type === "application/x-www-form-urlencoded")
       decorators.push(router("TypedQuery"));
-    else if (ctx.route.method === "head")
-      decorators.push(
-        factory.createDecorator(
-          factory.createCallExpression(
-            external("@nestjs/common", "Head"),
-            [],
-            [factory.createStringLiteral(ctx.route.path)],
-          ),
-        ),
-      );
+    else if (ctx.route.method === "head") decorators.push(nest("Head"));
     else if (
       ctx.route.success === null ||
       ctx.route.success?.type === "application/json"

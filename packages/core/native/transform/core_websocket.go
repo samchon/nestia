@@ -2,9 +2,11 @@ package transform
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
+	shimchecker "github.com/microsoft/typescript-go/shim/checker"
 	shimscanner "github.com/microsoft/typescript-go/shim/scanner"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 )
@@ -42,14 +44,14 @@ func validateNestiaCoreWebSocketRoute(
 		switch category {
 		case "Acceptor":
 			accepted = true
-			if strings.HasPrefix(nestiaCoreWebSocketParameterTypeName(param), "WebSocketAcceptor") == false {
+			if _, target := NestiaCoreWebSocketTypeReference(prog, nestiaCoreWebSocketParameterTypeNode(param)); target != "WebSocketAcceptor" {
 				diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(context.file, param, "WebSocketRoute", fmt.Sprintf(
 					"parameter %q must have WebSocketAcceptor<Header, Provider, Listener> type.",
 					name,
 				)))
 			}
 		case "Driver":
-			if strings.HasPrefix(nestiaCoreWebSocketParameterTypeName(param), "Driver") == false {
+			if _, target := NestiaCoreWebSocketTypeReference(prog, nestiaCoreWebSocketParameterTypeNode(param)); target != "Driver" {
 				diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(context.file, param, "WebSocketRoute", fmt.Sprintf(
 					"parameter %q must have Driver<Listener> type.",
 					name,
@@ -66,6 +68,12 @@ func validateNestiaCoreWebSocketRoute(
 	return diagnostics
 }
 
+// NestiaCoreWebSocketParameterCategory names the WebSocketRoute parameter
+// decorator on a parameter, such as "Acceptor" or "Driver", or "" for none.
+func NestiaCoreWebSocketParameterCategory(prog *driver.Program, param *shimast.Node) string {
+	return nestiaCoreWebSocketParameterCategory(prog, param)
+}
+
 func nestiaCoreWebSocketParameterCategory(prog *driver.Program, param *shimast.Node) string {
 	if param == nil || len(param.Decorators()) != 1 {
 		return ""
@@ -78,19 +86,90 @@ func nestiaCoreWebSocketParameterCategory(prog *driver.Program, param *shimast.N
 	return segments[len(segments)-1]
 }
 
-func nestiaCoreWebSocketParameterTypeName(param *shimast.Node) string {
-	if param == nil || param.AsParameterDeclaration() == nil || param.AsParameterDeclaration().Type == nil {
-		return ""
+func nestiaCoreWebSocketParameterTypeNode(param *shimast.Node) *shimast.Node {
+	if param == nil || param.AsParameterDeclaration() == nil {
+		return nil
 	}
-	text := NodeText(param.AsParameterDeclaration().Type)
-	text = strings.TrimSpace(text)
-	if index := strings.Index(text, "<"); index >= 0 {
-		text = text[:index]
+	return param.AsParameterDeclaration().Type
+}
+
+// NestiaCoreWebSocketTypeReference follows a parameter's type annotation
+// through renamed imports, import types, and type aliases to the tgrid type
+// reference it spells, such as `WebSocketAcceptor<Header, Provider, Listener>`
+// or `Driver<Listener>`, so the transform and the SDK accept every spelling of
+// the same type and still reject another type of the same name. It returns the
+// type references it passed, each a type reference or an import type such as
+// `import("tgrid").Driver<Listener>`, from the annotation to the tgrid
+// reference, each after the first written in the type alias the one before it
+// names, and the name tgrid declares the type by; or nil and "" when the
+// annotation leads to no tgrid type.
+func NestiaCoreWebSocketTypeReference(prog *driver.Program, node *shimast.Node) ([]*shimast.Node, string) {
+	chain := []*shimast.Node{}
+	for depth := 0; node != nil && depth < 32; depth++ {
+		if node.Kind == shimast.KindParenthesizedType {
+			node = node.AsParenthesizedTypeNode().Type
+			continue
+		}
+		name := nestiaCoreTypeReferenceName(node)
+		if name == nil || prog == nil || prog.Checker == nil {
+			return nil, ""
+		}
+		chain = append(chain, node)
+		symbol := prog.Checker.GetSymbolAtLocation(name)
+		if symbol != nil && symbol.Flags&shimast.SymbolFlagsAlias != 0 {
+			if aliased := shimchecker.Checker_getAliasedSymbol(prog.Checker, symbol); aliased != nil {
+				symbol = aliased
+			}
+		}
+		if symbol == nil {
+			return nil, ""
+		}
+		if nestiaCoreIsTgridDeclarations(symbol.Declarations) {
+			return chain, symbol.Name
+		}
+		if symbol.Flags&shimast.SymbolFlagsTypeAlias == 0 {
+			return nil, ""
+		}
+		var alias *shimast.Node
+		for _, declaration := range symbol.Declarations {
+			if declaration != nil && declaration.Kind == shimast.KindTypeAliasDeclaration {
+				alias = declaration
+				break
+			}
+		}
+		if alias == nil {
+			return nil, ""
+		}
+		node = alias.AsTypeAliasDeclaration().Type
 	}
-	if index := strings.LastIndex(text, "."); index >= 0 {
-		text = text[index+1:]
+	return nil, ""
+}
+
+// nestiaCoreTypeReferenceName is the entity a type names: the `A.B` of
+// `A.B<T>`, or the qualifier of an import type such as `import("m").A.B<T>`.
+// It is nil for any other type, including `typeof import("m")`, the type of a
+// module's value.
+func nestiaCoreTypeReferenceName(node *shimast.Node) *shimast.Node {
+	switch node.Kind {
+	case shimast.KindTypeReference:
+		return node.AsTypeReferenceNode().TypeName
+	case shimast.KindImportType:
+		if node.AsImportTypeNode().IsTypeOf {
+			return nil
+		}
+		return node.AsImportTypeNode().Qualifier
 	}
-	return text
+	return nil
+}
+
+func nestiaCoreIsTgridDeclarations(declarations []*shimast.Node) bool {
+	for _, declaration := range declarations {
+		source := shimast.GetSourceFileOfNode(declaration)
+		if source != nil && strings.Contains(filepath.ToSlash(source.FileName()), "/tgrid/") {
+			return true
+		}
+	}
+	return false
 }
 
 func nestiaCoreWebSocketDiagnostic(file *shimast.SourceFile, node *shimast.Node, kind string, message string) Diagnostic {

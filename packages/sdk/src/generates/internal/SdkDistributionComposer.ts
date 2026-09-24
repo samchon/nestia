@@ -29,17 +29,23 @@ export namespace SdkDistributionComposer {
         await replace({ root, output })(file);
 
       // INSTALL PACKAGES
+      //
+      // The package compiles with ttsc, which applies the typia transform the
+      // SDK's `assert` and `simulate` code needs through typia's own plugin;
+      // typia removed its `setup` command in 14.0.0.
       const v: IDependencies = await dependencies({
+        root,
         websocket: props.websocket,
       });
-      execute("npm install --save-dev rimraf");
+      execute(
+        `npm install --save-dev rimraf ttsc@${v.ttsc} typescript@${v.typescript}`,
+      );
       execute(`npm install --save @nestia/fetcher@${v.version}`);
       execute(`npm install --save typia@${v.typia}`);
       if (props.mcp && v.mcp !== undefined)
         execute(`npm install --save @modelcontextprotocol/sdk@${v.mcp}`);
       if (props.websocket && v.tgrid !== undefined)
         execute(`npm install --save tgrid@${v.tgrid}`);
-      execute("npx typia setup --manager npm");
     } finally {
       process.chdir(root);
     }
@@ -82,7 +88,60 @@ export namespace SdkDistributionComposer {
       );
     };
 
+  /**
+   * The version of a package the project installed, exactly: the staged package
+   * must run the typia, and compile with the ttsc and TypeScript, the project
+   * itself uses, with the tgrid and MCP SDK its WebSocket and MCP functions
+   * import. `@nestia/sdk`'s own specifier is only the fallback, and a
+   * workspace's `catalog:` one names no version npm could install.
+   */
+  const installed = (
+    root: string,
+    name: string,
+    fallback: string | undefined,
+  ): string | undefined =>
+    manifestVersion(root, name) ??
+    (fallback !== undefined && fallback.startsWith("catalog:") === false
+      ? fallback
+      : undefined);
+
+  /**
+   * The version in the manifest of the package as installed. Not every package
+   * exports its `package.json`, as tgrid does not, and a subpath export may map
+   * it to a nested manifest of no name, as `@modelcontextprotocol/sdk` maps it
+   * to `dist/cjs/package.json`; so the manifest is the nearest `package.json`
+   * naming the package, at or above what the request resolves to.
+   */
+  const manifestVersion = (root: string, name: string): string | undefined => {
+    for (const request of [`${name}/package.json`, name]) {
+      let file: string;
+      try {
+        file = require.resolve(request, { paths: [root, __dirname] });
+      } catch {
+        continue;
+      }
+      for (let directory: string = path.dirname(file); ; ) {
+        try {
+          const json: { name?: unknown; version?: unknown } = JSON.parse(
+            fs.readFileSync(path.join(directory, "package.json"), "utf8"),
+          );
+          if (
+            json.name === name &&
+            typeof json.version === "string" &&
+            json.version.length !== 0
+          )
+            return json.version;
+        } catch {}
+        const parent: string = path.dirname(directory);
+        if (parent === directory) break;
+        directory = parent;
+      }
+    }
+    return undefined;
+  };
+
   const dependencies = async (opts: {
+    root: string;
     websocket: boolean;
   }): Promise<IDependencies> => {
     const content: string = await fs.promises.readFile(
@@ -98,20 +157,22 @@ export namespace SdkDistributionComposer {
       ...json.devDependencies,
       ...json.dependencies,
     };
-    const required = (key: "version" | "typia"): string => {
-      const value: string | undefined =
-        key === "version" ? json.version : dependencies[key];
+    const required = (key: string, value: string | undefined): string => {
       if (typeof value !== "string" || value.length === 0)
         throw new Error(
           `Unable to resolve ${key} version for SDK distribution.`,
         );
       return value;
     };
+    const version = (name: string): string | undefined =>
+      installed(opts.root, name, dependencies[name]);
     return {
-      version: required("version"),
-      typia: required("typia"),
-      tgrid: opts.websocket ? dependencies.tgrid : undefined,
-      mcp: dependencies["@modelcontextprotocol/sdk"],
+      version: required("@nestia/fetcher", json.version),
+      typia: required("typia", version("typia")),
+      ttsc: required("ttsc", version("ttsc")),
+      typescript: required("typescript", version("typescript")),
+      tgrid: opts.websocket ? version("tgrid") : undefined,
+      mcp: version("@modelcontextprotocol/sdk"),
     };
   };
 }
@@ -119,6 +180,8 @@ export namespace SdkDistributionComposer {
 interface IDependencies {
   version: string;
   typia: string;
+  ttsc: string;
+  typescript: string;
   tgrid: string | undefined;
   mcp: string | undefined;
 }

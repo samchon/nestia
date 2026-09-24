@@ -4,10 +4,10 @@ on:
     paths:
       - '.github/workflows/build.yml'
       - 'config/**'
-      - 'packages/*/native/**'
-      - 'packages/*/src/**'
-      - 'packages/*/package.json'
-      - 'packages/*/tsconfig.json'
+      # every file a package build reads: sources, bundler and TypeScript
+      # configs, and the deploy scripts the build scripts run
+      - 'packages/**'
+      - 'deploy/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - 'package.json'

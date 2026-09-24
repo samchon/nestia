@@ -34,19 +34,120 @@ delete process.env.npm_config_dir;
 delete process.env.npm_config_verify_deps_before_run;
 
 const featureDirectory = (name = "") => path.join(__dirname, "features", name);
-const TYPESCRIPT_ERROR_FEATURES = new Set([
-  "body-error-get",
-  "body-error-implicit",
-  "method-error-head-non-void",
-  "route-invalid-path-error",
-  "security-error-not-found",
-  "security-error-not-oauth2",
-  "security-error-out-of-scopes",
-]);
+// Every error feature names the diagnostic it exists for, with the location
+// that reports it, so a feature failing for another reason fails the run
+// instead of passing (#1694).
 const EXPECTED_ERROR_DIAGNOSTICS = new Map([
   [
+    "body-error-get",
+    [
+      "TypedBodyController.store():",
+      "@Body() is not allowed in the GET method.",
+    ],
+  ],
+  [
+    "body-error-property",
+    [
+      'BbsArticlesController.update() from parameter "content":',
+      "@Body() must not have a field name.",
+    ],
+  ],
+  [
+    "exception-error-bigint",
+    [
+      "HealthController.get() from exception (status: 499):",
+      "does not allow bigint type in JSON.",
+    ],
+  ],
+  [
+    "implicit-error",
+    [
+      "ImplicitController.array() from success:",
+      "ImplicitController.matrix() from success:",
+      "implicit (unnamed) return type.",
+    ],
+  ],
+  [
+    "mcp-error-duplicate-accessor",
+    [
+      'McpErrorController.first() from @McpRoute("same-name"):',
+      'MCP tool name "same-name" conflicts on generated SDK accessor "api.functional.mcp.same_name".',
+      'McpErrorController.second() from @McpRoute("same_name"):',
+    ],
+  ],
+  [
+    "mcp-error-duplicate-tool-name",
+    [
+      'McpErrorController.first() from @McpRoute("duplicated_tool"):',
+      'McpErrorController.second() from @McpRoute("duplicated_tool"):',
+      'Duplicate MCP tool name "duplicated_tool" is not allowed.',
+    ],
+  ],
+  [
+    "mcp-error-mixed-http",
+    [
+      "McpErrorController.run() from run:",
+      "@McpRoute must not be combined with HTTP or WebSocket route decorators on the same method.",
+    ],
+  ],
+  [
+    "method-error-get-body",
+    [
+      "MethodController.body():",
+      "@Body() is not allowed in the GET method.",
+    ],
+  ],
+  [
+    "method-error-head-body",
+    [
+      "MethodController.body():",
+      "@Body() is not allowed in the HEAD method.",
+    ],
+  ],
+  [
+    "method-error-head-non-void",
+    [
+      "MethodController.response() from success:",
+      "HEAD method must not have any return value.",
+    ],
+  ],
+  [
+    "route-error-implicit",
+    [
+      "BbsArticlesController.at() from success:",
+      "implicit (unnamed) return type.",
+    ],
+  ],
+  [
+    "route-invalid-path-error",
+    [
+      "InvalidRouteController.get() from {parameters}:",
+      'invalid path ("/invalid/::id")',
+    ],
+  ],
+  [
     "websocket-error-invalid-acceptor-arity",
-    "@WebSocketRoute.Acceptor() must have three type arguments.",
+    'parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.',
+  ],
+  [
+    "websocket-error-invalid-acceptor-import",
+    'parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.',
+  ],
+  [
+    "security-error-not-found",
+    'target security scheme "oauth2" does not exist. (SecurityController.oauth2() at "GET /oauth2")',
+  ],
+  [
+    "security-error-not-oauth2",
+    `target security scheme "bearer" is neither "oauth2" nor "openIdConnect" type, but you've configured the scopes, which OpenAPI 3.0 requires to be empty.`,
+  ],
+  [
+    "security-error-out-of-scopes",
+    'target security scheme "oauth2" does not have a specific scope "read:pets".',
+  ],
+  [
+    "websocket-error-acceptor-alias-argument",
+    '@WebSocketRoute.Acceptor() parameter "acceptor" is typed by a type alias whose WebSocketAcceptor type argument "IRoom<Member>" uses a type parameter of the alias inside it',
   ],
   [
     "query-error-plain",
@@ -328,6 +429,13 @@ const feature = async (name, port) => {
       [],
       "inherit",
     );
+  if (name === "output-directory-diagnostics")
+    return runNode(
+      ROOT,
+      path.join(__dirname, "output-directory-diagnostics.js"),
+      [],
+      "inherit",
+    );
 
   const cwd = featureDirectory(name);
   const configFile =
@@ -362,14 +470,9 @@ const feature = async (name, port) => {
         );
       return;
     }
-    try {
-      if (TYPESCRIPT_ERROR_FEATURES.has(name)) await runTsc(cwd);
-      await generate("all", true);
-      if (hasTtsxTestFiles(cwd)) await runTtsxTest(cwd, "ignore", port);
-    } catch {
-      return;
-    }
-    throw new Error("compile error must be occurred.");
+    throw new Error(
+      `${name} is an error feature without an expected diagnostic in EXPECTED_ERROR_DIAGNOSTICS.`,
+    );
   }
 
   await removePaths(cwd, [
@@ -384,7 +487,7 @@ const feature = async (name, port) => {
     ...(name === "nested-output-directories" ? ["generated"] : []),
   ]);
 
-  if (name.includes("distribute")) return;
+  if (name.includes("distribute")) return runDistributeFeature(cwd, name);
   else if (name === "all") {
     const config = fs.readFileSync(path.join(cwd, configFile), "utf8");
     {
@@ -655,6 +758,111 @@ const CLI_ARGUMENT_DIAGNOSTIC_CASES = [
     message: "config file must be provided",
   },
 ];
+
+// `nestia sdk` stages the distribution package and installs what it needs;
+// the staged package must then compile, emitting `lib/` (#1676). Each run
+// starts from a fresh stage, as the composer leaves a configured one alone.
+const runDistributeFeature = async (cwd, name) => {
+  const config = fs.readFileSync(path.join(cwd, "nestia.config.ts"), "utf8");
+  const distribute = config.match(/distribute:\s*"([^"]+)"/)?.[1];
+  if (distribute === undefined)
+    throw new Error(`${name} configures no distribute location.`);
+  const stage = path.join(cwd, distribute);
+  await fs.promises.rm(stage, { force: true, recursive: true });
+  // quiet like every other feature, and repeated with the output on failure
+  const quietly = async (task) => {
+    try {
+      await task("ignore");
+    } catch {
+      await task("inherit");
+    }
+  };
+  await quietly((stdio) =>
+    runNestia(cwd, ["sdk", ...generationTail(name)], stdio),
+  );
+  await quietly((stdio) =>
+    run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "compile"], {
+      cwd: stage,
+      stdio,
+      shell: process.platform === "win32",
+    }),
+  );
+  if (fs.existsSync(path.join(stage, "lib", "index.js")) === false)
+    throw new Error(`${name}: the staged SDK package emitted no lib/index.js.`);
+
+  // A published package must declare every package its code imports. Inside
+  // the workspace an undeclared one still resolves from an ancestor
+  // node_modules, so the compile alone cannot tell.
+  const read = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
+  const staged = read(path.join(stage, "package.json"));
+  const undeclared = [...emittedPackageImports(path.join(stage, "lib"))].filter(
+    (name) => staged.dependencies?.[name] === undefined,
+  );
+  if (undeclared.length !== 0)
+    throw new Error(
+      `${name}: the staged SDK package imports ${undeclared.join(", ")} without declaring it in its dependencies.`,
+    );
+
+  // The stage installs exactly the packages the project resolves: typia,
+  // ttsc, and TypeScript, and the tgrid and MCP SDK its WebSocket and MCP
+  // functions import, whether or not a package exports its package.json.
+  for (const dependency of Object.keys({
+    ...staged.dependencies,
+    ...staged.devDependencies,
+  })) {
+    if (dependency === "rimraf" || dependency === "@nestia/fetcher") continue;
+    const expected = projectVersion(cwd, dependency);
+    const actual = read(
+      path.join(stage, "node_modules", dependency, "package.json"),
+    ).version;
+    if (actual !== expected)
+      throw new Error(
+        `${name}: the staged SDK package installed ${dependency}@${actual}, but the project resolves ${expected}.`,
+      );
+  }
+};
+
+// The packages the emitted JavaScript and declarations under `directory`
+// import, by package name, leaving out relative paths and Node's built-in
+// modules: a consumer loads the first and type-checks against the second.
+const emittedPackageImports = (directory) => {
+  const output = new Set();
+  const visit = (location) => {
+    for (const entry of fs.readdirSync(location, { withFileTypes: true })) {
+      const file = path.join(location, entry.name);
+      if (entry.isDirectory()) visit(file);
+      else if (entry.name.endsWith(".js") || entry.name.endsWith(".d.ts"))
+        for (const [, specifier] of fs
+          .readFileSync(file, "utf8")
+          .matchAll(
+            /(?:\brequire\(\s*|\bimport\(\s*|\bfrom\s+)["']([^"']+)["']/g,
+          )) {
+          if (specifier.startsWith(".") || specifier.startsWith("node:"))
+            continue;
+          const segments = specifier.split("/");
+          const name = specifier.startsWith("@")
+            ? segments.slice(0, 2).join("/")
+            : segments[0];
+          if (require("module").builtinModules.includes(name) === false)
+            output.add(name);
+        }
+    }
+  };
+  visit(directory);
+  return output;
+};
+
+// The version of the package Node would load from `cwd`, found as Node finds
+// it: in the nearest `node_modules` holding it.
+const projectVersion = (cwd, name) => {
+  for (let directory = cwd; ; directory = path.dirname(directory)) {
+    const file = path.join(directory, "node_modules", name, "package.json");
+    if (fs.existsSync(file))
+      return JSON.parse(fs.readFileSync(file, "utf8")).version;
+    if (path.dirname(directory) === directory)
+      throw new Error(`${name} is not installed above ${cwd}.`);
+  }
+};
 
 const runCliArgumentDiagnosticsFeature = async () => {
   const cwd = featureDirectory(`.tmp-cli-arguments-${process.pid}`);
@@ -1300,27 +1508,39 @@ const measure = (title) => async (task) => {
   return output;
 };
 
+// A feature bounded by a wall-clock limit runs alone after the pool, so the
+// limit measures the feature rather than the load of the features beside it:
+// swagger-watch's first generation outlasted its limit while up to seven other
+// features compiled on the same machine (#1695).
+const EXCLUSIVE_FEATURES = new Set(["swagger-watch"]);
+
 const runFeatures = async (names) => {
-  const parallel = concurrency(names.length);
+  const pooled = names.filter((name) => !EXCLUSIVE_FEATURES.has(name));
+  const exclusive = names.filter((name) => EXCLUSIVE_FEATURES.has(name));
+  const parallel = concurrency(pooled.length);
   console.log(`Test Features (concurrency: ${parallel})`);
 
   const failures = [];
+  const runFeature = async (name, port) => {
+    try {
+      await measure(`  - ${name}`)(() => feature(name, port));
+    } catch (error) {
+      failures.push({ name, error });
+      console.error(`  - ${name}: failed`);
+      console.error(error);
+    }
+  };
   let cursor = 0;
   const worker = async () => {
-    while (cursor < names.length) {
+    while (cursor < pooled.length) {
       const index = cursor++;
-      const name = names[index];
-      try {
-        await measure(`  - ${name}`)(() => feature(name, BASE_PORT + index));
-      } catch (error) {
-        failures.push({ name, error });
-        console.error(`  - ${name}: failed`);
-        console.error(error);
-      }
+      await runFeature(pooled[index], BASE_PORT + index);
     }
   };
 
   await Promise.all(Array.from({ length: parallel }, worker));
+  for (const [index, name] of exclusive.entries())
+    await runFeature(name, BASE_PORT + pooled.length + index);
   if (failures.length !== 0)
     throw new Error(
       `Failed test-sdk features: ${failures.map((f) => f.name).join(", ")}`,
@@ -1375,6 +1595,8 @@ const main = async () => {
       names.push("cli-argument-diagnostics");
     if (filter("cli-dependencies")) names.push("cli-dependencies");
     if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
+    if (filter("output-directory-diagnostics"))
+      names.push("output-directory-diagnostics");
     await runFeatures(names);
   });
 };

@@ -119,7 +119,7 @@ func nestiaSDKHttpParamRule(props struct {
 		errors = append(errors, "do not allow any type")
 	}
 	if props.Metadata.IsRequired() == false {
-		errors = append(errors, "do not allow undefindable type")
+		errors = append(errors, "do not allow undefined type")
 	}
 	atomics := nativehelpers.HttpMetadataUtil.Atomics(props.Metadata)
 	if props.Metadata.Size() != nestiaSDKHttpAtomicSize(props.Metadata) || len(atomics) == 0 {

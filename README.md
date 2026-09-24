@@ -60,7 +60,7 @@ Check out the document in the [website](https://nestia.io/docs/):
 ### 🏠 Home
   - [Introduction](https://nestia.io/docs/)
   - [Setup](https://nestia.io/docs/setup/)
-  - [Pure TypeScript](https://nestia.io/docs/pure)
+  - [Pure TypeScript](https://nestia.io/docs/core/TypedBody/)
 
 ### 📖 Features
   - Core Library

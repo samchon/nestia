@@ -28,7 +28,7 @@ export namespace SourceFinder {
           closure(path.resolve(pattern));
           continue;
         }
-        for (const file of await _Glob(pattern)) {
+        for (const file of await expand(pattern)) {
           const stats: fs.Stats = await fs.promises.stat(file);
           if (stats.isDirectory() === true)
             await iterate(filter)(closure)(file);
@@ -51,9 +51,30 @@ export namespace SourceFinder {
       }
     };
 
-  const _Glob = async (pattern: string): Promise<string[]> => {
-    const matches = await glob(pattern);
-    return matches.map((str) => path.resolve(str));
+  /**
+   * Files and directories a path or glob pattern names.
+   *
+   * An existing path is taken literally, whatever characters it holds, as a
+   * directory such as `app [v2]` would otherwise read as a character class. For
+   * a pattern, the longest existing ancestor is the literal base and only the
+   * rest is globbed, with `/` separators, since glob reads a Windows backslash
+   * as an escape.
+   */
+  export const expand = async (pattern: string): Promise<string[]> => {
+    const absolute: string = path.resolve(pattern);
+    if (fs.existsSync(absolute)) return [absolute];
+    let base: string = absolute;
+    while (fs.existsSync(base) === false) {
+      const parent: string = path.dirname(base);
+      if (parent === base) return [];
+      base = parent;
+    }
+    const rest: string = path
+      .relative(base, absolute)
+      .split(path.sep)
+      .join("/");
+    const matches: string[] = await glob(rest, { cwd: base });
+    return matches.map((str) => path.resolve(base, str));
   };
 
   const _Is_file = (pattern: string): boolean =>

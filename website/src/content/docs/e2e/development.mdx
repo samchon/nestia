@@ -88,7 +88,7 @@ async function main(): Promise<void> {
 
   await backend.close();
 
-  const failures: DynamicExecutor.IReport.IExecution[] =
+  const failures: DynamicExecutor.IExecution[] =
     report.executions.filter((exec) => exec.error !== null);
   if (failures.length === 0) {
     console.log("Success");
@@ -146,8 +146,8 @@ export async function test_api_bbs_article_create(
     "general",
     {
       writer: RandomGenerator.name(),
-      title: RandomGenerator.paragraph(3)(),
-      body: RandomGenerator.content(8)()(),
+      title: RandomGenerator.paragraph({ sentences: 3 }),
+      body: RandomGenerator.content({ paragraphs: 8 }),
       format: "txt",
       files: [
         {
@@ -166,7 +166,7 @@ export async function test_api_bbs_article_create(
     stored.section,
     stored.id,
   );
-  TestValidator.equals("created")(stored)(read);
+  TestValidator.equals("created", stored, read);
 }
 ```
   </Tabs.Tab>
@@ -188,8 +188,8 @@ export async function test_api_bbs_article_update(
     "general",
     {
       writer: RandomGenerator.name(),
-      title: RandomGenerator.paragraph(3)(),
-      body: RandomGenerator.content(8)()(),
+      title: RandomGenerator.paragraph({ sentences: 3 }),
+      body: RandomGenerator.content({ paragraphs: 8 }),
       format: "txt",
       files: [
         {
@@ -209,8 +209,8 @@ export async function test_api_bbs_article_update(
       article.section,
       article.id,
       {
-        title: RandomGenerator.paragraph(3)(),
-        body: RandomGenerator.content(8)()(),
+        title: RandomGenerator.paragraph({ sentences: 3 }),
+        body: RandomGenerator.content({ paragraphs: 8 }),
         format: "txt",
         files: [],
         password,
@@ -219,14 +219,14 @@ export async function test_api_bbs_article_update(
   article.snapshots.push(content);
 
   // TRY UPDATE WITH WRONG PASSWORD
-  await TestValidator.error("update with wrong password")(() =>
+  await TestValidator.error("update with wrong password", () =>
     api.functional.bbs.articles.update(
       connection,
       article.section,
       article.id,
       {
-        title: RandomGenerator.paragraph(5)(),
-        body: RandomGenerator.content(8)()(),
+        title: RandomGenerator.paragraph({ sentences: 5 }),
+        body: RandomGenerator.content({ paragraphs: 8 }),
         format: "txt",
         files: [],
         password: v4(),
@@ -249,11 +249,11 @@ export async function test_api_bbs_article_index_search(
 ): Promise<void> {
   // GENERATE 100 ARTICLES
   const section: string = "general";
-  const articles: IBbsArticle[] = await ArrayUtil.asyncRepeat(100)(() =>
+  const articles: IBbsArticle[] = await ArrayUtil.asyncRepeat(100, () =>
     api.functional.bbs.articles.create(connection, section, {
       writer: RandomGenerator.name(),
-      title: RandomGenerator.paragraph(4)(),
-      body: RandomGenerator.content(3)()(),
+      title: RandomGenerator.paragraph({ sentences: 4 }),
+      body: RandomGenerator.content({ paragraphs: 3 }),
       format: "txt",
       files: [],
       password: RandomGenerator.alphabets(8),
@@ -268,7 +268,8 @@ export async function test_api_bbs_article_index_search(
     });
 
   // PREPARE SEARCH FUNCTION
-  const search = TestValidator.search("BbsArticleProvider.index()")(
+  const search = TestValidator.search(
+    "BbsArticleProvider.index()",
     async (input: IBbsArticle.IRequest.ISearch) => {
       const page: IPage<IBbsArticle.ISummary> =
         await api.functional.bbs.articles.index(connection, section, {
@@ -278,7 +279,9 @@ export async function test_api_bbs_article_index_search(
         });
       return page.data;
     },
-  )(total.data, 10);
+    total.data,
+    10,
+  );
 
   // SEARCH TITLE
   await search({

@@ -126,18 +126,30 @@ test/features/api/articles/
 
 The same test files drive `@nestia/benchmark` — point it at the same directory and you get a load report:
 
-```ts filename="benchmark/index.ts" copy
-import { NestiaBenchmarker } from "@nestia/benchmark";
+```ts filename="test/benchmark/index.ts" copy
+import { DynamicBenchmarker } from "@nestia/benchmark";
 
-const report = await NestiaBenchmarker.benchmark({
-  prefix: "test_",
-  parameters: () => [{ host: `http://localhost:${port}` }],
-  threads: 16,
-  duration: 30_000,
-})(__dirname + "/../test/features");
+const report: DynamicBenchmarker.IReport = await DynamicBenchmarker.master({
+  servant: `${__dirname}/servant.js`,
+  count: 1_024,
+  threads: 4,
+  simultaneous: 32,
+});
+await fs.promises.writeFile("BENCHMARK.md", DynamicBenchmarker.markdown(report));
 ```
 
-You get RPS, latency percentiles, and per-endpoint error rates as a markdown report. See **[E2E → Benchmark](/docs/e2e/benchmark)** for the full configuration.
+```ts filename="test/benchmark/servant.ts" copy
+import { DynamicBenchmarker } from "@nestia/benchmark";
+
+DynamicBenchmarker.servant({
+  connection: { host: "http://127.0.0.1:37001" },
+  location: `${__dirname}/../features`,
+  parameters: (connection) => [connection],
+  prefix: "test_api_",
+});
+```
+
+The report gives the mean, standard deviation, minimum, and maximum of the response time, in total and per endpoint, with success counts and memory usage, as markdown. See **[E2E → Benchmark](/docs/e2e/benchmark)** for the full configuration.
 
 ---
 

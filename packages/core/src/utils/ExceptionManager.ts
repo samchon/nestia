@@ -14,18 +14,17 @@ import { Creator } from "../typings/Creator";
  * {@link EncryptedRoute} instead of the basic router decorator functions like
  * {@link nest.Get} or {@link nest.Post} and the API function throws a custom
  * error whose class has been {@link ExceptionManager.insert inserted} in this
- * `EntityManager`, the error would be automatically converted to the regular
+ * `ExceptionManager`, the error would be automatically converted to the regular
  * {@link nest.HttpException} instance by the {@link ExceptionManager.Closure}
  * function.
  *
  * Therefore, with this `ExceptionManager` and {@link TypedRoute} or
  * {@link EncryptedRoute}, you can manage your custom error classes much
- * systemtically. You can avoid 500 internal server error or hard coding
+ * systematically. You can avoid 500 internal server error or hard coding
  * implementation about the custom error classes.
  *
- * Below error classes are defaultly configured in this `ExceptionManager`
+ * Below error class is configured in this `ExceptionManager` by default.
  *
- * - `typia.TypeGuardError`
  * - `@nestia/fetcher.HttpError`
  *
  * @author Jeongho Nam - https://github.com/samchon
@@ -47,8 +46,13 @@ export namespace ExceptionManager {
     const index: number = tuples.findIndex((tuple) => tuple[0] === creator);
     if (index !== -1) tuples.splice(index, 1);
 
-    tuples.push([creator, closure]);
-    tuples.sort(([x], [y]) => (x.prototype instanceof y ? -1 : 1));
+    // an error converts by the first class it is an instance of, so a class
+    // must precede every superclass of it: insert before the first one
+    const ancestor: number = tuples.findIndex(
+      ([registered]) => creator.prototype instanceof registered,
+    );
+    if (ancestor === -1) tuples.push([creator, closure]);
+    else tuples.splice(ancestor, 0, [creator, closure]);
   }
 
   /**

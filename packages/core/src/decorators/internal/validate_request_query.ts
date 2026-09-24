@@ -3,6 +3,7 @@ import typia, { IValidation, TypeGuardError } from "typia";
 
 import { IRequestQueryValidator } from "../../options/IRequestQueryValidator";
 import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
+import { group_entries } from "./group_entries";
 
 /** @internal */
 export const validate_request_query =
@@ -10,8 +11,8 @@ export const validate_request_query =
   <T>(validator?: IRequestQueryValidator<T>) => {
     if (!validator) {
       NoTransformConfigurationError(method);
-      return (input: URLSearchParams) =>
-        Object.fromEntries(input.entries()) as T;
+      // no transform: the query as it arrived, repeated keys as arrays
+      return (input: URLSearchParams) => group_entries(input) as T;
     } else if (validator.type === "assert") return assert(validator.assert);
     else if (validator.type === "is") return is(validator.is);
     else if (validator.type === "validate") return validate(validator.validate);

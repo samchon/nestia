@@ -41,20 +41,43 @@ export namespace PathAnalyzer {
     );
   };
 
+  /**
+   * Why a route path cannot be composed, or `null` when it can.
+   *
+   * A wildcard (`*`, NestJS 11's `files/*path`) spans any number of segments,
+   * and an optional segment (NestJS 11's `users{/:id}`, or `:id?` of earlier
+   * versions) or a repeated parameter (`:id+`) may be absent or several; none
+   * of them is one OpenAPI path parameter or one argument of an SDK function.
+   */
+  export const unsupported = (
+    str: string,
+  ): "wildcard" | "optional segment" | null => {
+    if (str.includes("*")) return "wildcard";
+    // path-to-regexp 8 (Express 5) writes an optional segment in braces
+    if (/(^|[^\\])[{}]/.test(str)) return "optional segment";
+    const tokens: Token[] | null = _Tokenize(str);
+    return tokens !== null &&
+      tokens.some((token) => typeof token !== "string" && !!token.modifier)
+      ? "optional segment"
+      : null;
+  };
+
   export const parameters = (str: string): string[] | null => {
     const args = _Parse(str);
     if (args === null) return null;
     return args.filter((arg) => arg.type === "param").map((arg) => arg.value);
   };
 
+  function _Tokenize(str: string): Token[] | null {
+    try {
+      return parse(path.join(str).split("\\").join("/"));
+    } catch {
+      return null;
+    }
+  }
+
   function _Parse(str: string): IArgument[] | null {
-    const tokens: Token[] | null = (() => {
-      try {
-        return parse(path.join(str).split("\\").join("/"));
-      } catch {
-        return null;
-      }
-    })();
+    const tokens: Token[] | null = _Tokenize(str);
     if (tokens === null) return null;
 
     const output: IArgument[] = [];

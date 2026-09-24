@@ -7,6 +7,10 @@ export const json_equal_to =
       (accessor: string) =>
       (x: any) =>
       (y: any): void => {
+        // compare what JSON holds: a Date has no keys of its own and would
+        // equal every other Date, while its JSON form is the ISO string
+        x = toJSON(x);
+        y = toJSON(y);
         if (typeof x === "function" || typeof y === "function") return;
         else if (typeof x !== typeof y) container.push(accessor);
         // `typeof null` is "object", so the check above does not separate an
@@ -40,3 +44,10 @@ export const json_equal_to =
     iterate("")(x)(y);
     return container;
   };
+
+const toJSON = (value: any): any =>
+  value !== null &&
+  typeof value === "object" &&
+  typeof value.toJSON === "function"
+    ? value.toJSON()
+    : value;

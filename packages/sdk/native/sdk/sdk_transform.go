@@ -154,6 +154,12 @@ func nestiaSDKMetadataText(context *nestiaSDKContext, file *shimast.SourceFile, 
 			typ := prog.Checker.GetTypeAtLocation(param)
 			name := nestiaSDKParameterName(param)
 			response := nestiaSDKResponse(context, imports, typ, nestiaSDKParameterTypeNode(param), true)
+			if ref, refs, err := nestiaSDKWebSocketParameterType(context, param); err != nil {
+				return "", err
+			} else if ref != nil {
+				response["type"] = ref
+				response["imports"] = refs
+			}
 			parameters = append(parameters, map[string]any{
 				"name":        name,
 				"index":       index,
@@ -2018,6 +2024,161 @@ func nestiaSDKMethodName(node *shimast.Node) string {
 		}
 	}
 	return strings.Trim(shimast.NodeText(name), "\"'")
+}
+
+// nestiaSDKWebSocketParameterType reflects an @WebSocketRoute.Acceptor() or
+// .Driver() parameter annotated through a type alias or an import type as the
+// tgrid reference it spells, such as `WebSocketAcceptor<Header, Provider,
+// Listener>`, because the generated client needs those type arguments. Each
+// argument is reflected in the file that writes it, and one naming a type
+// parameter of a generic alias is replaced by what the annotation passes for
+// it. It returns nil for an annotation writing the tgrid reference itself as a
+// type reference, and an error for an alias using its type parameter inside an
+// argument, such as `IRoom<P>`, which no written node spells.
+func nestiaSDKWebSocketParameterType(
+	context *nestiaSDKContext,
+	param *shimast.Node,
+) (map[string]any, []any, error) {
+	category := transform.NestiaCoreWebSocketParameterCategory(context.prog, param)
+	switch category {
+	case "Acceptor", "Driver":
+	default:
+		return nil, nil, nil
+	}
+	chain, name := transform.NestiaCoreWebSocketTypeReference(context.prog, nestiaSDKParameterTypeNode(param))
+	// the annotation's own reflection serves a tgrid reference written as a
+	// plain type reference, but reflects an import type without its arguments
+	if len(chain) == 0 || (len(chain) == 1 && chain[0].Kind == shimast.KindTypeReference) {
+		return nil, nil, nil
+	}
+	args := []any{}
+	groups := [][]any{}
+	if target := chain[len(chain)-1].TypeArgumentList(); target != nil {
+		for _, node := range target.Nodes {
+			argument := nestiaSDKWebSocketTypeArgument(context.prog, chain, node)
+			if argument == nil {
+				return nil, nil, fmt.Errorf(
+					"@WebSocketRoute.%s() parameter %q is typed by a type alias whose %s type argument %q uses a type parameter of the alias inside it, which the SDK cannot write. Pass each type parameter as a whole type argument, or write the %s type directly.",
+					category,
+					nestiaSDKParameterName(param),
+					name,
+					nestiaSDKTypeNodeText(node),
+					name,
+				)
+			}
+			imports := context.imports(shimast.GetSourceFileOfNode(argument))
+			arg, refs, ok := nestiaSDKReflectTypeNode(context.prog, imports, argument)
+			if ok == false {
+				text := nestiaSDKTypeNodeText(argument)
+				arg = map[string]any{"name": text}
+				refs = nestiaSDKReflectImports(text, imports)
+			}
+			args = append(args, arg)
+			groups = append(groups, refs)
+		}
+	}
+	refs := nestiaSDKMergeImportLiterals(groups...)
+	if refs == nil {
+		refs = []any{}
+	}
+	return map[string]any{
+		"name":          name,
+		"typeArguments": args,
+	}, refs, nil
+}
+
+// nestiaSDKWebSocketTypeArgument follows a type argument of the last reference
+// in chain back through the aliases while it names a type parameter of the
+// alias it is written in, to what the reference before passes for it or else
+// to the parameter's default. It returns nil when the argument uses such a
+// type parameter any other way, which no written node spells.
+func nestiaSDKWebSocketTypeArgument(prog *driver.Program, chain []*shimast.Node, node *shimast.Node) *shimast.Node {
+	for level := len(chain) - 1; level > 0; {
+		alias := nestiaSDKEnclosingTypeAlias(chain[level])
+		if alias == nil {
+			return nil
+		}
+		parameters := alias.AsTypeAliasDeclaration().TypeParameters
+		index := nestiaSDKTypeParameterIndex(prog, parameters, node)
+		if index == -1 {
+			if nestiaSDKUsesAliasTypeParameter(prog, node) {
+				return nil
+			}
+			return node
+		}
+		// the reference naming the alias, a type reference or an import type
+		reference := chain[level-1].TypeArgumentList()
+		if reference != nil && index < len(reference.Nodes) {
+			node = reference.Nodes[index]
+			level--
+			continue
+		}
+		// a default may name an earlier parameter of the same alias
+		node = parameters.Nodes[index].AsTypeParameterDeclaration().DefaultType
+		if node == nil {
+			return nil
+		}
+	}
+	return node
+}
+
+func nestiaSDKEnclosingTypeAlias(node *shimast.Node) *shimast.Node {
+	for parent := node.Parent; parent != nil; parent = parent.Parent {
+		if parent.Kind == shimast.KindTypeAliasDeclaration {
+			return parent
+		}
+	}
+	return nil
+}
+
+// nestiaSDKTypeParameterIndex is the position of the type parameter node names
+// by itself, such as `P` or `(P)`, among parameters, or -1.
+func nestiaSDKTypeParameterIndex(prog *driver.Program, parameters *shimast.NodeList, node *shimast.Node) int {
+	for node != nil && node.Kind == shimast.KindParenthesizedType {
+		node = node.AsParenthesizedTypeNode().Type
+	}
+	if parameters == nil || node == nil || node.Kind != shimast.KindTypeReference {
+		return -1
+	}
+	if arguments := node.AsTypeReferenceNode().TypeArguments; arguments != nil && len(arguments.Nodes) != 0 {
+		return -1
+	}
+	symbol := prog.Checker.GetSymbolAtLocation(node.AsTypeReferenceNode().TypeName)
+	if symbol == nil || symbol.Flags&shimast.SymbolFlagsTypeParameter == 0 {
+		return -1
+	}
+	for index, parameter := range parameters.Nodes {
+		for _, declaration := range symbol.Declarations {
+			if declaration == parameter {
+				return index
+			}
+		}
+	}
+	return -1
+}
+
+// nestiaSDKUsesAliasTypeParameter reports whether node refers to a type
+// parameter a type alias declares anywhere inside it.
+func nestiaSDKUsesAliasTypeParameter(prog *driver.Program, node *shimast.Node) bool {
+	if node == nil {
+		return false
+	}
+	if node.Kind == shimast.KindTypeReference {
+		symbol := prog.Checker.GetSymbolAtLocation(node.AsTypeReferenceNode().TypeName)
+		if symbol != nil && symbol.Flags&shimast.SymbolFlagsTypeParameter != 0 {
+			for _, declaration := range symbol.Declarations {
+				if declaration != nil && declaration.Parent != nil && declaration.Parent.Kind == shimast.KindTypeAliasDeclaration {
+					return true
+				}
+			}
+		}
+	}
+	found := false
+	node.ForEachChild(func(child *shimast.Node) bool {
+		found = nestiaSDKUsesAliasTypeParameter(prog, child)
+		return found
+	})
+	return found
 }
 
 // nestiaSDKParameterName reads a parameter's identifier, or "" for a

@@ -5,9 +5,8 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./lib/transform": "./src/transform.ts",
+    "./lib/transform": "./native/transform.cjs",
     "./native/transform.cjs": "./native/transform.cjs",
-    "./src/transform.ts": "./src/transform.ts",
     "./package.json": "./package.json"
   },
   "tsp": {
@@ -53,7 +52,7 @@
     "path-parser": "^6.1.0",
     "raw-body": "^2.0.0",
     "reflect-metadata": ">=0.1.12",
-    "rxjs": ">=6.0.3",
+    "rxjs": ">=7.1.0",
     "tgrid": "^1.1.0",
     "typia": "catalog:samchon",
     "ws": "^7.5.3"
@@ -61,10 +60,10 @@
   "peerDependencies": {
     "@modelcontextprotocol/sdk": "catalog:modelcontextprotocol",
     "@nestia/fetcher": "workspace:^",
-    "@nestjs/common": ">=7.0.1",
-    "@nestjs/core": ">=7.0.1",
+    "@nestjs/common": ">=11.0.0",
+    "@nestjs/core": ">=11.0.0",
     "reflect-metadata": ">=0.1.12",
-    "rxjs": ">=6.0.3",
+    "rxjs": ">=7.1.0",
     "ttsc": ">=0.19.2",
     "typia": "catalog:samchon"
   },
@@ -113,10 +112,7 @@
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
       },
-      "./lib/transform": {
-        "types": "./lib/transform.d.ts",
-        "default": "./lib/transform.js"
-      },
+      "./lib/transform": "./native/transform.cjs",
       "./native/transform.cjs": "./native/transform.cjs",
       "./package.json": "./package.json"
     }

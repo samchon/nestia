@@ -62,18 +62,18 @@ export class NestiaSdkApplication {
         "Error on NestiaApplication.e2e(): configure INestiaConfig.e2e property.",
       );
 
-    const validate =
-      (title: string) =>
-      async (location: string): Promise<void> => {
-        const parent: string = path.resolve(location + "/..");
-        const stats: fs.Stats = await fs.promises.lstat(parent);
-        if (stats.isDirectory() === false)
-          throw new Error(
-            `Error on NestiaApplication.e2e(): output directory of ${title} does not exists.`,
-          );
-      };
-    await validate("sdk")(this.config.output);
-    await validate("e2e")(this.config.e2e);
+    await assertDirectory({
+      method: "e2e",
+      property: "output",
+      location: this.config.output,
+      directory: path.resolve(this.config.output + "/.."),
+    });
+    await assertDirectory({
+      method: "e2e",
+      property: "e2e",
+      location: this.config.e2e,
+      directory: path.resolve(this.config.e2e + "/.."),
+    });
 
     print_title("Nestia E2E Generator");
     await this.generate({
@@ -90,12 +90,12 @@ export class NestiaSdkApplication {
         "Error on NestiaApplication.sdk(): configure INestiaConfig.output property.",
       );
 
-    const parent: string = path.resolve(this.config.output + "/..");
-    const stats: fs.Stats = await fs.promises.lstat(parent);
-    if (stats.isDirectory() === false)
-      throw new Error(
-        "Error on NestiaApplication.sdk(): output directory does not exists.",
-      );
+    await assertDirectory({
+      method: "sdk",
+      property: "output",
+      location: this.config.output,
+      directory: path.resolve(this.config.output + "/.."),
+    });
 
     print_title("Nestia SDK Generator");
     await this.generate({
@@ -111,14 +111,14 @@ export class NestiaSdkApplication {
       );
 
     const parsed: path.ParsedPath = path.parse(this.config.swagger.output);
-    const directory: string = !!parsed.ext
-      ? path.resolve(parsed.dir)
-      : this.config.swagger.output;
-    const stats: fs.Stats = await fs.promises.lstat(directory);
-    if (stats.isDirectory() === false)
-      throw new Error(
-        "Error on NestiaApplication.swagger(): output directory does not exists.",
-      );
+    await assertDirectory({
+      method: "swagger",
+      property: "swagger.output",
+      location: this.config.swagger.output,
+      directory: !!parsed.ext
+        ? path.resolve(parsed.dir)
+        : path.resolve(this.config.swagger.output),
+    });
 
     print_title("Nestia Swagger Generator");
     await this.generate({
@@ -287,6 +287,30 @@ export class NestiaSdkApplication {
     });
   }
 }
+
+/**
+ * Asserts the directory an output is written into exists, naming the configured
+ * location. `fs.promises.stat()` itself rejects a missing path, so it is caught
+ * rather than left to surface as a bare `ENOENT`; a symbolic link to a
+ * directory is followed.
+ */
+const assertDirectory = async (props: {
+  method: string;
+  property: string;
+  location: string;
+  directory: string;
+}): Promise<void> => {
+  const stats: fs.Stats | null = await fs.promises
+    .stat(props.directory)
+    .catch((error: NodeJS.ErrnoException): null => {
+      if (error.code === "ENOENT" || error.code === "ENOTDIR") return null;
+      throw error;
+    });
+  if (stats === null || stats.isDirectory() === false)
+    throw new Error(
+      `Error on NestiaApplication.${props.method}(): directory ${JSON.stringify(props.directory)} of INestiaConfig.${props.property} ${JSON.stringify(props.location)} ${stats === null ? "does not exist" : "is not a directory"}.`,
+    );
+};
 
 const print_title = (str: string): void => {
   console.log("-----------------------------------------------------------");

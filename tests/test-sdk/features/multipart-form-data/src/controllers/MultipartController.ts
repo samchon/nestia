@@ -2,6 +2,7 @@ import core from "@nestia/core";
 import { ArrayUtil, TestValidator } from "@nestia/e2e";
 import { Controller } from "@nestjs/common";
 import Multer from "multer";
+import os from "os";
 
 import { IMultipart } from "@api/lib/structures/IMultipart";
 
@@ -20,6 +21,24 @@ export class MultipartController {
       validateBlob(i, `${i}.png`)(file),
     );
     return body;
+  }
+
+  /**
+   * Multer disk storage keeps an upload in a file instead of a buffer; the
+   * handler must still receive its bytes.
+   */
+  @core.TypedRoute.Post("disk")
+  public async disk(
+    @core.TypedFormData.Body(() =>
+      Multer({ storage: Multer.diskStorage({ destination: os.tmpdir() }) }),
+    )
+    body: IMultipart.IDisk,
+  ): Promise<IMultipart.IDiskContent> {
+    return {
+      name: body.file.name,
+      size: body.file.size,
+      text: await body.file.text(),
+    };
   }
 }
 

@@ -109,7 +109,7 @@ export namespace GaffComparator {
       const a: string[] = wrap(getter(x));
       const b: string[] = wrap(getter(y));
 
-      const idx: number = a.findIndex((v, i) => v !== b[i]);
+      const idx: number = mismatch(a, b);
       return idx !== -1 ? compare(a[idx]!, b[idx]!) : a.length - b.length;
     };
 
@@ -196,7 +196,7 @@ export namespace GaffComparator {
       const a: number[] = take(x);
       const b: number[] = take(y);
 
-      const idx: number = a.findIndex((v, i) => v !== b[i]);
+      const idx: number = mismatch(a, b);
       return idx !== -1 ? a[idx]! - b[idx]! : a.length - b.length;
     };
 
@@ -277,11 +277,19 @@ export namespace GaffComparator {
       const a: number[] = wrap(closure(x));
       const b: number[] = wrap(closure(y));
 
-      const idx: number = a.findIndex((v, i) => v !== b[i]);
+      const idx: number = mismatch(a, b);
       return idx !== -1 ? a[idx]! - b[idx]! : a.length - b.length;
     };
 
   const compare = (x: string, y: string) => x.localeCompare(y);
+
+  /**
+   * The first index where the two key lists differ within their common length,
+   * or -1; beyond it a proper prefix orders before its extension, in both
+   * argument orders.
+   */
+  const mismatch = <K>(a: K[], b: K[]): number =>
+    a.findIndex((v, i) => i < b.length && v !== b[i]);
 
   const wrap = <T>(elem: T | T[]): T[] => (Array.isArray(elem) ? elem : [elem]);
 }

@@ -83,7 +83,7 @@ export namespace TestValidator {
       output
         .then((flag) => {
           if (flag === true) resolve();
-          else reject(message());
+          else reject(new Error(message()));
         })
         .catch(reject);
     }) as any;

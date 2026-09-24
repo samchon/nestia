@@ -1,0 +1,24 @@
+import core from "@nestia/core";
+import { INestApplication } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+
+import { registerDomainErrors } from "./DomainErrors";
+
+export class Backend {
+  private application_?: INestApplication;
+
+  public async open(): Promise<void> {
+    registerDomainErrors();
+    this.application_ = await NestFactory.create(
+      await core.DynamicModule.mount(__dirname + "/controllers"),
+      { logger: false },
+    );
+    await this.application_.listen(Number(process.env.TEST_SDK_PORT ?? 37_000));
+  }
+
+  public async close(): Promise<void> {
+    if (this.application_ === undefined) return;
+    await this.application_.close();
+    delete this.application_;
+  }
+}

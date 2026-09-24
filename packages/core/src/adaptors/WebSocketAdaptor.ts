@@ -107,10 +107,10 @@ const visitApplication = async (
       return versioning === undefined || versioning.type !== VersioningType.URI
         ? undefined
         : {
+            // as NestJS's RoutePathFactory.getVersionPrefix(): `false` is no
+            // prefix at all, and only an absent one is the default "v"
             prefix:
-              versioning.prefix === undefined || versioning.prefix === false
-                ? "v"
-                : versioning.prefix,
+              versioning.prefix === false ? "" : (versioning.prefix ?? "v"),
             defaultVersion: versioning.defaultVersion,
           };
     })(),
@@ -350,10 +350,12 @@ const visitMethod = (props: {
                 } else if (p.category === "param")
                   args.push(p.assert(input.params[p.field]!));
                 else if (p.category === "query") {
+                  // the query is all after the first "?", which it may hold too
+                  const index: number = input.acceptor.path.indexOf("?");
                   const query: any | Error = p.validate(
                     new URLSearchParams(
-                      input.acceptor.path.indexOf("?") !== -1
-                        ? input.acceptor.path.split("?")[1]
+                      index !== -1
+                        ? input.acceptor.path.substring(index + 1)
                         : "",
                     ),
                   );

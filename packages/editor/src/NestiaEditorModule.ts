@@ -34,17 +34,6 @@ export namespace NestiaEditorModule {
         type: "text/html",
         content: await getIndex(props),
       },
-      {
-        path: "/swagger.json",
-        type: "application/json",
-        content: JSON.stringify(
-          typeof props.swagger === "string"
-            ? await getSwagger(props.swagger)
-            : props.swagger,
-          null,
-          2,
-        ),
-      },
       await getJavaScript(),
     ];
     for (const f of staticFiles) {
@@ -53,6 +42,32 @@ export namespace NestiaEditorModule {
         return res.send(f.content);
       });
     }
+
+    // A document given by location is read when the editor asks for it, not
+    // here: `setup()` runs before `listen()`, so the application's own path,
+    // such as `@nestjs/swagger`'s "/api-json", serves nothing yet, and a path
+    // is resolved against the address the application listens on.
+    let document: string | null =
+      typeof props.swagger === "string"
+        ? null
+        : JSON.stringify(props.swagger, null, 2);
+    adaptor.get(prefix + "/swagger.json", async (_: any, res: any) => {
+      try {
+        document ??= JSON.stringify(
+          await getSwagger(
+            await resolveLocation(props.application, props.swagger as string),
+          ),
+          null,
+          2,
+        );
+      } catch (error) {
+        res.status(502);
+        res.type("text/plain");
+        return res.send(error instanceof Error ? error.message : String(error));
+      }
+      res.type("application/json");
+      return res.send(document);
+    });
     for (const p of ["", "/"])
       adaptor.get(prefix + p, (_: any, res: any) => {
         return res.redirect(prefix + "/index.html");
@@ -123,6 +138,15 @@ const getJavaScript = async (): Promise<IStaticFile> => {
     ),
   };
 };
+
+/** An absolute URL as is; a path of the application at its own address. */
+const resolveLocation = async (
+  application: INestApplication,
+  location: string,
+): Promise<string> =>
+  /^[a-z][a-z\d+\-.]*:/i.test(location)
+    ? location
+    : new URL(location, await application.getUrl()).href;
 
 const getSwagger = async (
   url: string,

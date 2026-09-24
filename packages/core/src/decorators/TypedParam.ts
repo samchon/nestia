@@ -22,9 +22,9 @@ import { NoTransformConfigurationError } from "./NoTransformConfigurationError";
  *
  * \@TypedRoute.Get("shopping/sales/:id/:no/:paused")
  * public async pause(
- *   \@TypedParam("id", "uuid"), id: string & tags.Format<"uuid">,
- *   \@TypedParam("no") id: number & tags.Type<"uint32">
- *   \@TypedParam("paused") paused: boolean | null
+ *   \@TypedParam("id") id: string & tags.Format<"uuid">,
+ *   \@TypedParam("no") no: number & tags.Type<"uint32">,
+ *   \@TypedParam("paused") paused: boolean | null,
  * ): Promise<void>;
  * ```
  *

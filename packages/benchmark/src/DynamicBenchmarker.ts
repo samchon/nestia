@@ -58,8 +58,9 @@ export namespace DynamicBenchmarker {
      *
      * The number of requests to be executed simultaneously.
      *
-     * This property value would be divided by the {@link threads} in the
-     * servants.
+     * This property value is distributed among the {@link threads} servants like
+     * the {@link count}, so their budgets sum to it. It must not be less than
+     * the {@link threads}, as each servant runs at least one request at a time.
      */
     simultaneous: number;
 
@@ -214,14 +215,23 @@ export namespace DynamicBenchmarker {
       throw new Error(
         "DynamicBenchmarker.master(): simultaneous must be a positive integer.",
       );
-    const completes: number[] = new Array(props.threads).fill(0);
-    const counts: number[] = new Array(props.threads)
-      .fill(0)
-      .map(
-        (_, index) =>
-          Math.floor(props.count / props.threads) +
-          (index < props.count % props.threads ? 1 : 0),
+    if (props.simultaneous < props.threads)
+      throw new Error(
+        `DynamicBenchmarker.master(): simultaneous (${props.simultaneous}) must not be less than threads (${props.threads}), as each servant runs at least one request at a time.`,
       );
+    const completes: number[] = new Array(props.threads).fill(0);
+    // the first `total % threads` servants take one more than the rest, so the
+    // shares sum to the total
+    const distribute = (total: number): number[] =>
+      new Array(props.threads)
+        .fill(0)
+        .map(
+          (_, index) =>
+            Math.floor(total / props.threads) +
+            (index < total % props.threads ? 1 : 0),
+        );
+    const counts: number[] = distribute(props.count);
+    const budgets: number[] = distribute(props.simultaneous);
     const servants: WorkerConnector<
       null,
       IBenchmarkMaster,
@@ -269,7 +279,7 @@ export namespace DynamicBenchmarker {
         servants.map((connector, index) =>
           connector.getDriver().execute({
             count: counts[index]!,
-            simultaneous: Math.ceil(props.simultaneous / props.threads),
+            simultaneous: budgets[index]!,
           }),
         ),
       )

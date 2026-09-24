@@ -1,8 +1,8 @@
 import fs from "fs";
-import { glob } from "glob";
 import path from "path";
 
 import { INestiaConfig } from "../../INestiaConfig";
+import { SourceFinder } from "../../utils/SourceFinder";
 
 export namespace NestiaSdkWatcher {
   export interface IProps {
@@ -202,7 +202,7 @@ const patternTargets = async (pattern: string): Promise<string[]> => {
   if (hasGlobMagic(pattern)) {
     const root: string = staticRoot(pattern);
     if (fs.existsSync(root)) output.add(root);
-    for (const match of await glob(pattern)) output.add(path.resolve(match));
+    for (const match of await SourceFinder.expand(pattern)) output.add(match);
   }
   return [...output];
 };

@@ -265,7 +265,7 @@ importers:
         specifier: '>=0.1.12'
         version: 0.2.2
       rxjs:
-        specifier: '>=6.0.3'
+        specifier: '>=7.1.0'
         version: 7.8.2
       tgrid:
         specifier: ^1.1.0
@@ -863,10 +863,25 @@ importers:
       '@nestjs/common':
         specifier: catalog:nestjs
         version: 11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/core':
+        specifier: catalog:nestjs
+        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/platform-express':
+        specifier: catalog:nestjs
+        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
+      multer:
+        specifier: ^2.0.2
+        version: 2.1.1
+      rxjs:
+        specifier: catalog:nestjs
+        version: 7.8.2
       typia:
         specifier: catalog:samchon
         version: 15.0.0(ttsc@0.28.1)
     devDependencies:
+      '@types/multer':
+        specifier: ^1.4.12
+        version: 1.4.13
       '@types/node':
         specifier: catalog:utils
         version: 25.9.0
@@ -2870,6 +2885,7 @@ packages:
   eslint@9.39.4:
     resolution: {integrity: sha512-XoMjdBOwe/esVgEvLmNsD3IRHkm7fbKIUGvrleloJXUZgDHig2IPWNniv+GwjyJXzuNqVjlr5+4yVUZjycJwfQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
