@@ -131,7 +131,8 @@ const report = (props: {
         `${location} - `,
         error.class,
         ...(error.function !== null ? [`.${error.function}()`] : [""]),
-        ...(error.from !== null ? [` from ${error.from}`] : [""]),
+        // an empty origin names no part of the function
+        ...(error.from ? [` from ${error.from}`] : [""]),
         ":\n",
         contents
           .map((c) => {
