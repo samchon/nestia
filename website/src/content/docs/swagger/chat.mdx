@@ -161,7 +161,7 @@ export class ChatController {
   public async start(
     @WebSocketRoute.Acceptor()
     acceptor: WebSocketAcceptor<
-      null, // header
+      undefined, // no header
       AgenticaRpcService,
       IAgenticaRpcListener
     >,

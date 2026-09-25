@@ -24,6 +24,7 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkHttpSimulationProgrammer } from "./SdkHttpSimulationProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
+import { SdkPathTemplate } from "./SdkPathTemplate";
 
 export namespace SdkHttpNamespaceProgrammer {
   export const write =
@@ -214,43 +215,12 @@ export namespace SdkHttpNamespaceProgrammer {
 
       const names: SdkHttpParameterProgrammer.INames =
         SdkHttpParameterProgrammer.getNames({ project, route });
-      const template = () => {
-        const split: string[] = route.path.split(":");
-        if (split.length === 1) return factory.createStringLiteral(route.path);
-        return factory.createTemplateExpression(
-          factory.createTemplateHead(split[0]!),
-          split.slice(1).map((s, i, arr) => {
-            const name: string = s.split("/")[0]!;
-            return factory.createTemplateSpan(
-              factory.createCallExpression(
-                factory.createIdentifier("encodeURIComponent"),
-                undefined,
-                [
-                  factory.createBinaryExpression(
-                    factory.createCallChain(
-                      factory.createPropertyAccessChain(
-                        names.access(
-                          route.pathParameters.find((p) => p.field === name)!,
-                        ),
-                        factory.createToken(SyntaxKind.QuestionDotToken),
-                        "toString",
-                      ),
-                      undefined,
-                      undefined,
-                      [],
-                    ),
-                    factory.createToken(SyntaxKind.QuestionQuestionToken),
-                    factory.createStringLiteral("null"),
-                  ),
-                ],
-              ),
-              (i !== arr.length - 1
-                ? factory.createTemplateMiddle
-                : factory.createTemplateTail)(s.substring(name.length)),
-            );
-          }),
-        );
-      };
+      const template = () =>
+        SdkPathTemplate.compose({
+          path: route.path,
+          argument: (name) =>
+            names.access(route.pathParameters.find((p) => p.field === name)!),
+        });
       if (route.queryObject === null && route.queryParameters.length === 0)
         return out(template());
 

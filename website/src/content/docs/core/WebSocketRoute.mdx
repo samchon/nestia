@@ -201,6 +201,17 @@ public async advanced(
 
 Path / header / query are validated against their declared types — invalid handshakes are rejected before your handler runs.
 
+Every failing request ends with a close code and a reason, so the client's `connect()` or pending call rejects with a `WebSocketError` rather than waiting:
+
+| What failed                                   | Code   | Reason                                        |
+| --------------------------------------------- | ------ | --------------------------------------------- |
+| No route matches the path                     | `1002` | `WebSocket API not found`                     |
+| A param, header, or query fails its type      | `1003` | the failing property, like `invalid type on $input.name, expect to be string` |
+| Your handler throws before `accept()`         | `1008` | the error's message                           |
+| Your handler throws after `accept()`          | `1011` | the error's message                           |
+
+A close reason holds at most 123 bytes of UTF-8, so a longer message is cut at a character boundary.
+
 ---
 
 ## The acceptor lifecycle
@@ -234,6 +245,7 @@ public async auth(
 - **Driver methods are async on the wire.** A server-side `plus(x: number, y: number): number` becomes `plus(x, y): Promise<number>` in the client's `Driver<T>`.
 - **One driver per direction.** Server-to-client calls go through `Driver<Listener>`; client-to-server calls go through the `Provider` instance you pass to `acceptor.accept()`. They're independent.
 - **No SDK without TGrid.** The client SDK pulls in `tgrid` as a runtime dependency.
+- **The header is an object, or `undefined` for none.** The SDK sends the handshake header as `connection.headers`, so the `Header` of `WebSocketAcceptor<Header, Provider, Listener>` and the type of an `@WebSocketRoute.Header()` parameter must be an object type or `undefined`. TGrid itself accepts any header, but `nestia sdk` reports a `null`, nullable, or primitive one by the parameter's name rather than generating a client that does not compile.
 
 ---
 

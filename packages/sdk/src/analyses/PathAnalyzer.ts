@@ -62,6 +62,51 @@ export namespace PathAnalyzer {
       : null;
   };
 
+  /**
+   * The literal text and parameters of a path, in order, as path-to-regexp
+   * reads it: `/files/:id.json` is `/files/`, the parameter `id`, then `.json`,
+   * and `/range/:from-:to` holds two parameters parted by `-`. Every generator
+   * that writes a path with its parameters filled in reads it from here, never
+   * by splitting the text at `:` or `/`. `null` for a path it cannot parse.
+   */
+  export const segments = (str: string): ISegment[] | null => {
+    const tokens: Token[] | null = _Tokenize(str);
+    if (tokens === null) return null;
+    const output: ISegment[] = [];
+    const literal = (value: string): void => {
+      if (value.length === 0) return;
+      const last: ISegment | undefined = output[output.length - 1];
+      if (last?.type === "literal") last.value += value;
+      else output.push({ type: "literal", value });
+    };
+    for (const token of tokens)
+      if (typeof token === "string") literal(token);
+      else if (typeof token.name === "number") return null;
+      else {
+        literal(token.prefix);
+        output.push({ type: "param", name: token.name });
+        literal(token.suffix);
+      }
+    return output;
+  };
+
+  /**
+   * The path in OpenAPI's template syntax, each parameter written `{name}`:
+   * `/files/:id.json` is `/files/{id}.json`.
+   */
+  export const toOpenApi = (str: string): string => {
+    const list: ISegment[] | null = segments(str);
+    return list === null
+      ? str
+      : list
+          .map((s) => (s.type === "literal" ? s.value : `{${s.name}}`))
+          .join("");
+  };
+
+  export type ISegment =
+    | { type: "literal"; value: string }
+    | { type: "param"; name: string };
+
   export const parameters = (str: string): string[] | null => {
     const args = _Parse(str);
     if (args === null) return null;

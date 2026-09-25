@@ -16,6 +16,7 @@ import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
+import { SdkPathTemplate } from "./SdkPathTemplate";
 import { SdkWebSocketParameterProgrammer } from "./SdkWebSocketParameterProgrammer";
 
 export namespace SdkWebSocketNamespaceProgrammer {
@@ -155,45 +156,16 @@ export namespace SdkWebSocketNamespaceProgrammer {
         return out(factory.createStringLiteral(route.path));
       const names: SdkWebSocketParameterProgrammer.INames =
         SdkWebSocketParameterProgrammer.getNames({ project, route });
-      const template = () => {
-        const split: string[] = route.path.split(":");
-        if (split.length === 1) return factory.createStringLiteral(route.path);
-        return factory.createTemplateExpression(
-          factory.createTemplateHead(split[0]!),
-          split.slice(1).map((s, i, arr) => {
-            const name: string = s.split("/")[0]!;
-            return factory.createTemplateSpan(
-              factory.createCallExpression(
-                factory.createIdentifier("encodeURIComponent"),
-                undefined,
-                [
-                  factory.createBinaryExpression(
-                    factory.createCallChain(
-                      factory.createPropertyAccessChain(
-                        names.access(
-                          names.parameter(
-                            route.pathParameters.find((p) => p.field === name)!,
-                          ),
-                        ),
-                        factory.createToken(SyntaxKind.QuestionDotToken),
-                        "toString",
-                      ),
-                      undefined,
-                      undefined,
-                      [],
-                    ),
-                    factory.createToken(SyntaxKind.QuestionQuestionToken),
-                    factory.createStringLiteral("null"),
-                  ),
-                ],
+      const template = () =>
+        SdkPathTemplate.compose({
+          path: route.path,
+          argument: (name) =>
+            names.access(
+              names.parameter(
+                route.pathParameters.find((p) => p.field === name)!,
               ),
-              (i !== arr.length - 1
-                ? factory.createTemplateMiddle
-                : factory.createTemplateTail)(s.substring(name.length)),
-            );
-          }),
-        );
-      };
+            ),
+        });
       if (route.query === null) return out(template());
 
       const block = (expr: Expression) => {

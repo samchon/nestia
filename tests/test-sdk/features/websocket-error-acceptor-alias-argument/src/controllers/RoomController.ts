@@ -14,7 +14,11 @@ export interface IRoom<Member> {
  * `IRoom<Member>` names the alias's parameter rather than what the route passes
  * for it. The SDK must say so instead of writing an unresolved `Member`.
  */
-export type RoomAcceptor<Member> = WebSocketAcceptor<null, IRoom<Member>, null>;
+export type RoomAcceptor<Member> = WebSocketAcceptor<
+  undefined,
+  IRoom<Member>,
+  null
+>;
 
 @Controller("room")
 export class RoomController {

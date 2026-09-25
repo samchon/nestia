@@ -10,7 +10,7 @@ import type { FastifyRequest } from "fastify";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
 import { Singleton } from "../utils/Singleton";
-import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
+import { get_encryption_password } from "./internal/get_encryption_password";
 import { get_text_body } from "./internal/get_text_body";
 import { headers_to_object } from "./internal/headers_to_object";
 import { is_media_type } from "./internal/is_media_type";
@@ -52,7 +52,7 @@ export function EncryptedBody<T>(
       throw new BadRequestException(`Request body type is not "text/plain".`);
 
     const param: IEncryptionPassword | IEncryptionPassword.Closure | undefined =
-      Reflect.getMetadata(ENCRYPTION_METADATA_KEY, context.getClass());
+      get_encryption_password(context.getClass());
     if (!param)
       throw new Error(
         "Error on nestia.core.EncryptedBody(): no encryption password is given.",

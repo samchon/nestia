@@ -161,6 +161,14 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     'target security scheme "oauth2" does not have a specific scope "read:pets".',
   ],
   [
+    "websocket-error-header-type",
+    [
+      '@WebSocketRoute.Acceptor() parameter "acceptor" has the header type "null", which the SDK cannot send',
+      '@WebSocketRoute.Acceptor() parameter "connection" has the header type "{ token: string; } | null", which the SDK cannot send',
+      '@WebSocketRoute.Header() parameter "token" has the header type "string", which the SDK cannot send',
+    ],
+  ],
+  [
     "websocket-error-acceptor-alias-argument",
     '@WebSocketRoute.Acceptor() parameter "acceptor" is typed by a type alias whose WebSocketAcceptor type argument "IRoom<Member>" uses a type parameter of the alias inside it',
   ],

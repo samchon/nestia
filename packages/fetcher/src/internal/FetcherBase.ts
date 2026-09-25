@@ -72,16 +72,17 @@ export namespace FetcherBase {
       const headers: Record<string, IConnection.HeaderValue | undefined> = {
         ...(connection.headers ?? {}),
       };
+      // a request carries its route's own content type, never the caller's:
+      // multipart sets none at all, as fetch writes it with the boundary
+      deleteHeader(headers, "content-type");
       if (input !== undefined) {
         if (route.request?.type === undefined)
           throw new Error(
             `Error on ${props.className}.fetch(): no content-type being configured.`,
           );
-        else if (route.request.type !== "multipart/form-data") {
-          deleteHeader(headers, "content-type");
+        else if (route.request.type !== "multipart/form-data")
           headers["Content-Type"] = route.request.type;
-        }
-      } else if (input === undefined) deleteHeader(headers, "content-type");
+      }
 
       // INIT REQUEST DATA
       const init: RequestInit = {

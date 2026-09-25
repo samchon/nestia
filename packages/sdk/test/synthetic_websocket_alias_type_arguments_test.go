@@ -116,7 +116,7 @@ func TestSyntheticWebSocketAliasTypeArgumentUnspellable(t *testing.T) {
 import { WebSocketAcceptor } from "tgrid";
 
 export interface IRoom<Member> { members(): Member[]; }
-type RoomAcceptor<Member> = WebSocketAcceptor<null, IRoom<Member>, null>;
+type RoomAcceptor<Member> = WebSocketAcceptor<undefined, IRoom<Member>, null>;
 
 export class SyntheticController {
   @core.WebSocketRoute("room")

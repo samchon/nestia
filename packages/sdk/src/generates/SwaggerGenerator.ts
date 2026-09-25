@@ -13,6 +13,7 @@ import { Singleton } from "tstl";
 import type { IJsonSchemaCollection } from "typia";
 
 import { INestiaConfig } from "../INestiaConfig";
+import { PathAnalyzer } from "../analyses/PathAnalyzer";
 import {
   JsonSchemasProgrammer,
   MetadataSchema,
@@ -268,15 +269,17 @@ export namespace SwaggerGenerator {
           (key: Accessor): OpenApi.IOperation | undefined => {
             const method: OpenApi.Method =
               key.method.toLowerCase() as OpenApi.Method;
-            const path: string =
+            const normalized: string =
               "/" +
               key.path
                 .split("/")
                 .filter((str) => !!str.length)
-                .map((str) =>
-                  str.startsWith(":") ? `{${str.substring(1)}}` : str,
-                )
                 .join("/");
+            // a route path, `:id`, as the router reads it; an accessor already
+            // in OpenAPI form, `{id}`, is taken as is
+            const path: string = normalized.includes(":")
+              ? PathAnalyzer.toOpenApi(normalized)
+              : normalized;
             return props.document.paths?.[path]?.[method];
           },
       ),
@@ -452,12 +455,10 @@ export namespace SwaggerGenerator {
     return violations;
   };
 
-  const getPath = (route: ITypedHttpRoute): string => {
-    let str: string = route.path;
-    for (const param of route.pathParameters)
-      str = str.replace(`:${param.field}`, `{${param.field}}`);
-    return str;
-  };
+  // each parameter where the router reads it; a replacement by text would
+  // turn `:identity` into `{id}entity` for a path also holding `:id`
+  const getPath = (route: ITypedHttpRoute): string =>
+    PathAnalyzer.toOpenApi(route.path);
 
   const isSwaggerExcluded = (route: ITypedHttpRoute): boolean => {
     const controller: unknown = Reflect.getMetadata(

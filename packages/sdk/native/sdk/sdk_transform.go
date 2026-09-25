@@ -160,6 +160,9 @@ func nestiaSDKMetadataText(context *nestiaSDKContext, file *shimast.SourceFile, 
 				response["type"] = ref
 				response["imports"] = refs
 			}
+			if err := nestiaSDKWebSocketHeaderError(context.prog, param, typ); err != nil {
+				return "", err
+			}
 			parameters = append(parameters, map[string]any{
 				"name":        name,
 				"index":       index,
@@ -2024,6 +2027,79 @@ func nestiaSDKMethodName(node *shimast.Node) string {
 		}
 	}
 	return strings.Trim(shimast.NodeText(name), "\"'")
+}
+
+// nestiaSDKWebSocketHeaderError reports a WebSocket route whose handshake
+// header the generated SDK cannot carry: the header type of an
+// @WebSocketRoute.Acceptor() (its first type argument) or the type of an
+// @WebSocketRoute.Header() parameter must be an object type or undefined,
+// because the SDK function sends it as connection.headers, which @nestia/fetcher
+// types `IConnection<Headers extends object | undefined>`. tgrid itself leaves
+// the header unconstrained, so a null or primitive header serves, yet its SDK
+// would not compile.
+func nestiaSDKWebSocketHeaderError(
+	prog *driver.Program,
+	param *shimast.Node,
+	typ *shimchecker.Type,
+) error {
+	category := transform.NestiaCoreWebSocketParameterCategory(prog, param)
+	var header *shimchecker.Type
+	switch category {
+	case "Acceptor":
+		// only tgrid's acceptor has a header; the transform already rejects any
+		// other type, and asking a non-reference type for its type arguments
+		// would fault the checker
+		if _, name := transform.NestiaCoreWebSocketTypeReference(prog, nestiaSDKParameterTypeNode(param)); name != "WebSocketAcceptor" {
+			return nil
+		}
+		if typ == nil || typ.Flags()&shimchecker.TypeFlagsObject == 0 || typ.ObjectFlags()&shimchecker.ObjectFlagsReference == 0 {
+			return nil
+		}
+		if args := shimchecker.Checker_getTypeArguments(prog.Checker, typ); len(args) != 0 {
+			header = args[0]
+		}
+	case "Header":
+		header = typ
+	default:
+		return nil
+	}
+	if header == nil || nestiaSDKIsConnectionHeader(header) {
+		return nil
+	}
+	return fmt.Errorf(
+		"@WebSocketRoute.%s() parameter %q has the header type %q, which the SDK cannot send: it carries the handshake header as connection.headers, which must be an object type or undefined. Use an object type, or undefined for no header.",
+		category,
+		nestiaSDKParameterName(param),
+		prog.Checker.TypeToString(header),
+	)
+}
+
+// nestiaSDKIsConnectionHeader reports whether typ is assignable to
+// `object | undefined`, the constraint of IConnection's Headers: any, never,
+// undefined, an object type, or a union of them; an intersection only when
+// every member is an object type, so `string & {}` stays a string.
+func nestiaSDKIsConnectionHeader(typ *shimchecker.Type) bool {
+	flags := typ.Flags()
+	if flags&(shimchecker.TypeFlagsAny|shimchecker.TypeFlagsNever|shimchecker.TypeFlagsUndefined|shimchecker.TypeFlagsObject|shimchecker.TypeFlagsNonPrimitive) != 0 {
+		return true
+	}
+	if flags&shimchecker.TypeFlagsUnion != 0 {
+		for _, elem := range typ.AsUnionOrIntersectionType().Types() {
+			if nestiaSDKIsConnectionHeader(elem) == false {
+				return false
+			}
+		}
+		return true
+	}
+	if flags&shimchecker.TypeFlagsIntersection != 0 {
+		for _, elem := range typ.AsUnionOrIntersectionType().Types() {
+			if elem.Flags()&(shimchecker.TypeFlagsObject|shimchecker.TypeFlagsNonPrimitive) == 0 {
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }
 
 // nestiaSDKWebSocketParameterType reflects an @WebSocketRoute.Acceptor() or
