@@ -4,8 +4,12 @@ import {
   INestApplication,
 } from "@nestjs/common";
 import { RouteParamtypes } from "@nestjs/common/enums/route-paramtypes.enum";
-import { NestContainer } from "@nestjs/core";
+import { ContextId, ContextIdFactory, NestContainer } from "@nestjs/core";
 import { ExternalContextCreator } from "@nestjs/core/helpers/external-context-creator";
+import { Injector } from "@nestjs/core/injector/injector";
+import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
+import { Module } from "@nestjs/core/injector/module";
+import { REQUEST_CONTEXT_ID } from "@nestjs/core/router/request/request-constants";
 
 import { IMcpRouteReflect } from "../decorators/internal/IMcpRouteReflect";
 
@@ -76,6 +80,7 @@ export class McpAdaptor {
 
     const tools: McpAdaptor.ITool[] = [];
     const container = (app as any).container as NestContainer;
+    const injector: Injector = new Injector();
     for (const [moduleKey, module] of container.getModules()) {
       const creator: ExternalContextCreator =
         ExternalContextCreator.fromContainer(container);
@@ -110,9 +115,11 @@ export class McpAdaptor {
               meta,
               source: `${wrapper.metatype?.name ?? proto.constructor?.name ?? "UnknownController"}.${String(key)}`,
               handler: createHandler({
+                container,
+                injector,
                 creator,
-                instance,
-                method,
+                module,
+                wrapper,
                 key,
                 argument: params.find((p) => p.category === "params"),
               }),
@@ -234,11 +241,17 @@ export class McpAdaptor {
  * by typia at that stage: after the guards, as `@TypedBody()` is. An invalid
  * argument is thrown as the validator's `BadRequestException`, which an
  * exception filter may map; unmapped, it becomes JSON-RPC `-32602`.
+ *
+ * A controller that is request-scoped, itself or through an enhancer or a
+ * dependency, is built per request with its enhancers, as NestJS builds it for
+ * an HTTP route; the static instance is only a placeholder without them.
  */
 const createHandler = (props: {
+  container: NestContainer;
+  injector: Injector;
   creator: ExternalContextCreator;
-  instance: object;
-  method: Function;
+  module: Module;
+  wrapper: InstanceWrapper;
   key: string;
   argument: IMcpRouteReflect.IArgument | undefined;
 }): McpAdaptor.ITool["handler"] => {
@@ -247,16 +260,14 @@ const createHandler = (props: {
   Reflect.defineMetadata(
     PARAMS_METADATA,
     { [`${RouteParamtypes.BODY}:${index}`]: { index, data: undefined } },
-    props.instance.constructor,
+    props.wrapper.instance.constructor,
     props.key,
   );
   const validate = props.argument?.validate;
-  let target: ((...args: any[]) => Promise<unknown>) | undefined;
-  return async (input) => {
-    // resolved at the first call, so global enhancers init() registers count
-    target ??= props.creator.create(
-      props.instance,
-      props.method as (...args: any[]) => unknown,
+  const create = (instance: any, contextId?: ContextId) =>
+    props.creator.create(
+      instance,
+      instance[props.key],
       props.key,
       PARAMS_METADATA,
       {
@@ -268,9 +279,54 @@ const createHandler = (props: {
           throw error;
         },
       },
+      contextId,
+      contextId && props.wrapper.id,
     );
-    return target(input.request, input.response, undefined, input.args);
+  let target: ((...args: any[]) => Promise<unknown>) | undefined;
+  return async (input) => {
+    const call = (fn: (...args: any[]) => Promise<unknown>) =>
+      fn(input.request, input.response, undefined, input.args);
+    // resolved at the first call, so global enhancers init() registers count
+    if (props.wrapper.isDependencyTreeStatic())
+      return call((target ??= create(props.wrapper.instance)));
+    const contextId: ContextId = requestContextId(
+      props.container,
+      input.request as object,
+      props.wrapper.isDependencyTreeDurable(),
+    );
+    const instance: object = await props.injector.loadPerContext(
+      props.wrapper.instance,
+      props.module,
+      props.module.controllers,
+      contextId,
+    );
+    return call(create(instance, contextId));
   };
+};
+
+/**
+ * The context a request-scoped provider is built in for this request, the one
+ * NestJS's router attaches to it, registering the request as `REQUEST`.
+ */
+const requestContextId = (
+  container: NestContainer,
+  request: any,
+  durable: boolean,
+): ContextId => {
+  const contextId: ContextId = ContextIdFactory.getByRequest(request);
+  if (!request[REQUEST_CONTEXT_ID]) {
+    Object.defineProperty(request, REQUEST_CONTEXT_ID, {
+      value: contextId,
+      enumerable: false,
+      writable: false,
+      configurable: false,
+    });
+    container.registerRequestProvider(
+      durable ? contextId.payload : Object.assign(request, contextId.payload),
+      contextId,
+    );
+  }
+  return contextId;
 };
 
 /**

@@ -11,9 +11,18 @@ import {
   GlobalDenyHeader,
   GuardedController,
 } from "./controllers/EnhancedController";
+import {
+  ScopedController,
+  ScopedGuardController,
+} from "./controllers/ScopedController";
 
 @Module({
-  controllers: [GuardedController, EnhancedController],
+  controllers: [
+    GuardedController,
+    EnhancedController,
+    ScopedGuardController,
+    ScopedController,
+  ],
   providers: [{ provide: APP_GUARD, useClass: GlobalDenyHeader }],
 })
 export class EnhancedModule {}

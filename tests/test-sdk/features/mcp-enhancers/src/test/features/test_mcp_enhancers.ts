@@ -136,6 +136,28 @@ const validate = async (
     "Forbidden resource",
   );
 
+  // request-scoped enhancers and controllers, resolved per request
+  TestValidator.equals(
+    `${adapter} scoped guard http`,
+    (await fetch(`${host}/scoped-guard`)).status,
+    403,
+  );
+  await denied(
+    "request-scoped guard",
+    await call("scoped_guard_tool", { value: "through" }),
+    "Forbidden resource",
+  );
+  TestValidator.equals(
+    `${adapter} request-scoped guard passing`,
+    text(await call("scoped_guard_tool", { value: "pass" }, { "x-pass": "1" })),
+    JSON.stringify({ value: "pass" }),
+  );
+  TestValidator.equals(
+    `${adapter} request-scoped controller`,
+    text(await call("scoped_tool", { value: "v" }, { "x-name": "nestia" })),
+    JSON.stringify({ value: "v:nestia" }),
+  );
+
   // a guard runs before validation, which still answers once they pass
   await denied(
     "guard before validation",

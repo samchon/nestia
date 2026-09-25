@@ -252,6 +252,9 @@ new StreamableHTTPClientTransport(new URL("http://localhost:3000/mcp"), {
   `HttpException` makes that the tool error. A filter answering the HTTP request
   itself sends that response instead of the MCP result.
 
+A request-scoped controller or enhancer is built for each tool call, with the
+MCP HTTP request injected as `REQUEST`, as NestJS builds it for an HTTP route.
+
 A thrown `HttpException` that no filter handles is a tool error with its
 message. An invalid argument is JSON-RPC `-32602`, and any other throw is
 `-32603`.
