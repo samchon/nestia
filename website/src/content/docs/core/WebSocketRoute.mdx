@@ -239,6 +239,35 @@ public async auth(
 
 ---
 
+## Guards, interceptors, and filters
+
+A WebSocket route passes the enhancers NestJS would apply to an HTTP route on the same method: guards, interceptors, and exception filters, whether bound to the method, its controller, or globally (`app.useGlobalGuards()`, `APP_GUARD`, and the rest). The execution context is the HTTP upgrade request. A guard reading `context.switchToHttp().getRequest()` sees its headers and URL, so a JWT guard works unchanged.
+
+```ts copy
+@UseGuards(JwtAuthGuard)
+@Controller("chat")
+export class ChatController {
+  @WebSocketRoute("room")
+  public async room(
+    @WebSocketRoute.Acceptor()
+    acceptor: WebSocketAcceptor<undefined, IChatService, IChatListener>,
+  ): Promise<void> {
+    await acceptor.accept(new ChatService());
+  }
+}
+```
+
+- **Guards** run first. A denial rejects the handshake with `1008` and the message, `Forbidden resource` by default.
+- **The header, param, and query** are validated after the guards, as an HTTP route's are, so an unauthorized client learns nothing of their types.
+- **Interceptors** wrap the handler.
+- **Exception filters** see what the route throws. A filter that throws, for example an `HttpException`, makes that the rejection. There is no HTTP response to write to, since the upgrade has already answered it.
+
+If the pipeline returns without running the handler, the handshake is rejected with `1008` rather than left open. That happens when an interceptor answers by itself or a filter returns a value.
+
+A request-scoped controller or enhancer is built for each connection, with the upgrade request injected as `REQUEST`, as NestJS builds it for an HTTP route.
+
+---
+
 ## Caveats
 
 - **Acceptor parameter is required.** Without an `@WebSocketRoute.Acceptor()` parameter the build fails: the transform reports that the method must have at least one parameter decorated by `@WebSocketRoute.Acceptor()`.
