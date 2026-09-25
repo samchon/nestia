@@ -620,7 +620,9 @@ func nestiaSDKTypedExceptionInfo(prog *driver.Program, decorator *shimast.Node) 
 		return nil
 	}
 	call := expression.AsCallExpression()
-	segments := transform.NestiaCoreExpressionSegments(call.Expression)
+	// by the export the import binds, as the runtime registers an aliased
+	// `TypedException` too; a lexical name lost it, misaligning the exceptions
+	segments := transform.NestiaCoreCanonicalDecoratorSegments(decorator)
 	if len(segments) == 0 || segments[len(segments)-1] != "TypedException" {
 		return nil
 	}
