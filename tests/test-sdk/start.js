@@ -142,7 +142,7 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
   ],
   [
     "security-error-not-found",
-    'target security scheme "oauth2" does not exist. (SecurityController.oauth2() at "GET /oauth2")',
+    'target security scheme "undeclared" does not exist. (SecurityController.undeclared() at "GET /undeclared")',
   ],
   [
     "security-error-not-oauth2",
@@ -263,6 +263,96 @@ const AGGREGATED_ERROR_FEATURES = new Set([
   "mcp-error-return-union-void-object",
 ]);
 
+// The SDK's error features, whose failure the generator reports rather than the
+// transform, run in one `nestia all` per phase: a report lists every error of
+// its phase at once, and a later phase runs only when the earlier ones pass.
+// A scoped cohort looks each feature's phrases up in the report blocks of its
+// own files, so one feature's message cannot stand in for another's missing
+// one; the security report names routes, not files, and its phrases are each
+// feature's own.
+const SDK_ERROR_COHORTS = [
+  {
+    name: "sdk-error-reflect",
+    scoped: true,
+    members: [
+      "body-error-get",
+      "body-error-property",
+      "exception-error-bigint",
+      "headers-error-plain",
+      "mcp-error-mixed-http",
+      "method-error-get-body",
+      "method-error-head-body",
+      "method-error-head-non-void",
+      "param-error-plain",
+      "parameter-error-duplicated-key",
+      "query-error-plain",
+      "route-invalid-path-error",
+    ],
+  },
+  {
+    name: "sdk-error-validate",
+    scoped: true,
+    members: [
+      "implicit-error",
+      "mcp-error-duplicate-accessor",
+      "mcp-error-duplicate-tool-name",
+      "route-error-implicit",
+    ],
+  },
+  {
+    name: "sdk-error-security",
+    scoped: false,
+    members: [
+      "security-error-not-found",
+      "security-error-not-oauth2",
+      "security-error-out-of-scopes",
+    ],
+  },
+];
+const SDK_COHORT_FEATURES = new Set(
+  SDK_ERROR_COHORTS.flatMap((cohort) => cohort.members),
+);
+
+const runSdkErrorCohort = async (cohort) => {
+  try {
+    const output = (
+      await runNestiaForError(__dirname, [
+        "all",
+        "--config",
+        `cohorts/${cohort.name}.config.ts`,
+        "--project",
+        "cohorts/tsconfig.json",
+      ])
+    )
+      .replace(/\u001b\[[0-?]*[ -/]*[@-~]/g, "")
+      .replaceAll("\\", "/");
+    const blocks = output.split(/\r?\n(?=\S)/);
+    const failures = cohort.members
+      .map((name) => {
+        const scope = cohort.scoped
+          ? blocks
+              .filter((block) =>
+                block.split(/\r?\n/)[0].includes(`features/${name}/`),
+              )
+              .join("\n")
+          : output;
+        const missing = [EXPECTED_ERROR_DIAGNOSTICS.get(name)]
+          .flat()
+          .filter((line) => scope.includes(line) === false);
+        return missing.length === 0
+          ? null
+          : `${name}: ${JSON.stringify(missing)}`;
+      })
+      .filter((failure) => failure !== null);
+    if (failures.length !== 0)
+      throw new Error(
+        `${cohort.name} did not report the expected diagnostic(s):\n${failures.join("\n")}\n${output}`,
+      );
+  } finally {
+    await removePaths(__dirname, [`.tmp-${cohort.name}`]);
+  }
+};
+
 const run = (file, args, options) =>
   new Promise((resolve, reject) => {
     const child = cp.spawn(file, args, {
@@ -342,6 +432,10 @@ const runNestiaForError = (cwd, args) =>
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
 const feature = async (name, port) => {
+  const cohort = SDK_ERROR_COHORTS.find(
+    (candidate) => candidate.name === name,
+  );
+  if (cohort !== undefined) return runSdkErrorCohort(cohort);
   if (name === "swagger-watch") return runSwaggerWatchFeature();
   if (name === "bundle-preserve") return runBundlePreserveFeature();
   if (name === "cli-argument-diagnostics")
@@ -1582,7 +1676,11 @@ const main = async () => {
       .sort()
       .filter((name) => !name.startsWith(".tmp-"))
       .filter((name) => !AGGREGATED_ERROR_FEATURES.has(name))
+      .filter((name) => !SDK_COHORT_FEATURES.has(name))
       .filter(filter);
+    for (const cohort of SDK_ERROR_COHORTS)
+      if (filter(cohort.name) || cohort.members.some(filter))
+        names.push(cohort.name);
     if (filter("swagger-watch")) names.push("swagger-watch");
     if (filter("bundle-preserve")) names.push("bundle-preserve");
     if (filter("cli-argument-diagnostics"))
