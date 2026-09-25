@@ -91,14 +91,6 @@ export namespace NestiaMigrateE2eFunctionProgrammer {
       factory.createIdentifier("api.functional"),
       factory.createIdentifier(ctx.route.accessor.join(".")),
     );
-    const connection = factory.createIdentifier("connection");
-    if (
-      ctx.route.parameters.length === 0 &&
-      ctx.route.query === null &&
-      ctx.route.body === null
-    )
-      return factory.createCallExpression(fetch, undefined, [connection]);
-
     const random = factory.createPropertyAccessExpression(
       factory.createIdentifier(
         ctx.importer.external({
@@ -109,6 +101,47 @@ export namespace NestiaMigrateE2eFunctionProgrammer {
       ),
       "random",
     );
+    // the route's headers travel in the connection, as the server requires
+    const connection: ts.Expression = ctx.route.headers
+      ? factory.createObjectLiteralExpression(
+          [
+            factory.createSpreadAssignment(
+              factory.createIdentifier("connection"),
+            ),
+            factory.createPropertyAssignment(
+              "headers",
+              factory.createObjectLiteralExpression(
+                [
+                  factory.createSpreadAssignment(
+                    factory.createIdentifier("connection.headers"),
+                  ),
+                  factory.createSpreadAssignment(
+                    factory.createCallExpression(
+                      random,
+                      [
+                        NestiaMigrateSchemaProgrammer.write({
+                          components: ctx.components,
+                          importer: ctx.importer,
+                          schema: ctx.route.headers.schema,
+                        }),
+                      ],
+                      undefined,
+                    ),
+                  ),
+                ],
+                true,
+              ),
+            ),
+          ],
+          true,
+        )
+      : factory.createIdentifier("connection");
+    if (
+      ctx.route.parameters.length === 0 &&
+      ctx.route.query === null &&
+      ctx.route.body === null
+    )
+      return factory.createCallExpression(fetch, undefined, [connection]);
     if (ctx.config.keyword === true)
       return factory.createCallExpression(fetch, undefined, [
         connection,

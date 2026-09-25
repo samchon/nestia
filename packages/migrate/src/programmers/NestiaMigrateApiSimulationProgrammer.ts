@@ -221,7 +221,9 @@ export namespace NestiaMigrateApiSimulationProgrammer {
                   ),
                   "assert",
                 ),
-                undefined,
+                // `connection.headers` is typed optional with optional
+                // members, so the headers name their own type to be checked
+                p.category === "headers" ? [p.schema] : undefined,
                 [
                   p.category === "headers"
                     ? factory.createIdentifier("connection.headers")
