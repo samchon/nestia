@@ -293,13 +293,21 @@ export async function add(
     );
   const result: McpCallToolResult = raw as McpCallToolResult;
   if (result.isError === true)
-    throw new Error(`MCP tool "${add.METADATA.tool}" returned isError`);
-  const first = result.content.find(() => true);
-  if (first !== undefined && first.type === "text")
-    return JSON.parse(first.text) as add.Output;
+    throw new Error(
+      `MCP tool "${add.METADATA.tool}" returned isError: ${result.content
+        .filter((entry: any) => entry.type === "text")
+        .map((entry: any) => entry.text)
+        .join("\n")}`,
+    );
+  const first = result.content.find((entry: any) => entry.type === "text");
+  if (first === undefined)
+    throw new Error(`MCP tool "${add.METADATA.tool}" returned no text content`);
+  if (first.type === "text") return JSON.parse(first.text) as add.Output;
   throw new Error(`MCP tool "${add.METADATA.tool}" returned no text content`);
 }
 ```
+
+A tool error, such as a guard's denial or an `HttpException` the tool throws, rejects with the tool's text content in the message: `MCP tool "add" returned isError: Forbidden resource`.
 
 The generated function receives an already connected MCP `Client`. Nestia does
 not create the MCP transport for you, because transport lifecycle, auth headers,

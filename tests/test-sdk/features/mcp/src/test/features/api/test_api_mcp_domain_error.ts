@@ -11,15 +11,16 @@ export interface IConnection {
 
 /**
  * Verifies generated MCP SDK wrappers throw when a tool response carries
- * `isError`.
+ * `isError`, with the tool's reason.
  *
  * Locks the client-side guard around MCP domain failures. The raw protocol
- * returns `isError: true`; generated wrappers should convert that into a thrown
- * JavaScript error for ordinary SDK consumers.
+ * returns `isError: true` with the reason as text content; generated wrappers
+ * convert that into a thrown JavaScript error carrying the reason, which they
+ * once dropped (#1719).
  *
  * 1. Connect an MCP SDK client to the test transport.
  * 2. Call `api.functional.mcp.divide` with a zero denominator.
- * 3. Assert the wrapper rejects.
+ * 3. Assert the wrapper rejects with the tool's message.
  */
 export const test_api_mcp_domain_error = async (
   connection: IConnection,
@@ -31,9 +32,16 @@ export const test_api_mcp_domain_error = async (
     ),
   );
   try {
-    await TestValidator.error(
-      "divide by zero surfaces as thrown Error from SDK wrapper",
-      () => api.functional.mcp.divide(client, { a: 10, b: 0 }),
+    const error: unknown = await api.functional.mcp
+      .divide(client, { a: 10, b: 0 })
+      .then(
+        () => null,
+        (exp) => exp,
+      );
+    TestValidator.predicate(
+      `divide by zero rejects with the tool's reason: ${String(error)}`,
+      error instanceof Error &&
+        error.message.includes("Division by zero is not allowed."),
     );
   } finally {
     await client.close();
