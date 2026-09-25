@@ -296,16 +296,32 @@ export namespace SdkHttpParameterProgrammer {
         ),
       ];
     }
-    return entries.map((e) =>
-      factory.createParameterDeclaration(
+    const lastRequired: number = entries
+      .map((e) => e.required)
+      .lastIndexOf(true);
+    return entries.map((e, index) => {
+      const beforeRequired: boolean = !e.required && index < lastRequired;
+      const typeIncludesUndefined: boolean =
+        props.project.config.clone !== true &&
+        e.parameter.category === "query" &&
+        e.parameter.field !== null &&
+        /\bundefined\b/.test(e.parameter.type.name);
+      return factory.createParameterDeclaration(
         undefined,
         undefined,
         names.parameter(e.parameter),
-        e.required ? undefined : factory.createToken(SyntaxKind.QuestionToken),
-        e.type,
+        e.required || beforeRequired
+          ? undefined
+          : factory.createToken(SyntaxKind.QuestionToken),
+        beforeRequired && !typeIncludesUndefined
+          ? factory.createUnionTypeNode([
+              e.type,
+              factory.createKeywordTypeNode(SyntaxKind.UndefinedKeyword),
+            ])
+          : e.type,
         undefined,
-      ),
-    );
+      );
+    });
   };
 
   export const getArguments = (props: {

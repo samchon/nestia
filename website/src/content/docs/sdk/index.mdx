@@ -73,6 +73,7 @@ export namespace create {
 ```
 
 - **Function signature** — derived from the controller method, including JSDoc.
+- **Optional positional arguments** — when an optional query argument comes before a required body, pass `undefined` to skip it. Trailing optional arguments can be omitted.
 - **`Primitive<T>`** — the wire-form of `T` (methods stripped, `Date` becomes `string`, etc.).
 - **`IConnection`** — config object the client passes: `host`, optional `headers`, optional `simulate`.
 - **Path parameters** — each is URI-encoded into the URL, and a nullish one is sent as `"null"`. A value of `.` or `..` throws before any request is sent. The URL would resolve it as a dot segment and address another route, and no encoding avoids that.
