@@ -38,7 +38,7 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      # the one Linux job that saves the cache the test jobs restore
+      # the job that saves the cache the test jobs restore
       - uses: ./.github/actions/ttsc-cache
         with:
           save: true
@@ -59,34 +59,3 @@ jobs:
           (cd packages/core/test && go test -count=1 -run '^$' ./...)
           (cd packages/sdk/test && go test -count=1 -run '^$' ./...)
           (cd packages/core/native && go test -count=1 -run '^$' ./...)
-
-  # The one Windows job that saves the cache: builds on Windows, and warms the
-  # Windows cache test's Windows job restores.
-  Windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24.x
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: packages/core/native/go.mod
-          cache-dependency-path: packages/core/native/go.sum
-
-      - name: Install Dependencies
-        run: pnpm install
-
-      - uses: ./.github/actions/ttsc-cache
-        with:
-          save: true
-
-      - name: Use System Go For Source Plugin Build
-        shell: bash
-        run: echo "TTSC_GO_BINARY=$(go env GOROOT)/bin/go" >> "$GITHUB_ENV"
-
-      - name: Build Packages
-        env:
-          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
-        run: pnpm build
