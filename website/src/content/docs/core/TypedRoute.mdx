@@ -165,6 +165,8 @@ The value picks the typia function `TypedRoute` calls. Each has slightly differe
 | `"validate.log"`  | Same as `"validate"`, but on error log instead of throwing — useful during a migration. |
 | `null`            | Use plain `JSON.stringify`. No validation, no specialized encoder.                  |
 
+The same modes apply to `@TypedQuery.Get()` and its siblings, whose responses are query strings. Any other value fails the build with a diagnostic listing these values.
+
 Configure the logger for `"validate.log"`:
 
 ```ts copy

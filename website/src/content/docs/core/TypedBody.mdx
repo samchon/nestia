@@ -173,6 +173,8 @@ Add a plugin entry only when you want to override those defaults:
 | `"is"`               | Boolean check only — no error detail. Use when you handle errors yourself.                |
 | `"equals"`           | Same as `"is"` but also rejects extras.                                                   |
 
+Any other value, such as a misspelled `"assertEqual"`, fails the build with a diagnostic listing these values, rather than falling back to a default.
+
 Choose by your front-end contract:
 
 - **Form binding that highlights every bad field:** `"validate"` (default).

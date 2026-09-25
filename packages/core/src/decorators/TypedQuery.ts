@@ -20,6 +20,7 @@ import typia from "typia";
 
 import { IRequestQueryValidator } from "../options/IRequestQueryValidator";
 import { IResponseBodyQuerifier } from "../options/IResponseBodyQuerifier";
+import { TypedRoute } from "./TypedRoute";
 import { get_path_and_querify } from "./internal/get_path_and_querify";
 import { is_media_type } from "./internal/is_media_type";
 import { route_error } from "./internal/route_error";
@@ -150,9 +151,9 @@ export namespace TypedQuery {
     ): MethodDecorator;
 
     function route(...args: any[]): MethodDecorator {
-      const [path, stringify] = get_path_and_querify(`TypedQuery.${method}`)(
-        ...args,
-      );
+      const [path, stringify] = get_path_and_querify(() => TypedRoute.__logger)(
+        `TypedQuery.${method}`,
+      )(...args);
       return applyDecorators(
         ROUTERS[method](path),
         UseInterceptors(new TypedQueryRouteInterceptor(stringify)),
@@ -208,16 +209,23 @@ class FakeURLSearchParams {
 /** @internal */
 class TypedQueryRouteInterceptor implements NestInterceptor {
   public constructor(
-    private readonly toSearchParams: (input: any) => URLSearchParams,
+    private readonly toSearchParams: (
+      input: any,
+      method: string,
+      path: string,
+    ) => URLSearchParams,
   ) {}
 
   public intercept(context: ExecutionContext, next: CallHandler) {
     const http: HttpArgumentsHost = context.switchToHttp();
+    const request: express.Request = http.getRequest();
     const response: express.Response = http.getResponse();
     response.header("Content-Type", "application/x-www-form-urlencoded");
 
     return next.handle().pipe(
-      map((value) => this.toSearchParams(value).toString()),
+      map((value) =>
+        this.toSearchParams(value, request.method, request.url).toString(),
+      ),
       catchError((err) => route_error(http.getRequest(), err)),
     );
   }

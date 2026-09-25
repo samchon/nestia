@@ -94,6 +94,60 @@ type nestiaCoreFileContext struct {
 	coreImports map[string]string
 }
 
+// The values the validate and stringify options accept.
+var (
+	nestiaCoreValidateModes = []string{
+		"assert", "is", "validate", "equals",
+		"assertEquals", "validateEquals",
+		"assertClone", "validateClone",
+		"assertPrune", "validatePrune",
+	}
+	nestiaCoreStringifyModes = []string{"stringify", "assert", "is", "validate", "validate.log"}
+)
+
+// nestiaCoreOptionErrors reports each validate or stringify option value that
+// is no mode: a generator would otherwise take its default branch, and a typo
+// such as "assertEqual" silently weakens validation.
+func nestiaCoreOptionErrors(plan plugin.Plan) []string {
+	errors := []string{}
+	check := func(name string, value any, modes []string, nullable bool) {
+		if value == nil && nullable {
+			return
+		}
+		if text, ok := value.(string); ok {
+			for _, mode := range modes {
+				if mode == text {
+					return
+				}
+			}
+		}
+		accepted := "\"" + strings.Join(modes, "\", \"") + "\""
+		if nullable {
+			accepted += ", or null"
+		}
+		errors = append(errors, fmt.Sprintf("invalid %q option %s: it must be one of %s.", name, nestiaCoreOptionText(value), accepted))
+	}
+	for _, entry := range plan.Entries {
+		if entry.Name != "@nestia/core" && !strings.Contains(entry.Transform, "@nestia/core") {
+			continue
+		}
+		if value, ok := entry.Config["validate"]; ok {
+			check("validate", value, nestiaCoreValidateModes, false)
+		}
+		if value, ok := entry.Config["stringify"]; ok {
+			check("stringify", value, nestiaCoreStringifyModes, true)
+		}
+	}
+	return errors
+}
+
+func nestiaCoreOptionText(value any) string {
+	if text, ok := value.(string); ok {
+		return fmt.Sprintf("%q", text)
+	}
+	return fmt.Sprintf("%v", value)
+}
+
 func readNestiaCoreOptions(plan plugin.Plan) nestiaCoreOptions {
 	options := nestiaCoreOptions{}
 	for _, entry := range plan.Entries {
@@ -684,6 +738,8 @@ func nestiaCoreGenerateTypedQueryRoute(prog *driver.Program, importer *nativecon
 		return nestiaCoreValidatorObject("type", "validate", nestiaCoreHttpValidateQuerifyProgrammer(prog, importer, ec, modulo, typ), ec)
 	case "stringify":
 		return nestiaCoreValidatorObject("type", "stringify", nestiaCoreHttpQuerifyProgrammer(prog, ec, typ), ec)
+	case "validate.log":
+		return nestiaCoreValidatorObjectWithKey("type", "validate.log", "validate", nestiaCoreHttpValidateQuerifyProgrammer(prog, importer, ec, modulo, typ), ec)
 	default:
 		return nestiaCoreValidatorObject("type", "assert", nestiaCoreHttpAssertQuerifyProgrammer(prog, importer, ec, modulo, typ), ec)
 	}
