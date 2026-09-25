@@ -2,6 +2,7 @@ import { IHttpMigrateRoute } from "@typia/interface";
 
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { MapUtil } from "../utils/MapUtil";
+import { PathTemplate } from "../utils/PathTemplate";
 import { StringUtil } from "../utils/StringUtil";
 
 export namespace NestiaMigrateControllerAnalyzer {
@@ -47,18 +48,18 @@ export namespace NestiaMigrateControllerAnalyzer {
    * The route's path as NestJS reads it: each path parameter under the key its
    * handler reads with `@TypedParam()`. The document's name, such as `item-id`,
    * is no path-to-regexp parameter name; it would read as `item` followed by
-   * the literal `-id`, and the handler's lookup would miss.
+   * the literal `-id`, and the handler's lookup would miss. Each parameter is
+   * found where the document's template writes it, beside literal text in its
+   * segment too (`/files/{id}.json`).
    */
   export const routePath = (route: IHttpMigrateRoute): string =>
-    route.emendedPath
-      .split("/")
-      .map((segment) => {
-        if (segment[0] !== ":") return segment;
-        const parameter: IHttpMigrateRoute.IParameter | undefined =
-          route.parameters.find((p) => p.name === segment.slice(1));
-        return parameter !== undefined ? `:${parameter.key}` : segment;
-      })
-      .join("/");
+    PathTemplate.segments(route)
+      .map((segment) =>
+        segment.type === "literal"
+          ? segment.value
+          : `:${segment.parameter.key}`,
+      )
+      .join("");
 }
 
 const getSplitIndex = (x: string[], y: string[]) => {

@@ -9,6 +9,7 @@ import { TypeFactory } from "../factories/TypeFactory";
 import ts from "../internal/ts";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
+import { PathTemplate } from "../utils/PathTemplate";
 import { NestiaMigrateApiSimulationProgrammer } from "./NestiaMigrateApiSimulationProgrammer";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
@@ -280,32 +281,42 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
         ),
       );
     const template = () => {
-      const path: string = getPath(ctx.route);
-      const split: string[] = path.split(":");
-      if (split.length === 1) return factory.createStringLiteral(path);
+      // the document's template delimits each parameter; the emended path's
+      // `:id.json` would not tell the name from the literal after it
+      const segments: PathTemplate.ISegment[] = PathTemplate.segments(
+        ctx.route,
+      );
+      if (segments.every((segment) => segment.type === "literal"))
+        return factory.createStringLiteral(getPath(ctx.route));
+      const literals: string[] = [""];
+      const parameters: IHttpMigrateRoute.IParameter[] = [];
+      for (const segment of segments)
+        if (segment.type === "literal")
+          literals[literals.length - 1] += segment.value;
+        else {
+          parameters.push(segment.parameter);
+          literals.push("");
+        }
       return factory.createTemplateExpression(
-        factory.createTemplateHead(split[0]!),
-        split.slice(1).map((s, i, arr) => {
-          const name: string = s.split("/")[0]!;
-          return factory.createTemplateSpan(
+        factory.createTemplateHead(literals[0]!),
+        parameters.map((parameter, i) =>
+          factory.createTemplateSpan(
             factory.createCallExpression(
               factory.createIdentifier("encodeURIComponent"),
               undefined,
               [
                 factory.createBinaryExpression(
-                  property(
-                    ctx.route.parameters.find((p) => p.name === name)!.key,
-                  ),
+                  property(parameter.key),
                   factory.createToken(SyntaxKind.QuestionQuestionToken),
                   factory.createStringLiteral("null"),
                 ),
               ],
             ),
-            (i !== arr.length - 1
+            (i !== parameters.length - 1
               ? factory.createTemplateMiddle
-              : factory.createTemplateTail)(s.substring(name.length)),
-          );
-        }),
+              : factory.createTemplateTail)(literals[i + 1]!),
+          ),
+        ),
       );
     };
     if (!ctx.route.query) return out(template());
