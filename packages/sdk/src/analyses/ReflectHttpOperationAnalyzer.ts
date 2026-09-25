@@ -1,4 +1,8 @@
-import { METHOD_METADATA, PATH_METADATA } from "@nestjs/common/constants";
+import {
+  METHOD_METADATA,
+  PATH_METADATA,
+  SSE_METADATA,
+} from "@nestjs/common/constants";
 import { ranges } from "tstl";
 
 import { INestiaProject } from "../structures/INestiaProject";
@@ -39,6 +43,22 @@ export namespace ReflectHttpOperationAnalyzer {
     const method: string =
       METHODS[Reflect.getMetadata(METHOD_METADATA, props.function)]!;
     if (method === undefined || method === "OPTIONS") return null;
+
+    // a server-sent events route answers `text/event-stream`, not the JSON
+    // of its return type, which neither an SDK function nor the document can
+    // describe, so it is left out as a route of no composable path is
+    if (Reflect.getMetadata(SSE_METADATA, props.function) === true) {
+      props.project.warnings.push({
+        file: props.controller.file,
+        class: props.controller.class.name,
+        function: props.name,
+        from: "",
+        contents: [
+          `@nestia/sdk does not compose server-sent events method (@Sse()).`,
+        ],
+      });
+      return null;
+    }
 
     // a route no path of which can be composed is left out as a whole,
     // rather than composed at the controller's own path
