@@ -17,20 +17,14 @@ import api from "@api";
 export const test_source_extension = async (
   connection: api.IConnection,
 ): Promise<void> => {
-  api.functional.source_extension.source_extension.cts.METADATA;
-  api.functional.source_extension.source_extension.mts.METADATA;
+  api.functional.source_extension.cts.METADATA;
+  api.functional.source_extension.mts.METADATA;
 
-  if (
-    api.functional.source_extension.source_extension.cts.path() !==
-    "/source-extension/cts"
-  )
+  if (api.functional.source_extension.cts.path() !== "/source-extension/cts")
     throw new Error("Generated SDK must include the .cts controller route.");
-  if (
-    api.functional.source_extension.source_extension.mts.path() !==
-    "/source-extension/mts"
-  )
+  if (api.functional.source_extension.mts.path() !== "/source-extension/mts")
     throw new Error("Generated SDK must include the .mts controller route.");
 
-  await api.functional.source_extension.source_extension.cts(connection);
-  await api.functional.source_extension.source_extension.mts(connection);
+  await api.functional.source_extension.cts(connection);
+  await api.functional.source_extension.mts(connection);
 };

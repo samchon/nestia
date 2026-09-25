@@ -57,8 +57,6 @@ import { HealthController as F20_HealthController } from "./features/route-manua
 import { HealthController as F18_HealthController } from "./features/route-manual-validate/controllers/HealthController";
 import { PerformanceController as F18_PerformanceController } from "./features/route-manual-validate/controllers/PerformanceController";
 import { ManualRouteController as F18_ManualRouteController } from "./features/route-manual-validate/controllers/TypedRouteController";
-import { CjsController as F21_CjsController } from "./features/source-extension/controllers/CjsController";
-import { EsmController as F21_EsmController } from "./features/source-extension/controllers/EsmController";
 import { BbsPackageArticlesController as F22_BbsPackageArticlesController } from "./features/variable/controllers/BbsPackageArticlesController";
 import { HealthController as F22_HealthController } from "./features/variable/controllers/HealthController";
 import { PerformanceController as F22_PerformanceController } from "./features/variable/controllers/PerformanceController";
@@ -279,12 +277,6 @@ class M19 {}
 class M20 {}
 
 @core.EncryptedModule(
-  { controllers: [F21_CjsController, F21_EsmController] },
-  () => PASSWORD,
-)
-class M21 {}
-
-@core.EncryptedModule(
   {
     controllers: [
       F22_BbsPackageArticlesController,
@@ -318,7 +310,6 @@ const ROUTES = [
   { path: "route-manual-validate", module: M18 },
   { path: "route-manual-validate-log-encrypted", module: M19 },
   { path: "route-manual-validate-log-fastify", module: M20 },
-  { path: "source-extension", module: M21 },
   { path: "variable", module: M22 },
 ];
 
