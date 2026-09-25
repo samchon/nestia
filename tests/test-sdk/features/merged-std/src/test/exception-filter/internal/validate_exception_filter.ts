@@ -3,7 +3,7 @@ import typia from "typia";
 
 import api from "@api";
 
-import { HttpExceptionFilter } from "../../filters/HttpExceptionFilter";
+import { HttpExceptionFilter } from "../../../features/exception-filter/filters/HttpExceptionFilter";
 
 export const validate_exception_filter =
   (status: number) =>
