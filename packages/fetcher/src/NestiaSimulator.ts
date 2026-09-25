@@ -5,8 +5,14 @@ export namespace NestiaSimulator {
   export interface IProps {
     host: string;
     path: string;
-    method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
-    contentType: string;
+    method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "HEAD";
+
+    /**
+     * Content type of the route's success response, `null` for one without a
+     * body such as `HEAD`'s. The simulated 400 is JSON whatever it is, as the
+     * server's is.
+     */
+    contentType: string | null;
   }
 
   export const assert = (props: IProps) => {
@@ -60,7 +66,7 @@ export namespace NestiaSimulator {
             join_host_and_path(props.host, props.path),
             400,
             {
-              "Content-Type": props.contentType,
+              "Content-Type": "application/json",
             },
             JSON.stringify({
               method: exp.method,
