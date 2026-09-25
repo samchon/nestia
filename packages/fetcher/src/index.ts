@@ -7,4 +7,5 @@ export * from "./FormDataInput";
 
 export * from "./HttpError";
 export * from "./NestiaSimulator";
+export * from "./PathParameter";
 export * from "./PlainFetcher";

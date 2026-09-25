@@ -52,6 +52,24 @@ A `POST /webhooks/token` with body `bad!!!` returns 400; with body `eyJhbGc...` 
 
 ---
 
+## Size limit
+
+A text body gets the same limit as your application's other bodies:
+
+- **Express**: 100 kB, the default NestJS gives JSON and URL-encoded bodies. A longer body answers `413 Payload Too Large`.
+- **Fastify**: Fastify's own `bodyLimit`, 1 MB by default.
+
+To accept larger text bodies on Express, register a text parser with the limit you want. `@PlainBody()` and `@EncryptedBody()` read what it parsed:
+
+```ts filename="src/main.ts" copy
+const app = await NestFactory.create<NestExpressApplication>(AppModule);
+app.useBodyParser("text", { limit: "10mb" });
+```
+
+A request whose body ends before its `Content-Length`, as a dropped client's does, answers `400`.
+
+---
+
 ## When to use
 
 - **Webhooks** that POST plain text (Stripe signature blocks, raw payloads).

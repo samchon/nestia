@@ -301,15 +301,22 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
         factory.createTemplateHead(literals[0]!),
         parameters.map((parameter, i) =>
           factory.createTemplateSpan(
+            // URI-encoded, "null" when nullish, and a dot segment refused
             factory.createCallExpression(
-              factory.createIdentifier("encodeURIComponent"),
+              IdentifierFactory.access(
+                factory.createIdentifier(
+                  ctx.importer.external({
+                    type: "instance",
+                    library: "@nestia/fetcher",
+                    name: "PathParameter",
+                  }),
+                ),
+                "encode",
+              ),
               undefined,
               [
-                factory.createBinaryExpression(
-                  property(parameter.key),
-                  factory.createToken(SyntaxKind.QuestionQuestionToken),
-                  factory.createStringLiteral("null"),
-                ),
+                factory.createStringLiteral(parameter.key),
+                property(parameter.key),
               ],
             ),
             (i !== parameters.length - 1

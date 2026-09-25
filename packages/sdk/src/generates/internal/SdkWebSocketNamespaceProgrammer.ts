@@ -30,7 +30,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
         factory.createModuleBlock([
           ...writeTypes(project)(importer)(route),
           FilePrinter.enter(),
-          writePath(project)(route),
+          writePath(project)(importer)(route),
         ]),
         NodeFlags.Namespace,
       );
@@ -135,6 +135,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
 
   const writePath =
     (project: INestiaProject) =>
+    (importer: ImportDictionary) =>
     (route: ITypedWebSocketRoute): Statement => {
       const out = (body: Block | Expression) =>
         constant("path")(
@@ -153,11 +154,18 @@ export namespace SdkWebSocketNamespaceProgrammer {
           ),
         );
       if (route.pathParameters.length === 0 && route.query === null)
-        return out(factory.createStringLiteral(route.path));
+        return out(
+          SdkPathTemplate.compose({
+            importer,
+            path: route.path,
+            argument: () => factory.createIdentifier("undefined"),
+          }),
+        );
       const names: SdkWebSocketParameterProgrammer.INames =
         SdkWebSocketParameterProgrammer.getNames({ project, route });
       const template = () =>
         SdkPathTemplate.compose({
+          importer,
           path: route.path,
           argument: (name) =>
             names.access(

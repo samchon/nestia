@@ -1,16 +1,19 @@
 import { RequestMethod } from "@nestjs/common";
-import path from "path";
 import { Token, parse } from "path-to-regexp";
 
 export namespace PathAnalyzer {
+  /**
+   * The route paths joined as the router joins them: one `/` between them, and
+   * none doubled. A route path is router syntax, never a file path, so a
+   * backslash stays the escape of the character after it (`items\\:batchGet`).
+   */
   export const join = (...args: string[]) =>
     "/" +
-    _Trim(
-      path
-        .join(...args.filter((s) => !!s.length))
-        .split("\\")
-        .join("/"),
-    );
+    args
+      .join("/")
+      .split("/")
+      .filter((str) => str.length !== 0)
+      .join("/");
 
   export const joinWithGlobalPrefix = (props: {
     globalPrefix: string;
@@ -52,7 +55,8 @@ export namespace PathAnalyzer {
   export const unsupported = (
     str: string,
   ): "wildcard" | "optional segment" | null => {
-    if (str.includes("*")) return "wildcard";
+    // an escaped `\\*` is the literal character
+    if (/(^|[^\\])\*/.test(str)) return "wildcard";
     // path-to-regexp 8 (Express 5) writes an optional segment in braces
     if (/(^|[^\\])[{}]/.test(str)) return "optional segment";
     const tokens: Token[] | null = _Tokenize(str);
@@ -113,9 +117,14 @@ export namespace PathAnalyzer {
     return args.filter((arg) => arg.type === "param").map((arg) => arg.value);
   };
 
+  /**
+   * The route's tokens, its literal text unescaped. Both routers' spellings of
+   * a literal colon are read: path-to-regexp's (Express) `\\:`, and
+   * find-my-way's (Fastify) `::`, which path-to-regexp would reject.
+   */
   function _Tokenize(str: string): Token[] | null {
     try {
-      return parse(path.join(str).split("\\").join("/"));
+      return parse(fromFastifyColons(join(str)));
     } catch {
       return null;
     }
@@ -195,4 +204,35 @@ const REQUEST_METHODS: Record<string, RequestMethod> = {
   PATCH: RequestMethod.PATCH,
   POST: RequestMethod.POST,
   PUT: RequestMethod.PUT,
+};
+
+/**
+ * A route with find-my-way's (Fastify) literal colon `::` spelled as
+ * path-to-regexp's `\:`. find-my-way reads `::` as a colon in static text
+ * alone: after a parameter it is part of the parameter's name, so it is left as
+ * is there, and path-to-regexp then rejects the route, as no parameter of that
+ * name is what the handler reads.
+ *
+ * @internal
+ */
+const fromFastifyColons = (route: string): string => {
+  let output: string = "";
+  for (let i: number = 0; i < route.length; ) {
+    if (route[i] === "\\") {
+      output += route.slice(i, i + 2);
+      i += 2;
+    } else if (route.startsWith("::", i)) {
+      output += "\\:";
+      i += 2;
+    } else if (route[i] === ":") {
+      const name: string = /^:[A-Za-z0-9_$]*/.exec(route.slice(i))![0];
+      output += name;
+      i += name.length;
+      if (route.startsWith("::", i)) {
+        output += "::";
+        i += 2;
+      }
+    } else output += route[i++];
+  }
+  return output;
 };

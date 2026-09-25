@@ -49,7 +49,7 @@
     "@typia/utils": "catalog:samchon",
     "get-function-location": "^2.0.0",
     "glob": "^11.0.3",
-    "path-parser": "^6.1.0",
+    "path-to-regexp": "catalog:nestjs",
     "raw-body": "^2.0.0",
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=7.1.0",

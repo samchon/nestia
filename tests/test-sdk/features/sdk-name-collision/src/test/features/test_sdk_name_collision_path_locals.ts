@@ -26,7 +26,7 @@ export const test_sdk_name_collision_path_locals = async (): Promise<void> => {
     "const _variables: URLSearchParams = new URLSearchParams();",
     "for (const [key, _value] of Object.entries({",
     "_value.forEach((elem: any) => _variables.append(key, String(elem)));",
-    "const _location: string = `/shadow/locals/${encodeURIComponent(",
+    "const _location: string = `/shadow/locals/${PathParameter.encode(",
   ])
     TestValidator.equals(needle, content.includes(needle), true);
 };

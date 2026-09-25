@@ -4,14 +4,17 @@ import {
   INestApplication,
 } from "@nestjs/common";
 import { RouteParamtypes } from "@nestjs/common/enums/route-paramtypes.enum";
-import { ContextId, ContextIdFactory, NestContainer } from "@nestjs/core";
+import { ContextId, NestContainer } from "@nestjs/core";
 import { ExternalContextCreator } from "@nestjs/core/helpers/external-context-creator";
 import { Injector } from "@nestjs/core/injector/injector";
 import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
 import { Module } from "@nestjs/core/injector/module";
-import { REQUEST_CONTEXT_ID } from "@nestjs/core/router/request/request-constants";
 
 import { IMcpRouteReflect } from "../decorators/internal/IMcpRouteReflect";
+import {
+  create_external_context_creator,
+  get_request_context_id,
+} from "./internal/external_context";
 
 /**
  * MCP (Model Context Protocol) adaptor.
@@ -82,11 +85,10 @@ export class McpAdaptor {
     const container = (app as any).container as NestContainer;
     const injector: Injector = new Injector();
     for (const [moduleKey, module] of container.getModules()) {
-      const creator: ExternalContextCreator =
-        ExternalContextCreator.fromContainer(container);
-      // it looks the module up among those providing the class, and a
-      // controller is provided by none, so its enhancers would not resolve
-      creator.getContextModuleKey = () => moduleKey;
+      const creator: ExternalContextCreator = create_external_context_creator(
+        container,
+        moduleKey,
+      );
       for (const wrapper of module.controllers.values()) {
         const instance = wrapper.instance;
         if (!instance) continue;
@@ -289,7 +291,7 @@ const createHandler = (props: {
     // resolved at the first call, so global enhancers init() registers count
     if (props.wrapper.isDependencyTreeStatic())
       return call((target ??= create(props.wrapper.instance)));
-    const contextId: ContextId = requestContextId(
+    const contextId: ContextId = get_request_context_id(
       props.container,
       input.request as object,
       props.wrapper.isDependencyTreeDurable(),
@@ -302,31 +304,6 @@ const createHandler = (props: {
     );
     return call(create(instance, contextId));
   };
-};
-
-/**
- * The context a request-scoped provider is built in for this request, the one
- * NestJS's router attaches to it, registering the request as `REQUEST`.
- */
-const requestContextId = (
-  container: NestContainer,
-  request: any,
-  durable: boolean,
-): ContextId => {
-  const contextId: ContextId = ContextIdFactory.getByRequest(request);
-  if (!request[REQUEST_CONTEXT_ID]) {
-    Object.defineProperty(request, REQUEST_CONTEXT_ID, {
-      value: contextId,
-      enumerable: false,
-      writable: false,
-      configurable: false,
-    });
-    container.registerRequestProvider(
-      durable ? contextId.payload : Object.assign(request, contextId.payload),
-      contextId,
-    );
-  }
-  return contextId;
 };
 
 /**

@@ -69,7 +69,7 @@ Five of them additionally set `TTSC_GO_BINARY=go` and pin `TTSC_CACHE_DIR` so th
 
 The `build`, `test`, and `release` workflows run Node 24.x with Go taken from `packages/core/native/go.mod`; `website.yml` runs `lts/*` and installs no Go. The workspace pins pnpm exactly to 10.6.4.
 
-The `build` and `test` jobs restore the ttsc source-plugin cache (`node_modules/.cache/ttsc`, the compiled plugin binaries and their Go object cache) through `.github/actions/ttsc-cache`, so a job does not rebuild the nestia and typia plugins from cold. Only `build.yml`'s `Ubuntu` and `Windows` jobs save it, and `build.yml` also runs on every master push so each pull request can restore master's cache. ttsc keys every binary by its own inputs, so a restored entry that no longer matches is ignored rather than served.
+The `build` and `test` jobs restore the ttsc source-plugin cache (`node_modules/.cache/ttsc`, the compiled plugin binaries and their Go object cache) through `.github/actions/ttsc-cache`, so a job does not rebuild the nestia and typia plugins from cold. Only `build.yml`'s `Ubuntu` job saves it, and `build.yml` also runs on every master push so each pull request can restore master's cache. ttsc keys every binary by its own inputs, so a restored entry that no longer matches is ignored rather than served.
 
 ```bash
 pnpm install

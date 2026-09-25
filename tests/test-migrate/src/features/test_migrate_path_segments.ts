@@ -20,9 +20,9 @@ import { OpenApiV3_1 } from "@typia/interface";
  */
 export const test_migrate_path_segments = (): void => {
   const expected: string[] = [
-    '`/files/${encodeURIComponent(id ?? "null")}.json`',
-    '`/range/${encodeURIComponent(from ?? "null")}-${encodeURIComponent(to ?? "null")}`',
-    '`/items/${encodeURIComponent(item_id ?? "null")}.json`',
+    '`/files/${PathParameter.encode("id", id)}.json`',
+    '`/range/${PathParameter.encode("from", from)}-${PathParameter.encode("to", to)}`',
+    '`/items/${PathParameter.encode("item_id", item_id)}.json`',
   ];
   for (const mode of ["sdk", "nest"] as const) {
     const files: Record<string, string> = NestiaMigrateApplication.assert(

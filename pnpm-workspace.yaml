@@ -10,6 +10,8 @@ catalogs:
     '@nestjs/core': *nestjs
     '@nestjs/platform-express': *nestjs
     '@nestjs/platform-fastify': *nestjs
+    # the router NestJS 11 routes with, through Express 5
+    path-to-regexp: ^8.4.2
     rxjs: ^7.1.0
   samchon:
     # Exact: the Go plugins link this release's transform, while the code it
