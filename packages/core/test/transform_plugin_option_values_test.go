@@ -45,7 +45,7 @@ func TestTransformPluginOptionValues(t *testing.T) {
 	}
 	for config, needle := range map[string]string{
 		`"validate":"assertEqual"`: `invalid "validate" option "assertEqual"`,
-		`"stringify":"asert"`:      `invalid "stringify" option "asert"`,
+		`"stringify":"assertX"`:    `invalid "stringify" option "assertX"`,
 		`"validate":true`:          `invalid "validate" option true`,
 	} {
 		stderr, code := run(config)
