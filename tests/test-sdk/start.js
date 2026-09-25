@@ -141,14 +141,6 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     ],
   ],
   [
-    "websocket-error-invalid-acceptor-arity",
-    'parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.',
-  ],
-  [
-    "websocket-error-invalid-acceptor-import",
-    'parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.',
-  ],
-  [
     "security-error-not-found",
     'target security scheme "oauth2" does not exist. (SecurityController.oauth2() at "GET /oauth2")',
   ],
@@ -159,34 +151,6 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
   [
     "security-error-out-of-scopes",
     'target security scheme "oauth2" does not have a specific scope "read:pets".',
-  ],
-  [
-    "websocket-error-header-type",
-    [
-      '@WebSocketRoute.Acceptor() parameter "acceptor" has the header type "null", which the SDK cannot send',
-      '@WebSocketRoute.Acceptor() parameter "connection" has the header type "{ token: string; } | null", which the SDK cannot send',
-      '@WebSocketRoute.Header() parameter "token" has the header type "string", which the SDK cannot send',
-    ],
-  ],
-  [
-    "websocket-error-acceptor-alias-argument",
-    '@WebSocketRoute.Acceptor() parameter "acceptor" is typed by a type alias whose WebSocketAcceptor type argument "IRoom<Member>" uses a type parameter of the alias inside it',
-  ],
-  [
-    "form-data-error-nested",
-    [
-      "unsupported type detected",
-      "INestedForm.nested",
-      "nested object type is not allowed.",
-    ],
-  ],
-  [
-    "query-route-error-nested",
-    [
-      "unsupported type detected",
-      "INestedQueryOutput.nested",
-      "nested object type is not allowed.",
-    ],
   ],
   [
     "query-error-plain",
@@ -247,74 +211,57 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     ],
   ],
 ]);
-// One command compiles each compatible native-diagnostic cohort. Each entry
-// names its source fixture and exact diagnostic-line count; SDK reflection
-// errors remain individual because compilation must succeed before reflection.
-const ERROR_DIAGNOSTIC_COHORTS = [
-  {
-    name: "error-diagnostics",
-    config: "features/body-error-generic/error-diagnostics.config.ts",
-    project: "features/body-error-generic/tsconfig.json",
-    output: ".tmp-error-diagnostics",
-    cases: [
-      ["body-error-generic", 2],
-      ["body-error-json", 1],
-      ["headers-error-array", 1],
-      ["headers-error-atomic", 1],
-      ["headers-error-property-array", 1],
-      ["headers-error-property-nullable", 1],
-      ["headers-error-property-single", 1],
-      ["headers-error-union-object", 1],
-      ["headers-error-union-property", 1],
-      ["param-error-array", 1],
-      ["param-error-generic", 1],
-      ["param-error-native", 1],
-      ["param-error-object", 1],
-      ["param-error-union", 1],
-      ["param-error-union-literal", 1],
-      ["plain-error-any", 1],
-      ["plain-error-nullable", 1],
-      ["plain-error-number", 1],
-      ["plain-error-object", 1],
-      ["query-error-array", 1],
-      ["query-error-atomic", 1],
-      ["query-error-generic", 1],
-      ["query-error-native", 1],
-      ["query-error-union-array", 1],
-      ["query-error-union-literal", 1],
-      ["query-error-union-object", 1],
-      ["query-error-union-property", 1],
-      ["route-error-generic", 1],
-      ["route-error-json", 1],
-      ["websocket-error-invalid-acceptor", 1],
-      ["websocket-error-invalid-driver", 1],
-      ["websocket-error-invalid-parameter", 1],
-      ["websocket-error-no-acceptor", 1],
-    ],
-  },
-  {
-    name: "mcp-error-diagnostics",
-    config: "features/mcp-error-extra-parameter/mcp-error-diagnostics.config.ts",
-    project: "features/mcp-error-extra-parameter/tsconfig.json",
-    output: ".tmp-mcp-error-diagnostics",
-    cases: [
-      ["mcp-error-extra-parameter", 1],
-      ["mcp-error-missing-params-decorator", 1],
-      ["mcp-error-multiple-params", 1],
-      ["mcp-error-no-params", 1],
-      ["mcp-error-param-dynamic-properties", 2],
-      ["mcp-error-param-non-object", 2],
-      ["mcp-error-return-dynamic-properties", 1],
-      ["mcp-error-return-non-object", 1],
-      ["mcp-error-return-union-void-object", 1],
-    ],
-  },
-];
-const AGGREGATED_ERROR_FEATURES = new Set(
-  ERROR_DIAGNOSTIC_COHORTS.flatMap((cohort) =>
-    cohort.cases.map(([name]) => name),
-  ),
-);
+// Error features whose failure is a transform diagnostic are fixtures of the
+// core Go test transform_feature_diagnostic_cohorts_test.go, which transforms
+// them in one in-process program; test-sdk does not run them.
+const AGGREGATED_ERROR_FEATURES = new Set([
+  "form-data-error-nested",
+  "query-route-error-nested",
+  "websocket-error-invalid-acceptor-arity",
+  "websocket-error-invalid-acceptor-import",
+  "body-error-generic",
+  "body-error-json",
+  "headers-error-array",
+  "headers-error-atomic",
+  "headers-error-property-array",
+  "headers-error-property-nullable",
+  "headers-error-property-single",
+  "headers-error-union-object",
+  "headers-error-union-property",
+  "param-error-array",
+  "param-error-generic",
+  "param-error-native",
+  "param-error-object",
+  "param-error-union",
+  "param-error-union-literal",
+  "plain-error-any",
+  "plain-error-nullable",
+  "plain-error-number",
+  "plain-error-object",
+  "query-error-array",
+  "query-error-atomic",
+  "query-error-generic",
+  "query-error-native",
+  "query-error-union-array",
+  "query-error-union-literal",
+  "query-error-union-object",
+  "query-error-union-property",
+  "route-error-generic",
+  "route-error-json",
+  "websocket-error-invalid-acceptor",
+  "websocket-error-invalid-driver",
+  "websocket-error-invalid-parameter",
+  "websocket-error-no-acceptor",
+  "mcp-error-extra-parameter",
+  "mcp-error-missing-params-decorator",
+  "mcp-error-multiple-params",
+  "mcp-error-no-params",
+  "mcp-error-param-dynamic-properties",
+  "mcp-error-param-non-object",
+  "mcp-error-return-dynamic-properties",
+  "mcp-error-return-non-object",
+  "mcp-error-return-union-void-object",
+]);
 
 const run = (file, args, options) =>
   new Promise((resolve, reject) => {
@@ -394,60 +341,7 @@ const runNestiaForError = (cwd, args) =>
 
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
-const runDiagnosticCohort = async (cohort) => {
-  try {
-    const output = await runNestiaForError(__dirname, [
-      "all",
-      "--config",
-      cohort.config,
-      "--project",
-      cohort.project,
-    ]);
-    // Native transform diagnostics have one `error TS(...)` line each; unlike
-    // TypeScript's CLI they intentionally do not append a summary line. Strip
-    // the CLI's color sequences before matching either diagnostic presentation.
-    const normalized = output
-      .replace(/\u001b\[[0-?]*[ -/]*[@-~]/g, "")
-      .replaceAll("\\", "/");
-    const diagnostics = normalized
-      .split(/\r?\n/)
-      .filter((line) => / - error TS(?:\([^)]*\)|\d+):/.test(line));
-    const expected = cohort.cases.reduce(
-      (sum, [, count]) => sum + count,
-      0,
-    );
-    if (diagnostics.length !== expected)
-      throw new Error(
-        `${cohort.name} reported ${diagnostics.length} compiler errors; expected ${expected}:\n${output}`,
-      );
-    const mismatch = cohort.cases
-      .map(([name, expected]) => {
-        const actual = diagnostics.filter((line) =>
-          line.includes(`features/${name}/src/controllers/`),
-        ).length;
-        return actual === expected ? null : `${name}: ${actual}/${expected}`;
-      })
-      .filter((entry) => entry !== null);
-    const unexpected = diagnostics.filter(
-      (line) =>
-        cohort.cases.some(([name]) =>
-          line.includes(`features/${name}/src/controllers/`),
-        ) === false,
-    );
-    if (mismatch.length !== 0 || unexpected.length !== 0)
-      throw new Error(
-        `${cohort.name} diagnostic mismatch (${mismatch.join(", ") || "none"}); unexpected source(s): ${unexpected.join("; ") || "none"}:\n${output}`,
-      );
-  } finally {
-    await removePaths(__dirname, [cohort.output]);
-  }
-};
-
 const feature = async (name, port) => {
-  const cohort = ERROR_DIAGNOSTIC_COHORTS.find(
-    (candidate) => candidate.name === name,
-  );
-  if (cohort !== undefined) return runDiagnosticCohort(cohort);
   if (name === "swagger-watch") return runSwaggerWatchFeature();
   if (name === "bundle-preserve") return runBundlePreserveFeature();
   if (name === "cli-argument-diagnostics")
@@ -1689,12 +1583,6 @@ const main = async () => {
       .filter((name) => !name.startsWith(".tmp-"))
       .filter((name) => !AGGREGATED_ERROR_FEATURES.has(name))
       .filter(filter);
-    for (const cohort of ERROR_DIAGNOSTIC_COHORTS)
-      if (
-        filter(cohort.name) ||
-        cohort.cases.some(([name]) => filter(name))
-      )
-        names.push(cohort.name);
     if (filter("swagger-watch")) names.push("swagger-watch");
     if (filter("bundle-preserve")) names.push("bundle-preserve");
     if (filter("cli-argument-diagnostics"))

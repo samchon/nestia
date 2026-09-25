@@ -77,7 +77,7 @@ export namespace ReflectHttpOperationAnalyzer {
       name: props.name,
       method: method === "ALL" ? "POST" : method,
       paths: ReflectMetadataAnalyzer.paths(props.function).filter((str) => {
-        if (str.includes("*") === true) {
+        if (PathAnalyzer.wildcard(str)) {
           props.project.warnings.push({
             file: props.controller.file,
             class: props.controller.class.name,
@@ -130,7 +130,7 @@ export namespace ReflectHttpOperationAnalyzer {
           controllerLocation,
           metaLocation,
         );
-        if (location.includes("*")) continue;
+        if (PathAnalyzer.wildcard(location)) continue;
 
         // LIST UP PARAMETERS
         const binded: string[] | null = PathAnalyzer.parameters(location);

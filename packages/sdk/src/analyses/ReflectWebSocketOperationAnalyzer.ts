@@ -146,7 +146,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
     for (const cLoc of ctx.controller.paths)
       for (const mLoc of route.paths) {
         const location: string = PathAnalyzer.join(cLoc, mLoc);
-        if (location.includes("*")) continue;
+        if (PathAnalyzer.wildcard(location)) continue;
 
         const binded: string[] | null = PathAnalyzer.parameters(location);
         if (binded === null)
