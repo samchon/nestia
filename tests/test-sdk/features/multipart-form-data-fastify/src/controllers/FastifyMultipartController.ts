@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import FastifyMulter from "fastify-multer";
 
-import { IFastifyMultipart } from "@api/lib/structures/IFastifyMultipart";
+import { IFastifyMultipart } from "../api/structures/IFastifyMultipart";
 
 @Controller("multipart")
 export class FastifyMultipartController {

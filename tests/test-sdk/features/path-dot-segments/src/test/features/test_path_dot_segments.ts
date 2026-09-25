@@ -1,9 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import { NestFastifyApplication } from "@nestjs/platform-fastify";
 
-import api from "@api";
-
 import { Backend } from "../../Backend";
+import api from "../../api";
 
 /**
  * Verifies an SDK function refuses a path parameter that is a URL dot segment,

@@ -8,9 +8,8 @@ import {
 } from "@nestjs/platform-fastify";
 import { WebSocketConnector, WebSocketError } from "tgrid";
 
-import api from "@api";
-import { IRejection } from "@api/lib/structures/IRejection";
-
+import api from "../../api";
+import { IRejection } from "../../api/structures/IRejection";
 import { OVERSIZED } from "../../controllers/RejectionController";
 
 /**

@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { WebSocketAcceptor } from "tgrid";
 
-import { IReserved, IReservedEcho } from "@api/lib/structures/IReserved";
+import { IReserved, IReservedEcho } from "../../api/structures/IReserved";
 
 /** A literal colon as find-my-way (Fastify) spells it. */
 @Controller("fastify")

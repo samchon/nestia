@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "@api";
+import api from "../../../api";
 
 /**
  * Verifies an optional query parameter before a required body compiles and

@@ -2,7 +2,7 @@ import { TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { tags } from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { IBbsArticle } from "../api/structures/IBbsArticle";
 
 @Controller("bbs/articles")
 export class BbsArticlesController {

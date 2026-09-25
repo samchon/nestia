@@ -5,8 +5,7 @@ import {
   IArticleInput,
   ISearch,
   ITenantHeaders,
-} from "@api/lib/structures/IDestructured";
-
+} from "../api/structures/IDestructured";
 import { TracedRepository } from "../providers/TracedRepository";
 
 /**

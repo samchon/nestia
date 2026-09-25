@@ -3,7 +3,7 @@ import { Controller } from "@nestjs/common";
 import { ApiSecurity, ApiTags } from "@nestjs/swagger";
 import typia, { tags } from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { IBbsArticle } from "../api/structures/IBbsArticle";
 
 @ApiTags("bbs")
 @Controller("bbs/articles/:section")

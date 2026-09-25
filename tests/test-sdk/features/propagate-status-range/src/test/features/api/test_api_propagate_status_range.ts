@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 import { IPropagation } from "@nestia/fetcher";
 
-import api from "@api";
+import api from "../../../api";
 
 /**
  * Verifies a propagated SDK function with a `@TypedException` status range

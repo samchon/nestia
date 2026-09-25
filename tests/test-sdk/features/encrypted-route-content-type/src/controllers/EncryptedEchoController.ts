@@ -1,7 +1,7 @@
 import core from "@nestia/core";
 import { Controller, NotFoundException } from "@nestjs/common";
 
-import { IEncryptedEcho } from "@api/lib/structures/IEncryptedEcho";
+import { IEncryptedEcho } from "../api/structures/IEncryptedEcho";
 
 @Controller("echo")
 export class EncryptedEchoController {

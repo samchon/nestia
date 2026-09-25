@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "@api";
-import { IAliasListener } from "@api/lib/structures/IAliasSocket";
+import api from "../../api";
+import { IAliasListener } from "../../api/structures/IAliasSocket";
 
 /**
  * Verifies WebSocket routes whose acceptor and driver types are spelled by a

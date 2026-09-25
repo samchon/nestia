@@ -15,7 +15,7 @@ import (
 // filesystem cache has no edge from a controller module to the DTO whose type
 // produced the generated validator, and replays the stale module after that
 // type changes. `graph` is the only channel that restores the edge, and the
-// import under test — `import { IBbsArticle } from "@api/lib/structures/..."`,
+// import under test — `import { IBbsArticle } from "../api/structures/..."`,
 // used solely as a type — is exactly the edge a bundler cannot see. Keying is
 // part of the contract too: every envelope section joins by the same
 // project-relative key, so an edge recorded under an absolute or OS-separated

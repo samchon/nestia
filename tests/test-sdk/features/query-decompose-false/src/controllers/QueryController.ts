@@ -1,11 +1,11 @@
 import { TypedHeaders, TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller, Query } from "@nestjs/common";
 
-import { INestQuery } from "@api/lib/structures/INestQuery";
-import { IOptionalQuery } from "@api/lib/structures/IOptionalQuery";
-import { IQuery } from "@api/lib/structures/IQuery";
-import { IQueryHeaders } from "@api/lib/structures/IQueryHeaders";
-import { IIgnoredQuery } from "@api/lib/structures/IRequiredShapes";
+import { INestQuery } from "../api/structures/INestQuery";
+import { IOptionalQuery } from "../api/structures/IOptionalQuery";
+import { IQuery } from "../api/structures/IQuery";
+import { IQueryHeaders } from "../api/structures/IQueryHeaders";
+import { IIgnoredQuery } from "../api/structures/IRequiredShapes";
 
 @Controller("query")
 export class QueryController {

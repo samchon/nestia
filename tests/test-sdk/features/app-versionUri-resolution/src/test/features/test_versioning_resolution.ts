@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 import path from "path";
 
-import api from "@api";
+import api from "../../api";
 
 /**
  * Verifies URI versioning resolves each route's versions as NestJS does: the

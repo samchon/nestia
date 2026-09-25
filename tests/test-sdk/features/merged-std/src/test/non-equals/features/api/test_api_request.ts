@@ -1,8 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
-import api from "@api";
-
+import api from "../../../../api";
 import { IRequestDto } from "../../../../features/non-equals/api/structures/IRequestDto";
 
 export const test_api_request = async (

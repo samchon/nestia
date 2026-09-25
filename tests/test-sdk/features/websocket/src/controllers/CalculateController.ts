@@ -1,10 +1,9 @@
 import { WebSocketRoute } from "@nestia/core";
 import { WebSocketAcceptor } from "tgrid";
 
-import { ICalcConfig } from "@api/lib/interfaces/ICalcConfig";
-import { ICalcEventListener } from "@api/lib/interfaces/ICalcEventListener";
-import { ISimpleCalculator } from "@api/lib/interfaces/ISimpleCalculator";
-
+import { ICalcConfig } from "../api/interfaces/ICalcConfig";
+import { ICalcEventListener } from "../api/interfaces/ICalcEventListener";
+import { ISimpleCalculator } from "../api/interfaces/ISimpleCalculator";
 import { CalculateControllerBase } from "./CalculateControllerBase";
 
 export class CalculateController extends CalculateControllerBase("calculate") {

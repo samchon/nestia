@@ -1,7 +1,7 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
-import { IPasswordEcho } from "@api/lib/structures/IPasswordEcho";
+import { IPasswordEcho } from "../api/structures/IPasswordEcho";
 
 export const OWN_PASSWORD = { key: "O".repeat(32), iv: "o".repeat(16) };
 

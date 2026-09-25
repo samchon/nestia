@@ -1,9 +1,8 @@
 import { DynamicExecutor } from "@nestia/e2e";
-import chalk from "chalk";
 
 import { Backend } from "../Backend";
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const server: Backend = new Backend();
   await server.open();
 
@@ -12,7 +11,7 @@ async function main(): Promise<void> {
     prefix: "test",
     parameters: () => [
       {
-        host: "http://127.0.0.1:37000",
+        host: `http://127.0.0.1:${process.env.TEST_SDK_PORT ?? 37_000}`,
         encryption: {
           key: "A".repeat(32),
           iv: "B".repeat(16),
@@ -21,14 +20,10 @@ async function main(): Promise<void> {
     ],
     location: `${__dirname}/features`,
     onComplete: (exec) => {
-      const trace = (str: string) =>
-        console.log(`  - ${chalk.green(exec.name)}: ${str}`);
-      if (exec.error === null) {
-        const elapsed: number =
-          new Date(exec.completed_at).getTime() -
-          new Date(exec.started_at).getTime();
-        trace(`${chalk.yellow(elapsed.toLocaleString())} ms`);
-      } else trace(chalk.red(exec.error.name));
+      const elapsed: number =
+        new Date(exec.completed_at).getTime() -
+        new Date(exec.started_at).getTime();
+      console.log(`  - ${exec.name}: ${elapsed.toLocaleString()} ms`);
     },
   });
   await server.close();
@@ -43,10 +38,11 @@ async function main(): Promise<void> {
     for (const exp of exceptions) console.log(exp);
     console.log("Failed");
     console.log("Elapsed time", report.time.toLocaleString(), `ms`);
-    process.exit(-1);
+    throw new Error("Failed");
   }
 }
-main().catch((exp) => {
-  console.log(exp);
-  process.exit(-1);
-});
+if (require.main === module)
+  main().catch((exp) => {
+    console.log(exp);
+    process.exit(-1);
+  });

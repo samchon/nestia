@@ -2,7 +2,7 @@ import { WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { WebSocketAcceptor } from "tgrid";
 
-import { ISearch } from "@api/lib/structures/IDestructured";
+import { ISearch } from "../api/structures/IDestructured";
 
 export interface IEcho {
   echo(): string[];

@@ -2,7 +2,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { TestValidator } from "@nestia/e2e";
 
-import api from "@api";
+import api from "../../../api";
 
 export interface IConnection {
   host: string;

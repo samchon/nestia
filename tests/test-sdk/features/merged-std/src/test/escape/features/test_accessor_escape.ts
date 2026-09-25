@@ -1,4 +1,4 @@
-import api from "@api";
+import api from "../../../api";
 
 /**
  * Verifies SDK accessors escape reserved words and non-identifier route

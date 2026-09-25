@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
-import api from "@api";
-import { IQuery } from "@api/lib/structures/IQuery";
+import api from "../../../api";
+import { IQuery } from "../../../api/structures/IQuery";
 
 export const test_api_query_nest = async (
   connection: api.IConnection,

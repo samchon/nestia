@@ -2,8 +2,8 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import typia, { tags } from "typia";
 
-import { IBbsComment } from "@api/lib/structures/IBbsComment";
-import { IPage } from "@api/lib/structures/IPage";
+import { IBbsComment } from "../api/structures/IBbsComment";
+import { IPage } from "../api/structures/IPage";
 
 @Controller(":section/articles/:articleId/comments")
 export class BbsCommentsController {

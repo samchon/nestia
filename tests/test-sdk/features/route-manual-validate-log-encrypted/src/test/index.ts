@@ -3,7 +3,7 @@ import chalk from "chalk";
 
 import { Backend } from "../Backend";
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const server: Backend = new Backend();
   await server.open();
 
@@ -43,10 +43,11 @@ async function main(): Promise<void> {
     for (const exp of exceptions) console.log(exp);
     console.log("Failed");
     console.log("Elapsed time", report.time.toLocaleString(), `ms`);
-    process.exit(-1);
+    throw new Error("Failed");
   }
 }
-main().catch((exp) => {
-  console.log(exp);
-  process.exit(-1);
-});
+if (require.main === module)
+  main().catch((exp) => {
+    console.log(exp);
+    process.exit(-1);
+  });

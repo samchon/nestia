@@ -1,7 +1,6 @@
 import typia from "typia";
 
-import api from "@api";
-
+import api from "../../../../api";
 import { IBbsArticle } from "../../../../features/route-manual-stringify/api/structures/IBbsArticle";
 
 export const test_api_route = async (

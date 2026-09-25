@@ -2,8 +2,8 @@ import core from "@nestia/core";
 import { Controller, VERSION_NEUTRAL, Version } from "@nestjs/common";
 import typia, { tags } from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
-import { IPage } from "@api/lib/structures/IPage";
+import { IBbsArticle } from "../api/structures/IBbsArticle";
+import { IPage } from "../api/structures/IPage";
 
 @Controller("bbs/:section/articles")
 export class BbsArticlesController {

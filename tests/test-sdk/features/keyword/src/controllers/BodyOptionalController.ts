@@ -2,7 +2,7 @@ import { PlainBody, TypedBody, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { v4 } from "uuid";
 
-import { IBodyOptional } from "@api/lib/structures/IBodyOptional";
+import { IBodyOptional } from "../api/structures/IBodyOptional";
 
 @Controller("body/optional")
 export class BodyOptionalController {

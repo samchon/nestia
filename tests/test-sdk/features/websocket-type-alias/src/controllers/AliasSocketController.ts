@@ -15,7 +15,7 @@ import {
   IAliasListener,
   IAliasProvider,
   ProviderAcceptor,
-} from "@api/lib/structures/IAliasSocket";
+} from "../api/structures/IAliasSocket";
 
 /** An alias declared beside the routes, over the renamed import. */
 type LocalAcceptor = Acceptor<IAliasHeader, IAliasProvider, IAliasListener>;
@@ -85,7 +85,7 @@ export class AliasSocketController {
   @core.WebSocketRoute("importedAlias")
   public async importedAlias(
     @core.WebSocketRoute.Acceptor()
-    acceptor: import("@api/lib/structures/IAliasSocket").ProviderAcceptor<IAliasProvider>,
+    acceptor: import("../api/structures/IAliasSocket").ProviderAcceptor<IAliasProvider>,
   ): Promise<void> {
     await accept("importedAlias", acceptor, acceptor.getDriver());
   }

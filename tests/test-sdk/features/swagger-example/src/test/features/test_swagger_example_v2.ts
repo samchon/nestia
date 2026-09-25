@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 import typia from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { IBbsArticle } from "../../api/structures/IBbsArticle";
 
 /**
  * Verifies a Swagger 2.0 document generates from routes whose bodies or

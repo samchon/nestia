@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
-import api from "@api";
-import { IBusinessListingFilters } from "@api/lib/structures/IBusinessListingFilters";
+import api from "../../../api";
+import { IBusinessListingFilters } from "../../../api/structures/IBusinessListingFilters";
 
 /**
  * Verifies @TypedQuery preserves repeated enum-array query parameters.

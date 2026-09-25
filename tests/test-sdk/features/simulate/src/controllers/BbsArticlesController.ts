@@ -3,10 +3,9 @@ import { Controller } from "@nestjs/common";
 import typia, { tags } from "typia";
 import { v4 } from "uuid";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
-import { IPage } from "@api/lib/structures/IPage";
-
 import { Global } from "../Global";
+import { IBbsArticle } from "../api/structures/IBbsArticle";
+import { IPage } from "../api/structures/IPage";
 
 @Controller("bbs/:section/articles")
 export class BbsArticlesController {
