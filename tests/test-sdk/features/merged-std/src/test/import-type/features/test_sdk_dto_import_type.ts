@@ -22,8 +22,8 @@ import path from "path";
  */
 export const test_sdk_dto_import_type = (): void => {
   const roots: string[] = [
-    path.resolve(__dirname, "..", "..", "api", "functional"),
-    path.resolve(__dirname, "api", "automated"),
+    path.resolve(__dirname, "..", "..", "..", "api", "functional"),
+    path.resolve(__dirname, "..", "..", "features", "api", "automated"),
   ];
   const violations: string[] = [];
   let named: boolean = false;

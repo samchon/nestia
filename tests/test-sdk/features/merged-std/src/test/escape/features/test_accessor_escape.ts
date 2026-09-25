@@ -19,7 +19,7 @@ export const test_accessor_escape = (): void => {
 
   if (
     api.functional.escape.users._me.permissions.path() !==
-    "/users/@me/permissions"
+    "/escape/users/@me/permissions"
   )
     throw new Error("Escaped SDK accessor must keep the original route path.");
 };

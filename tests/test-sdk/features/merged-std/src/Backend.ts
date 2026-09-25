@@ -24,42 +24,31 @@ import { HealthController as F7_HealthController } from "./features/duplicated/c
 import { PerformanceController as F7_PerformanceController } from "./features/duplicated/controllers/PerformanceController";
 import { DeleteController as F8_DeleteController } from "./features/escape/controllers/DeleteController";
 import { UserController as F8_UserController } from "./features/escape/controllers/UserController";
-import { ExceptionController as F9_ExceptionController } from "./features/exception-filter/controllers/ExceptionController";
-import { HealthController as F9_HealthController } from "./features/exception-filter/controllers/HealthController";
-import { PerformanceController as F9_PerformanceController } from "./features/exception-filter/controllers/PerformanceController";
-import { BbsArticleController as F10_BbsArticleController } from "./features/import-type/controllers/BbsArticleController";
-import { HealthController as F11_HealthController } from "./features/kebab/controllers/HealthController";
-import { KebabController as F11_KebabController } from "./features/kebab/controllers/KebabController";
-import { PerformanceController as F11_PerformanceController } from "./features/kebab/controllers/PerformanceController";
-import { HealthController as F12_HealthController } from "./features/non-equals/controllers/HealthController";
-import { PerformanceController as F12_PerformanceController } from "./features/non-equals/controllers/PerformanceController";
-import { RequestController as F12_RequestController } from "./features/non-equals/controllers/RequestController";
-import { HealthController as F13_HealthController } from "./features/operationId/controllers/HealthController";
-import { OperationIdController as F13_OperationIdController } from "./features/operationId/controllers/OperationIdController";
-import { PerformanceController as F13_PerformanceController } from "./features/operationId/controllers/PerformanceController";
-import { CalculateController as F14_CalculateController } from "./features/param-validate/controllers/CalculateController";
-import { HealthController as F14_HealthController } from "./features/param-validate/controllers/HealthController";
-import { PerformanceController as F14_PerformanceController } from "./features/param-validate/controllers/PerformanceController";
-import { TypedParamController as F14_TypedParamController } from "./features/param-validate/controllers/TypedParamController";
-import { HealthController as F15_HealthController } from "./features/route-manual-assert/controllers/HealthController";
-import { PerformanceController as F15_PerformanceController } from "./features/route-manual-assert/controllers/PerformanceController";
-import { TypedRouteController as F15_TypedRouteController } from "./features/route-manual-assert/controllers/TypedRouteController";
-import { HealthController as F16_HealthController } from "./features/route-manual-is/controllers/HealthController";
-import { PerformanceController as F16_PerformanceController } from "./features/route-manual-is/controllers/PerformanceController";
-import { TypedRouteController as F16_TypedRouteController } from "./features/route-manual-is/controllers/TypedRouteController";
-import { HealthController as F17_HealthController } from "./features/route-manual-stringify/controllers/HealthController";
-import { PerformanceController as F17_PerformanceController } from "./features/route-manual-stringify/controllers/PerformanceController";
-import { ManualRouteController as F17_ManualRouteController } from "./features/route-manual-stringify/controllers/TypedRouteController";
-import { BbsArticlesController as F19_BbsArticlesController } from "./features/route-manual-validate-log-encrypted/controllers/BbsArticleController";
-import { HealthController as F19_HealthController } from "./features/route-manual-validate-log-encrypted/controllers/HealthController";
-import { BbsArticlesController as F20_BbsArticlesController } from "./features/route-manual-validate-log-fastify/controllers/BbsArticleController";
-import { HealthController as F20_HealthController } from "./features/route-manual-validate-log-fastify/controllers/HealthController";
-import { HealthController as F18_HealthController } from "./features/route-manual-validate/controllers/HealthController";
-import { PerformanceController as F18_PerformanceController } from "./features/route-manual-validate/controllers/PerformanceController";
-import { ManualRouteController as F18_ManualRouteController } from "./features/route-manual-validate/controllers/TypedRouteController";
-import { BbsPackageArticlesController as F22_BbsPackageArticlesController } from "./features/variable/controllers/BbsPackageArticlesController";
-import { HealthController as F22_HealthController } from "./features/variable/controllers/HealthController";
-import { PerformanceController as F22_PerformanceController } from "./features/variable/controllers/PerformanceController";
+import { BbsArticleController as F9_BbsArticleController } from "./features/import-type/controllers/BbsArticleController";
+import { HealthController as F10_HealthController } from "./features/kebab/controllers/HealthController";
+import { KebabController as F10_KebabController } from "./features/kebab/controllers/KebabController";
+import { PerformanceController as F10_PerformanceController } from "./features/kebab/controllers/PerformanceController";
+import { HealthController as F11_HealthController } from "./features/non-equals/controllers/HealthController";
+import { PerformanceController as F11_PerformanceController } from "./features/non-equals/controllers/PerformanceController";
+import { RequestController as F11_RequestController } from "./features/non-equals/controllers/RequestController";
+import { HealthController as F12_HealthController } from "./features/operationId/controllers/HealthController";
+import { OperationIdController as F12_OperationIdController } from "./features/operationId/controllers/OperationIdController";
+import { PerformanceController as F12_PerformanceController } from "./features/operationId/controllers/PerformanceController";
+import { HealthController as F13_HealthController } from "./features/route-manual-assert/controllers/HealthController";
+import { PerformanceController as F13_PerformanceController } from "./features/route-manual-assert/controllers/PerformanceController";
+import { TypedRouteController as F13_TypedRouteController } from "./features/route-manual-assert/controllers/TypedRouteController";
+import { HealthController as F14_HealthController } from "./features/route-manual-is/controllers/HealthController";
+import { PerformanceController as F14_PerformanceController } from "./features/route-manual-is/controllers/PerformanceController";
+import { TypedRouteController as F14_TypedRouteController } from "./features/route-manual-is/controllers/TypedRouteController";
+import { HealthController as F15_HealthController } from "./features/route-manual-stringify/controllers/HealthController";
+import { PerformanceController as F15_PerformanceController } from "./features/route-manual-stringify/controllers/PerformanceController";
+import { ManualRouteController as F15_ManualRouteController } from "./features/route-manual-stringify/controllers/TypedRouteController";
+import { HealthController as F16_HealthController } from "./features/route-manual-validate/controllers/HealthController";
+import { PerformanceController as F16_PerformanceController } from "./features/route-manual-validate/controllers/PerformanceController";
+import { ManualRouteController as F16_ManualRouteController } from "./features/route-manual-validate/controllers/TypedRouteController";
+import { BbsPackageArticlesController as F17_BbsPackageArticlesController } from "./features/variable/controllers/BbsPackageArticlesController";
+import { HealthController as F17_HealthController } from "./features/variable/controllers/HealthController";
+import { PerformanceController as F17_PerformanceController } from "./features/variable/controllers/PerformanceController";
 
 const PASSWORD = { key: "A".repeat(32), iv: "B".repeat(16) };
 
@@ -150,19 +139,19 @@ class M7 {}
 class M8 {}
 
 @core.EncryptedModule(
-  {
-    controllers: [
-      F9_ExceptionController,
-      F9_HealthController,
-      F9_PerformanceController,
-    ],
-  },
+  { controllers: [F9_BbsArticleController] },
   () => PASSWORD,
 )
 class M9 {}
 
 @core.EncryptedModule(
-  { controllers: [F10_BbsArticleController] },
+  {
+    controllers: [
+      F10_HealthController,
+      F10_KebabController,
+      F10_PerformanceController,
+    ],
+  },
   () => PASSWORD,
 )
 class M10 {}
@@ -171,8 +160,8 @@ class M10 {}
   {
     controllers: [
       F11_HealthController,
-      F11_KebabController,
       F11_PerformanceController,
+      F11_RequestController,
     ],
   },
   () => PASSWORD,
@@ -183,8 +172,8 @@ class M11 {}
   {
     controllers: [
       F12_HealthController,
+      F12_OperationIdController,
       F12_PerformanceController,
-      F12_RequestController,
     ],
   },
   () => PASSWORD,
@@ -195,8 +184,8 @@ class M12 {}
   {
     controllers: [
       F13_HealthController,
-      F13_OperationIdController,
       F13_PerformanceController,
+      F13_TypedRouteController,
     ],
   },
   () => PASSWORD,
@@ -206,10 +195,9 @@ class M13 {}
 @core.EncryptedModule(
   {
     controllers: [
-      F14_CalculateController,
       F14_HealthController,
       F14_PerformanceController,
-      F14_TypedParamController,
+      F14_TypedRouteController,
     ],
   },
   () => PASSWORD,
@@ -221,7 +209,7 @@ class M14 {}
     controllers: [
       F15_HealthController,
       F15_PerformanceController,
-      F15_TypedRouteController,
+      F15_ManualRouteController,
     ],
   },
   () => PASSWORD,
@@ -233,7 +221,7 @@ class M15 {}
     controllers: [
       F16_HealthController,
       F16_PerformanceController,
-      F16_TypedRouteController,
+      F16_ManualRouteController,
     ],
   },
   () => PASSWORD,
@@ -243,50 +231,14 @@ class M16 {}
 @core.EncryptedModule(
   {
     controllers: [
+      F17_BbsPackageArticlesController,
       F17_HealthController,
       F17_PerformanceController,
-      F17_ManualRouteController,
     ],
   },
   () => PASSWORD,
 )
 class M17 {}
-
-@core.EncryptedModule(
-  {
-    controllers: [
-      F18_HealthController,
-      F18_PerformanceController,
-      F18_ManualRouteController,
-    ],
-  },
-  () => PASSWORD,
-)
-class M18 {}
-
-@core.EncryptedModule(
-  { controllers: [F19_BbsArticlesController, F19_HealthController] },
-  () => PASSWORD,
-)
-class M19 {}
-
-@core.EncryptedModule(
-  { controllers: [F20_BbsArticlesController, F20_HealthController] },
-  () => PASSWORD,
-)
-class M20 {}
-
-@core.EncryptedModule(
-  {
-    controllers: [
-      F22_BbsPackageArticlesController,
-      F22_HealthController,
-      F22_PerformanceController,
-    ],
-  },
-  () => PASSWORD,
-)
-class M22 {}
 
 const ROUTES = [
   { path: "array", module: M0 },
@@ -298,19 +250,15 @@ const ROUTES = [
   { path: "date", module: M6 },
   { path: "duplicated", module: M7 },
   { path: "escape", module: M8 },
-  { path: "exception-filter", module: M9 },
-  { path: "import-type", module: M10 },
-  { path: "kebab", module: M11 },
-  { path: "non-equals", module: M12 },
-  { path: "operationId", module: M13 },
-  { path: "param-validate", module: M14 },
-  { path: "route-manual-assert", module: M15 },
-  { path: "route-manual-is", module: M16 },
-  { path: "route-manual-stringify", module: M17 },
-  { path: "route-manual-validate", module: M18 },
-  { path: "route-manual-validate-log-encrypted", module: M19 },
-  { path: "route-manual-validate-log-fastify", module: M20 },
-  { path: "variable", module: M22 },
+  { path: "import-type", module: M9 },
+  { path: "kebab", module: M10 },
+  { path: "non-equals", module: M11 },
+  { path: "operationId", module: M12 },
+  { path: "route-manual-assert", module: M13 },
+  { path: "route-manual-is", module: M14 },
+  { path: "route-manual-stringify", module: M15 },
+  { path: "route-manual-validate", module: M16 },
+  { path: "variable", module: M17 },
 ];
 
 @Module({
