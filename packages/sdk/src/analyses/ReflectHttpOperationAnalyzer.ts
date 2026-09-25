@@ -40,26 +40,6 @@ export namespace ReflectHttpOperationAnalyzer {
       METHODS[Reflect.getMetadata(METHOD_METADATA, props.function)]!;
     if (method === undefined || method === "OPTIONS") return null;
 
-    // a route no path of which can be composed is left out as a whole,
-    // rather than composed at the controller's own path
-    const paths: string[] = ReflectMetadataAnalyzer.paths(
-      props.function,
-    ).filter((str) => {
-      const reason = PathAnalyzer.unsupported(str);
-      if (reason === null) return true;
-      props.project.warnings.push({
-        file: props.controller.file,
-        class: props.controller.class.name,
-        function: props.name,
-        from: "",
-        contents: [
-          `@nestia/sdk does not compose ${reason} method (${JSON.stringify(str)}).`,
-        ],
-      });
-      return false;
-    });
-    if (paths.length === 0) return null;
-
     const parameters: IReflectHttpOperationParameter[] =
       ReflectHttpOperationParameterAnalyzer.analyze({
         controller: props.controller,
@@ -96,7 +76,19 @@ export namespace ReflectHttpOperationAnalyzer {
       function: props.function,
       name: props.name,
       method: method === "ALL" ? "POST" : method,
-      paths,
+      paths: ReflectMetadataAnalyzer.paths(props.function).filter((str) => {
+        if (str.includes("*") === true) {
+          props.project.warnings.push({
+            file: props.controller.file,
+            class: props.controller.class.name,
+            function: props.name,
+            from: "",
+            contents: ["@nestia/sdk does not compose wildcard method."],
+          });
+          return false;
+        }
+        return true;
+      }),
       versions: ReflectMetadataAnalyzer.versions(props.function),
       parameters,
       success,
@@ -138,6 +130,7 @@ export namespace ReflectHttpOperationAnalyzer {
           controllerLocation,
           metaLocation,
         );
+        if (location.includes("*")) continue;
 
         // LIST UP PARAMETERS
         const binded: string[] | null = PathAnalyzer.parameters(location);

@@ -1,5 +1,6 @@
 import { SyntaxKind, factory } from "@ttsc/factory";
 import { IHttpMigrateRoute, OpenApi } from "@typia/interface";
+import { NamingConvention } from "@typia/utils";
 
 import { IdentifierFactory } from "../factories/IdentifierFactory";
 import { StatementFactory } from "../factories/StatementFactory";
@@ -251,15 +252,6 @@ export namespace NestiaMigrateApiFunctionProgrammer {
       ctx.route.comment(),
     );
     if (headers.length === 0) return [factory.createReturnStatement(value)];
-    // an accessor is a dotted path of response keys, each accessed on its own
-    // so a key like `x-token` stays one key
-    const source = (accessor: string): ts.Expression =>
-      accessor
-        .split(".")
-        .reduce<ts.Expression>(
-          (input, key) => IdentifierFactory.access(input, key),
-          factory.createIdentifier("output"),
-        );
     return [
       StatementFactory.constant({
         name: "output",
@@ -283,16 +275,19 @@ export namespace NestiaMigrateApiFunctionProgrammer {
                 undefined,
                 [
                   factory.createIdentifier("connection.headers"),
-                  source(h.accessor),
+                  factory.createIdentifier(`output.${h.accessor}`),
                 ],
               )
             : factory.createBinaryExpression(
-                IdentifierFactory.access(
-                  factory.createIdentifier("connection.headers"),
-                  h.property,
+                factory.createIdentifier(
+                  `connection.headers${
+                    NamingConvention.variable(h.property)
+                      ? `.${h.property}`
+                      : `[${JSON.stringify(h.property)}]`
+                  }`,
                 ),
                 factory.createToken(SyntaxKind.EqualsToken),
-                source(h.accessor),
+                factory.createIdentifier(`output.${h.accessor}`),
               ),
         ),
       ),
@@ -334,12 +329,11 @@ export namespace NestiaMigrateApiFunctionProgrammer {
           .substring(setHeaderTag.length)
           .trim()
           .split(/\s+/);
-        // an omitted header name is the accessor's last key, as in the SDK
-        if (parts[0]!.length !== 0)
+        if (parts.length >= 2)
           directives.push({
             type: "set",
             accessor: parts[0]!,
-            property: parts[1] ?? parts[0]!.split(".").at(-1)!,
+            property: parts[1]!,
           });
       } else if (line.startsWith("@assignHeaders ")) {
         const accessor: string = line
