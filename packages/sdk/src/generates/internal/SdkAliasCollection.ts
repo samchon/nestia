@@ -237,7 +237,10 @@ export namespace SdkAliasCollection {
             branches.map((b) =>
               factory.createPropertySignature(
                 undefined,
-                factory.createNumericLiteral(b.status),
+                // a status range like "4XX" is no numeric literal
+                /^\d+$/.test(b.status)
+                  ? factory.createNumericLiteral(b.status)
+                  : factory.createStringLiteral(b.status),
                 undefined,
                 b.type,
               ),

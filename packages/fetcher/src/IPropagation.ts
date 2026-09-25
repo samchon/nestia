@@ -76,15 +76,17 @@ export namespace IPropagation {
     headers: Record<string, string | string[]>;
   }
 
-  /** Range of status codes by the first digit. */
-  export type StatusRange<T extends "2XX" | "3XX" | "4XX" | "5XX"> = T extends 0
-    ? IntRange<200, 299>
-    : T extends 3
-      ? IntRange<300, 399>
-      : T extends 4
-        ? IntRange<400, 499>
-        : IntRange<500, 599>;
+  /** Range of status codes by the first digit, `"4XX"` for `400` to `499`. */
+  export type StatusRange<T extends "2XX" | "3XX" | "4XX" | "5XX"> =
+    T extends "2XX"
+      ? IntRange<200, 300>
+      : T extends "3XX"
+        ? IntRange<300, 400>
+        : T extends "4XX"
+          ? IntRange<400, 500>
+          : IntRange<500, 600>;
 
+  /** Integers from `F` up to, not including, `T`. */
   type IntRange<F extends number, T extends number> = Exclude<
     Enumerate<T>,
     Enumerate<F>
