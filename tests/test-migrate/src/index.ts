@@ -26,6 +26,7 @@ import { test_migrate_nest_workspace_catalog_stamp } from "./features/test_migra
 import { test_migrate_numeric_bounds } from "./features/test_migrate_numeric_bounds";
 import { test_migrate_path_segments } from "./features/test_migrate_path_segments";
 import { test_migrate_route_reserved } from "./features/test_migrate_route_reserved";
+import { test_migrate_simulate_headers } from "./features/test_migrate_simulate_headers";
 import { test_migrate_sdk_dependency_catalog_stamp } from "./features/test_migrate_sdk_dependency_catalog_stamp";
 import {
   EMPTY_PATHS_DOCUMENT,
@@ -261,6 +262,7 @@ const main = async (): Promise<void> => {
     test_migrate_numeric_bounds();
     test_migrate_path_segments();
     test_migrate_route_reserved();
+    test_migrate_simulate_headers();
     test_migrate_nest_dto_package_import();
     test_migrate_nest_workspace_catalog_stamp();
     test_migrate_nest_keyword_config_path();
