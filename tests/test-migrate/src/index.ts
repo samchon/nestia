@@ -39,6 +39,7 @@ import {
 import { test_migrate_sdk_key_snapshot } from "./features/test_migrate_sdk_key_snapshot";
 import { test_migrate_sdk_pnpm_template } from "./features/test_migrate_sdk_pnpm_template";
 import { test_migrate_simulate_headers } from "./features/test_migrate_simulate_headers";
+import { test_migrate_simulate_throws } from "./features/test_migrate_simulate_throws";
 import { test_migrate_success_status } from "./features/test_migrate_success_status";
 
 const TEST_ROOT: string = process.cwd();
@@ -311,6 +312,9 @@ const main = async (): Promise<void> => {
         scenario,
         document,
       );
+    await test_migrate_simulate_throws(
+      path.join(OUTPUT, `${scenario.name}-sdk-positional`),
+    );
   }
 };
 
