@@ -12,6 +12,7 @@ import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
 import { IReflectMcpOperation } from "../structures/IReflectMcpOperation";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
 import { ArrayUtil } from "../utils/ArrayUtil";
+import { PathAnalyzer } from "./PathAnalyzer";
 import { ReflectHttpOperationAnalyzer } from "./ReflectHttpOperationAnalyzer";
 import { ReflectMcpOperationAnalyzer } from "./ReflectMcpOperationAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
@@ -46,7 +47,7 @@ export namespace ReflectControllerAnalyzer {
       prefixes: props.controller.prefixes,
       paths: ReflectMetadataAnalyzer.paths(props.controller.class).filter(
         (str) => {
-          if (str.includes("*") === true) {
+          if (PathAnalyzer.wildcard(str)) {
             props.project.warnings.push({
               file: props.controller.location,
               class: props.controller.class.name,

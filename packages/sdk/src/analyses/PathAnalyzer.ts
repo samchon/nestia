@@ -45,6 +45,12 @@ export namespace PathAnalyzer {
   };
 
   /**
+   * Whether a route path holds a wildcard: a `*` not escaped as the literal
+   * character (`\\*`), which a route path may hold since #1713.
+   */
+  export const wildcard = (str: string): boolean => /(^|[^\\])\*/.test(str);
+
+  /**
    * The literal text and parameters of a path, in order, as path-to-regexp
    * reads it: `/files/:id.json` is `/files/`, the parameter `id`, then `.json`,
    * and `/range/:from-:to` holds two parameters parted by `-`. Every generator

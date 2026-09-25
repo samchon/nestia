@@ -3,7 +3,7 @@ import { Controller } from "@nestjs/common";
 import { ApiSecurity } from "@nestjs/swagger";
 import typia from "typia";
 
-import { IToken } from "@api/lib/structures/IToken";
+import { IToken } from "../api/structures/IToken";
 
 @Controller()
 export class SecurityController {
