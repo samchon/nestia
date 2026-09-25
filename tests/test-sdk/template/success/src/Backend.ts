@@ -1,25 +1,27 @@
 import core from "@nestia/core";
 import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import { Singleton } from "tstl";
 
 export class Backend {
-  public readonly application: Singleton<Promise<INestApplication>> =
-    new Singleton(async () =>
-      NestFactory.create(
-        await core.EncryptedModule.dynamic(__dirname + "/controllers", {
-          key: "A".repeat(32),
-          iv: "B".repeat(16),
-        }),
-        { logger: false },
-      ),
-    );
+  private application_?: INestApplication;
 
   public async open(): Promise<void> {
-    return (await this.application.get()).listen(37_000);
+    this.application_ = await NestFactory.create(
+      await core.EncryptedModule.dynamic(__dirname + "/controllers", {
+        key: "A".repeat(32),
+        iv: "B".repeat(16),
+      }),
+      { logger: false },
+    );
+    await this.application_.listen(Number(process.env.TEST_SDK_PORT ?? 37_000));
   }
 
   public async close(): Promise<void> {
-    return (await this.application.get()).close();
+    if (this.application_ === undefined) return;
+
+    const app = this.application_;
+    await app.close();
+
+    delete this.application_;
   }
 }
