@@ -316,7 +316,8 @@ export namespace NestiaMigrateSchemaProgrammer {
           schema: props.schema.additionalProperties as OpenApi.IJsonSchema,
         }),
       ]);
-    return !!props.schema.properties?.length &&
+    // `properties` is a record, which has no length
+    return Object.keys(props.schema.properties ?? {}).length !== 0 &&
       typeof props.schema.additionalProperties === "object"
       ? factory.createIntersectionTypeNode([regular(), dynamic()])
       : typeof props.schema.additionalProperties === "object"

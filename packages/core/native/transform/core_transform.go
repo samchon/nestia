@@ -228,6 +228,19 @@ func nestiaCoreDecoratorCall(prog *driver.Program, decorator *shimast.Node) (*sh
 	return call, canonical, true
 }
 
+// NestiaCoreCanonicalDecoratorSegments names a decorator call's callee by the
+// @nestia/core export its import binds, so `import { TypedException as TE }`
+// reads `TE<T>()` as `TypedException`. It returns nil for a decorator that is
+// no call.
+func NestiaCoreCanonicalDecoratorSegments(decorator *shimast.Node) []string {
+	_, segments, ok := nestiaCoreRawDecoratorCall(decorator)
+	if !ok {
+		return nil
+	}
+	context := newNestiaCoreFileContext(shimast.GetSourceFileOfNode(decorator))
+	return nestiaCoreCanonicalSegments(context, segments)
+}
+
 func newNestiaCoreFileContext(file *shimast.SourceFile) nestiaCoreFileContext {
 	context := nestiaCoreFileContext{
 		file:        file,

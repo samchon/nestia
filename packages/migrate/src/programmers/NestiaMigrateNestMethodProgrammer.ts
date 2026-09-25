@@ -11,7 +11,9 @@ import ts from "../internal/ts";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
+import { RequestBody } from "../utils/RequestBody";
 import { StringUtil } from "../utils/StringUtil";
+import { SuccessStatus } from "../utils/SuccessStatus";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
@@ -167,6 +169,18 @@ export namespace NestiaMigrateNestMethodProgrammer {
       ctx.route.success?.type === "application/json"
     )
       decorators.push(router("TypedRoute"));
+    // NestJS answers 201 for POST and 200 otherwise
+    const status: number | null = SuccessStatus.of(ctx.route);
+    if (status !== null && status !== SuccessStatus.nest(ctx.route))
+      decorators.push(
+        factory.createDecorator(
+          factory.createCallExpression(
+            external("@nestjs/common", "HttpCode"),
+            undefined,
+            [ExpressionFactory.number(status)],
+          ),
+        ),
+      );
     for (const [key, value] of Object.entries(ctx.route.exceptions ?? {}))
       decorators.push(
         factory.createDecorator(
@@ -290,11 +304,7 @@ export namespace NestiaMigrateNestMethodProgrammer {
                 : [],
           })(ctx.components)(ctx.importer)({
             schema: ctx.route.body.schema,
-            required: !(
-              (ctx.route.body.type === "application/json" ||
-                ctx.route.body.type === "text/plain") &&
-              ctx.route.operation().requestBody?.required === false
-            ),
+            required: RequestBody.optional(ctx.route) === false,
             example: ctx.route.body.media().example,
             examples: ctx.route.body.media().examples,
           }),

@@ -307,7 +307,7 @@ export namespace SwaggerGenerator {
       const closure: Function | Function[] | undefined = Reflect.getMetadata(
         "nestia/SwaggerCustomizer",
         r.controller.class.prototype,
-        r.name,
+        r.key,
       );
       if (closure !== undefined)
         customizers.push({
@@ -419,7 +419,7 @@ export namespace SwaggerGenerator {
     const violations: string[] = [];
     const report = (message: string): void => {
       violations.push(
-        `  - ${message} (${props.route.controller.class.name}.${props.route.name}() at "${props.route.method} ${props.route.path}")`,
+        `  - ${message} (${props.route.controller.class.name}.${props.route.key}() at "${props.route.method} ${props.route.path}")`,
       );
     };
     for (const requirement of props.security ?? [])

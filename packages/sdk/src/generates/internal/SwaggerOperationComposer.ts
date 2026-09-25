@@ -80,7 +80,7 @@ export namespace SwaggerOperationComposer {
         props.route.operationId ??
         props.config.operationId?.({
           class: props.route.controller.class.name,
-          function: props.route.name,
+          function: props.route.key,
           method: props.route.method as "GET",
           path: props.route.path,
         }),

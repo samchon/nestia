@@ -301,12 +301,12 @@ const visitMethod = (props: {
     method: props.method,
     parameters,
   });
-  const versions: string[] = VersioningStrategy.merge(props.config.versioning)([
-    ...(props.controller.versions ?? []),
-    ...VersioningStrategy.cast(
+  const versions: string[] = VersioningStrategy.merge(props.config.versioning)({
+    controller: props.controller.versions,
+    method: VersioningStrategy.cast(
       Reflect.getMetadata(VERSION_METADATA, props.method.value),
     ),
-  ]);
+  });
   for (const v of versions)
     for (const cp of wrapPaths(props.controller.prefixes))
       for (const mp of wrapPaths(route.paths)) {

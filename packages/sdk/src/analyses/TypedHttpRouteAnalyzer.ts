@@ -167,6 +167,7 @@ export namespace TypedHttpRouteAnalyzer {
         ({
           ...props.operation,
           controller: props.controller,
+          key: props.operation.name,
           path,
           accessor: [...PathUtil.accessors(path), props.operation.name],
           exceptions,
