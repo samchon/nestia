@@ -15,6 +15,7 @@ import path from "path";
 import type { IValidation } from "typia";
 
 import { test_migrate_api_accessor_collision } from "./features/test_migrate_api_accessor_collision";
+import { test_migrate_api_response_header_accessor } from "./features/test_migrate_api_response_header_accessor";
 import { test_migrate_api_response_header_tags } from "./features/test_migrate_api_response_header_tags";
 import { test_migrate_dto_import_type } from "./features/test_migrate_dto_import_type";
 import { test_migrate_nest_dto_package_import } from "./features/test_migrate_nest_dto_package_import";
@@ -254,6 +255,7 @@ const main = async (): Promise<void> => {
     const document: SwaggerDocument = await readDocument(scenario.file);
     assertFixtureSwagger(document);
     test_migrate_api_accessor_collision(document);
+    test_migrate_api_response_header_accessor();
     test_migrate_api_response_header_tags();
     test_migrate_dto_import_type();
     test_migrate_nest_monorepo_layout();

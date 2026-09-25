@@ -217,17 +217,30 @@ export namespace SdkHttpFunctionProgrammer {
     (route: ITypedHttpRoute) =>
     (names: SdkHttpParameterProgrammer.INames) =>
     (condition: Expression): Statement[] => {
-      const accessor = (x: string) => (y: string) =>
-        x[0] === "[" ? `${x}${y}` : `${x}.${y}`;
       const output: string = names.output;
-      const headers: string = accessor(names.connection)("headers");
-      const data: string = project.config.propagate
-        ? accessor(output)("data")
-        : output;
+      const headers = (): Expression =>
+        IdentifierFactory.access(
+          factory.createIdentifier(names.connection),
+          "headers",
+        );
+      // a source is a dotted path of response keys, each accessed on its own
+      // so a key like `x-token` stays one key
+      const data = (source: string): Expression =>
+        source
+          .split(".")
+          .reduce<Expression>(
+            (input, key) => IdentifierFactory.access(input, key),
+            project.config.propagate
+              ? IdentifierFactory.access(
+                  factory.createIdentifier(output),
+                  "data",
+                )
+              : factory.createIdentifier(output),
+          );
 
       const assigners: Statement[] = [
         factory.createBinaryExpression(
-          factory.createIdentifier(headers),
+          headers(),
           factory.createToken(SyntaxKind.QuestionQuestionEqualsToken),
           factory.createObjectLiteralExpression([]),
         ),
@@ -236,21 +249,17 @@ export namespace SdkHttpFunctionProgrammer {
             ? factory.createCallExpression(
                 factory.createIdentifier("Object.assign"),
                 [],
-                [
-                  factory.createIdentifier(headers),
-                  factory.createIdentifier(accessor(data)(tuple.source)),
-                ],
+                [headers(), data(tuple.source)],
               )
             : factory.createBinaryExpression(
-                // a target is a header name, which usually is no identifier
-                tuple.target !== undefined
-                  ? IdentifierFactory.access(
-                      factory.createIdentifier(headers),
-                      tuple.target,
-                    )
-                  : factory.createIdentifier(accessor(headers)(tuple.source)),
+                // a header is named by the target, or else by the source's
+                // last key; a header name usually is no identifier
+                IdentifierFactory.access(
+                  headers(),
+                  tuple.target ?? tuple.source.split(".").at(-1)!,
+                ),
                 factory.createToken(SyntaxKind.EqualsToken),
-                factory.createIdentifier(accessor(data)(tuple.source)),
+                data(tuple.source),
               ),
         ),
       ].map(factory.createExpressionStatement);
@@ -274,7 +283,10 @@ export namespace SdkHttpFunctionProgrammer {
         ...(project.config.propagate
           ? [
               factory.createIfStatement(
-                factory.createIdentifier(accessor(output)("success")),
+                IdentifierFactory.access(
+                  factory.createIdentifier(output),
+                  "success",
+                ),
                 assigners.length === 1
                   ? assigners[0]!
                   : factory.createBlock(assigners, true),
