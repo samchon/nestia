@@ -84,7 +84,7 @@ export namespace SdkHttpSimulationProgrammer {
           [
             IdentifierFactory.parameter(
               SdkHttpParameterProgrammer.getSignificant(route, true).length !==
-                0
+                0 || route.headerObject !== null
                 ? names.connection
                 : `_${names.connection}`,
               factory.createTypeReferenceNode(
@@ -150,7 +150,7 @@ export namespace SdkHttpSimulationProgrammer {
     (route: ITypedHttpRoute) =>
     (names: SdkHttpParameterProgrammer.INames): Statement[] => {
       const parameters = SdkHttpParameterProgrammer.getSignificant(route, true);
-      if (parameters.length === 0) return [];
+      if (parameters.length === 0 && route.headerObject === null) return [];
 
       const typia = SdkImportWizard.typia(importer);
       const validator = StatementFactory.constant({
@@ -240,6 +240,41 @@ export namespace SdkHttpSimulationProgrammer {
           ),
         )
         .map(factory.createExpressionStatement);
+      // the headers travel in the connection, validated as the server does
+      if (route.headerObject !== null)
+        individual.push(
+          factory.createExpressionStatement(
+            factory.createCallExpression(
+              IdentifierFactory.access(
+                factory.createIdentifier(names.assert),
+                "headers",
+              ),
+              undefined,
+              [
+                factory.createArrowFunction(
+                  undefined,
+                  undefined,
+                  [],
+                  undefined,
+                  undefined,
+                  factory.createCallExpression(
+                    IdentifierFactory.access(
+                      factory.createIdentifier(typia),
+                      "assert",
+                    ),
+                    [factory.createTypeReferenceNode(`${route.name}.Headers`)],
+                    [
+                      IdentifierFactory.access(
+                        factory.createIdentifier(names.connection),
+                        "headers",
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
       return [
         validator,
         ...(project.config.propagate !== true

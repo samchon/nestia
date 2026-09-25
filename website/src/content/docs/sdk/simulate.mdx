@@ -70,7 +70,7 @@ Both branches are typed, so swapping `simulate: true` ↔ `simulate: false` is a
 
 For each generated function:
 
-1. Validate `input` against the parameter type (same validator as the real server).
+1. Validate the path parameters, the query, the body, and the `@TypedHeaders()` headers of `connection.headers` against their types (same validator as the real server).
    - On failure, throw `HttpError` with status 400 — exactly what the real server returns.
 2. Generate a `Primitive<Output>` value using `typia.random<Output>()`.
 3. Return it.
