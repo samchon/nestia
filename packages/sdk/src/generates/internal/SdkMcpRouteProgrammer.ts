@@ -211,7 +211,7 @@ export namespace SdkMcpRouteProgrammer {
               factory.createToken(SyntaxKind.EqualsEqualsEqualsToken),
               factory.createTrue(),
             ),
-            throwToolError(toolNameExpr, '" returned isError'),
+            throwToolErrorWithText(toolNameExpr, names.result),
           ),
           ...(isVoid
             ? [factory.createReturnStatement()]
@@ -433,6 +433,92 @@ export namespace SdkMcpRouteProgrammer {
 
   const isVoidName = (name: string): boolean =>
     name === "void" || name === "undefined";
+
+  /**
+   * The error of a tool that answered `isError`, carrying the text content the
+   * tool put its reason in, as `McpAdaptor` does an `HttpException`'s message.
+   */
+  const throwToolErrorWithText = (
+    toolNameExpr: Expression,
+    result: string,
+  ): Statement => {
+    const entry = (): Expression => factory.createIdentifier("entry");
+    return factory.createThrowStatement(
+      factory.createNewExpression(
+        factory.createIdentifier("Error"),
+        undefined,
+        [
+          factory.createTemplateExpression(
+            factory.createTemplateHead('MCP tool "'),
+            [
+              factory.createTemplateSpan(
+                toolNameExpr,
+                factory.createTemplateMiddle('" returned isError: '),
+              ),
+              factory.createTemplateSpan(
+                factory.createCallExpression(
+                  factory.createPropertyAccessExpression(
+                    factory.createCallExpression(
+                      factory.createPropertyAccessExpression(
+                        factory.createCallExpression(
+                          factory.createPropertyAccessExpression(
+                            factory.createPropertyAccessExpression(
+                              factory.createIdentifier(result),
+                              "content",
+                            ),
+                            "filter",
+                          ),
+                          undefined,
+                          [
+                            factory.createArrowFunction(
+                              undefined,
+                              undefined,
+                              [IdentifierFactory.parameter("entry")],
+                              undefined,
+                              undefined,
+                              factory.createBinaryExpression(
+                                factory.createPropertyAccessExpression(
+                                  entry(),
+                                  "type",
+                                ),
+                                factory.createToken(
+                                  SyntaxKind.EqualsEqualsEqualsToken,
+                                ),
+                                factory.createStringLiteral("text"),
+                              ),
+                            ),
+                          ],
+                        ),
+                        "map",
+                      ),
+                      undefined,
+                      [
+                        factory.createArrowFunction(
+                          undefined,
+                          undefined,
+                          [IdentifierFactory.parameter("entry")],
+                          undefined,
+                          undefined,
+                          factory.createPropertyAccessExpression(
+                            entry(),
+                            "text",
+                          ),
+                        ),
+                      ],
+                    ),
+                    "join",
+                  ),
+                  undefined,
+                  [factory.createStringLiteral("\n")],
+                ),
+                factory.createTemplateTail(""),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  };
 
   const throwToolError = (
     toolNameExpr: Expression,
