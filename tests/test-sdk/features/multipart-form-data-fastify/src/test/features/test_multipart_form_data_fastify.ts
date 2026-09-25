@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "@api";
+import api from "../../api";
 
 /**
  * Verifies `@TypedFormData.Body()` uploads files on NestJS 11's Fastify.

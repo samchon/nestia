@@ -2,7 +2,7 @@ import core, { SwaggerCustomizer } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { OpenApi } from "typia";
 
-import { IPerformance } from "@api/lib/structures/IPerformance";
+import { IPerformance } from "../api/structures/IPerformance";
 
 @Controller("performance")
 export class PerformanceController {

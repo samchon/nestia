@@ -2,14 +2,13 @@ import core from "@nestia/core";
 import { TestValidator } from "@nestia/e2e";
 import { HttpException } from "@nestjs/common";
 
-import api from "@api";
-
 import {
   DomainError,
   GoneError,
   NotFoundError,
   OtherError,
 } from "../../DomainErrors";
+import api from "../../api";
 
 /**
  * Verifies an error converts through the closure of its own class, never an

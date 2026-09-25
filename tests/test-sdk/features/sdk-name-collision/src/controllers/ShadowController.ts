@@ -1,7 +1,7 @@
 import core from "@nestia/core";
 import { Controller, Query } from "@nestjs/common";
 
-import { IShadow } from "@api/lib/structures/IShadow";
+import { IShadow } from "../api/structures/IShadow";
 
 /**
  * Parameters named after identifiers the generated SDK function, its `path()`,

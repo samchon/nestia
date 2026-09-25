@@ -1,7 +1,6 @@
 import typia from "typia";
 
-import api from "@api";
-
+import api from "../../../../api";
 import { IDateDefined } from "../../../../features/date/api/structures/IDateDefined";
 
 export const test_api_date = async (

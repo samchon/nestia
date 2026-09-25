@@ -436,6 +436,7 @@ const feature = async (name, port) => {
     (candidate) => candidate.name === name,
   );
   if (cohort !== undefined) return runSdkErrorCohort(cohort);
+  if (BATCHES.has(name)) return runBatch(name, port);
   if (name === "swagger-watch") return runSwaggerWatchFeature();
   if (name === "bundle-preserve") return runBundlePreserveFeature();
   if (name === "cli-argument-diagnostics")
@@ -495,17 +496,7 @@ const feature = async (name, port) => {
     );
   }
 
-  await removePaths(cwd, [
-    "swagger.json",
-    "src/api/functional",
-    "src/api/HttpError.ts",
-    "src/api/IConnection.ts",
-    "src/api/index.ts",
-    "src/api/module.ts",
-    "src/api/Primitive.ts",
-    "src/test/features/api/automated",
-    ...(name === "nested-output-directories" ? ["generated"] : []),
-  ]);
+  await removePaths(cwd, generatedPaths(name));
 
   if (name.includes("distribute")) return runDistributeFeature(cwd, name);
   else if (name === "all") {
@@ -518,6 +509,33 @@ const feature = async (name, port) => {
       if (config.includes(`${kind}:`)) await generate(kind);
   } else await generate("all");
 
+  assertFeatureOutputs(name, cwd);
+  if (name === "cli-project" || name === "cli-config-project") return;
+  else if (hasTtsxTestFiles(cwd)) await runTtsxTestWithRetries(name, cwd, port);
+  else {
+    try {
+      await runTsc(cwd);
+    } catch {
+      await runTsc(cwd, "inherit");
+    }
+  }
+};
+
+// The SDK, Swagger, and e2e files a feature's generation writes.
+const generatedPaths = (name) => [
+  "swagger.json",
+  "src/api/functional",
+  "src/api/HttpError.ts",
+  "src/api/IConnection.ts",
+  "src/api/index.ts",
+  "src/api/module.ts",
+  "src/api/Primitive.ts",
+  "src/test/features/api/automated",
+  ...(name === "nested-output-directories" ? ["generated"] : []),
+];
+
+// The checks a feature's generated files must pass before its e2e run.
+const assertFeatureOutputs = (name, cwd) => {
   if (name === "nested-output-directories")
     assertNestedOutputDirectories(cwd);
   if (name === "native-namespace-methods")
@@ -527,27 +545,201 @@ const feature = async (name, port) => {
     assertNativeTypeGuardProvenance(cwd);
   if (name === "websocket-clone") assertWebSocketCloneAlias(cwd);
   assertGeneratedImportsAreExtensionless(cwd);
-  if (name === "cli-project" || name === "cli-config-project") return;
-  else if (hasTtsxTestFiles(cwd)) {
-    // a pass that needed a retry is reported, never passed off as clean: an
-    // intermittent failure is a finding
-    const failures = [];
-    for (let i = 0; i < 3; ++i)
-      try {
-        await runTtsxTest(cwd, "ignore", port);
-        if (failures.length !== 0) reportRetries(name, failures);
-        return;
-      } catch (error) {
-        failures.push(error);
-      }
-    reportRetries(name, failures);
-    await runTtsxTest(cwd, "inherit", port);
-  } else {
+};
+
+// A pass that needed a retry is reported, never passed off as clean: an
+// intermittent failure is a finding.
+const runTtsxTestWithRetries = async (name, cwd, port, options) => {
+  const failures = [];
+  for (let i = 0; i < 3; ++i)
     try {
-      await runTsc(cwd);
-    } catch {
-      await runTsc(cwd, "inherit");
+      await runTtsxTest(cwd, "ignore", port, options);
+      if (failures.length !== 0) reportRetries(name, failures);
+      return;
+    } catch (error) {
+      failures.push(error);
     }
+  reportRetries(name, failures);
+  await runTtsxTest(cwd, "inherit", port, options);
+};
+
+// Success features sharing a tsconfig run in batches: one `nestia all` over
+// every member's configuration, each rebased onto the member's directory, and
+// one ttsx program holding every member's sources, whose runner calls each
+// member's own test entry in turn. A project's generation and type check, not
+// its tests, are what a feature run costs, so a batch pays them once. Each
+// member keeps its directory, its configuration, its backend, and its test
+// entry, which runs alone as before.
+const BATCH_SIZE = 12;
+const BATCH_EXCLUDED = new Set([
+  "all",
+  "cli-config",
+  "cli-config-project",
+  "cli-project",
+]);
+const BATCHES = new Map();
+const planBatches = (names) => {
+  const groups = new Map();
+  for (const name of names) {
+    if (
+      name.includes("error") ||
+      name.includes("distribute") ||
+      BATCH_EXCLUDED.has(name) ||
+      fs.existsSync(path.join(featureDirectory(name), "nestia.config.ts")) === false ||
+      fs.existsSync(path.join(featureDirectory(name), "tsconfig.json")) === false
+    )
+      continue;
+    const key = fs.readFileSync(path.join(featureDirectory(name), "tsconfig.json"), "utf8");
+    groups.set(key, [...(groups.get(key) ?? []), name]);
+  }
+  const batched = new Set();
+  for (const members of groups.values()) {
+    if (members.length < 2) continue;
+    for (let i = 0; i < members.length; i += BATCH_SIZE) {
+      const name = `batch-${String(BATCHES.size + 1).padStart(2, "0")}`;
+      BATCHES.set(name, members.slice(i, i + BATCH_SIZE));
+    }
+    members.forEach((member) => batched.add(member));
+  }
+  return [
+    ...names.filter((name) => batched.has(name) === false),
+    ...BATCHES.keys(),
+  ];
+};
+
+const runBatch = async (name, port) => {
+  const members = BATCHES.get(name);
+  const cwd = featureDirectory(`.tmp-${name}`);
+  await fs.promises.rm(cwd, { force: true, recursive: true });
+  await fs.promises.mkdir(path.join(cwd, "src/test"), { recursive: true });
+  console.log(`  - ${name}: ${members.join(", ")}`);
+  try {
+    for (const member of members)
+      await removePaths(featureDirectory(member), generatedPaths(member));
+    fs.writeFileSync(
+      path.join(cwd, "tsconfig.json"),
+      JSON.stringify(
+        {
+          extends: `../${members[0]}/tsconfig.json`,
+          compilerOptions: { paths: {} },
+          include: [...members.map((member) => `../${member}/src`), "src"],
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+    fs.writeFileSync(
+      path.join(cwd, "nestia.config.ts"),
+      [
+        'import { INestiaConfig } from "@nestia/sdk";',
+        'import path from "path";',
+        "",
+        ...members.map(
+          (member, i) => `import * as C${i} from "../${member}/nestia.config";`,
+        ),
+        "",
+        "const pick = (module: any): INestiaConfig[] => {",
+        "  const value: any =",
+        "    module.default ??",
+        '    Object.values(module).find((v) => typeof v === "object" && v !== null);',
+        "  return Array.isArray(value) ? value : [value];",
+        "};",
+        "const rebase =",
+        "  (directory: string) =>",
+        "  (config: any): INestiaConfig => {",
+        "    const move = (location: string): string =>",
+        "      path.join(directory, location);",
+        "    const input: any = config.input;",
+        "    return {",
+        "      ...config,",
+        "      input:",
+        '        typeof input === "function"',
+        "          ? input",
+        '          : typeof input === "string"',
+        "            ? move(input)",
+        "            : Array.isArray(input)",
+        "              ? input.map(move)",
+        "              : {",
+        "                  ...input,",
+        "                  include: input.include.map(move),",
+        "                  exclude: input.exclude?.map(move),",
+        "                },",
+        "      output: config.output && move(config.output),",
+        "      e2e: config.e2e && move(config.e2e),",
+        "      swagger: config.swagger && {",
+        "        ...config.swagger,",
+        "        output: config.swagger.output && move(config.swagger.output),",
+        "      },",
+        "    };",
+        "  };",
+        "",
+        "export default [",
+        ...members.map(
+          (member, i) => `  ...pick(C${i}).map(rebase("../${member}")),`,
+        ),
+        "];",
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+    try {
+      await runNestia(cwd, ["all"]);
+    } catch {
+      await runNestia(cwd, ["all"], "inherit");
+    }
+    for (const member of members)
+      assertFeatureOutputs(member, featureDirectory(member));
+
+    // each member's test entry runs on a port of its own, 100 apart, so no
+    // member waits on the previous one's socket and no batch meets another
+    const tested = members.filter((member) =>
+      hasTtsxTestFiles(featureDirectory(member)),
+    );
+    fs.writeFileSync(
+      path.join(cwd, "src/test/index.ts"),
+      [
+        "const MEMBERS: [string, () => Promise<{ main(): Promise<void> }>][] = [",
+        ...tested.map(
+          (member) =>
+            `  [${JSON.stringify(member)}, () => import("../../../${member}/src/test/index")],`,
+        ),
+        "];",
+        "",
+        "const main = async (): Promise<void> => {",
+        "  const base: number = Number(process.env.TEST_SDK_PORT ?? 37_000);",
+        "  const failures: string[] = [];",
+        "  for (const [index, [name, load]] of MEMBERS.entries()) {",
+        "    process.env.TEST_SDK_PORT = String(base + 100 * (index + 1));",
+        "    const started: number = Date.now();",
+        "    try {",
+        "      await (await load()).main();",
+        "      console.log(`# ${name}: ${Date.now() - started} ms`);",
+        "    } catch (error) {",
+        "      console.log(`# ${name}: failed`);",
+        "      console.log(error);",
+        "      failures.push(name);",
+        "    }",
+        "  }",
+        "  if (failures.length !== 0) {",
+        '    console.log(`Failed batch members: ${failures.join(", ")}`);',
+        "    process.exit(-1);",
+        "  }",
+        "};",
+        "main().catch((error) => {",
+        "  console.log(error);",
+        "  process.exit(-1);",
+        "});",
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+    await runTtsxTestWithRetries(name, cwd, port, {
+      rootDir: "..",
+      plugins: featureDirectory(members[0]),
+    });
+  } finally {
+    await fs.promises.rm(cwd, { force: true, recursive: true });
   }
 };
 
@@ -1401,7 +1593,14 @@ const stopChild = async (child) => {
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
+// `rootDir` widens the program for a batch, whose members sit beside it, and
+// `plugins` names the directory whose tsconfig lends the transform options.
+const runTtsxTest = async (
+  cwd,
+  stdio = "ignore",
+  port = BASE_PORT,
+  { rootDir = ".", plugins = cwd } = {},
+) => {
   const project = ".ttsx.tsconfig.json";
   const projectFile = path.join(cwd, project);
   fs.writeFileSync(
@@ -1413,9 +1612,10 @@ const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
         compilerOptions: {
           noUnusedLocals: false,
           noUnusedParameters: false,
-          outDir: ".",
-          plugins: runtimePlugins(cwd),
-          rootDir: ".",
+          // output beside its source, so `__dirname` is the source directory
+          outDir: rootDir,
+          plugins: runtimePlugins(plugins),
+          rootDir,
         },
       },
       null,
@@ -1700,12 +1900,14 @@ const main = async () => {
 
   await measure("\nTotal Elapsed Time")(async () => {
     const filter = featureFilter();
-    const names = (await fs.promises.readdir(featureDirectory()))
-      .sort()
-      .filter((name) => !name.startsWith(".tmp-"))
-      .filter((name) => !AGGREGATED_ERROR_FEATURES.has(name))
-      .filter((name) => !SDK_COHORT_FEATURES.has(name))
-      .filter(filter);
+    const names = planBatches(
+      (await fs.promises.readdir(featureDirectory()))
+        .sort()
+        .filter((name) => !name.startsWith(".tmp-"))
+        .filter((name) => !AGGREGATED_ERROR_FEATURES.has(name))
+        .filter((name) => !SDK_COHORT_FEATURES.has(name))
+        .filter(filter),
+    );
     for (const cohort of SDK_ERROR_COHORTS)
       if (filter(cohort.name) || cohort.members.some(filter))
         names.push(cohort.name);

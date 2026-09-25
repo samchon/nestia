@@ -4,7 +4,7 @@ import { Controller } from "@nestjs/common";
 import Multer from "multer";
 import os from "os";
 
-import { IMultipart } from "@api/lib/structures/IMultipart";
+import { IMultipart } from "../api/structures/IMultipart";
 
 @Controller("multipart")
 export class MultipartController {

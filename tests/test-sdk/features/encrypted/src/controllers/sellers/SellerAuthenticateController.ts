@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import * as nest from "@nestjs/common";
 import typia from "typia";
 
-import { ISeller } from "@api/lib/structures/ISeller";
+import { ISeller } from "../../api/structures/ISeller";
 
 @nest.Controller("sellers/authenticate")
 export class SellerAuthenticateController {

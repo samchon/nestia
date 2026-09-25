@@ -2,9 +2,9 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import typia, { tags } from "typia";
 
-import { IBbsComment } from "@api/lib/structures/IBbsComment";
-import { IPage } from "@api/lib/structures/IPage";
-import { IPerformance } from "@api/lib/structures/IPerformance";
+import { IBbsComment } from "../api/structures/IBbsComment";
+import { IPage } from "../api/structures/IPage";
+import { IPerformance } from "../api/structures/IPerformance";
 
 @Controller(":section/articles/:articleId/comments")
 export class BbsArticleCommentsController {

@@ -1,6 +1,6 @@
 import typia, { IValidation } from "typia";
 
-import api from "@api";
+import api from "../../../api";
 
 export const test_api_param_error_message = async (
   connection: api.IConnection,

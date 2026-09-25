@@ -1,8 +1,8 @@
 import { ArrayUtil, TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
-import api from "@api";
-import { IMultipart } from "@api/lib/structures/IMultipart";
+import api from "../../../api";
+import { IMultipart } from "../../../api/structures/IMultipart";
 
 export const test_api_multipart = async (
   connection: api.IConnection,

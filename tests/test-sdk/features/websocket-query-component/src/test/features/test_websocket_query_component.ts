@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import { WebSocketConnector } from "tgrid";
 
-import api from "@api";
-import { IQueryProbe } from "@api/lib/structures/IQueryProbe";
+import api from "../../api";
+import { IQueryProbe } from "../../api/structures/IQueryProbe";
 
 /**
  * Verifies a WebSocket route reads the whole query component after the first

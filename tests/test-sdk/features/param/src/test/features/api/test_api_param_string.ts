@@ -1,6 +1,6 @@
 import typia from "typia";
 
-import api from "@api";
+import api from "../../../api";
 
 export const test_api_param_string = async (
   connection: api.IConnection,

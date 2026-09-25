@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
-import api from "@api";
-import { IBodyOptional } from "@api/lib/structures/IBodyOptional";
+import api from "../../../api";
+import { IBodyOptional } from "../../../api/structures/IBodyOptional";
 
 export const test_api_json_body_optional = async (
   connection: api.IConnection,

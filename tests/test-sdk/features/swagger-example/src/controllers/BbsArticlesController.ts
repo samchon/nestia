@@ -3,7 +3,7 @@ import { Controller } from "@nestjs/common";
 import typia, { tags } from "typia";
 import { v4 } from "uuid";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { IBbsArticle } from "../api/structures/IBbsArticle";
 
 @Controller("bbs/articles")
 export class BbsArticlesController {

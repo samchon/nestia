@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "@api";
-import { IShadow } from "@api/lib/structures/IShadow";
+import api from "../../api";
+import { IShadow } from "../../api/structures/IShadow";
 
 /**
  * Verifies SDK functions whose parameters collide with the SDK's own

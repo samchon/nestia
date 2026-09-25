@@ -2,9 +2,8 @@ import core from "@nestia/core";
 import { BadRequestException, Controller } from "@nestjs/common";
 import FastifyMulter from "fastify-multer";
 
-import { IUpload } from "@api/lib/structures/IUpload";
-
 import { UPLOAD_DISK } from "../../UploadDisk";
+import { IUpload } from "../../api/structures/IUpload";
 
 @Controller("fastify")
 export class FastifyUploadController {

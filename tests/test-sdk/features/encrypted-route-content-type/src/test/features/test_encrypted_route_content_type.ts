@@ -7,10 +7,9 @@ import {
   NestFastifyApplication,
 } from "@nestjs/platform-fastify";
 
-import api from "@api";
-import { IEncryptedEcho } from "@api/lib/structures/IEncryptedEcho";
-
 import { ENCRYPTION } from "../../Backend";
+import api from "../../api";
+import { IEncryptedEcho } from "../../api/structures/IEncryptedEcho";
 
 /**
  * Verifies an encrypted route's success response is `text/plain`, as the

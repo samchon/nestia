@@ -1,7 +1,7 @@
 import fs from "fs";
 import typia, { OpenApi, tags } from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { IBbsArticle } from "../../api/structures/IBbsArticle";
 
 /**
  * Verifies Swagger examples and JSDoc parameter descriptions survive SDK

@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "@api";
+import api from "../../../api";
 
 export const test_api_query_body_content_type_case = async (
   connection: api.IConnection,

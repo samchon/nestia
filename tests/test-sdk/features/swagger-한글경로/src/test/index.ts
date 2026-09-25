@@ -3,7 +3,7 @@ import { DynamicExecutor } from "@nestia/e2e";
 import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const server: INestApplication = await NestFactory.create(
     await core.DynamicModule.mount({
       include: ["src/controllers"],
@@ -40,10 +40,11 @@ async function main(): Promise<void> {
     for (const exp of exceptions) console.log(exp);
     console.log("Failed");
     console.log("Elapsed time", report.time.toLocaleString(), `ms`);
-    process.exit(-1);
+    throw new Error("Failed");
   }
 }
-main().catch((exp) => {
-  console.log(exp);
-  process.exit(-1);
-});
+if (require.main === module)
+  main().catch((exp) => {
+    console.log(exp);
+    process.exit(-1);
+  });

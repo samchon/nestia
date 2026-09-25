@@ -1,7 +1,7 @@
 import typia from "typia";
 
-import api from "@api";
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import api from "../../../api";
+import { IBbsArticle } from "../../../api/structures/IBbsArticle";
 
 /**
  * Verifies Observable<T> controller returns generate SDK output as T.

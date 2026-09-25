@@ -2,9 +2,8 @@ import { TestValidator } from "@nestia/e2e";
 import { NestFastifyApplication } from "@nestjs/platform-fastify";
 import fs from "fs";
 
-import api from "@api";
-
 import { Backend } from "../../Backend";
+import api from "../../api";
 
 /**
  * Verifies a route whose literal text holds a character the router reserves

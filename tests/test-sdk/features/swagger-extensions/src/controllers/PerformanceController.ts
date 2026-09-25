@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { ApiExtension } from "@nestjs/swagger";
 
-import { IPerformance } from "@api/lib/structures/IPerformance";
+import { IPerformance } from "../api/structures/IPerformance";
 
 @Controller("performance")
 export class PerformanceController {
