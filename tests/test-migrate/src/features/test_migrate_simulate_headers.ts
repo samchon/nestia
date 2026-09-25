@@ -3,15 +3,19 @@ import { OpenApiV3_1 } from "@typia/interface";
 
 /**
  * Verifies a migrated SDK's simulator validates the headers an operation
- * declares, as its server would.
+ * declares against their type, and its e2e test sends them, as its server would
+ * require.
  *
  * The simulation programmer had a branch for headers but never listed them, so
- * the simulate function validated the parameters, the query, and the body, and
- * let invalid headers through (#1721).
+ * the simulate function let invalid headers through (#1721). Listed, it
+ * asserted `connection.headers` by the expression's own type, which is optional
+ * with optional members, so any headers passed; and the generated e2e test sent
+ * none (#1739).
  *
  * 1. Migrate a document whose operation declares a required header, with
- *    `simulate` on, in SDK and NestJS modes.
- * 2. Assert the simulate function asserts `connection.headers`.
+ *    `simulate` and `e2e` on, in SDK and NestJS modes.
+ * 2. Assert the simulate function asserts `connection.headers` by a type.
+ * 3. Assert the e2e test spreads random headers into the connection.
  */
 export const test_migrate_simulate_headers = (): void => {
   for (const mode of ["sdk", "nest"] as const) {
@@ -20,21 +24,32 @@ export const test_migrate_simulate_headers = (): void => {
     )[mode]({
       keyword: false,
       simulate: true,
-      e2e: false,
+      e2e: true,
       package: "fixture",
     });
-    const functional: string = Object.entries(files)
-      .filter(([key]) => key.includes("functional"))
-      .map(([, content]) => content.replace(/\s+/g, "").replace(/,\)/g, ")"))
-      .join("\n");
+    const flatten = (filter: (key: string) => boolean): string =>
+      Object.entries(files)
+        .filter(([key]) => filter(key))
+        .map(([, content]) =>
+          content.replace(/\s+/g, "").replace(/,\)/g, ")").replace(/,\}/g, "}"),
+        )
+        .join("\n");
+    const functional: string = flatten((key) => key.includes("functional"));
     if (
-      functional.includes(
-        "assert.headers(()=>typia.assert(connection.headers))",
+      /assert\.headers\(\(\)=>typia\.assert<[\w$.]+>\(connection\.headers\)\)/.test(
+        functional,
       ) === false
     )
       throw new Error(
-        `${mode}: the simulator does not validate the headers:\n${functional}`,
+        `${mode}: the simulator does not validate the headers by a type:\n${functional}`,
       );
+    const e2e: string = flatten((key) => key.includes("test_api_"));
+    if (
+      /headers:\{\.\.\.connection\.headers,\.\.\.typia\.random<[\w$.]+>\(\)\}/.test(
+        e2e,
+      ) === false
+    )
+      throw new Error(`${mode}: the e2e test sends no headers:\n${e2e}`);
   }
 };
 
