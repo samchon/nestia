@@ -11,17 +11,31 @@ export namespace VersioningStrategy {
   ): Array<string | typeof VERSION_NEUTRAL> =>
     value === undefined ? [] : Array.isArray(value) ? value : [value];
 
+  /**
+   * Version path segments of a route, resolved as NestJS resolves them: the
+   * method's versions, else the controller's, else the default version, and no
+   * version at all is the unversioned path (#1735).
+   */
   export const merge =
     (config: IConfig | undefined) =>
-    (values: Array<string | typeof VERSION_NEUTRAL>): string[] => {
+    (props: {
+      controller: Array<string | typeof VERSION_NEUTRAL> | undefined;
+      method: Array<string | typeof VERSION_NEUTRAL> | undefined;
+    }): string[] => {
       if (config === undefined) return [""];
-      const set: Set<string | typeof VERSION_NEUTRAL> = new Set(values);
-      const array: Array<string | typeof VERSION_NEUTRAL> =
-        set.size === 0 ? cast(config.defaultVersion) : Array.from(set);
-      return !!array?.length
-        ? array.map((x) =>
+      const chosen: Array<string | typeof VERSION_NEUTRAL> = props.method
+        ?.length
+        ? props.method
+        : props.controller?.length
+          ? props.controller
+          : cast(config.defaultVersion);
+      const unique: Array<string | typeof VERSION_NEUTRAL> = [
+        ...new Set(chosen),
+      ];
+      return unique.length
+        ? unique.map((x) =>
             typeof x === "symbol" ? "" : `${config.prefix}${x}`,
           )
-        : [];
+        : [""];
     };
 }

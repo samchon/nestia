@@ -218,10 +218,10 @@ export class NestiaSdkApplication {
           continue;
         }
         const pathList: Set<string> = new Set();
-        const versions: string[] = VersioningStrategy.merge(project)([
-          ...(c.versions ?? []),
-          ...(o.versions ?? []),
-        ]);
+        const versions: string[] = VersioningStrategy.merge(project)({
+          controller: c.versions,
+          method: o.versions,
+        });
         for (const v of versions)
           for (const prefix of wrapPaths(c.prefixes))
             for (const cPath of wrapPaths(c.paths))
