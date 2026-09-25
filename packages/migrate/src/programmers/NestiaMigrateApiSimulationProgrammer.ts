@@ -235,78 +235,11 @@ export namespace NestiaMigrateApiSimulationProgrammer {
         ),
       )
       .map(factory.createExpressionStatement) as ts.Statement[];
-    return [validator, tryAndCatch(ctx.importer, individual)];
+    // the SDK fetches without propagation, so an invalid simulated request
+    // throws its HttpError as the real one does, instead of answering a
+    // propagation object in place of the response
+    return [validator, ...individual];
   };
-
-  const tryAndCatch = (
-    importer: NestiaMigrateImportProgrammer,
-    individual: ts.Statement[],
-  ) =>
-    factory.createTryStatement(
-      factory.createBlock(individual, true),
-      factory.createCatchClause(
-        "exp",
-        factory.createBlock(
-          [
-            factory.createIfStatement(
-              factory.createLogicalNot(
-                factory.createCallExpression(
-                  IdentifierFactory.access(
-                    factory.createIdentifier(
-                      importer.external({
-                        type: "default",
-                        library: "typia",
-                        name: "typia",
-                      }),
-                    ),
-                    "is",
-                  ),
-                  [
-                    factory.createTypeReferenceNode(
-                      importer.external({
-                        type: "instance",
-                        library: "@nestia/fetcher",
-                        name: "HttpError",
-                      }),
-                    ),
-                  ],
-                  [factory.createIdentifier("exp")],
-                ),
-              ),
-              factory.createThrowStatement(factory.createIdentifier("exp")),
-            ),
-            factory.createReturnStatement(
-              factory.createAsExpression(
-                factory.createObjectLiteralExpression(
-                  [
-                    factory.createPropertyAssignment(
-                      "success",
-                      factory.createFalse(),
-                    ),
-                    factory.createPropertyAssignment(
-                      "status",
-                      factory.createIdentifier("exp.status"),
-                    ),
-                    factory.createPropertyAssignment(
-                      "headers",
-                      factory.createIdentifier("exp.headers"),
-                    ),
-                    factory.createPropertyAssignment(
-                      "data",
-                      factory.createIdentifier("exp.toJSON().message"),
-                    ),
-                  ],
-                  true,
-                ),
-                TypeFactory.keyword("any"),
-              ),
-            ),
-          ],
-          true,
-        ),
-      ),
-      undefined,
-    );
 }
 
 const constant = (name: string, expression: ts.Expression) =>

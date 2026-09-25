@@ -1,4 +1,9 @@
-import { METHOD_METADATA, PATH_METADATA } from "@nestjs/common/constants";
+import {
+  METHOD_METADATA,
+  PATH_METADATA,
+  RENDER_METADATA,
+  SSE_METADATA,
+} from "@nestjs/common/constants";
 import { ranges } from "tstl";
 
 import { INestiaProject } from "../structures/INestiaProject";
@@ -39,6 +44,24 @@ export namespace ReflectHttpOperationAnalyzer {
     const method: string =
       METHODS[Reflect.getMetadata(METHOD_METADATA, props.function)]!;
     if (method === undefined || method === "OPTIONS") return null;
+
+    // a server-sent events or a rendered view route answers its stream or
+    // page, not the JSON of its return type, which neither an SDK function
+    // nor the document can describe, so it is left out as a route of no
+    // composable path is
+    const answer: string | undefined = UNCOMPOSED_ANSWERS.find(([key]) =>
+      Reflect.hasMetadata(key, props.function),
+    )?.[1];
+    if (answer !== undefined) {
+      props.project.warnings.push({
+        file: props.controller.file,
+        class: props.controller.class.name,
+        function: props.name,
+        from: "",
+        contents: [`@nestia/sdk does not compose ${answer} method.`],
+      });
+      return null;
+    }
 
     // a route no path of which can be composed is left out as a whole,
     // rather than composed at the controller's own path
@@ -181,6 +204,11 @@ export namespace ReflectHttpOperationAnalyzer {
 }
 
 // node_modules/@nestjs/common/lib/enums/request-method.enum.ts
+const UNCOMPOSED_ANSWERS: Array<[string, string]> = [
+  [SSE_METADATA, "server-sent events (@Sse())"],
+  [RENDER_METADATA, "rendered view (@Render())"],
+];
+
 const METHODS = [
   "GET",
   "POST",
