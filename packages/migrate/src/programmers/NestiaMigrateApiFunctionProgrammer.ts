@@ -6,6 +6,7 @@ import { StatementFactory } from "../factories/StatementFactory";
 import ts from "../internal/ts";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
+import { RequestBody } from "../utils/RequestBody";
 import { SuccessStatus } from "../utils/SuccessStatus";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
@@ -110,9 +111,7 @@ export namespace NestiaMigrateApiFunctionProgrammer {
               factory.createTypeReferenceNode(
                 `${ctx.route.accessor.at(-1)!}.Body`,
               ),
-              (ctx.route.body.type === "application/json" ||
-                ctx.route.body.type === "text/plain") &&
-                ctx.route.operation().requestBody?.required === false
+              RequestBody.optional(ctx.route)
                 ? factory.createToken(SyntaxKind.QuestionToken)
                 : undefined,
             ),

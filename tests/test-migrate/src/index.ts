@@ -18,6 +18,7 @@ import { test_migrate_api_accessor_collision } from "./features/test_migrate_api
 import { test_migrate_api_response_header_accessor } from "./features/test_migrate_api_response_header_accessor";
 import { test_migrate_api_response_header_tags } from "./features/test_migrate_api_response_header_tags";
 import { test_migrate_dto_import_type } from "./features/test_migrate_dto_import_type";
+import { test_migrate_keyword_optional_body } from "./features/test_migrate_keyword_optional_body";
 import { test_migrate_nest_dto_package_import } from "./features/test_migrate_nest_dto_package_import";
 import { test_migrate_nest_keyword_config_path } from "./features/test_migrate_nest_keyword_config_path";
 import { test_migrate_nest_monorepo_layout } from "./features/test_migrate_nest_monorepo_layout";
@@ -267,6 +268,7 @@ const main = async (): Promise<void> => {
     test_migrate_route_reserved();
     test_migrate_simulate_headers();
     test_migrate_success_status();
+    test_migrate_keyword_optional_body();
     test_migrate_nest_dto_package_import();
     test_migrate_nest_workspace_catalog_stamp();
     test_migrate_nest_keyword_config_path();

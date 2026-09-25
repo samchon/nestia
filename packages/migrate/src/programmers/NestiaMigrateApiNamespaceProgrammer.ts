@@ -10,6 +10,7 @@ import ts from "../internal/ts";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
 import { PathTemplate } from "../utils/PathTemplate";
+import { RequestBody } from "../utils/RequestBody";
 import { NestiaMigrateApiSimulationProgrammer } from "./NestiaMigrateApiSimulationProgrammer";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
@@ -117,7 +118,9 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
             required: [
               ...ctx.route.parameters.map((p) => p.key),
               ...(ctx.route.query ? [ctx.route.query.key] : []),
-              ...(ctx.route.body ? [ctx.route.body.key] : []),
+              ...(ctx.route.body && RequestBody.optional(ctx.route) === false
+                ? [ctx.route.body.key]
+                : []),
             ],
           },
         }),

@@ -11,6 +11,7 @@ import ts from "../internal/ts";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
+import { RequestBody } from "../utils/RequestBody";
 import { StringUtil } from "../utils/StringUtil";
 import { SuccessStatus } from "../utils/SuccessStatus";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
@@ -303,11 +304,7 @@ export namespace NestiaMigrateNestMethodProgrammer {
                 : [],
           })(ctx.components)(ctx.importer)({
             schema: ctx.route.body.schema,
-            required: !(
-              (ctx.route.body.type === "application/json" ||
-                ctx.route.body.type === "text/plain") &&
-              ctx.route.operation().requestBody?.required === false
-            ),
+            required: RequestBody.optional(ctx.route) === false,
             example: ctx.route.body.media().example,
             examples: ctx.route.body.media().examples,
           }),
