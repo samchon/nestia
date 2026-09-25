@@ -14,6 +14,7 @@ export namespace NestiaSimulator {
       param: param(props),
       query: query(props),
       body: body(props),
+      headers: headers(props),
     };
   };
   const param =
@@ -38,6 +39,13 @@ export namespace NestiaSimulator {
       validate(() => "Request body is not following the promised type.")(props)(
         task,
       );
+
+  const headers =
+    (props: IProps) =>
+    <T>(task: () => T): void =>
+      validate(() => "Request headers are not following the promised type.")(
+        props,
+      )(task);
 
   const validate =
     (message: (exp: TypeGuardError) => string, path?: string) =>

@@ -33,6 +33,7 @@ import {
 } from "./features/test_migrate_sdk_empty_paths";
 import { test_migrate_sdk_key_snapshot } from "./features/test_migrate_sdk_key_snapshot";
 import { test_migrate_sdk_pnpm_template } from "./features/test_migrate_sdk_pnpm_template";
+import { test_migrate_simulate_headers } from "./features/test_migrate_simulate_headers";
 
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
@@ -261,6 +262,7 @@ const main = async (): Promise<void> => {
     test_migrate_numeric_bounds();
     test_migrate_path_segments();
     test_migrate_route_reserved();
+    test_migrate_simulate_headers();
     test_migrate_nest_dto_package_import();
     test_migrate_nest_workspace_catalog_stamp();
     test_migrate_nest_keyword_config_path();

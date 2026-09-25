@@ -70,7 +70,8 @@ export namespace NestiaMigrateApiSimulationProgrammer {
           ctx,
           ctx.route.parameters.length === 0 &&
             ctx.route.query === null &&
-            ctx.route.body === null
+            ctx.route.body === null &&
+            ctx.route.headers === null
             ? "_connection"
             : undefined,
         ),
@@ -123,6 +124,20 @@ export namespace NestiaMigrateApiSimulationProgrammer {
                 components: ctx.components,
                 importer: ctx.importer,
                 schema: ctx.route.body.schema,
+              }),
+            },
+          ]
+        : []),
+      // the headers travel in the connection, validated as the server does
+      ...(ctx.route.headers
+        ? [
+            {
+              category: "headers",
+              name: ctx.route.headers.key,
+              schema: NestiaMigrateSchemaProgrammer.write({
+                components: ctx.components,
+                importer: ctx.importer,
+                schema: ctx.route.headers.schema,
               }),
             },
           ]
