@@ -17,7 +17,7 @@ import api from "@api";
 export const test_plain_text_parser = async (
   connection: api.IConnection,
 ): Promise<void> => {
-  const functional = api.functional.plain_text_parser.textParser;
+  const functional = api.functional.textParser;
   TestValidator.equals(
     "plain",
     await functional.plain(connection, "hello"),

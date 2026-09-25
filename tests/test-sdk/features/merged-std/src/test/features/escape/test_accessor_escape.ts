@@ -17,6 +17,9 @@ export const test_accessor_escape = (): void => {
   api.functional.escape._delete.erase.METADATA;
   api.functional.escape.users._me.permissions.METADATA;
 
-  if (api.functional.escape.users._me.permissions.path() !== "/users/@me/permissions")
+  if (
+    api.functional.escape.users._me.permissions.path() !==
+    "/users/@me/permissions"
+  )
     throw new Error("Escaped SDK accessor must keep the original route path.");
 };

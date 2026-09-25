@@ -7,7 +7,10 @@ export const test_api_param_uuid = async (
   connection: api.IConnection,
 ): Promise<void> => {
   const uuid = v4();
-  const value = await api.functional.param_validate.param.uuid(connection, uuid);
+  const value = await api.functional.param_validate.param.uuid(
+    connection,
+    uuid,
+  );
   TestValidator.equals("uuid", uuid, value);
 
   await TestValidator.error("null", () =>

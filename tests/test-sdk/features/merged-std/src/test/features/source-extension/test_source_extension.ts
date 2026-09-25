@@ -20,9 +20,15 @@ export const test_source_extension = async (
   api.functional.source_extension.source_extension.cts.METADATA;
   api.functional.source_extension.source_extension.mts.METADATA;
 
-  if (api.functional.source_extension.source_extension.cts.path() !== "/source-extension/cts")
+  if (
+    api.functional.source_extension.source_extension.cts.path() !==
+    "/source-extension/cts"
+  )
     throw new Error("Generated SDK must include the .cts controller route.");
-  if (api.functional.source_extension.source_extension.mts.path() !== "/source-extension/mts")
+  if (
+    api.functional.source_extension.source_extension.mts.path() !==
+    "/source-extension/mts"
+  )
     throw new Error("Generated SDK must include the .mts controller route.");
 
   await api.functional.source_extension.source_extension.cts(connection);

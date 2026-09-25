@@ -6,7 +6,10 @@ export const test_api_param_date_nullable = async (
   connection: api.IConnection,
 ): Promise<void> => {
   const date = random();
-  const value = await api.functional.param_validate.param.date_nullable(connection, date);
+  const value = await api.functional.param_validate.param.date_nullable(
+    connection,
+    date,
+  );
   TestValidator.equals("date", date, value);
 
   TestValidator.equals(

@@ -7,7 +7,10 @@ export const test_api_param_uuid_nullable = async (
   connection: api.IConnection,
 ): Promise<void> => {
   const uuid = v4();
-  const value = await api.functional.param_validate.param.uuid_nullable(connection, uuid);
+  const value = await api.functional.param_validate.param.uuid_nullable(
+    connection,
+    uuid,
+  );
   TestValidator.equals("uuid", uuid, value);
 
   TestValidator.equals(

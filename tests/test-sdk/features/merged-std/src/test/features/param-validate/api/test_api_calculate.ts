@@ -4,6 +4,7 @@ import typia from "typia";
 import { v4 } from "uuid";
 
 import api from "@api";
+
 import { IListener } from "../../../../features/param-validate/api/structures/IListener";
 
 export const test_api_calculate = async (
@@ -14,11 +15,12 @@ export const test_api_calculate = async (
     on: (e) => events.push(e),
   };
   const id: string = v4();
-  const { connector, driver } = await api.functional.param_validate.calculate.connect(
-    connection,
-    id,
-    listener,
-  );
+  const { connector, driver } =
+    await api.functional.param_validate.calculate.connect(
+      connection,
+      id,
+      listener,
+    );
   const expected: IListener.IEvent[] = new Array(100).fill(0).map(() => {
     const operator = typia.random<IListener.IEvent["operator"]>();
     const x: number = 10;

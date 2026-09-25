@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
 import api from "@api";
-import { IAliasListener } from "../../../features/websocket-type-alias/api/structures/IAliasSocket";
+import { IAliasListener } from "@api/lib/structures/IAliasSocket";
 
 /**
  * Verifies WebSocket routes whose acceptor and driver types are spelled by a
@@ -25,14 +25,14 @@ export const test_websocket_type_alias = async (
   connection: api.IConnection,
 ): Promise<void> => {
   const routes = [
-    ["renamed", api.functional.websocket_type_alias.alias.renamed],
-    ["local", api.functional.websocket_type_alias.alias.local],
-    ["aliased", api.functional.websocket_type_alias.alias.aliased],
-    ["generic", api.functional.websocket_type_alias.alias.generic],
-    ["defaulted", api.functional.websocket_type_alias.alias.defaulted],
-    ["chained", api.functional.websocket_type_alias.alias.chained],
-    ["imported", api.functional.websocket_type_alias.alias.imported],
-    ["importedAlias", api.functional.websocket_type_alias.alias.importedAlias],
+    ["renamed", api.functional.alias.renamed],
+    ["local", api.functional.alias.local],
+    ["aliased", api.functional.alias.aliased],
+    ["generic", api.functional.alias.generic],
+    ["defaulted", api.functional.alias.defaulted],
+    ["chained", api.functional.alias.chained],
+    ["imported", api.functional.alias.imported],
+    ["importedAlias", api.functional.alias.importedAlias],
   ] as const;
   for (const [route, connect] of routes) {
     const notified: string[] = [];

@@ -1,6 +1,7 @@
 import typia from "typia";
 
 import api from "@api";
+
 import { IBbsArticle } from "../../../../features/body-manual-is/api/structures/IBbsArticle";
 
 export const test_api_body = async (

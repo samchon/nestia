@@ -116,13 +116,6 @@ export class Backend {
         ),
       },
       {
-        path: "plain-text-parser",
-        module: await core.EncryptedModule.dynamic(
-          `${__dirname}/features/plain-text-parser/controllers`,
-          PASSWORD,
-        ),
-      },
-      {
         path: "route-manual-assert",
         module: await core.EncryptedModule.dynamic(
           `${__dirname}/features/route-manual-assert/controllers`,
@@ -175,13 +168,6 @@ export class Backend {
         path: "variable",
         module: await core.EncryptedModule.dynamic(
           `${__dirname}/features/variable/controllers`,
-          PASSWORD,
-        ),
-      },
-      {
-        path: "websocket-type-alias",
-        module: await core.EncryptedModule.dynamic(
-          `${__dirname}/features/websocket-type-alias/controllers`,
           PASSWORD,
         ),
       },

@@ -6,7 +6,10 @@ import api from "@api";
 export const test_api_param_boolean = async (
   connection: api.IConnection,
 ): Promise<void> => {
-  const value: boolean = await api.functional.param_validate.param.boolean(connection, false);
+  const value: boolean = await api.functional.param_validate.param.boolean(
+    connection,
+    false,
+  );
   typia.assert(value);
 
   TestValidator.equals(

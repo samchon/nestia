@@ -4,6 +4,7 @@ import typia from "typia";
 import { v4 } from "uuid";
 
 import api from "@api";
+
 import { IBbsArticle } from "../../../../features/route-manual-validate-log-encrypted/api/structures/IBbsArticle";
 
 /**
@@ -28,10 +29,11 @@ export const test_api_bbs_article_at = async (
   TypedRoute.setValidateErrorLogger((l) => logs.push(l));
 
   const id: string = v4();
-  const article: IBbsArticle = await api.functional.route_manual_validate_log_encrypted.bbs.articles.at(
-    connection,
-    id,
-  );
+  const article: IBbsArticle =
+    await api.functional.route_manual_validate_log_encrypted.bbs.articles.at(
+      connection,
+      id,
+    );
   TestValidator.error("wrong data", () => typia.assert(article));
   TestValidator.equals("logs", logs, [
     {

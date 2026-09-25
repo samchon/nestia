@@ -5,6 +5,9 @@ import api from "@api";
 export const test_api_param_string = async (
   connection: api.IConnection,
 ): Promise<void> => {
-  const value: string = await api.functional.param_validate.param.string(connection, "string");
+  const value: string = await api.functional.param_validate.param.string(
+    connection,
+    "string",
+  );
   typia.assert(value);
 };
