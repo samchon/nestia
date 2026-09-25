@@ -33,7 +33,6 @@ export namespace ReflectHttpOperationParameterAnalyzer {
     const contradict = (message: string) => {
       contradictErrors.push(message);
     };
-    for (const message of findUnsupportedPayloads(ctx)) contradict(message);
     if (
       (ctx.httpMethod === "GET" || ctx.httpMethod === "HEAD") &&
       preconfigured.some((x) => x.category === "body")
@@ -274,36 +273,6 @@ export namespace ReflectHttpOperationParameterAnalyzer {
       return "query";
     else if (p.contentType === "multipart/form-data") return "formData";
     return null;
-  };
-
-  /**
-   * Reports a route argument that carries request payload in a way the SDK
-   * cannot describe.
-   *
-   * `@UploadedFile()` and `@UploadedFiles()` take files a multer interceptor
-   * parsed under field names that live in the interceptor's closure, where no
-   * generator can read them, and `@RawBody()` takes a buffer with no type at
-   * all. Such a parameter used to be dropped without a word, leaving an SDK
-   * function that cannot send what the route requires and a Swagger operation
-   * without its request body. Context arguments (`@Req()`, `@Res()`, `@Ip()`,
-   * and the like) carry nothing the client sends and stay ignored.
-   */
-  const findUnsupportedPayloads = (ctx: IContext): string[] => {
-    const dict: NestParameters | undefined = Reflect.getMetadata(
-      ROUTE_ARGS_METADATA,
-      ctx.controller.class,
-      ctx.functionName,
-    );
-    return Object.keys(dict ?? {})
-      .map((key) => Number(key.split(":")[0]))
-      .map((type) =>
-        type === RouteParamtypes.FILE || type === RouteParamtypes.FILES
-          ? `@${type === RouteParamtypes.FILE ? "UploadedFile" : "UploadedFiles"}() is not supported: its multer field names are not readable, so the SDK could not send the files. Use @TypedFormData.Body(), or tag the method @ignore.`
-          : type === RouteParamtypes.RAW_BODY
-            ? `@RawBody() is not supported: a raw buffer has no type to describe. Use @PlainBody() or @TypedBody(), or tag the method @ignore.`
-            : null,
-      )
-      .filter((message): message is string => message !== null);
   };
 
   /**

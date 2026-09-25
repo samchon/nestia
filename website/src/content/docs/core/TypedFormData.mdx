@@ -29,7 +29,7 @@ Parameter decorator for `multipart/form-data` request bodies — the content typ
 Replaces the NestJS combination of `@UploadedFile()` / `@UploadedFiles()` / `FileFieldsInterceptor` / `@ApiConsumes("multipart/form-data")` / `@ApiBody({...})` with a single decorator that reads everything from the parameter's TypeScript type.
 
 <Callout type="info">
-**Only `@TypedFormData.Body()` is supported by `@nestia/sdk`'s generators.** A route taking its payload through vanilla `@UploadedFile()` or `@UploadedFiles()` fails SDK and Swagger generation with a diagnostic: the multer field names live in the interceptor, where the generators cannot read them, so they could only describe a request without its files. Move the route to `@TypedFormData.Body()`, or tag the method `@ignore` to leave it out of the generators.
+**Only `@TypedFormData.Body()` is supported by `@nestia/sdk`'s generators.** Vanilla `@UploadedFile()` routes don't appear in the generated SDK or Swagger document.
 </Callout>
 
 ---
