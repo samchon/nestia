@@ -118,7 +118,7 @@ export namespace SdkGenerator {
         props.errors.push({
           file: props.route.controller.file,
           class: props.route.controller.class.name,
-          function: props.route.name,
+          function: props.route.key,
           from: `parameter ${JSON.stringify(p.name)}`,
           contents: [`implicit (unnamed) parameter type.`],
         });
@@ -129,7 +129,7 @@ export namespace SdkGenerator {
           props.errors.push({
             file: props.route.controller.file,
             class: props.route.controller.class.name,
-            function: props.route.name,
+            function: props.route.key,
             from: `exception ${JSON.stringify(key)}`,
             contents: [`implicit (unnamed) exception type.`],
           });
@@ -140,7 +140,7 @@ export namespace SdkGenerator {
       props.errors.push({
         file: props.route.controller.file,
         class: props.route.controller.class.name,
-        function: props.route.name,
+        function: props.route.key,
         from: "success",
         contents: [`implicit (unnamed) return type.`],
       });

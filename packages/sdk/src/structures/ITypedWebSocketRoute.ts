@@ -8,6 +8,14 @@ import { ITypedWebSocketRouteParameter } from "./ITypedWebSocketRouteParameter";
 export interface ITypedWebSocketRoute {
   protocol: "websocket";
   controller: IReflectController;
+  /**
+   * Property key of the controller method.
+   *
+   * {@link name} is the SDK function's name, which the accessor analysis
+   * renames: a reserved word such as `delete` becomes `_delete`. Metadata the
+   * method's decorators define, and what names the method, read this key.
+   */
+  key: string;
   name: string;
   path: string;
   accessor: string[];
