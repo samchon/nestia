@@ -246,14 +246,6 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
       "Duplicated field names of headers are not allowed.",
     ],
   ],
-  [
-    "payload-error-vanilla",
-    [
-      "@UploadedFile() is not supported",
-      "@UploadedFiles() is not supported",
-      "@RawBody() is not supported",
-    ],
-  ],
 ]);
 // One command compiles each compatible native-diagnostic cohort. Each entry
 // names its source fixture and exact diagnostic-line count; SDK reflection
