@@ -764,9 +764,8 @@ const runBatch = async (name, port) => {
       ].join("\n"),
       "utf8",
     );
-    // the repository root, as a member's test may read a package's sources
     await runTtsxTestWithRetries(name, cwd, port, {
-      rootDir: path.relative(cwd, ROOT).split(path.sep).join("/"),
+      rootDir: "..",
       plugins: featureDirectory(members[0]),
     });
   } finally {
