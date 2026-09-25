@@ -3,7 +3,9 @@ import {
   HttpException,
   INestApplication,
 } from "@nestjs/common";
+import { RouteParamtypes } from "@nestjs/common/enums/route-paramtypes.enum";
 import { NestContainer } from "@nestjs/core";
+import { ExternalContextCreator } from "@nestjs/core/helpers/external-context-creator";
 
 import { IMcpRouteReflect } from "../decorators/internal/IMcpRouteReflect";
 
@@ -22,6 +24,11 @@ import { IMcpRouteReflect } from "../decorators/internal/IMcpRouteReflect";
  * Typia-generated JSON Schemas flow through unchanged; the Zod-based high-level
  * registration API of `McpServer` is bypassed by accessing the low-level
  * `.server` handler.
+ *
+ * A tool call passes the guards, interceptors, pipes, and exception filters
+ * NestJS applies to an HTTP route on the same method, with the MCP HTTP request
+ * as the execution context. The endpoint is mounted at `path` as given, outside
+ * the application's global prefix.
  *
  * Error mapping follows the MCP specification:
  *
@@ -69,7 +76,12 @@ export class McpAdaptor {
 
     const tools: McpAdaptor.ITool[] = [];
     const container = (app as any).container as NestContainer;
-    for (const module of container.getModules().values()) {
+    for (const [moduleKey, module] of container.getModules()) {
+      const creator: ExternalContextCreator =
+        ExternalContextCreator.fromContainer(container);
+      // it looks the module up among those providing the class, and a
+      // controller is provided by none, so its enhancers would not resolve
+      creator.getContextModuleKey = () => moduleKey;
       for (const wrapper of module.controllers.values()) {
         const instance = wrapper.instance;
         if (!instance) continue;
@@ -94,15 +106,16 @@ export class McpAdaptor {
             const params: IMcpRouteReflect.IArgument[] =
               Reflect.getMetadata("nestia/McpRoute/Parameters", proto, key) ??
               [];
-            const paramValidator = params.find(
-              (p) => p.category === "params",
-            )?.validate;
-
             tools.push({
               meta,
               source: `${wrapper.metatype?.name ?? proto.constructor?.name ?? "UnknownController"}.${String(key)}`,
-              validateArgs: paramValidator,
-              handler: async (args) => method.call(instance, args),
+              handler: createHandler({
+                creator,
+                instance,
+                method,
+                key,
+                argument: params.find((p) => p.category === "params"),
+              }),
             });
           }
         }
@@ -153,25 +166,14 @@ export class McpAdaptor {
           );
 
         const args = reqMsg.params.arguments ?? {};
-        if (tool.validateArgs) {
-          const err: Error | null = tool.validateArgs(args);
-          if (err !== null) {
-            const body =
-              err instanceof BadRequestException
-                ? (err.getResponse() as any)
-                : undefined;
-            throw new McpError(ErrorCode.InvalidParams, err.message, {
-              errors: body?.errors,
-              path: body?.path,
-              expected: body?.expected,
-              value: body?.value,
-              reason: body?.reason,
-            });
-          }
-        }
-
         try {
-          const result = await tool.handler(args);
+          const result = await tool.handler({
+            request: req,
+            response: res,
+            args,
+          });
+          if (tookOver(res)) return { content: [] };
+          if (result instanceof Error) throw result;
           if (result === undefined) return { content: [] };
           return {
             content: [
@@ -183,6 +185,17 @@ export class McpAdaptor {
             ],
           };
         } catch (e) {
+          if (tookOver(res)) return { content: [] };
+          if (INVALID_ARGUMENTS.has(e as object)) {
+            const body = (e as BadRequestException).getResponse() as any;
+            throw new McpError(ErrorCode.InvalidParams, (e as Error).message, {
+              errors: body?.errors,
+              path: body?.path,
+              expected: body?.expected,
+              value: body?.value,
+              reason: body?.reason,
+            });
+          }
           if (e instanceof HttpException) {
             return {
               content: [{ type: "text" as const, text: e.message }],
@@ -210,6 +223,79 @@ export class McpAdaptor {
     });
   }
 }
+
+/**
+ * The tool's call through the enhancers NestJS applies to a route of the same
+ * method: guards, interceptors, pipes, and exception filters, bound to the
+ * method, its controller, or globally. The MCP HTTP request is the execution
+ * context, so a guard reading `switchToHttp().getRequest()` works unchanged.
+ *
+ * The arguments reach the method through the pipes as its body would, validated
+ * by typia at that stage: after the guards, as `@TypedBody()` is. An invalid
+ * argument is thrown as the validator's `BadRequestException`, which an
+ * exception filter may map; unmapped, it becomes JSON-RPC `-32602`.
+ */
+const createHandler = (props: {
+  creator: ExternalContextCreator;
+  instance: object;
+  method: Function;
+  key: string;
+  argument: IMcpRouteReflect.IArgument | undefined;
+}): McpAdaptor.ITool["handler"] => {
+  // the arguments stand at the params' position, or first when undecorated
+  const index: number = props.argument?.index ?? 0;
+  Reflect.defineMetadata(
+    PARAMS_METADATA,
+    { [`${RouteParamtypes.BODY}:${index}`]: { index, data: undefined } },
+    props.instance.constructor,
+    props.key,
+  );
+  const validate = props.argument?.validate;
+  let target: ((...args: any[]) => Promise<unknown>) | undefined;
+  return async (input) => {
+    // resolved at the first call, so global enhancers init() registers count
+    target ??= props.creator.create(
+      props.instance,
+      props.method as (...args: any[]) => unknown,
+      props.key,
+      PARAMS_METADATA,
+      {
+        // [request, response, next] as an HTTP route has, then the arguments
+        exchangeKeyForValue: (_type, _data, [, , , args]) => {
+          const error: Error | null = validate ? validate(args) : null;
+          if (error === null) return args;
+          INVALID_ARGUMENTS.add(error);
+          throw error;
+        },
+      },
+    );
+    return target(input.request, input.response, undefined, input.args);
+  };
+};
+
+/**
+ * Whether an exception filter already wrote the HTTP response itself. The
+ * response it wrote stands, so the transport's own is dropped: writing again
+ * would throw, and the transport would destroy the connection mid-response.
+ */
+const tookOver = (response: any): boolean => {
+  const raw: any = response.raw ?? response;
+  if (raw.headersSent !== true) return false;
+  raw.writeHead = () => raw;
+  raw.flushHeaders = () => {};
+  raw.write = () => true;
+  raw.end = (...args: unknown[]) => {
+    const callback: unknown = args.find((a) => typeof a === "function");
+    if (typeof callback === "function") queueMicrotask(() => callback());
+    return raw;
+  };
+  return true;
+};
+
+const PARAMS_METADATA = "nestia/McpRoute/ExternalParameters";
+
+/** The validators' exceptions, told apart from a handler's own. */
+const INVALID_ARGUMENTS: WeakSet<object> = new WeakSet();
 
 const assertUniqueTools = (tools: McpAdaptor.ITool[]): void => {
   const dict: Map<string, McpAdaptor.ITool[]> = new Map();
@@ -278,7 +364,10 @@ export namespace McpAdaptor {
   export interface ITool {
     meta: IMcpRouteReflect;
     source: string;
-    handler: (args: unknown) => Promise<unknown>;
-    validateArgs?: (input: any) => Error | null;
+    handler: (input: {
+      request: unknown;
+      response: unknown;
+      args: unknown;
+    }) => Promise<unknown>;
   }
 }

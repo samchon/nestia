@@ -216,6 +216,55 @@ returns `Promise<void>`.
 
 ---
 
+## Guards, Interceptors, Pipes, and Filters
+
+A tool call passes the enhancers NestJS would apply to an HTTP route on the same
+method: guards, interceptors, pipes, and exception filters, whether bound to the
+method, its controller, or globally (`app.useGlobalGuards()`, `APP_GUARD`, and
+the rest). The execution context is the MCP HTTP request, so a guard reading
+`context.switchToHttp().getRequest()` works unchanged, and the client sends the
+header it reads:
+
+```ts filename="SecretController.ts" copy
+@UseGuards(JwtAuthGuard)
+@Controller("secret")
+export class SecretController {
+  @core.McpRoute("read_secret")
+  public async read(
+    @core.McpRoute.Params() params: { id: string },
+  ): Promise<ISecret> { ... }
+}
+```
+
+```ts filename="client.ts" copy
+new StreamableHTTPClientTransport(new URL("http://localhost:3000/mcp"), {
+  requestInit: { headers: { Authorization: `Bearer ${token}` } },
+});
+```
+
+- **Guards** run first. A denial is a tool error: `isError: true` with the
+  message, `Forbidden resource` by default.
+- **Arguments** are validated after the guards, as `@TypedBody()` is, so an
+  unauthorized caller learns nothing of the schema. Then the pipes receive them
+  as the request body.
+- **Interceptors** wrap the call and may transform its result.
+- **Exception filters** see what the tool throws. A filter throwing an
+  `HttpException` makes that the tool error. A filter answering the HTTP request
+  itself sends that response instead of the MCP result.
+
+A thrown `HttpException` that no filter handles is a tool error with its
+message. An invalid argument is JSON-RPC `-32602`, and any other throw is
+`-32603`.
+
+<Callout type="info">
+  `McpAdaptor.upgrade(app, { path })` mounts the endpoint at `path` exactly as
+  given. The application's global prefix does not apply, so with
+  `app.setGlobalPrefix("api")` the endpoint is still `/mcp`, unless you pass
+  `{ path: "/api/mcp" }`.
+</Callout>
+
+---
+
 ## Generated SDK
 
 Related Document: [Software Development Kit](/docs/sdk)
