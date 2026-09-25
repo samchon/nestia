@@ -146,6 +146,23 @@ app
   );
 ```
 
+### Rejected uploads
+
+A request the Multer configuration rejects answers the client error NestJS's own `FileInterceptor` gives it:
+
+| Rejection | Status |
+| --- | --- |
+| A file over `limits.fileSize` | `413` `File too large` |
+| Another limit: file count, field count, part count, field name or value length | `400` with Multer's message and the field |
+| A file on a field the type does not declare, or a second file on a single-file field | `400` `Unexpected field - <field>` |
+| A malformed body: no boundary, a truncated form, a malformed part header | `400` `Multipart: <reason>` |
+
+An `HttpException` your `fileFilter` passes to its callback is kept as it is.
+
+### Stored files
+
+With disk storage (`dest` or `diskStorage`), each file is read into the `File` your handler receives and then removed from disk, whether the request succeeds or fails. The handler never sees a path. To keep uploads, write the `File` where you want it from the handler.
+
 ---
 
 ## Comparison with vanilla NestJS
