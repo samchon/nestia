@@ -45,28 +45,6 @@ export namespace PathAnalyzer {
   };
 
   /**
-   * Why a route path cannot be composed, or `null` when it can.
-   *
-   * A wildcard (`*`, NestJS 11's `files/*path`) spans any number of segments,
-   * and an optional segment (NestJS 11's `users{/:id}`, or `:id?` of earlier
-   * versions) or a repeated parameter (`:id+`) may be absent or several; none
-   * of them is one OpenAPI path parameter or one argument of an SDK function.
-   */
-  export const unsupported = (
-    str: string,
-  ): "wildcard" | "optional segment" | null => {
-    // an escaped `\\*` is the literal character
-    if (/(^|[^\\])\*/.test(str)) return "wildcard";
-    // path-to-regexp 8 (Express 5) writes an optional segment in braces
-    if (/(^|[^\\])[{}]/.test(str)) return "optional segment";
-    const tokens: Token[] | null = _Tokenize(str);
-    return tokens !== null &&
-      tokens.some((token) => typeof token !== "string" && !!token.modifier)
-      ? "optional segment"
-      : null;
-  };
-
-  /**
    * The literal text and parameters of a path, in order, as path-to-regexp
    * reads it: `/files/:id.json` is `/files/`, the parameter `id`, then `.json`,
    * and `/range/:from-:to` holds two parameters parted by `-`. Every generator

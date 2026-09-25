@@ -130,8 +130,6 @@ This is an obfuscation layer to run on top of TLS — it hides the request paylo
 
 Encrypted bodies appear in the Swagger document as a `text/plain` request body, because the wire carries ciphertext; the body is marked `x-nestia-encrypted: true` and its description starts with a warning. Only the generated SDK can call them.
 
-The ciphertext is a text body, so it gets [`@PlainBody`'s size limit](./PlainBody#size-limit): 100 kB on Express unless you register a text parser with another limit, and Fastify's `bodyLimit` there. Base64 makes the ciphertext about a third longer than the JSON it encrypts.
-
 ---
 
 ## Configuration

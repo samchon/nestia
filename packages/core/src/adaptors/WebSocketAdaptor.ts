@@ -1,6 +1,5 @@
 /// <reference path="../typings/get-function-location.d.ts" />
 import {
-  BadRequestException,
   HttpException,
   INestApplication,
   VersioningType,
@@ -13,9 +12,7 @@ import {
   VERSION_METADATA,
 } from "@nestjs/common/constants";
 import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
-import { ContextId, NestContainer } from "@nestjs/core";
-import { ExternalContextCreator } from "@nestjs/core/helpers/external-context-creator";
-import { Injector } from "@nestjs/core/injector/injector";
+import { NestContainer } from "@nestjs/core";
 import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
 import { Module } from "@nestjs/core/injector/module";
 import getFunctionLocation from "get-function-location";
@@ -30,10 +27,6 @@ import { IWebSocketRouteReflect } from "../decorators/internal/IWebSocketRouteRe
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { VersioningStrategy } from "../utils/VersioningStrategy";
 import { RoutePathMatcher } from "./internal/RoutePathMatcher";
-import {
-  create_external_context_creator,
-  get_request_context_id,
-} from "./internal/external_context";
 
 export class WebSocketAdaptor {
   public static async upgrade(
@@ -75,7 +68,7 @@ export class WebSocketAdaptor {
             const params: Record<string, string> | null = op.parser.test(path);
             if (params === null) continue;
             try {
-              await op.handler({ params, acceptor, request });
+              await op.handler({ params, acceptor });
             } catch (error) {
               await terminate({ acceptor, socket: client, error });
             }
@@ -121,15 +114,10 @@ const visitApplication = async (
     })(),
   };
   const container: NestContainer = (app as any).container as NestContainer;
-  const injector: Injector = new Injector();
-  const modules: Array<[string, Module]> = [
-    ...container.getModules().entries(),
-  ].filter(([, m]) => !!m.controllers?.size);
-  for (const [moduleKey, m] of modules) {
-    const creator: ExternalContextCreator = create_external_context_creator(
-      container,
-      moduleKey,
-    );
+  const modules: Module[] = [...container.getModules().values()].filter(
+    (m) => !!m.controllers?.size,
+  );
+  for (const m of modules) {
     const modulePrefix: string =
       Reflect.getMetadata(
         MODULE_PATH + container.getModules().applicationId,
@@ -144,7 +132,6 @@ const visitApplication = async (
         operators,
         controller,
         modulePrefix,
-        nest: { container, injector, creator, module: m },
       });
   }
   if (errors.length)
@@ -183,7 +170,6 @@ const visitController = async (props: {
   operators: IOperator[];
   controller: InstanceWrapper<object>;
   modulePrefix: string;
-  nest: INestContext;
 }): Promise<void> => {
   if (
     ArrayUtil.has(
@@ -198,8 +184,6 @@ const visitController = async (props: {
   const methodErrors: IMethodError[] = [];
   const controller: IController = {
     name: props.controller.name,
-    wrapper: props.controller,
-    nest: props.nest,
     instance: props.controller.instance,
     constructor: props.controller.metatype as Function,
     prototype: Object.getPrototypeOf(props.controller.instance),
@@ -296,11 +280,6 @@ const visitMethod = (props: {
       ].join("\n"),
     );
 
-  const handler: IOperator["handler"] = createHandler({
-    controller: props.controller,
-    method: props.method,
-    parameters,
-  });
   const versions: string[] = VersioningStrategy.merge(props.config.versioning)({
     controller: props.controller.versions,
     method: VersioningStrategy.cast(
@@ -350,147 +329,51 @@ const visitMethod = (props: {
           .every((b) => b);
         if (meet === false) continue;
 
-        props.operators.push({ parser, handler });
+        props.operators.push({
+          parser,
+          handler: async (input: {
+            params: Record<string, string>;
+            acceptor: WebSocketAcceptor<any, any, any>;
+          }): Promise<void> => {
+            const args: any[] = [];
+            try {
+              for (const p of parameters)
+                if (p.category === "acceptor") args.push(input.acceptor);
+                else if (p.category === "driver")
+                  args.push(input.acceptor.getDriver());
+                else if (p.category === "header") {
+                  const error: Error | null = p.validate(input.acceptor.header);
+                  if (error !== null) throw error;
+                  args.push(input.acceptor.header);
+                } else if (p.category === "param")
+                  args.push(p.assert(input.params[p.field]!));
+                else if (p.category === "query") {
+                  // the query is all after the first "?", which it may hold too
+                  const index: number = input.acceptor.path.indexOf("?");
+                  const query: any | Error = p.validate(
+                    new URLSearchParams(
+                      index !== -1
+                        ? input.acceptor.path.substring(index + 1)
+                        : "",
+                    ),
+                  );
+                  if (query instanceof Error) throw query;
+                  args.push(query);
+                }
+            } catch (exp) {
+              // an invalid handshake: rejected before the handler runs
+              throw new WebSocketRejection(1003, exp);
+            }
+            await props.method.value.call(props.controller.instance, ...args);
+          },
+        });
       }
 };
 
 /**
- * The route's call through the enhancers NestJS applies to an HTTP route on the
- * same method: guards, interceptors, and exception filters, bound to the
- * method, its controller, or globally, with the upgrade request as the HTTP
- * execution context. A guard reading `switchToHttp().getRequest()` sees the
- * upgrade request; there is no response, the upgrade having answered it.
- *
- * The handshake's header, param, and query are validated after the guards, as
- * an HTTP route's are. A controller that is request-scoped, itself or through
- * an enhancer or a dependency, is built per connection in the request's
- * context, as NestJS builds it for an HTTP route.
+ * A handshake rejected on purpose, with its close code: 1002 for no route, 1003
+ * for a header, param, or query failing its type.
  */
-const createHandler = (props: {
-  controller: IController;
-  method: Entry<Function>;
-  parameters: IWebSocketRouteReflect.IArgument[];
-}): IOperator["handler"] => {
-  // the method's metadata names its enhancers, as NestJS's router copies it
-  // onto the callback it routes to
-  const callback = async function (
-    this: object,
-    _request: unknown,
-    _response: unknown,
-    _next: unknown,
-    invocation: IInvocation,
-  ): Promise<void> {
-    await props.method.value.apply(
-      this,
-      resolveArguments(props.parameters, invocation),
-    );
-    invocation.completed = true;
-  };
-  for (const key of Reflect.getMetadataKeys(props.method.value))
-    Reflect.defineMetadata(
-      key,
-      Reflect.getMetadata(key, props.method.value),
-      callback,
-    );
-  // and its name, as `context.getHandler().name` reads the method's own
-  Object.defineProperty(callback, "name", { value: props.method.key });
-
-  const { wrapper, nest } = props.controller;
-  const create = (instance: object, contextId?: ContextId) =>
-    nest.creator.create(
-      instance,
-      callback as (...args: unknown[]) => unknown,
-      props.method.key,
-      undefined,
-      undefined,
-      contextId,
-      contextId && wrapper.id,
-    );
-  let target: ((...args: any[]) => Promise<unknown>) | undefined;
-  return async (input): Promise<void> => {
-    const invocation: IInvocation = { ...input, completed: false };
-    const call = (fn: (...args: any[]) => Promise<unknown>) =>
-      fn(input.request, undefined, undefined, invocation);
-    // resolved at the first call, so global enhancers init() registers count
-    const result: unknown = wrapper.isDependencyTreeStatic()
-      ? await call((target ??= create(props.controller.instance)))
-      : await (async () => {
-          const contextId: ContextId = get_request_context_id(
-            nest.container,
-            input.request,
-            wrapper.isDependencyTreeDurable(),
-          );
-          const instance: object = await nest.injector.loadPerContext(
-            props.controller.instance,
-            nest.module,
-            nest.module.controllers,
-            contextId,
-          );
-          return call(create(instance, contextId));
-        })();
-    // an exception filter that returned instead of rethrowing, or an
-    // interceptor that never called the handler, left the connection open
-    if (invocation.completed === false)
-      throw result instanceof Error
-        ? result
-        : new Error("the WebSocket route did not handle the connection");
-  };
-};
-
-/** The route method's arguments, from the handshake. */
-const resolveArguments = (
-  parameters: IWebSocketRouteReflect.IArgument[],
-  input: IInvocation,
-): any[] => {
-  const args: any[] = [];
-  try {
-    for (const p of parameters)
-      if (p.category === "acceptor") args.push(input.acceptor);
-      else if (p.category === "driver") args.push(input.acceptor.getDriver());
-      else if (p.category === "header") {
-        const error: Error | null = p.validate(input.acceptor.header);
-        if (error !== null) throw error;
-        args.push(input.acceptor.header);
-      } else if (p.category === "param")
-        args.push(p.assert(input.params[p.field]!));
-      else if (p.category === "query") {
-        // the query is all after the first "?", which it may hold too
-        const index: number = input.acceptor.path.indexOf("?");
-        const query: any | Error = p.validate(
-          new URLSearchParams(
-            index !== -1 ? input.acceptor.path.substring(index + 1) : "",
-          ),
-        );
-        if (query instanceof Error) throw query;
-        args.push(query);
-      }
-  } catch (exp) {
-    // an invalid handshake: a 400, as the HTTP decorators answer it, which an
-    // exception filter may see or map, marked for the rejection's 1003
-    const error: HttpException =
-      exp instanceof HttpException
-        ? exp
-        : exp instanceof Error && typeof (exp as any).expected === "string"
-          ? new BadRequestException({
-              path: (exp as any).path,
-              reason: exp.message,
-              expected: (exp as any).expected,
-              value: (exp as any).value,
-              message: "Invalid WebSocket handshake.",
-            })
-          : new BadRequestException(
-              exp instanceof Error ? exp.message : String(exp),
-            );
-    INVALID_HANDSHAKES.add(error);
-    throw error;
-  }
-  return args;
-};
-
-/** The validators' errors, told apart from a route's own. */
-const INVALID_HANDSHAKES: WeakSet<object> = new WeakSet();
-
-/** A handshake rejected on purpose, with its close code: 1002 for no route. */
 class WebSocketRejection {
   public constructor(
     public readonly code: number,
@@ -525,11 +408,7 @@ const terminate = async (props: {
       ? 1011
       : props.error instanceof WebSocketRejection
         ? props.error.code
-        : typeof props.error === "object" &&
-            props.error !== null &&
-            INVALID_HANDSHAKES.has(props.error)
-          ? 1003
-          : 1008;
+        : 1008;
   try {
     if (state === WebSocketAcceptor.State.NONE)
       return await props.acceptor.reject(code, reason);
@@ -611,16 +490,8 @@ interface Entry<T> {
   value: T;
 }
 
-interface INestContext {
-  container: NestContainer;
-  injector: Injector;
-  creator: ExternalContextCreator;
-  module: Module;
-}
 interface IController {
   name: string;
-  wrapper: InstanceWrapper<object>;
-  nest: INestContext;
   versions: Array<string | typeof VERSION_NEUTRAL> | undefined;
   instance: object;
   constructor: Function;
@@ -633,14 +504,7 @@ interface IOperator {
   handler: (props: {
     params: Record<string, string>;
     acceptor: WebSocketAcceptor<any, any, any>;
-    request: IncomingMessage;
   }) => Promise<any>;
-}
-interface IInvocation {
-  params: Record<string, string>;
-  acceptor: WebSocketAcceptor<any, any, any>;
-  request: IncomingMessage;
-  completed: boolean;
 }
 interface IConfig {
   globalPrefix?: string;
