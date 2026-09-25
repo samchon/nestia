@@ -441,6 +441,7 @@ const feature = async (name, port) => {
   if (name === "cli-argument-diagnostics")
     return runCliArgumentDiagnosticsFeature();
   if (name === "cli-dependencies") return runCliDependenciesFeature();
+  if (name === "source-finder-glob") return runSourceFinderGlobFeature();
   if (name === "distribute-cwd-restore")
     return runNode(
       ROOT,
@@ -950,6 +951,33 @@ const runCliArgumentDiagnosticsFeature = async () => {
   } finally {
     await fs.promises.rm(cwd, { force: true, recursive: true });
   }
+};
+
+// A glob `input`, as config-pattern's `src/**/*.controller.ts` was before it
+// merged into merged-std, whose config takes the application instead: the
+// SDK's source finder expands it to exactly the matching controllers, leaving
+// out the directory's other sources.
+const runSourceFinderGlobFeature = async () => {
+  const { SourceFinder } = require(
+    path.join(ROOT, "packages/sdk/lib/utils/SourceFinder.js"),
+  );
+  const base = featureDirectory("merged-std/src/features/config-pattern");
+  const found = (
+    await SourceFinder.find({
+      include: [`${base}/**/*.controller.ts`],
+      filter: async (file) => SourceFinder.isTypeScriptSource(file),
+    })
+  )
+    .map((file) => path.relative(base, file).split(path.sep).join("/"))
+    .sort();
+  const expected = [
+    "routes/health/health.controller.ts",
+    "routes/performance/performance.controller.ts",
+  ];
+  if (JSON.stringify(found) !== JSON.stringify(expected))
+    throw new Error(
+      `the glob input found ${JSON.stringify(found)}; expected ${JSON.stringify(expected)}`,
+    );
 };
 
 // `nestia dependencies` installs typia at the release @nestia/core's transform
@@ -1686,6 +1714,7 @@ const main = async () => {
     if (filter("cli-argument-diagnostics"))
       names.push("cli-argument-diagnostics");
     if (filter("cli-dependencies")) names.push("cli-dependencies");
+    if (filter("source-finder-glob")) names.push("source-finder-glob");
     if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
     if (filter("output-directory-diagnostics"))
       names.push("output-directory-diagnostics");
