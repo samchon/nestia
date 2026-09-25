@@ -676,18 +676,44 @@ const runBatch = async (name, port) => {
         "",
         "export default [",
         ...members.map(
-          (member, i) => `  ...pick(C${i}).map(rebase("../${member}")),`,
+          (member, i) => `  ...pick(C${i}).map(rebase(${JSON.stringify(member)})),`,
         ),
         "];",
         "",
       ].join("\n"),
       "utf8",
     );
-    try {
-      await runNestia(cwd, ["all"]);
-    } catch {
-      await runNestia(cwd, ["all"], "inherit");
-    }
+    // nestia compiles the configuration under its project's directory, so the
+    // project sits in features/, the one directory holding every member; and
+    // every batch's compile shares that directory's config-loader root, which
+    // a nestia process sweeps as it exits, so batches generate one at a time
+    fs.writeFileSync(
+      featureDirectory(`.tmp-${name}.tsconfig.json`),
+      JSON.stringify(
+        {
+          extends: `./${members[0]}/tsconfig.json`,
+          compilerOptions: { paths: {} },
+          include: members.map((member) => `./${member}/src`),
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+    const args = [
+      "all",
+      "--config",
+      `.tmp-${name}/nestia.config.ts`,
+      "--project",
+      `.tmp-${name}.tsconfig.json`,
+    ];
+    await generateExclusively(async () => {
+      try {
+        await runNestia(featureDirectory(), args);
+      } catch {
+        await runNestia(featureDirectory(), args, "inherit");
+      }
+    });
     for (const member of members)
       assertFeatureOutputs(member, featureDirectory(member));
 
@@ -740,7 +766,17 @@ const runBatch = async (name, port) => {
     });
   } finally {
     await fs.promises.rm(cwd, { force: true, recursive: true });
+    await fs.promises.rm(featureDirectory(`.tmp-${name}.tsconfig.json`), {
+      force: true,
+    });
   }
+};
+
+let BATCH_GENERATION = Promise.resolve();
+const generateExclusively = (task) => {
+  const next = BATCH_GENERATION.then(task, task);
+  BATCH_GENERATION = next.catch(() => {});
+  return next;
 };
 
 // Regression lock for generators whose configured output path contains more
