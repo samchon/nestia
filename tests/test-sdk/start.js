@@ -586,6 +586,9 @@ const planBatches = (names) => {
       name.includes("distribute") ||
       BATCH_EXCLUDED.has(name) ||
       fs.existsSync(path.join(featureDirectory(name), "nestia.config.ts")) === false ||
+      // the Swagger document's info defaults to the working directory's
+      // package.json, which a batch, run from features/, would not read
+      fs.existsSync(path.join(featureDirectory(name), "package.json")) ||
       fs.existsSync(path.join(featureDirectory(name), "tsconfig.json")) === false
     )
       continue;
