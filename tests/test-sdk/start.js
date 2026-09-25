@@ -173,6 +173,22 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     '@WebSocketRoute.Acceptor() parameter "acceptor" is typed by a type alias whose WebSocketAcceptor type argument "IRoom<Member>" uses a type parameter of the alias inside it',
   ],
   [
+    "form-data-error-nested",
+    [
+      "unsupported type detected",
+      "INestedForm.nested",
+      "nested object type is not allowed.",
+    ],
+  ],
+  [
+    "query-route-error-nested",
+    [
+      "unsupported type detected",
+      "INestedQueryOutput.nested",
+      "nested object type is not allowed.",
+    ],
+  ],
+  [
     "query-error-plain",
     [
       "PlainQueryController.nested()",

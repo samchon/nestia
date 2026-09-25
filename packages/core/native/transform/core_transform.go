@@ -538,7 +538,13 @@ func nestiaCoreFormDataFiles(prog *driver.Program, typ *shimchecker.Type) []nest
 		Type:       typ,
 	})
 	if result.Success == false {
-		panic(fmt.Errorf("failed to analyze form-data metadata: %d error(s)", len(result.Errors)))
+		panic(nativecontext.TransformerError_from(struct {
+			Code   string
+			Errors []nativecontext.TransformerError_MetadataFactory_IError
+		}{
+			Code:   "nestia.core.TypedFormDataBody",
+			Errors: nestiaCoreMetadataErrors(result.Errors),
+		}))
 	}
 	files := []nestiaCoreFormDataFile{}
 	if result.Data == nil || len(result.Data.Objects) == 0 || result.Data.Objects[0] == nil || result.Data.Objects[0].Type == nil {

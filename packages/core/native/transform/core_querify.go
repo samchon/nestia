@@ -1,8 +1,6 @@
 package transform
 
 import (
-	"fmt"
-
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimchecker "github.com/microsoft/typescript-go/shim/checker"
 	shimprinter "github.com/microsoft/typescript-go/shim/printer"
@@ -44,7 +42,13 @@ func nestiaCoreHttpQuerifyProgrammer(prog *driver.Program, ec *shimprinter.EmitC
 		Type:       typ,
 	})
 	if result.Success == false {
-		panic(fmt.Errorf("failed to analyze query-string metadata: %d error(s)", len(result.Errors)))
+		panic(nativecontext.TransformerError_from(struct {
+			Code   string
+			Errors []nativecontext.TransformerError_MetadataFactory_IError
+		}{
+			Code:   "nestia.core.TypedQueryRoute",
+			Errors: nestiaCoreMetadataErrors(result.Errors),
+		}))
 	}
 	statements := []*shimast.Node{
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
