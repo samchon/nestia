@@ -725,21 +725,25 @@ const runBatch = async (name, port) => {
     fs.writeFileSync(
       path.join(cwd, "src/test/index.ts"),
       [
-        "const MEMBERS: [string, () => Promise<{ main(): Promise<void> }>][] = [",
+        // static imports: a CommonJS program's import() keeps ESM resolution,
+        // which wants file extensions
         ...tested.map(
-          (member) =>
-            `  [${JSON.stringify(member)}, () => import("../../../${member}/src/test/index")],`,
+          (member, i) =>
+            `import * as M${i} from "../../../${member}/src/test/index";`,
         ),
+        "",
+        "const MEMBERS: [string, { main(): Promise<void> }][] = [",
+        ...tested.map((member, i) => `  [${JSON.stringify(member)}, M${i}],`),
         "];",
         "",
         "const main = async (): Promise<void> => {",
         "  const base: number = Number(process.env.TEST_SDK_PORT ?? 37_000);",
         "  const failures: string[] = [];",
-        "  for (const [index, [name, load]] of MEMBERS.entries()) {",
+        "  for (const [index, [name, entry]] of MEMBERS.entries()) {",
         "    process.env.TEST_SDK_PORT = String(base + 100 * (index + 1));",
         "    const started: number = Date.now();",
         "    try {",
-        "      await (await load()).main();",
+        "      await entry.main();",
         "      console.log(`# ${name}: ${Date.now() - started} ms`);",
         "    } catch (error) {",
         "      console.log(`# ${name}: failed`);",
@@ -760,8 +764,9 @@ const runBatch = async (name, port) => {
       ].join("\n"),
       "utf8",
     );
+    // the repository root, as a member's test may read a package's sources
     await runTtsxTestWithRetries(name, cwd, port, {
-      rootDir: "..",
+      rootDir: path.relative(cwd, ROOT).split(path.sep).join("/"),
       plugins: featureDirectory(members[0]),
     });
   } finally {
