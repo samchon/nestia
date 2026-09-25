@@ -10,15 +10,15 @@ import { OWN_PASSWORD } from "../../controllers/PasswordControllers";
  * Verifies every controller an `EncryptedModule` reaches answers with the
  * module's password, and an `@EncryptedController` keeps its own.
  *
- * The module walked only the imports that were classes, so the controllers of
- * a dynamic module, a `forwardRef()`, and a promised module got no password and
+ * The module walked only the imports that were classes, so the controllers of a
+ * dynamic module, a `forwardRef()`, and a promised module got no password and
  * failed at request time (#1697). It also overwrote the password an
  * `@EncryptedController` declared, so a client holding that controller's key
  * could not decrypt its responses (#1698).
  *
  * 1. Call each module controller through the SDK with the module's key: the
- *    module's own, a dynamic module's, a forward reference's resolved only after
- *    the decorators ran, one of two modules importing each other, and a
+ *    module's own, a dynamic module's, a forward reference's resolved only
+ *    after the decorators ran, one of two modules importing each other, and a
  *    promised dynamic module's.
  * 2. Call the `@EncryptedController` and a subclass of it with the controller's
  *    own key.

@@ -24,10 +24,10 @@ import { OVERSIZED } from "../../controllers/RejectionController";
  *
  * 1. On the harness's Express application and on a Fastify one, open each route
  *    through tgrid's connector: an invalid param, header, and query; no route;
- *    a throw before `accept()`, an `HttpException`, an oversized message, and
- *    a throw after `accept()`.
- * 2. Assert each settles within the deadline with its code and its reason, cut
- *    to 123 bytes at a character boundary.
+ *    a throw before `accept()`, an `HttpException`, an oversized message, and a
+ *    throw after `accept()`.
+ * 2. Assert each settles within the deadline with its code and its reason, cut to
+ *    123 bytes at a character boundary.
  * 3. Assert a valid handshake still serves, and the SDK sees the same rejection.
  */
 export const test_websocket_rejection = async (
@@ -75,7 +75,11 @@ const validate = async (adapter: string, host: string): Promise<void> => {
         await connector.close();
       },
     );
-    TestValidator.equals(`${adapter} ${title} status`, error.status, props.status);
+    TestValidator.equals(
+      `${adapter} ${title} status`,
+      error.status,
+      props.status,
+    );
     TestValidator.predicate(
       `${adapter} ${title} reason ${JSON.stringify(error.message)}`,
       typeof props.reason === "string"
@@ -172,13 +176,14 @@ const validate = async (adapter: string, host: string): Promise<void> => {
 
   // and the SDK sees the same rejection
   const sdk: WebSocketError = await failure(`${adapter} sdk`, null, () =>
-    api.functional.rejection.before(
-      { host: host.replace("ws", "http") },
-      null,
-    ),
+    api.functional.rejection.before({ host: host.replace("ws", "http") }, null),
   );
   TestValidator.equals(`${adapter} sdk status`, sdk.status, 1008);
-  TestValidator.equals(`${adapter} sdk reason`, sdk.message, "thrown before accept");
+  TestValidator.equals(
+    `${adapter} sdk reason`,
+    sdk.message,
+    "thrown before accept",
+  );
 };
 
 /**

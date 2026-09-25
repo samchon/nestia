@@ -133,9 +133,7 @@ export class EnhancedController {
 
   @core.McpRoute("allowed_tool")
   @UseGuards(AllowAll)
-  public async allowed(
-    @core.McpRoute.Params() params: IEcho,
-  ): Promise<IEcho> {
+  public async allowed(@core.McpRoute.Params() params: IEcho): Promise<IEcho> {
     return params;
   }
 

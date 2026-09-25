@@ -464,7 +464,10 @@ const invalidProperty = (error: unknown): string | null => {
   return null;
 };
 
-/** RFC 6455 §5.5: a control frame's payload is at most 125 bytes, 2 of them the code. */
+/**
+ * RFC 6455 §5.5: a control frame's payload is at most 125 bytes, 2 of them the
+ * code.
+ */
 const MAX_CLOSE_REASON_BYTES: number = 123;
 
 const wrapPaths = (value: string[]) => (value.length === 0 ? [""] : value);

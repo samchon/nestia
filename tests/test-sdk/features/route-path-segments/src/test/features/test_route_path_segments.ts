@@ -7,13 +7,12 @@ import { ISegmentEcho } from "@api/lib/structures/ISegmentEcho";
 
 /**
  * Verifies path parameters are placed where the router reads them, beside
- * literal text in their segment and beside a parameter whose name they
- * prefix.
+ * literal text in their segment and beside a parameter whose name they prefix.
  *
- * The SDK path templates split `route.path` at `:` and took each name up to
- * the next `/`, so `files/:id.json` named a parameter `id.json` that did not
- * exist and `nestia sdk` crashed. Swagger replaced `:${field}` by its first
- * text match, so `pair/:identity/:id` became `/pair/{id}entity/:id` (#1705).
+ * The SDK path templates split `route.path` at `:` and took each name up to the
+ * next `/`, so `files/:id.json` named a parameter `id.json` that did not exist
+ * and `nestia sdk` crashed. Swagger replaced `:${field}` by its first text
+ * match, so `pair/:identity/:id` became `/pair/{id}entity/:id` (#1705).
  *
  * 1. Assert the Swagger paths, one `{name}` per parameter where it stands.
  * 2. Call each HTTP route and the WebSocket route through the SDK with values
@@ -33,11 +32,9 @@ export const test_route_path_segments = async (
   ]);
 
   const segments = api.functional.segments;
-  TestValidator.equals(
-    "file",
-    await segments.files.file(connection, "a b"),
-    { values: ["a b"] } satisfies ISegmentEcho,
-  );
+  TestValidator.equals("file", await segments.files.file(connection, "a b"), {
+    values: ["a b"],
+  } satisfies ISegmentEcho);
   TestValidator.equals("range", await segments.range(connection, "1", "9"), {
     values: ["1", "9"],
   });

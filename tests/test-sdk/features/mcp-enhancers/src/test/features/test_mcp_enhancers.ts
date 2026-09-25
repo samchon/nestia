@@ -19,16 +19,16 @@ export interface IConnection {
  * `McpAdaptor` called the method directly, so a guarded controller served its
  * tools to anyone, and no interceptor, pipe, or exception filter ran (#1703).
  *
- * 1. On the harness's Express application and on a Fastify one, call tools
- *    guarded by a deny guard on the controller and on the method, an allow
- *    guard, no guard, a guard reading `Authorization`, and a global
- *    `APP_GUARD`; assert the denied fail as tool errors while the same HTTP
- *    route answers 403.
+ * 1. On the harness's Express application and on a Fastify one, call tools guarded
+ *    by a deny guard on the controller and on the method, an allow guard, no
+ *    guard, a guard reading `Authorization`, and a global `APP_GUARD`; assert
+ *    the denied fail as tool errors while the same HTTP route answers 403.
  * 2. Assert a guard runs before argument validation, which still answers
  *    `InvalidParams` once the guards pass.
  * 3. Assert an interceptor wraps the call, a pipe transforms the arguments, a
  *    filter's mapped exception is the tool error, and a filter answering the
- *    HTTP request itself is what the client receives, the server still serving.
+ *    HTTP request itself is what the client receives, the server still
+ *    serving.
  */
 export const test_mcp_enhancers = async (
   connection: IConnection,

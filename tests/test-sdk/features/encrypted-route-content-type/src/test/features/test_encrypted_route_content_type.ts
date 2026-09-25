@@ -18,12 +18,12 @@ import { ENCRYPTION } from "../../Backend";
  * response stays JSON.
  *
  * `@EncryptedRoute` set no content type, and Express sends a string body as
- * `text/html`, so every encrypted response on Express contradicted the
- * document (#1702). Fastify already answered `text/plain`.
+ * `text/html`, so every encrypted response on Express contradicted the document
+ * (#1702). Fastify already answered `text/plain`.
  *
- * 1. On the harness's Express application and on a Fastify application serving
- *    the same controller, read the content type of an encrypted GET, and of a
- *    route that throws.
+ * 1. On the harness's Express application and on a Fastify application serving the
+ *    same controller, read the content type of an encrypted GET, and of a route
+ *    that throws.
  * 2. Round-trip a GET and a POST through the SDK on both.
  */
 export const test_encrypted_route_content_type = async (
