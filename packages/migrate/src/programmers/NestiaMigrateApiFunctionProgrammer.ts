@@ -6,6 +6,7 @@ import { StatementFactory } from "../factories/StatementFactory";
 import ts from "../internal/ts";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
+import { SuccessStatus } from "../utils/SuccessStatus";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
@@ -207,9 +208,15 @@ export namespace NestiaMigrateApiFunctionProgrammer {
                     getArguments(ctx, false),
                   ),
                 ),
+                // the fetcher reads only 200, 201, and this status as success
                 factory.createPropertyAssignment(
                   "status",
-                  factory.createNull(),
+                  ((status) =>
+                    status === null
+                      ? factory.createNull()
+                      : factory.createNumericLiteral(status))(
+                    SuccessStatus.of(ctx.route),
+                  ),
                 ),
               ],
               true,

@@ -12,6 +12,7 @@ import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
+import { SuccessStatus } from "../utils/SuccessStatus";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
@@ -167,6 +168,18 @@ export namespace NestiaMigrateNestMethodProgrammer {
       ctx.route.success?.type === "application/json"
     )
       decorators.push(router("TypedRoute"));
+    // NestJS answers 201 for POST and 200 otherwise
+    const status: number | null = SuccessStatus.of(ctx.route);
+    if (status !== null && status !== SuccessStatus.nest(ctx.route))
+      decorators.push(
+        factory.createDecorator(
+          factory.createCallExpression(
+            external("@nestjs/common", "HttpCode"),
+            undefined,
+            [ExpressionFactory.number(status)],
+          ),
+        ),
+      );
     for (const [key, value] of Object.entries(ctx.route.exceptions ?? {}))
       decorators.push(
         factory.createDecorator(
