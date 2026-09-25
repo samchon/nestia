@@ -703,9 +703,9 @@ const runBatch = async (name, port) => {
     const args = [
       "all",
       "--config",
-      `.tmp-${name}/nestia.config.ts`,
+      `./.tmp-${name}/nestia.config.ts`,
       "--project",
-      `.tmp-${name}.tsconfig.json`,
+      `./.tmp-${name}.tsconfig.json`,
     ];
     await generateExclusively(async () => {
       try {
