@@ -76,8 +76,14 @@ export namespace NestiaMigrateCommander {
         );
     await NestiaMigrateFileArchiver.archive({
       mkdir: fs.promises.mkdir,
+      // only TypeScript is formatted: prettier's TypeScript parser also
+      // accepts a `.gitignore` or `.env` line, and rewrites it into code
       writeFile: async (file, content) =>
-        fs.promises.writeFile(file, await beautify(content), "utf-8"),
+        fs.promises.writeFile(
+          file,
+          /\.[cm]?tsx?$/.test(file) ? await beautify(content) : content,
+          "utf-8",
+        ),
       root: options.output,
       files,
     });
