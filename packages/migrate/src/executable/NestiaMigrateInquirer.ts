@@ -74,32 +74,18 @@ export namespace NestiaMigrateInquirer {
       partial.input ??= await input("input")("Swagger file location");
       partial.output ??= await input("output")("Response directory path");
       partial.package ??= await input("package")("Package name");
-      partial.keyword ??=
-        (await select("keyword")("Keyword parameter mode")([
-          "true",
-          "false",
-        ])) === "true";
-
-      if (partial.keyword)
-        partial.keyword = (partial.keyword as any) === "true";
-      else
-        partial.keyword =
-          (await select("keyword")("Keyword parameter mode")([
-            "true",
-            "false",
-          ])) === "true";
-      if (partial.simulate)
-        partial.simulate = (partial.simulate as any) === "true";
-      else
-        partial.simulate =
-          (await select("simulate")("Mokup Simulator")(["true", "false"])) ===
-          "true";
-
-      if (partial.e2e) partial.e2e = (partial.e2e as any) === "true";
-      else
-        partial.e2e =
-          (await select("e2e")("Generate E2E tests")(["true", "false"])) ===
-          "true";
+      // a flag given alone is `true`, and one given a value is its text
+      const flag = (value: unknown): boolean | undefined =>
+        value === undefined ? undefined : value === true || value === "true";
+      const ask = async (name: string, message: string): Promise<boolean> =>
+        (await select(name)(message)(["true", "false"])) === "true";
+      partial.keyword =
+        flag(partial.keyword) ??
+        (await ask("keyword", "Keyword parameter mode"));
+      partial.simulate =
+        flag(partial.simulate) ?? (await ask("simulate", "Mokup Simulator"));
+      partial.e2e =
+        flag(partial.e2e) ?? (await ask("e2e", "Generate E2E tests"));
       return partial as IOutput;
     });
   };
