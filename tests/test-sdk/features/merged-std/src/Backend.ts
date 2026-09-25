@@ -18,13 +18,6 @@ export class Backend {
         ),
       },
       {
-        path: "body",
-        module: await core.EncryptedModule.dynamic(
-          `${__dirname}/features/body/controllers`,
-          PASSWORD,
-        ),
-      },
-      {
         path: "body-generic-default",
         module: await core.EncryptedModule.dynamic(
           `${__dirname}/features/body-generic-default/controllers`,
@@ -102,13 +95,6 @@ export class Backend {
         ),
       },
       {
-        path: "multipart-form-data",
-        module: await core.EncryptedModule.dynamic(
-          `${__dirname}/features/multipart-form-data/controllers`,
-          PASSWORD,
-        ),
-      },
-      {
         path: "non-equals",
         module: await core.EncryptedModule.dynamic(
           `${__dirname}/features/non-equals/controllers`,
@@ -119,13 +105,6 @@ export class Backend {
         path: "operationId",
         module: await core.EncryptedModule.dynamic(
           `${__dirname}/features/operationId/controllers`,
-          PASSWORD,
-        ),
-      },
-      {
-        path: "param",
-        module: await core.EncryptedModule.dynamic(
-          `${__dirname}/features/param/controllers`,
           PASSWORD,
         ),
       },
@@ -196,13 +175,6 @@ export class Backend {
         path: "variable",
         module: await core.EncryptedModule.dynamic(
           `${__dirname}/features/variable/controllers`,
-          PASSWORD,
-        ),
-      },
-      {
-        path: "websocket",
-        module: await core.EncryptedModule.dynamic(
-          `${__dirname}/features/websocket/controllers`,
           PASSWORD,
         ),
       },
