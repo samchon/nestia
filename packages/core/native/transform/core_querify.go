@@ -153,12 +153,28 @@ func nestiaCoreHttpValidateQuerifyProgrammer(prog *driver.Program, importer *nat
 			Name:  "query",
 			Value: nestiaCoreHttpQuerifyProgrammer(prog, ec, typ),
 		}),
+		// the object is validated, then querified: validating the
+		// URLSearchParams against the object type found every property absent
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
-			Name:  "output",
-			Value: nestiaCoreCall("query", nestiaCoreFactory.NewIdentifier("input")),
+			Name:  "result",
+			Value: nestiaCoreCall("validate", nestiaCoreFactory.NewIdentifier("input")),
 		}),
 		nestiaCoreFactory.NewReturnStatement(nestiaCoreFactory.NewAsExpression(
-			nestiaCoreCall("validate", nestiaCoreFactory.NewIdentifier("output")),
+			nestiaCoreFactory.NewConditionalExpression(
+				nestiaCoreFactory.NewPropertyAccessExpression(
+					nestiaCoreFactory.NewIdentifier("result"),
+					nil,
+					nestiaCoreFactory.NewIdentifier("success"),
+					shimast.NodeFlagsNone,
+				),
+				nil,
+				nestiaCoreFactory.NewObjectLiteralExpression(nestiaCoreFactory.NewNodeList([]*shimast.Node{
+					nestiaCoreProperty("success", nestiaCoreFactory.NewKeywordExpression(shimast.KindTrueKeyword), ec),
+					nestiaCoreProperty("data", nestiaCoreCall("query", nestiaCoreFactory.NewIdentifier("input")), ec),
+				}), false),
+				nil,
+				nestiaCoreFactory.NewIdentifier("result"),
+			),
 			nativefactories.TypeFactory.Keyword("any"),
 		)),
 	})

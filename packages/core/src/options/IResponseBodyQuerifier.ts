@@ -4,7 +4,8 @@ export type IResponseBodyQuerifier<T> =
   | IResponseBodyquerifier.IStringify<T>
   | IResponseBodyquerifier.IIs<T>
   | IResponseBodyquerifier.IAssert<T>
-  | IResponseBodyquerifier.IValidate<T>;
+  | IResponseBodyquerifier.IValidate<T>
+  | IResponseBodyquerifier.IValidateLog<T>;
 export namespace IResponseBodyquerifier {
   export interface IStringify<T> {
     type: "stringify";
@@ -20,6 +21,10 @@ export namespace IResponseBodyquerifier {
   }
   export interface IValidate<T> {
     type: "validate";
+    validate: (input: T) => IValidation<URLSearchParams>;
+  }
+  export interface IValidateLog<T> {
+    type: "validate.log";
     validate: (input: T) => IValidation<URLSearchParams>;
   }
 }

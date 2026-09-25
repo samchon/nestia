@@ -30,6 +30,7 @@ func nestiaCoreNodeTransform(
 		}
 	}
 	options := readNestiaCoreOptions(plan)
+	optionErrors := nestiaCoreOptionErrors(plan)
 	strictReported := false
 	return func(ec *shimprinter.EmitContext, sf *shimast.SourceFile) *shimast.SourceFile {
 		if sf == nil || sf.IsDeclarationFile {
@@ -39,6 +40,11 @@ func nestiaCoreNodeTransform(
 			strictReported = true
 			addDiagnostic(nestiaCoreGlobalDiagnostic("@nestia/core", "strict mode is required."))
 		}
+		// reported once, with the first file transformed
+		for _, message := range optionErrors {
+			addDiagnostic(nestiaCoreGlobalDiagnostic("@nestia/core", message))
+		}
+		optionErrors = nil
 		importer := nativecontext.NewImportProgrammer(nativecontext.ImportProgrammer_IOptions{
 			InternalPrefix: "typia_transform_",
 			Runtime:        "typia",

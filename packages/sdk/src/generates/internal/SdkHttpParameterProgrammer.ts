@@ -296,17 +296,37 @@ export namespace SdkHttpParameterProgrammer {
         ),
       ];
     }
-    return entries.map((e) =>
-      factory.createParameterDeclaration(
+    // a required parameter cannot follow an optional one (TS1016), so an
+    // optional parameter before a required one trades its `?` for `undefined`
+    // in its type
+    return entries.map((e, i) => {
+      const trailing: boolean =
+        e.required === false &&
+        entries.slice(i + 1).every((next) => next.required === false);
+      return factory.createParameterDeclaration(
         undefined,
         undefined,
         names.parameter(e.parameter),
-        e.required ? undefined : factory.createToken(SyntaxKind.QuestionToken),
-        e.type,
+        trailing ? factory.createToken(SyntaxKind.QuestionToken) : undefined,
+        e.required || trailing ? e.type : undefinable(props.project, e),
         undefined,
-      ),
-    );
+      );
+    });
   };
+
+  // a cloned field's type admits `undefined` when optional, and a reflected
+  // field's does when its name says so (`mode: string | undefined`, not
+  // `mode?: string`); the `Query` and `Body` aliases are not inspected
+  const undefinable = (project: INestiaProject, e: IEntry): TypeNode =>
+    e.parameter.category !== "body" &&
+    e.parameter.field !== null &&
+    (project.config.clone === true ||
+      e.parameter.type.name.split("|").some((t) => t.trim() === "undefined"))
+      ? e.type
+      : factory.createUnionTypeNode([
+          e.type,
+          factory.createKeywordTypeNode(SyntaxKind.UndefinedKeyword),
+        ]);
 
   export const getArguments = (props: {
     project: INestiaProject;
