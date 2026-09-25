@@ -218,7 +218,7 @@ export namespace ArrayUtil {
   export const has = <T>(
     elements: readonly T[],
     pred: (elem: T) => boolean,
-  ): boolean => elements.find(pred) !== undefined;
+  ): boolean => elements.some((elem) => pred(elem));
 
   /**
    * Executes a function a specified number of times and collects the results

@@ -228,18 +228,18 @@ export namespace TestValidator {
     task: () => T,
   ): T extends Promise<any> ? Promise<void> : void {
     const message = () => `Bug on ${title}: exception must be thrown.`;
+    // only the task's own throw is caught: the failure below must escape
+    let output: T;
     try {
-      const output: T = task();
-      if (is_promise(output))
-        return new Promise<void>((resolve, reject) =>
-          output
-            .catch(() => resolve())
-            .then(() => reject(new Error(message()))),
-        ) as any;
-      else throw new Error(message());
+      output = task();
     } catch {
       return undefined as any;
     }
+    if (is_promise(output))
+      return new Promise<void>((resolve, reject) =>
+        output.catch(() => resolve()).then(() => reject(new Error(message()))),
+      ) as any;
+    throw new Error(message());
   }
 
   /**
@@ -328,6 +328,10 @@ export namespace TestValidator {
    * sequence. Commonly used for testing database queries, search results, and
    * any paginated data APIs.
    *
+   * A page holds the first entities, so only the common prefix of the two lists
+   * is compared. An empty result against expected entities, or the reverse,
+   * fails.
+   *
    * @example
    *   ```typescript
    *   // Test article pagination
@@ -350,6 +354,7 @@ export namespace TestValidator {
    * @param gotten - The actual entities returned by the API
    * @param trace - Optional flag to enable debug logging (default: false)
    * @throws Error when entity order differs between expected and actual results
+   *   over their common prefix, or when exactly one of them is empty
    */
   export const index = <X extends IEntity<any>, Y extends X = X>(
     title: string,
@@ -357,6 +362,18 @@ export namespace TestValidator {
     gotten: Y[],
     trace: boolean = false,
   ): void => {
+    // a page holds the first entities, so only the common prefix is compared,
+    // but an empty side against a non-empty one has no prefix to prove
+    if ((expected.length === 0) !== (gotten.length === 0)) {
+      if (trace === true)
+        console.log({
+          expected: get_ids(expected),
+          gotten: get_ids(gotten),
+        });
+      throw new Error(
+        `Bug on ${title}: result of the index is different with manual aggregation.`,
+      );
+    }
     const length: number = Math.min(expected.length, gotten.length);
     expected = expected.slice(0, length);
     gotten = gotten.slice(0, length);

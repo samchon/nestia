@@ -37,4 +37,15 @@ export async function test_validate_index(): Promise<void> {
       [{ id: "b" }, { id: "a" }],
     ),
   );
+
+  // a page is the first entities: a matching prefix passes, but an empty
+  // side against a non-empty one proves nothing and fails (#1712)
+  TestValidator.index("prefix", [{ id: "a" }, { id: "b" }], [{ id: "a" }]);
+  TestValidator.index<{ id: string }>("both empty", [], []);
+  TestValidator.error("empty gotten", () =>
+    TestValidator.index("empty gotten", [{ id: "a" }], []),
+  );
+  TestValidator.error("empty expected", () =>
+    TestValidator.index<{ id: string }>("empty expected", [], [{ id: "a" }]),
+  );
 }
