@@ -6,7 +6,7 @@ import { NestFactory } from "@nestjs/core";
 export async function main(): Promise<void> {
   const server: INestApplication = await NestFactory.create(
     await core.DynamicModule.mount({
-      include: ["src/controllers"],
+      include: [`${__dirname}/../controllers`],
       exclude: [],
     }),
   );
