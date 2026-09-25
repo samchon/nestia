@@ -1,5 +1,6 @@
 /// <reference path="../typings/get-function-location.d.ts" />
 import {
+  BadRequestException,
   HttpException,
   INestApplication,
   VersioningType,
@@ -464,16 +465,32 @@ const resolveArguments = (
         args.push(query);
       }
   } catch (exp) {
-    // an invalid handshake: rejected before the handler runs
-    throw new WebSocketRejection(1003, exp);
+    // an invalid handshake: a 400, as the HTTP decorators answer it, which an
+    // exception filter may see or map, marked for the rejection's 1003
+    const error: HttpException =
+      exp instanceof HttpException
+        ? exp
+        : exp instanceof Error && typeof (exp as any).expected === "string"
+          ? new BadRequestException({
+              path: (exp as any).path,
+              reason: exp.message,
+              expected: (exp as any).expected,
+              value: (exp as any).value,
+              message: "Invalid WebSocket handshake.",
+            })
+          : new BadRequestException(
+              exp instanceof Error ? exp.message : String(exp),
+            );
+    INVALID_HANDSHAKES.add(error);
+    throw error;
   }
   return args;
 };
 
-/**
- * A handshake rejected on purpose, with its close code: 1002 for no route, 1003
- * for a header, param, or query failing its type.
- */
+/** The validators' errors, told apart from a route's own. */
+const INVALID_HANDSHAKES: WeakSet<object> = new WeakSet();
+
+/** A handshake rejected on purpose, with its close code: 1002 for no route. */
 class WebSocketRejection {
   public constructor(
     public readonly code: number,
@@ -508,7 +525,11 @@ const terminate = async (props: {
       ? 1011
       : props.error instanceof WebSocketRejection
         ? props.error.code
-        : 1008;
+        : typeof props.error === "object" &&
+            props.error !== null &&
+            INVALID_HANDSHAKES.has(props.error)
+          ? 1003
+          : 1008;
   try {
     if (state === WebSocketAcceptor.State.NONE)
       return await props.acceptor.reject(code, reason);
