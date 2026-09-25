@@ -2388,7 +2388,9 @@ type sdkOperationMetadataInsertResult struct {
 func nestiaSDKDiagnostic(site nestiaSDKSite, message string) transform.Diagnostic {
 	line, column := 0, 0
 	if site.File != nil && site.Method != nil {
-		if pos := site.Method.Pos(); pos >= 0 {
+		// the first token's position: Pos() starts at the leading trivia, the
+		// previous line's end and any JSDoc
+		if pos := shimscanner.GetTokenPosOfNode(site.Method, site.File, false); pos >= 0 {
 			l, c := shimscanner.GetECMALineAndByteOffsetOfPosition(site.File, pos)
 			line, column = l+1, c+1
 		}
