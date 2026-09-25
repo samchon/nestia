@@ -1,5 +1,9 @@
 /// <reference path="../typings/get-function-location.d.ts" />
-import { INestApplication, VersioningType } from "@nestjs/common";
+import {
+  HttpException,
+  INestApplication,
+  VersioningType,
+} from "@nestjs/common";
 import {
   HOST_METADATA,
   MODULE_PATH,
@@ -62,25 +66,19 @@ export class WebSocketAdaptor {
           })();
           for (const op of this.operators) {
             const params: Record<string, string> | null = op.parser.test(path);
-            if (params !== null)
-              try {
-                await op.handler({ params, acceptor });
-              } catch (error) {
-                if (
-                  acceptor.state === WebSocketAcceptor.State.OPEN ||
-                  acceptor.state === WebSocketAcceptor.State.ACCEPTING
-                )
-                  await acceptor.reject(
-                    1008,
-                    error instanceof Error
-                      ? JSON.stringify({ ...error })
-                      : "unknown error",
-                  );
-              } finally {
-                return;
-              }
+            if (params === null) continue;
+            try {
+              await op.handler({ params, acceptor });
+            } catch (error) {
+              await terminate({ acceptor, socket: client, error });
+            }
+            return;
           }
-          await acceptor.reject(1002, `WebSocket API not found`);
+          await terminate({
+            acceptor,
+            socket: client,
+            error: new WebSocketRejection(1002, "WebSocket API not found"),
+          });
         },
       ),
     );
@@ -363,19 +361,111 @@ const visitMethod = (props: {
                   args.push(query);
                 }
             } catch (exp) {
-              await input.acceptor.reject(
-                1003,
-                exp instanceof Error
-                  ? JSON.stringify({ ...exp })
-                  : "unknown error",
-              );
-              return;
+              // an invalid handshake: rejected before the handler runs
+              throw new WebSocketRejection(1003, exp);
             }
             await props.method.value.call(props.controller.instance, ...args);
           },
         });
       }
 };
+
+/**
+ * A handshake rejected on purpose, with its close code: 1002 for no route, 1003
+ * for a header, param, or query failing its type.
+ */
+class WebSocketRejection {
+  public constructor(
+    public readonly code: number,
+    public readonly cause: unknown,
+  ) {}
+}
+
+/**
+ * Ends a WebSocket request that failed, so the client always learns it: a
+ * handshake not accepted yet is rejected, 1008 for an error of the route
+ * itself, and an accepted connection is closed with 1011. When tgrid refuses
+ * either, as it does while `accept()` is still running, the socket is closed
+ * directly. Nothing escapes, as the upgrade callback has no one to catch it.
+ */
+const terminate = async (props: {
+  acceptor: WebSocketAcceptor<any, any, any>;
+  socket: WebSocket;
+  error: unknown;
+}): Promise<void> => {
+  const reason: string = closeReason(
+    props.error instanceof WebSocketRejection ? props.error.cause : props.error,
+  );
+  const state: WebSocketAcceptor.State = props.acceptor.state;
+  if (
+    state === WebSocketAcceptor.State.REJECTING ||
+    state === WebSocketAcceptor.State.CLOSING ||
+    state === WebSocketAcceptor.State.CLOSED
+  )
+    return; // the route already ends the connection itself
+  try {
+    if (state === WebSocketAcceptor.State.NONE)
+      return await props.acceptor.reject(
+        props.error instanceof WebSocketRejection ? props.error.code : 1008,
+        reason,
+      );
+    else if (state === WebSocketAcceptor.State.OPEN)
+      return await props.acceptor.close(1011, reason);
+  } catch {}
+  try {
+    props.socket.close(1011, reason);
+  } catch {
+    props.socket.terminate();
+  }
+};
+
+/**
+ * The reason a close frame carries: the error's message, cut to the 123 bytes
+ * of UTF-8 a close reason may hold, never inside a character. A longer reason
+ * makes `ws` throw instead of closing, and the client waits forever.
+ *
+ * A validator's `BadRequestException` carries a generic message, so the
+ * property it names is preferred: typia's `reason` from an assertion, or the
+ * first of the `errors` from a validation.
+ */
+const closeReason = (error: unknown): string => {
+  const message: string =
+    invalidProperty(error) ??
+    (error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : "unknown error");
+  const encoded: Buffer = Buffer.from(message, "utf8");
+  if (encoded.length <= MAX_CLOSE_REASON_BYTES) return message;
+  let end: number = MAX_CLOSE_REASON_BYTES;
+  // back off continuation bytes (10xxxxxx) to a character boundary
+  while (end > 0 && (encoded[end]! & 0xc0) === 0x80) --end;
+  return encoded.subarray(0, end).toString("utf8");
+};
+
+const invalidProperty = (error: unknown): string | null => {
+  if (!(error instanceof HttpException)) return null;
+  const response: unknown = error.getResponse();
+  if (typeof response !== "object" || response === null) return null;
+  const { reason, errors } = response as {
+    reason?: unknown;
+    errors?: unknown;
+  };
+  if (typeof reason === "string") return reason;
+  if (Array.isArray(errors) && errors.length !== 0) {
+    const first: { path?: unknown; expected?: unknown } = errors[0];
+    if (typeof first?.path === "string" && typeof first.expected === "string")
+      return [
+        `invalid type on ${first.path}, expect to be ${first.expected}`,
+        errors.length > 1 ? ` (and ${errors.length - 1} more)` : "",
+      ].join("");
+  }
+  return null;
+};
+
+/** RFC 6455 §5.5: a control frame's payload is at most 125 bytes, 2 of them the code. */
+const MAX_CLOSE_REASON_BYTES: number = 123;
 
 const wrapPaths = (value: string[]) => (value.length === 0 ? [""] : value);
 const getOwnPropertyNames = (prototype: any): string[] => {

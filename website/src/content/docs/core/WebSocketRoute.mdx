@@ -201,6 +201,17 @@ public async advanced(
 
 Path / header / query are validated against their declared types — invalid handshakes are rejected before your handler runs.
 
+Every failing request ends with a close code and a reason, so the client's `connect()` or pending call rejects with a `WebSocketError` rather than waiting:
+
+| What failed                                   | Code   | Reason                                        |
+| --------------------------------------------- | ------ | --------------------------------------------- |
+| No route matches the path                     | `1002` | `WebSocket API not found`                     |
+| A param, header, or query fails its type      | `1003` | the failing property, like `invalid type on $input.name, expect to be string` |
+| Your handler throws before `accept()`         | `1008` | the error's message                           |
+| Your handler throws after `accept()`          | `1011` | the error's message                           |
+
+A close reason holds at most 123 bytes of UTF-8, so a longer message is cut at a character boundary.
+
 ---
 
 ## The acceptor lifecycle
