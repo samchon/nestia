@@ -18,7 +18,7 @@ async function main(): Promise<void> {
         },
       },
     ],
-    location: `${__dirname}/features`,
+    location: __dirname,
     onComplete: (exec) => {
       const elapsed: number =
         new Date(exec.completed_at).getTime() -
