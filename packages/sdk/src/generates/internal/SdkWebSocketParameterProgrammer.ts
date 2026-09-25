@@ -57,7 +57,7 @@ export namespace SdkWebSocketParameterProgrammer {
     // names each scope references and the SDK cannot change
     const functional: string[] = [route.name, "WebSocketConnector"];
     const path: string[] = [
-      ...(route.pathParameters.length !== 0 ? ["encodeURIComponent"] : []),
+      ...(route.pathParameters.length !== 0 ? ["PathParameter"] : []),
       ...(route.query !== null
         ? ["URLSearchParams", "Object", "Array", "String", "undefined"]
         : []),

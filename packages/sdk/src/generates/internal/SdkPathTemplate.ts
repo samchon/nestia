@@ -1,12 +1,16 @@
-import { type Expression, SyntaxKind, factory } from "@ttsc/factory";
+import { type Expression, factory } from "@ttsc/factory";
 
 import { PathAnalyzer } from "../../analyses/PathAnalyzer";
+import { IdentifierFactory } from "../../factories/IdentifierFactory";
+import { ImportDictionary } from "./ImportDictionary";
 
 export namespace SdkPathTemplate {
   /**
    * The expression an SDK function builds its route's path with: the literal
-   * text of the path, each parameter filled in with the URI-encoded value
-   * `argument` names for it, or `"null"` when that value is nullish.
+   * text of the path, each parameter filled in by `PathParameter.encode()` of
+   * `@nestia/fetcher` with the value `argument` names for it: URI-encoded, or
+   * `"null"` when nullish, and refused when it is a dot segment (`.`, `..`) the
+   * URL would resolve away.
    *
    * The positions come from {@link PathAnalyzer.segments}, as the server's
    * router reads the path, so a parameter with literal text beside it in its
@@ -14,17 +18,21 @@ export namespace SdkPathTemplate {
    * where it stands.
    */
   export const compose = (props: {
+    importer: ImportDictionary;
     path: string;
     argument: (name: string) => Expression;
   }): Expression => {
     const segments: PathAnalyzer.ISegment[] | null = PathAnalyzer.segments(
       props.path,
     );
-    if (
-      segments === null ||
-      segments.every((segment) => segment.type === "literal")
-    )
-      return factory.createStringLiteral(props.path);
+    if (segments === null) return factory.createStringLiteral(props.path);
+    // the literal text as the router reads it, an escaped `\:` unescaped
+    else if (segments.every((segment) => segment.type === "literal"))
+      return factory.createStringLiteral(
+        segments
+          .map((segment) => (segment.type === "literal" ? segment.value : ""))
+          .join(""),
+      );
 
     // a template holds a literal between every two expressions
     const literals: string[] = [""];
@@ -41,24 +49,19 @@ export namespace SdkPathTemplate {
       parameters.map((name, i) =>
         factory.createTemplateSpan(
           factory.createCallExpression(
-            factory.createIdentifier("encodeURIComponent"),
-            undefined,
-            [
-              factory.createBinaryExpression(
-                factory.createCallChain(
-                  factory.createPropertyAccessChain(
-                    props.argument(name),
-                    factory.createToken(SyntaxKind.QuestionDotToken),
-                    "toString",
-                  ),
-                  undefined,
-                  undefined,
-                  [],
-                ),
-                factory.createToken(SyntaxKind.QuestionQuestionToken),
-                factory.createStringLiteral("null"),
+            IdentifierFactory.access(
+              factory.createIdentifier(
+                props.importer.external({
+                  declaration: false,
+                  file: "@nestia/fetcher",
+                  type: "element",
+                  name: "PathParameter",
+                }),
               ),
-            ],
+              "encode",
+            ),
+            undefined,
+            [factory.createStringLiteral(name), props.argument(name)],
           ),
           (i !== parameters.length - 1
             ? factory.createTemplateMiddle

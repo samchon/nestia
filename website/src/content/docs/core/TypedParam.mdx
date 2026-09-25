@@ -87,6 +87,21 @@ Reach for the vanilla decorator when:
 
 **Path-only.** `@TypedParam` reads from path parameters (`:name` in the route). For querystring values use `@TypedQuery`; for headers, `@TypedHeaders`.
 
+**A literal colon needs the router's escape.** In a route, `:name` is a parameter, so a literal `:`, as in an AIP custom method, is spelled the way your adapter's router reads it. `@nestia/sdk` reads both spellings: the SDK sends `/items/7:cancel`, and the Swagger path is `/items/{id}:cancel`. `@WebSocketRoute` accepts both too.
+
+- **Express** escapes it as `\\:`, and escapes `*`, `(`, `+`, and the other characters it reserves the same way.
+- **Fastify** spells a literal colon `::`. This works only in static text: after a parameter, Fastify reads `::` as part of the parameter's name, so it cannot express `:id` followed by `:cancel`.
+
+```ts copy
+@TypedRoute.Post("items/:id\\:cancel")  // Express
+public cancel(@TypedParam("id") id: string): Promise<void> { ... }
+
+@TypedRoute.Post("items::batchGet")     // Fastify
+public batchGet(): Promise<void> { ... }
+```
+
+`@nestia/migrate` writes the Express spelling for a document path such as `/items/{id}:cancel`.
+
 ---
 
 ## See also

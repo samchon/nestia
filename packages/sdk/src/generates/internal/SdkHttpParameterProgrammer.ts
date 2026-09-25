@@ -80,7 +80,7 @@ export namespace SdkHttpParameterProgrammer {
         : []),
     ];
     const path: string[] = [
-      ...(route.pathParameters.length !== 0 ? ["encodeURIComponent"] : []),
+      ...(route.pathParameters.length !== 0 ? ["PathParameter"] : []),
       ...(route.queryObject !== null || route.queryParameters.length !== 0
         ? ["URLSearchParams", "Object", "Array", "String", "undefined"]
         : []),

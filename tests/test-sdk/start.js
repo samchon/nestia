@@ -137,7 +137,7 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     "route-invalid-path-error",
     [
       "InvalidRouteController.get() from {parameters}:",
-      'invalid path ("/invalid/::id")',
+      'invalid path ("/invalid/:")',
     ],
   ],
   [

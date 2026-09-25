@@ -22,6 +22,9 @@ catalogs:
     '@nestjs/platform-fastify':
       specifier: ^11.1.6
       version: 11.1.21
+    path-to-regexp:
+      specifier: ^8.4.2
+      version: 8.4.2
     rxjs:
       specifier: ^7.1.0
       version: 7.8.2
@@ -255,9 +258,9 @@ importers:
       glob:
         specifier: ^11.0.3
         version: 11.1.0
-      path-parser:
-        specifier: ^6.1.0
-        version: 6.1.0
+      path-to-regexp:
+        specifier: catalog:nestjs
+        version: 8.4.2
       raw-body:
         specifier: ^2.0.0
         version: 2.5.3
@@ -3673,9 +3676,6 @@ packages:
   path-parse@1.0.7:
     resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
 
-  path-parser@6.1.0:
-    resolution: {integrity: sha512-nAB6J73z2rFcQP+870OHhpkHFj5kO4rPLc2Ol4Y3Ale7F6Hk1/cPKp7cQ8RznKF8FOSvu+YR9Xc6Gafk7DlpYA==}
-
   path-scurry@2.0.2:
     resolution: {integrity: sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==}
     engines: {node: 18 || 20 || >=22}
@@ -3977,9 +3977,6 @@ packages:
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
-  search-params@3.0.0:
-    resolution: {integrity: sha512-8CYNl/bjkEhXWbDTU/K7c2jQtrnqEffIPyOLMqygW/7/b+ym8UtQumcAZjOfMLjZKR6AxK5tOr9fChbQZCzPqg==}
-
   secure-json-parse@2.7.0:
     resolution: {integrity: sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw==}
 
@@ -4202,9 +4199,6 @@ packages:
 
   ts-expose-internals@5.4.5:
     resolution: {integrity: sha512-0HfRwjgSIOyuDlHzkFedMWU4aHWq9pu4MUKHgH75U+L76wCAtK5WB0rc/dAIhulMRcPUlcKONeiiR5Sxy/7XcA==}
-
-  tslib@1.14.1:
-    resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
@@ -7412,11 +7406,6 @@ snapshots:
 
   path-parse@1.0.7: {}
 
-  path-parser@6.1.0:
-    dependencies:
-      search-params: 3.0.0
-      tslib: 1.14.1
-
   path-scurry@2.0.2:
     dependencies:
       lru-cache: 11.4.0
@@ -7752,8 +7741,6 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
 
-  search-params@3.0.0: {}
-
   secure-json-parse@2.7.0: {}
 
   secure-json-parse@4.1.0: {}
@@ -8004,8 +7991,6 @@ snapshots:
       punycode: 2.3.1
 
   ts-expose-internals@5.4.5: {}
-
-  tslib@1.14.1: {}
 
   tslib@2.8.1: {}
 

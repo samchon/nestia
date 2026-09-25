@@ -211,12 +211,19 @@ export namespace SdkHttpNamespaceProgrammer {
         false,
       );
       if (parameters.length === 0)
-        return out(factory.createStringLiteral(route.path));
+        return out(
+          SdkPathTemplate.compose({
+            importer,
+            path: route.path,
+            argument: () => factory.createIdentifier("undefined"),
+          }),
+        );
 
       const names: SdkHttpParameterProgrammer.INames =
         SdkHttpParameterProgrammer.getNames({ project, route });
       const template = () =>
         SdkPathTemplate.compose({
+          importer,
           path: route.path,
           argument: (name) =>
             names.access(route.pathParameters.find((p) => p.field === name)!),

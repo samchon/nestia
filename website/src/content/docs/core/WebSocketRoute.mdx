@@ -199,6 +199,8 @@ public async advanced(
 ): Promise<void> { ... }
 ```
 
+A route path follows the syntax of an HTTP route in NestJS 11 (Express 5's path-to-regexp): `:name` parameters, `*name` wildcards, `{...}` optional groups, and a literal colon escaped as `\\:` or spelled `::`, as [`@TypedParam`](./TypedParam#common-pitfalls) describes.
+
 Path / header / query are validated against their declared types — invalid handshakes are rejected before your handler runs.
 
 Every failing request ends with a close code and a reason, so the client's `connect()` or pending call rejects with a `WebSocketError` rather than waiting:

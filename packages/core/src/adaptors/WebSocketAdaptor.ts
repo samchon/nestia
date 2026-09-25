@@ -20,7 +20,6 @@ import { Module } from "@nestjs/core/injector/module";
 import getFunctionLocation from "get-function-location";
 import { IncomingMessage, Server } from "http";
 import path from "path";
-import { Path } from "path-parser";
 import { Duplex } from "stream";
 import { WebSocketAcceptor } from "tgrid";
 import typia from "typia";
@@ -29,6 +28,7 @@ import WebSocket from "ws";
 import { IWebSocketRouteReflect } from "../decorators/internal/IWebSocketRouteReflect";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { VersioningStrategy } from "../utils/VersioningStrategy";
+import { RoutePathMatcher } from "./internal/RoutePathMatcher";
 import {
   create_external_context_creator,
   get_request_context_id,
@@ -309,7 +309,7 @@ const visitMethod = (props: {
   for (const v of versions)
     for (const cp of wrapPaths(props.controller.prefixes))
       for (const mp of wrapPaths(route.paths)) {
-        const parser: Path = new Path(
+        const parser: RoutePathMatcher = new RoutePathMatcher(
           "/" +
             [
               props.config.globalPrefix ?? "",
@@ -608,7 +608,7 @@ interface IController {
   modulePrefix: string;
 }
 interface IOperator {
-  parser: Path;
+  parser: RoutePathMatcher;
   handler: (props: {
     params: Record<string, string>;
     acceptor: WebSocketAcceptor<any, any, any>;
