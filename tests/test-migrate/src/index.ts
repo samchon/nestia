@@ -26,7 +26,6 @@ import { test_migrate_nest_workspace_catalog_stamp } from "./features/test_migra
 import { test_migrate_numeric_bounds } from "./features/test_migrate_numeric_bounds";
 import { test_migrate_path_segments } from "./features/test_migrate_path_segments";
 import { test_migrate_route_reserved } from "./features/test_migrate_route_reserved";
-import { test_migrate_simulate_headers } from "./features/test_migrate_simulate_headers";
 import { test_migrate_sdk_dependency_catalog_stamp } from "./features/test_migrate_sdk_dependency_catalog_stamp";
 import {
   EMPTY_PATHS_DOCUMENT,
@@ -34,6 +33,7 @@ import {
 } from "./features/test_migrate_sdk_empty_paths";
 import { test_migrate_sdk_key_snapshot } from "./features/test_migrate_sdk_key_snapshot";
 import { test_migrate_sdk_pnpm_template } from "./features/test_migrate_sdk_pnpm_template";
+import { test_migrate_simulate_headers } from "./features/test_migrate_simulate_headers";
 
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
