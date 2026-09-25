@@ -403,17 +403,20 @@ const terminate = async (props: {
     state === WebSocketAcceptor.State.CLOSED
   )
     return; // the route already ends the connection itself
+  const code: number =
+    state !== WebSocketAcceptor.State.NONE
+      ? 1011
+      : props.error instanceof WebSocketRejection
+        ? props.error.code
+        : 1008;
   try {
     if (state === WebSocketAcceptor.State.NONE)
-      return await props.acceptor.reject(
-        props.error instanceof WebSocketRejection ? props.error.code : 1008,
-        reason,
-      );
+      return await props.acceptor.reject(code, reason);
     else if (state === WebSocketAcceptor.State.OPEN)
-      return await props.acceptor.close(1011, reason);
+      return await props.acceptor.close(code, reason);
   } catch {}
   try {
-    props.socket.close(1011, reason);
+    props.socket.close(code, reason);
   } catch {
     props.socket.terminate();
   }
