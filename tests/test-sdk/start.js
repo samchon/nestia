@@ -20,7 +20,9 @@ const CLI = [
 ];
 const TTSC_BIN = packageBin("ttsc", "ttsc");
 const TTSX_BIN = packageBin("ttsc", "ttsx");
-const BASE_PORT = 37_000;
+// Below the ephemeral range Linux hands outgoing connections (32768-60999), so
+// no client socket holds a port a feature is about to listen on.
+const BASE_PORT = 20_000;
 const WATCH_TIMEOUT = 90_000;
 
 process.env.NODE_OPTIONS = [
@@ -548,6 +550,7 @@ const assertFeatureOutputs = (name, cwd) => {
 
 // A pass that needed a retry is reported, never passed off as clean: an
 // intermittent failure is a finding.
+// `explain` names what failed inside a quiet attempt, whose output is gone.
 const runTtsxTestWithRetries = async (name, cwd, port, options) => {
   const failures = [];
   for (let i = 0; i < 3; ++i)
@@ -556,7 +559,10 @@ const runTtsxTestWithRetries = async (name, cwd, port, options) => {
       if (failures.length !== 0) reportRetries(name, failures);
       return;
     } catch (error) {
-      failures.push(error);
+      const reason = options?.explain?.();
+      failures.push(
+        reason ? new Error(`${reason} (${error.message.split("\n")[0]})`) : error,
+      );
     }
   reportRetries(name, failures);
   await runTtsxTest(cwd, "inherit", port, options);
@@ -707,6 +713,8 @@ const runBatch = async (name, port) => {
     fs.writeFileSync(
       path.join(cwd, "src/test/index.ts"),
       [
+        'import fs from "fs";',
+        "",
         // static imports: a CommonJS program's import() keeps ESM resolution,
         // which wants file extensions
         ...tested.map(
@@ -730,11 +738,15 @@ const runBatch = async (name, port) => {
         "    } catch (error) {",
         "      console.log(`# ${name}: failed`);",
         "      console.log(error);",
-        "      failures.push(name);",
+        "      const message: string = String(",
+        "        error instanceof Error ? error.message : error,",
+        "      );",
+        '      failures.push(`${name}: ${message.split("\\n")[0].slice(0, 200)}`);',
         "    }",
         "  }",
         "  if (failures.length !== 0) {",
-        '    console.log(`Failed batch members: ${failures.join(", ")}`);',
+        '    console.log(`Failed batch members: ${failures.join("; ")}`);',
+        '    fs.writeFileSync(`${__dirname}/../../failures.txt`, failures.join("; "));',
         "    process.exit(-1);",
         "  }",
         "};",
@@ -746,8 +758,15 @@ const runBatch = async (name, port) => {
       ].join("\n"),
       "utf8",
     );
+    const report = path.join(cwd, "failures.txt");
     await runTtsxTestWithRetries(name, cwd, port, {
       plugins: path.join(cwd, members[0]),
+      explain: () => {
+        if (fs.existsSync(report) === false) return null;
+        const text = fs.readFileSync(report, "utf8");
+        fs.rmSync(report, { force: true });
+        return text;
+      },
     });
   } finally {
     await fs.promises.rm(cwd, { force: true, recursive: true });
