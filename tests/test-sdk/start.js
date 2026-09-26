@@ -741,7 +741,7 @@ const runBatch = async (name, port) => {
         "      const message: string = String(",
         "        error instanceof Error ? error.message : error,",
         "      );",
-        '      failures.push(`${name}: ${message.split("\\n")[0].slice(0, 200)}`);',
+        '      failures.push(`${name}: ${(message.split("\\n")[0] ?? "").slice(0, 200)}`);',
         "    }",
         "  }",
         "  if (failures.length !== 0) {",
