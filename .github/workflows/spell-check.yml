@@ -2,6 +2,9 @@ name: spell-check
 on:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   spell-check:
     runs-on: ubuntu-latest
