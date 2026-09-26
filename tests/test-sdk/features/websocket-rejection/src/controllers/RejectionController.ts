@@ -3,7 +3,7 @@ import { Controller, ForbiddenException } from "@nestjs/common";
 import { WebSocketAcceptor } from "tgrid";
 import { tags } from "typia";
 
-import { IRejection } from "../api/structures/IRejection";
+import { IRejection } from "@api/lib/structures/IRejection";
 
 @Controller("rejection")
 export class RejectionController {

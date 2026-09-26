@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "../../api";
+import api from "@api";
 
 /**
  * Verifies the SDK of a `HEAD` route with a parameter compiles and simulates

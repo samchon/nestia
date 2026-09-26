@@ -2,8 +2,8 @@ import core from "@nestia/core";
 import { Controller, Headers, Param } from "@nestjs/common";
 import typia, { tags } from "typia";
 
-import { IBbsArticle } from "../api/structures/IBbsArticle";
-import { IHeaders } from "../api/structures/IHeaders";
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { IHeaders } from "@api/lib/structures/IHeaders";
 
 @Controller("headers/:section")
 export class HeadersController {

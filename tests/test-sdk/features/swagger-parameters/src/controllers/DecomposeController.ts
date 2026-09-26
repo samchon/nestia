@@ -1,8 +1,8 @@
 import core from "@nestia/core";
 import { Controller, Headers, Query } from "@nestjs/common";
 
-import { IDecomposeHeaders } from "../api/structures/IDecomposeHeaders";
-import { IDecomposeQuery } from "../api/structures/IDecomposeQuery";
+import { IDecomposeHeaders } from "@api/lib/structures/IDecomposeHeaders";
+import { IDecomposeQuery } from "@api/lib/structures/IDecomposeQuery";
 
 @Controller("decompose")
 export class DecomposeController {

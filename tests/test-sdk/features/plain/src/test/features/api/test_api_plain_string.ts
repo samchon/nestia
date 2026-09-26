@@ -1,6 +1,6 @@
 import { RandomGenerator, TestValidator } from "@nestia/e2e";
 
-import api from "../../../api";
+import api from "@api";
 
 export const test_api_plan_string = async (
   connection: api.IConnection,

@@ -1,8 +1,9 @@
 import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
-import api from "../../api";
-import { IParty as Cloned } from "../../api/structures/IParty";
+import api from "@api";
+import { IParty as Cloned } from "@api/lib/structures/IParty";
+
 import { IParty as Source } from "../../structures/IParty";
 import { PartyId } from "../../structures/PartyId";
 

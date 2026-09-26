@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { WebSocketAcceptor } from "tgrid";
 
-import { IVersioned } from "../api/structures/IVersioned";
+import { IVersioned } from "@api/lib/structures/IVersioned";
 
 @Controller("plain")
 export class PlainController {

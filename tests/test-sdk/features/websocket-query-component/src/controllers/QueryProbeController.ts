@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { WebSocketAcceptor } from "tgrid";
 
-import { IQueryProbe } from "../api/structures/IQueryProbe";
+import { IQueryProbe } from "@api/lib/structures/IQueryProbe";
 
 /** The same path parameter and query read over HTTP and over WebSocket. */
 @Controller("probe")

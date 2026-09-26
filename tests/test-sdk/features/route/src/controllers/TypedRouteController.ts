@@ -9,7 +9,7 @@ import {
 import { Observable, of } from "rxjs";
 import typia from "typia";
 
-import { IBbsArticle } from "../api/structures/IBbsArticle";
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 const createArticle = (): IBbsArticle => ({
   id: "00000000-0000-4000-8000-000000000000" as IBbsArticle["id"],

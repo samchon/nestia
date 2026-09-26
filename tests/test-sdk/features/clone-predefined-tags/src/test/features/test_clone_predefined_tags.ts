@@ -1,8 +1,9 @@
 import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 
-import { ITagged as Cloned } from "../../api/structures/ITagged";
-import { IUnaccepted as ClonedUnaccepted } from "../../api/structures/IUnaccepted";
+import { ITagged as Cloned } from "@api/lib/structures/ITagged";
+import { IUnaccepted as ClonedUnaccepted } from "@api/lib/structures/IUnaccepted";
+
 import { ITagged as Source } from "../../structures/ITagged";
 import { IUnaccepted as SourceUnaccepted } from "../../structures/IUnaccepted";
 

@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import { Controller, HttpCode } from "@nestjs/common";
 import typia from "typia";
 
-import { IBbsArticle } from "../api/structures/IBbsArticle";
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 @Controller("status")
 export class StatusController {

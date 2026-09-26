@@ -2,9 +2,9 @@ import { TestValidator } from "@nestia/e2e";
 import { sleep_for } from "tstl";
 import typia from "typia";
 
-import api from "../../../api";
-import { ICalcEvent } from "../../../api/interfaces/ICalcEvent";
-import { ICalcEventListener } from "../../../api/interfaces/ICalcEventListener";
+import api from "@api";
+import { ICalcEvent } from "@api/lib/interfaces/ICalcEvent";
+import { ICalcEventListener } from "@api/lib/interfaces/ICalcEventListener";
 
 export const test_api_calculate_simple = async (
   connection: api.IConnection,

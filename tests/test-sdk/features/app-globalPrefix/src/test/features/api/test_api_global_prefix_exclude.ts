@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 import path from "path";
 
-import api from "../../../api";
+import api from "@api";
 
 /**
  * Verifies global prefix exclusions keep matching routes unprefixed in SDK and

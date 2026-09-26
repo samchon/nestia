@@ -1,8 +1,8 @@
 import { IPropagation } from "@nestia/fetcher";
 import typia from "typia";
 
-import api from "../../../api";
-import { IUser } from "../../../api/structures/IUser";
+import api from "@api";
+import { IUser } from "@api/lib/structures/IUser";
 
 export const test_api_propagate = async (
   connection: api.IConnection,

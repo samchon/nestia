@@ -3,13 +3,14 @@ import { Controller } from "@nestjs/common";
 import { Driver, WebSocketAcceptor } from "tgrid";
 import { tags } from "typia";
 
-import { ICalcConfig } from "../api/interfaces/ICalcConfig";
-import { ICalcEventListener } from "../api/interfaces/ICalcEventListener";
-import { ICalcReferrer } from "../api/interfaces/ICalcReferrer";
-import { ICompositeCalculator } from "../api/interfaces/ICompositeCalculator";
-import { IScientificCalculator } from "../api/interfaces/IScientificCalculator";
-import { ISimpleCalculator } from "../api/interfaces/ISimpleCalculator";
-import { IStatisticsCalculator } from "../api/interfaces/IStatisticsCalculator";
+import { ICalcConfig } from "@api/lib/interfaces/ICalcConfig";
+import { ICalcEventListener } from "@api/lib/interfaces/ICalcEventListener";
+import { ICalcReferrer } from "@api/lib/interfaces/ICalcReferrer";
+import { ICompositeCalculator } from "@api/lib/interfaces/ICompositeCalculator";
+import { IScientificCalculator } from "@api/lib/interfaces/IScientificCalculator";
+import { ISimpleCalculator } from "@api/lib/interfaces/ISimpleCalculator";
+import { IStatisticsCalculator } from "@api/lib/interfaces/IStatisticsCalculator";
+
 import { CompositeCalculator } from "../providers/CompositeCalculator";
 import { ScientificCalculator } from "../providers/ScientificCalculator";
 import { SimpleCalculator } from "../providers/SimpleCalculator";

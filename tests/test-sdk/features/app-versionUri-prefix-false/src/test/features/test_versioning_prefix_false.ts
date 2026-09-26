@@ -2,8 +2,8 @@ import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 import path from "path";
 
-import api from "../../api";
-import { IVersioned } from "../../api/structures/IVersioned";
+import api from "@api";
+import { IVersioned } from "@api/lib/structures/IVersioned";
 
 /**
  * Verifies URI versioning with `prefix: false` is described and served at the

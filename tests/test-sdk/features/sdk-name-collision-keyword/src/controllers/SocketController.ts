@@ -2,7 +2,7 @@ import { WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { WebSocketAcceptor } from "tgrid";
 
-import { IShadow } from "../api/structures/IShadow";
+import { IShadow } from "@api/lib/structures/IShadow";
 
 export interface IEcho {
   echo(): string[];

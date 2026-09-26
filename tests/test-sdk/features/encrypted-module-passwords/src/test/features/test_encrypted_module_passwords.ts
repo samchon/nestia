@@ -1,8 +1,9 @@
 import { TestValidator } from "@nestia/e2e";
 
+import api from "@api";
+import { IPasswordEcho } from "@api/lib/structures/IPasswordEcho";
+
 import { MODULE_PASSWORD } from "../../Backend";
-import api from "../../api";
-import { IPasswordEcho } from "../../api/structures/IPasswordEcho";
 import { OWN_PASSWORD } from "../../controllers/PasswordControllers";
 
 /**

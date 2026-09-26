@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { WebSocketAcceptor } from "tgrid";
 
-import { IDotSegment, IDotSegmentEcho } from "../api/structures/IDotSegment";
+import { IDotSegment, IDotSegmentEcho } from "@api/lib/structures/IDotSegment";
 
 @Controller("dots")
 export class DotSegmentController {

@@ -3,10 +3,10 @@ import { Controller } from "@nestjs/common";
 import { Driver, WebSocketAcceptor } from "tgrid";
 import { tags } from "typia";
 
-import { ICalculator } from "../api/structures/ICalculator";
-import { IListener } from "../api/structures/IListener";
-import { IPrecision } from "../api/structures/IPrecision";
-import { IQuery } from "../api/structures/IQuery";
+import { ICalculator } from "@api/lib/structures/ICalculator";
+import { IListener } from "@api/lib/structures/IListener";
+import { IPrecision } from "@api/lib/structures/IPrecision";
+import { IQuery } from "@api/lib/structures/IQuery";
 
 @Controller("calculate")
 export class CalculateController {

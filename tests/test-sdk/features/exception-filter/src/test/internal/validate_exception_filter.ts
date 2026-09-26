@@ -1,7 +1,8 @@
 import { HttpError } from "@nestia/fetcher";
 import typia from "typia";
 
-import api from "../../api";
+import api from "@api";
+
 import { HttpExceptionFilter } from "../../filters/HttpExceptionFilter";
 
 export const validate_exception_filter =

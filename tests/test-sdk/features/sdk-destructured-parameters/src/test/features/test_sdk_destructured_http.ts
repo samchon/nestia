@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 
-import api from "../../api";
+import api from "@api";
 
 /**
  * Verifies SDK functions of routes whose handlers destructure their parameters

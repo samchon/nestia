@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import typia, { Primitive } from "typia";
 
-import api from "../../../api";
-import type { IBbsArticle } from "../../../api/structures/IBbsArticle";
+import api from "@api";
+import type { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 export const test_api_simulate_invalid_body = (
   connection: api.IConnection,

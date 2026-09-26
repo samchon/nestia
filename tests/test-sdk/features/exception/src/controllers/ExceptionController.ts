@@ -7,11 +7,11 @@ import {
 import { BadRequestException, Controller } from "@nestjs/common";
 import typia, { TypeGuardError } from "typia";
 
-import { IBbsArticle } from "../api/structures/IBbsArticle";
-import { IExceptional } from "../api/structures/IExceptional";
-import { IInternalServerError } from "../api/structures/IInternalServerError";
-import { INotFound } from "../api/structures/INotFound";
-import { IUnprocessibleEntity } from "../api/structures/IUnprocessibleEntity";
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { IExceptional } from "@api/lib/structures/IExceptional";
+import { IInternalServerError } from "@api/lib/structures/IInternalServerError";
+import { INotFound } from "@api/lib/structures/INotFound";
+import { IUnprocessibleEntity } from "@api/lib/structures/IUnprocessibleEntity";
 
 @Controller("exception")
 export class ExceptionController {

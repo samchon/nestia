@@ -2,8 +2,8 @@ import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 import path from "path";
 
-import api from "../../api";
-import { ISegmentEcho } from "../../api/structures/ISegmentEcho";
+import api from "@api";
+import { ISegmentEcho } from "@api/lib/structures/ISegmentEcho";
 
 /**
  * Verifies path parameters are placed where the router reads them, beside

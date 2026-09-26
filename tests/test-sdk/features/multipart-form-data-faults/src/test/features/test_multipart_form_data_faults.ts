@@ -2,9 +2,10 @@ import { TestValidator } from "@nestia/e2e";
 import { NestFastifyApplication } from "@nestjs/platform-fastify";
 import fs from "fs";
 
+import api from "@api";
+
 import { Backend } from "../../Backend";
 import { UPLOAD_DISK } from "../../UploadDisk";
-import api from "../../api";
 
 /**
  * Verifies a multipart request the multer configuration rejects answers the

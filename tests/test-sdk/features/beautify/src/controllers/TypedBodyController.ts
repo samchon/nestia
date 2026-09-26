@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import { Controller, Request } from "@nestjs/common";
 import typia, { tags } from "typia";
 
-import { IBbsArticle } from "../api/structures/IBbsArticle";
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 @Controller("body")
 export class TypedBodyController {

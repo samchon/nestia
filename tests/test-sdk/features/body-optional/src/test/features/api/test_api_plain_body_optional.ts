@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "../../../api";
+import api from "@api";
 
 export const test_api_plain_body_optional = async (
   connection: api.IConnection,

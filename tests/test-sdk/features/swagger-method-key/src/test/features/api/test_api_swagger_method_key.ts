@@ -3,7 +3,7 @@ import { OpenApi } from "@typia/interface";
 import fs from "fs";
 import path from "path";
 
-import api from "../../../api";
+import api from "@api";
 
 /**
  * Verifies a method the SDK renames still meets its `@SwaggerCustomizer()` and

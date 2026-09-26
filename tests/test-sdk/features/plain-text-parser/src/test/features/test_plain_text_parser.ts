@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "../../api";
+import api from "@api";
 
 /**
  * Verifies text request bodies are read when the application registered

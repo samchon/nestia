@@ -1,7 +1,7 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
-import { INonFiniteExtensions } from "../api/structures/INonFiniteExtensions";
+import { INonFiniteExtensions } from "@api/lib/structures/INonFiniteExtensions";
 
 @Controller("extension")
 export class ExtensionController {

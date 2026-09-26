@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "../../../api";
+import api from "@api";
 
 /**
  * Verifies generated MCP SDK metadata preserves tool names and JSDoc

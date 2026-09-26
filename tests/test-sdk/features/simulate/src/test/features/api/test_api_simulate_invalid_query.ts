@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import typia, { Primitive } from "typia";
 
-import api from "../../../api";
-import { IPage } from "../../../api/structures/IPage";
+import api from "@api";
+import { IPage } from "@api/lib/structures/IPage";
 
 export const test_api_simulate_invalid_query = (
   connection: api.IConnection,
