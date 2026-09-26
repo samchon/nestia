@@ -21,6 +21,10 @@ on:
       - '.github/actions/**'
       - 'packages/**'
       - 'pnpm-lock.yaml'
+
+permissions:
+  contents: read
+
 jobs:
   Ubuntu:
     runs-on: ubuntu-latest

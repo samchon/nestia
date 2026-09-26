@@ -1,4 +1,4 @@
-import api from "../../../api";
+import api from "@api";
 
 /**
  * Verifies @TypedRoute keeps JSON content type when an outer interceptor

@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
-import api from "../../api";
-import { IShadow } from "../../api/structures/IShadow";
+import api from "@api";
+import { IShadow } from "@api/lib/structures/IShadow";
 
 /**
  * Verifies the keyword-mode mockup simulator of routes with colliding names

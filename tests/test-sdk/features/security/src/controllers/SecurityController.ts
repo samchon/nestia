@@ -3,7 +3,7 @@ import { Controller } from "@nestjs/common";
 import { ApiBasicAuth, ApiBearerAuth, ApiOAuth2 } from "@nestjs/swagger";
 import typia from "typia";
 
-import { IToken } from "../api/structures/IToken";
+import { IToken } from "@api/lib/structures/IToken";
 
 @Controller()
 export class SecurityController {

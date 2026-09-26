@@ -1,7 +1,7 @@
 import typia from "typia";
 
-import api from "../../../api";
-import { ISeller } from "../../../api/structures/ISeller";
+import api from "@api";
+import { ISeller } from "@api/lib/structures/ISeller";
 
 export async function test_api_seller_join(
   connection: api.IConnection,

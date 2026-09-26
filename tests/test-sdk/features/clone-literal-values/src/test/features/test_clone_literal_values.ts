@@ -1,7 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
-import { ILiteralValues as Cloned } from "../../api/structures/ILiteralValues";
+import { ILiteralValues as Cloned } from "@api/lib/structures/ILiteralValues";
+
 import { ILiteralValues as Source } from "../../structures/ILiteralValues";
 
 type Equal<X, Y> =

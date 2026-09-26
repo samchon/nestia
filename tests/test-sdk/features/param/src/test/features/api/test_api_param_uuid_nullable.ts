@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 import { v4 } from "uuid";
 
-import api from "../../../api";
+import api from "@api";
 
 export const test_api_param_uuid_nullable = async (
   connection: api.IConnection,

@@ -3,8 +3,8 @@ import { Controller } from "@nestjs/common";
 import Multer from "multer";
 import typia from "typia";
 
-import { IBbsArticle } from "../api/structures/IBbsArticle";
-import { IOptionalForm, IUploadForm } from "../api/structures/IUploadForm";
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { IOptionalForm, IUploadForm } from "@api/lib/structures/IUploadForm";
 
 /**
  * Routes whose request bodies or responses carry what Swagger 2.0 has no place

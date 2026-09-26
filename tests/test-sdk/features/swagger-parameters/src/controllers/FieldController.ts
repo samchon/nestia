@@ -2,8 +2,8 @@ import core from "@nestia/core";
 import { Controller, Headers, Param, Query } from "@nestjs/common";
 import { tags } from "typia";
 
-import { IAbsentFields } from "../api/structures/IAbsentFields";
-import { IExampleHeaders } from "../api/structures/IExampleHeaders";
+import { IAbsentFields } from "@api/lib/structures/IAbsentFields";
+import { IExampleHeaders } from "@api/lib/structures/IExampleHeaders";
 
 @Controller("field")
 export class FieldController {

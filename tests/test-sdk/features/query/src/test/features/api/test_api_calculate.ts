@@ -3,9 +3,9 @@ import { sleep_for } from "tstl";
 import typia from "typia";
 import { v4 } from "uuid";
 
-import api from "../../../api";
-import { IListener } from "../../../api/structures/IListener";
-import { IQuery } from "../../../api/structures/IQuery";
+import api from "@api";
+import { IListener } from "@api/lib/structures/IListener";
+import { IQuery } from "@api/lib/structures/IQuery";
 
 export const test_api_calculate = async (
   connection: api.IConnection,

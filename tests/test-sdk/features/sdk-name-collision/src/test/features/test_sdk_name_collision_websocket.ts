@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "../../api";
+import api from "@api";
 
 /**
  * Verifies WebSocket SDK functions whose path parameters are named after the

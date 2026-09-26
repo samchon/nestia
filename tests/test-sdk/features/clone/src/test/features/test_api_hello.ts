@@ -1,7 +1,7 @@
 import typia from "typia";
 
-import api from "../../api";
-import { GetHelloResponseDto } from "../../api/structures/GetHelloResponseDto";
+import api from "@api";
+import { GetHelloResponseDto } from "@api/lib/structures/GetHelloResponseDto";
 
 export const test_api_hello = async (
   connection: api.IConnection,

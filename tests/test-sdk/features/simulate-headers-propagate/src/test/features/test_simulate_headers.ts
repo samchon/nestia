@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "../../api";
+import api from "@api";
 
 /**
  * Verifies the simulator in propagation mode answers headers the server's

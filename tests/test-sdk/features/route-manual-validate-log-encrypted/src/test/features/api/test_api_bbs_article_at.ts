@@ -3,8 +3,8 @@ import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 import { v4 } from "uuid";
 
-import api from "../../../api";
-import { IBbsArticle } from "../../../api/structures/IBbsArticle";
+import api from "@api";
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 /**
  * Verifies `TypedRoute.setValidateErrorLogger` receives a structured

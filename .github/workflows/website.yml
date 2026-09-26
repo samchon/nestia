@@ -14,6 +14,11 @@ on:
       - 'packages/**'
       - 'website/**'
       - 'website/package.json'
+
+# the deploy step pushes the built site to the gh-pages branch
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

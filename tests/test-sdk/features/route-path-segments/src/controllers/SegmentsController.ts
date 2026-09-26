@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { WebSocketAcceptor } from "tgrid";
 
-import { ISegmentEcho } from "../api/structures/ISegmentEcho";
+import { ISegmentEcho } from "@api/lib/structures/ISegmentEcho";
 
 /** Path parameters that share their segment with literal text or a name. */
 @Controller("segments")

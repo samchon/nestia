@@ -2,9 +2,9 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { Driver, WebSocketAcceptor } from "tgrid";
 
-import { ICalculator } from "../api/structures/ICalculator";
-import { IListener } from "../api/structures/IListener";
-import { IPrecision } from "../api/structures/IPrecision";
+import { ICalculator } from "@api/lib/structures/ICalculator";
+import { IListener } from "@api/lib/structures/IListener";
+import { IPrecision } from "@api/lib/structures/IPrecision";
 
 @Controller("calculate")
 export class CalculateController {

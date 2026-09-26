@@ -1,6 +1,6 @@
 import { DynamicExecutor } from "@nestia/e2e";
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const report = await DynamicExecutor.validate({
     location: `${__dirname}/features`,
     prefix: "test",
@@ -11,7 +11,8 @@ async function main(): Promise<void> {
   for (const execution of report.executions)
     if (execution.error !== null) throw execution.error;
 }
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (require.main === module)
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });

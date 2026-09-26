@@ -1,8 +1,8 @@
 import { TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller, Query } from "@nestjs/common";
 
-import { INestQuery } from "../api/structures/INestQuery";
-import { IQuery } from "../api/structures/IQuery";
+import { INestQuery } from "@api/lib/structures/INestQuery";
+import { IQuery } from "@api/lib/structures/IQuery";
 
 @Controller("query")
 export class QueryController {

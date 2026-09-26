@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "../../api";
-import { IShadow } from "../../api/structures/IShadow";
+import api from "@api";
+import { IShadow } from "@api/lib/structures/IShadow";
 
 /**
  * Verifies keyword-mode SDK functions of routes whose parameter or method names

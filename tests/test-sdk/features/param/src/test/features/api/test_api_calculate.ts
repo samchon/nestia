@@ -3,8 +3,8 @@ import { sleep_for } from "tstl";
 import typia from "typia";
 import { v4 } from "uuid";
 
-import api from "../../../api";
-import { IListener } from "../../../api/structures/IListener";
+import api from "@api";
+import { IListener } from "@api/lib/structures/IListener";
 
 export const test_api_calculate = async (
   connection: api.IConnection,

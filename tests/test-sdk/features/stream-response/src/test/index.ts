@@ -2,7 +2,7 @@ import { DynamicExecutor } from "@nestia/e2e";
 
 import api from "@api";
 
-const main = async (): Promise<void> => {
+export const main = async (): Promise<void> => {
   const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
     extension: __filename.substring(__filename.length - 2),
     prefix: "test",
@@ -34,10 +34,11 @@ const main = async (): Promise<void> => {
     .map((exec) => exec.error!);
   if (exceptions.length !== 0) {
     for (const exp of exceptions) console.log(exp);
-    process.exit(-1);
+    throw new Error("Failed");
   }
 };
-main().catch((exp) => {
-  console.log(exp);
-  process.exit(-1);
-});
+if (require.main === module)
+  main().catch((exp) => {
+    console.log(exp);
+    process.exit(-1);
+  });

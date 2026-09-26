@@ -1,7 +1,7 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
-import { ISearchQuery } from "../api/structures/ISearchQuery";
+import { ISearchQuery } from "@api/lib/structures/ISearchQuery";
 
 @Controller("search")
 export class SearchController {

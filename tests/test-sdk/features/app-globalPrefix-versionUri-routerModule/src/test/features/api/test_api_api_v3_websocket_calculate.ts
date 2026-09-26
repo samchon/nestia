@@ -2,8 +2,8 @@ import { TestValidator } from "@nestia/e2e";
 import { sleep_for } from "tstl";
 import typia from "typia";
 
-import api from "../../../api";
-import { IListener } from "../../../api/structures/IListener";
+import api from "@api";
+import { IListener } from "@api/lib/structures/IListener";
 
 export const test_api_api_v3_websocket_calculate = async (
   connection: api.IConnection,

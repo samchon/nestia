@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { WebSocketAcceptor } from "tgrid";
 
-import { IReserved, IReservedEcho } from "../../api/structures/IReserved";
+import { IReserved, IReservedEcho } from "@api/lib/structures/IReserved";
 
 /** Router-reserved literals as path-to-regexp (Express) escapes them. */
 @Controller("express")

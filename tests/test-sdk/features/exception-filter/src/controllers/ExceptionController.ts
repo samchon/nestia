@@ -9,7 +9,8 @@ import {
 import { tags } from "typia";
 import { v4 } from "uuid";
 
-import { IAttachmentFile, IBbsArticle } from "../api/structures/IBbsArticle";
+import { IAttachmentFile, IBbsArticle } from "@api/lib/structures/IBbsArticle";
+
 import { HttpExceptionFilter } from "../filters/HttpExceptionFilter";
 
 @Controller("exception")

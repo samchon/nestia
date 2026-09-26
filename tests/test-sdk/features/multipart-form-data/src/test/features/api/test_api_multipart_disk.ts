@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import api from "../../../api";
+import api from "@api";
 
 /**
  * Verifies an upload kept by multer's disk storage reaches the handler with its

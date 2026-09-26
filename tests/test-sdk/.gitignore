@@ -12,3 +12,4 @@ features/clone-type-create-duplicate/sdk
 features/configurations/src/api/bbs
 features/configurations/src/api/common
 features/*/*.swagger.json
+/.tmp-*/

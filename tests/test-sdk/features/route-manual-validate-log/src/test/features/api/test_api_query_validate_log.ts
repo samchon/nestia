@@ -1,7 +1,7 @@
 import { TypedRoute } from "@nestia/core";
 import { TestValidator } from "@nestia/e2e";
 
-import api from "../../../api";
+import api from "@api";
 
 /**
  * Verifies `"stringify": "validate.log"` logs an invalid `@TypedQuery.Get()`

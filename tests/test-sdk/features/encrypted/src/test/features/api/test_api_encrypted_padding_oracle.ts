@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 import crypto from "crypto";
 
-import api from "../../../api";
+import api from "@api";
 
 /**
  * Verifies @EncryptedBody exposes no padding oracle: a forged ciphertext whose

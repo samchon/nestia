@@ -1,8 +1,8 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
-import { IExampleHeaders } from "../api/structures/IExampleHeaders";
-import { IExampleQuery } from "../api/structures/IExampleQuery";
+import { IExampleHeaders } from "@api/lib/structures/IExampleHeaders";
+import { IExampleQuery } from "@api/lib/structures/IExampleQuery";
 
 @Controller("example")
 export class ExampleController {

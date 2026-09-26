@@ -2,8 +2,8 @@ import { TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import typia from "typia";
 
-import { IAlias } from "../api/structures/IAlias";
-import { IGeneric } from "../api/structures/IGeneric";
+import { IAlias } from "@api/lib/structures/IAlias";
+import { IGeneric } from "@api/lib/structures/IGeneric";
 
 @Controller("alias")
 export class AliasController {
