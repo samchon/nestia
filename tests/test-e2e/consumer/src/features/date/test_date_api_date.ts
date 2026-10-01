@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
 import api from "../../api";
-import { IDateDefinedDate } from "../../api/structures/IDateDefinedDate";
+import { IDateDefinedDate } from "../../oracle/date/structures/IDateDefinedDate";
 
 /**
  * Verifies api date through its generated consumer.

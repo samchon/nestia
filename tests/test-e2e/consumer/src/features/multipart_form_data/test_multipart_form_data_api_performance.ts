@@ -1,7 +1,7 @@
 import typia from "typia";
 
 import api from "../../api";
-import { IPerformanceMultipartFormData } from "../../api/structures/IPerformanceMultipartFormData";
+import { IPerformanceMultipartFormData } from "../../oracle/multipart_form_data/structures/IPerformanceMultipartFormData";
 
 /**
  * Verifies the generated performance request returns the controller DTO.

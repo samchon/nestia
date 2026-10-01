@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
 import api from "../../api";
-import { IBbsArticleRoute } from "../../api/structures/IBbsArticleRoute";
+import { IBbsArticleRoute } from "../../oracle/route/structures/IBbsArticleRoute";
 
 /**
  * Verifies Observable<T> controller returns generate SDK output as T.

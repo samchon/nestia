@@ -1,7 +1,7 @@
 import typia from "typia";
 
 import api from "../../api";
-import { IPerformancePlain } from "../../api/structures/IPerformancePlain";
+import { IPerformancePlain } from "../../oracle/plain/structures/IPerformancePlain";
 
 /**
  * Verifies the generated performance request returns the controller DTO.

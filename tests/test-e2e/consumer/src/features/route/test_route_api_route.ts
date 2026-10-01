@@ -1,7 +1,7 @@
 import typia from "typia";
 
 import api from "../../api";
-import { IBbsArticleRoute } from "../../api/structures/IBbsArticleRoute";
+import { IBbsArticleRoute } from "../../oracle/route/structures/IBbsArticleRoute";
 
 /**
  * Verifies the generated random article route decodes its DTO.

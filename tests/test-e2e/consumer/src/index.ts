@@ -18,13 +18,14 @@ import { createMcpConnection } from "./internal/McpConnection";
  * @evidence contracts/testing.md#distinguishing-cases Valid, malformed, nullable, repeated-query, multipart, plain-text, WebSocket and MCP cases retain separate failure names. Per-rule compiler decisions belong to direct native units.
  * @evidence contracts/testing.md#execution-ownership The installed consumer entry calls this exported operation after its single compilation. DynamicExecutor discovers one named test per file recursively and awaits its promise.
  * @evidence contracts/e2e.md#necessary-boundary Generated client imports and transported requests must connect to emitted controllers and installed runtime helpers. Direct writer and transform units cannot detect an incorrect actual wire request.
- * @evidence contracts/e2e.md#shared-execution All cases use one installation, producer compilation, generated consumer compilation and backend; this operation launches no compiler or server.
+ * @evidence contracts/e2e.md#shared-execution Both adapter runs reuse one installation, producer compilation, generated consumer compilation and generated artifacts; each run consumes its separately acquired backend with a fresh MCP client, and this operation launches no compiler or server.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Route and DTO namespaces prevent cross-scenario dispatch. Cases own request specimens and WebSocket connectors; this entry owns one lazy official MCP client and closes it after the complete report, including failure. The start entry then closes the backend.
  * @evidence contracts/e2e.md#preserved-coverage The request assertions are mapped individually in the campaign transfer ledger. This entry does not claim coverage of untransferred legacy cases or rule-only assertions.
  */
 export const main = async (
   host: string,
   authoredCases: Array<{ file: string; name: string }>,
+  adapter: "express" | "fastify",
 ): Promise<void> => {
   const mcp = createMcpConnection(host, "/mcp");
   try {
@@ -43,7 +44,7 @@ export const main = async (
       simultaneous: 1,
       onComplete: (execution) => {
         console.log(
-          ` - ${path.relative(__dirname + "/features", execution.location)}#${execution.name}: ${execution.error === null ? "passed" : "failed"}`,
+          ` - [${adapter}] ${path.relative(__dirname + "/features", execution.location)}#${execution.name}: ${execution.error === null ? "passed" : "failed"}`,
         );
         if (execution.error !== null) console.error(execution.error);
       },
@@ -69,7 +70,7 @@ export const main = async (
     if (generated === 0)
       throw new Error("Fresh generated E2E artifacts executed no cases.");
     console.log(
-      `Consumer executions: ${authoredCases.length} authored exactly once, ${generated} fresh generated, ${report.executions.length} total.`,
+      `Consumer executions [${adapter}]: ${authoredCases.length} authored exactly once, ${generated} fresh generated, ${report.executions.length} total.`,
     );
     const failures = report.executions.filter(
       (execution) => execution.error !== null,

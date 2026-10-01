@@ -1,7 +1,7 @@
 import typia from "typia";
 
 import api from "../../api";
-import { IPerformanceRoute } from "../../api/structures/IPerformanceRoute";
+import { IPerformanceRoute } from "../../oracle/route/structures/IPerformanceRoute";
 
 /**
  * Verifies the generated performance request returns the controller DTO.

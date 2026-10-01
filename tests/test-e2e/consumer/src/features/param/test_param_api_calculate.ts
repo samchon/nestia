@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import { v4 } from "uuid";
 
 import api from "../../api";
-import { IListenerParam } from "../../api/structures/IListenerParam";
+import { IListenerParam } from "../../oracle/param/structures/IListenerParam";
 
 /**
  * Verifies generated calculator RPCs and listener events preserve their

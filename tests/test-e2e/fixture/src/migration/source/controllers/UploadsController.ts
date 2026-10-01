@@ -1,7 +1,7 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import Multer from "multer";
 
+import { createMultipartUpload } from "../../../internal/MultipartFactory";
 import { IUpload } from "../structures/IUpload";
 
 @Controller("uploads")
@@ -15,7 +15,8 @@ export class UploadsController {
    */
   @core.TypedRoute.Post()
   public upload(
-    @core.TypedFormData.Body(() => Multer()) input: IUpload.IForm,
+    @core.TypedFormData.Body(() => createMultipartUpload())
+    input: IUpload.IForm,
   ): IUpload.IResult {
     return {
       title: input.title,

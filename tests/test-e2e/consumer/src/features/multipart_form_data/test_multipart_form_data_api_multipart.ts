@@ -2,7 +2,7 @@ import { ArrayUtil, TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
 import api from "../../api";
-import { IMultipartMultipartFormData } from "../../api/structures/IMultipartMultipartFormData";
+import { IMultipartMultipartFormData } from "../../oracle/multipart_form_data/structures/IMultipartMultipartFormData";
 
 /**
  * Verifies api multipart through its generated consumer.

@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
 import api from "../../api";
-import { IHeadersHeaders } from "../../api/structures/IHeadersHeaders";
+import { IHeadersHeaders } from "../../oracle/headers/structures/IHeadersHeaders";
 
 /**
  * Verifies @TypedHeaders round-trips mixed-case HTTP header names and rejects

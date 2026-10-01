@@ -1,7 +1,7 @@
 import typia from "typia";
 
 import api from "../../api";
-import { IPerformanceDate } from "../../api/structures/IPerformanceDate";
+import { IPerformanceDate } from "../../oracle/date/structures/IPerformanceDate";
 
 /**
  * Verifies the generated performance request returns the controller DTO.

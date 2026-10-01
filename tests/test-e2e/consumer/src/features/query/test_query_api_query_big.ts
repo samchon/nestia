@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
 import api from "../../api";
-import { IBigQueryQuery } from "../../api/structures/IBigQueryQuery";
+import { IBigQueryQuery } from "../../oracle/query/structures/IBigQueryQuery";
 
 /**
  * Verifies api query big through its generated consumer.

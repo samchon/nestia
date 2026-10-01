@@ -2,8 +2,8 @@ import { TestValidator } from "@nestia/e2e";
 import { v4 } from "uuid";
 
 import api from "../../api";
-import { IListenerQuery } from "../../api/structures/IListenerQuery";
-import { IQueryQuery } from "../../api/structures/IQueryQuery";
+import { IListenerQuery } from "../../oracle/query/structures/IListenerQuery";
+import { IQueryQuery } from "../../oracle/query/structures/IQueryQuery";
 
 /**
  * Verifies generated calculator RPCs and listener events preserve their

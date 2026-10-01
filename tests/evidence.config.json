@@ -73,7 +73,8 @@
         "test-e2e/internal/boundary/*.cjs",
         "test-e2e/internal/test_benchmark_http_connection.cjs",
         "test-e2e/internal/test_benchmark_worker_discovery.cjs",
-        "test-e2e/internal/test_benchmark_worker_lifetimes.cjs"
+        "test-e2e/internal/test_benchmark_worker_lifetimes.cjs",
+        "test-e2e/internal/core_wrappers/test_core_compiler_wrappers.cjs"
       ],
       "symbol": "function",
       "reference": {
@@ -151,7 +152,8 @@
       "type": "typescript",
       "files": [
         "test-e2e/fixture/src/Backend.ts",
-        "test-e2e/fixture/src/scenarios/multipart_form_data/controllers/MultipartController.ts"
+        "test-e2e/fixture/src/scenarios/multipart_form_data/controllers/MultipartController.ts",
+        "test-e2e/fixture/src/internal/MultipartFactory.ts"
       ],
       "symbol": [
         "type",
@@ -236,11 +238,12 @@
       }
     },
     {
-      "name": "authored core fallback and alias runtime composition",
+      "name": "authored core runtime composition",
       "type": "typescript",
       "files": [
         "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryFallbackController.ts",
-        "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryAliasController.ts"
+        "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryAliasController.ts",
+        "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryValidationController.ts"
       ],
       "symbol": [
         "type",

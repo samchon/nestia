@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
 import api from "../../api";
-import { IBbsArticleBody } from "../../api/structures/IBbsArticleBody";
+import { IBbsArticleBody } from "../../oracle/body/structures/IBbsArticleBody";
 
 /**
  * Verifies the generated article store preserves request content.

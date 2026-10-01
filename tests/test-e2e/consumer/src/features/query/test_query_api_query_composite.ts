@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
 import api from "../../api";
-import { IQueryQuery } from "../../api/structures/IQueryQuery";
+import { IQueryQuery } from "../../oracle/query/structures/IQueryQuery";
 
 /**
  * Verifies composite query arguments are combined without loss.

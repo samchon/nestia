@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 
 import api from "../../api";
-import { ICalcEventListenerWebsocket } from "../../api/structures/ICalcEventListenerWebsocket";
-import { ICalcEventWebsocket } from "../../api/structures/ICalcEventWebsocket";
+import { ICalcEventListenerWebsocket } from "../../oracle/websocket/interfaces/ICalcEventListenerWebsocket";
+import { ICalcEventWebsocket } from "../../oracle/websocket/interfaces/ICalcEventWebsocket";
 
 /**
  * Verifies api calculate simple.

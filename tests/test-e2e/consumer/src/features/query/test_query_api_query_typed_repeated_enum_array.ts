@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
 import api from "../../api";
-import { IBusinessListingFiltersQuery } from "../../api/structures/IBusinessListingFiltersQuery";
+import { IBusinessListingFiltersQuery } from "../../oracle/query/structures/IBusinessListingFiltersQuery";
 
 /**
  * Verifies @TypedQuery preserves repeated enum-array query parameters.

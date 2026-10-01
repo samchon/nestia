@@ -1,8 +1,8 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import Multer from "multer";
 import os from "os";
 
+import { createMultipartUpload } from "../../../internal/MultipartFactory";
 import { IMultipartMultipartFormData } from "../structures/IMultipartMultipartFormData";
 
 /**
@@ -36,7 +36,8 @@ export class MultipartController {
    * @evidenceExclude contracts/portability.md#os-neutral-implementation This handler uses standard Blob/File buffer APIs and chooses no native path or executable representation.
    */
   public async post(
-    @core.TypedFormData.Body(() => Multer()) body: IMultipartMultipartFormData,
+    @core.TypedFormData.Body(() => createMultipartUpload())
+    body: IMultipartMultipartFormData,
   ): Promise<IMultipartMultipartFormData.IContentMultipartFormData> {
     const bytes = async (blob: Blob): Promise<number[]> =>
       Array.from(new Uint8Array(await blob.arrayBuffer()));
@@ -72,9 +73,7 @@ export class MultipartController {
    * @evidence contracts/portability.md#os-neutral-implementation Multer receives os.tmpdir rather than a platform-specific literal path; decoded File text and metadata use platform-neutral APIs.
    */
   public async disk(
-    @core.TypedFormData.Body(() =>
-      Multer({ storage: Multer.diskStorage({ destination: os.tmpdir() }) }),
-    )
+    @core.TypedFormData.Body(() => createMultipartUpload({ dest: os.tmpdir() }))
     body: IMultipartMultipartFormData.IDiskMultipartFormData,
   ): Promise<IMultipartMultipartFormData.IDiskContentMultipartFormData> {
     return {
