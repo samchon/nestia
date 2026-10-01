@@ -5,6 +5,8 @@ const { prepare } = require("./internal/consumer.cjs");
 const { test_sdk_producer_metadata } = require("./internal/test_sdk_producer_metadata.cjs");
 const { run: runBenchmark } = require("./internal/benchmark.cjs");
 const { prepareMigration, prepareMigrationConsumer, testMigrationConsumer } = require("./internal/migration.cjs");
+const { test_sdk_cli_argument_diagnostics } = require("./internal/boundary/test_sdk_cli_argument_diagnostics.cjs");
+const { test_sdk_cli_dependencies } = require("./internal/boundary/test_sdk_cli_dependencies.cjs");
 
 /**
  * Runs the installed rich producer and its generated consumer.
@@ -61,6 +63,18 @@ const main = async () => {
       }
     };
     inventoryCases(caseRoot);
+    for (const [name, operation] of [
+      ["sdk_cli_argument_diagnostics", test_sdk_cli_argument_diagnostics],
+      ["sdk_cli_dependencies", test_sdk_cli_dependencies],
+    ]) {
+      try {
+        await operation({ installation, sandbox });
+        console.log(` - ${name}: passed`);
+      } catch (error) {
+        failures.push(name);
+        console.error(error);
+      }
+    }
     try {
       await prepareMigration({ installation, sandbox });
     } catch (error) {
@@ -136,7 +150,10 @@ const main = async () => {
       swagger: JSON.parse(fs.readFileSync(path.join(sandbox, "swagger.json"), "utf8")),
     });
     console.log("Rich compiler: consumer (one generated program)");
-    compile("consumer", "consumer", migrationCompilerOptions);
+    compile("consumer", "consumer", {
+      ...migrationCompilerOptions,
+      exactOptionalPropertyTypes: true,
+    });
     const address = application.getHttpServer().address();
     if (address === null || typeof address === "string")
       throw new Error("Common application has no TCP address.");
