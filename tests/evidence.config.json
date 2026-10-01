@@ -126,7 +126,6 @@
       "name": "authored rich backend and workload helpers",
       "type": "typescript",
       "files": [
-        "test-e2e/fixture/src/Backend.ts",
         "test-e2e/fixture/src/benchmark/BenchmarkMonitor.ts"
       ],
       "symbol": [
@@ -158,7 +157,57 @@
         "type": "markdown",
         "root": "../.agents/skills",
         "files": [
-          "contracts/portability.md"
+          "contracts/common.md",
+          "contracts/portability.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "maintained pure-unit native loaders",
+      "type": "typescript",
+      "files": [
+        "test-cli/src/features/cli/internal/CliTestHarness.ts",
+        "test-editor/src/features/editor/internal/EditorTestHarness.ts",
+        "test-sdk/src/features/sdk/internal/SwaggerCompositionHarness.ts"
+      ],
+      "symbol": [
+        "type",
+        "function"
+      ],
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/portability.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "maintained authored unit metadata and data helpers",
+      "type": "typescript",
+      "files": [
+        "test-sdk/src/features/sdk/internal/HandWrittenMetadata.ts",
+        "test-sdk/src/features/e2e/internal/generate_random_articles.ts",
+        "test-sdk/src/features/e2e/structures/IBbsArticle.ts",
+        "test-sdk/src/features/e2e/structures/IPage.ts"
+      ],
+      "symbol": [
+        "type",
+        "function"
+      ],
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/performance.md"
         ],
         "symbol": "h2",
         "checklist": true
