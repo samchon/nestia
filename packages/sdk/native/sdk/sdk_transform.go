@@ -17,6 +17,7 @@ import (
 	shimprinter "github.com/microsoft/typescript-go/shim/printer"
 	shimscanner "github.com/microsoft/typescript-go/shim/scanner"
 	"github.com/samchon/nestia/packages/core/native/transform"
+	"github.com/samchon/nestia/packages/core/native/transform/schemaprojection"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 	nativecontext "github.com/samchon/typia/packages/typia/native/core/context"
 	nativefactories "github.com/samchon/typia/packages/typia/native/core/factories"
@@ -958,6 +959,7 @@ func nestiaSDKTryBakeJsonSchema(
 			panic(r)
 		}
 	}()
+	metadata = schemaprojection.Project(metadata)
 	collection := nativejson.JsonSchemasProgrammer.WriteSchemas(struct {
 		Version   string
 		Metadatas []*schemametadata.MetadataSchema

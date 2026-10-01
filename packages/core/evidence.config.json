@@ -30,7 +30,8 @@
         "native/**/*.go",
         "!native/**/*_test.go",
         "!native/transform/package.go",
-        "!native/transform/buildoutput/output.go"
+        "!native/transform/buildoutput/output.go",
+        "!native/transform/schemaprojection/project.go"
       ],
       "symbol": [
         "type",
@@ -41,6 +42,27 @@
         "root": "../../.agents/skills",
         "files": [
           "contracts/common.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "isolated schema writer graph projection",
+      "type": "go",
+      "files": [
+        "native/transform/schemaprojection/project.go"
+      ],
+      "symbol": [
+        "type",
+        "function"
+      ],
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/performance.md"
         ],
         "symbol": "h2",
         "checklist": true
