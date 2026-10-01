@@ -137,6 +137,9 @@ catalogs:
     rimraf:
       specifier: ^6.1.3
       version: 6.1.3
+    serialize-error:
+      specifier: ^4.1.0
+      version: 4.1.0
     swagger-ui-express:
       specifier: ^5.0.1
       version: 5.0.1
@@ -832,6 +835,9 @@ importers:
       rxjs:
         specifier: catalog:nestjs
         version: 7.8.2
+      serialize-error:
+        specifier: catalog:utils
+        version: 4.1.0
       swagger-ui-express:
         specifier: catalog:utils
         version: 5.0.1(express@4.22.2)

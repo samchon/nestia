@@ -33,7 +33,8 @@
     "express": "catalog:utils",
     "swagger-ui-express": "catalog:utils",
     "chalk": "catalog:utils",
-    "cli-progress": "catalog:utils"
+    "cli-progress": "catalog:utils",
+    "serialize-error": "catalog:utils"
   },
   "devDependencies": {
     "@types/node": "catalog:utils",
