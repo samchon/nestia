@@ -119,6 +119,9 @@ catalogs:
     express:
       specifier: ^4.21.1
       version: 4.22.2
+    fastify-multer:
+      specifier: ^2.0.3
+      version: 2.0.3
     jsdom:
       specifier: ^22.0.0
       version: 22.1.0
@@ -814,6 +817,9 @@ importers:
       express:
         specifier: catalog:utils
         version: 4.22.2
+      fastify-multer:
+        specifier: catalog:utils
+        version: 2.0.3
       multer:
         specifier: catalog:utils
         version: 2.1.1

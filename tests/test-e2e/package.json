@@ -24,6 +24,7 @@
     "tgrid": "catalog:samchon",
     "tstl": "catalog:samchon",
     "multer": "catalog:utils",
+    "fastify-multer": "catalog:utils",
     "@modelcontextprotocol/sdk": "catalog:modelcontextprotocol",
     "@nestjs/swagger": "catalog:nestjs",
     "uuid": "catalog:utils",
