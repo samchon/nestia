@@ -7,6 +7,10 @@ import { DynamicBenchmarker } from "../DynamicBenchmarker";
  * @evidence contracts/common.md#clear-and-simple-design A one-function namespace, internal to the package, that keeps presentation out of the benchmark logic.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The content is computed from the report and host facts; no numbers are hardcoded.
  * @evidence contracts/common.md#meaningful-documentation The comment states its single job.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The namespace organizes rendering declarations; it performs no native filesystem, process or host observation.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The namespace only groups declarations; the markdown operation owns its traversal and formatting algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration coordinates no shared computation.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The namespace owns no retained state or handles.
  */
 export namespace DynamicBenchmarkReporter {
   /**
@@ -21,6 +25,9 @@ export namespace DynamicBenchmarkReporter {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The record describes native facts supplied by the actual public caller and introduces no fixture-specific behavior.
    * @evidence contracts/common.md#meaningful-documentation Member comments explain absence, units and display semantics.
    * @evidence contracts/portability.md#os-neutral-implementation Missing CPU data is represented explicitly rather than inferred from an operating-system name; memory and version retain Node's native units and spelling.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The record describes supplied facts and chooses no computation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A host-fact record coordinates no computation across callers.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record owns no handles, tasks or retention policy.
    */
   export interface IHost {
     /** First CPU model, or undefined when the platform reports no CPU. */
@@ -43,6 +50,10 @@ export namespace DynamicBenchmarkReporter {
    * @evidence contracts/common.md#clear-and-simple-design Small local helpers (`integer`, `format`, `row`, `line`) share the formatting rules inside one function, so one place decides how a number reads.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The report states only the report's measurements and supplied host facts; nothing describes an unmeasured backend server or changes foreign runtime methods.
    * @evidence contracts/common.md#meaningful-documentation The comment states the locale, the truncation, and the CPU fallback.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The renderer consumes supplied CPU, memory and runtime facts and fixes numeric output to en-US; no native platform boundary is accessed by this operation.
+   * @evidence contracts/performance.md#efficient-algorithms Endpoint and failure ordering require comparison sorts, costing O(E log E); four memory series each scan M samples, and temporary rows and final text scale with displayed data. Sorting copies preserve the caller's endpoint order.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call renders its supplied report and host snapshot; it coordinates no completed or in-flight computation across callers.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Rendering retains only invocation-local arrays and strings until return and owns no cache, handle or background task.
    */
   export const markdown = (
     report: DynamicBenchmarker.IReport,
