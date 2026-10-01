@@ -14,6 +14,7 @@ import (
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimchecker "github.com/microsoft/typescript-go/shim/checker"
+	shimprinter "github.com/microsoft/typescript-go/shim/printer"
 	shimscanner "github.com/microsoft/typescript-go/shim/scanner"
 	"github.com/samchon/nestia/packages/core/native/transform"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
@@ -721,7 +722,7 @@ func nestiaSDKNormalizeImportPath(fileName string, module string) string {
 // imports, and named library types are classified by declaration provenance.
 func nestiaSDKReflectImports(prog *driver.Program, node *shimast.Node, imports []nestiaSDKImportInfo) []any {
 	output := []any{}
-	add := func(entity *shimast.Node, typeReference bool) {
+	add := func(entity *shimast.Node) {
 		if entity == nil {
 			return
 		}
@@ -748,9 +749,7 @@ func nestiaSDKReflectImports(prog *driver.Program, node *shimast.Node, imports [
 				return
 			}
 		}
-		if typeReference {
-			output = append(output, nestiaSDKReflectTypeReferenceSymbolImport(prog, entity, nestiaSDKEntityNameText(entity))...)
-		}
+		output = append(output, nestiaSDKReflectTypeReferenceSymbolImport(prog, entity, nestiaSDKEntityNameText(entity))...)
 	}
 	var walk func(*shimast.Node)
 	walk = func(current *shimast.Node) {
@@ -759,14 +758,14 @@ func nestiaSDKReflectImports(prog *driver.Program, node *shimast.Node, imports [
 		}
 		switch current.Kind {
 		case shimast.KindTypeReference:
-			add(current.AsTypeReferenceNode().TypeName, true)
+			add(current.AsTypeReferenceNode().TypeName)
 		case shimast.KindTypeQuery:
-			add(current.AsTypeQueryNode().ExprName, false)
+			add(current.AsTypeQueryNode().ExprName)
 		}
 		current.ForEachChild(func(child *shimast.Node) bool { walk(child); return false })
 	}
 	if node != nil && (node.Kind == shimast.KindIdentifier || node.Kind == shimast.KindQualifiedName) {
-		add(node, true)
+		add(node)
 	} else {
 		walk(node)
 	}
@@ -1801,6 +1800,9 @@ func nestiaSDKReflectType(
 	if typeNode == nil {
 		return map[string]any{"name": "__type"}, []any{}
 	}
+	if ref, refs, ok := nestiaSDKReflectAsyncAlias(prog, imports, typ, typeNode); ok {
+		return ref, refs
+	}
 	if typeNode != nil {
 		if ref, refs, ok := nestiaSDKReflectTypeNode(prog, imports, typeNode); ok {
 			return ref, refs
@@ -1817,6 +1819,119 @@ func nestiaSDKReflectType(
 		name = prog.Checker.TypeToString(typ)
 	}
 	return map[string]any{"name": name}, nestiaSDKReflectImports(prog, typeNode, imports)
+}
+
+// nestiaSDKReflectAsyncAlias reflects the actual response payload when its
+// annotation aliases an asynchronous wrapper. The checker builds a concrete AST
+// in the annotation's scope, substituting generic arguments and defaults; its
+// identifier-symbol map preserves declaration identity without reparsing text.
+// Ordinary user wrappers keep their original annotation and imports.
+func nestiaSDKReflectAsyncAlias(
+	prog *driver.Program,
+	imports []nestiaSDKImportInfo,
+	typ *shimchecker.Type,
+	node *shimast.Node,
+) (map[string]any, []any, bool) {
+	if prog == nil || prog.Checker == nil || typ == nil || node == nil {
+		return nil, nil, false
+	}
+	reference := node
+	for reference.Kind == shimast.KindParenthesizedType {
+		reference = reference.AsParenthesizedTypeNode().Type
+	}
+	if reference.Kind != shimast.KindTypeReference || transform.NestiaCoreIsAsyncReturnWrapperReference(prog, reference.AsTypeReferenceNode().TypeName) {
+		return nil, nil, false
+	}
+	declared := prog.Checker.GetTypeFromTypeNode(node)
+	if declared == nil || declared == typ || declared.Symbol() == nil {
+		return nil, nil, false
+	}
+	isAsync := func(current *shimchecker.Type) bool {
+		if current == nil || current.Symbol() == nil {
+			return false
+		}
+		for _, declaration := range current.Symbol().Declarations {
+			if declaration != nil && declaration.Name() != nil && transform.NestiaCoreIsAsyncReturnWrapperReference(prog, declaration.Name()) {
+				return true
+			}
+		}
+		return false
+	}
+	if !isAsync(declared) {
+		return nil, nil, false
+	}
+	seen := map[*shimchecker.Type]bool{}
+	for isAsync(typ) && !seen[typ] {
+		seen[typ] = true
+		arguments := prog.Checker.GetTypeArguments(typ)
+		if len(arguments) != 1 {
+			break
+		}
+		typ = arguments[0]
+	}
+	symbols := map[*shimast.IdentifierNode]*shimast.Symbol{}
+	// TypeScript's nodebuilder.FlagsNoTruncation is the public flag bit 1 << 0.
+	// The shim exposes TypeToTypeNode but no alias for that internal enum; a
+	// response type is executable client syntax and cannot use display elision.
+	const noTruncation = 1 << 0
+	projected := prog.Checker.TypeToTypeNode(typ, node, noTruncation, symbols)
+	if projected == nil {
+		return nil, nil, false
+	}
+	ref, _, ok := nestiaSDKReflectTypeNode(nil, nil, projected)
+	if !ok {
+		return nil, nil, false
+	}
+	refs := []any{}
+	add := func(entity *shimast.Node) {
+		root := entity
+		for root != nil && root.Kind == shimast.KindQualifiedName {
+			root = root.AsQualifiedName().Left
+		}
+		if root == nil || root.Kind != shimast.KindIdentifier {
+			return
+		}
+		symbol := symbols[root]
+		if symbol == nil || symbol.Flags&shimast.SymbolFlagsTypeParameter != 0 {
+			return
+		}
+		prefixes := map[string]bool{root.Text(): true}
+		matched := false
+		for _, imp := range imports {
+			if nestiaSDKImportMatches(prefixes, imp) {
+				refs = append(refs, nestiaSDKImportLiteral(imp, prefixes))
+				matched = true
+			}
+		}
+		if matched {
+			return
+		}
+		for _, declaration := range symbol.Declarations {
+			source := shimast.GetSourceFileOfNode(declaration)
+			if source != nil && (prog.TSProgram == nil || !prog.TSProgram.IsLibFile(source)) {
+				refs = append(refs, map[string]any{
+					"file": filepath.ToSlash(source.FileName()), "asterisk": nestiaSDKLiteralNull,
+					"default": nestiaSDKLiteralNull, "elements": []string{root.Text()},
+				})
+				return
+			}
+		}
+	}
+	var walk func(*shimast.Node)
+	walk = func(current *shimast.Node) {
+		if current == nil {
+			return
+		}
+		switch current.Kind {
+		case shimast.KindTypeReference:
+			add(current.AsTypeReferenceNode().TypeName)
+		case shimast.KindTypeQuery:
+			add(current.AsTypeQueryNode().ExprName)
+		}
+		current.ForEachChild(func(child *shimast.Node) bool { walk(child); return false })
+	}
+	walk(projected)
+	return ref, nestiaSDKMergeImportLiterals(refs), true
 }
 
 func nestiaSDKReflectTypeNode(
@@ -1850,21 +1965,19 @@ func nestiaSDKReflectTypeNode(
 			child = map[string]any{"name": nestiaSDKTypeNodeText(node.AsParenthesizedTypeNode().Type)}
 			refs = nestiaSDKReflectImports(prog, node.AsParenthesizedTypeNode().Type, imports)
 		}
-		name, _ := child["name"].(string)
-		return map[string]any{"name": "(" + name + ")"}, refs, true
+		return map[string]any{"name": "(" + nestiaSDKReflectTypeText(child) + ")"}, refs, true
 	case shimast.KindTypeOperator:
 		operator := node.AsTypeOperatorNode()
 		prefix := nestiaSDKTypeOperatorPrefix(node, operator.Type)
 		if prefix == "" {
 			return nil, nil, false
 		}
-		child, refs, ok := nestiaSDKReflectTypeNode(prog, imports, operator.Type)
-		if ok == false {
-			child = map[string]any{"name": nestiaSDKTypeNodeText(operator.Type)}
-			refs = nestiaSDKReflectImports(prog, operator.Type, imports)
-		}
-		name, _ := child["name"].(string)
-		return map[string]any{"name": prefix + " " + name}, refs, true
+		// Operators retain their actual syntax: readonly requires an array or
+		// tuple operand, and rendering the reflected Array<T> form here would
+		// produce invalid TypeScript. Checker-projected nodes already contain
+		// concrete alias arguments and are printed by the same text operation.
+		return map[string]any{"name": nestiaSDKTypeNodeText(node)},
+			nestiaSDKReflectImports(prog, operator.Type, imports), true
 	case shimast.KindTypeQuery:
 		return nil, nil, false
 	case shimast.KindTypeReference:
@@ -2312,9 +2425,13 @@ func nestiaSDKTypeNodeText(node *shimast.Node) string {
 		return ""
 	}
 	file := shimast.GetSourceFileOfNode(node)
-	source, ok := transform.SourceFileText(file)
+	source, ok := "", false
+	if file != nil {
+		source, ok = transform.SourceFileText(file)
+	}
 	if ok == false {
-		return ""
+		printer := shimprinter.NewPrinter(shimprinter.PrinterOptions{}, shimprinter.PrintHandlers{}, shimprinter.NewEmitContext())
+		return strings.TrimSpace(printer.Emit(node, file))
 	}
 	start, end := node.Pos(), node.End()
 	if start < 0 || end > len(source) || start >= end {
