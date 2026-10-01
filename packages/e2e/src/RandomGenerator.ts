@@ -428,14 +428,15 @@ export namespace RandomGenerator {
     new Date(from.getTime() + randint(0, range));
 
   /**
-   * Randomly samples a specified number of unique elements from an array.
+   * Randomly samples a specified number of positions from an array.
    *
-   * Selects random elements from the input array without replacement, ensuring
-   * all returned elements are unique. The sample size is automatically capped
-   * at the array length to prevent errors. Uses a partial Fisher-Yates shuffle
-   * over a sparse index map, so every draw is final and the cost grows with the
-   * sample size, not with the array length. Ideal for creating test datasets or
-   * selecting random subsets for validation.
+   * Selects input positions without replacement. Equal values at different
+   * positions remain separate candidates and can both appear in the result. The
+   * sample size is automatically capped at the array length to prevent errors.
+   * Uses a partial Fisher-Yates shuffle over a sparse index map, so every draw
+   * is final and the cost grows with the sample size, not with the array
+   * length. Ideal for creating test datasets or selecting random subsets for
+   * validation.
    *
    * @example
    *   const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];

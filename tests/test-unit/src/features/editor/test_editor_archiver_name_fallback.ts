@@ -18,7 +18,7 @@ import { EditorTestHarness } from "./internal/EditorTestHarness";
  */
 export const test_editor_archiver_name_fallback = (): void => {
   const archiver = EditorTestHarness.archiver();
-  const fallback: string = archiver.name("@ORGANIZATION/PROJECT");
+  const fallback: string = "ORGANIZATION-PROJECT.zip";
   const expected: Array<[string, string]> = [
     ["", fallback],
     ["...", fallback],

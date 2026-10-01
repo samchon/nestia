@@ -324,8 +324,8 @@ export namespace TestValidator {
    * @returns Void or Promise<void> based on the input type
    * @throws Error when function doesn't throw HttpError or status code doesn't
    *   match
-   * @evidence contracts/common.md#principled-implementation The thrown value must be an object whose constructor is named `HttpError` and whose status is one of the expected statuses, matched by name because each generated SDK defines its own class; a task that succeeds, throws another error, or throws a non-object fails with a message naming the expected and actual statuses.
-   * @evidence contracts/common.md#clear-and-simple-design One function whose predicate is shared by the synchronous and asynchronous paths.
+   * @evidence contracts/common.md#principled-implementation The thrown value must expose a constructor named `HttpError` and one expected numeric status, matched by name because generated SDKs define their own classes. Missing or throwing properties make classification fail instead of escaping the expectation. The returned promise chain propagates rejection-handler failures without leaving a separately bridged promise pending.
+   * @evidence contracts/common.md#clear-and-simple-design One predicate reads the thrown value once and is shared by the synchronous and asynchronous paths; asynchronous settlement uses the task's own promise chain.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The check follows the documented error shape, not a specific SDK or status list.
    * @evidence contracts/common.md#meaningful-documentation The comment documents the status argument, the two task kinds, and the thrown error, with examples.
    */
@@ -343,25 +343,36 @@ export namespace TestValidator {
         : `Bug on ${title}: status code must be ${status.join(
             " or ",
           )}, but succeeded.`;
-    const isHttpError = (exp: any): boolean =>
-      typeof exp === "object" &&
-      exp !== null &&
-      exp.constructor.name === "HttpError";
-    const predicate = (exp: any): Error | null =>
-      isHttpError(exp) && status.some((val) => val === exp.status)
+    const predicate = (exp: any): Error | null => {
+      let actual: number | undefined;
+      try {
+        if (
+          typeof exp === "object" &&
+          exp !== null &&
+          exp.constructor?.name === "HttpError"
+        ) {
+          const value: unknown = exp.status;
+          if (typeof value === "number") actual = value;
+        }
+      } catch {
+        // A thrown value with unreadable properties cannot establish an
+        // HTTP status; it fails the same expectation as any other value.
+      }
+      return actual !== undefined && status.some((val) => val === actual)
         ? null
-        : new Error(message(isHttpError(exp) ? exp.status : undefined));
+        : new Error(message(actual));
+    };
     try {
       const output: T = task();
       if (is_promise(output))
-        return new Promise<void>((resolve, reject) =>
-          output
-            .catch((exp) => {
-              const res: Error | null = predicate(exp);
-              if (res) reject(res);
-              else resolve();
-            })
-            .then(() => reject(new Error(message()))),
+        return output.then(
+          () => {
+            throw new Error(message());
+          },
+          (exp) => {
+            const res: Error | null = predicate(exp);
+            if (res) throw res;
+          },
         ) as any;
       else throw new Error(message());
     } catch (exp) {

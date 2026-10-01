@@ -35,10 +35,10 @@ export const json_equal_to =
         // already was when the two operands were swapped.
         else if (x === null || y === null) {
           if (x !== y) container.push(accessor);
-        } else if (x instanceof Array)
-          if (!(y instanceof Array)) container.push(accessor);
-          else array(accessor)(x)(y);
-        else if (x instanceof Object) object(accessor)(x)(y);
+        } else if (Array.isArray(x) !== Array.isArray(y))
+          container.push(accessor);
+        else if (Array.isArray(x)) array(accessor)(x)(y);
+        else if (typeof x === "object") object(accessor)(x)(y);
         else if (x !== y) container.push(accessor);
       };
     const array =

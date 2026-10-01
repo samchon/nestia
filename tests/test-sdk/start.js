@@ -579,7 +579,7 @@ const planBatches = (names) => {
   }
   return [
     // Start the longest shared dispatch while independent wrappers occupy
-    // the other pool slots, instead of queueing it behind every wrapper.
+    // the other pool slots, instead of queuing it behind every wrapper.
     ...BATCHES.keys(),
     ...names.filter((name) => batched.has(name) === false),
   ];

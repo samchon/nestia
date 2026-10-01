@@ -349,7 +349,7 @@ export namespace GaffComparator {
    * @template T - The type of objects being compared
    * @param closure - Function that extracts number value(s) from input objects
    * @returns A comparator function suitable for Array.sort()
-   * @evidence contracts/common.md#principled-implementation Numbers are compared by subtraction at the first differing position, which is exact for finite numbers of ordinary magnitude, and a shorter equal prefix sorts first.
+   * @evidence contracts/common.md#principled-implementation The sign of subtraction at the first differing position orders finite numeric values, and a shorter equal prefix sorts first. Subtraction can round or overflow, so the result's magnitude is not an exact-distance guarantee; callers must supply ordered numeric values rather than NaN.
    * @evidence contracts/common.md#clear-and-simple-design It uses the shared `wrap` and `mismatch`, and adds only the subtraction.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The comparison is the arithmetic difference, with no rounding or thresholds.
    * @evidence contracts/common.md#meaningful-documentation The comment states the multi-value rule and the arguments, with examples.

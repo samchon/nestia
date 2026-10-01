@@ -18,7 +18,7 @@ import { runE2E } from "../../../../scripts/run-e2e.cjs";
  * 3. Fail benchmark preparation and verify its dependent test is withheld.
  *
  * @evidence contracts/testing.md#behavioral-verification Real fixture launcher children record every command and cache/build environment; assertions distinguish early abort, missed suites, lost failures and execution after failed benchmark preparation.
- * @evidence contracts/testing.md#independent-expectations The expected start population is the six maintained boundary suites, followed by benchmark build and test; nonzero child results must make the aggregate fail, and failed preparation cannot provide a test artifact.
+ * @evidence contracts/testing.md#independent-expectations The three independent lightweight suites share one parallel/no-bail pnpm dispatch, followed by migration, options and SDK individually and benchmark build/test. Nonzero child results must make the aggregate fail, and failed preparation cannot provide a test artifact.
  * @evidence contracts/testing.md#distinguishing-cases All-success, first-suite failure and final-build failure use separate logs; SDK alone receives the package-build reuse flag, and every invocation receives the same absolute native cache.
  * @evidence contracts/testing.md#execution-ownership Node registers this exported function in test-evidence's start command; it invokes the actual orchestration operation and observes native child argument and exit delivery.
  * @evidence contracts/e2e.md#necessary-boundary Actual Node processes prove that later commands execute after failure and receive the intended environment; a status reducer alone cannot establish invocation or propagation.
@@ -32,9 +32,7 @@ export const test_e2e_runner_collects_failures = () => {
   const log = path.join(root, "commands.jsonl");
   const status = path.join(root, "status.json");
   const expected = [
-    ["--filter", "./tests/test-boundaries", "start"],
-    ["--filter", "./tests/test-evidence", "start"],
-    ["--filter", "./tests/test-benchmark", "start"],
+    ["--filter", "./tests/test-boundaries", "--filter", "./tests/test-evidence", "--filter", "./tests/test-benchmark", "-r", "--parallel", "--no-bail", "run", "start"],
     ["--filter", "./tests/test-migrate", "start"],
     ["--filter", "./tests/test-transform-options", "start"],
     ["--filter", "./tests/test-sdk", "start"],
@@ -51,9 +49,9 @@ const status = JSON.parse(fs.readFileSync(${JSON.stringify(status)}, "utf8"));
 process.exitCode = status[args.join(" ")] ?? 0;
 `);
     for (const [statuses, code, count] of [
-      [{}, 0, 8],
-      [{ [expected[0].join(" ")]: 1 }, 1, 8],
-      [{ [expected[6].join(" ")]: 1 }, 1, 7],
+      [{}, 0, 6],
+      [{ [expected[0].join(" ")]: 1 }, 1, 6],
+      [{ [expected[4].join(" ")]: 1 }, 1, 5],
     ]) {
       fs.writeFileSync(status, JSON.stringify(statuses));
       fs.writeFileSync(log, "");

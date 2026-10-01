@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/testing.md#behavioral-verification It calls `TestValidator.httpError()` with tasks throwing an error of the expected status, another status, and a non-HTTP error, and asserts acceptance or failure.
  * @evidence contracts/testing.md#independent-expectations The expected verdicts follow from the contract that the status must match an `HttpError`, and the errors are built in the test with a local class of the same name.
- * @evidence contracts/testing.md#distinguishing-cases Matching, mismatching, and non-HTTP errors are each tried synchronously and asynchronously; non-object throws are owned by `test_validate_http_error_non_object`.
+ * @evidence contracts/testing.md#distinguishing-cases Matching, mismatching, and non-HTTP errors are each tried synchronously and asynchronously; primitive and malformed-object throws are owned by test_validate_http_error_rejection_values.
  * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-unit` process that `DynamicExecutor` discovers by the `test` prefix under `src/features`, and calls the `@nestia/e2e` operation directly in-process; it installs no consumer, builds no native artifact, and starts no server.
  */
 export async function test_validate_http_error(): Promise<void> {
