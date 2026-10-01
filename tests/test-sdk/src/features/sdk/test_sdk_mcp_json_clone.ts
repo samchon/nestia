@@ -183,7 +183,7 @@ export const test_sdk_mcp_json_clone = async (): Promise<void> => {
       );
       assert.deepEqual(
         route.imports.map((i) => i.file),
-        [`${root}/structures/${namespace}`],
+        [path.join(root, "structures", namespace)],
       );
       const importer = new ImportDictionary(`${root}/functional/mcp/index.ts`);
       const text = SdkMcpRouteProgrammer.write(project)(importer)(route)
@@ -204,6 +204,12 @@ export const test_sdk_mcp_json_clone = async (): Promise<void> => {
       assert.ok(
         importer.toImports().every((i) => i.file !== "/server/controller.ts"),
       );
+      const importText = importer
+        .toStatements(path.join(root, "functional", "mcp"))
+        .map((node) => new TsPrinter().print(node))
+        .join("\n");
+      assert.ok(importText.includes(`from "../../structures/${namespace}"`));
+      assert.doesNotMatch(importText, /\\/);
       const declaration = fs.readFileSync(
         path.join(root, "structures", `${namespace}.ts`),
         "utf8",
