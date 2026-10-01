@@ -82,7 +82,7 @@ export namespace SdkHttpSimulationProgrammer {
    * Returns `simulate`: it asserts the parameters and returns a random output,
    * wrapped as a propagation when configured.
    *
-   * @evidence contracts/common.md#principled-implementation The status of the wrapper is the declared one or the method's default.
+   * @evidence contracts/common.md#principled-implementation The status of the wrapper is the declared one or the method's default. A response without a content type has no Content-Type entry; a declared media type supplies a string header, preserving the propagation header contract.
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The parameters are validated before a response is made.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
@@ -151,9 +151,11 @@ export namespace SdkHttpSimulationProgrammer {
                           ),
                           factory.createPropertyAssignment(
                             "headers",
-                            LiteralFactory.write({
-                              "Content-Type": route.success.contentType,
-                            }),
+                            LiteralFactory.write(
+                              route.success.contentType === null
+                                ? {}
+                                : { "Content-Type": route.success.contentType },
+                            ),
                           ),
                           factory.createPropertyAssignment("data", caller()),
                         ],

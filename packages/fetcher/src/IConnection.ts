@@ -23,8 +23,11 @@ export interface IConnection<
   /** Host address of the remote HTTP server. */
   host: string;
 
-  /** Header values delivered to the remote HTTP server. */
-  headers?: Record<string, IConnection.HeaderValue> &
+  /**
+   * Header values delivered to the remote HTTP server; undefined entries are
+   * omitted.
+   */
+  headers?: Record<string, IConnection.HeaderValue | undefined> &
     IConnection.Headerify<Headers>;
 
   /**
@@ -87,10 +90,10 @@ export interface IConnection<
  * Support types of {@link IConnection}: the fetch options, the allowed header
  * values, and the header mapping.
  *
- * @evidence contracts/common.md#principled-implementation The namespace holds the option, header value, and header mapping types that the interface members use, so the connection type and its support types share one public identity.
- * @evidence contracts/common.md#clear-and-simple-design Three types with no runtime members, each used by the interface above.
+ * @evidence contracts/common.md#principled-implementation The merged connection interface and namespace share one public identity for addressing, transport settings and support types. Header entries accept HeaderValue or undefined omission, while Headerify retains name-specific constraints; the HeaderValue union continues to exclude null and objects.
+ * @evidence contracts/common.md#clear-and-simple-design The interface separates addressing, header input, simulation, observation, encryption and fetch options; three supporting types organize their representations without runtime members.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It contains types only.
- * @evidence contracts/common.md#meaningful-documentation Each nested type carries its own documentation.
+ * @evidence contracts/common.md#meaningful-documentation The interface member comments explain addressing, omitted headers and optional transport settings; the logger separately documents completion, awaiting and ignored errors. Each support type has its own documentation.
  */
 export namespace IConnection {
   /**
@@ -228,7 +231,7 @@ export namespace IConnection {
    * - "server"
    * - "user-agent"
    *
-   * @evidence contracts/common.md#principled-implementation For each key the mapped type allows a value of `HeaderValue`; keys are compared in lower case, so the rule follows HTTP's case-insensitive names: `set-cookie` must be an array, the singleton headers listed in the comment must not be arrays, and every other key keeps its type.
+   * @evidence contracts/common.md#principled-implementation Each key admits only HeaderValue or omitted undefined. Classifying the defined value domain preserves optional array set-cookie inputs; singleton headers reject any array member even in a scalar/array union. An undefined-only domain transmits nothing and stays permitted. Lowercase keys follow HTTP's case-insensitive names, and ordinary keys retain their type.
    * @evidence contracts/common.md#clear-and-simple-design One mapped type that rejects an entry by turning it into `never`, with the rule spelled out in the comment.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment lists the prohibited cases and the singleton headers.
@@ -237,7 +240,7 @@ export namespace IConnection {
     [P in keyof T]?: T[P] extends HeaderValue | undefined
       ? P extends string
         ? Lowercase<P> extends "set-cookie"
-          ? T[P] extends Array<HeaderValue>
+          ? Exclude<T[P], undefined> extends Array<HeaderValue>
             ? T[P] | undefined
             : never
           : Lowercase<P> extends
@@ -259,9 +262,12 @@ export namespace IConnection {
                 | "retry-after"
                 | "server"
                 | "user-agent"
-            ? T[P] extends Array<HeaderValue>
-              ? never
-              : T[P] | undefined
+            ? Extract<
+                Exclude<T[P], undefined>,
+                Array<HeaderValue>
+              > extends never
+              ? T[P] | undefined
+              : never
             : T[P] | undefined
         : never
       : never;
