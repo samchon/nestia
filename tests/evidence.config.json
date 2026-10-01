@@ -247,7 +247,12 @@
       "files": [
         "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryFallbackController.ts",
         "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryAliasController.ts",
-        "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryValidationController.ts"
+        "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryValidationController.ts",
+        "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryExceptionFilterController.ts",
+        "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryParamReportController.ts",
+        "test-e2e/fixture/src/scenarios/core_boundary/filters/CoreBoundaryHttpExceptionFilter.ts",
+        "test-e2e/fixture/src/scenarios/core_boundary/internal/CoreBoundaryDomainErrors.ts",
+        "test-e2e/fixture/src/scenarios/core_boundary/structures/CoreBoundaryExceptionInput.ts"
       ],
       "symbol": [
         "type",
@@ -285,6 +290,27 @@
         "root": "../.agents/skills",
         "files": [
           "contracts/common.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "owned exception registry application lifetime",
+      "type": "typescript",
+      "files": [
+        "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryExceptionManagerController.ts"
+      ],
+      "symbol": [
+        "type",
+        "function"
+      ],
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/performance.md"
         ],
         "symbol": "h2",
         "checklist": true
