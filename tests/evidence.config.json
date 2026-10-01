@@ -271,7 +271,10 @@
         "test-e2e/fixture/src/scenarios/sdk_boundary/controllers/SdkBoundaryTransportController.ts",
         "test-e2e/fixture/src/scenarios/sdk_boundary/structures/ISdkBoundaryPoint.ts",
         "test-e2e/exact-optional/producer/src/controllers/OptionalController.ts",
-        "test-e2e/exact-optional/producer/src/structures/IOptional.ts"
+        "test-e2e/exact-optional/producer/src/structures/IOptional.ts",
+        "test-e2e/fixture/src/scenarios/native_boundary/controllers/ImplicitController.ts",
+        "test-e2e/fixture/src/scenarios/native_boundary/controllers/NamespaceController.ts",
+        "test-e2e/fixture/src/scenarios/native_boundary/controllers/ProvenanceController.ts"
       ],
       "symbol": [
         "type",

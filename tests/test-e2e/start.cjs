@@ -9,6 +9,7 @@ const { prepareMigration, prepareMigrationConsumer, testMigrationConsumer } = re
 const { test_sdk_cli_argument_diagnostics } = require("./internal/boundary/test_sdk_cli_argument_diagnostics.cjs");
 const { test_sdk_cli_dependencies } = require("./internal/boundary/test_sdk_cli_dependencies.cjs");
 const { test_sdk_distribution_cwd_restore } = require("./internal/boundary/test_sdk_distribution_cwd_restore.cjs");
+const { test_sdk_bundle_preserves_customized_output } = require("./internal/boundary/test_sdk_bundle_preserves_customized_output.cjs");
 const { test_sdk_exact_optional_compiler } = require("./internal/exact_optional/test_sdk_exact_optional_compiler.cjs");
 const { test_core_compiler_wrappers } = require("./internal/core_wrappers/test_core_compiler_wrappers.cjs");
 
@@ -29,7 +30,7 @@ const { test_core_compiler_wrappers } = require("./internal/core_wrappers/test_c
  * @evidence contracts/testing.md#distinguishing-cases The combined input retains separate scenario routes, types and request failures; incompatible diagnostic/noEmit and worker cases remain explicit pending transfers in the ledger.
  * @evidence contracts/testing.md#execution-ownership The sole test-e2e workspace entry invokes this exported operation. It uses installed public compiler and SDK APIs, and never calls legacy workspace starts or compiles projects per feature.
  * @evidence contracts/e2e.md#necessary-boundary One actual packed installation connects published exports, the composed native producer, generator, generated client and HTTP/WebSocket/MCP runtime. Pure operation calls cannot prove that connection.
- * @evidence contracts/e2e.md#shared-execution One ordinary producer and consumer share a single installation under the original false flag. The contradictory exact-optional boundary adds only two public compiler requests and one application-input All invocation (SDK and Swagger generation) with a no-listen app. Nine named diagnostic/noEmit wrapper requests are recorded separately (API two, CLI seven); they reuse the same installation/native cache and create no backend. Primary SDK/Swagger/E2E generation and the necessary incompatible propagated SDK ABI are two explicit generation operations on the same reflected application; both outputs enter that single consumer program. Application-input generation reuses the producer's reflected metadata without ConfigAnalyzer's source-input recompilation.
+ * @evidence contracts/e2e.md#shared-execution One ordinary producer and consumer share a single installation under the original false flag. The contradictory exact-optional boundary adds only two public compiler requests and one application-input All invocation (SDK and Swagger generation) with a no-listen app. Nine named diagnostic/noEmit wrapper requests are recorded separately (API two, CLI seven); they reuse the same installation/native cache and create no backend. Primary SDK/Swagger/E2E generation and the necessary incompatible propagated SDK ABI are two explicit generation operations on the same reflected application; both outputs enter that single consumer program. The original customized bundle is prepared by one direct filesystem bundle call; existing All refills its deleted file and the same consumer compile consumes the preserved exports without another generator or compiler. Application-input generation reuses the producer's reflected metadata without ConfigAnalyzer's source-input recompilation.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity A unique sandbox owns immutable input copies and phase outputs. Express closes after all request and benchmark clients settle; Fastify then acquires a fresh application over the same emitted controller classes and compiled consumer, with its own MCP client. Conflicting HTTP parser/adapter configuration requires these two backend lifetimes, while compiler/install/generation inputs remain identical. Explicit route/type namespaces isolate scenarios, an ephemeral port avoids collisions and finally closes the backend before removing the installation and sandbox. An evidence directory keyed by that unique sandbox retains compiler result buffers, emitted sources, raw operation metadata and packed hashes before cleanup; dependencies are not copied and failed compiler buffers are never published as runnable artifacts.
  * @evidence contracts/e2e.md#preserved-coverage The per-assertion campaign ledger identifies request destinations and pending legacy transfers. The rich program does not certify untransferred cases; originals remain until verified ownership exists.
  */
@@ -237,6 +238,15 @@ const main = async () => {
     backend = new Backend();
     const application = await measure("backend express", () => backend.open());
     record("operation-metadata-before-generation.json", collectMetadata());
+    let verifyCustomizedBundle;
+    try {
+      verifyCustomizedBundle = await measure("bundle customization (direct bundle 1, existing All refill 1)", () => test_sdk_bundle_preserves_customized_output({
+        installation, output: path.join(sandbox, "consumer/src/api"), record,
+      }));
+    } catch (error) {
+      failures.push("SDK bundle customization preparation");
+      console.error(error);
+    }
     const generation = new NestiaSdkApplication({
       input: async () => application,
       clone: true,
@@ -255,6 +265,14 @@ const main = async () => {
       },
     });
     await measure("generation all (SDK, Swagger, E2E)", () => generation.all());
+    if (verifyCustomizedBundle !== undefined) {
+      try {
+        verifyCustomizedBundle();
+      } catch (error) {
+        failures.push("SDK bundle preserved output");
+        console.error(error);
+      }
+    }
     await measure("generation SDK propagated ABI", () => new NestiaSdkApplication({
       input: async () => application,
       clone: true,

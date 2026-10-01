@@ -101,14 +101,14 @@ export interface CleanDto { title: string; count: number; }
  * 2. Invoke the installed public API twice and its public CLI seven times.
  * 3. Assert literal diagnostics, named outputs and observable publication absence.
  *
- * @evidence contracts/testing.md#behavioral-verification Actual installed API and CLI requests reject strict optional body/query and WeakMap schemas, accept both non-strict controls, report the original WeakMap and tuple locations, reject a genuine assignment type error, and suppress output for failed or analysis-only programs. The legal noEmit option control must succeed through the real private ForceEmit traversal.
+ * @evidence contracts/testing.md#behavioral-verification Actual installed API and CLI requests reject strict optional body/query and WeakMap schemas, accept both non-strict controls, report the original WeakMap and tuple locations, reject a genuine assignment type error, and suppress JavaScript/declaration output for failed or analysis-only programs. The public in-memory strict API must not publish caller-tree BuildInfo; CLI incremental BuildInfo is recorded separately, with a present positive for valid analysis. The legal noEmit option control must succeed through the real private ForceEmit traversal.
  * @evidence contracts/testing.md#independent-expectations Copied authored optional fields, WeakMap and tuple inputs establish schema negatives independently of compiler output. The expected decorator codes, tuple/WeakMap reasons, source coordinates, output filenames and TypeScript assignment incompatibility are literals. A successful non-strict program must return both separate JavaScript artifacts whose evaluation uses actual installed decorators.
  * @evidence contracts/testing.md#distinguishing-cases One strict API program requires all three distinct diagnostic owners, with a non-strict optional-body/query emitting twin. The WeakMap CLI noEmit case retains the original launcher witness. Tuple emitting rejection is separate from check, explicit --noEmit and configured noEmit. A valid decorated route and clean DTO with allowImportingTsExtensions distinguish private reload option preservation from a string-to-number type error.
  * @evidence contracts/testing.md#execution-ownership The sole rich E2E entry invokes this matching public export after its shared installation. The operation records nine real compiler requests and aggregates independent case failures; it does not invoke old starts, native executables or compiler internals. Public compile always forces emit, so only the public CLI owns analysis-only entries.
  * @evidence contracts/e2e.md#necessary-boundary Installed descriptor resolution and public API/CLI forwarding connect the composed native compiler to its reporting and output protocol. Source-only Go transforms cannot establish actual JavaScript publication, launcher noEmit forwarding or original diagnostics followed by private ForceEmit.
  * @evidence contracts/e2e.md#shared-execution All nine requests reuse the existing packed installation and absolute native cache, with no install, pack, backend or independently built executable. Compatible strict negatives and compatible non-strict controls are each batched. Different boolean/object LLM settings and check/build/noEmit entry states remain separate real programs rather than being counted as one because their API class is shared.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each named request owns a unique project and output/build-info paths beneath the rich sandbox. Environment overrides belong to API contexts or child processes, SDK environment activation is disabled for these core-only assertions, outputs are bounded before evaluation, and the parent owns installation/sandbox teardown. Results and copied inputs are retained through the parent's evidence recorder before cleanup.
- * @evidence contracts/e2e.md#preserved-coverage Original strict and non-strict build-table schema/publication assertions, the WeakMap noEmit wrapper, tuple emitting rejection, three tuple noEmit entries and valid/type-error check controls have named destinations here. Exact internal native manifest request/quiet-stream assertions remain pending in the campaign ledger and original tests; absence of an unrequested manifest is not claimed as coverage.
+ * @evidence contracts/e2e.md#preserved-coverage Original strict and non-strict build-table schema/publication assertions, the WeakMap noEmit wrapper, tuple emitting rejection, three tuple noEmit entries and valid/type-error check controls have named destinations here. Original direct-native BuildInfo suppression belongs to native publication units; CLI incremental metadata is not claimed as that assertion. Exact internal native manifest request/quiet-stream assertions remain pending in the campaign ledger and original tests; absence of an unrequested manifest is not claimed as coverage.
  */
 const test_core_compiler_wrappers = async ({
   installation,
@@ -182,12 +182,27 @@ const test_core_compiler_wrappers = async ({
     record(`core-wrapper-project-${name}.json`, config);
     return directory;
   };
-  const absent = (directory) => {
+  const absentApiArtifacts = (directory) => {
     for (const file of ["output", "cache.tsbuildinfo"])
       assert(
         !fs.existsSync(path.join(directory, file)),
         `Unexpected published artifact: ${directory}/${file}`,
       );
+  };
+  const cliArtifacts = (name, directory, requireIncrementalCache = false) => {
+    assert(
+      !fs.existsSync(path.join(directory, "output")),
+      `Unexpected CLI JavaScript/declaration output: ${directory}/output`,
+    );
+    const cache = path.join(directory, "cache.tsbuildinfo");
+    const present = fs.existsSync(cache);
+    record(`core-wrapper-${name}-incremental-cache.json`, {
+      present,
+      bytes: present ? fs.statSync(cache).size : 0,
+      ownership: "TypeScript CLI incremental analysis; not the in-memory API no-caller-write contract",
+    });
+    if (requireIncrementalCache)
+      assert(present, "Valid incremental CLI analysis must retain its BuildInfo control.");
   };
   const diagnose = (text, ...expected) => {
     const normalized = text.replaceAll("\\", "/");
@@ -336,7 +351,7 @@ const test_core_compiler_wrappers = async ({
         `Missing diagnostic section ${header}: ${JSON.stringify(result.diagnostics)}`,
       );
     }
-    absent(directory);
+    absentApiArtifacts(directory);
   });
   run("non-strict-publication-controls", () => {
     const directory = project(
@@ -380,7 +395,7 @@ const test_core_compiler_wrappers = async ({
       "- IArticle.weak: WeakMap",
       "- LLM schema does not support WeakMap type.",
     );
-    absent(directory);
+    cliArtifacts("weakmap-explicit-no-emit", directory);
   });
   run("tuple-emitting-publication", () => {
     const directory = project("tuple-emitting-publication", ["tuple.ts"], true);
@@ -392,7 +407,7 @@ const test_core_compiler_wrappers = async ({
       "",
       "Quiet rejected emit published a summary.",
     );
-    absent(directory);
+    cliArtifacts("tuple-emitting-publication", directory);
   });
   for (const [name, args, options] of [
     ["tuple-check", ["check"], {}],
@@ -408,7 +423,7 @@ const test_core_compiler_wrappers = async ({
       // verbose summary is not a public CLI contract and remains pending.
       if (name !== "tuple-explicit-no-emit")
         assert.equal(result.stdout.trim(), "");
-      absent(directory);
+      cliArtifacts(name, directory);
     });
   run("valid-check-analysis-only-options", () => {
     const directory = project(
@@ -422,14 +437,14 @@ const test_core_compiler_wrappers = async ({
     ]);
     assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
     assert.equal(result.stdout.trim(), "");
-    absent(directory);
+    cliArtifacts("valid-check-analysis-only-options", directory, true);
   });
   run("check-typescript-error", () => {
     const directory = project("check-typescript-error", ["bad.ts"], true);
     const result = cli("check-typescript-error", directory, ["check"]);
     assert.equal(result.status, 2);
     diagnose(`${result.stdout}\n${result.stderr}`, "TS2322", "number");
-    absent(directory);
+    cliArtifacts("check-typescript-error", directory);
   });
   record("core-wrapper-requests.json", {
     requests,
