@@ -1,5 +1,6 @@
 import { IConnection } from "@nestia/fetcher";
 import fs from "fs";
+import os from "os";
 import NodePath from "path";
 import { Driver, WorkerConnector, WorkerServer } from "tgrid";
 import { HashMap, hash } from "tstl";
@@ -505,16 +506,20 @@ export namespace DynamicBenchmarker {
    * @param report Benchmark report
    * @returns Markdown content
    * @evidence contracts/common.md#principled-implementation Rendering is a pure function of the report and a few host facts, delegated to the reporter so the report type and its presentation stay separate.
-   * @evidence contracts/common.md#clear-and-simple-design A one-line delegation that gives users a single entry point without exposing the internal reporter.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The function only formats; it does not alter the report.
+   * @evidence contracts/common.md#clear-and-simple-design The wrapper captures three native host facts and delegates rendering, giving users one entry point without exposing the internal reporter.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The function observes native host facts and formats the report without altering its measurements.
    * @evidence contracts/common.md#meaningful-documentation The comment states input and output: a report in, markdown content out.
    * @evidence contracts/performance.md#efficient-algorithms Rendering delegates to the reporter and scales with report endpoints, samples and output bytes; host metadata is obtained through Node os APIs.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidence contracts/portability.md#os-neutral-implementation The reporter obtains host information through Node os APIs; this wrapper formats report data and does not construct native file paths or shell commands.
+   * @evidence contracts/portability.md#os-neutral-implementation The wrapper obtains host information through Node os APIs and passes those facts to the pure renderer without constructing native file paths or shell commands.
    */
   export const markdown = (report: DynamicBenchmarker.IReport): string =>
-    DynamicBenchmarkReporter.markdown(report);
+    DynamicBenchmarkReporter.markdown(report, {
+      cpu: os.cpus()[0]?.model,
+      memory: os.totalmem(),
+      node: process.version,
+    });
 
   const execute =
     <Parameters extends any[]>(ctx: {
