@@ -21,7 +21,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It migrates `/files/{id}.json`, `/range/{from}-{to}`, and `/items/{item-id}.json` in SDK and NestJS modes and asserts the path functions and the routes place each parameter where the template writes it.
  * @evidence contracts/testing.md#independent-expectations The document's braces delimit each name, so the expected paths are the templates themselves.
  * @evidence contracts/testing.md#distinguishing-cases A parameter before a literal, two parameters around a dash, and a hyphenated name are separate templates, in both modes.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_path_segments = (): void => {
   const expected: string[] = [

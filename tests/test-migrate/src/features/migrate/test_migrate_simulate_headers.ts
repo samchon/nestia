@@ -22,7 +22,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It migrates an operation with a required header in SDK and nest modes and asserts the simulate function asserts `connection.headers` by a type and the e2e test spreads random headers.
  * @evidence contracts/testing.md#independent-expectations The generated code must validate what the server requires, so the expected fragments follow from the declared header.
  * @evidence contracts/testing.md#distinguishing-cases The simulate function and the e2e test are separate consumers of the header in two modes, and a second operation without headers is the adjacent negative case: the validation and the random headers must each appear exactly once, so a programmer that writes them for every operation is detected.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_simulate_headers = (): void => {
   for (const mode of ["sdk", "nest"] as const) {

@@ -17,7 +17,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It migrates a document whose schema declares properties and boolean `additionalProperties` and asserts the DTO keeps `id`, the optional `name`, and the index signature.
  * @evidence contracts/testing.md#independent-expectations OpenAPI defines declared properties beside additional ones, so the expected DTO members are the ones the document writes.
  * @evidence contracts/testing.md#distinguishing-cases The mixed schema is the failing input, and the required and optional properties beside the index signature separate a writer that keeps only one of them.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_additional_properties = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

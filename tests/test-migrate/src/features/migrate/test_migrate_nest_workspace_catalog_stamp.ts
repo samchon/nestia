@@ -28,7 +28,7 @@ import path from "path";
  * @evidence contracts/testing.md#behavioral-verification It generates a nest project and asserts the nestia catalog entries pin this repository's version, the TypeScript entries keep carets, typia is pinned exactly, and package.json keeps its `catalog:` specifiers.
  * @evidence contracts/testing.md#independent-expectations The expected versions are read from the installed packages by `createRequire`, which the migrate code under test does not use, and the typia pin is the release migrate links.
  * @evidence contracts/testing.md#distinguishing-cases Nestia, TypeScript, typia entries and the package.json indirection are four separate assertions with different expected shapes.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_nest_workspace_catalog_stamp = (): void => {
   const app: NestiaMigrateApplication =

@@ -23,7 +23,7 @@ import { createRequire } from "module";
  * @evidence contracts/testing.md#behavioral-verification It migrates paths with reserved characters and matches each generated route with the same `path-to-regexp` NestJS's router uses, asserting the document's URL matches and a neighbor does not, and that controller directories hold no reserved character.
  * @evidence contracts/testing.md#independent-expectations The oracle is `path-to-regexp` itself, an independent implementation of the router's matching.
  * @evidence contracts/testing.md#distinguishing-cases `:`, `*`, `+`, `!`, and parentheses beside a parameter each have a matching URL and a non-matching neighbor, and the SDK path functions write the URL unescaped.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_route_reserved = (): void => {
   const { match } = createRequire(require.resolve("@nestjs/core"))(

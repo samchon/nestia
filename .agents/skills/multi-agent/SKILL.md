@@ -11,6 +11,7 @@ This skill is the single entry point for every explicitly parallel review or cam
 | --- | --- | --- |
 | Team, parallel, or multi-agent review | [review](../review/SKILL.md) | [review.md](review.md) |
 | Parallel or multi-agent issue campaign | [issue-campaign](../issue-campaign/SKILL.md) | [issue-campaign.md](issue-campaign.md) |
+| Campaign explicitly continued under issue #1775 | [issue-campaign](../issue-campaign/SKILL.md) | [campaign-1775.md](campaign-1775.md) |
 
 `nestia` has no benchmark-campaign skill. Use [benchmark](../benchmark/SKILL.md) for measurement integrity, then the applicable issue-campaign workflow for authorized benchmark-driven implementation.
 

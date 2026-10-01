@@ -16,7 +16,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It migrates operations with an optional and a required body and asserts keyword `Props` marks only the optional one `?`, and that positional mode marks the same body.
  * @evidence contracts/testing.md#independent-expectations `requestBody.required` decides optionality in OpenAPI, and positional mode is the reference the keyword mode must agree with.
  * @evidence contracts/testing.md#distinguishing-cases The optional and required bodies are compared in both modes, so a mode that marks all or none is detected.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_keyword_optional_body = (): void => {
   const app: NestiaMigrateApplication =

@@ -31,7 +31,7 @@ import path from "path";
  * @evidence contracts/testing.md#behavioral-verification It generates an SDK project and asserts every dependency the `typescript` catalog pins carries that pin, and a dependency in neither catalog keeps the template's version, which a rewrite that overwrote every specifier with a catalog value or reference would change.
  * @evidence contracts/testing.md#independent-expectations The expected pins are read from the tracked `pnpm-workspace.yaml`, which the repository declares, not from the lockfile the bundler reads.
  * @evidence contracts/testing.md#distinguishing-cases A catalog dependency and a dependency in neither catalog are the positive and negative cases.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_sdk_dependency_catalog_stamp = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

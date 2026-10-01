@@ -10,6 +10,8 @@ catalogs:
     '@nestjs/core': *nestjs
     '@nestjs/platform-express': *nestjs
     '@nestjs/platform-fastify': *nestjs
+    '@nestjs/swagger': ^11.2.6
+    reflect-metadata: ^0.2.2
     # the router NestJS 11 routes with, through Express 5
     path-to-regexp: ^8.4.2
     rxjs: ^7.1.0
@@ -31,6 +33,17 @@ catalogs:
     react-test-renderer: ^18.3.1
     rimraf: ^6.1.3
     uuid: ^13.0.0
+    multer: ^2.0.2
+    '@types/express': ^4.17.21
+    '@types/multer': ^1.4.12
+    dotenv: ^16.3.1
+    dotenv-expand: ^10.0.0
+    express: ^4.21.1
+    swagger-ui-express: ^5.0.1
+    chalk: 4.1.2
+    cli-progress: ^3.12.0
+    '@types/swagger-ui-express': ^4.1.8
+    '@types/cli-progress': ^3.11.6
   typescript:
     '@babel/parser': ^7.29.8
     ttsc: &ttsc ^0.28.1

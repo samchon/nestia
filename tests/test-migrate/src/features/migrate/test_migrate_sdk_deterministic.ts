@@ -15,7 +15,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It migrates one document with six routes as SDK and nest projects nine times and asserts the file names and contents are identical, which fails when the start example picks a random route.
  * @evidence contracts/testing.md#independent-expectations Determinism is the property: every run is compared with the first run, not with an expected file.
  * @evidence contracts/testing.md#distinguishing-cases Six routes make an accidental match of nine runs improbable, and the SDK and nest outputs are compared separately.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_sdk_deterministic = (): void => {
   const generate = (): Record<string, string>[] => {

@@ -23,7 +23,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It generates a nest project and asserts the controller and the e2e feature import DTOs through one type-only `fixture-api` clause with no relative or deep `lib/structures` path.
  * @evidence contracts/testing.md#independent-expectations The monorepo template puts DTOs in the api package, so the package name is the only resolvable specifier; the expected clause is written literally.
  * @evidence contracts/testing.md#distinguishing-cases The controller and the e2e feature are separate consumers, and the relative and deep imports are the negative cases.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_nest_dto_package_import = (): void => {
   const app: NestiaMigrateApplication =

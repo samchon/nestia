@@ -7,6 +7,8 @@ description: Defines nestia branch, commit, pull-request, check, and merge workf
 
 Act on this skill only when the user explicitly requests the corresponding remote action, or when a standing autonomous mandate authorizes it. Permission to edit locally is not permission to push or open a pull request, and permission to open or update is not permission to merge. The one exception is a standing autonomous mandate — an autonomous or remote-control campaign, or an explicit instruction to carry the work through merge: it is the request for every step it names, including push and merge, and the skill's check, verification, and self-review gates still apply to each step.
 
+For an explicit continuation under issue #1775, follow [its campaign procedure](../multi-agent/campaign-1775.md): keep the existing branch, pull request and checkout, with ordinary CI. Generic new-branch, worktree and CI-cancellation instructions do not apply to that campaign.
+
 ## Branch From The Target
 
 Branch from the pull-request target (`master` unless stated otherwise); never commit or push directly to the target. Name the branch for the merged outcome with the repository's established type and scope, such as `feat/<scope>`, `fix/<scope>`, `docs/<scope>`, or `ci/<scope>`.

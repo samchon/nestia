@@ -3,20 +3,46 @@
   "name": "@nestia/test-e2e",
   "version": "14.0.1",
   "scripts": {
-    "dev": "ttsc --watch",
-    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node ../../scripts/run-unit.cjs --workspace test-e2e"
+    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node start.cjs"
   },
   "dependencies": {
-    "@nestia/e2e": "workspace:^",
-    "typia": "catalog:samchon",
-    "@nestia/fetcher": "workspace:^",
     "@nestia/core": "workspace:^",
-    "nestia": "workspace:^"
+    "@nestia/sdk": "workspace:^",
+    "@nestia/fetcher": "workspace:^",
+    "@nestia/migrate": "workspace:^",
+    "@nestia/e2e": "workspace:^",
+    "@nestia/benchmark": "workspace:^",
+    "@nestia/editor": "workspace:^",
+    "nestia": "workspace:^",
+    "@nestjs/common": "catalog:nestjs",
+    "@nestjs/core": "catalog:nestjs",
+    "@nestjs/platform-express": "catalog:nestjs",
+    "@nestjs/platform-fastify": "catalog:nestjs",
+    "reflect-metadata": "catalog:nestjs",
+    "rxjs": "catalog:nestjs",
+    "typia": "catalog:samchon",
+    "tgrid": "catalog:samchon",
+    "tstl": "catalog:samchon",
+    "multer": "catalog:utils",
+    "@modelcontextprotocol/sdk": "catalog:modelcontextprotocol",
+    "@nestjs/swagger": "catalog:nestjs",
+    "uuid": "catalog:utils",
+    "dotenv": "catalog:utils",
+    "dotenv-expand": "catalog:utils",
+    "express": "catalog:utils",
+    "swagger-ui-express": "catalog:utils",
+    "chalk": "catalog:utils",
+    "cli-progress": "catalog:utils"
   },
   "devDependencies": {
     "@types/node": "catalog:utils",
     "cross-env": "catalog:utils",
-    "ttsc": "catalog:typescript"
+    "ttsc": "catalog:typescript",
+    "@types/express": "catalog:utils",
+    "@types/multer": "catalog:utils",
+    "@wrtnlabs/evidence": "catalog:samchon",
+    "@types/swagger-ui-express": "catalog:utils",
+    "@types/cli-progress": "catalog:utils"
   },
   "packageManager": "pnpm@10.6.4"
 }

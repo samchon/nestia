@@ -4,92 +4,8 @@
     {
       "name": "shared package-unit contract fixtures",
       "type": "javascript",
-      "files": ["internal/route-version-contract.cjs"],
-      "symbol": "function",
-      "reference": {
-        "type": "markdown",
-        "root": "../.agents/skills",
-        "files": ["contracts/testing.md"],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "SDK and transform wrapper executable entries",
-      "type": "javascript",
       "files": [
-        "test-sdk-e2e/start.js",
-        "internal/consumer.cjs",
-        "test-sdk-e2e/distribute-cwd-restore.js",
-        "test-core-e2e/start.js"
-      ],
-      "symbol": "function",
-      "reference": {
-        "type": "markdown",
-        "root": "../.agents/skills",
-        "files": [
-          "contracts/testing.md",
-          "contracts/e2e.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "Evidence checker and runner process boundaries",
-      "type": "javascript",
-      "files": [
-        "test-evidence/src/features/test_*.mjs"
-      ],
-      "symbol": "function",
-      "reference": {
-        "type": "markdown",
-        "root": "../.agents/skills",
-        "files": [
-          "contracts/testing.md",
-          "contracts/e2e.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "unit test declarations",
-      "type": "typescript",
-      "files": [
-        "test-core/src/**/*.ts",
-        "test-sdk/src/**/*.ts",
-        "test-fetcher/src/**/*.ts",
-        "test-migrate/src/**/*.ts",
-        "test-e2e/src/**/*.ts",
-        "test-benchmark/src/**/*.ts",
-        "test-editor/src/**/*.ts",
-        "test-nestia/src/**/*.ts",
-        "!test-core/src/index.ts",
-        "!test-sdk/src/index.ts",
-        "!test-fetcher/src/index.ts",
-        "!test-migrate/src/index.ts",
-        "!test-e2e/src/index.ts",
-        "!test-benchmark/src/index.ts",
-        "!test-editor/src/index.ts",
-        "!test-nestia/src/index.ts",
-        "!test-editor/src/browser/index.ts",
-        "!test-core/src/**/internal/**",
-        "!test-core/src/**/structures/**",
-        "!test-sdk/src/**/internal/**",
-        "!test-sdk/src/**/structures/**",
-        "!test-fetcher/src/**/internal/**",
-        "!test-fetcher/src/**/structures/**",
-        "!test-migrate/src/**/internal/**",
-        "!test-migrate/src/**/structures/**",
-        "!test-e2e/src/**/internal/**",
-        "!test-e2e/src/**/structures/**",
-        "!test-benchmark/src/**/internal/**",
-        "!test-benchmark/src/**/structures/**",
-        "!test-editor/src/**/internal/**",
-        "!test-editor/src/**/structures/**",
-        "!test-nestia/src/**/internal/**",
-        "!test-nestia/src/**/structures/**"
+        "internal/route-version-contract.cjs"
       ],
       "symbol": "function",
       "reference": {
@@ -103,14 +19,58 @@
       }
     },
     {
-      "name": "E2E test declarations",
+      "name": "pure unit test declarations",
       "type": "typescript",
       "files": [
-        "test-benchmark-e2e/src/features/**/*.ts",
-        "test-boundaries/src/features/**/*.ts",
-        "test-migrate-e2e/src/features/**/*.ts",
-        "test-sdk-e2e/features/*/src/test/features/**/*.ts",
-        "!test-sdk-e2e/features/*/src/test/features/**/automated/**"
+        "test-benchmark/src/**/*.ts",
+        "test-cli/src/**/*.ts",
+        "test-editor/src/**/*.ts",
+        "test-migrate/src/**/*.ts",
+        "test-sdk/src/**/*.ts",
+        "test-transform-options/src/**/*.ts",
+        "!test-benchmark/src/index.ts",
+        "!test-cli/src/index.ts",
+        "!test-editor/src/index.ts",
+        "!test-migrate/src/index.ts",
+        "!test-sdk/src/index.ts",
+        "!test-transform-options/src/index.ts",
+        "!test-editor/src/browser/index.ts",
+        "!test-benchmark/src/**/internal/**",
+        "!test-cli/src/**/internal/**",
+        "!test-editor/src/**/internal/**",
+        "!test-migrate/src/**/internal/**",
+        "!test-sdk/src/**/internal/**",
+        "!test-transform-options/src/**/internal/**",
+        "!test-benchmark/src/**/structures/**",
+        "!test-cli/src/**/structures/**",
+        "!test-editor/src/**/structures/**",
+        "!test-migrate/src/**/structures/**",
+        "!test-sdk/src/**/structures/**",
+        "!test-transform-options/src/**/structures/**"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/testing.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "integrated E2E executable and preparation",
+      "type": "javascript",
+      "files": [
+        "test-e2e/start.cjs",
+        "test-e2e/internal/consumer.cjs",
+        "test-e2e/internal/test_sdk_producer_metadata.cjs",
+        "test-e2e/internal/benchmark.cjs",
+        "test-e2e/internal/test_migrate_cli_archiving.cjs",
+        "test-e2e/internal/test_migrate_generated_consumer.cjs",
+        "test-e2e/internal/test_migrate_simulate_throws.cjs",
+        "test-e2e/internal/boundary/*.cjs"
       ],
       "symbol": "function",
       "reference": {
@@ -125,10 +85,12 @@
       }
     },
     {
-      "name": "generated validator runtime boundary",
-      "type": "go",
+      "name": "integrated E2E declarations",
+      "type": "typescript",
       "files": [
-        "test-core-e2e/native/**/*_test.go"
+        "test-e2e/consumer/src/**/*.ts",
+        "!test-e2e/consumer/src/**/structures/**",
+        "!test-e2e/consumer/src/**/internal/**"
       ],
       "symbol": "function",
       "reference": {
@@ -137,6 +99,66 @@
         "files": [
           "contracts/testing.md",
           "contracts/e2e.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "integrated Evidence process boundaries",
+      "type": "javascript",
+      "files": [
+        "test-e2e/evidence/src/features/test_*.mjs"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/testing.md",
+          "contracts/e2e.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "authored rich backend and workload helpers",
+      "type": "typescript",
+      "files": [
+        "test-e2e/fixture/src/Backend.ts",
+        "test-e2e/fixture/src/benchmark/BenchmarkMonitor.ts"
+      ],
+      "symbol": [
+        "type",
+        "function"
+      ],
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "authored rich backend native boundaries",
+      "type": "typescript",
+      "files": [
+        "test-e2e/fixture/src/Backend.ts"
+      ],
+      "symbol": [
+        "type",
+        "function"
+      ],
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/portability.md"
         ],
         "symbol": "h2",
         "checklist": true

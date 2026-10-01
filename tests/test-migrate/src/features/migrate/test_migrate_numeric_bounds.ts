@@ -19,7 +19,7 @@ import { OpenApiV3, OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It migrates 3.1 and 3.0 documents with exclusive bounds and integer formats and asserts each property's generated type.
  * @evidence contracts/testing.md#independent-expectations The bounds and formats are those OpenAPI defines, and each expected type is written literally from the document.
  * @evidence contracts/testing.md#distinguishing-cases The 3.1 numeric form, the 3.0 boolean form set to true and to false, and the integer widths are separate properties, so a reader that makes every 3.0 bound exclusive, or none, is detected.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_numeric_bounds = (): void => {
   expect(structure(DOCUMENT_3_1), [

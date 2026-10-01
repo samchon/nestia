@@ -78,11 +78,9 @@ jobs:
           NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
         run: pnpm test:unit
 
-      # run-e2e also owns the Evidence process-boundary tests and aggregates
-      # suite failures without rebuilding the shared packages.
+      # The single integrated entry owns all actual consumer connections.
       - name: Run E2E Tests
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         env:
           NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
-          TEST_SDK_CONCURRENCY: 8
         run: pnpm test:e2e

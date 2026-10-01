@@ -24,7 +24,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It generates a nest project and asserts the module, controller, DTO, barrel, functional, and e2e files sit in the monorepo locations and that no key uses the legacy roots.
  * @evidence contracts/testing.md#independent-expectations The locations are those of the documented pnpm monorepo template, listed literally, and the barrel is compared with the generated structure files.
  * @evidence contracts/testing.md#distinguishing-cases Each kind of file has its own location assertion and the legacy `src/` and `test/` roots are the negative cases.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_nest_monorepo_layout = (): void => {
   const app: NestiaMigrateApplication =

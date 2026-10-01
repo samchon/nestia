@@ -20,7 +20,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It migrates text, JSON, HEAD, and hyphenated-parameter operations and joins each controller and method path as the router does, asserting the document's path with each parameter under the key its `@TypedParam()` reads.
  * @evidence contracts/testing.md#independent-expectations The expected path is the document's own path, and the join is done by the test with NestJS's rule, not by the migrate analyzer.
  * @evidence contracts/testing.md#distinguishing-cases A text/plain GET, a JSON POST, a HEAD, and a hyphenated parameter are the cases the old code joined twice or misnamed.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_nest_route_paths = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

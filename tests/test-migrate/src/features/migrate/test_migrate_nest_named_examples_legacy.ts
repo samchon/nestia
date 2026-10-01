@@ -23,8 +23,8 @@ import { OpenApiV3_1 } from "@typia/interface";
  *
  * @evidence contracts/testing.md#behavioral-verification It migrates a document of raw named values, a `$ref` Example Object, and `dataValue`, `externalValue`, and `serializedValue` objects, and asserts each generated `SwaggerExample` carries the value and none is written for the linked or serialized ones.
  * @evidence contracts/testing.md#independent-expectations An Example Object holds its value under `value` or `dataValue`, and a link or a serialization names nothing a decorator can hold; the expected calls are literal.
- * @evidence contracts/testing.md#distinguishing-cases Raw, referenced, data, linked, and serialized forms are five separate examples of one operation; the round trip with a nestia-generated document is owned by `test-migrate-e2e`.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#distinguishing-cases Raw, referenced, data, linked, and serialized forms are five separate examples of one operation; the round trip with a nestia-generated document is owned by the shared `test-e2e` migration batch.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_nest_named_examples_legacy = (): void => {
   const legacy: string = controller(

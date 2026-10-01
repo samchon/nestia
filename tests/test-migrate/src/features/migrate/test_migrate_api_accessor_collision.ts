@@ -22,7 +22,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It forces two route accessors into a prefix collision in a two-route document and asserts the SDK keeps the shorter function, escapes the child namespace, and that the e2e call follows the escaped accessor.
  * @evidence contracts/testing.md#independent-expectations Two bindings of one name in one module are invalid TypeScript, so the expected exports are the shorter function and an underscore-escaped namespace, written literally.
  * @evidence contracts/testing.md#distinguishing-cases The collision itself, the kept function, the escaped namespace, the absence of the colliding export, and the e2e call are separate assertions.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_api_accessor_collision = (): void => {
   const app: NestiaMigrateApplication =

@@ -31,9 +31,9 @@ runs:
         path: |
           node_modules/.cache/ttsc/plugins
           node_modules/.cache/ttsc/go-build
-        key: ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**', 'tests/test-core-e2e/native/**') }}-${{ inputs.scope }}
+        key: ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**') }}-${{ inputs.scope }}
         restore-keys: |
-          ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**', 'tests/test-core-e2e/native/**') }}-
+          ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**') }}-
           ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-
           ttsc-${{ runner.os }}-${{ runner.arch }}-
 
@@ -43,8 +43,8 @@ runs:
         path: |
           node_modules/.cache/ttsc/plugins
           node_modules/.cache/ttsc/go-build
-        key: ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**', 'tests/test-core-e2e/native/**') }}-${{ inputs.scope }}
+        key: ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**') }}-${{ inputs.scope }}
         restore-keys: |
-          ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**', 'tests/test-core-e2e/native/**') }}-
+          ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**') }}-
           ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-
           ttsc-${{ runner.os }}-${{ runner.arch }}-

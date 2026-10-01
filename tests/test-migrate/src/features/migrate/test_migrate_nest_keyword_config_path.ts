@@ -21,7 +21,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It generates a nest project with `keyword: false` and asserts `packages/backend/nestia.config.ts` carries it and no root config key exists, then with `keyword: true` and asserts the default stays.
  * @evidence contracts/testing.md#independent-expectations The template's layout puts the config in the backend package, so the expected key is that path, and the option value is the input.
  * @evidence contracts/testing.md#distinguishing-cases The two option values and the presence and absence of the old root key are the four assertions.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_nest_keyword_config_path = (): void => {
   const app: NestiaMigrateApplication =

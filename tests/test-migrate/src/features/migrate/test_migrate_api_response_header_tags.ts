@@ -22,7 +22,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It generates a keyword SDK from operations described with `@setHeader`, `@setHeaders`, and `@assignHeaders` and asserts the functions copy the selected response fields into `connection.headers`.
  * @evidence contracts/testing.md#independent-expectations The expected assignments follow from the tag contract in the description, and the test states each header and field literally.
  * @evidence contracts/testing.md#distinguishing-cases Each of the three tags has its own operation, so a programmer that handles only one is detected; an untagged operation is the adjacent negative case that must neither capture the output nor initialize `connection.headers`, so a programmer that writes headers for every operation is detected.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_api_response_header_tags = (): void => {
   const app: NestiaMigrateApplication =

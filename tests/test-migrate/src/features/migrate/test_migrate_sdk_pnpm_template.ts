@@ -16,7 +16,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It generates an SDK project and asserts the manifest, scripts, help, and README select pnpm and that no lockfile is bundled or ignored.
  * @evidence contracts/testing.md#independent-expectations The expectation is the pnpm contract that the first install creates the lockfile, stated as literal strings in the test.
  * @evidence contracts/testing.md#distinguishing-cases The manifest, the commands, and the lockfile handling are separate assertions of one generated project.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_sdk_pnpm_template = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

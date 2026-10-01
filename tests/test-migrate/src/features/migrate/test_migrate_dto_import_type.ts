@@ -23,7 +23,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It generates SDK and NestJS projects and asserts every DTO import is type-only while `typia` stays a value import.
  * @evidence contracts/testing.md#independent-expectations A DTO module holds only types, so a plain value import is wrong by TypeScript's `verbatimModuleSyntax` rule, independent of the printer.
  * @evidence contracts/testing.md#distinguishing-cases A DTO referencing another DTO, both modes, and the runtime `typia` import are the positive and negative cases.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_dto_import_type = (): void => {
   const app: NestiaMigrateApplication =

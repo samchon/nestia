@@ -8,7 +8,12 @@
   },
   "dependencies": {
     "@nestia/e2e": "workspace:^",
-    "@nestia/sdk": "workspace:^"
+    "@nestia/sdk": "workspace:^",
+    "@nestia/core": "workspace:^",
+    "@nestjs/common": "catalog:nestjs",
+    "@nestjs/swagger": "catalog:nestjs",
+    "typia": "catalog:samchon",
+    "@nestia/fetcher": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:utils",

@@ -63,4 +63,3 @@ jobs:
           (cd packages/core/test && go test -count=1 -run '^$' ./...)
           (cd packages/sdk/test && go test -count=1 -run '^$' ./...)
           (cd packages/core/native && go test -count=1 -run '^$' ./...)
-          (cd tests/test-core-e2e/native && go test -count=1 -run '^$' ./...)

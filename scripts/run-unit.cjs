@@ -22,14 +22,12 @@ const path = require("node:path");
  */
 function runUnit(root = path.resolve(__dirname, ".."), selected) {
   const suites = [
-    "test-core",
+    "test-transform-options",
     "test-sdk",
-    "test-fetcher",
     "test-migrate",
-    "test-e2e",
     "test-benchmark",
     "test-editor",
-    "test-nestia",
+    "test-cli",
   ];
   if (selected !== undefined && !suites.includes(selected)) {
     console.error(`Unknown unit workspace: ${selected}`);

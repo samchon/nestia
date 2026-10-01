@@ -19,7 +19,7 @@ import { OpenApiV3_1 } from "@typia/interface";
  * @evidence contracts/testing.md#behavioral-verification It migrates 204, 200, 202, and `2XX` operations and asserts the SDK passes each status or `null` for the range and the controller writes `@HttpCode()` only where NestJS's default differs.
  * @evidence contracts/testing.md#independent-expectations The document's declared status is the expectation, and NestJS's defaults (200 for DELETE, 201 for POST) are the framework contract.
  * @evidence contracts/testing.md#distinguishing-cases 204, 200, 202, and a range are separate statuses, and the default and the non-default `@HttpCode` cases are compared.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the E2E `test-migrate-e2e` boundary.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-migrate` process discovered by `DynamicExecutor`, generating files in memory from a synthetic OpenAPI document with the built `@nestia/migrate` and inspecting the returned strings; compiling generated projects is owned by the shared `test-e2e` migration batch boundary.
  */
 export const test_migrate_success_status = (): void => {
   const app: NestiaMigrateApplication =
