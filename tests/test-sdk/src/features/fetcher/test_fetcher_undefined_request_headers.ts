@@ -115,20 +115,26 @@ export const test_fetcher_undefined_request_headers =
           return new Response("null", { status: 200 });
         },
       };
-      await PlainFetcher.fetch(
-        connection,
-        {
-          method: body === undefined ? "GET" : "POST",
+      if (body === undefined)
+        await PlainFetcher.fetch(connection, {
+          method: "GET",
           path: "/headers",
           status: 200,
-          request:
-            body === undefined
-              ? null
-              : { type: "application/json", encrypted: false },
+          request: null,
           response: { type: "application/json", encrypted: false },
-        },
-        body,
-      );
+        });
+      else
+        await PlainFetcher.fetch(
+          connection,
+          {
+            method: "POST",
+            path: "/headers",
+            status: 200,
+            request: { type: "application/json", encrypted: false },
+            response: { type: "application/json", encrypted: false },
+          },
+          body,
+        );
       assert.deepEqual(captured, expected);
       assert.equal(
         capturedBody,
