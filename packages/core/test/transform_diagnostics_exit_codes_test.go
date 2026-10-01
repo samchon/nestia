@@ -20,6 +20,11 @@ import (
 //
 //  1. Transform the query feature with strictNullChecks off -> nonzero exit.
 //  2. Transform the invalid-driver websocket feature -> exit 3.
+//
+// @evidence contracts/testing.md#behavioral-verification A direct query transform with strictNullChecks disabled must fail, and the invalid WebSocket-driver fixture must fail specifically with transform exit 3.
+// @evidence contracts/testing.md#independent-expectations Strict validation requires null distinctions and a WebSocket route requires its supported driver type; the literal transform-error exit separates rejected decorators from success.
+// @evidence contracts/testing.md#distinguishing-cases The strict case currently asserts nonzero rather than a particular class; the dedicated strict-mode table pins exit 3 and wording across option spellings. This case independently pins the driver class.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit case; each dispatch loads fixture source in the existing process with isolated configuration/output directories and no native subprocess.
 func TestTransformDiagnosticsExitCodes(t *testing.T) {
 	plugins := coreNativePlugins("validate", "assert")
 

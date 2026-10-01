@@ -26,10 +26,28 @@ import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeTagProgrammer } from "./SdkTypeTagProgrammer";
 
+/**
+ * Writes the TypeScript type of a metadata.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace turns each member of the metadata into a type node and joins them as a union.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions and one writer per form.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A name that cannot be referenced is written inline.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkTypeProgrammer {
   /* -----------------------------------------------------------
     FACADE
   ----------------------------------------------------------- */
+  /**
+   * Returns the type of a metadata: the union of its any, null, undefined,
+   * escaped, constant, template, atomic, tuple, array, object, alias, and
+   * native forms.
+   *
+   * @evidence contracts/common.md#principled-implementation A named object or alias is a reference and an implicit one is written in place, by the shared implicit rule.
+   * @evidence contracts/common.md#clear-and-simple-design One function of ordered cases.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The member order is fixed.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -79,6 +97,15 @@ export namespace SdkTypeProgrammer {
         : factory.createUnionTypeNode(union);
     };
 
+  /**
+   * Returns the type of an object: the regular properties as one literal,
+   * intersected with each dynamic key's index signature.
+   *
+   * @evidence contracts/common.md#principled-implementation A key that is a sole literal is regular, and every other key is dynamic.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The cases are exhaustive over the keys.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const write_object =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>

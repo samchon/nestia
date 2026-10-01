@@ -29,6 +29,9 @@ export const main = async (): Promise<void> => {
     location: `${__dirname}/features`,
   });
 
+  if (report.executions.length === 0)
+    throw new Error("No SDK tests were discovered.");
+
   const exceptions: Error[] = report.executions
     .filter((exec) => exec.error !== null)
     .map((exec) => exec.error!);

@@ -4,14 +4,60 @@ import path from "path";
 import { INestiaConfig } from "../../INestiaConfig";
 import { SourceFinder } from "../../utils/SourceFinder";
 
+/**
+ * Regenerates the Swagger document when the sources or the configuration
+ * change.
+ *
+ * @evidence contracts/common.md#principled-implementation A session watches the directories of the inputs and the configuration files, ignores the outputs and dependency directories, debounces changes, and queues a change that arrives during a generation.
+ * @evidence contracts/common.md#clear-and-simple-design One public function over a session class and private path helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The watchers are installed before each generation so no change between generation and watching is lost, and every watcher is closed on stop.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace NestiaSdkWatcher {
+  /**
+   * The input of the watcher: the configuration file, the configuration loader,
+   * the generator, and the project file.
+   *
+   * @evidence contracts/common.md#principled-implementation The record holds the loaders and the generator the session calls.
+   * @evidence contracts/common.md#clear-and-simple-design A four-member record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   */
   export interface IProps {
     configFile: string;
+    /**
+     * Loads the current configurations; it is called again at every
+     * regeneration so a changed file is read.
+     *
+     * @evidence contracts/common.md#principled-implementation The loader is a function, not a value, because the configuration file itself is watched.
+     * @evidence contracts/common.md#clear-and-simple-design One callback.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It is caller code.
+     * @evidence contracts/common.md#meaningful-documentation The comment states when it is called.
+     */
     configurations: () => Promise<INestiaConfig[]>;
+    /**
+     * Runs the generation for the loaded configurations.
+     *
+     * @evidence contracts/common.md#principled-implementation The watcher only schedules the call and reports its errors.
+     * @evidence contracts/common.md#clear-and-simple-design One callback.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It is caller code.
+     * @evidence contracts/common.md#meaningful-documentation The comment states what it does.
+     */
     generate: (configurations: INestiaConfig[]) => Promise<void>;
     projectFile: string;
   }
 
+  /**
+   * Starts the watch session, generates once, and never resolves until the
+   * process ends.
+   *
+   * The session closes its watchers and exits on SIGINT and SIGTERM.
+   *
+   * @evidence contracts/common.md#principled-implementation The first generation runs before the promise that never settles, and a failed generation is printed with its causes and does not stop the session.
+   * @evidence contracts/common.md#clear-and-simple-design One function that creates the session and blocks.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The watchers are released by the signal handlers.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the blocking and the signals.
+   */
   export const watch = async (props: IProps): Promise<void> => {
     const session = new WatchSession(props);
     session.registerSignals();

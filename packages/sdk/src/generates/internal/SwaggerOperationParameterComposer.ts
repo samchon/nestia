@@ -15,7 +15,24 @@ import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParame
 import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
 import { SwaggerReadonlyArrayEmender } from "./SwaggerReadonlyArrayEmender";
 
+/**
+ * Composes the parameters and the request body of an operation.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace writes each parameter where the router reads it, decomposes a query or headers object into its keys where the format needs it, and fits a body into what Swagger 2.0 can hold.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions over private helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The 2.0 restrictions are applied by dedicated helpers.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SwaggerOperationParameterComposer {
+  /**
+   * The inputs of a parameter's composition: the configuration, the document,
+   * the route's comment tags, the parameter, and its schema.
+   *
+   * @evidence contracts/common.md#principled-implementation The record is the argument of every composer.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export interface IProps<Parameter extends ITypedHttpRouteParameter> {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     document: OpenApi.IDocument;
@@ -24,6 +41,14 @@ export namespace SwaggerOperationParameterComposer {
     parameter: Parameter;
   }
 
+  /**
+   * Returns the parameter objects of a path, query, or header parameter.
+   *
+   * @evidence contracts/common.md#principled-implementation A query object or a headers object is decomposed into one parameter per property where the format needs it.
+   * @evidence contracts/common.md#clear-and-simple-design One dispatch by category.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The category decides the location.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const compose = (
     props: IProps<ITypedHttpRouteParameter>,
   ): OpenApi.IOperation.IParameter[] =>
@@ -35,6 +60,16 @@ export namespace SwaggerOperationParameterComposer {
           ? query({ ...props, parameter: props.parameter })
           : header({ ...props, parameter: props.parameter });
 
+  /**
+   * Returns the request body of a route, or `undefined`.
+   *
+   * Swagger 2.0 receives the form a body parameter can hold.
+   *
+   * @evidence contracts/common.md#principled-implementation The description carries the encryption warning, and the flag is written for the versions that can hold it.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The 2.0 conversion is separate.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const body = (
     props: IProps<ITypedHttpRouteParameter.IBody>,
   ): OpenApi.IOperation.IRequestBody | undefined => {

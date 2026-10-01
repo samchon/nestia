@@ -21,6 +21,11 @@ func (t textOnly) Text() string { return t.body }
 //
 //  1. Pass a value implementing Text() and assert the text and ok==true.
 //  2. Pass a value that does not implement Text() and assert ok==false.
+//
+// @evidence contracts/testing.md#behavioral-verification SourceFileText must return the exact source and true for a Text() provider and empty text with false for a number.
+// @evidence contracts/testing.md#independent-expectations The independent fixture method returns the literal const a = 1; a value without that method cannot supply text under the helper contract.
+// @evidence contracts/testing.md#distinguishing-cases A structural provider and a non-provider exercise both assertion branches; actual compiler SourceFile integration belongs to the loaded-program cases.
+// @evidence contracts/testing.md#execution-ownership The core Go runner discovers this direct operation test; a local textOnly value exercises interface dispatch without any program load, build or child process.
 func TestExportsSourceFileText(t *testing.T) {
 	text, ok := transform.SourceFileText(textOnly{body: "const a = 1;"})
 	if !ok || text != "const a = 1;" {

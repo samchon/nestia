@@ -22,6 +22,11 @@ import (
 //     template-literal property.
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert each reflected schema kind appears in the metadata.
+//
+// @evidence contracts/testing.md#behavioral-verification Reflection must retain Set, Map, tuple, escaped Date and template schema categories rather than silently dropping those authored members.
+// @evidence contracts/testing.md#independent-expectations The IRich fixture authors each distinct non-atomic category; Date uses its JSON string escape representation and the id property is a template literal.
+// @evidence contracts/testing.md#distinguishing-cases This covers five category-presence positives; property-schema and absent-field cases own exact constraints and omission. Category substring assertions do not independently inspect every nested element.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticRichSchemaMetadataSerializesSetMapTupleDateTemplate(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 

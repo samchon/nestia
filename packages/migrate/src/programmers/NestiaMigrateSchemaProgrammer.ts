@@ -9,10 +9,26 @@ import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 
+/**
+ * Generates the TypeScript type of an OpenAPI schema.
+ *
+ * @evidence contracts/common.md#principled-implementation The schema kind is decided by the type checker of `@typia/utils`, and each kind becomes a type: constants as literal types, numbers, integers, and strings with their constraints as `typia.tags` intersections, arrays, tuples, objects, references, and unions, with `any` for an unknown schema.
+ * @evidence contracts/common.md#clear-and-simple-design One entry function that dispatches to one private writer per kind.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The dispatch follows the schema kinds of OpenAPI, and no schema name is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is generated.
+ */
 export namespace NestiaMigrateSchemaProgrammer {
   /* -----------------------------------------------------------
     FACADE
   ----------------------------------------------------------- */
+  /**
+   * Returns the type node of a schema.
+   *
+   * @evidence contracts/common.md#principled-implementation An unknown schema is `any`, a `oneOf` is a union of its members, an integer format outside the four supported ones is `int64`, a binary string is `File`, and string formats are tagged only when they have a known validation expression.
+   * @evidence contracts/common.md#clear-and-simple-design One function with an ordered chain of schema kind tests.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules follow the OpenAPI specification.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const write = (props: {
     components: OpenApi.IComponents;
     importer: NestiaMigrateImportProgrammer;

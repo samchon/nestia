@@ -24,6 +24,11 @@ import (
 //  2. Read the emitted TypeScript back.
 //  3. Assert it carries neither the OperationMetadata decorator nor the
 //     @nestia/sdk import.
+//
+// @evidence contracts/testing.md#behavioral-verification With only the core manifest and the SDK opt-in unset, transformation must succeed without OperationMetadata or any SDK reference.
+// @evidence contracts/testing.md#independent-expectations The optional SDK contributor must remain inactive absent either explicit SDK selection or runtime opt-in.
+// @evidence contracts/testing.md#distinguishing-cases The test removes an ambient opt-in within t.Setenv restoration, then forbids both metadata and imports. Its enabled twin changes only the activation state.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
 func TestSDKEnvGateOffSkipsContributor(t *testing.T) {
 	root := repoRoot(t)
 	temp := writeFeatureTsconfig(t, root, "body", []string{

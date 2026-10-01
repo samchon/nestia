@@ -1,13 +1,8 @@
 package test
 
 import (
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
-
-	nativesdk "github.com/samchon/nestia/packages/sdk/native/sdk"
-	"github.com/samchon/ttsc/packages/ttsc/driver"
 )
 
 // Verifies the SDK reflects an @WebSocketRoute.Acceptor() or .Driver()
@@ -30,6 +25,11 @@ import (
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert every acceptor reflects `WebSocketAcceptor<IHeader, IProvider,
 //     IListener>` and the driver `Driver<IListener>`.
+//
+// @evidence contracts/testing.md#behavioral-verification Seven authored WebSocket routes must retain exact WebSocketAcceptor Header/Provider/Listener arguments, with exact Driver listener arguments in the two routes that declare drivers.
+// @evidence contracts/testing.md#independent-expectations TypeScript alias substitution preserves the authored IHeader/IProvider/IListener identities; the client protocol needs the underlying acceptor and driver rather than local alias spellings.
+// @evidence contracts/testing.md#distinguishing-cases Local, generic, defaulted, parenthesized, chained, outer and import-type aliases are checked route by route with exact argument counts/names; the unspellable nested-argument case owns the rejected neighbor.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticWebSocketAliasTypeArguments(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 import { Driver, WebSocketAcceptor as Acceptor } from "tgrid";
@@ -111,58 +111,6 @@ export class SyntheticController {
 //  1. Author a route typing its acceptor by such an alias.
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert it reports the parameter, the argument, and the way out.
-func TestSyntheticWebSocketAliasTypeArgumentUnspellable(t *testing.T) {
-	const controller = `import core from "@nestia/core";
-import { WebSocketAcceptor } from "tgrid";
-
-export interface IRoom<Member> { members(): Member[]; }
-type RoomAcceptor<Member> = WebSocketAcceptor<undefined, IRoom<Member>, null>;
-
-export class SyntheticController {
-  @core.WebSocketRoute("room")
-  public async room(
-    @core.WebSocketRoute.Acceptor() acceptor: RoomAcceptor<string>,
-  ): Promise<void> {}
-}
-`
-	root := repoRoot(t)
-	temp := t.TempDir()
-	controllers := filepath.Join(temp, "src", "controllers")
-	if err := os.MkdirAll(controllers, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(controllers, "SyntheticController.ts"), []byte(controller), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	writeSyntheticTsconfig(t, root, temp)
-	prog, diags, err := driver.LoadProgram(temp, "tsconfig.json", driver.LoadProgramOptions{})
-	if err != nil {
-		t.Fatalf("load synthetic program: %v", err)
-	}
-	if len(diags) > 0 {
-		t.Fatalf("unexpected synthetic load diagnostics: %v", diags)
-	}
-	defer prog.Close()
-
-	_, reported := nativesdk.EmitTransform(prog)
-	messages := make([]string, len(reported))
-	for i, d := range reported {
-		messages[i] = d.String("")
-	}
-	joined := strings.Join(messages, "\n")
-	for _, expected := range []string{
-		`@WebSocketRoute.Acceptor() parameter "acceptor"`,
-		`WebSocketAcceptor type argument "IRoom<Member>"`,
-		"Pass each type parameter as a whole type argument",
-	} {
-		if strings.Contains(joined, expected) == false {
-			t.Fatalf("diagnostics miss %q:\n%s", expected, joined)
-		}
-	}
-}
-
-// assertSyntheticReflectedType asserts a reflected type is name with type
-// arguments of the given names.
 func assertSyntheticReflectedType(t *testing.T, reflected any, name string, arguments ...string) {
 	t.Helper()
 	if actual := syntheticField(t, reflected, "name"); actual != name {

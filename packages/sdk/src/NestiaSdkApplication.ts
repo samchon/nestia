@@ -25,9 +25,32 @@ import { ITypedWebSocketRoute } from "./structures/ITypedWebSocketRoute";
 import { StringUtil } from "./utils/StringUtil";
 import { VersioningStrategy } from "./utils/VersioningStrategy";
 
+/**
+ * Runs the generators of `@nestia/sdk` over one configuration.
+ *
+ * Each method validates the configuration for the output it needs, analyzes the
+ * controllers and the TypeScript metadata, reports every error at once, and
+ * then generates.
+ *
+ * @evidence contracts/common.md#principled-implementation The analysis is shared by all methods: controllers are reflected, routes are typed from the metadata of the transform, accessors are assigned, the generator-specific validation runs, and the outputs are written only when no error was collected.
+ * @evidence contracts/common.md#clear-and-simple-design One class with four public generators over one private pipeline; directory assertion, title, and error report are module-private helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No controller or route name is special-cased; the same pipeline serves the CLI and programmatic callers.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the four generators and that the errors of an analysis are reported together.
+ */
 export class NestiaSdkApplication {
   public constructor(private readonly config: INestiaConfig) {}
 
+  /**
+   * Generates everything the configuration asks for: the SDK and its e2e tests
+   * when `output` is set, and the Swagger document when `swagger` is set.
+   *
+   * It throws when neither `output` nor `swagger.output` is configured.
+   *
+   * @evidence contracts/common.md#principled-implementation The SDK validation is attached only when an SDK is generated, so a Swagger-only run does not fail on SDK rules, and the e2e tests are generated after the SDK they import.
+   * @evidence contracts/common.md#clear-and-simple-design One method that composes the generators inside the shared pipeline.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The error names the properties a caller can configure; none is stale.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the failure.
+   */
   public async all(): Promise<void> {
     if (!this.config.output && !this.config.swagger?.output)
       throw new Error(
@@ -36,7 +59,6 @@ export class NestiaSdkApplication {
           "",
           "  - INestiaConfig.output",
           "  - INestiaConfig.swagger.output",
-          "  - INestiaConfig.openai.output",
         ].join("\n"),
       );
     print_title("Nestia All Generator");
@@ -52,6 +74,17 @@ export class NestiaSdkApplication {
     });
   }
 
+  /**
+   * Generates the SDK and the automatic e2e test functions.
+   *
+   * It throws when `output` or `e2e` is missing, or when the parent directory
+   * of either does not exist.
+   *
+   * @evidence contracts/common.md#principled-implementation The e2e functions import the generated SDK, so the SDK is generated first, and both parent directories are asserted before any analysis runs.
+   * @evidence contracts/common.md#clear-and-simple-design One method over the shared pipeline.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The directory check follows the configuration and no path is special-cased.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the requirements and the failures.
+   */
   public async e2e(): Promise<void> {
     if (!this.config.output)
       throw new Error(
@@ -84,6 +117,16 @@ export class NestiaSdkApplication {
     });
   }
 
+  /**
+   * Generates the SDK library.
+   *
+   * It throws when `output` is missing or its parent directory does not exist.
+   *
+   * @evidence contracts/common.md#principled-implementation The SDK validation runs after route typing and before the generator, so a route the SDK cannot express is reported instead of written.
+   * @evidence contracts/common.md#clear-and-simple-design One method over the shared pipeline.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The directory check follows the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the requirement and the failures.
+   */
   public async sdk(): Promise<void> {
     if (!this.config.output)
       throw new Error(
@@ -104,6 +147,17 @@ export class NestiaSdkApplication {
     });
   }
 
+  /**
+   * Generates the Swagger document.
+   *
+   * It throws when `swagger.output` is missing or the directory that will hold
+   * the document does not exist; the output may be a file or a directory.
+   *
+   * @evidence contracts/common.md#principled-implementation The directory to check is the parent of a file path with an extension and the path itself otherwise, which is how the generator decides where to write.
+   * @evidence contracts/common.md#clear-and-simple-design One method over the shared pipeline.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule is the generator's own output rule.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the requirement and the two output forms.
+   */
   public async swagger(): Promise<void> {
     if (!this.config.swagger?.output)
       throw new Error(
@@ -198,10 +252,6 @@ export class NestiaSdkApplication {
     //----
     console.log("Analyzing source codes");
 
-    // METADATA COMPONENTS
-    const sourceCollection: IMetadataDictionary =
-      TypedHttpRouteAnalyzer.dictionary(controllers);
-
     // CONVERT TO TYPED OPERATIONS
     const routes: Array<
       ITypedHttpRoute | ITypedWebSocketRoute | ITypedMcpRoute
@@ -246,7 +296,6 @@ export class NestiaSdkApplication {
             ...TypedHttpRouteAnalyzer.analyze({
               controller: c,
               errors: project.errors,
-              dictionary: sourceCollection,
               operation: o,
               paths: Array.from(pathList),
             }),

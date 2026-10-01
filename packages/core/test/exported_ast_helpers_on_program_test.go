@@ -25,6 +25,11 @@ import (
 //  2. Walk to the class, its methods, and the @TypedRoute call expression.
 //  3. Assert IsNestiaCoreCall is true, the segments end with the decorator name,
 //     NestiaCoreMethodReturnType resolves a type, and Node helpers read names.
+//
+// @evidence contracts/testing.md#behavioral-verification A loaded controller must expose methods, a resolved core call, nonempty expression segments and a resolved return type through the exported AST helpers; every observation is required before success.
+// @evidence contracts/testing.md#independent-expectations The authored TypedBodyController imports actual core decorators and declares named methods with return types; those declarations establish the required observations independently of rewritten source.
+// @evidence contracts/testing.md#distinguishing-cases This case owns ordinary non-nil loaded nodes, complemented by the nil accessor case. It currently asserts existence, not exact segments or every return type, so it cannot prove complete AST spelling semantics.
+// @evidence contracts/testing.md#execution-ownership Go discovers the external core Test and loads a driver program in-process; defer closes that program and no native host or runtime server is launched.
 func TestExportedAstHelpersOnProgram(t *testing.T) {
 	cwd := featureRootForCore(t, "body")
 	prog, diags, err := driver.LoadProgram(cwd, "tsconfig.json", driver.LoadProgramOptions{ForceNoEmit: true})

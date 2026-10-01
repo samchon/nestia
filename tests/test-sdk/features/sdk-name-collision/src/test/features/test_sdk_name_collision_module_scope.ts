@@ -17,6 +17,15 @@ import api from "@api";
  *
  * 1. Call every route of `ScopeController` through the SDK by its own name.
  * 2. Assert each response echoes the arguments sent.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generated positional argument functions keep callable tags/typia/PlainFetcher/exports/String exports and exact authored echoes.
+ * @evidence contracts/testing.md#independent-expectations The explicit UUID, v/1 and q inputs and literal typia/PlainFetcher/exports handler returns provide independent expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Module imports, CommonJS reserved exports and global String shadowing differ from local parameter collisions; slash-bearing input checks encoding while preserving the exported name.
+ * @evidence contracts/testing.md#execution-ownership The matching test_sdk_name_collision_module_scope export is discovered and awaited by its feature executor after actual SDK generation and consumer compilation; rejection fails the report and zero cases fail the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Native metadata, generated parameter bindings and actual HTTP handlers must connect; isolated identifier allocation cannot establish request values or assigned connection headers.
+ * @evidence contracts/e2e.md#shared-execution This case shares packed dependency installation, compatible producer/runtime compilation and its feature HTTP backend with sibling cases; it does not prepare a new compiler per assertion.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each call uses explicit local payloads; the output-header control allocates a fresh headers object where applicable. The entry closes its backend and the harness removes only its own copied outputs.
+ * @evidence contracts/e2e.md#preserved-coverage All test_sdk_name_collision_module_scope assertions described above remain in this executable file, including its exact echoes/text or declared-shape and invalid-input controls; shared preparation does not replace them with compiler success.
  */
 export const test_sdk_name_collision_module_scope = async (
   connection: api.IConnection,

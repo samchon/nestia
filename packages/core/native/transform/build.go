@@ -275,6 +275,12 @@ func runCheck(args []string) int {
 	return runBuild(append([]string{"--noEmit"}, args...))
 }
 
+// Diagnostic is one transform error: its file, line and column when known, its code, and its message.
+//
+// @evidence contracts/common.md#principled-implementation The record carries what the diagnostic line and the compiler envelope need, and a zero line marks a diagnostic without a position.
+// @evidence contracts/common.md#clear-and-simple-design A five-field record with one formatting method.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The values come from the transforms that report them.
+// @evidence contracts/common.md#meaningful-documentation The comment names the fields and the meaning of an absent position.
 type Diagnostic struct {
 	File    string
 	Line    int
@@ -283,6 +289,12 @@ type Diagnostic struct {
 	Message string
 }
 
+// String formats the diagnostic as `file:line:column - error TS(code): message`, with the file made relative to `cwd` when possible, and without the position when the line is unknown.
+//
+// @evidence contracts/common.md#principled-implementation The path is made relative with `filepath.Rel` and the position part is printed only for a positive line, which is the same shape as every other nestia and typia diagnostic.
+// @evidence contracts/common.md#clear-and-simple-design One function with two format strings.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The shape is the protocol that ttsc reads from stderr, not a test-specific format.
+// @evidence contracts/common.md#meaningful-documentation The comment states the two formats and the relative path rule.
 func (d Diagnostic) String(cwd string) string {
 	file := d.File
 	if rel, err := filepath.Rel(cwd, file); err == nil {
@@ -294,6 +306,12 @@ func (d Diagnostic) String(cwd string) string {
 	return fmt.Sprintf("%s - error TS(%s): %s", file, d.Code, d.Message)
 }
 
+// WriteTypiaTransformDiagnostics writes each diagnostic on its own line to the writer, with files relative to `cwd`.
+//
+// @evidence contracts/common.md#principled-implementation Each diagnostic is written by its own `String`, one per line in the given order, so the output is the concatenation of the formatted diagnostics.
+// @evidence contracts/common.md#clear-and-simple-design One loop over one formatter.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts It writes what it is given, without filtering or reordering.
+// @evidence contracts/common.md#meaningful-documentation The comment states the format and the ordering.
 func WriteTypiaTransformDiagnostics(out io.Writer, diagnostics []Diagnostic, cwd string) {
 	for _, diag := range diagnostics {
 		fmt.Fprintln(out, diag.String(cwd))

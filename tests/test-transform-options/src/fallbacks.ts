@@ -50,41 +50,44 @@ class FallbacksModule {}
 
 const main = async (): Promise<void> => {
   const app = await NestFactory.create(FallbacksModule, { logger: false });
-  await app.listen(0);
-  const { port } = app.getHttpServer().address() as { port: number };
-  const host = `http://127.0.0.1:${port}/fallbacks`;
-  const json = async (response: Response) => ({
-    status: response.status,
-    body: await response.json(),
-  });
+  try {
+    await app.listen(0);
+    const { port } = app.getHttpServer().address() as { port: number };
+    const host = `http://127.0.0.1:${port}/fallbacks`;
+    const json = async (response: Response) => ({
+      status: response.status,
+      body: await response.json(),
+    });
 
-  const form = new FormData();
-  form.append("title", "hello");
-  form.append("tags", "a");
-  form.append("tags", "b");
-  form.append(
-    "file",
-    new File(["content"], "note.txt", { type: "text/plain" }),
-  );
+    const form = new FormData();
+    form.append("title", "hello");
+    form.append("tags", "a");
+    form.append("tags", "b");
+    form.append(
+      "file",
+      new File(["content"], "note.txt", { type: "text/plain" }),
+    );
 
-  const result = {
-    headers: await json(
-      await fetch(`${host}/headers`, { headers: { "x-name": "abc" } }),
-    ),
-    query: await json(await fetch(`${host}/query?title=hello&tags=a&tags=b`)),
-    urlencoded: await json(
-      await fetch(`${host}/urlencoded`, {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
-        body: "title=hello&tags=a&tags=b",
-      }),
-    ),
-    multipart: await json(
-      await fetch(`${host}/multipart`, { method: "POST", body: form }),
-    ),
-  };
-  await app.close();
-  console.log(JSON.stringify(result));
+    const result = {
+      headers: await json(
+        await fetch(`${host}/headers`, { headers: { "x-name": "abc" } }),
+      ),
+      query: await json(await fetch(`${host}/query?title=hello&tags=a&tags=b`)),
+      urlencoded: await json(
+        await fetch(`${host}/urlencoded`, {
+          method: "POST",
+          headers: { "content-type": "application/x-www-form-urlencoded" },
+          body: "title=hello&tags=a&tags=b",
+        }),
+      ),
+      multipart: await json(
+        await fetch(`${host}/multipart`, { method: "POST", body: form }),
+      ),
+    };
+    console.log(JSON.stringify(result));
+  } finally {
+    await app.close();
+  }
 };
 main().catch((error) => {
   console.error(error);

@@ -30,6 +30,9 @@ export async function main(): Promise<void> {
   });
   await server.close();
 
+  if (report.executions.length === 0)
+    throw new Error("No SDK tests were discovered.");
+
   const exceptions: Error[] = report.executions
     .filter((exec) => exec.error !== null)
     .map((exec) => exec.error!);

@@ -124,7 +124,7 @@ Validation failures throw `BadRequestException`, so global exception filters cat
 
 ## EncryptedBody
 
-`@EncryptedBody()` accepts an AES-128/256 CBC encrypted body (PKCS #5 padding, Base64 encoded). The generated SDK encrypts requests automatically so consumers send plaintext at the call site.
+`@EncryptedBody()` accepts an AES-128/192/256 CBC encrypted body (PKCS #5 padding, Base64 encoded). The generated SDK encrypts requests automatically so consumers send plaintext at the call site. The key's UTF-8 byte length selects the variant: 16, 24, or 32 bytes, respectively. The initialization vector must be 16 UTF-8 bytes; character counts can differ from byte counts for non-ASCII strings.
 
 This is an obfuscation layer to run on top of TLS — it hides the request payload from casual inspection (for example a reader opening the browser devtools) and satisfies environments that mandate a second encryption pass. It is not authenticated encryption and is not a substitute for TLS: AES-CBC here carries no message authentication code, so do not rely on it as your only confidentiality or integrity control. Keep HTTPS as the transport.
 

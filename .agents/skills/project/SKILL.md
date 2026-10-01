@@ -42,23 +42,23 @@ That manifest target, `packages/core/native/transform.cjs`, is the operative des
 
 `@nestia/core/lib/transform`, the plugin path nestia v11 documented, is exported as the same `native/transform.cjs` file, so a v11 plugin list resolves to this one descriptor and ttsc's package auto-discovery deduplicates it; a descriptor of its own built a second native host beside the composed typia entry and failed the build (#1690). `packages/sdk/src/transform.ts` is also a plugin descriptor, not a transformer: it resolves its installed package root through `createRequire(...).resolve("@nestia/sdk/package.json")` and returns the Go entrypoint. `packages/sdk` deliberately has no `ttsc` key: its Go source is `package sdk`, a non-main package that ttsc statically links into the core host binary. Adding a second plugin entry for `@nestia/sdk` is a misconfiguration for new projects, and `tests/test-transform-options` records that in a source comment; the SDK's linked plugin still honors such an entry from a v11 plugin list and attaches SDK metadata in every build, as v11 did.
 
-Consumers reach the binary through `ttsc` / `ttsx` and the published descriptors. Inside the repo, every test workspace's `start` script uses `cross-env` to carry the `NODE_OPTIONS="--no-experimental-strip-types --no-experimental-detect-module"` that Node 24 needs.
+Consumers reach the binary through `ttsc` / `ttsx` and the published descriptors. TypeScript test workspace entries use `cross-env` to carry the `NODE_OPTIONS="--no-experimental-strip-types --no-experimental-detect-module"` that Node 24 needs. The Evidence process suite runs plain Node.
 
 Five of them additionally set `TTSC_GO_BINARY=go` and pin `TTSC_CACHE_DIR` so the Go source-plugin build is reused:
 
 | Workspace | Cache it pins |
 | --- | --- |
-| `test-e2e`, `test-migrate`, `test-benchmark` | the shared root cache |
+| `test-unit`, `test-migrate`, `test-benchmark` | the shared root cache |
 | `test-sdk` | the same shared cache, resolved to an absolute path when `start.js` starts, so the package build, the diagnostic cohorts, and every feature directory share it |
-| `test-transform-options` | a deliberately workspace-local cache |
+| `test-transform-options` | the shared cache passed by the E2E runner, resolved from the repository root; standalone execution uses its configured cache |
 
-`test-cli` and `test-editor` set neither variable, because they build the package under test first and exercise its built artifacts rather than compiling through the plugin.
+`test-boundaries` exercises the caller-built CLI and library artifacts in one process; `test-evidence` runs plain Node process checks. Neither performs a package build of its own.
 
 ## Layout
 
 - `packages/*`: the eight published packages. The shared Go plugin lives under `packages/core/native` (module `github.com/samchon/nestia/packages/core/native`, with `cmd/ttsc-nestia` and the `transform/` tree); the SDK contributor lives under `packages/sdk/native/sdk`. Both `native/go.work` files carry the same fifteen `replace` directives: fourteen redirect the `github.com/microsoft/typescript-go/shim/*` modules to a pinned `github.com/samchon/ttsc` pseudo-version, and the fifteenth redirects `github.com/samchon/ttsc/packages/ttsc` itself.
 - `packages/core/test` and `packages/sdk/test`: the Go test modules, each its own module — core's replaces `../native`, the SDK's replaces both `../native` and `../../core/native`. Every tracked `*_test.go` file lives here; `native/` itself carries none.
-- `tests/test-*`: seven feature-test workspaces. `start` is the single entry contract for every one of them. See `.agents/skills/development/SKILL.md` for their shapes.
+- `tests/test-*`: unit, shared boundary, SDK, migration, transform-option, benchmark and Evidence test workspaces. `start` is the single entry contract for every one of them. See `.agents/skills/development/SKILL.md` for their shapes.
 - `tests/config/tsconfig.json`: the shared strict base config. Five workspaces extend it directly, and every `test-sdk` feature project extends it as `../../../config/tsconfig.json`. Not a package.
 - `config/`: `@nestia/config`, the private workspace holding the shared rolldown and tsconfig build configuration.
 - `benchmark/`: `@samchon/nestia-benchmark`, the private measurement workspace, with committed per-CPU results under `benchmark/results/**`. See `.agents/skills/benchmark/SKILL.md`.
@@ -69,7 +69,7 @@ Five of them additionally set `TTSC_GO_BINARY=go` and pin `TTSC_CACHE_DIR` so th
 
 The `build`, `test`, and `release` workflows run Node 24.x with Go taken from `packages/core/native/go.mod`; `website.yml` runs `lts/*` and installs no Go. The workspace pins pnpm exactly to 10.6.4.
 
-The `build` and `test` jobs restore the ttsc source-plugin cache (`node_modules/.cache/ttsc`, the compiled plugin binaries and their Go object cache) through `.github/actions/ttsc-cache`, so a job does not rebuild the nestia and typia plugins from cold. Only `build.yml`'s `Ubuntu` job saves it, and `build.yml` also runs on every master push so each pull request can restore master's cache. ttsc keys every binary by its own inputs, so a restored entry that no longer matches is ignored rather than served.
+The `build` and `test` jobs restore the ttsc source-plugin cache (`node_modules/.cache/ttsc`, the compiled plugin binaries and their Go object cache) through `.github/actions/ttsc-cache`. `build.yml`'s `Ubuntu` job saves the build population; `test.yml` saves its test population under a distinct scope so installed SDK contributors and native boundary programs are retained too. Both scopes can restore equivalent input caches, and `build.yml` runs on master pushes. ttsc keys binaries by their inputs, so an unmatched restored binary is ignored. Native SDK preparation builds one executable into its owned consumer installation and dispatches independent producer/runtime programs without combining their metadata naming scopes.
 
 ```bash
 pnpm install
@@ -78,7 +78,9 @@ pnpm build
 pnpm test
 ```
 
-`pnpm test` builds, then runs `pnpm test:go`, then runs each `tests/test-*` workspace's `start` script at `--workspace-concurrency=1`. The whole chain needs `go` on `PATH`, and sets `TTSC_GO_BINARY=go`, `TTSC_CACHE_DIR=node_modules/.cache/ttsc`, and the `NODE_OPTIONS` pair.
+`pnpm test` builds once, checks Evidence, then runs `pnpm test:go`, `pnpm test:unit` and `pnpm test:e2e`, collecting failures across independent populations. Evidence and Go still run after a failed build; unit and E2E require its artifacts. The runner needs `go` on `PATH` and the Node compatibility options. All children share absolute native caches, and E2E reuses the package builds in the SDK harness after checking their freshness. Run `pnpm build` before invoking either TypeScript population independently.
+
+`test.yml` owns all tests in one job without a matrix: one installation and package build feed Evidence, Go tests, TypeScript unit tests and batched E2E, including the benchmark system. Its path filter includes contract and acknowledgment edits. Independent test steps still run after an earlier test failure when their package build succeeded. Aim for eight minutes by sharing preparation and transferring portable semantics to unit tests; verify the actual job duration without dropping coverage or imposing an eight-minute cutoff.
 
 `pnpm format` is one Prettier invocation over `packages/**/*.ts` and `tests/**/*.ts`. It does not touch Go, Markdown, MDX, the website, or the benchmark workspace. `.prettierignore` additionally excludes the trees `packages/migrate`'s `prepare` script regenerates, so formatting them cannot produce a change a commit could carry.
 

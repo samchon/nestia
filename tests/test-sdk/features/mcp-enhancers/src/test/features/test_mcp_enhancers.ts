@@ -29,13 +29,22 @@ export interface IConnection {
  *    filter's mapped exception is the tool error, and a filter answering the
  *    HTTP request itself is what the client receives, the server still
  *    serving.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Both Express/Fastify must enforce controller/method/global/request-scoped/bearer guards, run guards before validation, apply interceptor/uppercase pipe/mapped filter, surface teapot418 and remain serving afterward with the exact retained messages/echoes.
+ * @evidence contracts/testing.md#independent-expectations Authored enhancer classes explicitly deny/allow, read request headers, append intercepted, uppercase values, map conflict and send teapot JSON. Those literal operations plus official InvalidParams independently establish each expected result.
+ * @evidence contracts/testing.md#distinguishing-cases Allowed/denied/no-guard and missing/present headers, request scope, invalid args before/after guards, interceptor/pipe and throwing/responding filters contrast enhancer order and lifecycle on both adapters.
+ * @evidence contracts/testing.md#execution-ownership Its matching exported case is discovered and awaited by the actual feature executor after generation and consumer compilation. Assertion/protocol mismatches reject the report; empty discovery rejects the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Actual Nest enhancer resolution/request context and MCP HTTP adaptor must share the controller lifecycle. Direct method invocation or portable guard evaluation cannot prove this assembly.
+ * @evidence contracts/e2e.md#shared-execution One packed dependency installation and compatible producer/runtime compilations are shared. These assertions reuse the feature backend; independently connected official clients delimit each protocol state and close after that case.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each case owns its client/transport, with connection and calls covered by finally closing the client. The enhancer case also owns its extra Fastify app with listen inside finally ownership; process-local controllers/backends and copied outputs isolate other features.
+ * @evidence contracts/e2e.md#preserved-coverage All original protocol calls, wrapper inputs, exact payload/error controls and metadata/name assertions remain. Shared installation/compiler preparation preserves raw protocol and generated-wrapper owners as distinct connections.
  */
 export const test_mcp_enhancers = async (
   connection: IConnection,
 ): Promise<void> => {
   const fastify: INestApplication = await Backend.fastify();
-  await fastify.listen(0, "127.0.0.1");
   try {
+    await fastify.listen(0, "127.0.0.1");
     for (const [adapter, host] of [
       ["express", connection.host],
       ["fastify", (await fastify.getUrl()).replace("[::1]", "127.0.0.1")],
@@ -57,12 +66,12 @@ const validate = async (
     headers: Record<string, string> = {},
   ): Promise<any> => {
     const client = new Client({ name: "nestia-test", version: "1.0.0" });
-    await client.connect(
-      new StreamableHTTPClientTransport(new URL(`${host}${path}`), {
-        requestInit: { headers },
-      }),
-    );
     try {
+      await client.connect(
+        new StreamableHTTPClientTransport(new URL(`${host}${path}`), {
+          requestInit: { headers },
+        }),
+      );
       return await client.callTool({ name, arguments: args as any });
     } finally {
       await client.close();

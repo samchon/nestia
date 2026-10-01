@@ -19,11 +19,21 @@ const isVariableName = (str: string): boolean => VARIABLE_REGEX.test(str);
 /**
  * Identifier and member-access helpers. The surface kept here is the subset
  * nestia generators actually call (`identifier`, `access`, `parameter`).
+ *
+ * @evidence contracts/common.md#principled-implementation The functions choose an identifier or a string literal by the syntax of the name, so any string can be a key.
+ * @evidence contracts/common.md#clear-and-simple-design Three functions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The identifier test is inlined and conservative.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
  */
 export namespace IdentifierFactory {
   /**
    * Build an identifier or string literal depending on whether `name` is a
    * valid JavaScript identifier.
+   *
+   * @evidence contracts/common.md#principled-implementation The name is tested against the identifier grammar, and a valid name outside the conservative pattern becomes an equivalent quoted key.
+   * @evidence contracts/common.md#clear-and-simple-design One conditional.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The test applies to every name.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the two results.
    */
   export const identifier = (name: string): Identifier | StringLiteral =>
     isVariableName(name)
@@ -33,6 +43,11 @@ export namespace IdentifierFactory {
   /**
    * Member access on `input` by `key`. Falls back to element access when the
    * key is not a valid identifier.
+   *
+   * @evidence contracts/common.md#principled-implementation The key becomes a property when it is an identifier and an element access otherwise.
+   * @evidence contracts/common.md#clear-and-simple-design One function delegating the naming rule.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It never concatenates source text.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the forms.
    */
   export const access = (
     input: Expression,
@@ -60,6 +75,11 @@ export namespace IdentifierFactory {
   /**
    * Parameter declaration with default `any` type when the caller omits one.
    * Passing a `QuestionToken` as `init` marks the parameter optional.
+   *
+   * @evidence contracts/common.md#principled-implementation The question token becomes the optional marker and any other initializer is passed through.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It follows the declaration grammar.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the optional marker.
    */
   export const parameter = (
     name: string | Identifier,

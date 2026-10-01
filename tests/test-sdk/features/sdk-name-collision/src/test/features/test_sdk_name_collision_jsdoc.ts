@@ -25,6 +25,15 @@ import fs from "fs";
  * 5. Assert the `provider` function's comment opens with its `@example`, keeps the
  *    code's indentation, and continues its wrapped `@param` under its
  *    description.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generated positional argument JSDoc must name _props and _query/__query with the asserted wrapped text and indented multiline example.
+ * @evidence contracts/testing.md#independent-expectations Authored controller descriptions and the public renamed parameter signature establish exact text/indentation needles independently of the generated comment.
+ * @evidence contracts/testing.md#distinguishing-cases HTTP props collision and WebSocket path/query collision retain distinct tag destinations and wrapped-description controls plus a comment beginning with @example.
+ * @evidence contracts/testing.md#execution-ownership The matching test_sdk_name_collision_jsdoc export is discovered and awaited by its feature executor after actual SDK generation and consumer compilation; rejection fails the report and zero cases fail the entry.
+ * @evidence contracts/e2e.md#necessary-boundary The actual native controller metadata and SDK printer must produce source consumed by the compiler; exact final text detects naming/documentation corruption not observable from an HTTP echo alone.
+ * @evidence contracts/e2e.md#shared-execution This case shares packed dependency installation, compatible producer/runtime compilation and its already generated source with sibling cases; it does not prepare a new compiler per assertion.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Reads resolve from this case to its own generated feature outputs; it mutates neither source nor another member. The harness removes its copied tree after emitted execution finishes.
+ * @evidence contracts/e2e.md#preserved-coverage All test_sdk_name_collision_jsdoc assertions described above remain in this executable file, including its exact echoes/text or declared-shape and invalid-input controls; shared preparation does not replace them with compiler success.
  */
 export const test_sdk_name_collision_jsdoc = async (): Promise<void> => {
   const content: string = await fs.promises.readFile(

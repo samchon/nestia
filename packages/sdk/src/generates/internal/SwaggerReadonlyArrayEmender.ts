@@ -10,7 +10,23 @@ import {
 
 type JsonSchemaObject = OpenApi.IJsonSchema & Record<string, any>;
 
+/**
+ * Repairs the schemas of readonly arrays and tuples.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace walks the metadata beside its schema and completes what the generator omits for a readonly array, following each type once.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and the visitors.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The walk terminates on a recursive type.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SwaggerReadonlyArrayEmender {
+  /**
+   * Emends the schema of a metadata and its components in place.
+   *
+   * @evidence contracts/common.md#principled-implementation The visited sets are per call, so a shared component is emended once.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The edit is confined to the schemas passed in.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const emend = (props: {
     components: OpenApi.IComponents;
     schema: OpenApi.IJsonSchema | undefined;

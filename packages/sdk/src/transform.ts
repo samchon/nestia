@@ -11,6 +11,11 @@ import type { ITtscPlugin, ITtscPluginFactoryContext } from "ttsc";
  * contributor — but only for projects that actually depend on `@nestia/sdk`. A
  * project depending on `@nestia/core` alone never links, compiles, or ships any
  * of this SDK transform code.
+ *
+ * @evidence contracts/common.md#principled-implementation The package root is resolved through `@nestia/sdk/package.json` from the consumer's project, so the source path is the installed package's, not a workspace layout, and the descriptor returns only a name and a source directory.
+ * @evidence contracts/common.md#clear-and-simple-design One function returning two properties; the transform itself is native.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The resolution goes through the package manifest, as the development rules require, and nothing is patched.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the descriptor returns.
  */
 export default function createTtscPlugin(
   context: ITtscPluginFactoryContext,

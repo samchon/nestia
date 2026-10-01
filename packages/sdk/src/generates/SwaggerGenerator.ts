@@ -26,7 +26,26 @@ import { SdkHttpParameterProgrammer } from "./internal/SdkHttpParameterProgramme
 import { SwaggerOperationComposer } from "./internal/SwaggerOperationComposer";
 import { SwaggerReadonlyArrayEmender } from "./internal/SwaggerReadonlyArrayEmender";
 
+/**
+ * Composes and writes the OpenAPI document.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace resolves the output location, builds the document from the routes, downgrades it when an older version is configured, and writes it.
+ * @evidence contracts/common.md#clear-and-simple-design Three public functions and private helpers for security, customizers, and the copy of the document.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The composition never edits data it does not own.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SwaggerGenerator {
+  /**
+   * Writes the document to the configured location: a `.json` path as it is,
+   * and a directory as its `swagger.json`.
+   *
+   * The document is downgraded when `openapi` names an older version.
+   *
+   * @evidence contracts/common.md#principled-implementation The directory is created recursively and a failure to create it is reported with its cause; the document is composed, converted, and written in that order.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The failure to create the directory is not swallowed.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const generate = async (app: ITypedApplication): Promise<void> => {
     // GET CONFIGURATION
     console.log("Generating Swagger Document");
@@ -40,14 +59,15 @@ export namespace SwaggerGenerator {
       ? path.resolve(config.output)
       : path.join(path.resolve(config.output), "swagger.json");
     const directory: string = path.dirname(location);
-    if (fs.existsSync(directory) === false)
-      try {
-        await fs.promises.mkdir(directory, { recursive: true });
-      } catch {}
-    if (fs.existsSync(directory) === false)
+    try {
+      await fs.promises.mkdir(directory, { recursive: true });
+    } catch (error) {
       throw new Error(
-        `Error on NestiaApplication.swagger(): failed to create output directory: ${directory}`,
+        `Error on NestiaApplication.swagger(): failed to create output directory: ${directory} (${
+          error instanceof Error ? error.message : String(error)
+        })`,
       );
+    }
     // COMPOSE SWAGGER DOCUMENT
     const document: OpenApi.IDocument = compose({
       config,
@@ -76,6 +96,18 @@ export namespace SwaggerGenerator {
     );
   };
 
+  /**
+   * Composes the document of the HTTP routes into the given document: the
+   * components of every schema, and the paths.
+   *
+   * A route tagged `@internal` or `@hidden`, or excluded by
+   * `@ApiExcludeEndpoint`, is left out.
+   *
+   * @evidence contracts/common.md#principled-implementation The schemas of all routes are composed in one call, so a component shared by routes exists once, and the readonly arrays are emended before the paths refer to them.
+   * @evidence contracts/common.md#clear-and-simple-design One function of sequential steps.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The exclusion is the documented set of tags and decorators.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const compose = (props: {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     routes: ITypedHttpRoute[];
@@ -128,6 +160,15 @@ export namespace SwaggerGenerator {
     return document;
   };
 
+  /**
+   * Returns the document the composition starts from: the configured info,
+   * servers, security schemes, and tags, or the defaults, as copies.
+   *
+   * @evidence contracts/common.md#principled-implementation The template is a lazily built singleton and each call takes a copy, because the composition pushes tags and components into the document.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The defaults are the ones the configuration documents, and the copy keeps the configuration intact.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const initialize = async (
     config: Omit<INestiaConfig.ISwaggerConfig, "output">,
   ): Promise<OpenApi.IDocument> => {

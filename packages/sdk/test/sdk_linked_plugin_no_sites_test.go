@@ -20,6 +20,11 @@ import (
 //     TTSC_LINKED_PLUGINS_JSON.
 //  2. Trigger ApplyLinkedPlugins through SourceFiles.
 //  3. Assert the structure file received no injected namespace import.
+//
+// @evidence contracts/testing.md#behavioral-verification A linked-plugin load of the DTO-only program must leave it without a generated SDK import and confirm it has no controller methods.
+// @evidence contracts/testing.md#independent-expectations A structure declaration with no operation sites requires no metadata rewrite; injecting an import would change unrelated source.
+// @evidence contracts/testing.md#distinguishing-cases The fixture-method zero assertion makes the negative premise explicit; the controller linked-plugin case owns the synthesized decorator positive.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
 func TestSDKLinkedPluginNoOpWithoutSites(t *testing.T) {
 	root := repoRoot(t)
 	temp := writeFeatureTsconfig(t, root, "body", []string{

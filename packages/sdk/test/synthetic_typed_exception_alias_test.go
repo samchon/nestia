@@ -16,6 +16,11 @@ import (
 //  1. Author one controller per import spelling, each with a typed exception.
 //  2. Run the SDK metadata pass.
 //  3. Assert each method's metadata holds exactly one exception of its type.
+//
+// @evidence contracts/testing.md#behavioral-verification Alias, named, default and namespace TypedException imports must each produce exactly one method metadata literal and exactly one exception typed IMissing.
+// @evidence contracts/testing.md#independent-expectations TypeScript import aliasing preserves the resolved declaration identity; the handwritten exception DTO is the same under all four supported spellings.
+// @evidence contracts/testing.md#distinguishing-cases Four valid import forms and exact exception count detect alias loss/duplicate collection. Exception fixture and local provenance cases own richer schemas and foreign same-name types.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticTypedExceptionAlias(t *testing.T) {
 	for spelling, controller := range map[string]string{
 		"alias": `import { TypedException as Exception, TypedRoute } from "@nestia/core";

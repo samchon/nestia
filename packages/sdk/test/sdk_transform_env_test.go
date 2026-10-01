@@ -2,7 +2,6 @@ package test
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -22,6 +21,11 @@ import (
  * 2. Enable NESTIA_SDK_TRANSFORM for that compile.
  * 3. Assert the emitted JavaScript contains the OperationMetadata decorator.
  */
+//
+// @evidence contracts/testing.md#behavioral-verification A native build with core-only plugins and SDK runtime opt-in must emit the SDK import and OperationMetadata while preserving the core Put route validator.
+// @evidence contracts/testing.md#independent-expectations The core host links the SDK contributor and honors the runtime environment opt-in; the controller's authored route must also receive its ordinary core transformation.
+// @evidence contracts/testing.md#distinguishing-cases This owns JavaScript build propagation; the TypeScript activation/gate-off pair distinguishes enabled and disabled states before emit. It does not start an installed CLI process.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
 func TestSDKTransformEnvActivatesContributorMetadata(t *testing.T) {
 	root := repoRoot(t)
 	temp := t.TempDir()
@@ -56,23 +60,15 @@ func TestSDKTransformEnvActivatesContributorMetadata(t *testing.T) {
 		t.Fatal(err)
 	}
 	outDir := filepath.Join(temp, "lib")
-	cmd := exec.Command(
-		"go",
-		"run",
-		filepath.Join(root, "packages/sdk/native/cmd/ttsc-nestia-sdk"),
+	t.Setenv("NESTIA_SDK_TRANSFORM", "1")
+	runSDKNative(t, []string{
 		"build",
 		"--cwd", temp,
 		"--tsconfig", "tsconfig.json",
 		"--emit",
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}}]`,
-	)
-	cmd.Dir = filepath.Join(root, "packages/sdk/native")
-	cmd.Env = append(os.Environ(), "NESTIA_SDK_TRANSFORM=1")
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("native build failed: %v\n%s", err, out)
-	}
+	})
 	js, err := os.ReadFile(emittedJSPath(t, root, outDir, filepath.Join(sourceRoot, "controllers/TypedBodyController.ts")))
 	if err != nil {
 		t.Fatal(err)

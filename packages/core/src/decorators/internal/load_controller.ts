@@ -3,6 +3,19 @@ import { pathToFileURL } from "url";
 import { Creator } from "../../typings/Creator";
 import { SourceFinder } from "../../utils/SourceFinder";
 
+/**
+ * Finds and imports the controllers under the given paths.
+ *
+ * A path, a list, or include and exclude lists are matched with globs, imported
+ * by file URL, and every export that carries Nest's `path` metadata is a
+ * controller. When no compiled `.js` controller is found and the process runs
+ * from source under `ttsx`, the TypeScript files are used instead.
+ *
+ * @evidence contracts/common.md#principled-implementation Files are selected by a filter chosen from the runtime (JavaScript modules, or TypeScript sources without declaration files), each is imported by `file:` URL through a native dynamic import that survives CommonJS downleveling, and a controller is recognized by Nest's own `path` metadata, so no naming convention is assumed.
+ * @evidence contracts/common.md#clear-and-simple-design One function with the fallback for the source-run case inside it and the filters and the mount loop as private helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Discovery follows the metadata Nest itself writes; the `ttsx` fallback is decided by the runtime's own environment variable, not by a project name.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the path forms, the recognition rule, and the source-run fallback.
+ */
 export const load_controllers = async (
   path: string | string[] | { include: string[]; exclude?: string[] },
   isTsNode?: boolean,

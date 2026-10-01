@@ -2,7 +2,27 @@ import os from "os";
 
 import { DynamicBenchmarker } from "../DynamicBenchmarker";
 
+/**
+ * Renders a benchmark report as markdown.
+ *
+ * @evidence contracts/common.md#principled-implementation The reporter formats one report into fixed sections (specifications, arguments, time, statistics, memory chart, endpoints, failures) using a fixed locale.
+ * @evidence contracts/common.md#clear-and-simple-design A one-function namespace, internal to the package, that keeps presentation out of the benchmark logic.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The content is computed from the report and host facts; no numbers are hardcoded.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its single job.
+ */
 export namespace DynamicBenchmarkReporter {
+  /**
+   * Renders the report as markdown.
+   *
+   * Numbers use the fixed `en-US` locale, so a report reads the same on every
+   * machine. Decimals are truncated, not rounded, to two places. The CPU model
+   * is `unknown` when the platform exposes no CPU information.
+   *
+   * @evidence contracts/common.md#principled-implementation Each table row is built from the same statistics record; `Math.floor` on the value scaled by 100 truncates to two decimals and `en-US` fixes separators, so output does not depend on the default locale; a missing CPU model degrades to a stated `unknown`.
+   * @evidence contracts/common.md#clear-and-simple-design Small local helpers (`integer`, `format`, `row`, `line`) share the formatting rules inside one function, so one place decides how a number reads.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The report states only what was measured: CPU and memory come from the host at render time and nothing describes an unmeasured server.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the locale, the truncation, and the CPU fallback.
+   */
   export const markdown = (report: DynamicBenchmarker.IReport): string => {
     // one fixed locale, so a report reads the same on every machine
     const integer = (value: number): string => value.toLocaleString("en-US");

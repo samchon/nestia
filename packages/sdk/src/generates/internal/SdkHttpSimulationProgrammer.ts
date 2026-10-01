@@ -23,7 +23,24 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
 
+/**
+ * Writes the mockup functions of an HTTP route.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace prints `random`, which generates a value of the output type, and `simulate`, which validates the request like the server and returns one.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions and their helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The simulator runs the same validators as the server.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkHttpSimulationProgrammer {
+  /**
+   * Returns `random`: it makes a value of the response, an empty stream for a
+   * binary one.
+   *
+   * @evidence contracts/common.md#principled-implementation The value is `typia.random` of the output type.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The binary case has no random content.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const random =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -61,6 +78,15 @@ export namespace SdkHttpSimulationProgrammer {
       );
     };
 
+  /**
+   * Returns `simulate`: it asserts the parameters and returns a random output,
+   * wrapped as a propagation when configured.
+   *
+   * @evidence contracts/common.md#principled-implementation The status of the wrapper is the declared one or the method's default.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The parameters are validated before a response is made.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const simulate =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>

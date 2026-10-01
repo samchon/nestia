@@ -1,7 +1,25 @@
 import { program } from "commander";
 import { createPromptModule } from "inquirer";
 
+/**
+ * Reads the options of the command from flags, asking interactively for what is
+ * missing.
+ *
+ * @evidence contracts/common.md#principled-implementation Each option is taken from its flag when given, and asked with a prompt otherwise, so the same command runs non-interactively when every flag is present.
+ * @evidence contracts/common.md#clear-and-simple-design One function and the output type; the prompt helpers are local.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The prompts are the standard `inquirer` ones, and a flag always wins over a prompt.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace NestiaMigrateInquirer {
+  /**
+   * The options of the command: the mode, the input and output locations, the
+   * flags, and the package name.
+   *
+   * @evidence contracts/common.md#principled-implementation The record holds the answers needed to run the migration, each as a value and not as an optional.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment lists the options.
+   */
   export interface IOutput {
     mode: "nest" | "sdk";
     input: string;
@@ -12,6 +30,17 @@ export namespace NestiaMigrateInquirer {
     package: string;
   }
 
+  /**
+   * Parses the flags and asks for the missing options.
+   *
+   * A boolean flag given without a value is `true`, and one given a value is
+   * true only for the text `true`.
+   *
+   * @evidence contracts/common.md#principled-implementation Commander parses the flags, the action asks a prompt for each undefined option, and boolean flags are normalized by one rule, so the result has every field set.
+   * @evidence contracts/common.md#clear-and-simple-design One function that wires the parser and the prompts around one action.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It asks only for what is missing.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the boolean flag rule.
+   */
   export const parse = async (): Promise<IOutput> => {
     // PREPARE ASSETS
     program.option("--mode [nest/sdk]", "migration mode");

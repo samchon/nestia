@@ -22,6 +22,11 @@ import { pathToFileURL } from "url";
  *
  * @example
  *   https://github.com/samchon/backend/blob/master/test/index.ts
+ *
+ * @evidence contracts/common.md#principled-implementation The executor walks the location recursively, admits a file only when its basename ends with the extension and starts with the prefix and the filter accepts it, imports the admitted files, and runs every exported function whose name starts with the prefix, with at most `simultaneous` runs in flight; the file gate runs before the import so an excluded file is never loaded.
+ * @evidence contracts/common.md#clear-and-simple-design Two public entry points share one private pipeline: discovery (`iterate`), the import specifier (`specifier`), and execution (`execute`) are separate helpers, and the two modes differ by one flag.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection is by prefix, extension, and the caller's filter, with no known file names; the import specifier logic distinguishes the module system in use rather than special-casing a platform.
+ * @evidence contracts/common.md#meaningful-documentation The namespace prose says what it runs and why, with links to example repositories, and the members document their options.
  */
 export namespace DynamicExecutor {
   /**
@@ -29,12 +34,23 @@ export namespace DynamicExecutor {
    *
    * @template Arguments Type of parameters
    * @template Ret Type of return value
+   * @evidence contracts/common.md#principled-implementation A dynamic function is an asynchronous function of the parameters the executor supplies.
+   * @evidence contracts/common.md#clear-and-simple-design A single call signature.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment names the parameter and return type arguments.
    */
   export interface Closure<Arguments extends any[], Ret = any> {
     (...args: Arguments): Promise<Ret>;
   }
 
-  /** Options for dynamic executor. */
+  /**
+   * Options for dynamic executor.
+   *
+   * @evidence contracts/common.md#principled-implementation The fields are what selection and execution need: the prefix, the location, the parameter factory, and optional hooks, concurrency, and extension; `simultaneous` and the extension have documented defaults.
+   * @evidence contracts/common.md#clear-and-simple-design A flat option record whose optional members are the extension points (listener, filter, wrapper).
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Every value is caller-supplied; the defaults are the documented ones (`js`, one at a time).
+   * @evidence contracts/common.md#meaningful-documentation Each option documents its meaning, including that the filter receives a file basename and never a function name.
+   */
   export interface IProps<Parameters extends any[], Ret = any> {
     /**
      * Prefix of function name.
@@ -56,6 +72,10 @@ export namespace DynamicExecutor {
      *
      * @param name Function name
      * @returns Parameters
+     * @evidence contracts/common.md#principled-implementation The function is called with the function name at each execution and returns the argument list, so each test gets fresh parameters keyed by its name.
+     * @evidence contracts/common.md#clear-and-simple-design One required callback with one input.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts Arguments come only from the caller's function.
+     * @evidence contracts/common.md#meaningful-documentation The comment documents the parameter and the return value.
      */
     parameters: (name: string) => Parameters;
 
@@ -65,6 +85,10 @@ export namespace DynamicExecutor {
      * Listener of completion of a test function.
      *
      * @param exec Execution result of a test function
+     * @evidence contracts/common.md#principled-implementation The listener is called from the `finally` of each execution with the execution record, so it observes both success and failure, after the completion time is set.
+     * @evidence contracts/common.md#clear-and-simple-design One optional callback with one record argument.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It only observes; the executor does not change behavior based on it.
+     * @evidence contracts/common.md#meaningful-documentation The comment states that it listens to the completion of a test function.
      */
     onComplete?: (exec: IExecution) => void;
 
@@ -78,6 +102,10 @@ export namespace DynamicExecutor {
      *
      * @param file File name (basename) of the dynamic functions
      * @returns Whether to run or not
+     * @evidence contracts/common.md#principled-implementation The predicate is evaluated on the file basename before the file is imported, so a `false` result prevents both the import and the execution of every function in it.
+     * @evidence contracts/common.md#clear-and-simple-design One optional predicate over one string.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection follows the caller's predicate, not fixed names.
+     * @evidence contracts/common.md#meaningful-documentation The comment states the argument and the effect of a `false` answer.
      */
     filter?: (file: string) => boolean;
 
@@ -92,6 +120,10 @@ export namespace DynamicExecutor {
      * @param closure Function to be executed
      * @param parameters Parameters, result of options.parameters function.
      * @returns Wrapper function
+     * @evidence contracts/common.md#principled-implementation When present, the wrapper is called instead of the function directly with the name, the function, and the parameters, so a caller can add setup, retries, or measurement around each test.
+     * @evidence contracts/common.md#clear-and-simple-design One optional callback that replaces the direct call.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts The executor calls the wrapper for every function it runs, without a test-specific bypass.
+     * @evidence contracts/common.md#meaningful-documentation The comment documents each parameter and the return value.
      */
     wrapper?: (
       name: string,
@@ -119,7 +151,14 @@ export namespace DynamicExecutor {
     extension?: string;
   }
 
-  /** Report, result of dynamic execution. */
+  /**
+   * Report, result of dynamic execution.
+   *
+   * @evidence contracts/common.md#principled-implementation The report keeps the location, every execution record in start order, and the elapsed time computed as the difference of two clock reads.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Every field is measured by the executor.
+   * @evidence contracts/common.md#meaningful-documentation Each field documents its meaning.
+   */
   export interface IReport {
     /** Location path of dynamic functions. */
     location: string;
@@ -131,7 +170,14 @@ export namespace DynamicExecutor {
     time: number;
   }
 
-  /** Execution of a test function. */
+  /**
+   * Execution of a test function.
+   *
+   * @evidence contracts/common.md#principled-implementation An execution records the function name, its file, the returned value, the error or `null`, and the start and completion instants, which is what a listener needs to report a test.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Every field is measured by the executor.
+   * @evidence contracts/common.md#meaningful-documentation Each field documents its meaning, and the two time fields state that they hold ISO 8601 strings.
+   */
   export interface IExecution {
     /** Name of function. */
     name: string;
@@ -145,10 +191,10 @@ export namespace DynamicExecutor {
     /** Error when occurred. */
     error: Error | null;
 
-    /** Elapsed time. */
+    /** Start time, as an ISO 8601 string. */
     started_at: string;
 
-    /** Completion time. */
+    /** Completion time, as an ISO 8601 string. */
     completed_at: string;
   }
 
@@ -161,6 +207,10 @@ export namespace DynamicExecutor {
    *
    * @param props Properties of dynamic execution
    * @returns Report of dynamic test functions execution
+   * @evidence contracts/common.md#principled-implementation Strict mode rethrows the first error of a function, which rejects the returned promise and ends the run with that failure, after the execution record and the listener have seen it.
+   * @evidence contracts/common.md#clear-and-simple-design A one-line binding of the shared pipeline with the strict flag.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The mode changes only whether a failure is rethrown; nothing is silenced.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the strict behavior, contrasts it with `validate`, and documents the parameter and the report.
    */
   export const assert = <Arguments extends any[]>(
     props: IProps<Arguments>,
@@ -175,6 +225,10 @@ export namespace DynamicExecutor {
    *
    * @param props Properties of dynamic executor
    * @returns Report of dynamic test functions execution
+   * @evidence contracts/common.md#principled-implementation Loose mode records the error in the execution and continues with the next function, so the report lists every failure.
+   * @evidence contracts/common.md#clear-and-simple-design A one-line binding of the shared pipeline with the loose flag.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The mode changes only whether a failure is rethrown; the error stays in the report.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the loose behavior, contrasts it with `assert`, and documents the parameter and the report.
    */
   export const validate = <Arguments extends any[]>(
     props: IProps<Arguments>,

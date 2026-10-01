@@ -19,7 +19,24 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkPathTemplate } from "./SdkPathTemplate";
 import { SdkWebSocketParameterProgrammer } from "./SdkWebSocketParameterProgrammer";
 
+/**
+ * Writes the namespace of a WebSocket route.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace holds the route's types, its path builder, and its metadata.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and two writers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The parts follow the route.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkWebSocketNamespaceProgrammer {
+  /**
+   * Returns the namespace of a WebSocket route: its `Header`, `Query`,
+   * `Provider`, and `Listener` types and its `path`.
+   *
+   * @evidence contracts/common.md#principled-implementation The types are declared only for the parameters the route has.
+   * @evidence contracts/common.md#clear-and-simple-design One declaration composed of the writers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The members follow the route.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>

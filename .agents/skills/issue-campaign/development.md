@@ -92,7 +92,7 @@ Commit and push the formatted integrated snapshot, then let every ordinary pull-
 
 Submit every Self-Review finding round and the final clean round as a formal GitHub pull-request review with the `COMMENT` event. Attach line-specific findings as inline review comments and summarize round-wide findings or the clean conclusion in the review body; do not post ordinary issue-style pull-request comments for Self-Review.
 
-Read CI once per settled head. It gates the cycle, not each commit. Only `test.yml` sets `cancel-in-progress`, so an intermediate commit's other lanes run to completion against a snapshot the cycle has already moved past; waiting on that result stalls implementation and proves nothing about the head that will merge. Note also that `.github/workflows/` is not the whole check surface: CodeQL default setup and the Socket Security app report on pull requests without a workflow file in this repository.
+Read CI once per settled head. It gates the cycle, not each commit. The single test workflow cancels superseded pull-request runs; other lanes can finish against an intermediate snapshot. Waiting on that result stalls implementation and proves nothing about the head that will merge. Evidence, Go, unit and E2E are distinct steps in that one job, without a matrix. Note also that `.github/workflows/` is not the whole check surface: CodeQL default setup and the Socket Security app report on pull requests without a workflow file in this repository.
 
 CI and review are independent gates:
 

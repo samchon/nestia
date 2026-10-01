@@ -22,6 +22,11 @@ import (
 //  2. Assert Core / SDK / Typia are all detected and UsesNestia is true.
 //  3. Parse an entry whose config.transform is a number and assert no panic and
 //     that the unnamed entry is classified as nothing.
+//
+// @evidence contracts/testing.md#behavioral-verification ParsePlan must recognize all three literal transform paths without names, report UsesNestia, and preserve a numeric-transform entry with an empty Transform instead of panicking.
+// @evidence contracts/testing.md#independent-expectations The public transform module specifiers identify core, SDK and typia; a JSON number is not a module specifier and cannot identify any transform.
+// @evidence contracts/testing.md#distinguishing-cases Unnamed recognized entries and one unnamed non-string entry distinguish path classification from name-only matching and unsafe assertions; empty and native paths are owned by the adjacent ParsePlan case.
+// @evidence contracts/testing.md#execution-ownership Go discovers the external core Test; ParsePlan is called directly on strings without fixture files, installation or native host compilation.
 func TestParsePlanClassifiesByTransformPath(t *testing.T) {
 	plan, err := plugin.ParsePlan(`[
 		{"config":{"transform":"typia/lib/transform"}},

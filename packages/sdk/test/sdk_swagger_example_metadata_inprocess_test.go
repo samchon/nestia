@@ -21,6 +21,11 @@ import (
 //  2. Run EmitTransform and decode every injected OperationMetadata literal.
 //  3. Assert the JSDoc tags, a named parameter, and the IBbsArticle success type
 //     are all present.
+//
+// @evidence contracts/testing.md#behavioral-verification Metadata from the Swagger example controller must preserve author/warning/param/returns tags, the authored content description, input name and unwrapped article return.
+// @evidence contracts/testing.md#independent-expectations The handwritten JSDoc and Promise<IBbsArticle> signature establish the expected descriptions and element type independently of generated metadata.
+// @evidence contracts/testing.md#distinguishing-cases This covers populated multi-tag documentation, named body and Promise return; empty-tag and synthetic Promise cases distinguish missing text and wrapper leakage.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
 func TestSDKSwaggerExampleMetadataInProcess(t *testing.T) {
 	root, prog := loadFeatureProgram(t, "swagger-example", []string{
 		"controllers/BbsArticlesController.ts",

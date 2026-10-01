@@ -32,6 +32,11 @@ const sdkLinkedPluginsJSON = `[{"name":"@nestia/sdk","stage":"transform","config
 //  3. Walk the controller's method modifiers and assert a synthesized
 //     OperationMetadata decorator landed on a TypedRoute method, plus the
 //     injected namespace import statement.
+//
+// @evidence contracts/testing.md#behavioral-verification Loading the controller through the registered linked-plugin plan must inject the SDK namespace import and a synthesized OperationMetadata decorator into its AST.
+// @evidence contracts/testing.md#independent-expectations The linked-plugin contract applies metadata to decorated operation sites; the controller initially contains neither the generated import nor synthesized decorator.
+// @evidence contracts/testing.md#distinguishing-cases The positive AST assertions require a synthesized flag so an authored lookalike cannot pass; the site-less counterpart forbids import injection.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
 func TestSDKLinkedPluginApplyProgramInjectsDecorator(t *testing.T) {
 	root := repoRoot(t)
 	feature := "body"

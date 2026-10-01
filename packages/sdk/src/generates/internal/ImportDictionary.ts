@@ -11,6 +11,15 @@ import { ImportAnalyzer } from "../../analyses/ImportAnalyzer";
 import { IReflectImport } from "../../structures/IReflectImport";
 import { FilePrinter } from "./FilePrinter";
 
+/**
+ * The imports of one generated file, merged by module and kind, and printed as
+ * import declarations.
+ *
+ * @evidence contracts/common.md#principled-implementation An import is keyed by its module, its type-only flag, and its default or namespace name, so the same import is one declaration whose named bindings are collected in order.
+ * @evidence contracts/common.md#clear-and-simple-design One class with a hash map of components, and private helpers for the paths.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The keys are equal exactly when the declarations can be merged.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export class ImportDictionary {
   private readonly components_: HashMap<ICompositeKey, ICompositeValue> =
     new HashMap(
@@ -24,10 +33,30 @@ export class ImportDictionary {
 
   public constructor(public readonly file: string) {}
 
+  /**
+   * Reports whether the file has no import.
+   *
+   * @evidence contracts/common.md#principled-implementation The dictionary is empty exactly when no component was registered.
+   * @evidence contracts/common.md#clear-and-simple-design One call.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the map.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   public empty(): boolean {
     return this.components_.empty();
   }
 
+  /**
+   * Registers the imports a route's declarations need, merged by file, as
+   * type-only imports.
+   *
+   * The `WebSocketAcceptor` element is skipped, because the SDK refers to it
+   * through `tgrid`.
+   *
+   * @evidence contracts/common.md#principled-implementation Each namespace, default, and named import is registered under its alias so a name resolves to the same local binding.
+   * @evidence contracts/common.md#clear-and-simple-design One loop over the merged imports.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The skipped element is the one binding that the generated code supplies itself.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   public declarations(imports: IReflectImport[]): void {
     imports = ImportAnalyzer.merge(imports);
     for (const imp of imports) {
@@ -59,7 +88,14 @@ export class ImportDictionary {
     }
   }
 
-  /** Every identifier the imports bind in the file. */
+  /**
+   * Every identifier the imports bind in the file.
+   *
+   * @evidence contracts/common.md#principled-implementation The namespace, the default, and each named local are collected, so a caller can see what a route name would shadow.
+   * @evidence contracts/common.md#clear-and-simple-design One loop.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the components without changing them.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   public locals(): string[] {
     const output: string[] = [];
     for (const { second: c } of this.components_) {
@@ -70,6 +106,14 @@ export class ImportDictionary {
     return output;
   }
 
+  /**
+   * Registers an import of a package and returns the local name it binds.
+   *
+   * @evidence contracts/common.md#principled-implementation The file is placed under `node_modules`, so the printer emits the bare package specifier.
+   * @evidence contracts/common.md#clear-and-simple-design One delegation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It shares the registration of `internal`.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   public external(props: ImportDictionary.IProps): string {
     const file: string = `node_modules/${props.file}`;
     return this.internal({
@@ -78,6 +122,14 @@ export class ImportDictionary {
     });
   }
 
+  /**
+   * Registers an import of a source file and returns the local name it binds.
+   *
+   * @evidence contracts/common.md#principled-implementation The path is normalized and its source extension removed, so equal files are one component, and a named binding is stored under its local name.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The result is the alias when there is one.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   public internal(props: ImportDictionary.IProps): string {
     const file: string = normalize(trimSourceExtension(props.file));
     const key: ICompositeKey = {
@@ -97,6 +149,15 @@ export class ImportDictionary {
     return props.type === "element" ? (props.alias ?? props.name) : props.name;
   }
 
+  /**
+   * Returns the import declarations, packages first and files after them,
+   * sorted by module, with paths relative to the output directory.
+   *
+   * @evidence contracts/common.md#principled-implementation The package paths are cut at their last `node_modules`, and a file path is made relative with forward slashes, so the output does not depend on the platform.
+   * @evidence contracts/common.md#clear-and-simple-design One function over one filter helper.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Both groups are sorted and separated by one empty line.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   public toStatements(outDir: string): Node[] {
     outDir = path.resolve(outDir);
 
@@ -131,7 +192,7 @@ export class ImportDictionary {
           container.push(
             factory.createImportDeclaration(
               undefined,
-              this.toImportClaude(c),
+              this.toImportClause(c),
               factory.createStringLiteral(c.file),
             ),
           );
@@ -146,7 +207,7 @@ export class ImportDictionary {
     ];
   }
 
-  private toImportClaude(c: ICompositeValue): ImportClause {
+  private toImportClause(c: ICompositeValue): ImportClause {
     // A namespace binding cannot carry a per-binding `type` modifier, so the
     // type-only flag goes on the clause itself (`import type * as X`) —
     // generated SDK code references DTO namespaces only in type positions.
@@ -178,6 +239,15 @@ export class ImportDictionary {
   }
 }
 export namespace ImportDictionary {
+  /**
+   * One import to register: its kind, its module, its name, an optional alias,
+   * and whether it is type-only.
+   *
+   * @evidence contracts/common.md#principled-implementation The record is the argument of both registrations.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export interface IProps {
     type: "default" | "element" | "asterisk";
     file: string;

@@ -30,6 +30,15 @@ class IsolationModule {}
  * 1. Register baked metadata for one decomposed query route.
  * 2. Compose a document at runtime and edit its parameter schema.
  * 3. Compose again and assert the new document still has the baked schema.
+ *
+ * @evidence contracts/testing.md#behavioral-verification After editing first document minimum to999, a second public composition must still yield exact number/minimum1.
+ * @evidence contracts/testing.md#independent-expectations HandWrittenMetadata explicitly bakes number/minimum1, and999 is an independent deliberate mutation; the later expected schema is handwritten, not copied from the first output.
+ * @evidence contracts/testing.md#distinguishing-cases First versus second composition contrasts caller mutation with original baked input; this case isolates one decomposed property ownership path.
+ * @evidence contracts/testing.md#execution-ownership The matching test_swagger_decomposed_isolation export is discovered and awaited by the swagger-parameters feature entry after actual emitted execution. Assertion failure rejects its report and zero cases fail the entry.
+ * @evidence contracts/e2e.md#necessary-boundary The public NestiaSwaggerComposer must consume explicitly registered metadata and actual Nest/decorator/configuration state. This probes its runtime composition boundary, not the native extraction of the handwritten metadata; generated siblings retain native-connection coverage.
+ * @evidence contracts/e2e.md#shared-execution Packed dependencies and emitted runtime are shared with the feature. One local real Nest application is necessary for this distinct metadata-registration/composition probe and reused by every repeated composition in the case; no compiler is launched per compose.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Metadata is defined on this case’s distinct private controller prototype and the case owns a local application closed in finally. Config/snapshots/documents are local; deliberate caller/customizer mutation is consumed serially and never handed to a sibling.
+ * @evidence contracts/e2e.md#preserved-coverage All test_swagger_decomposed_isolation documented assertions remain in this executable owner. Deprecated/key-set/finite controls add positive presence checks to retained comparisons, while fallback and isolation still exercise public runtime composition rather than replacing it with a fabricated pass.
  */
 export const test_swagger_decomposed_isolation = async (): Promise<void> => {
   Reflect.defineMetadata(

@@ -26,6 +26,11 @@ import (
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert one metadata literal per decorated method, each listing its
 //     parameters' names: empty for a pattern, the identifier otherwise.
+//
+// @evidence contracts/testing.md#behavioral-verification Metadata for five decorated methods must publish the exact parameter-name vectors, including empty names for destructuring and the ordinary query identifier.
+// @evidence contracts/testing.md#independent-expectations Object/array binding patterns have no single identifier name, computed method names are valid declarations, and an ordinary parameter retains its authored query name.
+// @evidence contracts/testing.md#distinguishing-cases Object destructuring, array destructuring, literal/dynamic computed methods and a route mixing destructured body with a named query distinguish safe node-name handling from inventing names or dropping methods.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticNonIdentifierNames(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 

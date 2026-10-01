@@ -28,6 +28,10 @@ import { ENCRYPTION_CONTROLLER_METADATA_KEY } from "./internal/EncryptedConstant
  * @param path Path of the HTTP request
  * @param password Encryption password or its getter function
  * @returns Class decorator
+ * @evidence contracts/common.md#principled-implementation The decorator stores the password as metadata on the class and then applies Nest's `Controller(path)`, so the encrypted decorators can find the password by reading the class.
+ * @evidence contracts/common.md#clear-and-simple-design One decorator that composes a metadata write with the standard decorator.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses Nest's public `Controller` decorator and the reflect metadata API.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the password forms and the encrypted decorators it enables.
  */
 export function EncryptedController(
   path: string,

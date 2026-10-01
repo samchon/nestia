@@ -15,7 +15,28 @@ import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
 import { NestiaMigrateFileArchiver } from "../archivers/NestiaMigrateFileArchiver";
 import { NestiaMigrateInquirer } from "./NestiaMigrateInquirer";
 
+/**
+ * The command-line entry of `@nestia/migrate`.
+ *
+ * @evidence contracts/common.md#principled-implementation The command reads the options, validates the output directory, reads the document from a file or an http(s) URL, converts it, reports the operations that could not be migrated, and writes the files, formatting only TypeScript files.
+ * @evidence contracts/common.md#clear-and-simple-design One entry function, with formatting, halting, and URL detection as private helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every failure ends with a message and a non-zero exit, and unformattable content is written unformatted.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace NestiaMigrateCommander {
+  /**
+   * Runs the command: reads the options and the document, generates the
+   * project, and writes it to the output directory.
+   *
+   * It stops with an error when the output directory exists, when its parent
+   * does not exist or is not a directory, when the input cannot be read or
+   * fetched, or when the document is invalid.
+   *
+   * @evidence contracts/common.md#principled-implementation The checks run before any file is written, the document is fetched only for an http or https URL, a failed HTTP status stops the command, and only files with a TypeScript extension are formatted, because Prettier's TypeScript parser would rewrite a dotfile line into code.
+   * @evidence contracts/common.md#clear-and-simple-design One asynchronous function whose phases are marked in comments, with the option parsing in `NestiaMigrateInquirer`.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The checks apply to every input, and a formatting failure keeps the original text.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the conditions under which it stops.
+   */
   export const main = async (): Promise<void> => {
     const resolve = (str: string | undefined) =>
       str ? path.resolve(str).split("\\").join("/") : undefined;
@@ -39,6 +60,10 @@ export namespace NestiaMigrateCommander {
       | OpenApiV3_2.IDocument = await (async () => {
       if (isUri(options.input)) {
         const response: Response = await fetch(options.input);
+        if (response.ok === false)
+          halt(
+            `Unable to fetch the input swagger.json: ${response.status} ${response.statusText}`,
+          );
         const content: string = await response.text();
         return JSON.parse(content);
       }

@@ -10,7 +10,24 @@ import { StringUtil } from "../utils/StringUtil";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
+/**
+ * Generates the DTO type aliases from the component schemas.
+ *
+ * @evidence contracts/common.md#principled-implementation Each component name is normalized into a valid dotted name, the dots become nested namespaces, and each schema becomes an exported type alias with its description and its tags as a comment.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and private builders for the module tree and the alias.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The names derive from the schema names.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is generated.
+ */
 export namespace NestiaMigrateDtoProgrammer {
+  /**
+   * A node of the DTO namespace tree: its name, its children, and the writer of
+   * its alias, or `null` for a namespace without a type of its own.
+   *
+   * @evidence contracts/common.md#principled-implementation The tree mirrors the dotted names of the schemas, so a namespace exists exactly when a name passes through it.
+   * @evidence contracts/common.md#clear-and-simple-design A three-member record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the meaning of each member.
+   */
   export interface IModule {
     name: string;
     children: Map<string, IModule>;
@@ -19,6 +36,15 @@ export namespace NestiaMigrateDtoProgrammer {
       | ((importer: NestiaMigrateImportProgrammer) => ts.TypeAliasDeclaration);
   }
 
+  /**
+   * Returns the root of the DTO tree: a map from the first name segment to its
+   * module.
+   *
+   * @evidence contracts/common.md#principled-implementation Each schema key is split on slashes, its segments are escaped into valid identifiers and joined, and the result is inserted along its dotted path.
+   * @evidence contracts/common.md#clear-and-simple-design One function over one insertion helper.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The names come from the document.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const compose = (props: {
     config: INestiaMigrateConfig;
     components: OpenApi.IComponents;

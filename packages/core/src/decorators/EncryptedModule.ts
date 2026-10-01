@@ -38,6 +38,10 @@ import { load_controllers } from "./internal/load_controller";
  * @param metadata Module configuration metadata
  * @param password Encryption password or its getter function
  * @returns Class decorator
+ * @evidence contracts/common.md#principled-implementation A visited set breaks import cycles, the controllers of each visited module get the password as metadata, asynchronous modules are awaited through the same promise Nest awaits, and a forward reference is resolved once its class exists.
+ * @evidence contracts/common.md#clear-and-simple-design One decorator whose traversal is a private function; the dynamic-module helper is in the merged namespace.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The traversal uses the public metadata keys of Nest modules; no module name is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The comment states which module shapes are followed.
  */
 export function EncryptedModule(
   metadata: Parameters<typeof Module>[0],
@@ -49,6 +53,15 @@ export function EncryptedModule(
   };
 }
 
+/**
+ * Helpers of {@link EncryptedModule}, namely `dynamic`, which builds an
+ * encrypted module from controller paths.
+ *
+ * @evidence contracts/common.md#principled-implementation `dynamic` loads the controllers with the shared loader, wraps an object password into a closure, and returns a class decorated by `EncryptedModule`.
+ * @evidence contracts/common.md#clear-and-simple-design One function that reuses the loader and the decorator.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Paths and password are caller input.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the path forms and the password argument.
+ */
 export namespace EncryptedModule {
   /**
    * Dynamic encrypted module.

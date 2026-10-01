@@ -18,7 +18,24 @@ import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 import type { SdkWebSocketParameterProgrammer } from "./SdkWebSocketParameterProgrammer";
 
+/**
+ * Type nodes of the SDK: the named types of routes, and the request and
+ * response aliases.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace builds each type as the syntax tree that the printer writes, from the reflected names or from the metadata when `clone` is on.
+ * @evidence contracts/common.md#clear-and-simple-design Several small builders.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The builders depend on the project configuration for the choice of source.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkAliasCollection {
+  /**
+   * Returns the type reference of a reflected type, with its type arguments.
+   *
+   * @evidence contracts/common.md#principled-implementation The arguments are built recursively.
+   * @evidence contracts/common.md#clear-and-simple-design One recursion.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It writes the name as reflected.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const name = ({ type }: { type: IReflectType }): TypeNode =>
     factory.createTypeReferenceNode(
       type.name,
@@ -27,20 +44,54 @@ export namespace SdkAliasCollection {
         : undefined,
     );
 
+  /**
+   * Returns the type of one chunk of a binary response:
+   * `Uint8Array<ArrayBufferLike>`.
+   *
+   * @evidence contracts/common.md#principled-implementation The chunk type of the platform stream is a byte array.
+   * @evidence contracts/common.md#clear-and-simple-design One node.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type is fixed.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const binaryChunk = (): TypeNode =>
     factory.createTypeReferenceNode("Uint8Array", [
       factory.createTypeReferenceNode("ArrayBufferLike"),
     ]);
 
+  /**
+   * Returns the type of a binary response: `ReadableStream` of its chunks.
+   *
+   * @evidence contracts/common.md#principled-implementation A binary response is streamed, not read into memory.
+   * @evidence contracts/common.md#clear-and-simple-design One node.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The chunk type is shared.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const binaryResponse = (): TypeNode =>
     factory.createTypeReferenceNode("ReadableStream", [binaryChunk()]);
 
+  /**
+   * Returns the type node of a metadata.
+   *
+   * @evidence contracts/common.md#principled-implementation The metadata is written by the type programmer, so the result is the DTO the clone declares.
+   * @evidence contracts/common.md#clear-and-simple-design One delegation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It shares the type writer.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const from =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (metadata: MetadataSchema): TypeNode =>
       SdkTypeProgrammer.write(project)(importer)(metadata) as TypeNode;
 
+  /**
+   * Returns the object type of a route's keyword parameters, each with the
+   * description of its parameter or its `@param` tag.
+   *
+   * @evidence contracts/common.md#principled-implementation The entries are the route's path, query, and body parameters, optional where the metadata is, without prefix.
+   * @evidence contracts/common.md#clear-and-simple-design One map over the entries.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A parameter with a description carries it as a comment.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const httpProps =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -83,6 +134,15 @@ export namespace SdkAliasCollection {
           .flat(),
       );
 
+  /**
+   * Returns the object type of a WebSocket route's keyword parameters: its path
+   * parameters, its query, and its provider.
+   *
+   * @evidence contracts/common.md#principled-implementation The keys are the names decided by the parameter programmer, so the type and the function agree.
+   * @evidence contracts/common.md#clear-and-simple-design One literal.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The names are shared.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const websocketProps = (
     route: ITypedWebSocketRoute,
     names: SdkWebSocketParameterProgrammer.INames,
@@ -114,6 +174,15 @@ export namespace SdkAliasCollection {
       ),
     ]);
 
+  /**
+   * Returns the type of a route's headers: its reflected name, or the
+   * metadata's type under `clone`.
+   *
+   * @evidence contracts/common.md#principled-implementation The source follows the `clone` setting.
+   * @evidence contracts/common.md#clear-and-simple-design One conditional.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The choice is made on one flag.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const headers =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -133,6 +202,15 @@ export namespace SdkAliasCollection {
       );
     };
 
+  /**
+   * Returns the type of a route's query: its reflected name, or the metadata's
+   * type under `clone`.
+   *
+   * @evidence contracts/common.md#principled-implementation A form-urlencoded query keeps its type as it is.
+   * @evidence contracts/common.md#clear-and-simple-design One conditional.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The choice is made on one flag.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const query =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -152,6 +230,15 @@ export namespace SdkAliasCollection {
       );
     };
 
+  /**
+   * Returns the type of a route's body: a form data input for a multipart body,
+   * and otherwise the reflected name or the metadata's type under `clone`.
+   *
+   * @evidence contracts/common.md#principled-implementation The multipart body is an input of files and fields, not the declared class.
+   * @evidence contracts/common.md#clear-and-simple-design One conditional.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The cases are the content types.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const body =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -180,6 +267,16 @@ export namespace SdkAliasCollection {
       );
     };
 
+  /**
+   * Returns the type of a route's output: the success and every exception as a
+   * union of `IPropagation` members, or the success body alone when propagation
+   * is off.
+   *
+   * @evidence contracts/common.md#principled-implementation Each declared status is a literal member, and a status range such as `4XX` is left a number, since it is no literal.
+   * @evidence contracts/common.md#clear-and-simple-design One function of two branches.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The exceptions are the declared ones.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const response =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -257,6 +354,16 @@ export namespace SdkAliasCollection {
       );
     };
 
+  /**
+   * Returns the type of the success body: a stream for a binary response, the
+   * reflected type for a plain one, and its primitive form for a JSON
+   * response.
+   *
+   * @evidence contracts/common.md#principled-implementation The route's metadata decides between the branches.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The branches are the response kinds.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const responseBody =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>

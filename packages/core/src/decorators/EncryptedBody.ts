@@ -36,6 +36,10 @@ import { validate_request_body } from "./internal/validate_request_body";
  *
  * @author Jeongho Nam - https://github.com/samchon
  * @returns Parameter decorator
+ * @evidence contracts/common.md#principled-implementation The body must be `text/plain` ciphertext; it is decrypted with the password of the controller or module, the plain text is parsed as JSON and validated by the transformed validator, and a decryption or parse failure becomes a 400 with a fixed message that does not echo the ciphertext.
+ * @evidence contracts/common.md#clear-and-simple-design One parameter decorator composed of the shared text reading, password lookup, and validator runner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The algorithm comes from `AesPkcs5` of the fetcher, the same one the client uses, and no key is embedded; a missing password is an error rather than a plain pass-through.
+ * @evidence contracts/common.md#meaningful-documentation The comment describes the protocol and the requirement of a password on the controller or module, and the private decode helper documents why every decryption failure collapses into one response.
  */
 export function EncryptedBody<T>(
   validator?: IRequestBodyValidator<T>,

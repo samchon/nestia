@@ -17,7 +17,8 @@
   "scripts": {
     "build": "rimraf lib && ttsc",
     "dev": "ttsc --watch",
-    "test:go": "cd test && go test -count=1 ./..."
+    "test:go": "cd test && go test -count=1 ./...",
+    "evidence": "evidence"
   },
   "ttsc": {
     "plugin": {

@@ -25,6 +25,11 @@ import (
 //  2. Assert the emitted validator carries the NaN guard that option produces.
 //  3. Transform the same fixture with the option absent and assert the guard is
 //     gone, so the positive case cannot pass for an unrelated reason.
+//
+// @evidence contracts/testing.md#behavioral-verification The same numeric fixture must emit a Number.isNaN guard with numeric true and omit it without that option, detecting lost manifest payload or unconditional guard generation.
+// @evidence contracts/testing.md#independent-expectations The supported typia numeric option rejects NaN; the default numeric predicate permits it. The fixture and one changed option establish expectations independently of the dispatcher.
+// @evidence contracts/testing.md#distinguishing-cases The positive and negative builds share the same source but isolate output/configuration directories; changing only numeric distinguishes option propagation from incidental source behavior.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTypiaPluginOptionsFromPayload(t *testing.T) {
 	const guard = "Number.isNaN"
 	run := func(typiaConfig string) string {

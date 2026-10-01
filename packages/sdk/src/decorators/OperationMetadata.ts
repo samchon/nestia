@@ -9,6 +9,11 @@ import { IOperationMetadata } from "../structures/IOperationMetadata";
  * object literal — keeping the constructed node tree minimal. The string is
  * parsed once here at module-evaluation time. A pre-parsed `IOperationMetadata`
  * object is still accepted for hand-written or test usage.
+ *
+ * @evidence contracts/common.md#principled-implementation The metadata is defined on the class prototype and property key, from an object or its JSON text, which is the key the reflection analyzers look up.
+ * @evidence contracts/common.md#clear-and-simple-design One decorator that parses when given text and defines one metadata entry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It only records what the transform computed and does not alter the method.
+ * @evidence contracts/common.md#meaningful-documentation The comment states who emits and who reads the metadata.
  */
 export function OperationMetadata(
   metadata: IOperationMetadata | string,

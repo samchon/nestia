@@ -70,6 +70,11 @@ func validateNestiaCoreWebSocketRoute(
 
 // NestiaCoreWebSocketParameterCategory names the WebSocketRoute parameter
 // decorator on a parameter, such as "Acceptor" or "Driver", or "" for none.
+//
+// @evidence contracts/common.md#principled-implementation A parameter that has exactly one decorator, a call whose callee ends in `WebSocketRoute.<Category>`, reports that category name, and any other parameter reports the empty string.
+// @evidence contracts/common.md#clear-and-simple-design An exported wrapper over the private classifier so that the SDK contributor and the core transform share one definition.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The rule is structural, and no parameter name is special-cased.
+// @evidence contracts/common.md#meaningful-documentation The comment gives examples of the categories and the empty result.
 func NestiaCoreWebSocketParameterCategory(prog *driver.Program, param *shimast.Node) string {
 	return nestiaCoreWebSocketParameterCategory(prog, param)
 }
@@ -103,6 +108,11 @@ func nestiaCoreWebSocketParameterTypeNode(param *shimast.Node) *shimast.Node {
 // reference, each after the first written in the type alias the one before it
 // names, and the name tgrid declares the type by; or nil and "" when the
 // annotation leads to no tgrid type.
+//
+// @evidence contracts/common.md#principled-implementation The annotation is followed through parentheses, import aliases, and type aliases, with each step recorded, until a declaration of the `tgrid` package is reached, and the walk is capped at 32 steps so a cyclic alias cannot loop; the chain and the name tgrid declares are returned, so every spelling of the same type is accepted and a type of the same name from another package is rejected.
+// @evidence contracts/common.md#clear-and-simple-design One loop with a depth guard, built on private helpers for the reference name and the tgrid declaration test.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The type is identified by its resolved declaration, not by its spelling, which is the point of the function.
+// @evidence contracts/common.md#meaningful-documentation The comment states the spellings followed, what the chain contains, and the nil result.
 func NestiaCoreWebSocketTypeReference(prog *driver.Program, node *shimast.Node) ([]*shimast.Node, string) {
 	chain := []*shimast.Node{}
 	for depth := 0; node != nil && depth < 32; depth++ {

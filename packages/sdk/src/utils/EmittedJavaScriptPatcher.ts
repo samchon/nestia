@@ -1,7 +1,25 @@
 import fs from "fs";
 import path from "path";
 
+/**
+ * Patches JavaScript emitted into a temporary directory so that it loads as
+ * CommonJS.
+ *
+ * @evidence contracts/common.md#principled-implementation A compiler can keep `import.meta.url` in CommonJS output, and Node then detects the file as ESM before `require()` loads it, so the token is replaced by an expression that gives the same URL.
+ * @evidence contracts/common.md#clear-and-simple-design One public function with a scanner that skips strings and comments.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The patch changes only the temporary emit, and the scanner never rewrites text inside a string or a comment.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace EmittedJavaScriptPatcher {
+  /**
+   * Replaces every `import.meta.url` in the `.js` and `.cjs` files under a
+   * directory with `require("url").pathToFileURL(__filename).href`.
+   *
+   * @evidence contracts/common.md#principled-implementation The token is replaced only at identifier boundaries and outside strings and comments, so the same file URL is produced under CommonJS as under ESM.
+   * @evidence contracts/common.md#clear-and-simple-design One function over a file collector and a scanner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It patches only files that contain the token.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the replacement and the scope.
+   */
   export const importMetaUrl = async (root: string): Promise<void> => {
     const files: string[] = await collect(root);
     await Promise.all(files.map(patch));

@@ -24,6 +24,10 @@ import { validate_request_body } from "./internal/validate_request_body";
  *
  * @author Jeongho Nam - https://github.com/samchon
  * @param validator Custom validator if required. Default is `typia.validate()`
+ * @evidence contracts/common.md#principled-implementation An absent body with no content type is accepted only when the validator accepts `undefined`; any other body must be `application/json`, and the parsed body is checked by the transformed validator, whose error is thrown as the response.
+ * @evidence contracts/common.md#clear-and-simple-design One parameter decorator built from the shared media type check, the emptiness check, and the request validator.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The validator is generated from the type by the transform; without it the decorator throws the configuration error unless the guard is turned off.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the decorator, the media type rule, and the validation modes.
  */
 export function TypedBody<T>(
   validator?: IRequestBodyValidator<T>,

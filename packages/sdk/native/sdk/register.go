@@ -90,6 +90,11 @@ func (linkedPlugin) ApplyProgram(prog *driver.Program, _ driver.PluginContext) e
 // alongside the typia and core transforms, exactly as the typia build command
 // wires `nativetransform.Transform`. A site-collection failure is returned as
 // diagnostics; the returned transform is nil when there are no sites.
+//
+// @evidence contracts/common.md#principled-implementation The controller-method sites are collected once for the program, and the returned transform maps each original method to its synthetic counterpart made by the earlier typia and core transforms so the decorator lands on the node that is printed; a collection failure is returned as diagnostics and no sites give a nil transform.
+// @evidence contracts/common.md#clear-and-simple-design One function that collects the sites and returns a closure over them, sharing the file grouping and the module specifier per file.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The module specifier is shared so the generated name binds to one alias, and no controller or method is special-cased.
+// @evidence contracts/common.md#meaningful-documentation The comment states what is injected, why the mapping exists, and the nil and diagnostic results.
 func EmitTransform(prog *driver.Program) (driver.PluginTransform, []transform.Diagnostic) {
 	sites, diagnostics := collectNestiaSDKSites(prog)
 	if len(diagnostics) > 0 {

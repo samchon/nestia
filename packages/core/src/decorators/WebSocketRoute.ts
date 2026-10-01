@@ -38,6 +38,10 @@ import { validate_request_query } from "./internal/validate_request_query";
  * @author Jeongho Nam - https://github.com/samchon
  * @param path Path(s) of the WebSocket request
  * @returns Method decorator
+ * @evidence contracts/common.md#principled-implementation The decorator records the route paths as metadata on the method, with an empty list for no path, and the adapter reads that metadata to build the route table.
+ * @evidence contracts/common.md#clear-and-simple-design One decorator function that writes one metadata object.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the reflect metadata API and does not touch the server.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the path forms and the required parameters.
  */
 export function WebSocketRoute(
   path?: undefined | string | string[],
@@ -57,6 +61,15 @@ export function WebSocketRoute(
     return descriptor;
   };
 }
+/**
+ * Parameter decorators of {@link WebSocketRoute}: `Acceptor`, `Driver`,
+ * `Header`, `Param`, and `Query`.
+ *
+ * @evidence contracts/common.md#principled-implementation Each decorator appends a record with its category and position to the method's parameter metadata; the header, param, and query records carry the validator the transform generated, so the adapter can validate the handshake before calling the method.
+ * @evidence contracts/common.md#clear-and-simple-design Five decorators sharing one `emplace` helper for the metadata list.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The validators are generated from the types; without the transform the raw values are passed only when the configuration guard is off.
+ * @evidence contracts/common.md#meaningful-documentation Each decorator documents its meaning.
+ */
 export namespace WebSocketRoute {
   /**
    * Acceptor parameter decorator.

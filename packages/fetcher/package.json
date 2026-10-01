@@ -11,7 +11,8 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc && rolldown -c && node ../../deploy/verify-package-exports.cjs --require-main --esm",
-    "dev": "rimraf lib && ttsc --watch"
+    "dev": "rimraf lib && ttsc --watch",
+    "evidence": "evidence"
   },
   "repository": {
     "type": "git",

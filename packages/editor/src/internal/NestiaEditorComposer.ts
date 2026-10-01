@@ -11,7 +11,30 @@ import * as prettierTsPlugin from "prettier/plugins/typescript";
 import { format } from "prettier/standalone";
 import { IValidation } from "typia";
 
+/**
+ * Composes the files of a project from an OpenAPI document.
+ *
+ * It validates and converts the document with `@nestia/migrate`, then formats
+ * the TypeScript files with Prettier's standalone build.
+ *
+ * @evidence contracts/common.md#principled-implementation The composer delegates conversion to `NestiaMigrateApplication`, which owns the OpenAPI semantics, and formats each `.ts` output with Prettier; a file that fails to format keeps its unformatted text.
+ * @evidence contracts/common.md#clear-and-simple-design One namespace with two public entry points that differ only in the migration mode, the files to open, and the start script; the shared flow is one private curried function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Conversion and formatting use the public APIs of `@nestia/migrate` and Prettier; a formatting failure is logged and the file is kept as generated.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the composer produces and which libraries do the work.
+ */
 export namespace NestiaEditorComposer {
+  /**
+   * Input of the composer: the OpenAPI document, the generator options, and the
+   * package name.
+   *
+   * The internal `files` member bypasses conversion and returns the given files
+   * unchanged.
+   *
+   * @evidence contracts/common.md#principled-implementation The fields are the migrate options the editor exposes plus the document, and `files` lets a caller supply an already composed project.
+   * @evidence contracts/common.md#clear-and-simple-design A flat property record; the document type is the union of the supported OpenAPI and Swagger versions.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No field is defaulted here; the callers own the defaults.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the inputs and the internal member.
+   */
   export interface IProps {
     document:
       | SwaggerV2.IDocument
@@ -25,6 +48,15 @@ export namespace NestiaEditorComposer {
     /** @internal */
     files?: Record<string, string>;
   }
+  /**
+   * Output of the composer: the files, the files to open, the start script, and
+   * the skipped operations.
+   *
+   * @evidence contracts/common.md#principled-implementation The record carries what the editor needs to present a composed project, with `skipped` making an incomplete conversion visible.
+   * @evidence contracts/common.md#clear-and-simple-design A flat property record without behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Every member is produced by the composer or the migrate application; none is a fixture value.
+   * @evidence contracts/common.md#meaningful-documentation The comment names the members and the `skipped` member documents itself.
+   */
   export interface IOutput {
     files: Record<string, string>;
     openFile: string;
@@ -37,12 +69,29 @@ export namespace NestiaEditorComposer {
      */
     skipped: ISkipped[];
   }
+  /**
+   * An operation that could not be converted: its upper-case HTTP method, its
+   * path, and the reasons.
+   *
+   * @evidence contracts/common.md#principled-implementation The migrate application reports errors by method, path, and messages, and the composer normalizes the method to upper case for display.
+   * @evidence contracts/common.md#clear-and-simple-design Three fields with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The values are copied from the migrate errors.
+   * @evidence contracts/common.md#meaningful-documentation The comment states each field.
+   */
   export interface ISkipped {
     method: string;
     path: string;
     messages: string[];
   }
 
+  /**
+   * Composes a NestJS project from an OpenAPI document.
+   *
+   * @evidence contracts/common.md#principled-implementation It runs the shared flow with the migrate application's `nest` output, the `README.md,test/start.ts` files to open, and the `build:test,test` start script.
+   * @evidence contracts/common.md#clear-and-simple-design A one-expression binding of the shared flow.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The mode is the caller's choice and the constants are the project's own scripts.
+   * @evidence contracts/common.md#meaningful-documentation The comment names the project kind produced.
+   */
   export const nest = (props: IProps): Promise<IValidation<IOutput>> =>
     compose({
       openFile: "README.md,test/start.ts",
@@ -50,6 +99,14 @@ export namespace NestiaEditorComposer {
       migrate: (app) => app.nest(props),
     })(props);
 
+  /**
+   * Composes a software development kit project from an OpenAPI document.
+   *
+   * @evidence contracts/common.md#principled-implementation It runs the shared flow with the migrate application's `sdk` output, the `README.md,test/start.ts` files to open, and the `swagger` and `hello` start scripts.
+   * @evidence contracts/common.md#clear-and-simple-design A one-expression binding of the shared flow.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The mode is the caller's choice and the constants are the project's own scripts.
+   * @evidence contracts/common.md#meaningful-documentation The comment names the project kind produced.
+   */
   export const sdk = async (props: IProps): Promise<IValidation<IOutput>> =>
     compose({
       openFile: "README.md,test/start.ts",

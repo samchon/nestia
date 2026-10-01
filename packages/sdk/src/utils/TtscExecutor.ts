@@ -2,7 +2,26 @@ import cp from "child_process";
 import fs from "fs";
 import path from "path";
 
+/**
+ * Runs the `ttsc` compiler of the project.
+ *
+ * @evidence contracts/common.md#principled-implementation The binary is found from the project's own `ttsc` package, with the SDK's dependency as a fallback, and is run with the current Node.
+ * @evidence contracts/common.md#clear-and-simple-design One function and a resolution cache.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The binary comes from the package manifest, not a fixed path.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace TtscExecutor {
+  /**
+   * Compiles a project with `ttsc` and returns its output.
+   *
+   * The cache directory of the environment is passed on, and a non-zero exit
+   * throws.
+   *
+   * @evidence contracts/common.md#principled-implementation The command is run with an argument array and the current Node executable, so no shell or platform shim is involved.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The environment is extended, not replaced.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the arguments and the failure.
+   */
   export const run = (props: {
     cwd: string;
     env?: NodeJS.ProcessEnv;

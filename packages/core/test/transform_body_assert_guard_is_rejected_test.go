@@ -14,6 +14,11 @@ import (
 //
 //  1. Transform the body controller with validate "assertGuard".
 //  2. Assert it exits 3 with the invalid-option diagnostic.
+//
+// @evidence contracts/testing.md#behavioral-verification An assertGuard validate option must produce exit 3 and the exact invalid-option diagnostic rather than silently generating a fallback validator.
+// @evidence contracts/testing.md#independent-expectations assertGuard is not a supported nestia validate mode; the invalid-option wording and transform diagnostic exit identify option rejection rather than an unrelated failure.
+// @evidence contracts/testing.md#distinguishing-cases This pins the unsupported typia-only spelling; the plugin-option table includes supported modes, a near typo, a wrong primitive type and invalid stringify, and runtime modes own accepted values.
+// @evidence contracts/testing.md#execution-ownership The core Go runner discovers this Test and invokes the native dispatcher in-process. The loaded fixture program and temporary emitted output exercise transformation without building or launching a native host; the generated-validator runtime batch owns installed-helper execution.
 func TestTransformBodyAssertGuardIsRejected(t *testing.T) {
 	const feature = "body"
 	temp := t.TempDir()

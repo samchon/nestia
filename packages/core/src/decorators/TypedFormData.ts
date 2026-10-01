@@ -74,6 +74,10 @@ import { validate_request_form_data } from "./internal/validate_request_form_dat
  * ```
  *
  * @author Jeongho Nam - https://github.com/samchon
+ * @evidence contracts/common.md#principled-implementation The body must be multipart; multer parses it through the caller's factory into a `FormData` of fields and `File` objects, uploaded temp files are read and always removed afterwards, multer limits map to 413 or 400 responses, and the assembled form is checked by the transformed validator.
+ * @evidence contracts/common.md#clear-and-simple-design One decorator with the multipart decoding, the error mapping, and the file conversion as separate module-private functions, and the multer instance created once by a `Singleton`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Errors are mapped by multer's documented codes and by exact busboy messages, and no file name is special-cased; a runtime without `File` is refused up front.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the factory, the memory and disk storage requirement, and the validation.
  * @todo Change to ReadableStream through configuring storage engine of multer
  */
 export namespace TypedFormData {
@@ -134,12 +138,59 @@ export namespace TypedFormData {
     })();
   }
 
-  /** Base type of the `multer` or `fastify-multer`. */
+  /**
+   * Base type of the `multer` or `fastify-multer`.
+   *
+   * @evidence contracts/common.md#principled-implementation The interface names the multer methods that identify a multer instance structurally, so an application can pass its own instance without this package depending on a multer type at runtime.
+   * @evidence contracts/common.md#clear-and-simple-design Five method members with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states its purpose as the structural stand-in for multer.
+   */
   export interface IMulterBase {
+    /**
+     * Middleware factory for a single file field.
+     *
+     * @evidence contracts/common.md#principled-implementation The member mirrors multer's single-file middleware factory.
+     * @evidence contracts/common.md#clear-and-simple-design One method signature.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+     * @evidence contracts/common.md#meaningful-documentation The member is named after the multer method it mirrors.
+     */
     single(fieldName: string): any;
+    /**
+     * Middleware factory for an array of files under one field.
+     *
+     * @evidence contracts/common.md#principled-implementation The member mirrors multer's array-of-files middleware factory.
+     * @evidence contracts/common.md#clear-and-simple-design One method signature.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+     * @evidence contracts/common.md#meaningful-documentation The member is named after the multer method it mirrors.
+     */
     array(fieldName: string, maxCount?: number): any;
+    /**
+     * Middleware factory for several named file fields.
+     *
+     * @evidence contracts/common.md#principled-implementation The member mirrors multer's named-fields middleware factory, which is the one the decorator uses when the transform lists the file fields.
+     * @evidence contracts/common.md#clear-and-simple-design One method signature.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+     * @evidence contracts/common.md#meaningful-documentation The member is named after the multer method it mirrors.
+     */
     fields(fields: readonly object[]): any;
+    /**
+     * Middleware factory that accepts every file field.
+     *
+     * @evidence contracts/common.md#principled-implementation The member mirrors multer's accept-any-file middleware factory, which the decorator uses when no transform names the file fields.
+     * @evidence contracts/common.md#clear-and-simple-design One method signature.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+     * @evidence contracts/common.md#meaningful-documentation The member is named after the multer method it mirrors.
+     */
     any(): any;
+    /**
+     * Middleware factory that accepts text fields only.
+     *
+     * @evidence contracts/common.md#principled-implementation The member mirrors multer's text-fields-only middleware factory.
+     * @evidence contracts/common.md#clear-and-simple-design One method signature.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+     * @evidence contracts/common.md#meaningful-documentation The member is named after the multer method it mirrors.
+     */
     none(): any;
   }
 }

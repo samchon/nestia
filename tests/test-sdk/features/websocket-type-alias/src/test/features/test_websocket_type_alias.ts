@@ -20,6 +20,15 @@ import { IAliasListener } from "@api/lib/structures/IAliasSocket";
  * 1. For each route, connect through the SDK with a header and a listener.
  * 2. Assert the provider answers with the header and the server's driver reaches
  *    the listener.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Eight renamed/local/aliased/generic/defaulted/chained/imported/importedAlias connectors must greet with the exact header name and notify the matching listener once.
+ * @evidence contracts/testing.md#independent-expectations Authored header/provider/listener echo contract establishes hello plus route and the single route notification independently of type spelling analysis.
+ * @evidence contracts/testing.md#distinguishing-cases Eight equivalent tgrid identities spelled through different aliases contrast textual checks with resolved types and type arguments.
+ * @evidence contracts/testing.md#execution-ownership The matching test_websocket_type_alias export is discovered and awaited by its emitted feature entry. Assertions and rejection deadlines fail the report, while zero discovery rejects the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Native resolved type/argument extraction, generated connector and actual provider/driver callback must connect; checking alias names alone cannot certify transported headers/listener methods.
+ * @evidence contracts/e2e.md#shared-execution All raw/generated connections or alias routes share their feature backend and generated artifacts. Packed installation and compatible producer/runtime programs are shared; the case launches no compiler per connection.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each alias allocates separate notification state and header identity, closes its connector in finally, and consumes exactly its own callback. The entry closes the shared backend and copied outputs remain feature-owned.
+ * @evidence contracts/e2e.md#preserved-coverage All test_websocket_type_alias raw/generated echoes or deadline/code/reason controls above remain executable. Resource scopes were extended to preparation failures, without replacing the real adaptor or alias connection with mocks.
  */
 export const test_websocket_type_alias = async (
   connection: api.IConnection,

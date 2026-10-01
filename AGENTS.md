@@ -27,6 +27,10 @@ What nestia is, the package family, the Go plugin composition model, the workspa
 
 Work rules, testing, validation, consequence analysis, and change integrity, `.agents/skills/development/SKILL.md`. Read before writing or modifying code.
 
+### Implementation Contracts
+
+Self-acknowledgments for maintained production declarations, unit tests, and E2E tests, enforced by `@wrtnlabs/evidence`, `.agents/skills/contracts/SKILL.md`. Read when implementing or reviewing those declarations or selecting Evidence checklists.
+
 ### Documentation
 
 README, website-guide, and agent-instruction authoring rules, `.agents/skills/documentation/SKILL.md`. Read before writing or modifying documentation.
@@ -75,4 +79,4 @@ Update AGENTS.md only for repository-contract changes: a new skill area, a renam
 - **Create or merge.** Add a skill when a substantial repository concern would otherwise inflate AGENTS.md beyond an index. Merge sibling concerns when they share most of their structure.
 - **Repository skill files only.** Keep repository skills to `SKILL.md` and conditionally loaded sibling documents. Do not add separate `multi-agent-*` skills; the parallel variants live under the one `multi-agent` skill.
 - **Headings are plain.** No chapter numbers in skill or AGENTS.md headings. Use descriptive titles.
-- **Current set.** The repository skills are `project`, `development`, `documentation`, `issue-campaign`, `review`, `multi-agent`, `discussion`, `pull-request`, and `benchmark`.
+- **Current set.** The repository skills are `project`, `development`, `contracts`, `documentation`, `issue-campaign`, `review`, `multi-agent`, `discussion`, `pull-request`, and `benchmark`.

@@ -18,7 +18,24 @@ import { ReflectMcpOperationAnalyzer } from "./ReflectMcpOperationAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
 import { ReflectWebSocketOperationAnalyzer } from "./ReflectWebSocketOperationAnalyzer";
 
+/**
+ * Reflects a NestJS controller class into an operation list.
+ *
+ * @evidence contracts/common.md#principled-implementation A controller is recognized by Nest's own path, host, and scope metadata, its methods are visited along the prototype chain with a subclass method hiding an inherited one, and each method is classified as MCP, WebSocket, or HTTP.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and one prototype walker.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The recognition uses the metadata Nest writes, and no class name is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace ReflectControllerAnalyzer {
+  /**
+   * The input of the controller analysis: the project, the controller, and a
+   * set of visited functions.
+   *
+   * @evidence contracts/common.md#principled-implementation The record holds what one analysis needs and the shared error lists live in the project.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   */
   export interface IProps {
     project: Omit<INestiaProject, "config">;
     controller: INestiaSdkInput.IController;
@@ -27,6 +44,18 @@ export namespace ReflectControllerAnalyzer {
   /* ---------------------------------------------------------
     CONTROLLER
   --------------------------------------------------------- */
+  /**
+   * Returns the reflected controller with its operations, or `null` for a class
+   * that is not a controller.
+   *
+   * Wildcard controller paths are dropped with a warning, and methods marked
+   * `@ignore` are skipped.
+   *
+   * @evidence contracts/common.md#principled-implementation The metadata keys of the class decide whether it is a controller, every own and inherited method with operation metadata is offered to the MCP, WebSocket, and HTTP analyzers in that order, and the first analyzer that accepts it owns it.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The order of the analyzers is fixed by the mutual exclusion of the decorators.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the null result, the warning, and the ignore tag.
+   */
   export const analyze = (props: IProps): IReflectController | null => {
     // MUST BE TYPE OF A CREATOR WHO HAS THE CONSTRUCTOR
     if (

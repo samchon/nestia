@@ -54,7 +54,7 @@ jobs:
         run: pnpm build
 
       # Compiles, without running, the Go test binaries into the cache's Go
-      # object store, which test's go job restores: compiling them from cold is
+      # object store, which the single test job restores: compiling from cold is
       # nearly all of that job. Go keys each object by its inputs.
       - name: Compile Go Tests
         env:
@@ -63,3 +63,4 @@ jobs:
           (cd packages/core/test && go test -count=1 -run '^$' ./...)
           (cd packages/sdk/test && go test -count=1 -run '^$' ./...)
           (cd packages/core/native && go test -count=1 -run '^$' ./...)
+          (cd tests/test-transform-options/native && go test -count=1 -run '^$' ./...)

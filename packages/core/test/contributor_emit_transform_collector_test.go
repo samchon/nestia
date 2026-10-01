@@ -30,15 +30,22 @@ import (
 //  2. Run transform with the sentinel present and a passthrough transform; assert
 //     exit 0 (the contributor transform ran and emitted nothing extra).
 //  3. Run transform with the sentinel asking for a diagnostic; assert exit 3.
+//
+// @evidence contracts/testing.md#behavioral-verification RegisterEmitTransformCollector must ignore nil, execute an enabled passthrough per-file transformer and return exit 3 when the enabled collector reports a diagnostic; a call counter rejects a silent dropped transform.
+// @evidence contracts/testing.md#independent-expectations The fixture collector explicitly returns either its input SourceFile or one diagnostic, fixing the expected success and failure independently of nestia route rewriting.
+// @evidence contracts/testing.md#distinguishing-cases Nil registration, enabled pass and enabled diagnostic are distinct; the sentinel gate keeps the registered fixture inert for every other test program in the process.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core Test; collectors and commands execute in the existing test binary, and the sentinel keeps persistent registration from affecting later cases. It does not prove ttsc contributor linking, which the SDK boundary harness owns.
 func TestContributorEmitTransformCollector(t *testing.T) {
 	// The nil guard must drop a nil collector without registering it.
 	transform.RegisterEmitTransformCollector(nil)
+	transformCalls := 0
 
 	transform.RegisterEmitTransformCollector(func(prog *driver.Program, plan plugin.Plan) (driver.PluginTransform, []transform.Diagnostic) {
 		mode := contributorSentinelMode(plan)
 		switch mode {
 		case "pass":
 			return func(_ *shimprinter.EmitContext, sf *shimast.SourceFile) *shimast.SourceFile {
+				transformCalls++
 				return sf
 			}, nil
 		case "diag":
@@ -64,6 +71,9 @@ func TestContributorEmitTransformCollector(t *testing.T) {
 		"--plugins-json", contributorSentinelPlugins("pass"),
 	}); code != 0 {
 		t.Fatalf("passthrough contributor transform should exit 0, got %d", code)
+	}
+	if transformCalls == 0 {
+		t.Fatal("registered contributor's per-file transform never ran")
 	}
 
 	if code := transform.Run([]string{

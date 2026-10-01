@@ -20,6 +20,11 @@ import (
 //  1. Load a program over a single structure file (no controller).
 //  2. Call EmitTransform.
 //  3. Assert it returns a nil transform and no diagnostics.
+//
+// @evidence contracts/testing.md#behavioral-verification EmitTransform on an article-structure-only program must return a nil transform and no diagnostics.
+// @evidence contracts/testing.md#independent-expectations A DTO without decorated controller methods supplies no operation sites, so analysis must have no rewrite rather than injecting unused metadata.
+// @evidence contracts/testing.md#distinguishing-cases This is the no-site negative, complementary to controller metadata positives and the linked-plugin no-site case; successful program load is checked first.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
 func TestSDKEmitTransformReturnsNilWithoutSites(t *testing.T) {
 	root := repoRoot(t)
 	temp := writeFeatureTsconfig(t, root, "body", []string{

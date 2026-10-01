@@ -232,6 +232,11 @@ func nestiaCoreDecoratorCall(prog *driver.Program, decorator *shimast.Node) (*sh
 // @nestia/core export its import binds, so `import { TypedException as TE }`
 // reads `TE<T>()` as `TypedException`. It returns nil for a decorator that is
 // no call.
+//
+// @evidence contracts/common.md#principled-implementation The decorator's callee is split into identifier segments, and the leading identifier is replaced by the `@nestia/core` export that its import binds, so an aliased import reads as the canonical name; a decorator that is not a call reads as nil.
+// @evidence contracts/common.md#clear-and-simple-design A thin exported wrapper that builds the file's import context and delegates the mapping to a private function.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The names come from the import declarations of the file, and no alias or file name is special-cased.
+// @evidence contracts/common.md#meaningful-documentation The comment gives the aliasing example and the nil result.
 func NestiaCoreCanonicalDecoratorSegments(decorator *shimast.Node) []string {
 	_, segments, ok := nestiaCoreRawDecoratorCall(decorator)
 	if !ok {
@@ -333,7 +338,20 @@ func nestiaCorePotentialDecoratorSegments(segments []string) bool {
 		(len(segments) != 0 && segments[len(segments)-1] == "WebSocketRoute")
 }
 
+// IsNestiaCoreCall reports whether the call resolves to a declaration in `@nestia/core`.
+//
+// The resolved signature's declaration belongs to core only when its nearest
+// package manifest names @nestia/core, including relocated or re-exported core
+// declarations and excluding foreign nested packages.
+//
+// @evidence contracts/common.md#principled-implementation The resolved signature identifies the actual declaration source, and SourceFilePackageName establishes its nearest owner; unresolved calls or non-core ownership return false without relying on lexical aliases or directory spelling.
+// @evidence contracts/common.md#clear-and-simple-design Signature/source nil guards precede one shared package-ownership operation and an exact name comparison.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts Foreign workspace lookalikes and nested packages cannot inherit core identity from their path, while a relocated or transparently re-exported core declaration keeps its actual manifest owner.
+// @evidence contracts/common.md#meaningful-documentation The comment defines resolved declaration ownership and describes relocation, re-export and nested-package behavior.
 func IsNestiaCoreCall(prog *driver.Program, node *shimast.Node) bool {
+	if prog == nil || prog.Checker == nil || node == nil {
+		return false
+	}
 	signature := prog.Checker.GetResolvedSignature(node)
 	if signature == nil || signature.Declaration() == nil {
 		return false
@@ -342,11 +360,7 @@ func IsNestiaCoreCall(prog *driver.Program, node *shimast.Node) bool {
 	if source == nil {
 		return false
 	}
-	location := filepath.ToSlash(source.FileName())
-	return strings.Contains(location, "@nestia/core/lib/") ||
-		strings.Contains(location, "packages/core/lib/") ||
-		strings.Contains(location, "@nestia/core/src/decorators/") ||
-		strings.Contains(location, "packages/core/src/decorators/")
+	return SourceFilePackageName(prog, source) == "@nestia/core"
 }
 func nestiaCoreParameterKind(segments []string) string {
 	suffixes := map[string]string{
@@ -1085,6 +1099,14 @@ func safeNestiaCoreGenerateNode(generator func() (*shimast.Node, error)) (node *
 
 var nestiaCoreSingleParameterArrowPattern = regexp.MustCompile(`(^|[\s(=,:?])([A-Za-z_$][A-Za-z0-9_$]*) =>`)
 
+// NestiaCoreMethodReturnType returns the type of a route method's response body.
+//
+// The declared return type is used when it is `Promise<T>` or an rxjs `Observable<T>`, and `T` is returned, so an asynchronous method is typed by what it resolves to. A missing signature returns nil.
+//
+// @evidence contracts/common.md#principled-implementation An explicit `Promise<T>` or `Observable<T>` annotation is unwrapped syntactically first, and otherwise the checker's return type is unwrapped when its symbol is `Promise` or an rxjs `Observable`; the rxjs symbol is recognized by its declaring file under `node_modules/rxjs`, so a user type named Observable is left alone.
+// @evidence contracts/common.md#clear-and-simple-design One function with two unwrapping paths, sharing the private wrapper predicates.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The wrappers are the two types NestJS handlers return; no method or controller name is special-cased.
+// @evidence contracts/common.md#meaningful-documentation The comment states the unwrapped wrappers and the nil result.
 func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimchecker.Type {
 	if typ := nestiaCoreExplicitAsyncReturnType(prog, node); typ != nil {
 		return typ
@@ -1316,6 +1338,13 @@ func matchClosingParen(text string, pos int) (int, bool) {
 	}
 	return 0, false
 }
+
+// NestiaCoreExpressionSegments returns the identifier segments of an identifier or a property-access chain, such as `core.TypedRoute.Get` as `core`, `TypedRoute`, `Get`, and nil for any other expression.
+//
+// @evidence contracts/common.md#principled-implementation The recursion follows the left side of each property access to its root identifier and appends the property names, and any other node kind makes the whole chain not a name, so a call, an element access, or a computed name is never read as a path.
+// @evidence contracts/common.md#clear-and-simple-design One recursive function over two node kinds.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the syntax only.
+// @evidence contracts/common.md#meaningful-documentation The comment gives the example and the nil result.
 func NestiaCoreExpressionSegments(node *shimast.Node) []string {
 	if node == nil {
 		return nil

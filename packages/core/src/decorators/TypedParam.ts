@@ -31,6 +31,10 @@ import { NoTransformConfigurationError } from "./NoTransformConfigurationError";
  * @author Jeongho Nam - https://github.com/samchon
  * @param name URL Parameter name
  * @returns Parameter decorator
+ * @evidence contracts/common.md#principled-implementation The path parameter arrives as a string and is converted by the assertion function the transform generated for the declared type, so a value of the wrong type produces a 400 that names the parameter; the `validate` flag only changes the error body from the flat form to an `errors` array.
+ * @evidence contracts/common.md#clear-and-simple-design One decorator with one conversion function and one error-shaping branch.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The conversion is generated from the declared type; without the transform the raw string is returned only when the configuration guard is off.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the supported types and the two error shapes.
  */
 export function TypedParam<T extends boolean | bigint | number | string | null>(
   name: string,

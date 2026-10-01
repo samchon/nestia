@@ -5,7 +5,23 @@ import { LiteralFactory } from "../../factories/LiteralFactory";
 import { decodeTagValue } from "../../internal/legacy";
 import { ImportDictionary } from "./ImportDictionary";
 
+/**
+ * Writes the type tags of a cloned DTO.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace prints a tag as the predefined typia tag when it expands to the same type, and as `tags.TagBase` otherwise.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions over a table of predefined tags.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The choice is decided by the expansion.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkTypeTagProgrammer {
+  /**
+   * The kinds of type a tag can be attached to.
+   *
+   * @evidence contracts/common.md#principled-implementation The six kinds are those the tags declare.
+   * @evidence contracts/common.md#clear-and-simple-design One union.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export type Target =
     | "object"
     | "array"
@@ -29,6 +45,11 @@ export namespace SdkTypeTagProgrammer {
    * tag named alike (#1662). The expansion can: it is typia's declaration of
    * each predefined tag, and should typia change one, the tag only falls back
    * to the `TagBase` form.
+   *
+   * @evidence contracts/common.md#principled-implementation A tag prints as the predefined tag it matches only when that tag expands to exactly the tag the metadata carries.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The generic form is always the same type.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
    */
   export const write = (
     importer: ImportDictionary,
@@ -60,7 +81,14 @@ export namespace SdkTypeTagProgrammer {
     );
   };
 
-  /** Writes the predefined typia tag `tags.<name><argument>`. */
+  /**
+   * Writes the predefined typia tag `tags.<name><argument>`.
+   *
+   * @evidence contracts/common.md#principled-implementation The name and argument were decided by the matching.
+   * @evidence contracts/common.md#clear-and-simple-design One node.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The argument is written as a literal.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const writePredefined = (
     importer: ImportDictionary,
     name: string,

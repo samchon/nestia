@@ -19,6 +19,15 @@ import api from "@api";
  * 2. Read the generated SDK and assert the parameter names: `body`, `query`,
  *    `pageSize` for the `page-size` query key, and `_body` beside the user's
  *    own `body` path parameter.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Six HTTP echoes and four generated parameter declaration needles must preserve synthesized body/query/pageSize/_body names.
+ * @evidence contracts/testing.md#independent-expectations The authored echo handlers and submitted t/b, page3/k, tenant and path/t establish values; field and traced handlers return the literal field/traced controls.
+ * @evidence contracts/testing.md#distinguishing-cases Body/query/header/field/colliding body and traced non-controller repository retain both transport and metadata extraction witnesses.
+ * @evidence contracts/testing.md#execution-ownership The matching test_sdk_destructured_http export is discovered and awaited by its feature executor after actual SDK generation and consumer compilation; rejection fails the report and zero cases fail the entry.
+ * @evidence contracts/e2e.md#necessary-boundary The actual native controller metadata and SDK printer must produce source consumed by the compiler; exact final text detects naming/documentation corruption not observable from an HTTP echo alone.
+ * @evidence contracts/e2e.md#shared-execution This case shares packed dependency installation, compatible producer/runtime compilation and its already generated source with sibling cases; it does not prepare a new compiler per assertion.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Reads resolve from this case to its own generated feature outputs; it mutates neither source nor another member. The harness removes its copied tree after emitted execution finishes.
+ * @evidence contracts/e2e.md#preserved-coverage All test_sdk_destructured_http assertions described above remain in this executable file, including its exact echoes/text or declared-shape and invalid-input controls; shared preparation does not replace them with compiler success.
  */
 export const test_sdk_destructured_http = async (
   connection: api.IConnection,

@@ -4,44 +4,50 @@ import { Backend } from "../Backend";
 
 export async function main(): Promise<void> {
   const server: Backend = new Backend();
-  await server.open();
+  try {
+    await server.open();
 
-  const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
-    extension: __filename.substring(__filename.length - 2),
-    prefix: "test",
-    parameters: () => [
-      {
-        host: `http://127.0.0.1:${process.env.TEST_SDK_PORT ?? 37_000}`,
-        encryption: {
-          key: "A".repeat(32),
-          iv: "B".repeat(16),
+    const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
+      extension: __filename.substring(__filename.length - 2),
+      prefix: "test",
+      parameters: () => [
+        {
+          host: `http://127.0.0.1:${process.env.TEST_SDK_PORT ?? 37_000}`,
+          encryption: {
+            key: "A".repeat(32),
+            iv: "B".repeat(16),
+          },
+          headers: {
+            "x-version": "1",
+          },
         },
-        headers: {
-          "x-version": "1",
-        },
+      ],
+      location: `${__dirname}/features`,
+      onComplete: (exec) => {
+        const elapsed: number =
+          new Date(exec.completed_at).getTime() -
+          new Date(exec.started_at).getTime();
+        console.log(`  - ${exec.name}: ${elapsed.toLocaleString()} ms`);
       },
-    ],
-    location: `${__dirname}/features`,
-    onComplete: (exec) => {
-      const elapsed: number =
-        new Date(exec.completed_at).getTime() -
-        new Date(exec.started_at).getTime();
-      console.log(`  - ${exec.name}: ${elapsed.toLocaleString()} ms`);
-    },
-  });
-  await server.close();
+    });
 
-  const exceptions: Error[] = report.executions
-    .filter((exec) => exec.error !== null)
-    .map((exec) => exec.error!);
-  if (exceptions.length === 0) {
-    console.log("Success");
-    console.log("Elapsed time", report.time.toLocaleString(), `ms`);
-  } else {
-    for (const exp of exceptions) console.log(exp);
-    console.log("Failed");
-    console.log("Elapsed time", report.time.toLocaleString(), `ms`);
-    throw new Error("Failed");
+    if (report.executions.length === 0)
+      throw new Error("No SDK tests were discovered.");
+
+    const exceptions: Error[] = report.executions
+      .filter((exec) => exec.error !== null)
+      .map((exec) => exec.error!);
+    if (exceptions.length === 0) {
+      console.log("Success");
+      console.log("Elapsed time", report.time.toLocaleString(), `ms`);
+    } else {
+      for (const exp of exceptions) console.log(exp);
+      console.log("Failed");
+      console.log("Elapsed time", report.time.toLocaleString(), `ms`);
+      throw new Error("Failed");
+    }
+  } finally {
+    await server.close();
   }
 }
 if (require.main === module)

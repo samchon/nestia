@@ -36,6 +36,15 @@ type Same<T, U> = {
  *    type.
  * 2. Read the cloned DTOs and assert each predefined tag is written as in the
  *    source, and the custom tags in the `TagBase` form.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Actual clone declarations must compile property identities against authored types and contain the specified predefined tag spellings; custom validation and unsupported predefined arguments must retain TagBase, including nested/listed/phone controls.
+ * @evidence contracts/testing.md#independent-expectations Authored ITagged/IUnaccepted declarations specify numeric/bigint/string/array/default/example/sequence tags and deliberate custom expansions. The expected predefined spellings follow their supported generic signatures; commented URI intentionally becomes a type tag instead of source-type identity.
+ * @evidence contracts/testing.md#distinguishing-cases Ordinary and negative/scientific/bigint values, infinity-as-JSON-null, JSDoc URI, custom same-kind/different-validation and invalid predefined argument shapes distinguish compact recognition from overmatching. Text fragments do not certify the whole generated declaration or every runtime tag predicate.
+ * @evidence contracts/testing.md#execution-ownership The matching exported function is discovered and awaited by its feature DynamicExecutor after actual generation and consumer compilation. Compiler identity controls fail preparation; runtime mismatches reject the feature report.
+ * @evidence contracts/e2e.md#necessary-boundary This connects native tag metadata to actual generated declarations and the consumer compiler. These are generated-output spelling assertions with type controls, not committed-source arrangement checks.
+ * @evidence contracts/e2e.md#shared-execution Packed packages and compatible producer/runtime compilations are shared. These assertions start no independent installation/compiler; sibling transport cases reuse the feature backend, while distinct CLI/file-pattern boundaries retain their own lifetimes.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Authored inputs and generated outputs belong to isolated feature trees; values are local and output reads are immutable. The entry rejects empty discovery and finally closes its backend; harness cleanup waits for consuming children before releasing owned trees.
+ * @evidence contracts/e2e.md#preserved-coverage Every original literal/tag identity, verdict input, parameter flag, schema key, shape or alias request remains. Independent bigint/date checks strengthen selected shared-oracle/shape-only assertions; related clone and routing scenarios retain their separate executable owners.
  */
 export const test_clone_predefined_tags = async (): Promise<void> => {
   const same: Same<Source, Cloned> = {

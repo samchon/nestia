@@ -21,6 +21,11 @@ import (
 //     and a bare intersection.
 //  2. Build it in-process with the SDK contributor active.
 //  3. Assert each reflected type name appears in the metadata.
+//
+// @evidence contracts/testing.md#behavioral-verification Reflection must retain Record, keyof IPoint, readonly Array and the IPoint intersection spelling in metadata for the authored routes.
+// @evidence contracts/testing.md#independent-expectations These are distinct TypeScript type forms; their public reflected names preserve operator/generic/readonly meaning, and JSON escapes the intersection ampersand.
+// @evidence contracts/testing.md#distinguishing-cases Four authored forms contrast mapped generic, key operator, readonly array and intersection. This substring case checks category/name presence rather than complete per-route associations.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticReflectTypeNamesRecordKeyofReadonlyIntersection(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 

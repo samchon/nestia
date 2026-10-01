@@ -20,6 +20,11 @@ import (
 //     object, B an alias, C[] an array and the tuple a tuple type.
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert every union member surfaces in the metadata.
+//
+// @evidence contracts/testing.md#behavioral-verification Mixed union metadata must retain IAlpha, Beta, IGamma and a tuple category instead of losing one constituent during schema collection.
+// @evidence contracts/testing.md#independent-expectations The authored union combines named interface, local object alias, named array element and tuple; each constituent belongs to the return type independently of output ordering.
+// @evidence contracts/testing.md#distinguishing-cases This checks member/category preservation, not the complete union-order permutation despite the historical test name. Nested/reflected and exact property-schema cases cover other type structure.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticUnionOrderMixedComponents(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 

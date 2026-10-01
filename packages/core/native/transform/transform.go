@@ -251,6 +251,12 @@ func writeSingleOutput(text, outPath string) int {
 	return 0
 }
 
+// SourceFileText returns the text of a source file object, or false when the value has no `Text()` method.
+//
+// @evidence contracts/common.md#principled-implementation The function accepts any value and asserts the one-method interface the compiler port's source file satisfies, so a nil or foreign value reports false instead of panicking.
+// @evidence contracts/common.md#clear-and-simple-design One type assertion.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the text and adds nothing to it.
+// @evidence contracts/common.md#meaningful-documentation The comment states the result and the false case.
 func SourceFileText(target any) (string, bool) {
 	type sourceText interface {
 		Text() string

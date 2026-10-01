@@ -13,6 +13,15 @@ import api from "@api";
  * 1. Read each generated MCP wrapper namespace's `METADATA`.
  * 2. Assert protocol, tool names, and selected descriptions.
  * 3. Assert all expected tools are represented exactly once.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generated add protocol/tool/description and selected divide/echo_client/notify names/descriptions must match authored literals; weather description must be nonempty and the six selected tool names exactly match the handwritten sorted list.
+ * @evidence contracts/testing.md#independent-expectations McpRoute names and controller method JSDoc supply the exact metadata literals independently of the emitted module. Weather uses a presence oracle instead of an exact description.
+ * @evidence contracts/testing.md#distinguishing-cases Arithmetic, alias DTO, void and nested-weather tools contrast metadata forms. The six-item list counts those selected wrappers, not the entire generated namespace including inherited tools.
+ * @evidence contracts/testing.md#execution-ownership Its matching exported case is discovered and awaited by the actual feature executor after generation and consumer compilation. Assertion/protocol mismatches reject the report; empty discovery rejects the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Actual native reflection and SDK printing must expose final METADATA constants to a compiling consumer; controller decorators alone cannot certify those exported values.
+ * @evidence contracts/e2e.md#shared-execution One packed dependency installation and compatible producer/runtime compilations are shared. These assertions reuse the feature backend; independently connected official clients delimit each protocol state and close after that case.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Metadata reads are immutable within the isolated generated feature. The entry owns backend closure and the harness removes its own copied artifacts after consumers finish.
+ * @evidence contracts/e2e.md#preserved-coverage All original protocol calls, wrapper inputs, exact payload/error controls and metadata/name assertions remain. Shared installation/compiler preparation preserves raw protocol and generated-wrapper owners as distinct connections.
  */
 export const test_api_mcp_metadata = (): void => {
   TestValidator.equals(

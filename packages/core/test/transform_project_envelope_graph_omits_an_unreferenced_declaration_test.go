@@ -22,6 +22,11 @@ import "testing"
 //     @nestjs/common — carries no edge to the DTO TypedBodyController consults.
 //  3. Assert no edge key, edge target, global, or config uses the virtual
 //     `bundled:///` scheme.
+//
+// @evidence contracts/testing.md#behavioral-verification Project transformation must emit the health source but omit the unrelated article declaration from its reference edges, and omit embedded bundled library paths from every reported filesystem graph list.
+// @evidence contracts/testing.md#independent-expectations The authored HealthController has no article reference; virtual bundled:/// library identities are not filesystem watcher inputs. These expectations follow the consumer graph protocol and authored imports.
+// @evidence contracts/testing.md#distinguishing-cases This pins an unreferenced declaration and virtual-path negatives after verifying the health source was actually emitted; the graph-positive case pins the real body-controller declaration edge and config chain.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformProjectEnvelopeGraphOmitsAnUnreferencedDeclaration(t *testing.T) {
 	envelope := runProjectTransformEnvelope(t, "body")
 	if envelope.Graph == nil {

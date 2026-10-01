@@ -16,6 +16,15 @@ import api from "@api";
  * 1. Assert the server answers the unversioned and overriding paths only.
  * 2. Assert the Swagger document lists exactly those paths.
  * 3. Call every HTTP and WebSocket route through the SDK.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Direct unversioned/override/inherited paths must return 200 while the overridden controller path returns 404; exact Swagger paths, generated HTTP version payloads and both WebSocket versions must match.
+ * @evidence contracts/testing.md#independent-expectations The authored OverrideController has controller version one, index/socket method override two and an inherited method; PlainController has no version and Backend sets no default. Nest precedence establishes the independently listed expected routes.
+ * @evidence contracts/testing.md#distinguishing-cases Unversioned, inherited and overridden routes contrast the forbidden v1 override route. Both unversioned and method-override WebSocket connections remain; an explicit default-version branch is outside this fixture.
+ * @evidence contracts/testing.md#execution-ownership The feature DynamicExecutor discovers and awaits this matching exported function against its generated clients and actual backend; each mismatch rejects the feature report.
+ * @evidence contracts/e2e.md#necessary-boundary This connects real Nest method/controller version precedence, generated HTTP/WebSocket accessors, WebSocketAdaptor and Swagger. Pure precedence decisions cannot prove client, document and actual host agree.
+ * @evidence contracts/e2e.md#shared-execution All route assertions reuse the feature SDK, generated document and backend. Compatible cohorts share CLI loading and runtime compilation; application-input configuration retains its real configured Nest application rather than a synthetic file-only substitute.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Authored applications and outputs belong to the isolated feature port/tree. The feature entry finally closes its backend after success, discovery or assertion failure; any WebSocket connector in this case closes in its own finally.
+ * @evidence contracts/e2e.md#preserved-coverage Every original direct status, document path, generated payload and WebSocket assertion remains executable. Neighboring prefix and versioning fixtures retain their distinct configurations and routes.
  */
 export const test_versioning_resolution = async (
   connection: api.IConnection,

@@ -15,13 +15,39 @@ import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
+/**
+ * Composes the DTO declarations of the HTTP routes.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace turns each named object and alias of the collection into a declaration, placed in a tree of modules by its dotted name.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and three helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An unnamed type is never declared.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkHttpCloneProgrammer {
+  /**
+   * A module of the declaration tree: its name, its children, and the writer of
+   * its own declaration.
+   *
+   * @evidence contracts/common.md#principled-implementation A module without a writer only holds children.
+   * @evidence contracts/common.md#clear-and-simple-design A three-member record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export interface IModule {
     name: string;
     children: Map<string, IModule>;
     programmer: null | ((importer: ImportDictionary) => Node);
   }
 
+  /**
+   * Returns the declaration tree of the application's named types, keyed by
+   * their top-level name.
+   *
+   * @evidence contracts/common.md#principled-implementation Objects and aliases with a name of their own are registered, and an implicit name is skipped.
+   * @evidence contracts/common.md#clear-and-simple-design Two loops.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The implicit test is the shared definition.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const write = (app: ITypedApplication): Map<string, IModule> => {
     // COMPOSE THE DICTIONARY
     const dict: Map<string, IModule> = new Map();

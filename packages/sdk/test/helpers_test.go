@@ -1,10 +1,13 @@
 package test
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/samchon/nestia/packages/core/native/transform"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimprinter "github.com/microsoft/typescript-go/shim/printer"
@@ -19,6 +22,18 @@ import (
 	// -coverpkg even though no disk emit ever happens.
 	nativesdk "github.com/samchon/nestia/packages/sdk/native/sdk"
 )
+
+// runSDKNative executes the shared native dispatcher with the SDK contributor
+// already registered by this module's import. Each invocation loads its own
+// program and writes only to its caller's temporary output root. Sequential
+// tests keep the scoped output capture and environment changes isolated.
+func runSDKNative(t *testing.T, args []string) {
+	t.Helper()
+	var out, errOut bytes.Buffer
+	if code := transform.RunWithOutput(args, &out, &errOut); code != 0 {
+		t.Fatalf("native build exited %d\nstdout=%s\nstderr=%s", code, out.String(), errOut.String())
+	}
+}
 
 // corePlusSDKPlugins is the plugin plan a real nestia build feeds the host when
 // a project depends on both @nestia/core and @nestia/sdk: the SDK entry makes

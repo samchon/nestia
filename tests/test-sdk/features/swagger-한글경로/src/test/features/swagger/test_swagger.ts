@@ -3,13 +3,36 @@ import fs from "fs";
 import path from "path";
 import { pathToFileURL } from "url";
 
+/**
+ * Verifies Swagger defaults and configured document fields survive generation.
+ *
+ * The authored manifest and configuration supply independent output
+ * expectations.
+ *
+ * 1. Read the generated document and the authored inputs needed by this scenario.
+ * 2. Compare every retained field with its independently specified value.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The generated document must preserve authored title and servers, default version from the fixture manifest and the literal generator description. This reads actual output rather than comparing two arrangements.
+ * @evidence contracts/testing.md#independent-expectations The fixture configuration and package manifest are authored generation inputs. Their version/title/server values and the explicit default-description literal establish expectations independently of the output.
+ * @evidence contracts/testing.md#distinguishing-cases Ordinary and Korean directory fixtures complement each other; URL conversion preserves Windows drive and escaped path semantics for dynamic configuration import. This case checks document defaults and overrides, not every path or schema.
+ * @evidence contracts/testing.md#execution-ownership The feature DynamicExecutor discovers and awaits this matching exported test_swagger function after actual SDK/Swagger generation; an assertion or output read rejection fails its report.
+ * @evidence contracts/e2e.md#necessary-boundary This connects configuration loading, manifest-default resolution, Swagger serialization and dynamic file-URL configuration import. Pure default-selection unit calls cannot prove the authored project reaches this document.
+ * @evidence contracts/e2e.md#shared-execution The feature owns a manifest supplying Swagger defaults, so its generation runs separately rather than inheriting another cohort manifest. It reuses that document and runtime with sibling feature cases and launches no build itself.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity This reads only its own immutable authored inputs and generated document via __dirname. The harness keeps feature outputs and ports separate; the feature entry finally closes its backend even when discovery or output assertions fail.
+ * @evidence contracts/e2e.md#preserved-coverage Version, title, default description, server list and dynamic configuration loading remain executable in both ordinary and Korean paths. Other Swagger cases own schema and operation details.
+ */
 export async function test_swagger(): Promise<void> {
   // `import()` takes a URL specifier, not a filesystem path. On POSIX the two
   // coincide for an absolute path; on Windows one starts with a drive letter,
   // and Node's ESM loader reads `D:` as an unsupported protocol and refuses the
   // whole module. `fs` below takes paths, so only this line needs the URL.
   const { NESTIA_CONFIG } = await import(
-    pathToFileURL(path.join(__dirname, "../../../../nestia.config.ts")).href
+    pathToFileURL(
+      path.join(
+        __dirname,
+        `../../../../nestia.config.${path.extname(__filename).slice(1)}`,
+      ),
+    ).href
   );
   const pack = JSON.parse(
     await fs.promises.readFile(__dirname + "/../../../../package.json", "utf8"),

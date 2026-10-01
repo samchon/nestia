@@ -18,6 +18,15 @@ import fs from "fs";
  *    so a composer that dropped every exception body would not pass.
  * 4. Assert a route returning a real payload still declares one, so the same twin
  *    holds for the success response.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Void success200 and exception400 must stay declared with no schema, typed exception500 must have exactly type:string, and article success must retain a schema.
+ * @evidence contracts/testing.md#independent-expectations Authored HealthController declares void success/exception and string exception, while the article route returns a payload. Swagger2 response representation independently requires these schema-presence distinctions.
+ * @evidence contracts/testing.md#distinguishing-cases Void versus typed responses run on success and exception paths, rejecting both unconditional emission and wholesale body removal. The article schema is checked for presence rather than complete content.
+ * @evidence contracts/testing.md#execution-ownership The matching exported case is discovered and awaited by its actual feature entry after generation and consumer compilation. Type controls fail compilation and runtime assertions reject the report; empty discovery rejects the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Actual native response/exception metadata and Swagger2 downgrade must produce the serialized response map; a request-body or ordinary3.x connection cannot substitute.
+ * @evidence contracts/e2e.md#shared-execution The suite prepares one packed dependency installation and compatible producer/runtime programs. These cases reuse the feature backend and their generated artifacts; distinct parser/adaptor setup remains authored per feature rather than starting another install/compiler.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Values and generated artifacts belong to isolated copied feature trees. Extra adapter applications and connectors, where used, close in finally with listen inside ownership; the entry closes its backend and the harness removes only owned trees after consumers finish.
+ * @evidence contracts/e2e.md#preserved-coverage All retained requests, raw protocol/document reads, compile controls and accepted/rejected assertions remain in this executable case and its stated sibling owners. Shared preparation does not substitute setup success for those observations.
  */
 export const test_openapi_v2_response_body_presence =
   async (): Promise<void> => {

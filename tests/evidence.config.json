@@ -1,0 +1,117 @@
+{
+  "severity": "error",
+  "claims": [
+    {
+      "name": "SDK independent-program native producer",
+      "type": "go",
+      "files": ["test-sdk/native/**/*.go"],
+      "symbol": ["type", "function"],
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": ["contracts/common.md", "contracts/portability.md", "contracts/performance.md"],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "SDK and transform wrapper executable entries",
+      "type": "javascript",
+      "files": [
+        "test-sdk/start.js",
+        "test-sdk/consumer.cjs",
+        "test-sdk/distribute-cwd-restore.js",
+        "test-transform-options/start.js"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/testing.md",
+          "contracts/e2e.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Evidence checker and runner process boundaries",
+      "type": "javascript",
+      "files": [
+        "test-evidence/src/features/test_*.mjs"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/testing.md",
+          "contracts/e2e.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "unit test declarations",
+      "type": "typescript",
+      "files": [
+        "test-unit/src/**/*.ts",
+        "!test-unit/src/index.ts",
+        "!test-unit/src/**/internal/**",
+        "!test-unit/src/**/structures/**"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/testing.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "E2E test declarations",
+      "type": "typescript",
+      "files": [
+        "test-benchmark/src/features/**/*.ts",
+        "test-boundaries/src/features/**/*.ts",
+        "test-migrate/src/features/**/*.ts",
+        "test-sdk/features/*/src/test/features/**/*.ts",
+        "!test-sdk/features/*/src/test/features/**/automated/**"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/testing.md",
+          "contracts/e2e.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "generated validator runtime boundary",
+      "type": "go",
+      "files": [
+        "test-transform-options/native/**/*_test.go"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/testing.md",
+          "contracts/e2e.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    }
+  ]
+}

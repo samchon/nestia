@@ -1,9 +1,8 @@
 package test
 
 import (
+	"strings"
 	"testing"
-
-	"github.com/samchon/nestia/packages/core/native/transform"
 )
 
 // TestTransformSingleFileStdoutWritesOutput verifies the single-file transform
@@ -19,9 +18,14 @@ import (
 //
 //  1. Transform the body feature's TypedBodyController with no --out.
 //  2. Assert the exit code is 0 (output written to stdout, not a file).
+//
+// @evidence contracts/testing.md#behavioral-verification Single-file transformation without --out must return exit 0 and write a TypedBody object with an assert discriminator to stdout, detecting silent success without emitted transformation.
+// @evidence contracts/testing.md#independent-expectations The selected TypedBodyController requires an assert validator and the single-file protocol publishes its rewritten TypeScript on stdout when no output file is named.
+// @evidence contracts/testing.md#distinguishing-cases This owns the stdout route; transformFileToString-based cases own --out artifacts and missing-file/output-option cases own invalid selection.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformSingleFileStdoutWritesOutput(t *testing.T) {
 	cwd := featureRootForCore(t, "body")
-	code := transform.Run([]string{
+	stdout, stderr, code := runCoreNative([]string{
 		"transform",
 		"--cwd", cwd,
 		"--tsconfig", "tsconfig.json",
@@ -29,6 +33,9 @@ func TestTransformSingleFileStdoutWritesOutput(t *testing.T) {
 		"--plugins-json", coreNativePlugins("assert", "assert"),
 	})
 	if code != 0 {
-		t.Fatalf("single-file transform to stdout should exit 0, got %d", code)
+		t.Fatalf("single-file transform to stdout should exit 0, got %d:\n%s", code, stderr)
+	}
+	if !strings.Contains(stdout, "@core.TypedBody({") || !strings.Contains(stdout, `type: "assert"`) {
+		t.Fatalf("single-file stdout omitted its transformed body validator:\n%s", stdout)
 	}
 }

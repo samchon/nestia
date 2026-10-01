@@ -12,7 +12,8 @@
   },
   "scripts": {
     "build": "rimraf bin && ttsc",
-    "dev": "rimraf bin && ttsc --watch"
+    "dev": "rimraf bin && ttsc --watch",
+    "evidence": "evidence"
   },
   "repository": {
     "type": "git",

@@ -5,8 +5,8 @@ import { IFetchEvent } from "./IFetchEvent";
 /**
  * Connection information.
  *
- * `IConnection` is an interface ttype who represents connection information of
- * the remote HTTP server. You can target the remote HTTP server by wring the
+ * `IConnection` is an interface type that represents connection information of
+ * the remote HTTP server. You can target the remote HTTP server by writing the
  * {@link IConnection.host} variable down. Also, you can configure special header
  * values by specializing the {@link IConnection.headers} variable.
  *
@@ -14,7 +14,7 @@ import { IFetchEvent } from "./IFetchEvent";
  * AES-128/256 algorithm, specify the {@link IConnection.encryption} with
  * {@link IEncryptionPassword} or {@link IEncryptionPassword.Closure} variable.
  *
- * @author Jenogho Nam - https://github.com/samchon
+ * @author Jeongho Nam - https://github.com/samchon
  * @author Seungjun We - https://github.com/SeungjunWe
  */
 export interface IConnection<
@@ -47,9 +47,15 @@ export interface IConnection<
   /**
    * Logger function.
    *
-   * This function is called when the fetch event is completed.
+   * This function is called and awaited when the fetch event is completed,
+   * whether the request succeeded or failed. An error the function throws is
+   * ignored, so a logger can neither fail nor change the request.
    *
    * @param event Event information of the fetch event.
+   * @evidence contracts/common.md#principled-implementation The logger receives the completed event and is awaited in the `finally` block of the request, so the event carries every timestamp and the output; an error it throws is ignored, so logging cannot change the outcome of a request.
+   * @evidence contracts/common.md#clear-and-simple-design One optional callback with a single event argument.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The callback observes only; the pipeline never conditions its behavior on its presence beyond calling it.
+   * @evidence contracts/common.md#meaningful-documentation The comment states when it is called, that it is awaited, and that its errors are ignored.
    */
   logger?: (event: IFetchEvent) => Promise<void>;
 
@@ -77,6 +83,15 @@ export interface IConnection<
    */
   fetch?: typeof fetch;
 }
+/**
+ * Support types of {@link IConnection}: the fetch options, the allowed header
+ * values, and the header mapping.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace holds the option, header value, and header mapping types that the interface members use, so the connection type and its support types share one public identity.
+ * @evidence contracts/common.md#clear-and-simple-design Three types with no runtime members, each used by the interface above.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It contains types only.
+ * @evidence contracts/common.md#meaningful-documentation Each nested type carries its own documentation.
+ */
 export namespace IConnection {
   /**
    * Additional options for the `fetch` function.
@@ -87,6 +102,11 @@ export namespace IConnection {
    * The reason why defining duplicated definition of {@link RequestInit} is for
    * legacy NodeJS environments, which does not have the {@link fetch} function
    * type.
+   *
+   * @evidence contracts/common.md#principled-implementation The members repeat the `RequestInit` fields that are neither `body`, `headers`, nor `method` (those three are owned by the route), so the type compiles without DOM typings and cannot override what the route decides.
+   * @evidence contracts/common.md#clear-and-simple-design A flat option record, with each member mirroring one field of the standard request options.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type; the fetcher spreads the options into the request and then sets the method and headers itself.
+   * @evidence contracts/common.md#meaningful-documentation The comment explains why the type is duplicated, and each member repeats the standard field's meaning.
    */
   export interface IOptions {
     /**
@@ -161,17 +181,20 @@ export namespace IConnection {
    * Type of allowed header values.
    *
    * Only atomic or array of atomic values are allowed.
+   *
+   * @evidence contracts/common.md#principled-implementation A header value is a string, boolean, number, or bigint, or an array of the non-string atomic types or of strings, which the request pipeline stringifies, one header line per array element.
+   * @evidence contracts/common.md#clear-and-simple-design A single union of the allowed atomic and array values.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states that only atomic values and arrays of them are allowed.
    */
   export type HeaderValue =
     | string
     | boolean
     | number
     | bigint
-    | string
     | Array<boolean>
     | Array<number>
     | Array<bigint>
-    | Array<number>
     | Array<string>;
 
   /**
@@ -204,6 +227,11 @@ export namespace IConnection {
    * - "retry-after"
    * - "server"
    * - "user-agent"
+   *
+   * @evidence contracts/common.md#principled-implementation For each key the mapped type allows a value of `HeaderValue`; keys are compared in lower case, so the rule follows HTTP's case-insensitive names: `set-cookie` must be an array, the singleton headers listed in the comment must not be arrays, and every other key keeps its type.
+   * @evidence contracts/common.md#clear-and-simple-design One mapped type that rejects an entry by turning it into `never`, with the rule spelled out in the comment.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment lists the prohibited cases and the singleton headers.
    */
   export type Headerify<T extends object | undefined> = {
     [P in keyof T]?: T[P] extends HeaderValue | undefined

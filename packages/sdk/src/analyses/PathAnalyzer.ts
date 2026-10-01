@@ -1,11 +1,25 @@
 import { RequestMethod } from "@nestjs/common";
 import { Token, parse } from "path-to-regexp";
 
+/**
+ * Helpers for route paths: joining, prefixing, and reading their parameters the
+ * way the router does.
+ *
+ * @evidence contracts/common.md#principled-implementation Paths are parsed by `path-to-regexp` after Fastify colon escapes are converted, so the parameters and literals are those the server reads.
+ * @evidence contracts/common.md#clear-and-simple-design Several small functions over one tokenizer and one parser.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The router's own grammar decides, and no path is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace PathAnalyzer {
   /**
    * The route paths joined as the router joins them: one `/` between them, and
    * none doubled. A route path is router syntax, never a file path, so a
    * backslash stays the escape of the character after it (`items\\:batchGet`).
+   *
+   * @evidence contracts/common.md#principled-implementation The parts are joined, split on slashes, and empty segments are dropped, so any number of slashes at the boundaries collapses.
+   * @evidence contracts/common.md#clear-and-simple-design One expression.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It applies to every input.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result form.
    */
   export const join = (...args: string[]) =>
     "/" +
@@ -15,6 +29,15 @@ export namespace PathAnalyzer {
       .filter((str) => str.length !== 0)
       .join("/");
 
+  /**
+   * Joins a path with the global prefix, unless the route is excluded from the
+   * prefix.
+   *
+   * @evidence contracts/common.md#principled-implementation The exclusion list is matched by method and by exact path or pattern, as NestJS does, and an excluded route is joined with an empty prefix.
+   * @evidence contracts/common.md#clear-and-simple-design One function delegating the exclusion test to a private helper.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The exclusion rule is NestJS's.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the exclusion.
+   */
   export const joinWithGlobalPrefix = (props: {
     globalPrefix: string;
     exclude: IGlobalPrefixExclude[] | undefined;
@@ -33,20 +56,14 @@ export namespace PathAnalyzer {
       props.path,
     );
 
-  export const escape = (str: string): string | null => {
-    const args = _Parse(str);
-    if (args === null) return null;
-    return (
-      "/" +
-      args
-        .map((arg) => (arg.type === "param" ? `:${arg.value}` : arg.value))
-        .join("/")
-    );
-  };
-
   /**
    * Whether a route path holds a wildcard: a `*` not escaped as the literal
    * character (`\\*`), which a route path may hold since #1713.
+   *
+   * @evidence contracts/common.md#principled-implementation A star preceded by a backslash is a literal, so the test looks for a star at the start or after a non-backslash character.
+   * @evidence contracts/common.md#clear-and-simple-design One regular expression.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It follows the router's escaping rule.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the escaped case.
    */
   export const wildcard = (str: string): boolean => /(^|[^\\])\*/.test(str);
 
@@ -56,6 +73,11 @@ export namespace PathAnalyzer {
    * and `/range/:from-:to` holds two parameters parted by `-`. Every generator
    * that writes a path with its parameters filled in reads it from here, never
    * by splitting the text at `:` or `/`. `null` for a path it cannot parse.
+   *
+   * @evidence contracts/common.md#principled-implementation Tokens come from `path-to-regexp`, so text next to a parameter in one segment, such as `/files/:id.json`, is kept in place, adjacent literals merge, and an unnamed parameter makes the path unreadable.
+   * @evidence contracts/common.md#clear-and-simple-design One function over the tokenizer.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The grammar is the router's.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result and why generators use it.
    */
   export const segments = (str: string): ISegment[] | null => {
     const tokens: Token[] | null = _Tokenize(str);
@@ -81,6 +103,11 @@ export namespace PathAnalyzer {
   /**
    * The path in OpenAPI's template syntax, each parameter written `{name}`:
    * `/files/:id.json` is `/files/{id}.json`.
+   *
+   * @evidence contracts/common.md#principled-implementation The segments are joined with literals verbatim and parameters in braces.
+   * @evidence contracts/common.md#clear-and-simple-design One expression over `segments`.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the same segmenter as the SDK generator.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the fallback.
    */
   export const toOpenApi = (str: string): string => {
     const list: ISegment[] | null = segments(str);
@@ -91,10 +118,27 @@ export namespace PathAnalyzer {
           .join("");
   };
 
+  /**
+   * A segment of a path: literal text or a named parameter.
+   *
+   * @evidence contracts/common.md#principled-implementation The union is discriminated by `type`, so a consumer handles each case once.
+   * @evidence contracts/common.md#clear-and-simple-design A two-member union.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment names the two cases.
+   */
   export type ISegment =
     | { type: "literal"; value: string }
     | { type: "param"; name: string };
 
+  /**
+   * Returns the names of the parameters of a path, or `null` when the path
+   * cannot be parsed.
+   *
+   * @evidence contracts/common.md#principled-implementation The parsed arguments are filtered to the parameters, and an empty parameter name makes the path unreadable.
+   * @evidence contracts/common.md#clear-and-simple-design One filter over the private parser.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The grammar is the router's.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const parameters = (str: string): string[] | null => {
     const args = _Parse(str);
     if (args === null) return null;

@@ -26,7 +26,24 @@ import { SdkHttpSimulationProgrammer } from "./SdkHttpSimulationProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkPathTemplate } from "./SdkPathTemplate";
 
+/**
+ * Writes the namespace of an HTTP route.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace holds the route's types, its metadata, its path builder, and, when configured, its random, simulate, and stringify functions.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and four writers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The parts follow the configuration.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkHttpNamespaceProgrammer {
+  /**
+   * Returns the namespace of a route: its types, `METADATA`, `path`, and, by
+   * configuration, `random`, `simulate`, and `stringify`.
+   *
+   * @evidence contracts/common.md#principled-implementation `stringify` exists only for a JSON or encrypted body when `json` is on, and the simulator only when `simulate` is on.
+   * @evidence contracts/common.md#clear-and-simple-design One declaration composed of the writers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The optional members follow the flags.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>

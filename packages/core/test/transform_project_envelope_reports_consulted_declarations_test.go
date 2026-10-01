@@ -33,6 +33,11 @@ import (
 //     declaration its `@Controller` decorator call resolves to and not the DTO.
 //  4. Assert the DTO's own file, which declares types and makes no call,
 //     carries no entry.
+//
+// @evidence contracts/testing.md#behavioral-verification The emitted dependency envelope must associate the body controller with its DTO and health with the Nest Controller declaration, omit the unrelated DTO from health, and omit a dependency entry for a declaration-only structure.
+// @evidence contracts/testing.md#independent-expectations Consulted declarations follow the handwritten controller type references and decorator declarations; a transformed structure without an analyzed call has no consulted declaration entry.
+// @evidence contracts/testing.md#distinguishing-cases Positive controller and decorator dependencies contrast unrelated health DTO and structure-key negatives. The structure must be present in emitted TypeScript so absence of its dependency entry is nonvacuous.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformProjectEnvelopeReportsConsultedDeclarations(t *testing.T) {
 	envelope := runProjectTransformEnvelope(t, "body")
 	if envelope.Dependencies == nil {

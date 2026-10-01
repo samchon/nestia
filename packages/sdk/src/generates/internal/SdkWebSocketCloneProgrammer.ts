@@ -3,7 +3,25 @@ import path from "path";
 
 import { ITypedApplication } from "../../structures/ITypedApplication";
 
+/**
+ * Copies the declarations a WebSocket route's types come from into the
+ * `structures` directory.
+ *
+ * @evidence contracts/common.md#principled-implementation A WebSocket route refers to types by import, so the declaration and the declarations it uses are copied as text from the source files, not rebuilt from metadata.
+ * @evidence contracts/common.md#clear-and-simple-design One public function with text helpers for declarations, imports, and comments.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The text analysis masks strings and comments before it looks for a declaration, and a package file or a name declared differently in two files is never copied.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkWebSocketCloneProgrammer {
+  /**
+   * Copies every project-local declaration imported by a WebSocket route, and
+   * returns the set of the imports that were cloned.
+   *
+   * @evidence contracts/common.md#principled-implementation Each import is cloned once, and its own imports are followed, so a copy stands alone.
+   * @evidence contracts/common.md#clear-and-simple-design One loop over the routes' imports.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the imports that resolved to a source file are reported.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const write = async (app: ITypedApplication): Promise<Set<string>> => {
     const ctx: IContext = {
       output: `${app.project.config.output}/structures`,
@@ -288,9 +306,25 @@ export namespace SdkWebSocketCloneProgrammer {
   const escapeRegExp = (str: string): string =>
     str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+  /**
+   * Returns the key of an import: its file and name.
+   *
+   * @evidence contracts/common.md#principled-implementation The pair identifies one imported declaration.
+   * @evidence contracts/common.md#clear-and-simple-design One template.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The key is the same wherever it is built.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const importKey = (file: string, name: string): string =>
     `${file}#${name}`;
 
+  /**
+   * Reports whether a path lies under a `node_modules` directory.
+   *
+   * @evidence contracts/common.md#principled-implementation The path is resolved and split on both separators, so it holds on every platform.
+   * @evidence contracts/common.md#clear-and-simple-design One expression.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A package's declaration is never copied.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const isNodeModulesPath = (file: string): boolean =>
     path
       .resolve(file)

@@ -6,7 +6,24 @@ import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationException } from "../structures/IReflectHttpOperationException";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
 
+/**
+ * Reflects the `@TypedException` declarations of a method.
+ *
+ * @evidence contracts/common.md#principled-implementation The declarations are read in declaration order and matched by position with the exception types the transform recorded.
+ * @evidence contracts/common.md#clear-and-simple-design One public function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The matching is by position because both lists are produced in declaration order.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace ReflectHttpOperationExceptionAnalyzer {
+  /**
+   * The input of the exception analysis: the controller, the method, its name,
+   * the HTTP method, the metadata, and the error list.
+   *
+   * @evidence contracts/common.md#principled-implementation The record holds what the analysis needs.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   */
   export interface IContext {
     controller: IReflectController;
     function: Function;
@@ -15,6 +32,17 @@ export namespace ReflectHttpOperationExceptionAnalyzer {
     metadata: IOperationMetadata;
     errors: IReflectOperationError[];
   }
+  /**
+   * Returns the exceptions of a method by status.
+   *
+   * A declaration without a matching type, or with an unreadable one, is an
+   * error.
+   *
+   * @evidence contracts/common.md#principled-implementation Decorators apply bottom-up, so the metadata array is reversed to declaration order before it is paired with the transform's exception list, and the result is keyed by status, so the last declaration of a status wins.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The pairing follows the documented order, and every mismatch is reported.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the matching and the errors.
+   */
   export const analyze = (
     ctx: IContext,
   ): Record<string, IReflectHttpOperationException> => {

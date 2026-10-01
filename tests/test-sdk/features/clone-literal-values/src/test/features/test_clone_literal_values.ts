@@ -30,6 +30,15 @@ type TagValue<T extends { "typia.tag"?: { value: unknown } }> = NonNullable<
  *    a string on a number or bigint carry the source's values.
  * 3. Validate boundary values against the tagged properties of both types, the NaN
  *    bound an enum member spells included, and assert the same verdicts.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generated clone literal/tag types must compile equal to their authored counterparts, both bigint range validators must produce false/true/true/false, and the remaining selected clone/source numeric-bound verdict lists must agree.
+ * @evidence contracts/testing.md#independent-expectations Authored ILiteralValues supplies 5n/-7n/large bigint/infinity literals and cross-kind tag values. Inclusive minimum3n/maximum2^53 independently establish the bigint verdict list. Other numeric checks share the typia validator oracle and cannot independently certify its infinity/NaN rules.
+ * @evidence contracts/testing.md#distinguishing-cases Bigints below/at/beyond the inclusive bounds, digits above2^53, positive/negative infinity, finite boundaries and a NaN enum bound remain. Number/string tag arguments on bigint/number types contrast tag-value kinds rather than merely matching names.
+ * @evidence contracts/testing.md#execution-ownership The matching exported function is discovered and awaited by its feature DynamicExecutor after actual generation and consumer compilation. Compiler identity controls fail preparation; runtime mismatches reject the feature report.
+ * @evidence contracts/e2e.md#necessary-boundary This owns actual native metadata encoding, generated clone declarations and consumer compilation/runtime validation. Authored literal identities and generated-source validators cannot be replaced by a committed snapshot.
+ * @evidence contracts/e2e.md#shared-execution Packed packages and compatible producer/runtime compilations are shared. These assertions start no independent installation/compiler; sibling transport cases reuse the feature backend, while distinct CLI/file-pattern boundaries retain their own lifetimes.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Authored inputs and generated outputs belong to isolated feature trees; values are local and output reads are immutable. The entry rejects empty discovery and finally closes its backend; harness cleanup waits for consuming children before releasing owned trees.
+ * @evidence contracts/e2e.md#preserved-coverage Every original literal/tag identity, verdict input, parameter flag, schema key, shape or alias request remains. Independent bigint/date checks strengthen selected shared-oracle/shape-only assertions; related clone and routing scenarios retain their separate executable owners.
  */
 export const test_clone_literal_values = (): void => {
   const literals: [
@@ -54,7 +63,12 @@ export const test_clone_literal_values = (): void => {
   TestValidator.equals(
     "ranged",
     verdicts(typia.createIs<Cloned["ranged"]>(), bigints),
+    [false, true, true, false],
+  );
+  TestValidator.equals(
+    "source ranged",
     verdicts(typia.createIs<Source["ranged"]>(), bigints),
+    [false, true, true, false],
   );
   TestValidator.equals(
     "bounded",

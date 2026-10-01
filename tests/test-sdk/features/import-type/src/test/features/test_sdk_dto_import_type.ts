@@ -19,6 +19,15 @@ import path from "path";
  * 3. Assert every import from the `structures` directory is type-only, all three
  *    type-only binding forms actually appear, and the runtime fetcher import
  *    remains a value import.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Every generated functional/e2e DTO import must be type-only, all named/default/namespace bindings must actually appear, and at least one runtime fetcher import must remain a value import.
+ * @evidence contracts/testing.md#independent-expectations Authored controllers use three DTO binding forms; TypeScript type-only semantics require DTO-only imports erased while called fetchers remain values. The handwritten syntax conditions do not derive from current output snapshots.
+ * @evidence contracts/testing.md#distinguishing-cases Three type binding forms contrast the runtime fetcher negative twin, with missing directories/forms rejecting vacuity. This selected textual scan does not certify arbitrary import syntax or a verbatimModuleSyntax consumer configuration.
+ * @evidence contracts/testing.md#execution-ownership The feature entry discovers and awaits this exported case after actual generation and consumer compilation; mismatches reject its report and zero discovery rejects the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Actual SDK/e2e printing must emit consumer imports with correct type/value roles. A source DTO analysis unit cannot establish the final generated syntax across both output trees.
+ * @evidence contracts/e2e.md#shared-execution The suite installs fresh packed packages once and compatible configurations share native producer and emitted runtime programs. This case adds no independent install/compiler; distinct CLI/file-pattern owners retain their own connections.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Local inputs and isolated feature outputs prevent another feature supplying this result. Generated document reads are immutable, feature backends close in finally and the harness releases only owned copies after children finish.
+ * @evidence contracts/e2e.md#preserved-coverage All existing requests, controls, generated-output reads and assertions remain. Sharing package/compiler preparation changes setup ownership, while the distinct accepted/rejected cases and their asserted limits are retained.
  */
 export const test_sdk_dto_import_type = (): void => {
   const roots: string[] = [

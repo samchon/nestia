@@ -1,6 +1,26 @@
 import { IJsDocTagInfo } from "typia";
 
+/**
+ * Composes the title or summary and the description of a document member from
+ * its comment.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace reads the explicit tag, and otherwise takes the first line of the description when it is a sentence.
+ * @evidence contracts/common.md#clear-and-simple-design Three functions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The tag has priority over the derived text.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SwaggerDescriptionComposer {
+  /**
+   * Returns the `summary` or `title` and the `description` of a member.
+   *
+   * The explicit tag is the summary; otherwise the description's first line,
+   * without its final period, when that line ends with one.
+   *
+   * @evidence contracts/common.md#principled-implementation The derived summary is only ever a whole sentence, and a description that is not a sentence has none.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The kind is the caller's choice.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const compose = <Kind extends "summary" | "title">(props: {
     description: string | null;
     jsDocTags: IJsDocTagInfo[];
@@ -28,6 +48,15 @@ export namespace SwaggerDescriptionComposer {
     } as any;
   };
 
+  /**
+   * Returns the text of the first JSDoc tag with the name, and with the
+   * parameter name when one is given.
+   *
+   * @evidence contracts/common.md#principled-implementation The text part of the tag is returned and a tag without one is not found.
+   * @evidence contracts/common.md#clear-and-simple-design One search.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the tags.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const descriptionFromJsDocTag = (props: {
     jsDocTags: IJsDocTagInfo[];
     tag: string;
@@ -48,6 +77,14 @@ export namespace SwaggerDescriptionComposer {
       : undefined;
   };
 
+  /**
+   * Returns the text of every JSDoc tag with the name and a non-empty text.
+   *
+   * @evidence contracts/common.md#principled-implementation The tags are filtered, then read.
+   * @evidence contracts/common.md#clear-and-simple-design One filter and one map.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty text is not returned.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const getJsDocTexts = (props: {
     jsDocTags: IJsDocTagInfo[];
     name: string;

@@ -45,6 +45,10 @@ import { route_error } from "./internal/route_error";
  * - Base64 Encoding
  *
  * @author Jeongho Nam - https://github.com/samchon
+ * @evidence contracts/common.md#principled-implementation Each route method decorates Nest's router decorator with an interceptor that serializes the value as the transform chose, encrypts it with the password of the controller or module, and answers `text/plain` on success only, so an error keeps its own JSON type.
+ * @evidence contracts/common.md#clear-and-simple-design One generator function creates the five HTTP-method decorators, and the interceptor and the router table are module-private.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The password lookup and the serializer come from shared modules; the loop after the namespace copies the marker properties of typia's stringify functions onto the five decorators as the transform expects, which mutates only these exported functions.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the decorator family and its password requirement.
  */
 export namespace EncryptedRoute {
   /**
@@ -101,6 +105,10 @@ export namespace EncryptedRoute {
    *
    * @default console.log
    * @param func Logger function
+   * @evidence contracts/common.md#principled-implementation It stores the logger in `TypedRoute`, which owns the single logger both route families use.
+   * @evidence contracts/common.md#clear-and-simple-design A one-line delegation, so the logger has one owner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It changes only the logger variable.
+   * @evidence contracts/common.md#meaningful-documentation The comment states which validate mode uses the logger.
    */
   export function setValidateErrorLogger(
     func: (log: IValidateErrorLog) => void,

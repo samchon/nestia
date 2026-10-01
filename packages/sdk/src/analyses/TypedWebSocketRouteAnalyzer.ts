@@ -3,7 +3,24 @@ import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOpera
 import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
 import { PathUtil } from "../utils/PathUtil";
 
+/**
+ * Turns a reflected WebSocket operation into typed routes, one per path.
+ *
+ * @evidence contracts/common.md#principled-implementation Each path gets an accessor from its segments and the method name, and the parameters are split by category.
+ * @evidence contracts/common.md#clear-and-simple-design One function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The accessor rule is generic.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace TypedWebSocketRouteAnalyzer {
+  /**
+   * Returns one typed WebSocket route per path, with the header, path
+   * parameters, query, acceptor, and driver separated.
+   *
+   * @evidence contracts/common.md#principled-implementation The parameters are filtered by category, the acceptor is required by the reflection, and the accessor combines the path segments and the method name.
+   * @evidence contracts/common.md#clear-and-simple-design One mapping.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It only reorganizes reflected data.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const analyze = (props: {
     controller: IReflectController;
     operation: IReflectWebSocketOperation;

@@ -16,7 +16,23 @@ import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkWebSocketNamespaceProgrammer } from "./SdkWebSocketNamespaceProgrammer";
 import { SdkWebSocketParameterProgrammer } from "./SdkWebSocketParameterProgrammer";
 
+/**
+ * Writes a WebSocket route into the SDK: its function and its namespace.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace prints the async function that opens the connection with `tgrid`.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and the writers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The identifiers are decided by the parameter programmer.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkWebSocketRouteProgrammer {
+  /**
+   * Returns the function and the namespace of a WebSocket route.
+   *
+   * @evidence contracts/common.md#principled-implementation The two nodes are composed together so they share names.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The shape follows the route.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>

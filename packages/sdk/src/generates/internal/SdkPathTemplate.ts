@@ -4,6 +4,14 @@ import { PathAnalyzer } from "../../analyses/PathAnalyzer";
 import { IdentifierFactory } from "../../factories/IdentifierFactory";
 import { ImportDictionary } from "./ImportDictionary";
 
+/**
+ * The path expression of an SDK function.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace composes the route's path from its segments, filling the parameters through the fetcher's encoder.
+ * @evidence contracts/common.md#clear-and-simple-design One function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The segments are those the router reads.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkPathTemplate {
   /**
    * The expression an SDK function builds its route's path with: the literal
@@ -16,6 +24,11 @@ export namespace SdkPathTemplate {
    * router reads the path, so a parameter with literal text beside it in its
    * segment, such as `/files/:id.json` or `/range/:from-:to`, is filled in
    * where it stands.
+   *
+   * @evidence contracts/common.md#principled-implementation A path without a parameter is a literal, and otherwise a template holding each parameter's `PathParameter.encode` call between its literal texts.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The literal text follows the router's reading.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
    */
   export const compose = (props: {
     importer: ImportDictionary;

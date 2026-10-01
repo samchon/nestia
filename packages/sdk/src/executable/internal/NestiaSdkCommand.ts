@@ -3,7 +3,27 @@ import { NestiaSdkApplication } from "../../NestiaSdkApplication";
 import { NestiaConfigLoader } from "./NestiaConfigLoader";
 import { NestiaSdkWatcher } from "./NestiaSdkWatcher";
 
+/**
+ * The commands of the `nestia` CLI that run the generators: `sdk`, `swagger`,
+ * `e2e`, and `all`.
+ *
+ * @evidence contracts/common.md#principled-implementation Each command loads the configurations, keeps the ones that can generate what it needs, and runs the application; `swagger` can watch.
+ * @evidence contracts/common.md#clear-and-simple-design Four commands over one private runner and two argument readers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The commands differ only by title, validation, and generator.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace NestiaSdkCommand {
+  /**
+   * Runs the generator of the SDK library for every valid configuration.
+   *
+   * With several configurations, those that cannot generate this output are
+   * skipped, and it is an error when none can.
+   *
+   * @evidence contracts/common.md#principled-implementation The project and configuration files come from the `--project` and `--config` flags with defaults, each flag's value is checked, and the shared runner applies the configurations in order.
+   * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   */
   export const sdk = () =>
     main({
       title: "SDK library",
@@ -12,6 +32,18 @@ export namespace NestiaSdkCommand {
       solution: "configure INestiaConfig.output property.",
     });
 
+  /**
+   * Runs the generator of the Swagger document, optionally in watch mode for
+   * every valid configuration.
+   *
+   * With several configurations, those that cannot generate this output are
+   * skipped, and it is an error when none can.
+   *
+   * @evidence contracts/common.md#principled-implementation The project and configuration files come from the `--project` and `--config` flags with defaults, each flag's value is checked, and the shared runner applies the configurations in order.
+   * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   */
   export const swagger = () =>
     main({
       title: "Swagger Document",
@@ -21,6 +53,17 @@ export namespace NestiaSdkCommand {
       watch: hasFlagArgument("watch"),
     });
 
+  /**
+   * Runs the generator of the e2e test functions for every valid configuration.
+   *
+   * With several configurations, those that cannot generate this output are
+   * skipped, and it is an error when none can.
+   *
+   * @evidence contracts/common.md#principled-implementation The project and configuration files come from the `--project` and `--config` flags with defaults, each flag's value is checked, and the shared runner applies the configurations in order.
+   * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   */
   export const e2e = () =>
     main({
       title: "E2E Functions",
@@ -34,6 +77,18 @@ export namespace NestiaSdkCommand {
       ].join("\n"),
     });
 
+  /**
+   * Runs the generator of everything the configurations ask for for every valid
+   * configuration.
+   *
+   * With several configurations, those that cannot generate this output are
+   * skipped, and it is an error when none can.
+   *
+   * @evidence contracts/common.md#principled-implementation The project and configuration files come from the `--project` and `--config` flags with defaults, each flag's value is checked, and the shared runner applies the configurations in order.
+   * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   */
   export const all = () =>
     main({
       title: "everything",

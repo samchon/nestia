@@ -18,8 +18,22 @@ const isNode = (value: unknown): value is Expression =>
  * Recursive value-to-AST-literal builder. Hands back already-AST inputs
  * unchanged (so callers can mix factory output with raw JS values inside the
  * same object/array), and emits the appropriate literal node otherwise.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace maps values to literal nodes by type.
+ * @evidence contracts/common.md#clear-and-simple-design One function and two helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The mapping is by type.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
  */
 export namespace LiteralFactory {
+  /**
+   * Builds the expression of a value; arrow function, call, and identifier
+   * nodes pass through, and unsupported types throw.
+   *
+   * @evidence contracts/common.md#principled-implementation The value is dispatched by type in a fixed order and containers are written element by element.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The dispatch is general.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the mapping.
+   */
   export const write = (input: any): Expression => {
     if (input === null) return factory.createNull();
     if (isNode(input) && PASSTHROUGH_KINDS.has(input.kind)) return input;

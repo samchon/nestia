@@ -23,6 +23,15 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  *    `x-nothing` values, and the non-finite `x-level` ones.
  * 4. Assert `any` becomes an empty schema, in the component and in a decomposed
  *    parameter.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Only authored example/examples/x-empty/x-nothing and nonfinite x-level values may be null anywhere in the document; any becomes an empty schema in component and parameter.
+ * @evidence contracts/testing.md#independent-expectations The explicit full null-path list follows authored tags/plugin examples and JSON nonfinite semantics, while absent schema annotations are not instance values. Exact canonical empty schemas provide independent any expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Full recursive traversal contrasts legitimate instance/vendor nulls with absent schema fields, and component versus decomposed parameter any retain two locations.
+ * @evidence contracts/testing.md#execution-ownership The matching test_swagger_absent_schema_fields export is discovered and awaited by the swagger-parameters feature entry after actual emitted execution. Assertion failure rejects its report and zero cases fail the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Actual native DTO/decorator/tag metadata and installed Swagger generation must emit the final document. Pure hand-built-schema assertions cannot establish that these authored type constraints survive the producer boundary.
+ * @evidence contracts/e2e.md#shared-execution All generated-document cases consume the same native-produced swagger.json and share installation, producer/runtime compilation and feature backend. Each helper read adds no application or compiler preparation.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Reads are anchored to this feature’s own output. Canonicalization creates strings without mutating inputs, and downgrades explicitly copy their source. The entry closes its backend and the harness removes its copied tree after execution.
+ * @evidence contracts/e2e.md#preserved-coverage All test_swagger_absent_schema_fields documented assertions remain in this executable owner. Deprecated/key-set/finite controls add positive presence checks to retained comparisons, while fallback and isolation still exercise public runtime composition rather than replacing it with a fabricated pass.
  */
 export const test_swagger_absent_schema_fields = async (): Promise<void> => {
   const document: OpenApi.IDocument = await SwaggerParameterReader.document();

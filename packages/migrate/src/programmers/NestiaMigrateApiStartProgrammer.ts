@@ -9,15 +9,31 @@ import { FilePrinter } from "../utils/FilePrinter";
 import { NestiaMigrateE2eFunctionProgrammer } from "./NestiaMigrateE2eFileProgrammer";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 
+/**
+ * Generates the `test/start.ts` of an SDK project: a small program that calls
+ * one API function.
+ *
+ * @evidence contracts/common.md#principled-implementation The program builds a connection from the global test settings and the first server of the document, adds the simulate flag when requested, and calls the first route the way the generated e2e tests do, so one command can check that the SDK and a server agree.
+ * @evidence contracts/common.md#clear-and-simple-design One entry function and private helpers for the connection, the main function, and the starter.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The route is the first one, so the same document always generates the same file.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is generated.
+ */
 export namespace NestiaMigrateApiStartProgrammer {
+  /**
+   * Returns the `test/start.ts` file of an SDK project.
+   *
+   * @evidence contracts/common.md#principled-implementation The file imports what the body uses, defines `main`, and starts it, exiting with a failure status when it rejects.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The content derives from the document.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const write = (
     context: INestiaMigrateContext,
   ): Record<string, string> => {
     const importer: NestiaMigrateImportProgrammer =
       new NestiaMigrateImportProgrammer();
-    const route: IHttpMigrateRoute | undefined = pick(
-      context.application.routes,
-    );
+    // the first route, so the same document always generates the same file
+    const route: IHttpMigrateRoute | undefined = context.application.routes[0];
     const main: ts.VariableStatement = writeMain(context, importer, route);
     const statements: ts.Statement[] = [
       ...importer.toStatements(
@@ -197,10 +213,3 @@ export namespace NestiaMigrateApiStartProgrammer {
       ],
     );
 }
-
-const pick = <T>(array: T[]): T | undefined => {
-  if (array.length === 0) return undefined;
-  const rand: number = Math.random() * array.length;
-  const index: number = Math.min(array.length - 1, Math.floor(rand));
-  return array[index]!;
-};

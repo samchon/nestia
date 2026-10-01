@@ -43,6 +43,8 @@ Before any issue-campaign push or pull request, complete `.agents/skills/issue-c
 
 After each ordinary push, including every Post-Campaign Cleanup push, monitor the pull-request checks until every check settles. Only CI-suspended campaign implementation waves skip this loop. On failure, fetch the relevant job log, diagnose the real cause, fix it in place, push a new commit, and resume monitoring. Do not treat a green unrelated job as acceptance for a failed required surface.
 
+The single `test.yml` job checks Evidence, Go, unit and E2E populations after shared preparation. Check every test step; a successful unit step does not establish SDK generation, installed-consumer behavior or declaration acknowledgments. Do not split tests into a workflow matrix or separate test workflows. Record the actual job duration against the eight-minute target.
+
 ## Merge On Explicit Request Or Standing Autonomous Mandate
 
 Do not merge, squash-merge, rebase, or update the target branch on unprompted initiative. Merge when the user explicitly asks, or when a standing autonomous mandate authorizes end-to-end delivery; use the repository's established merge method unless another is specified. Under an autonomous mandate the author that owns the pull request merges it themselves once the merge gate below passes, without separate approval.

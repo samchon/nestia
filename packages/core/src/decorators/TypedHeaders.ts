@@ -47,6 +47,10 @@ import { validate_request_headers } from "./internal/validate_request_headers";
  *
  * @author Jeongho Nam - https://github.com/samchon
  * @returns Parameter decorator
+ * @evidence contracts/common.md#principled-implementation The header record of the request is decoded by the transformed function into the typed object, whose failure is thrown as the response; header names arrive lower-cased from Node, which the generated decoder expects.
+ * @evidence contracts/common.md#clear-and-simple-design One parameter decorator built from the shared header validator runner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The decoder is generated from the type by the transform; without it the request headers are passed through only when the configuration guard is off.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the decoding, the supported property types, and the validation modes.
  */
 export function TypedHeaders<T extends object>(
   validator?: IRequestHeadersValidator<T>,

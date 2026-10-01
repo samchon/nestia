@@ -19,6 +19,11 @@ import (
 //
 //  1. Transform the query feature with an llm:{strict:true} core manifest.
 //  2. Assert the transform fails (nonzero exit) on the optional-property route.
+//
+// @evidence contracts/testing.md#behavioral-verification A strict-LLM transform of the authored optional-property query must return nonzero rather than accepting it.
+// @evidence contracts/testing.md#independent-expectations Strict LLM schema constraints reject the optional property declared by the query DTO, independently of transformer output.
+// @evidence contracts/testing.md#distinguishing-cases This older case owns rejection on the complete query fixture but accepts any failure class. The strict diagnostic table supplies exact exit, message, location and non-strict acceptance controls.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformLlmStrictQueryViolation(t *testing.T) {
 	out := transformLlmStrict(t)
 	if out == 0 {

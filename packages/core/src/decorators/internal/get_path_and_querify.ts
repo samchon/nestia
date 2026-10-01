@@ -4,6 +4,7 @@ import typia, { IValidation, TypeGuardError } from "typia";
 import { IResponseBodyQuerifier } from "../../options/IResponseBodyQuerifier";
 import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 import type { TypedRoute } from "../TypedRoute";
+import { split_route_arguments } from "./split_route_arguments";
 
 /** @internal */
 export const get_path_and_querify =
@@ -15,15 +16,8 @@ export const get_path_and_querify =
     string | string[] | undefined,
     (input: any, method: string, path: string) => URLSearchParams,
   ] => {
-    const path: string | string[] | null | undefined =
-      args[0] === undefined ||
-      typeof args[0] === "string" ||
-      Array.isArray(args[0])
-        ? args[0]
-        : null;
-    const functor: IResponseBodyQuerifier<any> | undefined =
-      path === null ? args[0] : args[1];
-    return [path ?? undefined, take(logger)(method)(functor)];
+    const [path, functor] = split_route_arguments<any>(args);
+    return [path, take(logger)(method)(functor)];
   };
 
 /** @internal */

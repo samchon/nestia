@@ -25,27 +25,28 @@ import { validate_request_body } from "./internal/validate_request_body";
  * the {@link INestApplication} instance at bootstrap. The decorator alone only
  * stores reflection metadata.
  *
- * @author wildduck - https://github.com/wildduck2
- * @example
- *   ```typescript
- *   import core from "@nestia/core";
+ * Example:
  *
- *   @Controller()
- *   export class WeatherController {
- *     /**
- *      * Return current weather for a city.
- *      *
- *      * @title Get weather
- *      *\/
- *     @core.McpRoute("get_weather")
- *     public async get(
- *       @core.McpRoute.Params() params: { city: string },
- *     ): Promise<{ temp: number }> {
- *       return { temp: 22 };
- *     }
+ * ```typescript
+ * import core from "@nestia/core";
+ *
+ * @Controller()
+ * export class WeatherController {
+ *   /**
+ *    * Return current weather for a city.
+ *    *
+ *    * @title Get weather
+ *    *\/
+ *   @core.McpRoute("get_weather")
+ *   public async get(
+ *     @core.McpRoute.Params() params: { city: string },
+ *   ): Promise<{ temp: number }> {
+ *     return { temp: 22 };
  *   }
- *   ```;
+ * }
+ * ```
  *
+ * @author wildduck - https://github.com/wildduck2
  * @param name Unique tool identifier exposed to MCP clients via `tools/list`.
  * @returns Method decorator.
  */
@@ -78,6 +79,15 @@ export function McpRoute(input: string | McpRoute.IConfig): MethodDecorator {
   };
 }
 
+/**
+ * Types and parameter decorator of {@link McpRoute}: the tool configuration and
+ * `McpRoute.Params`.
+ *
+ * @evidence contracts/common.md#principled-implementation The decorator records the tool definition as metadata on the method, with an empty object schema as the default input, and `McpRoute.Params` records the position and validator of the argument parameter; the adapter reads both when it registers tools.
+ * @evidence contracts/common.md#clear-and-simple-design Two decorators and one config type in one namespace, sharing one `emplace` helper for parameter metadata.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the reflect metadata API and no NestJS internals; the input schema is filled by the generator, not hardcoded here.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the two call forms, the configuration fields, and the parameter decorator.
+ */
 export namespace McpRoute {
   /**
    * Configuration object emitted by the nestia transformer at compile time.

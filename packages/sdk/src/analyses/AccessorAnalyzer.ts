@@ -6,7 +6,25 @@ import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
 
 type AnyRoute = ITypedHttpRoute | ITypedWebSocketRoute | ITypedMcpRoute;
 
+/**
+ * Assigns each route the accessor path under which the generated SDK exposes
+ * it.
+ *
+ * @evidence contracts/common.md#principled-implementation The accessors are shrunk where a name repeats, escaped into valid unique identifiers, shrunk again, and each route is renamed to its last accessor segment.
+ * @evidence contracts/common.md#clear-and-simple-design One public function over three private passes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The passes follow the accessor structure and no route or controller name is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace AccessorAnalyzer {
+  /**
+   * Rewrites the accessor of every route in place so that accessors are valid,
+   * unique, and as short as they can be.
+   *
+   * @evidence contracts/common.md#principled-implementation Segments that repeat their parent are removed when no sibling shares the parent, non-identifier characters become underscores, a segment that collides with an existing accessor gets an underscore prefix, and the route name becomes the last segment.
+   * @evidence contracts/common.md#clear-and-simple-design One function that runs the passes in a fixed order.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules apply to every route, and reserved names are computed from the routes themselves.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the passes and the in-place rewrite.
+   */
   export const analyze = (routes: Array<AnyRoute>) => {
     shrink(routes);
     variable(routes);

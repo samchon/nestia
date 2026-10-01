@@ -29,6 +29,11 @@ import (
 //     object, an array of field objects, and a union of atomics.
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert each parameter's verdict per category.
+//
+// @evidence contracts/testing.md#behavioral-verification Resolved HTTP rule metadata must match the literal accepted/error lists for flat, nested, dynamic, union, nullable, Date, invalid numeric-tag, field and path parameter shapes.
+// @evidence contracts/testing.md#independent-expectations HTTP parameter contracts permit flat atomic collections, distinguish query/header nullability, and reject nested/dynamic objects or unsupported path unions; the authored DTOs and documented rule messages supply the expected matrix.
+// @evidence contracts/testing.md#distinguishing-cases Twenty expected parameter/category pairs contrast accepted flat/nullable/scalar/array field cases with nested, dynamic, union, Date, NaN tag, field object/array-object and path array/union negatives, retaining exact accessors and reasons.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticParameterHttpRules(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 import { Query } from "@nestjs/common";

@@ -12,7 +12,24 @@ import { ParameterNameAnalyzer } from "./ParameterNameAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
 
+/**
+ * Reflects a `@WebSocketRoute` method into an operation.
+ *
+ * @evidence contracts/common.md#principled-implementation The parameter decorators give each parameter's category, the acceptor and driver type arguments are checked, the path parameters of the route are matched against the param decorators, and the tgrid declarations are not imported into the SDK.
+ * @evidence contracts/common.md#clear-and-simple-design One public function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules follow the decorator contract.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace ReflectWebSocketOperationAnalyzer {
+  /**
+   * The input of the WebSocket operation analysis: the project, the controller,
+   * the method, and its metadata.
+   *
+   * @evidence contracts/common.md#principled-implementation The record holds what the analysis needs.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   */
   export interface IProps {
     project: Omit<INestiaProject, "config">;
     controller: IReflectController;
@@ -20,6 +37,15 @@ export namespace ReflectWebSocketOperationAnalyzer {
     name: string;
     metadata: IOperationMetadata;
   }
+  /**
+   * Returns the WebSocket operation of a method, or `null` when the method is
+   * not a WebSocket route or has errors.
+   *
+   * @evidence contracts/common.md#principled-implementation An acceptor is required, every parameter must carry one of the five decorators, the acceptor has three type arguments and the driver one, and the path parameters must equal the param fields.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules follow the decorator contract.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the null result.
+   */
   export const analyze = (ctx: IProps): IReflectWebSocketOperation | null => {
     const route: { paths: string[] } | undefined = Reflect.getMetadata(
       "nestia/WebSocketRoute",

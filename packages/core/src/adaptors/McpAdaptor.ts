@@ -47,14 +47,12 @@ import {
  *
  * @author wildduck - https://github.com/wildduck2
  * @example
- *   ```typescript
  *   import core from "@nestia/core";
  *   import { NestFactory } from "@nestjs/core";
  *
  *   const app = await NestFactory.create(AppModule);
  *   await core.McpAdaptor.upgrade(app, { path: "/mcp" });
  *   await app.listen(3000);
- *   ```;
  */
 export class McpAdaptor {
   /**
@@ -71,6 +69,10 @@ export class McpAdaptor {
    *
    * @param app Running Nest application instance.
    * @param options Transport and identity overrides.
+   * @evidence contracts/common.md#principled-implementation Tools are collected once from the prototype chain of every controller instance by the `nestia/McpRoute` metadata, with the first definition of a method name winning, duplicates by tool name refused before serving, and each call runs through NestJS's `ExternalContextCreator` so guards, interceptors, pipes, and exception filters apply as for an HTTP route; every request gets a fresh MCP server and Streamable HTTP transport, which stateless mode requires, and both are closed in a `finally`.
+   * @evidence contracts/common.md#clear-and-simple-design One entry point does discovery and registration; the per-tool call (`createHandler`), the duplicate check, the SDK loader, and the response takeover check are separate module-private functions.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reading the module graph goes through the internal `app.container`, because `INestApplication` exposes no public accessor for it, and `tookOver` replaces the write functions of the request-scoped raw response only when an exception filter has already written it, so the transport cannot throw on a second write; both are foreign-internal uses kept as stated limits, confined to this adapter.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the stateless mode, what is discovered, and that the SDK is an optional dependency; the options documentation states the path and server information.
    */
   public static async upgrade(
     app: INestApplication,
@@ -374,8 +376,24 @@ const loadMcpSdk = async () => {
   }
 };
 
+/**
+ * Types of {@link McpAdaptor}: the options of `upgrade` and the record of a
+ * registered tool.
+ *
+ * @evidence contracts/common.md#principled-implementation The class exposes one static entry point, so the adapter has no instance state: the tool list is closed over by the registered route handler.
+ * @evidence contracts/common.md#clear-and-simple-design One static method and two nested types.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It has no fixture or tool name, and the MCP SDK is loaded lazily so an application that never enables MCP does not need it.
+ * @evidence contracts/common.md#meaningful-documentation The class comment explains what an MCP route is and how to enable it.
+ */
 export namespace McpAdaptor {
-  /** Configuration options for {@link McpAdaptor.upgrade}. */
+  /**
+   * Configuration options for {@link McpAdaptor.upgrade}.
+   *
+   * @evidence contracts/common.md#principled-implementation The two options are the route path, with `/mcp` as the default, and the server information reported to clients, with a default name and version.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record of two optional values.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type; the defaults are stated in the code that reads them.
+   * @evidence contracts/common.md#meaningful-documentation Each option documents its meaning.
+   */
   export interface IOptions {
     /**
      * HTTP path where the MCP endpoint will be mounted.

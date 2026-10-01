@@ -12,7 +12,6 @@ import { PathAnalyzer } from "./analyses/PathAnalyzer";
 import { ReflectControllerAnalyzer } from "./analyses/ReflectControllerAnalyzer";
 import { TypedHttpRouteAnalyzer } from "./analyses/TypedHttpRouteAnalyzer";
 import { SwaggerGenerator } from "./generates/SwaggerGenerator";
-import { IMetadataDictionary } from "./internal/legacy";
 import { INestiaProject } from "./structures/INestiaProject";
 import { INestiaSdkInput } from "./structures/INestiaSdkInput";
 import { IOperationMetadata } from "./structures/IOperationMetadata";
@@ -21,7 +20,26 @@ import { IReflectOperationError } from "./structures/IReflectOperationError";
 import { ITypedHttpRoute } from "./structures/ITypedHttpRoute";
 import { VersioningStrategy } from "./utils/VersioningStrategy";
 
+/**
+ * Composes the Swagger document of a running NestJS application, without files.
+ *
+ * @evidence contracts/common.md#principled-implementation The controllers are taken from the application's module graph and analyzed like the CLI does, and only the HTTP routes are composed.
+ * @evidence contracts/common.md#clear-and-simple-design One public function with a private analysis pipeline.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the same analyzers and composer as the CLI, so both produce one document.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace NestiaSwaggerComposer {
+  /**
+   * Returns the OpenAPI document of the application in the requested version.
+   *
+   * The document is composed as OpenAPI 3.2 and converted to the configured
+   * older version; every analysis error is collected and thrown together.
+   *
+   * @evidence contracts/common.md#principled-implementation Composition runs at the newest version and `OpenApiConverter.downgradeDocument` produces the older ones, so version differences live in one converter, and a failure of the analysis throws one error that lists every problem.
+   * @evidence contracts/common.md#clear-and-simple-design One function over the shared analyzers and the Swagger generator.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No route is special-cased; the module graph is read through `ConfigAnalyzer.application`.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the returned versions and the error behavior.
+   */
   export const document = async (
     app: INestApplication,
     config: Omit<INestiaConfig.ISwaggerConfig, "output">,
@@ -58,10 +76,6 @@ export namespace NestiaSwaggerComposer {
     if (project.errors.length)
       throw report({ type: "error", errors: project.errors });
 
-    // METADATA COMPONENTS
-    const collection: IMetadataDictionary =
-      TypedHttpRouteAnalyzer.dictionary(controllers);
-
     // CONVERT TO TYPED OPERATIONS
     const routes: ITypedHttpRoute[] = [];
     for (const c of controllers)
@@ -95,7 +109,6 @@ export namespace NestiaSwaggerComposer {
           ...TypedHttpRouteAnalyzer.analyze({
             controller: c,
             errors: project.errors,
-            dictionary: collection,
             operation: o,
             paths: Array.from(pathList),
           }),

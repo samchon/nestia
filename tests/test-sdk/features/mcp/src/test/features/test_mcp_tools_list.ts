@@ -19,17 +19,26 @@ export interface IConnection {
  * 1. Connect an MCP SDK client to the test transport.
  * 2. List available tools through the MCP protocol.
  * 3. Assert tool names, weather description, and generated object schema.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Raw tools/list must return exactly eight handwritten sorted names, with a nonempty weather description and object inputSchema.
+ * @evidence contracts/testing.md#independent-expectations Authored ordinary/base/derived McpRoute declarations establish eight visible names; undecorated hidden override and replaced base_override must be absent. DTO input object shape independently requires object schema.
+ * @evidence contracts/testing.md#distinguishing-cases Visible inheritance/derived replacement and hidden override contrast inclusion semantics. Exact count/names reject empty/duplicate discovery; description/schema presence does not independently certify all nested properties.
+ * @evidence contracts/testing.md#execution-ownership Its matching exported case is discovered and awaited by the actual feature executor after generation and consumer compilation. Assertion/protocol mismatches reject the report; empty discovery rejects the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Actual native metadata and MCP adaptor discovery must be exposed through official tools/list; generated wrapper metadata alone cannot prove the live server list.
+ * @evidence contracts/e2e.md#shared-execution One packed dependency installation and compatible producer/runtime compilations are shared. These assertions reuse the feature backend; independently connected official clients delimit each protocol state and close after that case.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each case owns its client/transport, with connection and calls covered by finally closing the client. The enhancer case also owns its extra Fastify app with listen inside finally ownership; process-local controllers/backends and copied outputs isolate other features.
+ * @evidence contracts/e2e.md#preserved-coverage All original protocol calls, wrapper inputs, exact payload/error controls and metadata/name assertions remain. Shared installation/compiler preparation preserves raw protocol and generated-wrapper owners as distinct connections.
  */
 export const test_mcp_tools_list = async (
   connection: IConnection,
 ): Promise<void> => {
   const client = new Client({ name: "nestia-test", version: "1.0.0" });
-  await client.connect(
-    new StreamableHTTPClientTransport(
-      new URL(`${connection.host}${connection.path}`),
-    ),
-  );
   try {
+    await client.connect(
+      new StreamableHTTPClientTransport(
+        new URL(`${connection.host}${connection.path}`),
+      ),
+    );
     const { tools } = await client.listTools();
     TestValidator.equals("tool count", tools.length, 8);
 

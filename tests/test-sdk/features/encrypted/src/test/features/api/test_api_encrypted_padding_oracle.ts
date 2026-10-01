@@ -22,6 +22,15 @@ import api from "@api";
  *    non-JSON while the final block's padding survives.
  * 3. Assert neither forged request returns 500 and that the two responses are
  *    identical in both status (400) and body.
+ *
+ * @evidence contracts/testing.md#behavioral-verification A valid independently encrypted login succeeds below300, while broken-padding and valid-padding/non-JSON forgeries both return400 with identical bodies.
+ * @evidence contracts/testing.md#independent-expectations Node crypto independently constructs AES-CBC ciphertext using the fixture key/IV. The security contract requires indistinguishable client-visible failures; expected400/body equality is not copied from generated server output.
+ * @evidence contracts/testing.md#distinguishing-cases Valid plaintext, final-block corruption and early-block corruption contrast successful decrypt, padding rejection and JSON rejection. The test observes HTTP responses rather than timing, so it does not establish timing-side-channel equivalence.
+ * @evidence contracts/testing.md#execution-ownership The feature entry discovers and awaits this exported case after actual generation and consumer compilation; mismatches reject its report and zero discovery rejects the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Raw forged wire bodies bypass generated-client validation and reach actual decrypt/parser/error boundaries. A unit catching decrypt errors alone cannot prove JSON failures share the same HTTP response.
+ * @evidence contracts/e2e.md#shared-execution The suite installs fresh packed packages once and compatible configurations share native producer and emitted runtime programs. This case adds no independent install/compiler; distinct CLI/file-pattern owners retain their own connections.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Local inputs and isolated feature outputs prevent another feature supplying this result. Generated document reads are immutable, feature backends close in finally and the harness releases only owned copies after children finish.
+ * @evidence contracts/e2e.md#preserved-coverage All existing requests, controls, generated-output reads and assertions remain. Sharing package/compiler preparation changes setup ownership, while the distinct accepted/rejected cases and their asserted limits are retained.
  */
 export const test_api_encrypted_padding_oracle = async (
   connection: api.IConnection,

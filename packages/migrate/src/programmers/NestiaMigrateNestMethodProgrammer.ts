@@ -17,7 +17,24 @@ import { SuccessStatus } from "../utils/SuccessStatus";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
+/**
+ * Generates the controller method of one route.
+ *
+ * @evidence contracts/common.md#principled-implementation The method carries `TypedRoute`, `TypedException`, `HumanRoute`, and example decorators as the route requires, one parameter per path, header, query, and body input with the matching typed decorator, and a body that mentions each parameter and returns `typia.random` of the response type.
+ * @evidence contracts/common.md#clear-and-simple-design One entry function and private writers for the description, the decorators, and the parameters.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The output derives from the route; the body is a stub that returns random data because the document does not define the behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is generated.
+ */
 export namespace NestiaMigrateNestMethodProgrammer {
+  /**
+   * The input of one method: the configuration, the components, the importer,
+   * the controller, and the route.
+   *
+   * @evidence contracts/common.md#principled-implementation The record holds exactly what the generation needs.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment lists the fields.
+   */
   export interface IContext {
     config: INestiaMigrateConfig;
     components: OpenApi.IComponents;
@@ -26,6 +43,14 @@ export namespace NestiaMigrateNestMethodProgrammer {
     route: IHttpMigrateRoute;
   }
 
+  /**
+   * Returns the method declaration of a route.
+   *
+   * @evidence contracts/common.md#principled-implementation The decorators and the parameters follow the route's HTTP method, path relative to the controller, and inputs.
+   * @evidence contracts/common.md#clear-and-simple-design One function composing the private writers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The method follows the route.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const write = (ctx: IContext): ts.MethodDeclaration => {
     const output: ts.TypeNode = ctx.route.success
       ? NestiaMigrateSchemaProgrammer.write({

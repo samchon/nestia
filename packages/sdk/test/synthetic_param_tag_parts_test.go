@@ -21,6 +21,11 @@ import "testing"
 //     brackets, and a two-line `@summary`.
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert each tag's parts, and the parameter descriptions they give.
+//
+// @evidence contracts/testing.md#behavioral-verification JSDoc parameter tags must retain exact parameterName/space/text parts and produce the correct per-parameter descriptions.
+// @evidence contracts/testing.md#independent-expectations The authored tags specify named, typed, optional and defaulted parameters; TypeScript display-part semantics remove type/default syntax from names and preserve description text.
+// @evidence contracts/testing.md#distinguishing-cases Multiline, typed, descriptionless optional, nested-array default and summary tags contrast their different parts; flag description stays null while input/typed/opt receive their authored text.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticParamTagParts(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 import { Query } from "@nestjs/common";

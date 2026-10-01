@@ -24,6 +24,11 @@ import (
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert each parameter's resolved metadata is not `any` and has the same
 //     atomics, constants, templates, and nullability as its primitive one.
+//
+// @evidence contracts/testing.md#behavioral-verification All fourteen authored scalar parameters must have non-any primitive/resolved metadata and equal atomic/constant/template/nullability shapes.
+// @evidence contracts/testing.md#independent-expectations Primitive and resolved pipes should agree for these scalar aliases and tags. This is a cross-pipe invariant, not an independent oracle for every scalar value; both pipes making the same error remains a limitation.
+// @evidence contracts/testing.md#distinguishing-cases The non-any check prevents a vacuous equality; UUID aliases/generics/indexed/namespace/Primitive forms, enum/template, nullable, tagged number/bigint, boolean, tagged union, indexed constants and keyof exercise distinct scalar paths.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticScalarParameterPipesAgree(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 import { Primitive, tags } from "typia";

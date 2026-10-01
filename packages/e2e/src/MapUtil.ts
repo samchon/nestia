@@ -7,7 +7,6 @@
  *
  * @author Jeongho Nam - https://github.com/samchon
  * @example
- *   ```typescript
  *   // Create a cache with lazy initialization
  *   const cache = new Map<string, ExpensiveObject>();
  *
@@ -19,7 +18,11 @@
  *   // Subsequent calls return cached value without re-creating
  *   const sameObj = MapUtil.take(cache, "key1", () => new ExpensiveObject());
  *   console.log(obj === sameObj); // true
- *   ```;
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace offers the get-or-create pattern over the native `Map`, whose `has` distinguishes an absent key from a stored `undefined`.
+ * @evidence contracts/common.md#clear-and-simple-design One function, without options or state.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses only the public Map methods.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the lazy initialization pattern with an example.
  */
 export namespace MapUtil {
   /**
@@ -33,7 +36,6 @@ export namespace MapUtil {
    * enabling lazy initialization and caching patterns.
    *
    * @example
-   *   ```typescript
    *   // Simple caching example
    *   const userCache = new Map<number, User>();
    *
@@ -48,7 +50,7 @@ export namespace MapUtil {
    *   const dbConfig = MapUtil.take(configs, "database", () => ({
    *     host: "localhost",
    *     port: 5432,
-   *     database: "myapp"
+   *     database: "myapp",
    *   }));
    *
    *   // Lazy computation results
@@ -64,9 +66,8 @@ export namespace MapUtil {
    *   const key: [number, number] = [rows, cols];
    *
    *   const matrix = MapUtil.take(cache, key, () =>
-   *     generateIdentityMatrix(rows, cols)
+   *     generateIdentityMatrix(rows, cols),
    *   );
-   *   ```;
    *
    * @template K - The type of keys in the Map
    * @template V - The type of values in the Map
@@ -75,6 +76,10 @@ export namespace MapUtil {
    * @param value - A factory function that creates the value if key doesn't
    *   exist
    * @returns The existing value if found, or the newly created value
+   * @evidence contracts/common.md#principled-implementation The key is looked up with `has`, so an existing value, even `undefined`, is returned without calling the factory; otherwise the factory is called once, its value is stored, and the same value is returned.
+   * @evidence contracts/common.md#clear-and-simple-design A single check, one factory call, and one store.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The factory result is stored as returned, with no copying or expiry.
+   * @evidence contracts/common.md#meaningful-documentation The comment states when the factory runs and documents the parameters with several examples.
    */
   export function take<K, V>(map: Map<K, V>, key: K, value: () => V): V {
     if (map.has(key)) {

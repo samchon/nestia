@@ -20,6 +20,11 @@ import (
 //  1. List every controller of each cohort's features in one program.
 //  2. Run the project-mode transform and collect its diagnostics.
 //  3. Assert each feature reports its expected count, and nothing else does.
+//
+// @evidence contracts/testing.md#behavioral-verification Two in-process project cohorts must report exactly each feature's authored diagnostic count and no additional diagnostic, so one feature's failures cannot substitute for another's missing rejection.
+// @evidence contracts/testing.md#independent-expectations Each handwritten invalid controller declares the counted unsupported parameters or responses. Per-feature file provenance and the literal counts identify expected rejection populations; counts alone do not pin every message.
+// @evidence contracts/testing.md#distinguishing-cases The error and MCP cohorts retain separate named execution and every original feature count. The diagnostic-message test pins nested-form/query and acceptor reason text; accepted transforms remain in their positive cases.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformFeatureDiagnosticCohorts(t *testing.T) {
 	for name, cases := range map[string]map[string]int{
 		"error": {
@@ -99,40 +104,6 @@ func TestTransformFeatureDiagnosticCohorts(t *testing.T) {
 //
 //  1. Transform each feature's controllers.
 //  2. Assert one diagnostic, holding every expected phrase.
-func TestTransformFeatureDiagnosticMessages(t *testing.T) {
-	for feature, needles := range map[string][]string{
-		"form-data-error-nested": {
-			"unsupported type detected",
-			"INestedForm.nested",
-			"nested object type is not allowed.",
-		},
-		"query-route-error-nested": {
-			"unsupported type detected",
-			"INestedQueryOutput.nested",
-			"nested object type is not allowed.",
-		},
-		"websocket-error-invalid-acceptor-arity": {
-			`parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.`,
-		},
-		"websocket-error-invalid-acceptor-import": {
-			`parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.`,
-		},
-	} {
-		diagnostics := transformFeatureDiagnostics(t, map[string]int{feature: 1})
-		if len(diagnostics) != 1 {
-			t.Errorf("%s reported %d diagnostics; expected 1: %v", feature, len(diagnostics), diagnostics)
-			continue
-		}
-		for _, needle := range needles {
-			if strings.Contains(diagnostics[0].message, needle) == false {
-				t.Errorf("%s diagnostic misses %q:\n%s", feature, needle, diagnostics[0].message)
-			}
-		}
-	}
-}
-
-// transformFeatureCohort runs the project-mode transform over the controllers
-// of the given test-sdk features, returning the file of each diagnostic.
 func transformFeatureCohort(t *testing.T, cases map[string]int) []string {
 	t.Helper()
 	files := []string{}

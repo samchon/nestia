@@ -17,6 +17,11 @@ import (
 //  1. Transform one controller under `strict: false`, `strictNullChecks:
 //     false`, and `strict: true` with `strictNullChecks: false`.
 //  2. Assert each exits 3 naming the requirement, and a strict project exits 0.
+//
+// @evidence contracts/testing.md#behavioral-verification Three effective non-strict configurations must return exit 3 and strict mode is required, while the strict positive must return zero without that reason.
+// @evidence contracts/testing.md#independent-expectations The transformer contract requires strictNullChecks; explicit false overrides strict true, so each negative fixes the same prohibited effective option independently of parser output.
+// @evidence contracts/testing.md#distinguishing-cases strict false, strictNullChecks false and strict true with the false override are named negatives; strict true is the adjacent positive on the same controller.
+// @evidence contracts/testing.md#execution-ownership Go discovers the core Test and all named subtests; each native dispatch runs in-process with temporary extending configurations and captured streams, not a host per option.
 func TestTransformStrictModeRequired(t *testing.T) {
 	const feature = "plain-text-parser"
 	cases := []struct {

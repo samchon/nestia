@@ -23,8 +23,20 @@ import { ImportDictionary } from "./ImportDictionary";
  * values through JSON. Void MCP tools return `Promise<void>`.
  *
  * @author wildduck - https://github.com/wildduck2
+ * @evidence contracts/common.md#principled-implementation The namespace prints the wrapper that calls the tool and its metadata, and turns a tool error into an exception.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and the writers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The function's identifiers yield to the tool's own name.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
  */
 export namespace SdkMcpRouteProgrammer {
+  /**
+   * Returns the function and the namespace of an MCP tool.
+   *
+   * @evidence contracts/common.md#principled-implementation The two nodes are composed together so they share names.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The shape follows the tool metadata.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>

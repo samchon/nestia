@@ -4,7 +4,24 @@ import path from "path";
 
 import { INestiaConfig } from "../../INestiaConfig";
 
+/**
+ * Composes the npm package of the SDK in the distribution directory.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace copies the bundle, fills its paths in, and installs the dependencies at the versions the project uses.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and the private steps.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The directory is changed for the run and restored afterwards.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkDistributionComposer {
+  /**
+   * Prepares the distribution package once: files, paths, and dependencies, and
+   * does nothing when the package is already configured.
+   *
+   * @evidence contracts/common.md#principled-implementation The package counts as configured when it holds `@nestia/fetcher`, which is installed last with its peers, so an interrupted setup runs again. The current directory is changed for the run and is restored by `finally`.
+   * @evidence contracts/common.md#clear-and-simple-design One function of sequential steps.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The process directory is a shared global, so the restore is guaranteed by `finally`, and the function must not run beside another that reads it.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const compose = async (props: {
     config: INestiaConfig;
     mcp: boolean;

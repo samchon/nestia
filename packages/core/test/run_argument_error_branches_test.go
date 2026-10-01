@@ -20,6 +20,11 @@ import (
 //  1. build with both --emit and --noEmit -> exit 2.
 //  2. transform with --output other than "ts" -> exit 2.
 //  3. transform with malformed --plugins-json -> exit 2.
+//
+// @evidence contracts/testing.md#behavioral-verification The dispatcher returns usage exit 2 for mutually exclusive emit flags, an unsupported output kind and malformed plugin JSON.
+// @evidence contracts/testing.md#independent-expectations Contradictory flags and unparsable protocol inputs cannot describe a supported command; usage errors have the independent documented exit classification 2.
+// @evidence contracts/testing.md#distinguishing-cases Three argument errors are distinguished by their input; this case pins exit classification and does not assert the diagnostic wording or prove how far program loading progressed.
+// @evidence contracts/testing.md#execution-ownership Go discovers the core unit Test; direct transform.Run calls share the test binary and an empty temporary cwd, without launching any compiler command.
 func TestRunArgumentErrorBranches(t *testing.T) {
 	temp := t.TempDir()
 	if code := transform.Run([]string{

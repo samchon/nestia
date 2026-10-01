@@ -14,32 +14,11 @@ import fs from "fs";
 import path from "path";
 import type { IValidation } from "typia";
 
-import { test_migrate_additional_properties } from "./features/test_migrate_additional_properties";
-import { test_migrate_api_accessor_collision } from "./features/test_migrate_api_accessor_collision";
-import { test_migrate_api_response_header_tags } from "./features/test_migrate_api_response_header_tags";
 import { test_migrate_cli_boolean_flags } from "./features/test_migrate_cli_boolean_flags";
 import { test_migrate_cli_plain_files } from "./features/test_migrate_cli_plain_files";
-import { test_migrate_dto_import_type } from "./features/test_migrate_dto_import_type";
-import { test_migrate_keyword_optional_body } from "./features/test_migrate_keyword_optional_body";
-import { test_migrate_nest_dto_package_import } from "./features/test_migrate_nest_dto_package_import";
-import { test_migrate_nest_keyword_config_path } from "./features/test_migrate_nest_keyword_config_path";
-import { test_migrate_nest_monorepo_layout } from "./features/test_migrate_nest_monorepo_layout";
 import { test_migrate_nest_named_examples } from "./features/test_migrate_nest_named_examples";
-import { test_migrate_nest_route_paths } from "./features/test_migrate_nest_route_paths";
-import { test_migrate_nest_workspace_catalog_stamp } from "./features/test_migrate_nest_workspace_catalog_stamp";
-import { test_migrate_numeric_bounds } from "./features/test_migrate_numeric_bounds";
-import { test_migrate_path_segments } from "./features/test_migrate_path_segments";
-import { test_migrate_route_reserved } from "./features/test_migrate_route_reserved";
-import { test_migrate_sdk_dependency_catalog_stamp } from "./features/test_migrate_sdk_dependency_catalog_stamp";
-import {
-  EMPTY_PATHS_DOCUMENT,
-  test_migrate_sdk_empty_paths,
-} from "./features/test_migrate_sdk_empty_paths";
-import { test_migrate_sdk_key_snapshot } from "./features/test_migrate_sdk_key_snapshot";
-import { test_migrate_sdk_pnpm_template } from "./features/test_migrate_sdk_pnpm_template";
-import { test_migrate_simulate_headers } from "./features/test_migrate_simulate_headers";
 import { test_migrate_simulate_throws } from "./features/test_migrate_simulate_throws";
-import { test_migrate_success_status } from "./features/test_migrate_success_status";
+import { EMPTY_PATHS_DOCUMENT } from "./fixtures/EMPTY_PATHS_DOCUMENT";
 
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
@@ -259,28 +238,9 @@ const main = async (): Promise<void> => {
     if (filter(scenario.name) === false) continue;
     const document: SwaggerDocument = await readDocument(scenario.file);
     assertFixtureSwagger(document);
-    test_migrate_api_accessor_collision(document);
-    test_migrate_api_response_header_tags();
-    test_migrate_dto_import_type();
-    test_migrate_nest_monorepo_layout();
     test_migrate_nest_named_examples(document);
-    test_migrate_nest_route_paths();
-    test_migrate_numeric_bounds();
-    test_migrate_path_segments();
-    test_migrate_route_reserved();
-    test_migrate_simulate_headers();
-    test_migrate_success_status();
-    test_migrate_keyword_optional_body();
-    test_migrate_additional_properties();
     test_migrate_cli_boolean_flags();
     test_migrate_cli_plain_files();
-    test_migrate_nest_dto_package_import();
-    test_migrate_nest_workspace_catalog_stamp();
-    test_migrate_nest_keyword_config_path();
-    test_migrate_sdk_empty_paths();
-    test_migrate_sdk_key_snapshot();
-    test_migrate_sdk_pnpm_template();
-    test_migrate_sdk_dependency_catalog_stamp();
     await execute(
       "sdk",
       {

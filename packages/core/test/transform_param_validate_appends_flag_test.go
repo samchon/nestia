@@ -17,6 +17,11 @@ import (
 //  1. Transform the param feature's TypedParamController with validate "validate".
 //  2. Read the emitted --out source.
 //  3. Assert the TypedParam decorator gained an injected caster and the flag.
+//
+// @evidence contracts/testing.md#behavioral-verification The validate-mode parameter transform must retain TypedParam and append the literal true report flag; losing report selection fails.
+// @evidence contracts/testing.md#independent-expectations The TypedParam runtime uses the third true argument to request a validation report under validate-family modes.
+// @evidence contracts/testing.md#distinguishing-cases This owns the validate flag positive; the assert caster case complements injection and the option runtime batch checks parameter arguments. This whole-output assertion does not alone locate every parameter call.
+// @evidence contracts/testing.md#execution-ownership The core Go runner discovers this Test and invokes the native dispatcher in-process. The loaded fixture program and temporary emitted output exercise transformation without building or launching a native host; the generated-validator runtime batch owns installed-helper execution.
 func TestTransformParamValidateAppendsFlag(t *testing.T) {
 	out := transformFileToString(t, "param", "TypedParamController.ts", "validate", "assert")
 	if !strings.Contains(out, "@core.TypedParam(") {

@@ -12,7 +12,24 @@ import { SuccessStatus } from "../utils/SuccessStatus";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
+/**
+ * Generates the function of one route in the SDK.
+ *
+ * @evidence contracts/common.md#principled-implementation The function has the connection parameter, the path, query, header, and body parameters in positional or keyword form, and its body calls the plain or the encrypted fetcher, or the simulator when the connection asks for it, and copies response headers when the description asks.
+ * @evidence contracts/common.md#clear-and-simple-design One entry function, one public parameter builder shared with the simulation programmer, and private helpers for the body and the header directives.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The output derives from the route and the configuration, and the header directives are read from the documented tags.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is generated.
+ */
 export namespace NestiaMigrateApiFunctionProgrammer {
+  /**
+   * The input of one function: the configuration, the components, the importer,
+   * and the route.
+   *
+   * @evidence contracts/common.md#principled-implementation The record holds exactly what the function generation needs.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment lists the fields.
+   */
   export interface IContext {
     config: INestiaMigrateConfig;
     components: OpenApi.IComponents;
@@ -20,6 +37,15 @@ export namespace NestiaMigrateApiFunctionProgrammer {
     route: IHttpMigrateRoute;
   }
 
+  /**
+   * Returns the exported async function declaration of the route, with its
+   * description.
+   *
+   * @evidence contracts/common.md#principled-implementation The function name is the last accessor segment, the return type is the namespace's response type or void, and the description comes from the route comment with the path, the accessor, and the author tag.
+   * @evidence contracts/common.md#clear-and-simple-design One expression over the private parts.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The names come from the accessor.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const write = (ctx: IContext): ts.FunctionDeclaration =>
     FilePrinter.description(
       factory.createFunctionDeclaration(
@@ -43,6 +69,16 @@ export namespace NestiaMigrateApiFunctionProgrammer {
       writeDescription(ctx.config, ctx.route),
     );
 
+  /**
+   * Returns the parameters of the function: the connection first, then either
+   * one `props` parameter in keyword mode or the path, query, and body
+   * parameters in positional mode.
+   *
+   * @evidence contracts/common.md#principled-implementation The connection type carries the route's header type when it has one, keyword mode adds `props` only when there is something to pass, and an optional body is marked optional.
+   * @evidence contracts/common.md#clear-and-simple-design One function with the two modes as two returns.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The shape follows the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the two modes.
+   */
   export const writeParameterDeclarations = (
     ctx: IContext,
     connectionName?: string,

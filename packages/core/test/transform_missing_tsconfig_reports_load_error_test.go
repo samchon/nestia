@@ -19,6 +19,11 @@ import (
 //
 //  1. Run transform with --tsconfig pointing at a file that does not exist.
 //  2. Assert the exit code is 2.
+//
+// @evidence contracts/testing.md#behavioral-verification The transform dispatcher pointed at a nonexistent configuration must return usage/load exit 2 without panicking.
+// @evidence contracts/testing.md#independent-expectations No program can be loaded from the deliberately missing configuration, so the command protocol requires its load-error classification rather than success.
+// @evidence contracts/testing.md#distinguishing-cases This owns the missing-configuration negative; loadable programs and absent source selections are independently exercised by the output-selection and ordinary transform cases.
+// @evidence contracts/testing.md#execution-ownership The external core Go runner discovers this direct dispatch test; an empty t.TempDir establishes the missing input without installation or host startup.
 func TestTransformMissingTsconfigReportsLoadError(t *testing.T) {
 	temp := t.TempDir()
 	code := transform.Run([]string{

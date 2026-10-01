@@ -21,6 +21,11 @@ import (
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert the inferred success type still produces a metadata schema with the
 //     reflected property.
+//
+// @evidence contracts/testing.md#behavioral-verification An unannotated authored object return must reflect as an inferred __type containing its label field.
+// @evidence contracts/testing.md#independent-expectations TypeScript infers an anonymous object from the handwritten return expression; it has a label property independently of SDK metadata output.
+// @evidence contracts/testing.md#distinguishing-cases This owns inferred type/field presence; the inferred JavaScript build case owns empty imports and explicit-type reflection cases own named return types.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
 func TestSyntheticInferredReturnReflectsType(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 

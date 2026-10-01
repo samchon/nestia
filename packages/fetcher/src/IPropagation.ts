@@ -33,6 +33,10 @@
  * @author Jeongho Nam - https://github.com/samchon
  * @template StatusMap Map of status code and its body data type.
  * @template Success Default success status code.
+ * @evidence contracts/common.md#principled-implementation The union is built from a status map: each configured status becomes a branch whose success flag is true exactly for the configured success statuses (200 and 201 by default), and one extra branch of failure with unknown data covers statuses outside the map, so narrowing on `success` and `status` leaves no case unhandled.
+ * @evidence contracts/common.md#clear-and-simple-design One mapped type indexed into a union, plus the fallback branch.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment gives an example of narrowing and says which generated SDK option uses the type.
  */
 export type IPropagation<
   StatusMap extends {
@@ -55,6 +59,11 @@ export namespace IPropagation {
    * The special characters like `2XX`, `3XX`, `4XX`, `5XX` are meaning the
    * range of status codes. If `5XX` is specified, it means the status code is
    * in the range of `500` to `599`.
+   *
+   * @evidence contracts/common.md#principled-implementation A status is a number or one of the four range spellings, which is enough to configure both exact and ranged branches.
+   * @evidence contracts/common.md#clear-and-simple-design A single union.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment defines the range spellings.
    */
   export type Status = number | "2XX" | "3XX" | "4XX" | "5XX";
 
@@ -64,6 +73,11 @@ export namespace IPropagation {
    * `IPropagation.IBranch` is a branch type composing `IPropagation` type,
    * which is gathering all possible status codes and their body data types as a
    * union type.
+   *
+   * @evidence contracts/common.md#principled-implementation A branch pairs a literal success flag with the status, the data, and the headers, and turns a range spelling into the union of its integers, so a narrowed status is a number the caller can compare.
+   * @evidence contracts/common.md#clear-and-simple-design One record with a conditional on the status member.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment explains that it is the element of the propagation union.
    */
   export interface IBranch<Success extends boolean, StatusValue, BodyData> {
     success: Success;
@@ -76,7 +90,14 @@ export namespace IPropagation {
     headers: Record<string, string | string[]>;
   }
 
-  /** Range of status codes by the first digit, `"4XX"` for `400` to `499`. */
+  /**
+   * Range of status codes by the first digit, `"4XX"` for `400` to `499`.
+   *
+   * @evidence contracts/common.md#principled-implementation The first-digit spelling maps to the integers from its hundred up to the next hundred, computed by excluding a smaller enumeration from a larger one.
+   * @evidence contracts/common.md#clear-and-simple-design One conditional over the four spellings, using two private helper types.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment gives the range rule with an example.
+   */
   export type StatusRange<T extends "2XX" | "3XX" | "4XX" | "5XX"> =
     T extends "2XX"
       ? IntRange<200, 300>

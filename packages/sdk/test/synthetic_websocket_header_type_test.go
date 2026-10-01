@@ -26,6 +26,11 @@ import (
 //  2. Run the SDK metadata pass over them in-process.
 //  3. Assert each rejected parameter is reported with its type, and no accepted
 //     one is.
+//
+// @evidence contracts/testing.md#behavioral-verification SDK analysis must reject six unsendable header forms with their identifying reasons and avoid that rejection for eight supported header forms.
+// @evidence contracts/testing.md#independent-expectations WebSocket header transport permits undefined or object-like headers rather than null/scalars/unknown; the authored routes differ in the header type only and include a separately annotated Header parameter.
+// @evidence contracts/testing.md#distinguishing-cases Null, string, nullable, unknown, branded scalar and numeric decorator negatives contrast undefined, object, interface, any, never, Record, optional and intersection positives. The diagnostic-position case pins method locations.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticWebSocketHeaderType(t *testing.T) {
 	rejected := map[string]string{
 		"nullHeader":         "null",

@@ -53,6 +53,8 @@ export class OrdersController {
 
 The handler throws regular `NotFoundException` / `ConflictException` / etc. with the body shape that matches each `@TypedException`. The decorators **annotate** those shapes for downstream tooling.
 
+Only a decorator whose resolved declaration belongs to `@nestia/core` contributes exception metadata. Named aliases of direct `@nestia/core` imports, default imports and namespace imports are supported.
+
 ---
 
 ## What it changes

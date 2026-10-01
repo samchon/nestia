@@ -17,6 +17,11 @@ import (
 //  2. Transform it with a misspelled validate and a misspelled stringify.
 //  3. Assert the documented values exit 0 and the misspelled ones exit 3,
 //     naming the option and the value.
+//
+// @evidence contracts/testing.md#behavioral-verification Four supported option forms must succeed and three malformed forms must return exit 3 with their specific invalid-option text; silently accepting typos or rejecting valid modes fails.
+// @evidence contracts/testing.md#independent-expectations The supported validate/stringify union includes assertEquals, validatePrune, validate.log and null; assertEqual, assertX and true lie outside that public contract.
+// @evidence contracts/testing.md#distinguishing-cases The table covers supported aliases, null, near misspellings and a wrong primitive type; assertGuard has a dedicated rejection and runtime mode tests own helper behavior.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformPluginOptionValues(t *testing.T) {
 	const feature = "body"
 	run := func(config string) (string, int) {

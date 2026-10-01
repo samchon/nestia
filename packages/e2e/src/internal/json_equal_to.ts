@@ -1,3 +1,18 @@
+/**
+ * Compares two values through their JSON form and returns the accessors that
+ * differ.
+ *
+ * The comparison walks the keys of the first value, skipping keys whose value
+ * is `undefined` and keys the exception predicate accepts, so a key only the
+ * second value has is not a difference. Values with a `toJSON` are compared by
+ * it, functions are ignored, `null` differs from every object, and arrays must
+ * have the same length. An empty result means no difference.
+ *
+ * @evidence contracts/common.md#principled-implementation Each pair is first read through `toJSON`, then separated by type, by `null`, by array against non-array, and by key walking, so the differences are the accessors where the JSON values differ over the keys of the first value; reading through `toJSON` compares a `Date` by its instant instead of treating every two dates as equal.
+ * @evidence contracts/common.md#clear-and-simple-design One curried function with three inner walkers (value, array, object) that append to one accessor list.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The exception predicate is the caller's, and no key or type name is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the comparison rules and what the result means.
+ */
 export const json_equal_to =
   (exception: (key: string) => boolean) =>
   <T>(x: T) =>

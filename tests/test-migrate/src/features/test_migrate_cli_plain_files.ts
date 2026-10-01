@@ -15,6 +15,15 @@ import path from "path";
  * 1. Run the built CLI in NestJS mode on an empty document.
  * 2. Assert the api `.gitignore` and the backend `.env.local` are the template's
  *    lines, and a TypeScript file is still written.
+ *
+ * @evidence contracts/testing.md#behavioral-verification It runs the built executable in NestJS mode on an empty document and asserts the api `.gitignore` and the backend `.env.local` hold the template's lines while a TypeScript file is still written.
+ * @evidence contracts/testing.md#independent-expectations The expected lines are the template's own literal lines, which a `.gitignore` or `.env` file must keep, whatever a formatter would do to them as code.
+ * @evidence contracts/testing.md#distinguishing-cases Plain-text files and a TypeScript file are written by one run; the formatter must change the second and leave the first two as they are.
+ * @evidence contracts/testing.md#execution-ownership E2E: it runs in the E2E lane (`pnpm test:e2e`, the `test-migrate` suite), called by the suite entry `src/index.ts` after `nestia swagger` has generated the fixture document from a real project; the generated SDK and NestJS projects are compiled by `ttsc` in the same suite.
+ * @evidence contracts/e2e.md#necessary-boundary The formatting happens in the CLI's file writer, after generation and before the disk, so only a real run against the filesystem shows what reaches the files.
+ * @evidence contracts/e2e.md#shared-execution It is one child process on an empty document, sharing the suite's build.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Its output directory is temporary and removed afterwards.
+ * @evidence contracts/e2e.md#preserved-coverage The generated file set is unit-tested by the migrate tests in `test-unit`; this case keeps the on-disk content.
  */
 export const test_migrate_cli_plain_files = (): void => {
   const root: string = fs.mkdtempSync(

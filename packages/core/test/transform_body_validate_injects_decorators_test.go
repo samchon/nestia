@@ -16,6 +16,11 @@ import "testing"
 //  1. Point the body feature's own tsconfig at TypedBodyController.
 //  2. Call transform.Run with a @nestia/core validate/assert plugin and --out.
 //  3. Assert the injected decorator arguments appear in the emitted source.
+//
+// @evidence contracts/testing.md#behavioral-verification The body fixture transform must inject both the TypedRoute.Post and TypedBody object arguments and a validate-report helper; untouched decorators cannot satisfy these assertions.
+// @evidence contracts/testing.md#independent-expectations The body validate mode requires a report validator and response transformation. The handwritten controller supplies the route and body independently of the generated argument text.
+// @evidence contracts/testing.md#distinguishing-cases This pins injection and report-helper presence for validate. Other mode tests pin discriminator choices and the runtime batch checks valid, malformed, equality, clone and prune values.
+// @evidence contracts/testing.md#execution-ownership The core Go runner discovers this Test and invokes the native dispatcher in-process. The loaded fixture program and temporary emitted output exercise transformation without building or launching a native host; the generated-validator runtime batch owns installed-helper execution.
 func TestTransformBodyValidateInjectsDecorators(t *testing.T) {
 	out := transformFileToString(t, "body", "TypedBodyController.ts", "validate", "assert")
 	mustContainAll(t, out,

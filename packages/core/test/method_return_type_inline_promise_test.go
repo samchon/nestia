@@ -23,6 +23,11 @@ import (
 //  2. Visit both method declarations.
 //  3. Assert NestiaCoreMethodReturnType returns a type for each method without
 //     panicking.
+//
+// @evidence contracts/testing.md#behavioral-verification Both inline-object and generic-envelope Promise method declarations must be visited and yield non-nil return types without panicking.
+// @evidence contracts/testing.md#independent-expectations The fixture explicitly declares each Promise return type, so analysis must resolve a type for both named methods independently of generated schemas.
+// @evidence contracts/testing.md#distinguishing-cases Inline object and generic envelope spellings own the synthesized-symbol crash distinction; these assertions do not compare complete unwrapped type contents.
+// @evidence contracts/testing.md#execution-ownership The core Go runner discovers the case and loads an isolated source program in-process; traversal records both method names and defer closes the driver program.
 func TestMethodReturnTypeInlinePromise(t *testing.T) {
 	temp := t.TempDir()
 	writeFile(t, filepath.Join(temp, "tsconfig.json"), `{

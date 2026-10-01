@@ -2,7 +2,23 @@ import { NamingConvention } from "@typia/utils";
 
 import { StringUtil } from "../utils/StringUtil";
 
+/**
+ * Gives names to parameters that declare none, such as destructured ones.
+ *
+ * @evidence contracts/common.md#principled-implementation A missing name is derived from the field, camel-cased when it is not an identifier, or from the category, and then made unique against the names already taken.
+ * @evidence contracts/common.md#clear-and-simple-design One function, one record type, and one private candidate rule.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule is generic.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace ParameterNameAnalyzer {
+  /**
+   * A parameter to name: its current name, its category, and an optional field.
+   *
+   * @evidence contracts/common.md#principled-implementation The three members are the inputs of the naming rule.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   */
   export interface IParameter {
     name: string;
     category: string;
@@ -20,6 +36,11 @@ export namespace ParameterNameAnalyzer {
    * dropped in camel case, otherwise its category, such as `body` or `query`.
    * The name yields to every other parameter's, which are the user's and are
    * kept.
+   *
+   * @evidence contracts/common.md#principled-implementation The names in use are collected first, and each new name is escaped against them with underscores and added, so the result has no duplicates.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Existing names are never changed.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the rule.
    */
   export const name = <T extends IParameter>(parameters: T[]): T[] => {
     const taken: string[] = parameters

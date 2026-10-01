@@ -24,13 +24,22 @@ import { UPLOAD_DISK } from "../../UploadDisk";
  * 3. Upload through disk storage, and a disk upload whose fields fail validation;
  *    assert the handler read the file and the directory is empty.
  * 4. Assert a valid memory upload still succeeds through the SDK.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Both adapters must return exact413/400 statuses and selected multer/busboy/filter messages for six faults, accept/read disk bytes then leave no files on success or invalid fields, and retain a valid SDK memory upload returning3.
+ * @evidence contracts/testing.md#independent-expectations Authored limits/single-field/filter/typed count declarations distinguish client faults; explicit request contents establish disk text and byte length. Handwritten Nest/multer error messages and adapter-specific truncated-form messages are the error contract, not copied snapshots.
+ * @evidence contracts/testing.md#distinguishing-cases Oversize, repeated/unexpected field, missing boundary, truncated body and custom HttpException contrast error mapping; disk success/validation rejection contrast cleanup branches with a memory success twin on Express/Fastify.
+ * @evidence contracts/testing.md#execution-ownership The matching exported case is discovered and awaited by its actual feature entry after generation and consumer compilation. Type controls fail compilation and runtime assertions reject the report; empty discovery rejects the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Actual parsers, storage files, native field validation and HTTP exception mapping must connect. In-process error classification alone cannot prove status/message or disk cleanup after a request.
+ * @evidence contracts/e2e.md#shared-execution The suite prepares one packed dependency installation and compatible producer/runtime programs. These cases reuse the feature backend and their generated artifacts; distinct parser/adaptor setup remains authored per feature rather than starting another install/compiler.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each adapter uses its authored unique UPLOAD_DISK directory; requests run serially and inspect it immediately. The additional Fastify application owns listen/calls within try/finally. Upload directory lifetime beyond the feature process remains a fixture-module limitation; this case certifies file cleanup, not empty directory removal.
+ * @evidence contracts/e2e.md#preserved-coverage All retained requests, raw protocol/document reads, compile controls and accepted/rejected assertions remain in this executable case and its stated sibling owners. Shared preparation does not substitute setup success for those observations.
  */
 export const test_multipart_form_data_faults = async (
   connection: api.IConnection,
 ): Promise<void> => {
   const fastify: NestFastifyApplication = await Backend.fastify();
-  await fastify.listen(0, "127.0.0.1");
   try {
+    await fastify.listen(0, "127.0.0.1");
     for (const [adapter, host] of [
       ["express", connection.host],
       ["fastify", (await fastify.getUrl()).replace("[::1]", "127.0.0.1")],

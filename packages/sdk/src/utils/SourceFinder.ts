@@ -2,6 +2,14 @@ import fs from "fs";
 import { glob } from "glob";
 import path from "path";
 
+/**
+ * Finds source files by path, directory, or glob.
+ *
+ * @evidence contracts/common.md#principled-implementation Each pattern is resolved to files or directories, directories are walked, the filter is applied to files, and the excluded set is subtracted.
+ * @evidence contracts/common.md#clear-and-simple-design Three public functions and private walkers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The filter is the caller's.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace SourceFinder {
   interface IProps {
     exclude?: string[];
@@ -9,6 +17,15 @@ export namespace SourceFinder {
     filter: (location: string) => Promise<boolean>;
   }
 
+  /**
+   * Returns the files matched by the include patterns and not by the exclude
+   * patterns and accepted by the filter.
+   *
+   * @evidence contracts/common.md#principled-implementation A TypeScript file that exists is taken as it is, every other pattern is expanded, and the exclusion runs the same collection removing instead of adding.
+   * @evidence contracts/common.md#clear-and-simple-design One function that runs the collection twice.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The result follows the patterns and the filter.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const find = async (props: IProps): Promise<string[]> => {
     const dict: Set<string> = new Set();
 
@@ -59,6 +76,11 @@ export namespace SourceFinder {
    * a pattern, the longest existing ancestor is the literal base and only the
    * rest is globbed, with `/` separators, since glob reads a Windows backslash
    * as an escape.
+   *
+   * @evidence contracts/common.md#principled-implementation The wildcard part is matched below the part of the path that exists, and a base that does not exist matches nothing.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It follows the filesystem.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the two cases.
    */
   export const expand = async (pattern: string): Promise<string[]> => {
     const absolute: string = path.resolve(pattern);
@@ -80,6 +102,15 @@ export namespace SourceFinder {
   const _Is_file = (pattern: string): boolean =>
     isTypeScriptSource(pattern) && fs.existsSync(pattern);
 
+  /**
+   * Reports whether a file is a TypeScript source: an extension of `ts`, `mts`,
+   * or `cts` that is not a declaration file.
+   *
+   * @evidence contracts/common.md#principled-implementation The check is on the lower-cased name, and declaration files are excluded because they hold no runtime code.
+   * @evidence contracts/common.md#clear-and-simple-design One expression.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is by extension.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the accepted extensions.
+   */
   export const isTypeScriptSource = (file: string): boolean => {
     const lower: string = file.toLowerCase();
     return (

@@ -6,7 +6,36 @@ import type {
 } from "@typia/interface";
 import * as fs from "fs";
 
+import { NESTIA_EDITOR_DEFAULT_PACKAGE } from "./internal/NestiaEditorDefaultPackage";
+
+/**
+ * Serves the editor from a NestJS application.
+ *
+ * Call {@link setup} before `listen()` to expose the editor page, its bundle,
+ * and the OpenAPI document under a path of the application.
+ *
+ * @evidence contracts/common.md#principled-implementation The module registers static routes on the application's own HTTP adapter, so the editor needs no second server.
+ * @evidence contracts/common.md#clear-and-simple-design One namespace with one entry point; asset reading and location resolution stay in module-private helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The routes use the adapter's public `get` method, and the one read of NestJS internals is the global prefix, described at `setup`.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the entry point and that it must run before `listen()`.
+ */
 export namespace NestiaEditorModule {
+  /**
+   * Registers the editor routes on a NestJS application.
+   *
+   * The routes are `<prefix>/index.html`, the bundle under `<prefix>/assets/`,
+   * `<prefix>/swagger.json`, and redirects from `<prefix>` and `<prefix>/` to
+   * the page, where the prefix joins the application's global prefix and
+   * `path`. A document given as an object is served as is. A document given by
+   * location is fetched on the first request, after `listen()`, because a path
+   * is resolved against the address the application listens on, and the fetched
+   * document is cached; a failed fetch answers 502 and is not cached.
+   *
+   * @evidence contracts/common.md#principled-implementation The prefix is built by joining the global prefix and the path and dropping empty segments, so slashes never double; the static files are read once at setup, and the swagger route is lazy for a location because the listening address, which relative locations need, does not exist before `listen()`.
+   * @evidence contracts/common.md#clear-and-simple-design One function performs the registration; reading the built page and bundle, reading the global prefix, and resolving a location are separate module-private helpers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts NestJS exposes no public getter for the global prefix, so `getGlobalPrefix` reads the internal `config.globalPrefix` and falls back to an empty prefix when it is absent; this is the single foreign-internal read, kept as a stated limitation rather than replaced by a shadow copy of the prefix.
+   * @evidence contracts/common.md#meaningful-documentation The comment lists the routes, the prefix rule, and when a location is fetched and cached.
+   */
   export const setup = async (props: {
     path: string;
     application: INestApplication;
@@ -115,8 +144,8 @@ const getIndex = async (props: {
   );
   return content
     .replace(
-      `"@ORGANIZATION/PROJECT"`,
-      JSON.stringify(props.package ?? "@ORGANIZATION/PROJECT"),
+      JSON.stringify(NESTIA_EDITOR_DEFAULT_PACKAGE),
+      JSON.stringify(props.package ?? NESTIA_EDITOR_DEFAULT_PACKAGE),
     )
     .replace("window.simulate = false", `window.simulate = ${!!props.simulate}`)
     .replace("window.e2e = false", `window.e2e = ${!!props.e2e}`);

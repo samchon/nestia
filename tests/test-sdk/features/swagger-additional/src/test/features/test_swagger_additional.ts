@@ -16,6 +16,15 @@ import { OpenApi } from "typia";
  *
  * 1. Read the operation from the generated document and assert each extension.
  * 2. Downgrade to 3.1, 3.0, and 2.0 and assert the extensions survive.
+ *
+ * @evidence contracts/testing.md#behavioral-verification additional:true must emit GET, bbs.articles.at and exact deprecated/tag names in the native document and3.1/3.0/2.0 downgrades.
+ * @evidence contracts/testing.md#independent-expectations Authored route method/accessor/JSDoc tags establish handwritten expectations. The installed downgrader is an actual compatibility boundary, not the source of these expected values.
+ * @evidence contracts/testing.md#distinguishing-cases Four versions retain identical selected vendor extensions; the2.0 input removes only the unsupported placeholder server description.
+ * @evidence contracts/testing.md#execution-ownership The matching test_swagger_additional export is discovered and awaited by its feature executor after native generation and emitted consumer execution; a failed assertion rejects its report and zero discovery fails the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Actual controller decorators/JSDoc/type metadata and final SDK or Swagger printing must connect through the native producer and installed generator. Isolated hand-constructed schema tests cannot certify these authored metadata inputs reach serialized output.
+ * @evidence contracts/e2e.md#shared-execution The swagger-additional siblings consume one generated artifact population and share packed installation, compatible producer/runtime compilation and their entry-owned backend. These file/metadata assertions launch no compiler or application of their own.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each downgrade starts from a fresh JSON copy of this feature’s document, so2.0 server normalization cannot affect other versions or siblings. Local validation retains no state; the harness owns copied outputs.
+ * @evidence contracts/e2e.md#preserved-coverage All test_swagger_additional selected flags, text, example shapes, visibility or method-key controls above remain in this executed owner. Compatible preparation sharing neither removes them nor substitutes compiler success for their assertions.
  */
 export const test_swagger_additional = async (): Promise<void> => {
   const validate = (title: string, document: any): void => {

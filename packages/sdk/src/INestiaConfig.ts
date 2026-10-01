@@ -5,6 +5,10 @@ import type { OpenApi } from "typia";
  * Definition for the `nestia.config.ts` file.
  *
  * @author Jeongho Nam - https://github.com/samchon
+ * @evidence contracts/common.md#principled-implementation The input names the controllers to analyze and every optional property enables or refines one output (SDK, distribution, e2e, Swagger), so one configuration file drives every generator.
+ * @evidence contracts/common.md#clear-and-simple-design A flat record whose nested types describe the input and the Swagger options.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation Every property documents its meaning and default, which are the public contract of the configuration file.
  */
 export interface INestiaConfig {
   /**
@@ -151,6 +155,11 @@ export namespace INestiaConfig {
   /**
    * List of files or directories to include or exclude to specifying the NestJS
    * controllers.
+   *
+   * @evidence contracts/common.md#principled-implementation Include lists select controller files or directories and exclude lists remove files from that selection.
+   * @evidence contracts/common.md#clear-and-simple-design A two-member record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
    */
   export interface IInput {
     /** List of files or directories containing the NestJS controller classes. */
@@ -160,7 +169,14 @@ export namespace INestiaConfig {
     exclude?: string[];
   }
 
-  /** Building `swagger.json` is also possible. */
+  /**
+   * Building `swagger.json` is also possible.
+   *
+   * @evidence contracts/common.md#principled-implementation The output path is required and every other option refines the composed OpenAPI document before it is written.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record of options with one callback.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   */
   export interface ISwaggerConfig {
     /**
      * Response path of the `swagger.json`.
@@ -265,6 +281,10 @@ export namespace INestiaConfig {
      *
      * @param props Properties of the API endpoint.
      * @returns Operation ID.
+     * @evidence contracts/common.md#principled-implementation The callback is invoked once per composed operation with the four facts that identify it, so the identifier can follow any naming convention; an `@operationId` tag of the function takes precedence when present.
+     * @evidence contracts/common.md#clear-and-simple-design One optional callback with a single argument object.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a caller-supplied function and nothing about a particular naming scheme is built in.
+     * @evidence contracts/common.md#meaningful-documentation The comment documents the arguments and the result.
      */
     operationId?(props: {
       class: string;

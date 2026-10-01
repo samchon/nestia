@@ -2,7 +2,9 @@ const cp = require("child_process");
 const fs = require("fs");
 const Module = require("module");
 const path = require("path");
+const vm = require("vm");
 const { TtscCompiler } = require("ttsc");
+const { prepare } = require("../test-sdk/consumer.cjs");
 
 const ROOT = path.resolve(__dirname, "../..");
 const LIB = path.join(__dirname, "lib");
@@ -40,113 +42,64 @@ const STRINGIFY_CASES = [
   [null, null],
 ];
 
-const LLM_CASES = ["llm-body", "llm-query", "llm-route"];
-
-const main = () => {
+/**
+ * Verifies the installed ttsc wrapper and shared generated-validator runtime.
+ *
+ * Native rule-only diagnostics live in Go unit tests. This entry retains the
+ * wrapper seams that those direct calls cannot exercise.
+ *
+ * 1. Emit and evaluate the complete option runtime batch once.
+ * 2. Verify version rejection, disabled/noEmit handling, fallback HTTP,
+ *    programmatic dependency envelopes and the supported v11 plugin list.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Named cases assert real compiler rejection reasons, disabled decorator arguments, noEmit LLM diagnostics, manual fallback HTTP behavior, transformed dependency envelopes and the v11 list's single metadata attachment. The Go boundary supplies all generated option runtime checks.
+ * @evidence contracts/testing.md#independent-expectations Supported compiler options, authored DTOs/dependency edges and decorator runtime protocols establish the assertions; version rejection uses the actual installed wrapper and fixture manifest. The verifier's literal mode table and authored values independently judge generated helpers.
+ * @evidence contracts/testing.md#distinguishing-cases Version mismatch, disabled host, noEmit invalid return, manual fallback, related/unrelated declaration edges and the legacy list retain named failure identities. Strict rule variants execute in TestBuildLlmStrictDiagnosticCases rather than additional wrapper launches.
+ * @evidence contracts/testing.md#execution-ownership The workspace start command invokes this exported JavaScript main. The native E2E module emits nineteen fixtures in one Go test process and calls the separately exported verifyOptions once; private named callbacks remain reviewed through this selected entry.
+ * @evidence contracts/e2e.md#necessary-boundary Wrapper resolution/filtering, installed plugin version checks, noEmit reporting, fallback server transport and programmatic compiler side channels require their actual components; direct native rule calls cannot establish these wrapper/HTTP connections.
+ * @evidence contracts/e2e.md#shared-execution Ten validator modes, six serializers, aliases and two native-identity fixtures share one compiled Go process and one Node verifier. Distinct wrapper plugin/version/noEmit states still require separate actual compiler requests; these remaining requests are an explicit preparation cost.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each compiler request has named project/output files, native batch outputs belong to its temporary directory, and the local VM decorator probe resolves real helpers without changing the global loader. Fallback HTTP runs plain Node against freshly packed, installed packages without workspace resolution hooks and finally removes that owned installation; its server closes its socket. Version checks author isolated fixture manifests and finally remove their external temporary root without editing installed package state.
+ * @evidence contracts/e2e.md#preserved-coverage Validator-family, equality/clone/prune, valid/malformed body, header/param/query argument, serializer, alias and Blob assertions remain in verifyOptions. Pure strict LLM rules retain exact diagnostic/positive controls in Go; actual disabled and noEmit wrapper assertions remain here.
+ */
+const main = async () => {
+  const failures = [];
+  const runCase = async (name, task) => {
+    const started = Date.now();
+    try {
+      await task();
+    } catch (error) {
+      failures.push(name);
+      console.error(name, error);
+    } finally {
+      console.log(`${name}: ${(Date.now() - started).toLocaleString()} ms`);
+    }
+  };
   fs.rmSync(LIB, { recursive: true, force: true });
   fs.mkdirSync(LIB, { recursive: true });
 
-  measure("validate options", () => {
-    for (const [option, expectedType] of VALIDATE_CASES) {
-      const file = compile({
-        name: `validate-${option}`,
-        source: "validate",
-        plugin: { validate: option },
-      });
-      const captured = load(file);
-      const body = first(captured.TypedBody)?.[0];
-      assert(body?.type === expectedType, `${option}: wrong body validator`);
-      assertValidate(option, body);
-
-      // Headers intentionally collapse the ten body modes to assert, is, and
-      // validate. Their HTTP decoder creates a fresh object, so clone, prune,
-      // and equals do not carry body-validator semantics.
-      const headers = first(captured.TypedHeaders)?.[0];
-      const expectedHeaderType =
-        option === "is" || option === "equals"
-          ? "is"
-          : option.startsWith("validate")
-            ? "validate"
-            : "assert";
-      assert(
-        headers?.type === expectedHeaderType,
-        `${option}: wrong headers validator (got ${headers?.type}, expected ${expectedHeaderType})`,
-      );
-
-      const param = first(captured.TypedParam);
-      const expectValidateParam = option.startsWith("validate");
-      assert(
-        (param?.[2] === true) === expectValidateParam,
-        `${option}: wrong TypedParam validation flag`,
-      );
-
-      // TypedQuery shares the assert/is/validate routing with TypedBody but
-      // collapses Clone/Prune variants onto the base assert/validate paths
-      // (see nestiaCoreGenerateTypedQuery in core_transform.go). Asserting
-      // the captured type per mode locks the same routing table integration
-      // tests cannot otherwise reach.
-      const query = first(captured.TypedQuery)?.[0];
-      assert(
-        query?.type === expectedType,
-        `${option}: wrong TypedQuery validator (got ${query?.type}, expected ${expectedType})`,
-      );
-    }
+  await runCase("option runtime batch", () => {
+    const result = cp.spawnSync(
+      process.env.TTSC_GO_BINARY ?? "go",
+      ["test", "-count=1", "-v", "./..."],
+      {
+        cwd: path.join(__dirname, "native"),
+        encoding: "utf8",
+        env: { ...process.env, NESTIA_OPTIONS_NODE: NODE },
+      },
+    );
+    if (result.error !== undefined) throw result.error;
+    assert(
+      result.status === 0,
+      `option runtime batch failed (exit ${result.status})\n${result.stdout}\n${result.stderr}`,
+    );
+    process.stdout.write(result.stdout ?? "");
   });
 
-  measure("stringify options", () => {
-    for (const [option, expectedType] of STRINGIFY_CASES) {
-      const file = compile({
-        name: `stringify-${option ?? "null"}`,
-        source: "stringify",
-        plugin: { stringify: option },
-      });
-      const captured = load(file);
-      const route = first(captured["TypedRoute.Get"])?.[0];
-      if (expectedType === null) assert(route === null, "null stringify failed");
-      else
-        assert(
-          route?.type === expectedType,
-          `${option}: wrong response stringifier`,
-        );
-    }
-  });
+  await runCase("typia version guard", typiaVersionGuard);
 
-  measure("typia version guard", typiaVersionGuard);
-
-  measure("llm strict diagnostics", () => {
-    for (const source of LLM_CASES)
-      compile({
-        name: source,
-        source,
-        plugin: { llm: { strict: true } },
-        fail: true,
-        expectedDiagnostics:
-          source === "llm-route"
-            ? [
-                "src/llm-route.ts:11:4 - error TS(nestia.core.TypedRoute): unsupported type detected",
-                "- IArticle.weak: WeakMap",
-                "- LLM schema does not support WeakMap type.",
-              ]
-            : undefined,
-      });
-  });
-
-  measure("llm route no-emit diagnostics", () => {
-    compile({
-      name: "llm-route-no-emit",
-      source: "llm-route",
-      plugin: { llm: true },
-      noEmit: true,
-      fail: true,
-      expectedDiagnostics: [
-        "src/llm-route.ts:11:4 - error TS(nestia.core.TypedRoute): unsupported type detected",
-        "- IArticle.weak: WeakMap",
-        "- LLM schema does not support WeakMap type.",
-      ],
-    });
-  });
-
-  measure("disabled transform", () => {
+  // enabled is resolved by ttsc before constructing the native payload, so
+  // disabling the host must retain a real wrapper connection test.
+  await runCase("disabled transform", () => {
     const file = compile({
       name: "disabled",
       source: "disabled",
@@ -163,7 +116,24 @@ const main = () => {
     );
   });
 
-  measure("no-transform fallbacks", noTransformFallbacks);
+  // Strict rule semantics are owned by TestBuildLlmStrictDiagnosticCases.
+  // Retain one real ttsc noEmit connection rather than one host per rule.
+  await runCase("llm route no-emit diagnostics", () => {
+    compile({
+      name: "llm-route-no-emit",
+      source: "llm-route",
+      plugin: { llm: true },
+      noEmit: true,
+      fail: true,
+      expectedDiagnostics: [
+        "src/llm-route.ts:11:4 - error TS(nestia.core.TypedRoute): unsupported type detected",
+        "- IArticle.weak: WeakMap",
+        "- LLM schema does not support WeakMap type.",
+      ],
+    });
+  });
+
+  await runCase("no-transform fallbacks", noTransformFallbacks);
 
   // The transform envelope, read through ttsc's own programmatic API rather
   // than the CLI. Every other case here reads the *emitted JavaScript*, so none
@@ -174,7 +144,7 @@ const main = () => {
   // erases `import type` from its own module graph, so without `graph` nothing
   // connects `controller.ts`'s generated validator to the DTO in `dto.ts`, and a
   // kept filesystem cache replays the stale module after that type changes.
-  measure("transform envelope graph", () => {
+  await runCase("transform envelope graph", () => {
     const result = transformEnvelope();
     assert(
       result.type === "success",
@@ -261,83 +231,13 @@ const main = () => {
   // its members to an `instanceof` check, so a purely user-authored global is
   // validated by a constructor that need not exist at runtime -- a
   // `ReferenceError` where the members would have been checked.
-  measure("user-authored global keeps its members", () => {
-    const user = loadRaw(
-      compile({
-        name: "native-global-user",
-        source: "native-global/user",
-        plugin: {},
-        // No DOM, no `@types`, so this program's only `Blob` is the one
-        // `lib.custom.d.ts` declares beside it.
-        compilerOptions: { lib: ["ESNext"], types: [] },
-        include: [
-          "../src/native-global/lib.custom.d.ts",
-          "../src/native-global/user.ts",
-        ],
-      }),
-    );
-    assert(
-      user.check({ blob: { customField: "x" } }) === true,
-      "a user-authored global Blob was not validated structurally",
-    );
-    assert(
-      user.check({ blob: {} }) === false,
-      "a user-authored global Blob accepted a value missing its member",
-    );
-
-    // The one-axis twin: same type name, same shape of use, real provenance.
-    // `Blob` from `lib.dom.d.ts` is a runtime authority, so it must keep
-    // native identity and reject a structural lookalike.
-    const runtime = loadRaw(
-      compile({
-        name: "native-global-runtime",
-        source: "native-global/runtime",
-        plugin: {},
-        compilerOptions: { lib: ["ESNext", "DOM"], types: [] },
-      }),
-    );
-    assert(
-      runtime.check({ blob: { customField: "x" } }) === false,
-      "a real DOM Blob lost its native identity to a structural check",
-    );
-    assert(
-      runtime.check({ blob: new Blob([]) }) === true,
-      "a real DOM Blob rejected an actual Blob instance",
-    );
-  });
-
-  measure("aliased core imports", () => {
-    const file = compile({
-      name: "aliases",
-      source: "aliases",
-      plugin: { validate: "validate" },
-    });
-    const captured = load(file);
-    assert(
-      first(captured.TypedBody)?.[0]?.type === "validate",
-      "aliased TypedBody was not transformed",
-    );
-    assert(
-      first(captured.TypedParam)?.[2] === true,
-      "aliased TypedParam did not receive validation flag",
-    );
-    assert(
-      first(captured.TypedQuery)?.[0]?.type === "validate",
-      "aliased TypedQuery was not transformed",
-    );
-    assert(
-      first(captured["TypedRoute.Post"])?.[1]?.type === "assert",
-      "aliased TypedRoute.Post was not transformed",
-    );
-  });
-
   // The three plugin entries nestia v11 documented. `@nestia/core/lib/transform`
   // resolves to the native descriptor, so ttsc deduplicates it with the entry
   // the package manifest registers and composes typia into one host; with a
   // descriptor of its own it built a second native host and ttsc refused the
   // emit (#1690). The options still apply, and the SDK entry still attaches its
   // metadata once per route, as v11 did.
-  measure("v11 plugin list", () => {
+  await runCase("v11 plugin list", () => {
     const file = compile({
       name: "v11-plugins",
       source: "validate",
@@ -361,12 +261,18 @@ const main = () => {
       "the v11 plugin list lost its stringify option",
     );
     const metadata =
-      fs.readFileSync(file, "utf8").match(/\.OperationMetadata\(/g)?.length ?? 0;
+      fs.readFileSync(file, "utf8").match(/\.OperationMetadata\(/g)?.length ??
+      0;
     assert(
-      metadata === captured["TypedRoute.Post"].length + captured["TypedRoute.Get"].length,
+      metadata ===
+        captured["TypedRoute.Post"].length + captured["TypedRoute.Get"].length,
       `the v11 plugin list attached ${metadata} SDK metadata decorators`,
     );
   });
+  if (failures.length !== 0)
+    throw new Error(
+      `Failed transform wrapper boundaries: ${failures.join(", ")}`,
+    );
 };
 
 // Envelope keys are project-relative slash paths, and `projectRoot` below
@@ -405,18 +311,14 @@ const compile = (props) => {
   const project = writeProject(props);
   const args = [TTSC, "--cache-dir", CACHE, "-p", project];
   if (props.noEmit === true) args.push("--noEmit");
-  const result = cp.spawnSync(
-    NODE,
-    args,
-    {
-      cwd: __dirname,
-      encoding: "utf8",
-      env: {
-        ...process.env,
-        TTSC_CACHE_DIR: CACHE,
-      },
+  const result = cp.spawnSync(NODE, args, {
+    cwd: __dirname,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      TTSC_CACHE_DIR: CACHE,
     },
-  );
+  });
   // A compiler that never started is not a compiler that rejected the input.
   // Check this before the `fail: true` branch, or a spawn failure would satisfy
   // every expected-failure case and the suite would pass vacuously.
@@ -427,10 +329,8 @@ const compile = (props) => {
   if (props.fail === true) {
     if (result.status === 0)
       throw new Error(`${props.name}: compilation was expected to fail.`);
-    const diagnostics = `${result.stdout ?? ""}\n${result.stderr ?? ""}`.replaceAll(
-      "\\",
-      "/",
-    );
+    const diagnostics =
+      `${result.stdout ?? ""}\n${result.stderr ?? ""}`.replaceAll("\\", "/");
     for (const expected of props.expectedDiagnostics ?? [])
       assert(
         diagnostics.includes(expected),
@@ -492,11 +392,17 @@ const typiaVersionGuard = () => {
     plugin.hostInputs.some((file) => file.startsWith(matching)),
     "typia guard: the project's typia manifest is not watched",
   );
-  descriptor({
-    projectRoot: fs.mkdtempSync(
-      path.join(require("os").tmpdir(), "nestia-typia-"),
-    ),
-  });
+  const temporaryParent = path.resolve(require("os").tmpdir());
+  const externalRoot = fs.mkdtempSync(
+    path.join(temporaryParent, "nestia-typia-"),
+  );
+  try {
+    descriptor({ projectRoot: externalRoot });
+  } finally {
+    if (path.dirname(path.resolve(externalRoot)) !== temporaryParent)
+      throw new Error("Version fixture escaped its temporary parent.");
+    fs.rmSync(externalRoot, { recursive: true, force: true });
+  }
   const mismatched = project("typia-mismatch", other);
   let message = "";
   try {
@@ -554,19 +460,27 @@ const typiaVersionGuard = () => {
 // headers object, the query and form-urlencoded body with repeated keys as
 // arrays, and the multipart fields and files. The headers used to arrive as an
 // array of entries, and the urlencoded and multipart bodies threw.
-const noTransformFallbacks = () => {
+const noTransformFallbacks = async () => {
   const file = compile({
     name: "fallbacks",
     source: "fallbacks",
     plugin: { enabled: false },
   });
-  // plain node cannot load the workspace manifests' TypeScript entries, so
-  // @nestia/* requests are served from the packages' built lib/
-  const result = cp.spawnSync(
-    NODE,
-    ["-r", path.join(__dirname, "built-packages.cjs"), file],
-    { cwd: __dirname, encoding: "utf8" },
-  );
+  // Plain Node resolves the actual installed tarballs and their dependencies.
+  const consumer = await prepare();
+  let result;
+  try {
+    const entry = path.join(consumer.directory, "fallbacks.cjs");
+    fs.copyFileSync(file, entry);
+    result = cp.spawnSync(NODE, [entry], {
+      cwd: consumer.directory,
+      encoding: "utf8",
+      windowsHide: true,
+      env: { ...process.env, NODE_PATH: "" },
+    });
+  } finally {
+    consumer.close();
+  }
   if (result.error !== undefined) throw result.error;
   assert(
     result.status === 0,
@@ -651,7 +565,8 @@ const load = (file) => {
     "TypedRoute.Get": [],
     "TypedRoute.Post": [],
   };
-  const decorator = (key) =>
+  const decorator =
+    (key) =>
     (...args) => {
       captured[key].push(args);
       return () => undefined;
@@ -674,15 +589,22 @@ const load = (file) => {
       OperationMetadata: () => () => undefined,
     },
   };
-  const original = Module._load;
-  Module._load = (request, parent, isMain) =>
-    modules[request] ?? original.call(Module, request, parent, isMain);
-  try {
-    delete require.cache[file];
-    require(file);
-  } finally {
-    Module._load = original;
-  }
+  // Evaluate the generated fixture with an explicit local decorator probe.
+  // Its validator helper imports use Node's real resolver; no global loader
+  // or dependency object is replaced. Real decorator/HTTP assembly is owned
+  // by the fallback and SDK boundary tests, not this generator probe.
+  const resolve = Module.createRequire(file);
+  const fixture = { exports: {} };
+  const wrapper = new vm.Script(Module.wrap(fs.readFileSync(file, "utf8")), {
+    filename: file,
+  }).runInThisContext();
+  wrapper(
+    fixture.exports,
+    (request) => modules[request] ?? resolve(request),
+    fixture,
+    file,
+    path.dirname(file),
+  );
   return captured;
 };
 
@@ -698,16 +620,42 @@ const loadRaw = (file) => {
 const assertValidate = (option, validator) => {
   const valid = () => ({ title: "title", count: 1 });
   const extra = () => ({ ...valid(), extra: "x" });
+  const invalid = () => ({ title: "title", count: "wrong" });
+  if (option === "is" || option === "equals") {
+    assert(validator.is(valid()), `${option}: rejected valid input`);
+    assert(!validator.is(invalid()), `${option}: accepted wrong property type`);
+  } else if (option.startsWith("validate")) {
+    assert(
+      validator.validate(valid()).success,
+      `${option}: rejected valid input`,
+    );
+    assert(
+      !validator.validate(invalid()).success,
+      `${option}: accepted wrong property type`,
+    );
+  } else {
+    validator.assert(valid());
+    assertThrows(
+      () => validator.assert(invalid()),
+      `${option}: accepted wrong property type`,
+    );
+  }
   if (option === "assert") validator.assert(extra());
   else if (option === "is") assert(validator.is(extra()), "is rejected extra");
   else if (option === "validate")
     assert(validator.validate(extra()).success, "validate rejected extra");
   else if (option === "assertEquals")
-    assertThrows(() => validator.assert(extra()), "assertEquals accepted extra");
+    assertThrows(
+      () => validator.assert(extra()),
+      "assertEquals accepted extra",
+    );
   else if (option === "equals")
     assert(!validator.is(extra()), "equals accepted extra");
   else if (option === "validateEquals")
-    assert(!validator.validate(extra()).success, "validateEquals accepted extra");
+    assert(
+      !validator.validate(extra()).success,
+      "validateEquals accepted extra",
+    );
   else if (option === "assertClone") {
     const input = extra();
     const output = validator.assert(input);
@@ -755,4 +703,160 @@ const measure = (title, task) => {
   console.log(`  - ${title}: ${elapsed.toLocaleString()} ms`);
 };
 
-main();
+/**
+ * Verifies the nineteen generated runtime fixtures in one Node process.
+ *
+ * A local decorator probe captures emitted arguments while resolving actual
+ * installed typia helpers. Native identity cases execute their real exports.
+ *
+ * 1. Validate mode arguments and body acceptance, rejection and mutation.
+ * 2. Compare serializer/alias arguments and structural versus native Blob values.
+ * 3. Aggregate every named failure so later modes still execute.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The verifier executes generated body validators against valid, malformed and extra-field values, checks equality/clone/prune effects and every decorator-family discriminator/flag, and evaluates structural/native Blob predicates. Serializer cases inspect generated arguments rather than asserting all serializer internals.
+ * @evidence contracts/testing.md#independent-expectations The literal supported-mode table, authored body DTO and submitted object identities establish expected results. User Blob requires its customField while DOM Blob requires an actual instance; expected values are not generated from transformer output.
+ * @evidence contracts/testing.md#distinguishing-cases Ten validator modes contrast ordinary/equality/clone/prune behavior, malformed versus valid values and headers/query/parameter mode routing; six serializer states include null. Aliased imports and the same Blob name under user/DOM provenance pin adjacent identity controls.
+ * @evidence contracts/testing.md#execution-ownership The single native E2E test invokes this exported verifier through --verify-options after emitting its fixtures; main delegates that boundary once. Per-mode runCase retains failure names and catches assertion failures while unrelated modes continue.
+ * @evidence contracts/e2e.md#necessary-boundary This connects native emitted JavaScript with installed typia runtime helpers and Node native constructors; text-only unit transform assertions cannot detect incompatible helper execution or lost native identity.
+ * @evidence contracts/e2e.md#shared-execution Every generated option, alias and identity fixture is evaluated in this one process after the single native Go batch. No compiler, installation or server is started by the verifier.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each mode loads its own generated output into a module-local VM probe, creates fresh asserted objects and retains no global loader override; temporary outputs are owned and removed by the Go batch. Native identity controls load separate real exports.
+ * @evidence contracts/e2e.md#preserved-coverage All original mode arguments and body equality/clone/prune distinctions remain, with added valid/malformed body controls, alias checks and both Blob identities. Wrapper disabled/noEmit/version and HTTP fallback assertions retain their main-entry owners.
+ */
+const verifyOptions = (output) => {
+  const failures = [];
+  const runCase = (name, task) => {
+    try {
+      task();
+    } catch (error) {
+      failures.push(
+        `${name}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  };
+  measure("validate options", () => {
+    for (const [option, expectedType] of VALIDATE_CASES) {
+      runCase(`validate-${option}`, () => {
+        const file = path.join(output, `validate-${option}`, "validate.js");
+        const captured = load(file);
+        const body = first(captured.TypedBody)?.[0];
+        assert(body?.type === expectedType, `${option}: wrong body validator`);
+        assertValidate(option, body);
+
+        // Headers intentionally collapse the ten body modes to assert, is, and
+        // validate. Their HTTP decoder creates a fresh object, so clone, prune,
+        // and equals do not carry body-validator semantics.
+        const headers = first(captured.TypedHeaders)?.[0];
+        const expectedHeaderType =
+          option === "is" || option === "equals"
+            ? "is"
+            : option.startsWith("validate")
+              ? "validate"
+              : "assert";
+        assert(
+          headers?.type === expectedHeaderType,
+          `${option}: wrong headers validator (got ${headers?.type}, expected ${expectedHeaderType})`,
+        );
+
+        const param = first(captured.TypedParam);
+        const expectValidateParam = option.startsWith("validate");
+        assert(
+          (param?.[2] === true) === expectValidateParam,
+          `${option}: wrong TypedParam validation flag`,
+        );
+
+        // TypedQuery shares the assert/is/validate routing with TypedBody but
+        // collapses Clone/Prune variants onto the base assert/validate paths
+        // (see nestiaCoreGenerateTypedQuery in core_transform.go). Asserting
+        // the captured type per mode locks the same routing table integration
+        // tests cannot otherwise reach.
+        const query = first(captured.TypedQuery)?.[0];
+        assert(
+          query?.type === expectedType,
+          `${option}: wrong TypedQuery validator (got ${query?.type}, expected ${expectedType})`,
+        );
+      });
+    }
+  });
+
+  measure("stringify options", () => {
+    for (const [option, expectedType] of STRINGIFY_CASES) {
+      runCase(`stringify-${option ?? "null"}`, () => {
+        const file = path.join(
+          output,
+          `stringify-${option ?? "null"}`,
+          "stringify.js",
+        );
+        const captured = load(file);
+        const route = first(captured["TypedRoute.Get"])?.[0];
+        if (expectedType === null)
+          assert(route === null, "null stringify failed");
+        else
+          assert(
+            route?.type === expectedType,
+            `${option}: wrong response stringifier`,
+          );
+      });
+    }
+  });
+
+  runCase("user-authored global keeps its members", () => {
+    const user = loadRaw(
+      path.join(output, "native-global-user", "native-global/user.js"),
+    );
+    assert(
+      user.check({ blob: { customField: "x" } }) === true,
+      "a user-authored global Blob was not validated structurally",
+    );
+    assert(
+      user.check({ blob: {} }) === false,
+      "a user-authored global Blob accepted a value missing its member",
+    );
+
+    // The one-axis twin: same type name, same shape of use, real provenance.
+    // `Blob` from `lib.dom.d.ts` is a runtime authority, so it must keep
+    // native identity and reject a structural lookalike.
+    const runtime = loadRaw(
+      path.join(output, "native-global-runtime", "native-global/runtime.js"),
+    );
+    assert(
+      runtime.check({ blob: { customField: "x" } }) === false,
+      "a real DOM Blob lost its native identity to a structural check",
+    );
+    assert(
+      runtime.check({ blob: new Blob([]) }) === true,
+      "a real DOM Blob rejected an actual Blob instance",
+    );
+  });
+
+  runCase("aliased core imports", () => {
+    const file = path.join(output, "aliases", "aliases.js");
+    const captured = load(file);
+    assert(
+      first(captured.TypedBody)?.[0]?.type === "validate",
+      "aliased TypedBody was not transformed",
+    );
+    assert(
+      first(captured.TypedParam)?.[2] === true,
+      "aliased TypedParam did not receive validation flag",
+    );
+    assert(
+      first(captured.TypedQuery)?.[0]?.type === "validate",
+      "aliased TypedQuery was not transformed",
+    );
+    assert(
+      first(captured["TypedRoute.Post"])?.[1]?.type === "assert",
+      "aliased TypedRoute.Post was not transformed",
+    );
+  });
+  if (failures.length !== 0)
+    throw new Error(`Generated runtime cases failed:\n${failures.join("\n")}`);
+};
+module.exports = { main, verifyOptions };
+if (require.main === module) {
+  if (process.argv[2] === "--verify-options") verifyOptions(process.argv[3]);
+  else
+    main().catch((error) => {
+      console.error(error);
+      process.exitCode = 1;
+    });
+}

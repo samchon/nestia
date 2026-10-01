@@ -8,6 +8,10 @@ description: >-
   store also holds the compiled Go test binaries, so the key covers the Go
   test sources too.
 inputs:
+  scope:
+    description: Cache producer population; test also retains installed SDK contributors.
+    required: false
+    default: build
   save:
     description: Save the cache at the end of the job when its key missed.
     required: false
@@ -27,8 +31,9 @@ runs:
         path: |
           node_modules/.cache/ttsc/plugins
           node_modules/.cache/ttsc/go-build
-        key: ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**') }}
+        key: ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**', 'tests/test-transform-options/native/**', 'tests/test-sdk/native/**') }}-${{ inputs.scope }}
         restore-keys: |
+          ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**', 'tests/test-transform-options/native/**', 'tests/test-sdk/native/**') }}-
           ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-
           ttsc-${{ runner.os }}-${{ runner.arch }}-
 
@@ -38,7 +43,8 @@ runs:
         path: |
           node_modules/.cache/ttsc/plugins
           node_modules/.cache/ttsc/go-build
-        key: ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**') }}
+        key: ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**', 'tests/test-transform-options/native/**', 'tests/test-sdk/native/**') }}-${{ inputs.scope }}
         restore-keys: |
+          ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-${{ hashFiles('pnpm-lock.yaml', 'packages/*/native/**', 'packages/*/test/**', 'tests/test-transform-options/native/**', 'tests/test-sdk/native/**') }}-
           ttsc-${{ runner.os }}-${{ runner.arch }}-${{ steps.key.outputs.go }}-
           ttsc-${{ runner.os }}-${{ runner.arch }}-

@@ -4,7 +4,23 @@ import ts from "../internal/ts";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 
+/**
+ * Generates the NestJS module that lists the controllers.
+ *
+ * @evidence contracts/common.md#principled-implementation The module imports every controller from its location and lists them in the `controllers` array of a decorated class.
+ * @evidence contracts/common.md#clear-and-simple-design One function and one private import builder.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The controllers follow the analysis.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is generated.
+ */
 export namespace NestiaMigrateNestModuleProgrammer {
+  /**
+   * Returns the statements of the module file.
+   *
+   * @evidence contracts/common.md#principled-implementation The import paths turn the `src/` prefix of a controller location into `./`, so the module can import from its own directory.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The names follow the controllers.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const write = (
     controllers: INestiaMigrateController[],
   ): ts.Statement[] => [

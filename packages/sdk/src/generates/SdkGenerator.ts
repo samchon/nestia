@@ -13,7 +13,25 @@ import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
 import { SdkHttpParameterProgrammer } from "./internal/SdkHttpParameterProgrammer";
 
+/**
+ * Generates the SDK library and validates the analyzed routes it needs.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace bundles the static files, writes the DTOs and the functions, composes the distribution package, and reports the errors the generation would meet.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions, one public constant, and the private validators.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Validation and generation share the same route model.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkGenerator {
+  /**
+   * Writes the SDK into the configured output directory: the bundled files, the
+   * DTOs when `clone` is on, the functions, and the distribution package when
+   * `distribute` is set.
+   *
+   * @evidence contracts/common.md#principled-implementation The steps run in dependency order, the bundle first and the distribution last, and a missing output directory throws before anything is written.
+   * @evidence contracts/common.md#clear-and-simple-design One function that delegates each step.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The steps are sequential and each awaits the previous one.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const generate = async (app: ITypedApplication): Promise<void> => {
     if (app.project.config.output === undefined)
       throw new Error("Output directory is not defined.");
@@ -40,6 +58,16 @@ export namespace SdkGenerator {
       });
   };
 
+  /**
+   * Returns the errors of routes that cannot become an SDK: MCP tools with
+   * duplicate names or accessors, and, without `clone`, HTTP routes whose
+   * return type is implicit.
+   *
+   * @evidence contracts/common.md#principled-implementation The MCP checks always apply, and the implicit return check applies only where the SDK would have to name the type, because `clone` writes it as a declaration instead.
+   * @evidence contracts/common.md#clear-and-simple-design One function over three checks.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The list is collected, not thrown, so one run reports every error.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const validate = (
     app: ITypedApplication,
   ): IReflectOperationError[] => {
@@ -162,6 +190,11 @@ export namespace SdkGenerator {
    * Files the user already has are never touched, so that hand-written
    * customizations (e.g. extra re-exports in `module.ts`) survive regeneration.
    * Only missing files are filled in from the bundle.
+   *
+   * @evidence contracts/common.md#principled-implementation A file that the user has customized is never overwritten, and only files that are missing are filled in from the bundle.
+   * @evidence contracts/common.md#clear-and-simple-design One loop with two guards.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The existing target is checked before the write.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
    */
   export const bundle = async (output: string): Promise<void> => {
     const files: string[] = await fs.promises.readdir(BUNDLE_PATH);

@@ -15,7 +15,25 @@ import { NestiaMigrateApiSimulationProgrammer } from "./NestiaMigrateApiSimulati
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
+/**
+ * Generates the namespace that accompanies the function of a route: its types,
+ * its metadata, its path builder, and, in simulation mode, its simulator.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace declares the `Props`, `Query`, `Body`, `Headers`, and `Response` types from the schemas, the route metadata the fetcher reads, the `path` function that fills the parameters into the template, and the simulator members.
+ * @evidence contracts/common.md#clear-and-simple-design One entry function, one public path-call builder shared with the simulation programmer, and private helpers per member.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The output derives from the route and the configuration.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is generated.
+ */
 export namespace NestiaMigrateApiNamespaceProgrammer {
+  /**
+   * The input of one namespace: the configuration, the components, the
+   * importer, and the route.
+   *
+   * @evidence contracts/common.md#principled-implementation The record holds exactly what the namespace generation needs.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment lists the fields.
+   */
   export interface IContext {
     config: INestiaMigrateConfig;
     components: OpenApi.IComponents;
@@ -23,6 +41,14 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
     route: IHttpMigrateRoute;
   }
 
+  /**
+   * Returns the namespace declaration of a route.
+   *
+   * @evidence contracts/common.md#principled-implementation The members are written in a fixed order: types, metadata, path function, and the random and simulate members when simulation is enabled.
+   * @evidence contracts/common.md#clear-and-simple-design One function composing the private writers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The members follow the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const write = (ctx: IContext): ts.ModuleDeclaration => {
     const types: ts.TypeAliasDeclaration[] = writeTypes(ctx);
     return factory.createModuleDeclaration(
@@ -45,6 +71,15 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
     );
   };
 
+  /**
+   * Returns the call expression of the route's `path` function with the
+   * arguments the configuration selects.
+   *
+   * @evidence contracts/common.md#principled-implementation In keyword mode the arguments are the `props` object and otherwise the path and query parameters in order, so the same call is valid in both modes.
+   * @evidence contracts/common.md#clear-and-simple-design One function shared by the simulator and the namespace.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The arguments follow the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the two argument forms.
+   */
   export const writePathCallExpression = (
     config: INestiaMigrateConfig,
     route: IHttpMigrateRoute,

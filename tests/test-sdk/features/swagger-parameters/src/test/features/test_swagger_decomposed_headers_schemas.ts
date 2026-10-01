@@ -17,6 +17,15 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  *    component's schema of that property, minus the fields a parameter carries
  *    itself.
  * 3. Pin the range, integer, array, and template cells.
+ *
+ * @evidence contracts/testing.md#behavioral-verification TypedHeaders and plain Headers must preserve header placement and every component-derived property schema, supplemented by explicit range/integer/UUID-array/template pins.
+ * @evidence contracts/testing.md#independent-expectations Component-to-parameter consistency shares a generated source and is insufficient alone; handwritten1/100/10,integer,UUID/minItems1 pins independently follow authored header tags.
+ * @evidence contracts/testing.md#distinguishing-cases Typed versus plain decorator, complete property comparisons and tag-bearing positive pins distinguish fallback loss; template requires pattern presence only.
+ * @evidence contracts/testing.md#execution-ownership The matching test_swagger_decomposed_headers_schemas export is discovered and awaited by the swagger-parameters feature entry after actual emitted execution. Assertion failure rejects its report and zero cases fail the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Actual native DTO/decorator/tag metadata and installed Swagger generation must emit the final document. Pure hand-built-schema assertions cannot establish that these authored type constraints survive the producer boundary.
+ * @evidence contracts/e2e.md#shared-execution All generated-document cases consume the same native-produced swagger.json and share installation, producer/runtime compilation and feature backend. Each helper read adds no application or compiler preparation.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Reads are anchored to this feature’s own output. Canonicalization creates strings without mutating inputs, and downgrades explicitly copy their source. The entry closes its backend and the harness removes its copied tree after execution.
+ * @evidence contracts/e2e.md#preserved-coverage All test_swagger_decomposed_headers_schemas documented assertions remain in this executable owner. Deprecated/key-set/finite controls add positive presence checks to retained comparisons, while fallback and isolation still exercise public runtime composition rather than replacing it with a fabricated pass.
  */
 export const test_swagger_decomposed_headers_schemas =
   async (): Promise<void> => {

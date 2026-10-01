@@ -23,6 +23,11 @@ import (
 //
 //  1. For each websocket-error fixture, transform its CalculateController.
 //  2. Assert the transform fails (exit 3) for every variant.
+//
+// @evidence contracts/testing.md#behavioral-verification Each of five named invalid WebSocket fixtures must return exit 3 in its own subtest, preventing silent acceptance or substitution of a loader error.
+// @evidence contracts/testing.md#independent-expectations The fixtures violate the required acceptor identity/arity/import or route parameter contract; transform rejection is distinct from invalid project loading.
+// @evidence contracts/testing.md#distinguishing-cases Separate feature-named subtests retain all five failure identities. Diagnostic-message cases pin arity/import wording and valid/type-alias/destructured cases own accepted forms.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformWebSocketRouteErrorVariants(t *testing.T) {
 	features := []string{
 		"websocket-error-invalid-acceptor",

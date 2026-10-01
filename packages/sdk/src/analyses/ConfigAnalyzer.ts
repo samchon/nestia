@@ -15,11 +15,33 @@ import { INestiaSdkInput } from "../structures/INestiaSdkInput";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { EmittedJavaScriptPatcher } from "../utils/EmittedJavaScriptPatcher";
 import { MapUtil } from "../utils/MapUtil";
+import { PathUtil } from "../utils/PathUtil";
 import { SourceFinder } from "../utils/SourceFinder";
+import { TemporaryDirectory } from "../utils/TemporaryDirectory";
 import { TsConfigReader } from "../utils/TsConfigReader";
 import { TtscExecutor } from "../utils/TtscExecutor";
 
+/**
+ * Finds the controllers a configuration names, either by compiling and
+ * importing sources or by reading a running application.
+ *
+ * @evidence contracts/common.md#principled-implementation Sources are compiled once through ttsc into a temporary directory, imported, and the exports that carry the Nest `path` metadata are the controllers; an application is read from its module container; results are memoized per configuration object.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions and a private runtime compiler; the bundle filter is module-private and configuration/runtime materializations share the owned-child cleanup registry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The generated SDK's own files are excluded from the input by the bundle list of the SDK, not by name, and the container is read through internals, as noted at `application`.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace ConfigAnalyzer {
+  /**
+   * Returns the analyzed input of a configuration: the controllers with their
+   * files and the global prefix and versioning options.
+   *
+   * The result is cached per configuration object.
+   *
+   * @evidence contracts/common.md#principled-implementation A function input is asked for the application and read as a running app; otherwise the matched TypeScript sources are compiled and imported, and the memo stores the promise so concurrent callers share one compilation.
+   * @evidence contracts/common.md#clear-and-simple-design One function delegating to `application` or to the runtime compiler.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The cache is keyed by the configuration object, so a different configuration is never served a stale result.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the two input forms and the caching.
+   */
   export const input = async (
     config: INestiaConfig,
   ): Promise<INestiaSdkInput> => {
@@ -62,6 +84,15 @@ export namespace ConfigAnalyzer {
     });
   };
 
+  /**
+   * Reads the controllers, the global prefix, and the versioning options of a
+   * running NestJS application.
+   *
+   * @evidence contracts/common.md#principled-implementation The controllers come from the module container with their module paths, their files from the location of each class, decoded from the `file:` URL, and the prefix and versioning options from the application's configuration.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts NestJS exposes no public accessor for the container or the configuration, so the function reads `app.container` and `app.config`; this is the one foreign-internal read of the package and stays a stated limit.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is read.
+   */
   export const application = async (
     app: INestApplication,
   ): Promise<INestiaSdkInput> => {
@@ -88,7 +119,7 @@ export namespace ConfigAnalyzer {
       const file: string | null =
         (await getFunctionLocation(it.first))?.source ?? null;
       if (file === null) continue;
-      const location: string = normalize_file(file);
+      const location: string = PathUtil.location(file);
       if (location.length === 0) continue;
       controllers.push({
         class: it.first,
@@ -135,11 +166,7 @@ class RuntimeCompiler {
       ".nestia",
       "runtime",
     );
-    await fs.promises.mkdir(runtimeRoot, { recursive: true });
-    ensureRuntimeCleanup(runtimeRoot);
-    const outDir: string = await fs.promises.mkdtemp(
-      path.join(runtimeRoot, "run-"),
-    );
+    const outDir: string = TemporaryDirectory.create(runtimeRoot, "run-");
     const project: string = path.join(
       cwd,
       `.nestia.runtime.${process.pid}.${Date.now()}.json`,
@@ -194,42 +221,6 @@ class RuntimeCompiler {
     return emitted;
   }
 }
-
-const RUNTIME_ROOTS: Set<string> = new Set();
-let RUNTIME_CLEANUP_REGISTERED: boolean = false;
-
-const ensureRuntimeCleanup = (runtimeRoot: string): void => {
-  RUNTIME_ROOTS.add(runtimeRoot);
-  if (RUNTIME_CLEANUP_REGISTERED === true) return;
-  RUNTIME_CLEANUP_REGISTERED = true;
-  const sweep = (): void => {
-    for (const location of RUNTIME_ROOTS)
-      fs.rmSync(location, { force: true, recursive: true });
-  };
-  process.once("exit", sweep);
-  // process.once("exit", …) does not fire on SIGINT/SIGTERM. Without these
-  // handlers a Ctrl-C during codegen leaves `run-*` mkdtemp directories
-  // behind under node_modules/.nestia/runtime/ until a subsequent clean exit.
-  // The module-level RUNTIME_CLEANUP_REGISTERED flag above guards against
-  // re-entrancy within this module; we deliberately do NOT gate on
-  // `process.listenerCount(signal) > 0` because NestiaConfigLoader's parallel
-  // sweep registers first, and that gate would skip our registration —
-  // leaving RUNTIME_ROOTS unswept on Ctrl-C while config-loader cleans up.
-  // Windows note: `process.kill(pid, "SIGINT")` calls TerminateProcess
-  // rather than re-raising through the listener queue, so the handler
-  // cascade documented above only holds on POSIX. On Windows, whichever
-  // module registers FIRST runs its sweep and the second is skipped —
-  // RUNTIME_ROOTS cleanup is best-effort there. SIGHUP is a no-op for
-  // most common code paths on Windows (Node fires it on console-close
-  // and exits within seconds).
-  const onSignal = (signal: NodeJS.Signals): void => {
-    sweep();
-    process.kill(process.pid, signal);
-  };
-  for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
-    process.once(signal, onSignal);
-  }
-};
 
 type RuntimePlugin = Record<string, unknown> & { transform?: unknown };
 
@@ -297,17 +288,6 @@ const normalizeProjectPath = (project: string | undefined): string => {
   const next: string = project ?? "tsconfig.json";
   return path.isAbsolute(next) || next.startsWith(".") ? next : `./${next}`;
 };
-
-const normalize_file = (str: string) =>
-  str.substring(
-    str.startsWith("file:///")
-      ? process.cwd()[0] === "/"
-        ? 7
-        : 8
-      : str.startsWith("file://")
-        ? 7
-        : 0,
-  );
 
 const filter =
   (config: INestiaConfig) =>

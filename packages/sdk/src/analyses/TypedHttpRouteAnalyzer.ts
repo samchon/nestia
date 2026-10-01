@@ -20,32 +20,28 @@ import { ITypedHttpRouteParameter } from "../structures/ITypedHttpRouteParameter
 import { ITypedHttpRouteSuccess } from "../structures/ITypedHttpRouteSuccess";
 import { PathUtil } from "../utils/PathUtil";
 
+/**
+ * Turns reflected HTTP operations into typed routes, one per path, and builds
+ * the shared dictionary of the components the routes use.
+ *
+ * @evidence contracts/common.md#principled-implementation Each operation's metadata is resolved against its own components and validated by the policy of its position, the routes carry the typed parameters, the success response, and the exceptions, and the dictionary of the routes is built after component names that collide with different definitions are renamed per controller.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions and private collectors for the component rename.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The rename mutates the name of the metadata objects the analysis owns and resets a private cache field of the typia metadata, which relies on typia's field name and stays a stated limit.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace TypedHttpRouteAnalyzer {
-  export const dictionary = (
-    controllers: IReflectController[],
-  ): IMetadataDictionary => {
-    const individual: IMetadataComponents[] = [];
-    for (const c of controllers)
-      for (const o of c.operations) {
-        if (o.protocol !== "http") continue;
-        if (o.success) individual.push(o.success.components);
-        for (const p of o.parameters) individual.push(p.components);
-        for (const e of Object.values(o.exceptions))
-          individual.push(e.components);
-      }
-    const components: MetadataComponents = MetadataComponents.from({
-      objects: uniqueComponents(individual.flatMap((c) => c.objects)),
-      arrays: uniqueComponents(individual.flatMap((c) => c.arrays)),
-      tuples: uniqueComponents(individual.flatMap((c) => c.tuples)),
-      aliases: uniqueComponents(individual.flatMap((c) => c.aliases)),
-    });
-    return components.dictionary;
-  };
-
+  /**
+   * Returns the typed routes of one operation, one per path, or none when the
+   * metadata violates a policy; the violations are pushed to the errors.
+   *
+   * @evidence contracts/common.md#principled-implementation Each metadata is resolved against its own components and validated with the policy of its position (JSON, query, header, or text), the `@setHeader` and `@assignHeaders` tags become header directives, and the route splits the parameters by category.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The policies come from the validators of the package.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result and the errors.
+   */
   export const analyze = (props: {
     controller: IReflectController;
     errors: IReflectOperationError[];
-    dictionary: IMetadataDictionary;
     operation: IReflectHttpOperation;
     paths: string[];
   }): ITypedHttpRoute[] => {
@@ -57,7 +53,6 @@ export namespace TypedHttpRouteAnalyzer {
         validate?: MetadataFactory.Validator;
       },
       from: string,
-      escape: boolean,
     ): MetadataSchema => {
       const components: MetadataComponents = MetadataComponents.from(
         next.components,
@@ -70,12 +65,6 @@ export namespace TypedHttpRouteAnalyzer {
         next.validate === undefined
           ? []
           : MetadataFactory.validate({
-              options: {
-                escape,
-                constant: true,
-                absorb: true,
-                validate: next.validate,
-              },
               functor: next.validate,
               metadata,
             });
@@ -111,28 +100,18 @@ export namespace TypedHttpRouteAnalyzer {
           example: value.example,
           examples: value.examples,
           type: value.type,
-          metadata: cast(value, `exception (status: ${key})`, true),
+          metadata: cast(value, `exception (status: ${key})`),
         },
       ]),
     );
     const parameters: ITypedHttpRouteParameter[] =
       props.operation.parameters.map((p) => ({
         ...p,
-        metadata: cast(
-          p,
-          `parameter (name: ${JSON.stringify(p.name)})`,
-          p.category === "body" &&
-            (p.contentType === "application/json" || p.encrypted === true),
-        ),
+        metadata: cast(p, `parameter (name: ${JSON.stringify(p.name)})`),
       }));
     const success: ITypedHttpRouteSuccess = {
       ...props.operation.success,
-      metadata: cast(
-        props.operation.success,
-        "success",
-        props.operation.success.encrypted ||
-          props.operation.success.contentType === "application/json",
-      ),
+      metadata: cast(props.operation.success, "success"),
       setHeaders: props.operation.jsDocTags
         .filter(
           (t) =>
@@ -193,6 +172,15 @@ export namespace TypedHttpRouteAnalyzer {
     );
   };
 
+  /**
+   * Returns the dictionary of the components the routes actually use, after
+   * renaming components whose names collide with different definitions.
+   *
+   * @evidence contracts/common.md#principled-implementation Components are grouped by kind and name, groups whose signatures differ are renamed with the controller name so every definition has a unique name, and the dictionary is rebuilt from the metadata of the routes.
+   * @evidence contracts/common.md#clear-and-simple-design One function over private collectors.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The signature ignores the per-route ordinals and the back-references, which are not part of a component's identity.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result and the rename.
+   */
   export const routeDictionary = (
     routes: Array<ITypedHttpRoute>,
   ): IMetadataDictionary => {
@@ -466,20 +454,6 @@ const createCollectVisited = (): ICollectVisited => ({
   schemas: new WeakSet<MetadataSchema>(),
   tuples: new WeakSet<MetadataTupleType>(),
 });
-
-const uniqueComponents = <T extends { name: string }>(input: T[]): T[] => {
-  const dict: Record<string, T> = {};
-  for (const elem of input) {
-    const oldbie: T | undefined = dict[elem.name];
-    if (oldbie === undefined) dict[elem.name] = elem;
-    else if (
-      elem.name.includes(".") ||
-      componentScore(oldbie) < componentScore(elem)
-    )
-      dict[elem.name] = elem;
-  }
-  return Object.values(dict);
-};
 
 const componentScore = (input: unknown): number =>
   JSON.stringify(input, (key, value) =>

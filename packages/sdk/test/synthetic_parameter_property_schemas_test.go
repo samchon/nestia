@@ -33,6 +33,11 @@ import (
 //     described properties and none for the omitted ones.
 //  4. Assert neither the primitive parameter schema nor the response schema
 //     carries property schemas.
+//
+// @evidence contracts/testing.md#behavioral-verification Resolved parameter schemas must exactly retain authored formats, bounds, defaults, item constraints and nested objects, include a template pattern, and omit function/internal/hidden/ignored properties.
+// @evidence contracts/testing.md#independent-expectations The fixture's tags and OpenAPI JSON-schema representation independently define the literal property objects; decomposition belongs only to resolved parameter schemas, not primitive or response schemas.
+// @evidence contracts/testing.md#distinguishing-cases Exact property count forbids unnoticed additions; callback and three hidden forms are negative controls. Primitive parameter and both response pipes must omit decomposed properties, distinguishing target ownership.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticParameterPropertySchemasBakeTypiaSchemas(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 import { tags } from "typia";

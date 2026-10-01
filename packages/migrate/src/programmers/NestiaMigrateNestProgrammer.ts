@@ -10,7 +10,24 @@ import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateNestControllerProgrammer } from "./NestiaMigrateNestControllerProgrammer";
 import { NestiaMigrateNestModuleProgrammer } from "./NestiaMigrateNestModuleProgrammer";
 
+/**
+ * Generates the NestJS side of a monorepo project: the module, the controllers,
+ * and the DTO structures.
+ *
+ * @evidence contracts/common.md#principled-implementation The controllers come from the analyzer, each DTO tree becomes a structure file, and a barrel file re-exports every non-empty structure file so the template's module keeps working.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and private helpers for the DTO files and the barrel.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The layout follows the analysis.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is generated.
+ */
 export namespace NestiaMigrateNestProgrammer {
+  /**
+   * Returns the map from file path to content of the NestJS files.
+   *
+   * @evidence contracts/common.md#principled-implementation The barrel is computed from the generated structure files, sorted by name, so its content is deterministic.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The names follow the document.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const write = (
     context: INestiaMigrateContext,
   ): Record<string, string> => {

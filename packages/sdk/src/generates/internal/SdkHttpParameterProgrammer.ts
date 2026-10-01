@@ -13,7 +13,24 @@ import { StringUtil } from "../../utils/StringUtil";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 
+/**
+ * The parameters of an HTTP route's SDK function.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace decides the identifiers, lists the entries, and writes the declarations and the arguments in positional or keyword mode.
+ * @evidence contracts/common.md#clear-and-simple-design Several small functions over one entry type.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The three consumers share one decision.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ */
 export namespace SdkHttpParameterProgrammer {
+  /**
+   * One parameter of a route: its key, whether it is required, its type, and
+   * the reflected parameter.
+   *
+   * @evidence contracts/common.md#principled-implementation The record is what a declaration or an argument needs.
+   * @evidence contracts/common.md#clear-and-simple-design A four-member record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export interface IEntry {
     key: string;
     required: boolean;
@@ -40,6 +57,11 @@ export namespace SdkHttpParameterProgrammer {
    * generated code actually references for this route and configuration, and an
    * own identifier yields only to the names its scope can see, so nothing is
    * renamed where no name is shadowed.
+   *
+   * @evidence contracts/common.md#principled-implementation One decision serves the three scopes, so they cannot disagree.
+   * @evidence contracts/common.md#clear-and-simple-design A record of names and two lookups.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
    */
   export interface INames {
     connection: string;
@@ -52,13 +74,36 @@ export namespace SdkHttpParameterProgrammer {
     value: string;
     elem: string;
 
-    /** Local identifier of a significant parameter in positional mode. */
+    /**
+     * Local identifier of a significant parameter in positional mode.
+     *
+     * @evidence contracts/common.md#principled-implementation A parameter yields to a name the SDK cannot change and keeps its own otherwise.
+     * @evidence contracts/common.md#clear-and-simple-design One lookup.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the decision.
+     * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+     */
     parameter: (p: ITypedHttpRouteParameter) => string;
 
-    /** Reads a significant parameter: `props.<name>` or its local. */
+    /**
+     * Reads a significant parameter: `props.<name>` or its local.
+     *
+     * @evidence contracts/common.md#principled-implementation The read follows the mode of the function.
+     * @evidence contracts/common.md#clear-and-simple-design One lookup.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the decision.
+     * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+     */
     access: (p: ITypedHttpRouteParameter) => Expression;
   }
 
+  /**
+   * Decides the identifiers of a route's function, `path()`, and `simulate()`
+   * once.
+   *
+   * @evidence contracts/common.md#principled-implementation The fixed names each scope references are collected, and every own identifier avoids them and the other own identifiers it can see.
+   * @evidence contracts/common.md#clear-and-simple-design One function over the scope sets.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only shadowed names are renamed.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const getNames = (props: {
     project: INestiaProject;
     route: ITypedHttpRoute;
@@ -172,6 +217,15 @@ export namespace SdkHttpParameterProgrammer {
     };
   };
 
+  /**
+   * Returns every parameter of a route: path, query, header, query object,
+   * body, and header object.
+   *
+   * @evidence contracts/common.md#principled-implementation The list is the concatenation in that order.
+   * @evidence contracts/common.md#clear-and-simple-design One list.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It adds no parameter.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const getAll = (
     route: ITypedHttpRoute,
   ): ITypedHttpRouteParameter[] => [
@@ -183,6 +237,15 @@ export namespace SdkHttpParameterProgrammer {
     ...(route.headerObject ? [route.headerObject] : []),
   ];
 
+  /**
+   * Returns the parameters that make up a call: path, query, the query object,
+   * and the body when asked.
+   *
+   * @evidence contracts/common.md#principled-implementation Headers travel in the connection and are not arguments.
+   * @evidence contracts/common.md#clear-and-simple-design One list.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The body is included by the caller's choice.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const getSignificant = (route: ITypedHttpRoute, body: boolean) => [
     ...route.pathParameters,
     ...route.queryParameters,
@@ -190,6 +253,16 @@ export namespace SdkHttpParameterProgrammer {
     ...(body && route.body ? [route.body] : []),
   ];
 
+  /**
+   * Returns the entries of a route: path and query parameters, the query
+   * object, and the body when asked, with the type each has in the function or
+   * in the test.
+   *
+   * @evidence contracts/common.md#principled-implementation The type is the alias `Query` or `Body` in the function, and the reflected or cloned type in a test.
+   * @evidence contracts/common.md#clear-and-simple-design One list of three groups.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty route has no entries.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const getEntries = (props: {
     project: INestiaProject;
     importer: ImportDictionary;
@@ -262,6 +335,15 @@ export namespace SdkHttpParameterProgrammer {
     ];
   };
 
+  /**
+   * Returns the parameter declarations of a route's function: one `props`
+   * object in keyword mode, and one positional parameter per entry otherwise.
+   *
+   * @evidence contracts/common.md#principled-implementation A required parameter cannot follow an optional one, so an optional one before a required one trades its `?` for `undefined` in its type.
+   * @evidence contracts/common.md#clear-and-simple-design One function of two modes.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The names come from `getNames`.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const getParameterDeclarations = (props: {
     project: INestiaProject;
     importer: ImportDictionary;
@@ -328,6 +410,15 @@ export namespace SdkHttpParameterProgrammer {
           factory.createKeywordTypeNode(SyntaxKind.UndefinedKeyword),
         ]);
 
+  /**
+   * Returns the arguments to call a route's function with: the `props` object
+   * in keyword mode, and the parameters otherwise.
+   *
+   * @evidence contracts/common.md#principled-implementation The identifiers are those declared by `getNames`.
+   * @evidence contracts/common.md#clear-and-simple-design One function of two modes.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No argument is invented for an empty route.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   */
   export const getArguments = (props: {
     project: INestiaProject;
     route: ITypedHttpRoute;

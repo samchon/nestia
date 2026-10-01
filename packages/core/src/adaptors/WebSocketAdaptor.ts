@@ -21,6 +21,7 @@ import path from "path";
 import { Duplex } from "stream";
 import { WebSocketAcceptor } from "tgrid";
 import typia from "typia";
+import { fileURLToPath } from "url";
 import WebSocket from "ws";
 
 import { IWebSocketRouteReflect } from "../decorators/internal/IWebSocketRouteReflect";
@@ -28,13 +29,47 @@ import { ArrayUtil } from "../utils/ArrayUtil";
 import { VersioningStrategy } from "../utils/VersioningStrategy";
 import { RoutePathMatcher } from "./internal/RoutePathMatcher";
 
+/**
+ * Serves the `@WebSocketRoute()` methods of a NestJS application over
+ * WebSocket.
+ *
+ * Call {@link upgrade} after the application has been created. It finds the
+ * routes, checks them, and takes over the HTTP server's `upgrade` events. A
+ * handshake whose path matches no route is rejected with close code 1002.
+ *
+ * @evidence contracts/common.md#principled-implementation Routes are matched by paths built from the global prefix, the version, the module prefix, the controller path, and the method path, joined and normalized the same way for every combination; the adapter answers upgrade events itself through a `ws` server in no-server mode and removes its listeners when the HTTP server closes.
+ * @evidence contracts/common.md#clear-and-simple-design A class with one static factory, one `close` property, and the private handler; discovery, method checks, termination, and close reasons are module-private functions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The global prefix, versioning options, and module graph are read from `app.config` and `app.container`, which NestJS keeps internal because `INestApplication` has no public accessor for them; this is the limitation of the adapter, not a fixture-specific branch.
+ * @evidence contracts/common.md#meaningful-documentation The comment states when to call it and what happens to an unmatched handshake.
+ */
 export class WebSocketAdaptor {
+  /**
+   * Creates the adapter for the application: it visits every controller,
+   * validates the WebSocket routes, and starts listening for upgrade events.
+   *
+   * All route errors of the application are collected and thrown together, with
+   * the controller, method, source location, and reasons of each.
+   *
+   * @evidence contracts/common.md#principled-implementation Every controller method is checked before any handshake is served, and all defects are reported in one error, so a misconfigured route fails at start and not at the first client; source locations come from `get-function-location`, converted with `fileURLToPath` so a `file:` URL becomes the path on every platform.
+   * @evidence contracts/common.md#clear-and-simple-design One asynchronous factory that awaits the visitor and hands the operator list to the private constructor.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The visitor reports through the same error path for every controller; no controller or route name is special-cased.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the collected error report and the effect on the server.
+   */
   public static async upgrade(
     app: INestApplication,
   ): Promise<WebSocketAdaptor> {
     return new this(app, await visitApplication(app));
   }
 
+  /**
+   * Stops the adapter: removes its listeners from the HTTP server and closes
+   * the WebSocket server.
+   *
+   * @evidence contracts/common.md#principled-implementation The listeners are removed before the `ws` server closes, so no upgrade event reaches a closing server, and the returned promise resolves when the server has closed.
+   * @evidence contracts/common.md#clear-and-simple-design An arrow property so the same function value can be registered and unregistered as the HTTP server's close listener.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It releases exactly what the adapter registered.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is released.
+   */
   public readonly close = async (): Promise<void> =>
     new Promise((resolve) => {
       this.http.off("close", this.close);
@@ -229,7 +264,9 @@ const visitController = async (props: {
         ...file,
         source: path.relative(
           process.cwd(),
-          file.source.replace("file:///", ""),
+          file.source.startsWith("file:")
+            ? fileURLToPath(file.source)
+            : file.source,
         ),
       });
     }

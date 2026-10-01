@@ -16,7 +16,18 @@ import { IValidation } from "typia";
 
 import { NestiaEditorArchiver } from "./internal/NestiaEditorArchiver";
 import { NestiaEditorComposer } from "./internal/NestiaEditorComposer";
+import { NESTIA_EDITOR_DEFAULT_PACKAGE } from "./internal/NestiaEditorDefaultPackage";
 
+/**
+ * Composes a project from an OpenAPI document and offers it as a zip download.
+ *
+ * The component loads the document, from a URL or from the object given, generates the project in the browser, and shows the three stages as a stepper. A fetch failure or a composition failure is reported in place of the stage's progress.
+ *
+ * @evidence contracts/common.md#principled-implementation The three stages run once, in order, from an effect: load the document, compose it with `NestiaEditorComposer`, and expose the files for download; every failure path sets an error state, so the stepper never claims a stage that did not complete.
+ * @evidence contracts/common.md#clear-and-simple-design One component owns the stepper state; document loading and operation counting stay in the private `getDocument` and `aggregateOperation`, and archiving and composition are delegated to their own namespaces.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The option defaults (keyword, simulate, e2e enabled) are the documented product defaults, and the archive name comes from the shared default package constant, not from a fixture name.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the stages and how failures appear.
+ */
 export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
   const [step, setStep] = React.useState(0);
   const [fetchError, setFetchError] = React.useState<string | null>(null);
@@ -26,7 +37,7 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
   const [composerError, setComposerError] = React.useState<any | null>(null);
   const [files, setFiles] = React.useState<Record<string, string> | null>(null);
   const archive: string = NestiaEditorArchiver.name(
-    props.package ?? "@ORGANIZATION/PROJECT",
+    props.package ?? NESTIA_EDITOR_DEFAULT_PACKAGE,
   );
 
   React.useEffect(() => {
@@ -56,7 +67,7 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
               keyword: props.keyword ?? true,
               simulate: props.simulate ?? true,
               e2e: props.e2e ?? true,
-              package: props.package ?? "@ORGANIZATION/PROJECT",
+              package: props.package ?? NESTIA_EDITOR_DEFAULT_PACKAGE,
             });
           } catch (exp) {
             return {
@@ -146,7 +157,7 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
                     .toLocaleString()}
                 </li>
                 {Object.entries(operations).map(([method, count]) => (
-                  <li>
+                  <li key={method}>
                     {method}: #{count.toLocaleString()}
                   </li>
                 ))}
@@ -198,6 +209,16 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
     </div>
   );
 }
+/**
+ * Properties of {@link NestiaEditorIframe}.
+ *
+ * `swagger` is an OpenAPI document or the URL to fetch it from. The options mirror the generator options; `mode` and `files` are internal.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace holds the property type of the component with the same name, so the component and its inputs are one public identity.
+ * @evidence contracts/common.md#clear-and-simple-design It contains one interface and nothing else.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It adds no behavior; the option defaults live in the component that reads them.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what `swagger` accepts and which members are internal.
+ */
 export namespace NestiaEditorIframe {
   export interface IProps {
     swagger:

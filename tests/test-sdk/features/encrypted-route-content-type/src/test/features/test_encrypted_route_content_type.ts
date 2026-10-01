@@ -25,6 +25,15 @@ import { ENCRYPTION } from "../../Backend";
  *    same controller, read the content type of an encrypted GET, and of a route
  *    that throws.
  * 2. Round-trip a GET and a POST through the SDK on both.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Express and Fastify raw encrypted GET successes must be text/plain, missing-route failures404/application/json, and generated encrypted GET/POST requests must return exact get/post payloads.
+ * @evidence contracts/testing.md#independent-expectations The authored echo controller supplies literal get/post values and the documented encrypted wire format is text/plain. An unknown path independently requires404 rather than encrypted success.
+ * @evidence contracts/testing.md#distinguishing-cases Both adapters, raw success/error headers and SDK GET/POST roundtrips run. This distinguishes Express string defaults from Fastify and error JSON from encrypted success, without prescribing charset spelling.
+ * @evidence contracts/testing.md#execution-ownership The feature entry discovers and awaits this exported case after actual generation and consumer compilation; mismatches reject its report and zero discovery rejects the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Real HTTP adapters and SDK AES decoding are necessary for content-type/wire compatibility; a composer or serializer unit cannot establish their combined response headers.
+ * @evidence contracts/e2e.md#shared-execution The suite installs fresh packed packages once and compatible configurations share native producer and emitted runtime programs. This case adds no independent install/compiler; distinct CLI/file-pattern owners retain their own connections.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Local inputs and isolated feature outputs prevent another feature supplying this result. Generated document reads are immutable, feature backends close in finally and the harness releases only owned copies after children finish.
+ * @evidence contracts/e2e.md#preserved-coverage All existing requests, controls, generated-output reads and assertions remain. Sharing package/compiler preparation changes setup ownership, while the distinct accepted/rejected cases and their asserted limits are retained.
  */
 export const test_encrypted_route_content_type = async (
   connection: api.IConnection,

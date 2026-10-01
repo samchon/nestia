@@ -34,6 +34,10 @@ import { route_error } from "./internal/route_error";
  * possible to modify response data through interceptors.
  *
  * @author Jeongho Nam - https://github.com/samchon
+ * @evidence contracts/common.md#principled-implementation Each method decorator combines Nest's router decorator, a JSON content type, and an interceptor that stringifies the returned value with the function the transform selected, so the JSON text is produced by generated code; an error thrown by the handler is routed to the registered exception converters.
+ * @evidence contracts/common.md#clear-and-simple-design One generator function creates the five HTTP-method decorators, and the interceptor and the router table are module-private.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The loop after the namespace copies the marker properties of typia's stringify functions onto the decorators for the transform, which mutates only these exported functions; the logger is a module variable, not a patched global.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the decorator family, the path and stringify arguments, and the validation modes.
  */
 export namespace TypedRoute {
   /**
@@ -90,6 +94,10 @@ export namespace TypedRoute {
    *
    * @default console.log
    * @param func Logger function
+   * @evidence contracts/common.md#principled-implementation It replaces the module's logger variable, which the `validate.log` mode calls when a response fails validation, and the default is `console.log`.
+   * @evidence contracts/common.md#clear-and-simple-design One assignment.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It changes only the logger variable.
+   * @evidence contracts/common.md#meaningful-documentation The comment states which mode uses the logger.
    */
   export function setValidateErrorLogger(
     func: (log: IValidateErrorLog) => void,
@@ -109,6 +117,11 @@ export namespace TypedRoute {
    * information `IValidateErrorLog` would be logged through the
    * {@link setValidateErrorLogger} function instead of throwing the 400 bad
    * request error.
+   *
+   * @evidence contracts/common.md#principled-implementation The record carries the method, the path, the validation errors, and the offending data, which is what a logger needs to report a response that failed its type.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation Each member documents its meaning.
    */
   export interface IValidateErrorLog {
     /** HTTP method of the request. */

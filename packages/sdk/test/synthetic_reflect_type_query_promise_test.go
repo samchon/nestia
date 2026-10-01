@@ -23,6 +23,11 @@ import (
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert the typeof success type and the unwrapped Promise element both
 //     surface in the metadata.
+//
+// @evidence contracts/testing.md#behavioral-verification Promise<IPoint> must reflect its IPoint element without a Promise success wrapper, while a typeof return must retain the inferred value property.
+// @evidence contracts/testing.md#independent-expectations Awaited route responses expose Promise's element type and typeof sample denotes the authored sample object rather than a nominal wrapper.
+// @evidence contracts/testing.md#distinguishing-cases IPoint presence and Promise absence form an unwrap positive/negative; the typeof property pins checker fallback, complementary to explicit/inferred nested reflection cases.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticReflectTypeQueryAndPromiseUnwrap(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 

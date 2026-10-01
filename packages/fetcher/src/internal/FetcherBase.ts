@@ -182,8 +182,6 @@ export namespace FetcherBase {
         }
         event.output = result.data;
         return result;
-      } catch (exp) {
-        throw exp;
       } finally {
         event.completed_at = new Date();
         if (connection.logger)

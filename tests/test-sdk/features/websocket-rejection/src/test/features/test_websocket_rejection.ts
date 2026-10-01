@@ -29,6 +29,15 @@ import { OVERSIZED } from "../../controllers/RejectionController";
  * 2. Assert each settles within the deadline with its code and its reason, cut to
  *    123 bytes at a character boundary.
  * 3. Assert a valid handshake still serves, and the SDK sees the same rejection.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Express/Fastify invalid parameter/header/query, missing route, before/after accept errors, HttpException and oversized UTF8 reasons must settle with asserted close codes/reasons under5s; valid and SDK controls remain.
+ * @evidence contracts/testing.md#independent-expectations Authored failing handlers and protocol code/reason contracts provide literal1002/1003/1008/1011 expectations. OVERSIZED’s41-character prefix independently fits121 UTF8 bytes, and valid echo follows explicit UUID/name/count/value.
+ * @evidence contracts/testing.md#distinguishing-cases Eight rejection categories contrast handshake versus accepted socket, full versus truncated reasons, Express versus Fastify; a valid handshake and generated SDK rejection prevent blanket-close behavior.
+ * @evidence contracts/testing.md#execution-ownership The matching test_websocket_rejection export is discovered and awaited by its emitted feature entry. Assertions and rejection deadlines fail the report, while zero discovery rejects the entry.
+ * @evidence contracts/e2e.md#necessary-boundary Actual adaptor upgrade, handshake/accepted-socket close and client error must connect on both real HTTP adapters; a close-reason utility unit alone cannot certify timely socket teardown.
+ * @evidence contracts/e2e.md#shared-execution All rejection/valid/SDK controls share the feature Express backend and one local Fastify application. Packed installation and compilation are shared; no application is created per rejected route.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The local Fastify app is enclosed by finally before upgrade/listen. Failure races clear their timer and terminate unfinished raw sockets, unexpected successful SDK connections are closed, and the valid connector closes in finally; the entry owns Express.
+ * @evidence contracts/e2e.md#preserved-coverage All test_websocket_rejection raw/generated echoes or deadline/code/reason controls above remain executable. Resource scopes were extended to preparation failures, without replacing the real adaptor or alias connection with mocks.
  */
 export const test_websocket_rejection = async (
   connection: api.IConnection,
@@ -39,9 +48,9 @@ export const test_websocket_rejection = async (
       new FastifyAdapter(),
       { logger: false },
     );
-  await core.WebSocketAdaptor.upgrade(fastify);
-  await fastify.listen(0, "127.0.0.1");
   try {
+    await core.WebSocketAdaptor.upgrade(fastify);
+    await fastify.listen(0, "127.0.0.1");
     for (const [adapter, host] of [
       ["express", connection.host.replace("http", "ws")],
       ["fastify", (await url(fastify)).replace("http", "ws")],
@@ -142,13 +151,18 @@ const validate = async (adapter: string, host: string): Promise<void> => {
     null,
     IRejection.IProvider
   >(undefined, null);
-  await connector.connect(`${host}/rejection/after`);
-  const pending: Promise<void> = connector.getDriver().hang();
-  await connector.getDriver().trigger();
   const closed: WebSocketError = await failure(
     `${adapter} after accept`,
     connector,
-    () => pending,
+    async () => {
+      await connector.connect(`${host}/rejection/after`);
+      const pending: Promise<void> = connector.getDriver().hang();
+      // The pending call can reject when trigger closes the socket before this
+      // task returns it. Observe it immediately while retaining its result.
+      void pending.catch(() => {});
+      await connector.getDriver().trigger();
+      return pending;
+    },
   );
   TestValidator.equals(`${adapter} after accept status`, closed.status, 1011);
   TestValidator.equals(
@@ -163,8 +177,8 @@ const validate = async (adapter: string, host: string): Promise<void> => {
     null,
     IRejection.IProvider
   >(header, null);
-  await valid.connect(`${host}/rejection/validate/${uuid}?count=2`);
   try {
+    await valid.connect(`${host}/rejection/validate/${uuid}?count=2`);
     TestValidator.equals(
       `${adapter} valid`,
       await valid.getDriver().echo("x"),
@@ -197,21 +211,34 @@ const failure = async (
   task: () => Promise<unknown>,
 ): Promise<WebSocketError> => {
   let timer: NodeJS.Timeout | undefined;
-  const outcome: unknown = await Promise.race([
-    task().then(
-      () => new Error(`${title}: settled without an error`),
-      (error) => error,
-    ),
-    new Promise<Error>((resolve) => {
-      timer = setTimeout(() => {
-        const socket: any = (connector as any)?.socket_;
-        if (typeof socket?.terminate === "function") socket.terminate();
-        else socket?.close?.();
-        resolve(new Error(`${title}: still pending after 5 seconds`));
-      }, 5_000);
-    }),
-  ]);
-  clearTimeout(timer);
+  let outcome: unknown;
+  try {
+    outcome = await Promise.race([
+      Promise.resolve()
+        .then(task)
+        .then(
+          async (value: any) => {
+            // An unexpectedly successful generated connection is still ours.
+            await value?.connector?.close?.();
+            return new Error(`${title}: settled without an error`);
+          },
+          (error) => error,
+        ),
+      new Promise<Error>((resolve) => {
+        timer = setTimeout(() => {
+          const socket: any = (connector as any)?.socket_;
+          if (typeof socket?.terminate === "function") socket.terminate();
+          else socket?.close?.();
+          resolve(new Error(`${title}: still pending after 5 seconds`));
+        }, 5_000);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+    const socket: any = (connector as any)?.socket_;
+    if (socket?.readyState === 0 || socket?.readyState === 1)
+      socket.terminate();
+  }
   if (outcome instanceof WebSocketError) return outcome;
   throw outcome instanceof Error ? outcome : new Error(`${title}: ${outcome}`);
 };
