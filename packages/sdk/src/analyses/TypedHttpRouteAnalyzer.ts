@@ -26,7 +26,7 @@ import { PathUtil } from "../utils/PathUtil";
  *
  * @evidence contracts/common.md#principled-implementation Each operation's metadata is resolved against its own components and validated by the policy of its position, the routes carry the typed parameters, the success response, and the exceptions, and the dictionary of the routes is built after component names that collide with different definitions are renamed per controller.
  * @evidence contracts/common.md#clear-and-simple-design Two public functions and private collectors for the component rename.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The rename mutates the name of the metadata objects the analysis owns and resets a private cache field of the typia metadata, which relies on typia's field name and stays a stated limit.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The rename mutates only component definitions owned by analysis; consumers emit resolved structural types rather than modifying foreign cache fields or replacing names in strings.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
  */
 export namespace TypedHttpRouteAnalyzer {
@@ -178,7 +178,7 @@ export namespace TypedHttpRouteAnalyzer {
    *
    * @evidence contracts/common.md#principled-implementation Components are grouped by kind and name, groups whose signatures differ are renamed with the controller name so every definition has a unique name, and the dictionary is rebuilt from the metadata of the routes.
    * @evidence contracts/common.md#clear-and-simple-design One function over private collectors.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The signature ignores the per-route ordinals and the back-references, which are not part of a component's identity.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Signatures omit ordinals only on collected component identities, preserve semantic fields and resolved nested definitions, and encode ancestor back-edges without confusing them with ordinary user payloads.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result and the rename.
    */
   export const routeDictionary = (
@@ -228,6 +228,9 @@ const renameDuplicateComponents = (routes: ITypedHttpRoute[]): void => {
   for (const route of routes)
     for (const metadata of routeMetadatas(route))
       collectComponentEntries(entries, route, metadata);
+  const components = new WeakSet<object>(entries.map((entry) => entry.type));
+  for (const entry of entries)
+    entry.signature = componentSignature(entry.type, components);
 
   const used: Set<string> = new Set(entries.map((e) => e.type!.name));
   const groups: Map<string, IComponentEntry[]> = new Map();
@@ -261,9 +264,6 @@ const renameDuplicateComponents = (routes: ITypedHttpRoute[]): void => {
       (entry.type as { name: string }).name = next;
     }
   }
-  for (const route of routes)
-    for (const metadata of routeMetadatas(route))
-      clearMetadataNameCache(metadata);
 };
 
 const routeMetadatas = (route: ITypedHttpRoute): MetadataSchema[] => [
@@ -362,18 +362,45 @@ const componentEntry = <T extends ComponentType>(
 ): IComponentEntry => ({
   kind,
   route,
-  signature: componentSignature(type),
+  signature: "",
   type,
 });
 
-const componentSignature = (type: ComponentType): string =>
-  JSON.stringify(type, (key, value) =>
-    // `type` is the resolved back-reference attached by
-    // `MetadataSchema.from`; it closes a cycle on recursive schemas.
-    // `index` carries the per-route ordinal and is not part of the
-    // component's identity.
-    key === "index" || key === "type" ? undefined : value,
-  );
+/**
+ * Encodes semantic fields and resolved definitions, representing ancestor
+ * back-edges by their position. Ordinary data has separate object/array tags,
+ * so user tag values cannot impersonate a graph reference. Only actual
+ * collected component definitions omit their transient ordinal.
+ */
+const componentSignature = (
+  type: ComponentType,
+  components: WeakSet<object> = new WeakSet(),
+): string => {
+  const ancestors = new WeakMap<object, number>();
+  let depth = 0;
+  const encode = (value: unknown): unknown => {
+    if (value === null || typeof value !== "object") return value;
+    const position = ancestors.get(value);
+    if (position !== undefined) return ["reference", position];
+    ancestors.set(value, depth++);
+    const encoded = Array.isArray(value)
+      ? ["array", value.map(encode)]
+      : [
+          "object",
+          Object.entries(value)
+            .filter(
+              ([key, child]) =>
+                child !== undefined &&
+                !(key === "index" && components.has(value)),
+            )
+            .map(([key, child]) => [key, encode(child)]),
+        ];
+    --depth;
+    ancestors.delete(value);
+    return encoded;
+  };
+  return JSON.stringify(encode(type));
+};
 
 const normalizeComponentNamespace = (name: string): string => {
   const next: string = name.replace(/[^A-Za-z0-9_$]/g, "_");
@@ -382,62 +409,6 @@ const normalizeComponentNamespace = (name: string): string => {
 
 const escapeComponentName = (used: Set<string>, name: string): string =>
   used.has(name) ? escapeComponentName(used, `_${name}`) : name;
-
-const clearMetadataNameCache = (
-  metadata: MetadataSchema,
-  visited: WeakSet<MetadataSchema> = new WeakSet(),
-): void => {
-  if (visited.has(metadata)) return;
-  visited.add(metadata);
-  (metadata as unknown as { name_?: string }).name_ = undefined;
-
-  if (metadata.rest !== null) clearMetadataNameCache(metadata.rest, visited);
-  if (metadata.escaped !== null) {
-    clearMetadataNameCache(metadata.escaped.original, visited);
-    clearMetadataNameCache(metadata.escaped.returns, visited);
-  }
-  for (const func of metadata.functions) {
-    for (const p of func.parameters) clearMetadataNameCache(p.type, visited);
-    clearMetadataNameCache(func.output, visited);
-  }
-  for (const set of metadata.sets) {
-    (set as unknown as { name_?: string }).name_ = undefined;
-    clearMetadataNameCache(set.value, visited);
-  }
-  for (const map of metadata.maps) {
-    (map as unknown as { name_?: string }).name_ = undefined;
-    clearMetadataNameCache(map.key, visited);
-    clearMetadataNameCache(map.value, visited);
-  }
-  for (const array of metadata.arrays) {
-    (array as unknown as { name_?: string }).name_ = undefined;
-    clearMetadataNameCache(
-      (array.type as MetadataArrayType as MetadataArrayType).value,
-      visited,
-    );
-  }
-  for (const tuple of metadata.tuples) {
-    (tuple as unknown as { name_?: string }).name_ = undefined;
-    for (const elem of (tuple.type as MetadataTupleType as MetadataTupleType)
-      .elements)
-      clearMetadataNameCache(elem, visited);
-  }
-  for (const alias of metadata.aliases) {
-    (alias as unknown as { name_?: string }).name_ = undefined;
-    clearMetadataNameCache(
-      (alias.type as MetadataAliasType as MetadataAliasType).value,
-      visited,
-    );
-  }
-  for (const obj of metadata.objects) {
-    (obj as unknown as { name_?: string }).name_ = undefined;
-    for (const p of (obj.type as MetadataObjectType as MetadataObjectType)
-      .properties) {
-      clearMetadataNameCache(p.key, visited);
-      clearMetadataNameCache(p.value, visited);
-    }
-  }
-};
 
 interface ICollectVisited {
   aliases: WeakSet<MetadataAliasType>;
@@ -456,11 +427,7 @@ const createCollectVisited = (): ICollectVisited => ({
 });
 
 const componentScore = (input: unknown): number =>
-  JSON.stringify(input, (key, value) =>
-    // Resolved-reference back-edges close cycles on recursive schemas;
-    // skip them when scoring component "richness".
-    key === "type" ? undefined : value,
-  ).length;
+  componentSignature(input as ComponentType).length;
 
 const enrollMetadata = (
   dictionary: IMetadataDictionary,

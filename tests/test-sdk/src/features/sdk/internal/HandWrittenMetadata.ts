@@ -71,7 +71,7 @@ export namespace HandWrittenMetadata {
                 key === "visible"
                   ? []
                   : [{ name: key === "ignored" ? "ignore" : key, text: [] }],
-              mutability: null,
+              mutability: null as "readonly" | null,
             })),
             description: null,
             jsDocTags: [],

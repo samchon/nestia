@@ -99,9 +99,10 @@ export namespace SdkTypeProgrammer {
 
   /**
    * Returns the type of an object: the regular properties as one literal,
-   * intersected with each dynamic key's index signature.
+   * intersected with each dynamic key's index signature. Both signature forms
+   * retain the metadata's readonly modifier.
    *
-   * @evidence contracts/common.md#principled-implementation A key that is a sole literal is regular, and every other key is dynamic.
+   * @evidence contracts/common.md#principled-implementation A key that is a sole literal is regular, and every other key is dynamic. Each property's mutability supplies the readonly modifier for its corresponding property or index signature.
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The cases are exhaustive over the keys.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
@@ -270,7 +271,9 @@ export namespace SdkTypeProgrammer {
               p.jsDocTags,
             );
             const signature = factory.createPropertySignature(
-              undefined,
+              p.mutability === "readonly"
+                ? [factory.createModifier(SyntaxKind.ReadonlyKeyword)]
+                : undefined,
               NamingConvention.variable(
                 String(p.key.constants[0]!.values[0]!.value),
               )
@@ -302,7 +305,9 @@ export namespace SdkTypeProgrammer {
       factory.createTypeLiteralNode([
         FilePrinter.description(
           factory.createIndexSignature(
-            undefined,
+            property.mutability === "readonly"
+              ? [factory.createModifier(SyntaxKind.ReadonlyKeyword)]
+              : undefined,
             [
               factory.createParameterDeclaration(
                 undefined,

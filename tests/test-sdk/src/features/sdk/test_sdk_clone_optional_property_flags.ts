@@ -3,23 +3,25 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 
+import type { MetadataObjectType } from "../../../../../packages/sdk/lib/internal/legacy";
 import { HandWrittenMetadata } from "./internal/HandWrittenMetadata";
 
 /**
  * Verifies cloned declarations distinguish exact optional and explicit
- * undefined.
+ * undefined while retaining property mutability.
  *
  * The native producer supplies required and optional independently. The writer
  * must use both when choosing a question token while preserving explicit
  * undefined, quoted keys and required neighbors from the authored metadata.
  *
  * 1. Give CloneGenerator one named object with adjacent property flag controls.
- * 2. Check the actual written declaration and each literal property spelling.
+ * 2. Check written declarations, literal properties and readonly/mutable index
+ *    signatures.
  * 3. Give it an empty collection and require no unnecessary structures directory.
  *
- * @evidence contracts/testing.md#behavioral-verification CloneGenerator.write emits one named DTO with required boolean, exact optional boolean, explicit undefined union and optional quoted/numeric keys. An empty collection creates no structures directory.
- * @evidence contracts/testing.md#independent-expectations TypeScript question-token syntax follows optional=true independently of required=true; required=false contributes undefined to the value union. Literal property fragments are authored from those meanings, not captured writer output.
- * @evidence contracts/testing.md#distinguishing-cases Required/optional/undefinable flag combinations, ordinary/quoted/numeric keys and empty/nonempty collections distinguish question-token, union and unnecessary-output decisions. Native mapped/alias/recursive extraction and actual consumer assignability remain separate producer and E2E owners.
+ * @evidence contracts/testing.md#behavioral-verification CloneGenerator.write emits one named DTO with readonly required boolean, mutable exact optional boolean, explicit undefined union and optional quoted/numeric keys, plus readonly and mutable dictionary declarations. An empty collection creates no structures directory.
+ * @evidence contracts/testing.md#independent-expectations TypeScript question-token syntax follows optional=true independently of required=true; required=false contributes undefined to the value union, and mutability=readonly requires a readonly modifier. Literal property fragments are authored from those meanings, not captured writer output.
+ * @evidence contracts/testing.md#distinguishing-cases Required/optional/undefinable flag combinations, readonly/mutable regular properties and index signatures, ordinary/quoted/numeric keys and empty/nonempty collections distinguish question-token, modifier, union and unnecessary-output decisions. Native mapped/alias/recursive extraction and actual consumer assignability remain separate producer and E2E owners.
  * @evidence contracts/testing.md#execution-ownership The test-sdk entry discovers this export and directly invokes the built clone writer over authored metadata in one process. The owned filesystem is removed in finally; no project compiler, consumer installation, host, worker or CLI is started.
  */
 export const test_sdk_clone_optional_property_flags =
@@ -47,6 +49,7 @@ export const test_sdk_clone_optional_property_flags =
       ["42", true, true],
     ].map(([name, required, optional]) => ({
       ...property,
+      mutability: name === "required" ? ("readonly" as const) : null,
       key: {
         ...property.key,
         constants: [
@@ -72,10 +75,7 @@ export const test_sdk_clone_optional_property_flags =
     }));
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "nestia-clone-flags-"));
     try {
-      const write = async (
-        objects: (typeof fixture.parameters)[number]["primitive"]["data"]["components"]["objects"],
-        output: string,
-      ) => {
+      const write = async (objects: MetadataObjectType[], output: string) => {
         const collection = MetadataComponents.from({
           objects,
           aliases: [],
@@ -94,7 +94,40 @@ export const test_sdk_clone_optional_property_flags =
         });
       };
       const output = path.join(root, "named");
-      await write([object], output);
+      const readonlyDictionary = {
+        ...object,
+        name: "IReadonlyDictionary",
+        properties: [
+          {
+            ...property,
+            mutability: "readonly" as const,
+            key: {
+              ...property.key,
+              constants: [],
+              atomics: [{ type: "string", tags: [] }],
+            },
+            value: {
+              ...property.value,
+              atomics: [{ type: "boolean", tags: [] }],
+            },
+          },
+        ],
+      };
+      const mutableDictionary = {
+        ...readonlyDictionary,
+        name: "IMutableDictionary",
+        properties: readonlyDictionary.properties.map((entry) => ({
+          ...entry,
+          mutability: null,
+        })),
+      };
+      await write(
+        [object, readonlyDictionary, mutableDictionary].map((entry) => ({
+          ...entry,
+          description: undefined,
+        })) as MetadataObjectType[],
+        output,
+      );
       const source = fs.readFileSync(
         path.join(output, "structures/IOptionalFlags.ts"),
         "utf8",
@@ -118,6 +151,22 @@ export const test_sdk_clone_optional_property_flags =
         );
       }
       assert.equal(source.includes("required?:"), false);
+      assert.match(source, /\breadonly required: boolean\s*(?:;|})/);
+      assert.equal(source.includes("readonly optional"), false);
+      const readonlySource = fs.readFileSync(
+        path.join(output, "structures/IReadonlyDictionary.ts"),
+        "utf8",
+      );
+      const mutableSource = fs.readFileSync(
+        path.join(output, "structures/IMutableDictionary.ts"),
+        "utf8",
+      );
+      assert.match(
+        readonlySource,
+        /readonly \[key: string\]: boolean\s*(?:;|})/,
+      );
+      assert.match(mutableSource, /\[key: string\]: boolean\s*(?:;|})/);
+      assert.equal(mutableSource.includes("readonly"), false);
       assert.equal(source.includes("optional?: boolean | undefined"), false);
       const empty = path.join(root, "empty");
       await write([], empty);

@@ -107,6 +107,34 @@ export class ImportDictionary {
   }
 
   /**
+   * Returns registered bindings in the route import representation, retaining
+   * normalized module paths and local-to-exported aliases. The route emitter
+   * consumes these as type-only declarations.
+   *
+   * @evidence contracts/common.md#principled-implementation The projection reads the same normalized module keys and local-to-exported binding map used by toStatements, so a structural type writer and its route retain the same imports.
+   * @evidence contracts/common.md#clear-and-simple-design One projection over existing registrations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No AST parsing or second import policy reconstructs the bindings.
+   * @evidence contracts/common.md#meaningful-documentation Documents normalized paths, alias direction and the route's type-only consumption.
+   */
+  public toImports(): IReflectImport[] {
+    return Array.from(this.components_).map(({ second: component }) => {
+      const bindings = Array.from(component.elements);
+      const aliases = Object.fromEntries(
+        bindings
+          .filter(({ first, second }) => first !== second)
+          .map(({ first, second }) => [first, second]),
+      );
+      return {
+        file: component.file,
+        asterisk: component.asterisk,
+        default: component.default,
+        elements: bindings.map(({ first }) => first),
+        ...(Object.keys(aliases).length ? { elementAliases: aliases } : {}),
+      };
+    });
+  }
+
+  /**
    * Registers an import of a package and returns the local name it binds.
    *
    * @evidence contracts/common.md#principled-implementation The file is placed under `node_modules`, so the printer emits the bare package specifier.

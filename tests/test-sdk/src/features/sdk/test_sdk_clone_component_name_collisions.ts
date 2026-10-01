@@ -107,7 +107,7 @@ export const test_sdk_clone_component_name_collisions =
         );
         assert.ok(source.includes(`export namespace ${controller}`), source);
         assert.ok(source.includes("export type IFallbackQuery"), source);
-        assert.ok(source.includes(`visible: ${kind};`), source);
+        assert.match(source, new RegExp(`\\bvisible:\\s*${kind}\\s*(?:;|})`));
       }
       for (const [index, route] of routes.entries()) {
         const controller = index === 1 ? "SecondController" : "FirstController";
@@ -118,7 +118,8 @@ export const test_sdk_clone_component_name_collisions =
         assert.ok(
           route.imports.some(
             (entry) =>
-              entry.file === `${root}/structures/${controller}` &&
+              path.resolve(entry.file) ===
+                path.join(root, "structures", controller) &&
               entry.elements.includes(controller),
           ),
         );
