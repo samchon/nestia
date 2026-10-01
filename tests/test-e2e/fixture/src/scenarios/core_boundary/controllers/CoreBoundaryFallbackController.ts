@@ -81,14 +81,14 @@ export class CoreBoundaryFallbackController {
   /**
    * Exposes the unmodified header record's shape and submitted name.
    *
-   * @evidence contracts/common.md#principled-implementation The actual decoded header record supplies both values.
+   * @evidence contracts/common.md#principled-implementation The actual decoded header record supplies both values. The fixed optional x-name shape names the submitted control field without introducing a validator; it remains representable by the common SDK generator.
    * @evidence contracts/common.md#clear-and-simple-design One projection excludes unrelated transport headers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No authored expected value replaces the incoming header.
    * @evidence contracts/common.md#meaningful-documentation The comment identifies the observed raw-header contract.
    */
-  public headers(@fallback.headers headers: Record<string, unknown>): {
+  public headers(@fallback.headers headers: { "x-name"?: string }): {
     isArray: boolean;
-    name: unknown;
+    name: string | undefined;
   } {
     return { isArray: Array.isArray(headers), name: headers["x-name"] };
   }
@@ -97,14 +97,15 @@ export class CoreBoundaryFallbackController {
   /**
    * Returns grouped raw query fields, including repeated keys.
    *
-   * @evidence contracts/common.md#principled-implementation The public fallback decorator supplies the returned record.
+   * @evidence contracts/common.md#principled-implementation The public fallback decorator supplies the returned record; the fixed title/tags specimen names the exact repeated-field control and permits SDK reflection without changing the absent-validator path.
    * @evidence contracts/common.md#clear-and-simple-design This method returns its stateless input directly.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No local query parsing duplicates the operation under test.
    * @evidence contracts/common.md#meaningful-documentation The comment identifies grouping as the observed behavior.
    */
-  public query(
-    @fallback.query query: Record<string, unknown>,
-  ): Record<string, unknown> {
+  public query(@fallback.query query: { title: string; tags: string[] }): {
+    title: string;
+    tags: string[];
+  } {
     return query;
   }
 
@@ -112,14 +113,14 @@ export class CoreBoundaryFallbackController {
   /**
    * Returns the actual urlencoded fallback decoder's grouped body.
    *
-   * @evidence contracts/common.md#principled-implementation The public body decorator supplies the returned record and media check.
+   * @evidence contracts/common.md#principled-implementation The public body decorator supplies the returned record and media check. The finite title/tags specimen matches the authored transport inputs and is reflected by the common generator without adding validation.
    * @evidence contracts/common.md#clear-and-simple-design One stateless echo exposes decoder output.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No parser or transport response is replaced.
    * @evidence contracts/common.md#meaningful-documentation The comment identifies the urlencoded boundary.
    */
   public urlencoded(
-    @fallback.urlencoded body: Record<string, unknown>,
-  ): Record<string, unknown> {
+    @fallback.urlencoded body: { title: string; tags: string[] },
+  ): { title: string; tags: string[] } {
     return body;
   }
 
@@ -127,16 +128,16 @@ export class CoreBoundaryFallbackController {
   /**
    * Exposes grouped multipart fields and the actual uploaded File content.
    *
-   * @evidence contracts/common.md#principled-implementation Actual fallback FormData decoding supplies fields and File, whose public text operation reads submitted bytes.
+   * @evidence contracts/common.md#principled-implementation Actual fallback FormData decoding supplies fields and File, whose public text operation reads submitted bytes. The fixed title/tags/file shape reflects those exact submitted fields without changing fallback decoding or native File observation.
    * @evidence contracts/common.md#clear-and-simple-design One projection excludes adapter-specific upload representations.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No file content or field value is manufactured by the fixture.
    * @evidence contracts/common.md#meaningful-documentation The comment identifies repeated fields and native File observation.
    */
   public async multipart(
-    @fallback.multipart body: Record<string, unknown>,
+    @fallback.multipart body: { title: string; tags: string[]; file: File },
   ): Promise<{
-    title: unknown;
-    tags: unknown;
+    title: string;
+    tags: string[];
     file: { name: string; text: string } | null;
   }> {
     const file = body.file;

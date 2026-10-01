@@ -5,6 +5,9 @@ import api from "../../api";
 /**
  * Verifies manual core fallbacks through the actual common HTTP adapter.
  *
+ * Grouping repeated HTTP fields and reconstructing uploaded File content depend
+ * on the installed decorators and adapter, beyond a direct parser call.
+ *
  * 1. Preserve the four original fallback status and literal body assertions.
  * 2. Reject unsupported urlencoded/multipart media and recover with valid input.
  *

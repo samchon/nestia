@@ -5,6 +5,12 @@ import api from "../../api";
 /**
  * Verifies emitted aliased decorators decode and reject actual HTTP inputs.
  *
+ * A correct alias classification must reach executable validators and the
+ * response serializer through the installed Nest adapter.
+ *
+ * 1. Reject independently malformed path, query and body inputs.
+ * 2. Submit valid input afterward and require the exact serialized response.
+ *
  * @evidence contracts/testing.md#behavioral-verification The response echoes path/query/body values through the generated route. Invalid UUID, absent required query and wrong body property each fail with 400; a following valid request succeeds with exact JSON output.
  * @evidence contracts/testing.md#independent-expectations The fixture's authored UUID tag, required keyword and numeric count reject the three submitted negative values. Literal submitted values and Nest Post's 201 establish the positive output independently.
  * @evidence contracts/testing.md#distinguishing-cases Each negative changes one input axis and shares the other valid values. The final positive distinguishes validator rejection from persistent backend failure.
