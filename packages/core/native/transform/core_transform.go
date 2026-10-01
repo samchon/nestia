@@ -452,6 +452,12 @@ func nestiaCoreParameterArgumentNodes(
 	return output, true, nil
 }
 
+// nestiaCoreGenerateTypedBody preserves the selected helper's validation,
+// equality, clone or prune operation within the public three-tag validator ABI.
+// The helper's return value is not the decorator's returned body: the runtime
+// validate_request_body consumes each descriptor's success verdict and
+// discards clone/data returns, while TypedBody returns the parsed request.body.
+// A prune helper can still mutate that input in place before it is returned.
 func nestiaCoreGenerateTypedBody(
 	prog *driver.Program,
 	importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext,
@@ -513,13 +519,12 @@ func nestiaCoreGenerateTypedBody(
 	}
 }
 
-// nestiaCoreGenerateTypedHeaders intentionally collapses the 10-mode validate
-// option down to {assert, is, validate}. Header values are strings keyed by
-// name; deep-clone and prune semantics that @TypedBody honors (assertClone,
-// assertPrune, validateClone, validatePrune, etc.) have no meaningful effect
-// on a flat string→string map. Pass-through to the base programmer is the
-// intended behavior, not a fallthrough — matches v6 parity. See also
-// nestiaCoreGenerateTypedQuery and nestiaCoreGenerateTypedFormDataBody.
+// nestiaCoreGenerateTypedHeaders maps all ten validate options onto the HTTP
+// header decoder's three base validator families: assert, is and validate.
+// Equality, clone and prune options select their corresponding base family;
+// this operation generates decoded header values rather than a plain body helper.
+// Body helper return semantics and the decorator's returned body are distinct:
+// see nestiaCoreGenerateTypedBody for clone results and in-place pruning.
 func nestiaCoreGenerateTypedHeaders(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	context := nestiaCoreTypiaContext(prog, importer, ec, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
