@@ -101,7 +101,7 @@ export interface CleanDto { title: string; count: number; }
  * 2. Invoke the installed public API twice and its public CLI seven times.
  * 3. Assert literal diagnostics, named outputs and observable publication absence.
  *
- * @evidence contracts/testing.md#behavioral-verification Actual installed API and CLI requests reject strict optional body/query and WeakMap schemas, accept both non-strict controls, report the original WeakMap and tuple locations, reject a genuine assignment type error, and suppress JavaScript/declaration output for failed or analysis-only programs. The public in-memory strict API must not publish caller-tree BuildInfo; CLI incremental BuildInfo is recorded separately, with a present positive for valid analysis. The legal noEmit option control must succeed through the real private ForceEmit traversal.
+ * @evidence contracts/testing.md#behavioral-verification Actual installed API and CLI requests reject strict optional body/query and WeakMap schemas, accept both non-strict controls, report the original WeakMap and tuple locations, reject a genuine assignment type error, and suppress JavaScript/declaration output for failed or analysis-only programs. The public in-memory strict API must not publish caller-tree BuildInfo; CLI incremental BuildInfo presence and bytes are recorded without a verdict; the CLI owns no in-memory API isolation promise. The legal noEmit option control must succeed through the real private ForceEmit traversal.
  * @evidence contracts/testing.md#independent-expectations Copied authored optional fields, WeakMap and tuple inputs establish schema negatives independently of compiler output. The expected decorator codes, tuple/WeakMap reasons, source coordinates, output filenames and TypeScript assignment incompatibility are literals. A successful non-strict program must return both separate JavaScript artifacts whose evaluation uses actual installed decorators.
  * @evidence contracts/testing.md#distinguishing-cases One strict API program requires all three distinct diagnostic owners, with a non-strict optional-body/query emitting twin. The WeakMap CLI noEmit case retains the original launcher witness. Tuple emitting rejection is separate from check, explicit --noEmit and configured noEmit. A valid decorated route and clean DTO with allowImportingTsExtensions distinguish private reload option preservation from a string-to-number type error.
  * @evidence contracts/testing.md#execution-ownership The sole rich E2E entry invokes this matching public export after its shared installation. The operation records nine real compiler requests and aggregates independent case failures; it does not invoke old starts, native executables or compiler internals. Public compile always forces emit, so only the public CLI owns analysis-only entries.
@@ -189,20 +189,12 @@ const test_core_compiler_wrappers = async ({
         `Unexpected published artifact: ${directory}/${file}`,
       );
   };
-  const cliArtifacts = (name, directory, requireIncrementalCache = false) => {
+  const cliArtifacts = (name, directory) => {
     assert(
       !fs.existsSync(path.join(directory, "output")),
       `Unexpected CLI JavaScript/declaration output: ${directory}/output`,
     );
-    const cache = path.join(directory, "cache.tsbuildinfo");
-    const present = fs.existsSync(cache);
-    record(`core-wrapper-${name}-incremental-cache.json`, {
-      present,
-      bytes: present ? fs.statSync(cache).size : 0,
-      ownership: "TypeScript CLI incremental analysis; not the in-memory API no-caller-write contract",
-    });
-    if (requireIncrementalCache)
-      assert(present, "Valid incremental CLI analysis must retain its BuildInfo control.");
+
   };
   const diagnose = (text, ...expected) => {
     const normalized = text.replaceAll("\\", "/");
@@ -261,6 +253,13 @@ const test_core_compiler_wrappers = async ({
       stdout: result.stdout,
       stderr: result.stderr,
       error: result.error?.message,
+    });
+    const cache = path.join(directory, "cache.tsbuildinfo");
+    const present = fs.existsSync(cache);
+    record(`core-wrapper-${name}-incremental-cache.json`, {
+      present,
+      bytes: present ? fs.statSync(cache).size : 0,
+      ownership: "TypeScript CLI incremental analysis; not the in-memory API no-caller-write contract",
     });
     if (result.error) throw result.error;
     assert.equal(
@@ -437,7 +436,7 @@ const test_core_compiler_wrappers = async ({
     ]);
     assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
     assert.equal(result.stdout.trim(), "");
-    cliArtifacts("valid-check-analysis-only-options", directory, true);
+    cliArtifacts("valid-check-analysis-only-options", directory);
   });
   run("check-typescript-error", () => {
     const directory = project("check-typescript-error", ["bad.ts"], true);

@@ -35,6 +35,7 @@ const { test_core_compiler_wrappers } = require("./internal/core_wrappers/test_c
  * @evidence contracts/e2e.md#preserved-coverage The per-assertion campaign ledger identifies request destinations and pending legacy transfers. The rich program does not certify untransferred cases; originals remain until verified ownership exists.
  */
 const main = async () => {
+  process.env.NESTIA_NATIVE_DEBUG_STACK = "1";
   const started = Date.now();
   process.env.TTSC_CACHE_DIR = path.resolve(__dirname,
     process.env.TTSC_CACHE_DIR ?? "../../node_modules/.cache/ttsc");
@@ -295,7 +296,7 @@ const main = async () => {
     const host = `http://127.0.0.1:${address.port}`;
     const { main: consume } = require(path.join(sandbox, ".consumer/index.js"));
     try {
-      await measure("consumer express", () => consume(host, authoredCases, "express"));
+      await measure("consumer express", () => consume(host, authoredCases, "express", backend.richContext()));
     } catch (error) {
       failures.push("rich request consumer");
       console.error(error);
@@ -312,7 +313,7 @@ const main = async () => {
       const fastifyAddress = fastify.getHttpServer().address();
       if (fastifyAddress === null || typeof fastifyAddress === "string")
         throw new Error("Fastify application has no TCP address.");
-      await measure("consumer fastify", () => consume(`http://127.0.0.1:${fastifyAddress.port}`, authoredCases, "fastify"));
+      await measure("consumer fastify", () => consume(`http://127.0.0.1:${fastifyAddress.port}`, authoredCases, "fastify", backend.richContext()));
     } catch (error) {
       failures.push("rich Fastify request consumer");
       console.error(error);

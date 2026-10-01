@@ -1,7 +1,9 @@
 import { DynamicExecutor } from "@nestia/e2e";
 import path from "node:path";
 
+import { IRichContext } from "./internal/IRichContext";
 import { createMcpConnection } from "./internal/McpConnection";
+import { test_simulation_original_population } from "./simulation_original/test_simulation_original_population";
 
 /**
  * Verifies the combined generated SDK over the common transport session.
@@ -9,7 +11,9 @@ import { createMcpConnection } from "./internal/McpConnection";
  * Each discovered case retains its own authored oracle and error identity;
  * failures do not stop unrelated request cases from executing.
  *
- * 1. Discover the named request cases in the compiled consumer.
+ * 1. Execute the full HTTP simulator population against active producer
+ *    observations before ordinary network/MCP traffic, then discover the named
+ *    request cases.
  * 2. Supply the one application's connection and await every case.
  * 3. Reject empty discovery or the aggregate of failed case names.
  *
@@ -18,7 +22,7 @@ import { createMcpConnection } from "./internal/McpConnection";
  * @evidence contracts/testing.md#distinguishing-cases Valid, malformed, nullable, repeated-query, multipart, plain-text, WebSocket and MCP cases retain separate failure names. Per-rule compiler decisions belong to direct native units.
  * @evidence contracts/testing.md#execution-ownership The installed consumer entry calls this exported operation after its single compilation. DynamicExecutor discovers one named test per file recursively and awaits its promise.
  * @evidence contracts/e2e.md#necessary-boundary Generated client imports and transported requests must connect to emitted controllers and installed runtime helpers. Direct writer and transform units cannot detect an incorrect actual wire request.
- * @evidence contracts/e2e.md#shared-execution Both adapter runs reuse one installation, producer compilation, generated consumer compilation and generated artifacts; each run consumes its separately acquired backend with a fresh MCP client, and this operation launches no compiler or server.
+ * @evidence contracts/e2e.md#shared-execution The initial simulation population and both adapter runs reuse one installation, producer compilation, generated consumer compilation and generated artifacts; each run consumes its separately acquired backend with a fresh MCP client, and this operation launches no compiler or server.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Route and DTO namespaces prevent cross-scenario dispatch. Cases own request specimens and WebSocket connectors; this entry owns one lazy official MCP client and closes it after the complete report, including failure. The start entry then closes the backend.
  * @evidence contracts/e2e.md#preserved-coverage The request assertions are mapped individually in the campaign transfer ledger. This entry does not claim coverage of untransferred legacy cases or rule-only assertions.
  */
@@ -26,7 +30,17 @@ export const main = async (
   host: string,
   authoredCases: Array<{ file: string; name: string }>,
   adapter: "express" | "fastify",
+  context?: IRichContext,
 ): Promise<void> => {
+  const simulationFailures: unknown[] = [];
+  if (context === undefined)
+    throw new Error("The consumer requires live producer observations.");
+  try {
+    await test_simulation_original_population({ host }, context);
+  } catch (error) {
+    simulationFailures.push(error);
+    console.error(error);
+  }
   const mcp = createMcpConnection(host, "/mcp");
   try {
     const report = await DynamicExecutor.validate({
@@ -40,6 +54,7 @@ export const main = async (
           mcp: mcp.acquire,
           encryption: { key: "A".repeat(32), iv: "B".repeat(16) },
         },
+        context,
       ],
       simultaneous: 1,
       onComplete: (execution) => {
@@ -75,9 +90,13 @@ export const main = async (
     const failures = report.executions.filter(
       (execution) => execution.error !== null,
     );
-    if (failures.length)
-      throw new Error(
-        `Rich consumer failed: ${failures.map((execution) => execution.name).join(", ")}`,
+    if (simulationFailures.length || failures.length)
+      throw new AggregateError(
+        [
+          ...simulationFailures,
+          ...failures.map((execution) => execution.error),
+        ],
+        `Rich consumer failed: ${simulationFailures.length ? "original/full HTTP simulation; " : ""}${failures.map((execution) => execution.name).join(", ")}`,
       );
   } finally {
     await mcp.close();

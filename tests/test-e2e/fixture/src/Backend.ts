@@ -12,6 +12,7 @@ import {
 import { IncomingMessage } from "node:http";
 
 import { installBenchmarkMonitor } from "./benchmark/BenchmarkMonitor";
+import { Global as SimulationOriginalGlobal } from "./scenarios/simulation_original/Global";
 
 /**
  * Owns the common application's HTTP, WebSocket and MCP transports.
@@ -34,6 +35,10 @@ import { installBenchmarkMonitor } from "./benchmark/BenchmarkMonitor";
  */
 export class Backend {
   public application?: INestApplication;
+  private requestCount = 0;
+  private readonly observeRequest = (): void => {
+    ++this.requestCount;
+  };
 
   /**
    * Opens the one shared application and records ownership before listening.
@@ -73,6 +78,9 @@ export class Backend {
       { logger: false },
     );
     this.application = application;
+    this.requestCount = 0;
+    SimulationOriginalGlobal.used = false;
+    application.getHttpServer().on("request", this.observeRequest);
     installBenchmarkMonitor(application);
     if (adapter === "express") {
       (application as NestExpressApplication).useBodyParser("text", {
@@ -100,6 +108,34 @@ export class Backend {
   }
 
   /**
+   * Supplies live observations from this acquired producer application.
+   *
+   * The consumer receives callbacks, not a second copy of producer state.
+   *
+   * @evidence contracts/common.md#principled-implementation Callbacks read the native server request count and the actual imported producer Global bit; resetting the bit establishes the simulation interval after a real positive proves both observers active.
+   * @evidence contracts/common.md#clear-and-simple-design A structural context exposes only observations and the owned fixture bit reset, without importing consumer source or acquiring another application.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The native request event is passive; no framework method, fetch implementation, generated request or server response is replaced.
+   * @evidence contracts/common.md#meaningful-documentation The comment distinguishes live producer state from copied consumer DTO oracles.
+   * @evidence contracts/performance.md#efficient-algorithms Each request increments one integer and each observation reads constant state.
+   * @evidence contracts/performance.md#reuse-equivalent-work Both adapter consumers use callbacks for their currently acquired application; opening the next adapter resets this application's observation interval.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources One listener is attached before listen and removed after successful application close; a close failure retains observable ownership for the entry's cleanup.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The callbacks introduce no filesystem path or platform-specific protocol representation.
+   */
+  public richContext() {
+    if (this.application === undefined)
+      throw new Error("No acquired backend context.");
+    return {
+      httpRequests: () => this.requestCount,
+      simulationOriginal: {
+        used: () => SimulationOriginalGlobal.used,
+        reset: () => {
+          SimulationOriginalGlobal.used = false;
+        },
+      },
+    };
+  }
+
+  /**
    * Closes the acquired application after consumers and workers have settled.
    *
    * @evidence contracts/common.md#principled-implementation Nest's public close operation ends the HTTP server and registered transport lifetimes; the ownership field is cleared only after closure succeeds.
@@ -113,7 +149,9 @@ export class Backend {
    */
   public async close(): Promise<void> {
     if (this.application === undefined) return;
+    const server = this.application.getHttpServer();
     await this.application.close();
+    server.off("request", this.observeRequest);
     this.application = undefined;
   }
 }
