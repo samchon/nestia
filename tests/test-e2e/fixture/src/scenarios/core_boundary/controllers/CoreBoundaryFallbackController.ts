@@ -5,7 +5,8 @@ import {
   doNotThrowTransformError,
 } from "@nestia/core";
 import { Controller, Get, Post } from "@nestjs/common";
-import Multer from "multer";
+
+import { createMultipartUpload } from "../../../internal/MultipartFactory";
 
 /** Observes the public missing-transform guard without reading private state. */
 const requireActiveGuard = (): void => {
@@ -60,7 +61,7 @@ const composeFallbackDecorators = () => {
       headers: TypedHeaders<Record<string, unknown>>(),
       query: TypedQuery<Record<string, unknown>>(),
       urlencoded: TypedQuery.Body<Record<string, unknown>>(),
-      multipart: TypedFormData.Body(() => Multer()),
+      multipart: TypedFormData.Body(() => createMultipartUpload()),
     };
   });
 };
