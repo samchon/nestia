@@ -79,9 +79,9 @@ func (e Entry) BoolConfig(key string) (bool, bool) {
 
 // ParsePlan parses the ordered plugin payload that ttsc passes as `--plugins-json`.
 //
-// An empty payload is an empty plan. A payload that is not a JSON list of plugins is an error naming the flag. An entry without a stage is a `transform` stage entry.
+// An empty payload is an empty plan. A payload that is not a JSON list of plugin objects is an error naming the flag. JSON null is not an empty list, and a null list entry is not a plugin object. An entry without a stage is a `transform` stage entry.
 //
-// @evidence contracts/common.md#principled-implementation The payload is decoded with the standard JSON decoder, each entry keeps its order, its stage defaults to `transform`, its transform specifier is read from the configuration, and the family flags are the disjunction over the entries.
+// @evidence contracts/common.md#principled-implementation The standard JSON decoder checks the list and object field types. A nil decoded list identifies JSON null rather than an empty array; pointer elements retain null entries for explicit rejection. Each object keeps its order, defaults its stage, supplies its transform string and contributes its classified family flag. A rejected list returns a zero plan even when a prior element was valid.
 // @evidence contracts/common.md#clear-and-simple-design One function that decodes, normalizes, and classifies; the string reading and the classification are private helpers.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The defaults are the ttsc protocol's, and the function trusts the payload only as far as decoding it.
 // @evidence contracts/common.md#meaningful-documentation The comment states the accepted payloads, the error, and the stage default.
@@ -91,7 +91,7 @@ func ParsePlan(payload string) (Plan, error) {
 		return Plan{}, nil
 	}
 
-	var raws []struct {
+	var raws []*struct {
 		Name   string         `json:"name"`
 		Stage  string         `json:"stage"`
 		Config map[string]any `json:"config"`
@@ -99,11 +99,17 @@ func ParsePlan(payload string) (Plan, error) {
 	if err := json.Unmarshal([]byte(payload), &raws); err != nil {
 		return Plan{}, fmt.Errorf("parse plugins-json: %w", err)
 	}
+	if raws == nil {
+		return Plan{}, fmt.Errorf("parse plugins-json: expected a JSON list of plugin objects")
+	}
 
 	plan := Plan{
 		Entries: make([]Entry, 0, len(raws)),
 	}
-	for _, raw := range raws {
+	for index, raw := range raws {
+		if raw == nil {
+			return Plan{}, fmt.Errorf("parse plugins-json: entry %d must be a JSON object", index)
+		}
 		stage := raw.Stage
 		if stage == "" {
 			stage = "transform"
