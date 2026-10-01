@@ -255,6 +255,28 @@
         "symbol": "h2",
         "checklist": true
       }
+    },
+    {
+      "name": "authored SDK alias and transport runtime inputs",
+      "type": "typescript",
+      "files": [
+        "test-e2e/fixture/src/scenarios/sdk_boundary/controllers/SdkBoundaryAliasController.ts",
+        "test-e2e/fixture/src/scenarios/sdk_boundary/controllers/SdkBoundaryTransportController.ts",
+        "test-e2e/fixture/src/scenarios/sdk_boundary/structures/ISdkBoundaryPoint.ts"
+      ],
+      "symbol": [
+        "type",
+        "function"
+      ],
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/common.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
     }
   ]
 }
