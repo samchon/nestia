@@ -28,24 +28,23 @@ export const test_sdk_boundary_stream = async (
   connection: api.IConnection,
 ): Promise<void> => {
   const image = api.functional.sdk_boundary.transport.image;
-  const streams: Array<
-    [string, ReadableStream<Uint8Array<ArrayBufferLike>>, number[]]
-  > = [
-    ["actual bytes", await image(connection), [1, 2, 3, 4]],
+  const specimens: Array<[string, api.IConnection, number[]]> = [
+    ["actual bytes", connection, [1, 2, 3, 4]],
     [
       "empty bytes",
-      await image({
+      {
         ...connection,
         fetch: async () =>
           new Response(null, {
             status: 200,
             headers: { "Content-Type": "image/png" },
           }),
-      }),
+      },
       [],
     ],
   ];
-  for (const [label, stream, expected] of streams) {
+  for (const [label, specimen, expected] of specimens) {
+    const stream = await image(specimen);
     const reader = stream.getReader();
     const bytes: number[] = [];
     try {
