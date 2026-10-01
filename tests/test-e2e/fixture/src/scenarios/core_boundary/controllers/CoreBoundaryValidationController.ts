@@ -1,4 +1,4 @@
-import { IRequestBodyValidator, TypedBody, TypedParam } from "@nestia/core";
+import { TypedBody, TypedParam } from "@nestia/core";
 import { Body, Controller, Post } from "@nestjs/common";
 import typia, { TypeGuardError } from "typia";
 
@@ -48,13 +48,13 @@ const validators = {
   },
 } as const satisfies Record<
   string,
-  IRequestBodyValidator<{ title: string; count: number }>
+  NonNullable<Parameters<typeof TypedBody<{ title: string; count: number }>>[0]>
 >;
 
 /**
  * Observes compiled helper values separately from the manual decorator ABI.
  *
- * @evidence contracts/common.md#principled-implementation Ten public typia factories compile in the shared producer and preserve the original validator return and mutation semantics. The three manual TypedBody routes connect assertClone, equals and validatePrune to the distinct assert/is/validate public descriptors. Private descriptors retain real functions; inspect catches only actual TypeGuardError and derives its report from request-local inputs and helper results.
+ * @evidence contracts/common.md#principled-implementation Ten public typia factories compile in the shared producer and preserve the original validator return and mutation semantics. The three manual TypedBody routes connect assertClone, equals and validatePrune to the distinct assert/is/validate public descriptors. Private descriptor types derive from the exported TypedBody validator parameter rather than an unexported option type, and retain real functions; inspect catches only actual TypeGuardError and derives its report from request-local inputs and helper results.
  * @evidence contracts/common.md#clear-and-simple-design One inspection route observes helper effects and three routes cover the core runtime's three discriminator branches. Helper return values are observed separately because TypedBody returns the parsed request body, discarding assertion/validation return values.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Public typia factories and core descriptors execute directly without replaced loaders, decorator probes or production changes. No global compiler option is changed or claimed to have run for each mode.
  * @evidence contracts/common.md#meaningful-documentation The class explains the helper-versus-decorator split and the private request-local observation protocol; methods identify the exact public branch they connect.
