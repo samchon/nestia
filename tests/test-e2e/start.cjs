@@ -9,17 +9,19 @@ const { prepareMigration, prepareMigrationConsumer, testMigrationConsumer } = re
 const { test_sdk_cli_argument_diagnostics } = require("./internal/boundary/test_sdk_cli_argument_diagnostics.cjs");
 const { test_sdk_cli_dependencies } = require("./internal/boundary/test_sdk_cli_dependencies.cjs");
 const { test_sdk_distribution_cwd_restore } = require("./internal/boundary/test_sdk_distribution_cwd_restore.cjs");
+const { test_sdk_exact_optional_compiler } = require("./internal/exact_optional/test_sdk_exact_optional_compiler.cjs");
 const { test_core_compiler_wrappers } = require("./internal/core_wrappers/test_core_compiler_wrappers.cjs");
 
 /**
  * Runs the installed rich producer and its generated consumer.
  *
- * The producer and consumer each own one TypeScript program. Generation reads
- * the caller-owned running application, avoiding an additional controller
- * compilation and independent feature backends.
+ * The ordinary producer and consumer each run once under their original false
+ * optional-property premise. One minimal exact-optional producer/consumer pair
+ * retains the contradictory original true premise. Generation reads public
+ * caller-owned applications instead of compiling controller inputs again.
  *
  * 1. Install the freshly packed packages once and copy the authored inputs.
- * 2. Compile the producer, start one app and generate its SDK and Swagger.
+ * 2. Execute explicit compiler-wrapper and exact-optional boundaries, then compile the rich producer and generate from its app.
  * 3. Compile the combined consumer once, execute its complete cases against sequential Express/Fastify backends and release resources.
  *
  * @evidence contracts/testing.md#behavioral-verification Installed public TtscCompiler emits both real programs, installed NestiaSdkApplication generates artifacts from the emitted app and the consumer exercises actual requests; compile, generation and request failures propagate.
@@ -27,7 +29,7 @@ const { test_core_compiler_wrappers } = require("./internal/core_wrappers/test_c
  * @evidence contracts/testing.md#distinguishing-cases The combined input retains separate scenario routes, types and request failures; incompatible diagnostic/noEmit and worker cases remain explicit pending transfers in the ledger.
  * @evidence contracts/testing.md#execution-ownership The sole test-e2e workspace entry invokes this exported operation. It uses installed public compiler and SDK APIs, and never calls legacy workspace starts or compiles projects per feature.
  * @evidence contracts/e2e.md#necessary-boundary One actual packed installation connects published exports, the composed native producer, generator, generated client and HTTP/WebSocket/MCP runtime. Pure operation calls cannot prove that connection.
- * @evidence contracts/e2e.md#shared-execution Exactly one producer and one consumer program share a single installation. Primary SDK/Swagger/E2E generation and the necessary incompatible propagated SDK ABI are two explicit generation operations on the same reflected application; both outputs enter that single consumer program. Application-input generation reuses the producer's reflected metadata without ConfigAnalyzer's source-input recompilation.
+ * @evidence contracts/e2e.md#shared-execution One ordinary producer and consumer share a single installation under the original false flag. The contradictory exact-optional boundary adds only two public compiler requests and one application-input All invocation (SDK and Swagger generation) with a no-listen app. Nine named diagnostic/noEmit wrapper requests are recorded separately (API two, CLI seven); they reuse the same installation/native cache and create no backend. Primary SDK/Swagger/E2E generation and the necessary incompatible propagated SDK ABI are two explicit generation operations on the same reflected application; both outputs enter that single consumer program. Application-input generation reuses the producer's reflected metadata without ConfigAnalyzer's source-input recompilation.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity A unique sandbox owns immutable input copies and phase outputs. Express closes after all request and benchmark clients settle; Fastify then acquires a fresh application over the same emitted controller classes and compiled consumer, with its own MCP client. Conflicting HTTP parser/adapter configuration requires these two backend lifetimes, while compiler/install/generation inputs remain identical. Explicit route/type namespaces isolate scenarios, an ephemeral port avoids collisions and finally closes the backend before removing the installation and sandbox. An evidence directory keyed by that unique sandbox retains compiler result buffers, emitted sources, raw operation metadata and packed hashes before cleanup; dependencies are not copied and failed compiler buffers are never published as runnable artifacts.
  * @evidence contracts/e2e.md#preserved-coverage The per-assertion campaign ledger identifies request destinations and pending legacy transfers. The rich program does not certify untransferred cases; originals remain until verified ownership exists.
  */
@@ -95,7 +97,7 @@ const main = async () => {
   };
   const snapshot = () => {
     const errors = [];
-    for (const file of ["fixture/src", "consumer/src", ".producer", ".consumer", "swagger.json", "package.json", ...fs.readdirSync(sandbox).filter((name) => /^tsconfig\..*\.json$/.test(name))]) {
+    for (const file of ["fixture/src", "consumer/src", "exact-optional", ".producer", ".consumer", "swagger.json", "package.json", ...fs.readdirSync(sandbox).filter((name) => /^tsconfig\..*\.json$/.test(name))]) {
       const source = path.join(sandbox, file);
       try {
         if (fs.existsSync(source)) fs.cpSync(source, path.join(artifacts, file), { recursive: true });
@@ -178,10 +180,19 @@ const main = async () => {
       failures.push("core compiler wrapper preparation");
       console.error(error);
     }
+    try {
+      await measure("exact optional (compiler 2, All 1: SDK+Swagger, unlistened app 1)", () => test_sdk_exact_optional_compiler({
+        installation, sandbox, record, TtscCompiler, cacheDir: process.env.TTSC_CACHE_DIR,
+      }));
+    } catch (error) {
+      failures.push("exact optional producer/generator/consumer boundary");
+      console.error(error);
+    }
     const common = {
       extends: path.resolve(__dirname, "../config/tsconfig.json"),
       compilerOptions: {
         noEmit: false,
+        exactOptionalPropertyTypes: false,
         types: ["node"],
         noUnusedLocals: false,
         noUnusedParameters: false,
@@ -259,7 +270,6 @@ const main = async () => {
     console.log("Rich compiler: consumer (one generated program)");
     compile("consumer", "consumer", {
       ...migrationCompilerOptions,
-      exactOptionalPropertyTypes: true,
     });
     const address = application.getHttpServer().address();
     if (address === null || typeof address === "string")

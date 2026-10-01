@@ -74,7 +74,8 @@
         "test-e2e/internal/test_benchmark_http_connection.cjs",
         "test-e2e/internal/test_benchmark_worker_discovery.cjs",
         "test-e2e/internal/test_benchmark_worker_lifetimes.cjs",
-        "test-e2e/internal/core_wrappers/test_core_compiler_wrappers.cjs"
+        "test-e2e/internal/core_wrappers/test_core_compiler_wrappers.cjs",
+        "test-e2e/internal/exact_optional/test_sdk_exact_optional_compiler.cjs"
       ],
       "symbol": "function",
       "reference": {
@@ -93,6 +94,9 @@
       "type": "typescript",
       "files": [
         "test-e2e/consumer/src/**/*.ts",
+        "test-e2e/exact-optional/consumer/src/test/features/test_clone_optional_assignability.ts",
+        "test-e2e/exact-optional/consumer/src/test/features/test_clone_optional_properties.ts",
+        "test-e2e/exact-optional/consumer/src/test/features/test_swagger_optional_parameters.ts",
         "!test-e2e/consumer/src/**/structures/**",
         "!test-e2e/consumer/src/**/internal/**"
       ],
@@ -260,12 +264,14 @@
       }
     },
     {
-      "name": "authored SDK alias and transport runtime inputs",
+      "name": "authored SDK runtime and exact optional inputs",
       "type": "typescript",
       "files": [
         "test-e2e/fixture/src/scenarios/sdk_boundary/controllers/SdkBoundaryAliasController.ts",
         "test-e2e/fixture/src/scenarios/sdk_boundary/controllers/SdkBoundaryTransportController.ts",
-        "test-e2e/fixture/src/scenarios/sdk_boundary/structures/ISdkBoundaryPoint.ts"
+        "test-e2e/fixture/src/scenarios/sdk_boundary/structures/ISdkBoundaryPoint.ts",
+        "test-e2e/exact-optional/producer/src/controllers/OptionalController.ts",
+        "test-e2e/exact-optional/producer/src/structures/IOptional.ts"
       ],
       "symbol": [
         "type",
