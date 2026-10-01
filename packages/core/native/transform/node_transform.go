@@ -159,7 +159,7 @@ func nestiaCoreCollectParameterReplacements(
 		}
 		canonical := nestiaCoreCanonicalSegments(context, segments)
 		kind := nestiaCoreParameterKind(canonical)
-		if kind == "" || nestiaCoreDecoratorReference(state.prog, context, decorator, segments, canonical) == false {
+		if kind == "" || IsNestiaCoreCall(state.prog, call.AsNode()) == false {
 			continue
 		}
 		candidates = append(candidates, candidate{call: call, segments: segments, kind: kind})
@@ -210,7 +210,7 @@ func nestiaCoreCollectMethodReplacements(
 			continue
 		}
 		canonical := nestiaCoreCanonicalSegments(context, segments)
-		if nestiaCoreDecoratorReference(state.prog, context, decorator, segments, canonical) == false {
+		if IsNestiaCoreCall(state.prog, call.AsNode()) == false {
 			continue
 		}
 		// @WebSocketRoute carries no injected validator (it is not a method kind),

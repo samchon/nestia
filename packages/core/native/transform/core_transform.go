@@ -221,7 +221,7 @@ func nestiaCoreDecoratorCall(prog *driver.Program, decorator *shimast.Node) (*sh
 	}
 	context := newNestiaCoreFileContext(shimast.GetSourceFileOfNode(decorator))
 	canonical := nestiaCoreCanonicalSegments(context, segments)
-	if nestiaCoreDecoratorReference(prog, context, decorator, segments, canonical) == false {
+	if IsNestiaCoreCall(prog, call.AsNode()) == false {
 		return nil, nil, false
 	}
 	return call, canonical, true
@@ -231,6 +231,9 @@ func nestiaCoreDecoratorCall(prog *driver.Program, decorator *shimast.Node) (*sh
 // @nestia/core export its import binds, so `import { TypedException as TE }`
 // reads `TE<T>()` as `TypedException`. It returns nil for a decorator that is
 // no call.
+//
+// This mapping names the imported syntax. IsNestiaCoreCall separately verifies
+// that the resolved declaration belongs to core, including re-export facades.
 //
 // @evidence contracts/common.md#principled-implementation The decorator's callee is split into identifier segments, and the leading identifier is replaced by the `@nestia/core` export that its import binds, so an aliased import reads as the canonical name; a decorator that is not a call reads as nil.
 // @evidence contracts/common.md#clear-and-simple-design A thin exported wrapper that builds the file's import context and delegates the mapping to a private function.
@@ -310,31 +313,6 @@ func nestiaCoreCanonicalSegments(context nestiaCoreFileContext, segments []strin
 	canonical := append([]string{}, segments...)
 	canonical[0] = imported
 	return canonical
-}
-
-func nestiaCoreDecoratorReference(
-	prog *driver.Program,
-	context nestiaCoreFileContext,
-	decorator *shimast.Node,
-	segments []string,
-	canonical []string,
-) bool {
-	if len(segments) == 0 {
-		return false
-	}
-	if _, ok := context.coreImports[segments[0]]; ok {
-		return true
-	}
-	if nestiaCorePotentialDecoratorSegments(canonical) == false {
-		return false
-	}
-	return IsNestiaCoreCall(prog, decorator.AsDecorator().Expression)
-}
-
-func nestiaCorePotentialDecoratorSegments(segments []string) bool {
-	return nestiaCoreParameterKind(segments) != "" ||
-		nestiaCoreMethodKind(segments) != "" ||
-		(len(segments) != 0 && segments[len(segments)-1] == "WebSocketRoute")
 }
 
 // IsNestiaCoreCall reports whether the call resolves to a declaration in `@nestia/core`.

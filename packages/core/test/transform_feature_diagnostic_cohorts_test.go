@@ -8,14 +8,14 @@ import (
 	"testing"
 )
 
-// TestTransformFeatureDiagnosticCohorts verifies every test-sdk-e2e error feature
+// TestTransformFeatureDiagnosticCohorts verifies every preserved invalid fixture
 // whose failure is a transform diagnostic reports exactly its expected
 // diagnostics, in one in-process transform over all of them.
 //
 // The features compiled through `nestia all` in test-sdk-e2e, an end-to-end run of
 // the CLI, ttsc, and the generators for what only the core transform decides.
-// They stay fixtures under tests/test-sdk-e2e/features; the transform alone reads
-// them here.
+// Only authored controllers and DTOs remain as source-only core fixture inputs;
+// no application, generated client or CLI preparation is executed here.
 //
 //  1. List every controller of each cohort's features in one program.
 //  2. Run the project-mode transform and collect its diagnostics.
@@ -79,7 +79,7 @@ func TestTransformFeatureDiagnosticCohorts(t *testing.T) {
 			for feature, expected := range cases {
 				actual := 0
 				for _, file := range diagnostics {
-					if strings.Contains(file, "/features/"+feature+"/src/controllers/") {
+					if strings.Contains(file, "/fixtures/"+feature+"/src/controllers/") {
 						actual++
 					}
 				}
@@ -99,7 +99,7 @@ func TestTransformFeatureDiagnosticCohorts(t *testing.T) {
 }
 
 // transformFeatureCohort runs the project-mode transform over the controllers
-// of the given test-sdk-e2e features, returning the file of each diagnostic.
+// of the given source-only core fixtures, returning the file of each diagnostic.
 func transformFeatureCohort(t *testing.T, cases map[string]int) []string {
 	t.Helper()
 	files := []string{}
@@ -115,13 +115,13 @@ type featureDiagnostic struct {
 }
 
 // transformFeatureDiagnostics runs the project-mode transform over the
-// controllers of the given test-sdk-e2e features, returning each diagnostic.
+// controllers of the given source-only core fixtures, returning each diagnostic.
 func transformFeatureDiagnostics(t *testing.T, cases map[string]int) []featureDiagnostic {
 	t.Helper()
-	root := filepath.Join(repoRootForCore(t), "tests", "test-sdk-e2e")
+	root := filepath.Join(repoRootForCore(t), "packages/core/test/fixtures")
 	files := []string{}
 	for feature := range cases {
-		matches, err := filepath.Glob(filepath.Join(root, "features", feature, "src", "controllers", "*.ts"))
+		matches, err := filepath.Glob(filepath.Join(root, feature, "src", "controllers", "*.ts"))
 		if err != nil || len(matches) == 0 {
 			t.Fatalf("%s has no controller: %v", feature, err)
 		}

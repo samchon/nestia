@@ -13,7 +13,7 @@ import (
 // subcommand publishes on stdout, declared here from the ttsc protocol's wire
 // shape instead of reusing the producer's own Go struct. A renamed field or a
 // dropped struct tag would keep a producer-typed decode green while the real
-// consumer — `@ttsc/unplugin`, which reads this JSON — saw nothing.
+// consumer ??`@ttsc/unplugin`, which reads this JSON ??saw nothing.
 type projectTransformEnvelope struct {
 	Diagnostics  []map[string]any       `json:"diagnostics"`
 	TypeScript   map[string]string      `json:"typescript"`
@@ -30,9 +30,9 @@ type projectTransformGraph struct {
 }
 
 // runProjectTransformEnvelope drives the project-mode transform over a
-// tests/test-sdk-e2e feature with the feature's own cwd and tsconfig — project mode
+// source-only core fixture with the feature's own cwd and tsconfig ??project mode
 // keys every file relative to cwd and skips the ones that escape it, so a cwd
-// outside the feature would silently produce an empty envelope — and returns the
+// outside the feature would silently produce an empty envelope ??and returns the
 // decoded stdout envelope.
 //
 // It fails the test on a nonzero exit or on stdout that is not the envelope, so

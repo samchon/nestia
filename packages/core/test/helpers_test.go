@@ -12,11 +12,12 @@ import (
 )
 
 type llmRouteBuildProject struct {
-	Root        string
-	OutDir      string
-	BuildInfo   string
-	Manifest    string
-	PluginsJSON string
+	Root            string
+	OutDir          string
+	BuildInfo       string
+	Manifest        string
+	PluginsJSON     string
+	CoreDeclaration string
 }
 
 type llmRouteBuildProjectOptions struct {
@@ -26,8 +27,7 @@ type llmRouteBuildProjectOptions struct {
 }
 
 // repoRootForCore walks up from the external test module directory
-// (packages/core/test) to the monorepo root so the in-process tests can point
-// a tsconfig `extends` at the shared tests/test-sdk-e2e feature fixtures.
+// (packages/core/test) to the monorepo root for shared test-language settings.
 func repoRootForCore(t *testing.T) string {
 	t.Helper()
 	root, err := filepath.Abs("../../..")
@@ -37,10 +37,10 @@ func repoRootForCore(t *testing.T) string {
 	return root
 }
 
-// featureRootForCore returns the absolute path of a tests/test-sdk-e2e feature.
+// featureRootForCore returns an authored source-only core unit fixture.
 func featureRootForCore(t *testing.T, feature string) string {
 	t.Helper()
-	return filepath.Join(repoRootForCore(t), "tests/test-sdk-e2e/features", feature)
+	return filepath.Join(repoRootForCore(t), "packages/core/test/fixtures", feature)
 }
 
 // coreNativePlugins composes a @nestia/core plugin manifest with the given
@@ -111,15 +111,11 @@ func writeLlmRouteBuildProject(t *testing.T, options llmRouteBuildProjectOptions
 	if err := os.MkdirAll(src, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	declaration := `declare module "@nestia/core" {
-  export namespace TypedRoute {
-    function Get(): MethodDecorator;
-  }
+	declaration := `export namespace TypedRoute {
+  function Get(): MethodDecorator;
 }
 `
-	if err := os.WriteFile(filepath.Join(src, "core.d.ts"), []byte(declaration), 0o644); err != nil {
-		t.Fatal(err)
-	}
+	coreDeclaration := writeCoreDeclarationPackage(t, root, declaration)
 	property := `pair: [string, number];`
 	value := `{ pair: ["one", 1] }`
 	if options.Valid {
@@ -170,17 +166,18 @@ export class Controller {
     "incremental": true,
     "tsBuildInfoFile": "cache.tsbuildinfo"` + noEmit + allowImporting + `
   },
-  "files": ["src/core.d.ts", "src/main.ts"]
+  "files": ["src/main.ts"]
 }
 `
 	if err := os.WriteFile(filepath.Join(root, "tsconfig.json"), []byte(config), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	return llmRouteBuildProject{
-		Root:      root,
-		OutDir:    filepath.Join(root, "dist"),
-		BuildInfo: buildInfo,
-		Manifest:  filepath.Join(root, "artifacts", "manifest.json"),
+		Root:            root,
+		OutDir:          filepath.Join(root, "dist"),
+		BuildInfo:       buildInfo,
+		Manifest:        filepath.Join(root, "artifacts", "manifest.json"),
+		CoreDeclaration: coreDeclaration,
 		PluginsJSON: `[{
   "name": "@nestia/core",
   "stage": "transform",
@@ -192,6 +189,20 @@ export class Controller {
   }
 }]`,
 	}
+}
+
+// writeCoreDeclarationPackage authors an external module declaration whose
+// nearest package manifest establishes core ownership, without installation.
+func writeCoreDeclarationPackage(t *testing.T, root, declaration string) string {
+	t.Helper()
+	packageRoot := filepath.Join(root, "node_modules", "@nestia", "core")
+	if err := os.MkdirAll(packageRoot, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	writeFile(t, filepath.Join(packageRoot, "package.json"), `{"name":"@nestia/core","types":"index.d.ts"}`)
+	file := filepath.Join(packageRoot, "index.d.ts")
+	writeFile(t, file, declaration)
+	return file
 }
 
 // runCoreNative captures both process streams around one in-process native

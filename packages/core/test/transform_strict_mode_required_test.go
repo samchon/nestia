@@ -9,7 +9,7 @@ import (
 // is required." for a project without strictNullChecks, however the options
 // spell it, and stays silent for a strict project.
 //
-// test-sdk-e2e's non-strict features could never reach this diagnostic: the
+// The non-strict source fixtures could never reach this diagnostic: the
 // workspace resolves nestia's packages to their TypeScript sources, which the
 // feature's loose configuration fails to type-check first, so they passed on
 // that unrelated failure (#1694). The transform is driven here directly.

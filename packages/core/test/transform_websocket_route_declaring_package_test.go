@@ -48,6 +48,8 @@ func TestTransformWebSocketRouteDeclaringPackage(t *testing.T) {
 			// spelling is the same in every case and only the manifest differs
 			write("tgrid/package.json", item.manifest)
 			write("tgrid/index.ts", "export declare class WebSocketAcceptor<Header, Provider, Listener> { }\n")
+			writeCoreDeclarationPackage(t, root, `export function WebSocketRoute(path: string): any;
+export namespace WebSocketRoute { function Acceptor(): any; }`)
 			write("controller.ts", `import { WebSocketRoute } from "@nestia/core";
 
 import { WebSocketAcceptor } from "./tgrid";
