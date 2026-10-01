@@ -61,7 +61,9 @@ export const test_migrate_generation_option_matrix = (): void => {
             `${label}: keyword declaration`,
           );
           assert.ok(
-            normalized.includes(keyword ? "body?:" : "body?: post.Body"),
+            normalized.includes(
+              keyword ? "export type Props = { body?:" : "body?: post.Body",
+            ),
             `${label}: optional body`,
           );
           assert.equal(

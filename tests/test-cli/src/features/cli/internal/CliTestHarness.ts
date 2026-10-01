@@ -60,10 +60,10 @@ export namespace CliTestHarness {
     /**
      * Reports whether the requested executable can be used.
      *
-     * @evidence contracts/common.md#principled-implementation The boolean result separates availability from command execution; executable and argv remain distinct inputs.
+     * @evidence contracts/common.md#principled-implementation The boolean reports whether the executable probe succeeded; executable and argv remain distinct inputs while the supplied implementation owns probe effects.
      * @evidence contracts/common.md#clear-and-simple-design This callable declaration states one responsibility through its input and return types; it owns no executable body.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The declaration describes the supported callback boundary and claims no substituted implementation or executed result.
-     * @evidence contracts/common.md#meaningful-documentation Reports executable availability without starting its requested command.
+     * @evidence contracts/common.md#meaningful-documentation The callback returns whether a silent executable probe succeeded; its implementation may execute the supplied command to establish availability.
      * @evidenceExclude contracts/portability.md#os-neutral-implementation This callback signature declares input and output; the supplied implementation owns native filesystem, process or browser effects.
      * @evidenceExclude contracts/performance.md#efficient-algorithms The callback signature chooses no implementation algorithm.
      * @evidenceExclude contracts/performance.md#reuse-equivalent-work The signature coordinates no shared computation.
