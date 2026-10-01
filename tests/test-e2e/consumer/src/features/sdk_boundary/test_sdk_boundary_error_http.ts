@@ -8,7 +8,7 @@ import api from "../../api";
  * transport.
  *
  * The current SDK is nonpropagating, so generated rejection and raw literal
- * wire bodies are distinct from original resolved propagation verdicts.
+ * wire bodies complement the alternate SDK's resolved propagation verdicts.
  *
  * 1. Require range404 with message missing through the real host and generated
  *    client.
@@ -22,7 +22,7 @@ import api from "../../api";
  * @evidence contracts/e2e.md#necessary-boundary Authored TypedException metadata, native route analysis, installed generated error behavior and actual exception filter must connect.
  * @evidence contracts/e2e.md#shared-execution One packed installation, producer, generated consumer and backend supply these observations; no additional compiler or host is created.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity SDK boundary routes and type names isolate these stateless specimens. Reads concern only the current sandbox artifacts and every acquired response/reader is consumed or released before the common host closes.
- * @evidence contracts/e2e.md#preserved-coverage Original error specimens and wire status/body controls have these destinations. Resolved propagation success:false/data and generated quoted range-key signature remain pending the actual propagate-option seam, and are not certified here.
+ * @evidence contracts/e2e.md#preserved-coverage Original error specimens and wire status/body controls have these destinations. Resolved propagation success:false/data, generated quoted range-key syntax and five type bounds belong to test_sdk_boundary_error_propagation; neither case has executed in the shared gate yet.
  */
 export const test_sdk_boundary_error_http = async (
   connection: api.IConnection,
