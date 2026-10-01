@@ -23,7 +23,7 @@ import { NESTIA_EDITOR_DEFAULT_PACKAGE } from "./internal/NestiaEditorDefaultPac
  *
  * The component loads the document, from a URL or from the object given, generates the project in the browser, and shows the three stages as a stepper. A fetch failure or a composition failure is reported in place of the stage's progress.
  *
- * @evidence contracts/common.md#principled-implementation The three stages run once, in order, from an effect: load the document, compose it with `NestiaEditorComposer`, and expose the files for download; every failure path sets an error state, so the stepper never claims a stage that did not complete.
+ * @evidence contracts/common.md#principled-implementation The three stages run once, in order, from an effect: load the document, compose it with NestiaEditorComposer, and expose the files for download. Document-loading and composer failure results set their stage error states. Unexpected errors outside these operations are logged by the outer catch without setting an error state; only completed stages advance the stepper.
  * @evidence contracts/common.md#clear-and-simple-design One component owns the stepper state; document loading and operation counting stay in the private `getDocument` and `aggregateOperation`, and archiving and composition are delegated to their own namespaces.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The option defaults (keyword, simulate, e2e enabled) are the documented product defaults, and the archive name comes from the shared default package constant, not from a fixture name.
  * @evidence contracts/common.md#meaningful-documentation The comment states the stages and how failures appear.

@@ -59,6 +59,7 @@
       "files": [
         "test-unit/src/**/*.ts",
         "!test-unit/src/index.ts",
+        "!test-unit/src/browser/index.ts",
         "!test-unit/src/**/internal/**",
         "!test-unit/src/**/structures/**"
       ],

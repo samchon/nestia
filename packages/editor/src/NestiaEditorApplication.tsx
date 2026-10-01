@@ -10,7 +10,7 @@ import { NestiaEditorUploader } from "./NestiaEditorUploader";
  *
  * The page reads its settings from the query string (`url`, `mode`, `package`, `keyword`, `simulate`, `e2e`) and from `window` globals the served `index.html` sets. It renders the iframe flow when a document location is given, or when `swagger.json` or `swagger.yaml` is served beside the page, and the uploader otherwise. The `uploader` query key forces the uploader.
  *
- * @evidence contracts/common.md#principled-implementation A document location is resolved in a fixed order (query `url`, then `./swagger.json`, then `./swagger.yaml`, each probed with a fetch that must answer 200), and any failure of that lookup falls back to the uploader, so the page always renders one of its two flows.
+ * @evidence contracts/common.md#principled-implementation An explicit query URL is forwarded to the iframe, which loads it and reports a fetch error. Without one, swagger.json and then swagger.yaml are probed for HTTP 200; absent or failed lookup falls back to the uploader. Parsed generation options, including keyword, are passed to the iframe rather than replaced by its direct-component defaults.
  * @evidence contracts/common.md#clear-and-simple-design One component chooses between two existing components; the query and probing logic stays in the private `getAsset` and `findSwagger`, and option parsing lives in one place.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The package name default comes from the shared constant, and no document name, host, or fixture is special-cased; booleans accept only `true` and `1`, as the query contract states.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the page does, where each setting comes from, the lookup order, and the `uploader` override.
@@ -35,6 +35,7 @@ export function NestiaEditorApplication() {
     <NestiaEditorIframe
       swagger={asset.url}
       package={asset.package}
+      keyword={asset.keyword}
       simulate={asset.simulate}
       e2e={asset.e2e}
       mode={asset.mode}

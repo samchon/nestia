@@ -7,7 +7,8 @@
       "files": [
         "scripts/check-evidence.cjs",
         "scripts/run-e2e.cjs",
-        "scripts/run-tests.cjs"
+        "scripts/run-tests.cjs",
+        "scripts/run-unit.cjs"
       ],
       "symbol": "function",
       "reference": {
