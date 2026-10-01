@@ -26,7 +26,8 @@ class EquivalentController {
 }
 
 /**
- * Verifies component identity preserves semantic fields and recursive topology.
+ * Verifies component identity preserves semantic fields and recursive
+ * structural meaning.
  *
  * Resolved metadata includes transient ordinals and cyclic component links.
  * Ignoring every field named type or index also discards meaningful atomic
@@ -39,8 +40,8 @@ class EquivalentController {
  * 3. Assert two definitions, with the unchanged pair sharing their definition.
  *
  * @evidence contracts/testing.md#behavioral-verification The actual routeDictionary groups authored schemas and preserves equivalent definitions while separating atomic, union, literal, tag, nested and recursive distinctions.
- * @evidence contracts/testing.md#independent-expectations Different authored property types, literal values, constraint payloads and recursive edges represent different declarations; per-component ordinals have no declaration meaning. Literal dictionary names and component identities identify both separation and equivalent reuse.
- * @evidence contracts/testing.md#distinguishing-cases Equivalent inputs with different ordinals are the positive control. Atomic, union, literal, tag type, user payload type/index, nested definitions and recursive topology differ independently; each has an unchanged third route to reject unnecessary splitting.
+ * @evidence contracts/testing.md#independent-expectations Different authored property types, literal values, constraint payloads and nullable recursive edges represent different declarations; per-component ordinals have no declaration meaning. Literal dictionary names and component identities identify both separation and equivalent reuse.
+ * @evidence contracts/testing.md#distinguishing-cases Equivalent inputs with different ordinals are the positive control. Atomic, union, literal, tag type, user payload type/index, nested definitions and nullable recursive edges differ independently; self-loop versus equivalent two-node recursion reuses one definition, and a two-edge-per-level shared DAG retains only its distinct semantic nodes; each has an unchanged third route to reject unnecessary splitting.
  * @evidence contracts/testing.md#execution-ownership The test-sdk DynamicExecutor discovers this sole matching export. It directly calls reflection and routeDictionary with authored metadata; no consumer installation, product compilation, host or process protocol is created. Clone writer and route import consequences remain in test_sdk_clone_component_name_collisions.
  */
 export const test_sdk_component_structural_identity = (): void => {
@@ -142,43 +143,96 @@ export const test_sdk_component_structural_identity = (): void => {
         value.objects = [{ name: "Nested", tags: [], type: nested }];
       },
     },
-    ...["recursive", "recursive-topology"].map((name) => ({
-      name,
-      configure: (value: MetadataSchema, different: boolean) => {
-        value.atomics = [];
-        const child = structuredClone(value);
-        const nested: MetadataObjectType = {
-          name: "Node",
-          index: different ? 42 : 7,
-          properties: [
-            {
-              key: HandWrittenMetadata.operation({ baked: false, members: [] })
-                .parameters[0]!.resolved.data.components.objects[0]!
-                .properties[0]!.key as MetadataSchema,
+    {
+      name: "shared-dag",
+      configure: (value, different) => {
+        let child = structuredClone(value);
+        child.atomics[0]!.type = different ? "string" : "number";
+        const key = HandWrittenMetadata.operation({ baked: false, members: [] })
+          .parameters[0]!.resolved.data.components.objects[0]!.properties[0]!
+          .key;
+        for (let level = 16; level >= 0; --level) {
+          const node: MetadataObjectType = {
+            name: `Level${level}`,
+            index: level,
+            jsDocTags: [],
+            recursive: false,
+            nullables: [false],
+            properties: ["left", "right"].map((name) => ({
+              key: {
+                ...structuredClone(key),
+                constants: [
+                  {
+                    type: "string",
+                    values: [
+                      {
+                        value: name,
+                        tags: [],
+                        description: null,
+                        jsDocTags: [],
+                      },
+                    ],
+                  },
+                ],
+              },
               value: child,
               description: null,
               jsDocTags: [],
               mutability: null,
-            },
-          ],
-          jsDocTags: [],
-          recursive: true,
-          nullables: [false],
-        };
-        value.objects = [{ name: "Node", tags: [], type: nested }];
-        child.objects = [{ name: "Node", tags: [], type: nested }];
-        if (name === "recursive") child.nullable = different;
-        else if (different) {
-          const grandchild = structuredClone(value);
-          const second = {
-            ...nested,
-            properties: [{ ...nested.properties[0]!, value: grandchild }],
+            })),
           };
-          child.objects = [{ name: "Node", tags: [], type: second }];
-          grandchild.objects = [{ name: "Node", tags: [], type: nested }];
+          child = {
+            ...structuredClone(value),
+            atomics: [],
+            objects: [{ name: node.name, tags: [], type: node }],
+          };
         }
+        value.atomics = [];
+        value.objects = child.objects;
       },
-    })),
+    },
+    ...["recursive", "recursive-equivalent", "recursive-distinct"].map(
+      (name) => ({
+        name,
+        configure: (value: MetadataSchema, different: boolean) => {
+          value.atomics = [];
+          const child = structuredClone(value);
+          const nested: MetadataObjectType = {
+            name: "Node",
+            index: different ? 42 : 7,
+            properties: [
+              {
+                key: HandWrittenMetadata.operation({
+                  baked: false,
+                  members: [],
+                }).parameters[0]!.resolved.data.components.objects[0]!
+                  .properties[0]!.key as MetadataSchema,
+                value: child,
+                description: null,
+                jsDocTags: [],
+                mutability: null,
+              },
+            ],
+            jsDocTags: [],
+            recursive: true,
+            nullables: [false],
+          };
+          value.objects = [{ name: "Node", tags: [], type: nested }];
+          child.objects = [{ name: "Node", tags: [], type: nested }];
+          if (name === "recursive") child.nullable = different;
+          else if (different) {
+            const grandchild = structuredClone(value);
+            grandchild.nullable = name === "recursive-distinct";
+            const second = {
+              ...nested,
+              properties: [{ ...nested.properties[0]!, value: grandchild }],
+            };
+            child.objects = [{ name: "Node", tags: [], type: second }];
+            grandchild.objects = [{ name: "Node", tags: [], type: nested }];
+          }
+        },
+      }),
+    ),
   ];
   for (const scenario of cases) {
     const routes = [
@@ -200,12 +254,14 @@ export const test_sdk_component_structural_identity = (): void => {
       return routes;
     });
     const dictionary = TypedHttpRouteAnalyzer.routeDictionary(routes);
+    if (scenario.name === "shared-dag")
+      assert.equal(dictionary.objects.size, 36);
     const names = [...dictionary.objects.keys()]
       .filter((name) => name.endsWith("IFallbackQuery"))
       .sort();
     assert.deepEqual(
       names,
-      scenario.name === "equivalent"
+      scenario.name === "equivalent" || scenario.name === "recursive-equivalent"
         ? ["IFallbackQuery"]
         : ["FirstController.IFallbackQuery", "SecondController.IFallbackQuery"],
       scenario.name,

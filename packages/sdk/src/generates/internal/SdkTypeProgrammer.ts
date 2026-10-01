@@ -18,7 +18,6 @@ import {
   decodeMetadataValue,
   isRequiredOf,
   isSoleLiteralOf,
-  sizeOf,
 } from "../../internal/legacy";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { StringUtil } from "../../utils/StringUtil";
@@ -41,11 +40,11 @@ export namespace SdkTypeProgrammer {
   /**
    * Returns the type of a metadata: the union of its any, null, undefined,
    * escaped, constant, template, atomic, tuple, array, object, alias, and
-   * native forms.
+   * native and typed collection forms. An empty union emits never.
    *
    * @evidence contracts/common.md#principled-implementation A named object or alias is a reference and an implicit one is written in place, by the shared implicit rule.
    * @evidence contracts/common.md#clear-and-simple-design One function of ordered cases.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The member order is fixed.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The member order is fixed, supported resolved natives retain their type references, and empty unions use the TypeScript bottom type rather than an empty printed node.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
    */
   export const write =
@@ -88,13 +87,26 @@ export namespace SdkTypeProgrammer {
         union.push(
           writeAlias(project)(importer)(alias.type as MetadataAliasType),
         );
-      for (const native of meta.natives)
-        if (native.name === "Blob" || native.name === "File")
-          union.push(write_native(native.name));
+      for (const native of meta.natives) union.push(write_native(native.name));
+      for (const set of meta.sets)
+        union.push(
+          factory.createTypeReferenceNode("Set", [
+            write(project)(importer)(set.value),
+          ]),
+        );
+      for (const map of meta.maps)
+        union.push(
+          factory.createTypeReferenceNode("Map", [
+            write(project)(importer)(map.key),
+            write(project)(importer)(map.value),
+          ]),
+        );
 
-      return union.length === 1
-        ? union[0]!
-        : factory.createUnionTypeNode(union);
+      return union.length === 0
+        ? TypeFactory.keyword("never")
+        : union.length === 1
+          ? union[0]!
+          : factory.createUnionTypeNode(union);
     };
 
   /**
@@ -130,9 +142,22 @@ export namespace SdkTypeProgrammer {
     (importer: ImportDictionary) =>
     (meta: MetadataEscaped): TypeNode => {
       if (
-        sizeOf(meta.original) === 1 &&
         meta.original.natives.length === 1 &&
-        meta.original.natives[0]!.name === "Date"
+        meta.original.natives[0]!.name === "Date" &&
+        !meta.original.any &&
+        meta.original.escaped === null &&
+        [
+          meta.original.atomics,
+          meta.original.constants,
+          meta.original.templates,
+          meta.original.arrays,
+          meta.original.tuples,
+          meta.original.objects,
+          meta.original.aliases,
+          meta.original.sets,
+          meta.original.maps,
+          meta.original.functions,
+        ].every((members) => members.length === 0)
       )
         return factory.createIntersectionTypeNode([
           TypeFactory.keyword("string"),

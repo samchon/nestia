@@ -21,7 +21,8 @@
         "!src/analyses/ConfigAnalyzer.ts",
         "!src/executable/internal/NestiaConfigLoader.ts",
         "!src/utils/SdkInputFilter.ts",
-        "!src/executable/internal/NestiaSwaggerWatch.ts"
+        "!src/executable/internal/NestiaSwaggerWatch.ts",
+        "!src/analyses/TypedHttpRouteAnalyzer.ts"
       ],
       "symbol": [
         "type",
@@ -170,7 +171,8 @@
       "name": "scoped performance owners",
       "type": "typescript",
       "files": [
-        "src/analyses/AccessorAnalyzer.ts"
+        "src/analyses/AccessorAnalyzer.ts",
+        "src/analyses/TypedHttpRouteAnalyzer.ts"
       ],
       "symbol": [
         "type",

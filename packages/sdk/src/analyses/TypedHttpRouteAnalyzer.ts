@@ -19,6 +19,7 @@ import { ITypedHttpRouteException } from "../structures/ITypedHttpRouteException
 import { ITypedHttpRouteParameter } from "../structures/ITypedHttpRouteParameter";
 import { ITypedHttpRouteSuccess } from "../structures/ITypedHttpRouteSuccess";
 import { PathUtil } from "../utils/PathUtil";
+import { StringUtil } from "../utils/StringUtil";
 
 /**
  * Turns reflected HTTP operations into typed routes, one per path, and builds
@@ -28,6 +29,9 @@ import { PathUtil } from "../utils/PathUtil";
  * @evidence contracts/common.md#clear-and-simple-design Two public functions and private collectors for the component rename.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The rename mutates only component definitions owned by analysis; consumers emit resolved structural types rather than modifying foreign cache fields or replacing names in strings.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This namespace groups operations; analyze and routeDictionary own the algorithms.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The namespace itself coordinates no completed or in-flight work.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The namespace owns no cache, handle or running task.
  */
 export namespace TypedHttpRouteAnalyzer {
   /**
@@ -38,6 +42,9 @@ export namespace TypedHttpRouteAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The policies come from the validators of the package.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result and the errors.
+   * @evidence contracts/performance.md#efficient-algorithms Each supplied parameter and exception is cast once, policy validation belongs to MetadataFactory, and route splitting maps only the supplied paths.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Independently supplied operation metadata and position-specific validation have no shared completed or in-flight request.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Metadata dictionaries and local diagnostics belong to this synchronous operation and its returned routes; no process, handle or persistent history is retained.
    */
   export const analyze = (props: {
     controller: IReflectController;
@@ -176,10 +183,13 @@ export namespace TypedHttpRouteAnalyzer {
    * Returns the dictionary of the components the routes actually use, after
    * renaming components whose names collide with different definitions.
    *
-   * @evidence contracts/common.md#principled-implementation Components are grouped by kind and name, groups whose signatures differ are renamed with the controller name so every definition has a unique name, and the dictionary is rebuilt from the metadata of the routes.
+   * @evidence contracts/common.md#principled-implementation Objects and aliases share their emitted accessor-path slots, while arrays and tuples have kind-specific inline groups. Different semantic classes in one slot receive unique controller-qualified names, and the emitted dictionary follows escaped returns rather than original-only toJSON declarations.
    * @evidence contracts/common.md#clear-and-simple-design One function over private collectors.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Signatures omit ordinals only on collected component identities, preserve semantic fields and resolved nested definitions, and encode ancestor back-edges without confusing them with ordinary user payloads.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Finite partition refinement preserves semantic discriminators and user payloads while component edges reference equivalence classes. Only actual component ordinals are omitted; no foreign name cache or generated text is rewritten.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result and the rename.
+   * @evidence contracts/performance.md#efficient-algorithms Each refinement round encodes each distinct component body with constant-sized component edges. The partition only splits and stabilizes within the distinct component count, avoiding exponential expansion of shared DAGs.
+   * @evidence contracts/performance.md#reuse-equivalent-work One local partition compares all routes together, reuses graph node colors for shared children and supplies all collision groups; equivalent same-slot definitions reuse one emitted representative.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Collected nodes, partitions and visited sets are local to this synchronous call and are released with it; the returned dictionary retains only its reachable emitted representatives.
    */
   export const routeDictionary = (
     routes: Array<ITypedHttpRoute>,
@@ -228,14 +238,37 @@ const renameDuplicateComponents = (routes: ITypedHttpRoute[]): void => {
   for (const route of routes)
     for (const metadata of routeMetadatas(route))
       collectComponentEntries(entries, route, metadata);
-  const components = new WeakSet<object>(entries.map((entry) => entry.type));
-  for (const entry of entries)
-    entry.signature = componentSignature(entry.type, components);
+  // Original toJSON definitions participate in semantic comparison but do not
+  // become emitted declarations unless another route uses them directly.
+  const comparisonEntries: IComponentEntry[] = [];
+  for (const route of routes)
+    for (const metadata of routeMetadatas(route))
+      collectComponentEntries(
+        comparisonEntries,
+        route,
+        metadata,
+        createCollectVisited(),
+        true,
+      );
+  const signatures = componentSignatures(comparisonEntries);
+  for (const entry of entries) entry.signature = signatures.get(entry.type)!;
 
-  const used: Set<string> = new Set(entries.map((e) => e.type!.name));
+  const used: Set<string> = new Set(
+    entries.map((e) => StringUtil.accessorsOf(e.type.name).join(".")),
+  );
   const groups: Map<string, IComponentEntry[]> = new Map();
   for (const entry of entries) {
-    const key: string = `${entry.kind}:${entry.type!.name}`;
+    // Objects and aliases occupy the same emitted TypeScript declaration slot.
+    // Arrays and tuples are inline forms and have no independent declaration.
+    const slot =
+      entry.kind === "objects" || entry.kind === "aliases"
+        ? "declarations"
+        : entry.kind;
+    const name =
+      slot === "declarations"
+        ? StringUtil.accessorsOf(entry.type.name).join(".")
+        : entry.type.name;
+    const key: string = `${slot}:${name}`;
     const group: IComponentEntry[] | undefined = groups.get(key);
     if (group === undefined) groups.set(key, [entry]);
     else group.push(entry);
@@ -258,7 +291,7 @@ const renameDuplicateComponents = (routes: ITypedHttpRoute[]): void => {
             `${prefix}.${oldName}`,
           );
           renamed.set(entry.signature, name);
-          used.add(name);
+          used.add(StringUtil.accessorsOf(name).join("."));
           return name;
         })();
       (entry.type as { name: string }).name = next;
@@ -284,26 +317,67 @@ const collectComponentEntries = (
   route: ITypedHttpRoute,
   metadata: MetadataSchema,
   visited: ICollectVisited = createCollectVisited(),
+  includeOriginal: boolean = false,
 ): void => {
   if (visited.schemas.has(metadata)) return;
   visited.schemas.add(metadata);
 
   if (metadata.rest !== null)
-    collectComponentEntries(entries, route, metadata.rest, visited);
+    collectComponentEntries(
+      entries,
+      route,
+      metadata.rest,
+      visited,
+      includeOriginal,
+    );
   if (metadata.escaped !== null) {
-    collectComponentEntries(entries, route, metadata.escaped.original, visited);
-    collectComponentEntries(entries, route, metadata.escaped.returns, visited);
+    if (includeOriginal)
+      collectComponentEntries(
+        entries,
+        route,
+        metadata.escaped.original,
+        visited,
+        includeOriginal,
+      );
+    collectComponentEntries(
+      entries,
+      route,
+      metadata.escaped.returns,
+      visited,
+      includeOriginal,
+    );
   }
+  for (const template of metadata.templates)
+    for (const elem of template.row ?? template)
+      collectComponentEntries(entries, route, elem, visited, includeOriginal);
   for (const func of metadata.functions) {
     for (const p of func.parameters)
-      collectComponentEntries(entries, route, p.type, visited);
-    collectComponentEntries(entries, route, func.output, visited);
+      collectComponentEntries(entries, route, p.type, visited, includeOriginal);
+    collectComponentEntries(
+      entries,
+      route,
+      func.output,
+      visited,
+      includeOriginal,
+    );
   }
   for (const set of metadata.sets)
-    collectComponentEntries(entries, route, set.value, visited);
+    collectComponentEntries(
+      entries,
+      route,
+      set.value,
+      visited,
+      includeOriginal,
+    );
   for (const map of metadata.maps) {
-    collectComponentEntries(entries, route, map.key, visited);
-    collectComponentEntries(entries, route, map.value, visited);
+    collectComponentEntries(entries, route, map.key, visited, includeOriginal);
+    collectComponentEntries(
+      entries,
+      route,
+      map.value,
+      visited,
+      includeOriginal,
+    );
   }
   for (const array of metadata.arrays)
     if (visited.arrays.has(array.type as MetadataArrayType) === false) {
@@ -316,6 +390,7 @@ const collectComponentEntries = (
         route,
         (array.type as MetadataArrayType as MetadataArrayType).value,
         visited,
+        includeOriginal,
       );
     }
   for (const tuple of metadata.tuples)
@@ -326,7 +401,7 @@ const collectComponentEntries = (
       );
       for (const elem of (tuple.type as MetadataTupleType as MetadataTupleType)
         .elements)
-        collectComponentEntries(entries, route, elem, visited);
+        collectComponentEntries(entries, route, elem, visited, includeOriginal);
     }
   for (const alias of metadata.aliases)
     if (visited.aliases.has(alias.type as MetadataAliasType) === false) {
@@ -339,6 +414,7 @@ const collectComponentEntries = (
         route,
         (alias.type as MetadataAliasType as MetadataAliasType).value,
         visited,
+        includeOriginal,
       );
     }
   for (const obj of metadata.objects)
@@ -349,8 +425,20 @@ const collectComponentEntries = (
       );
       for (const p of (obj.type as MetadataObjectType as MetadataObjectType)
         .properties) {
-        collectComponentEntries(entries, route, p.key, visited);
-        collectComponentEntries(entries, route, p.value, visited);
+        collectComponentEntries(
+          entries,
+          route,
+          p.key,
+          visited,
+          includeOriginal,
+        );
+        collectComponentEntries(
+          entries,
+          route,
+          p.value,
+          visited,
+          includeOriginal,
+        );
       }
     }
 };
@@ -367,39 +455,65 @@ const componentEntry = <T extends ComponentType>(
 });
 
 /**
- * Encodes semantic fields and resolved definitions, representing ancestor
- * back-edges by their position. Ordinary data has separate object/array tags,
- * so user tag values cannot impersonate a graph reference. Only actual
- * collected component definitions omit their transient ordinal.
+ * Refines a finite component graph until no semantic equivalence class splits.
+ * Component edges carry class numbers, so shared children are never expanded as
+ * trees. Ordinary payloads retain separate object/array representations. Each
+ * round preserves the previous partition and can only split its classes; at
+ * most the number of distinct components rounds are necessary.
  */
-const componentSignature = (
-  type: ComponentType,
-  components: WeakSet<object> = new WeakSet(),
-): string => {
-  const ancestors = new WeakMap<object, number>();
-  let depth = 0;
-  const encode = (value: unknown): unknown => {
-    if (value === null || typeof value !== "object") return value;
-    const position = ancestors.get(value);
-    if (position !== undefined) return ["reference", position];
-    ancestors.set(value, depth++);
-    const encoded = Array.isArray(value)
-      ? ["array", value.map(encode)]
-      : [
-          "object",
-          Object.entries(value)
-            .filter(
-              ([key, child]) =>
-                child !== undefined &&
-                !(key === "index" && components.has(value)),
-            )
-            .map(([key, child]) => [key, encode(child)]),
-        ];
-    --depth;
-    ancestors.delete(value);
-    return encoded;
-  };
-  return JSON.stringify(encode(type));
+const componentSignatures = (
+  entries: IComponentEntry[],
+): Map<ComponentType, string> => {
+  const kinds = new Map<ComponentType, ComponentKind>();
+  for (const entry of entries) kinds.set(entry.type, entry.kind);
+  const nodes = [...kinds.keys()];
+  let colors = new Map(nodes.map((node) => [node, 0]));
+  let classes = nodes.length ? 1 : 0;
+  while (nodes.length) {
+    const intern = new Map<string, number>();
+    const next = new Map<ComponentType, number>();
+    for (const node of nodes) {
+      const ancestors = new WeakMap<object, number>();
+      let depth = 0;
+      const encode = (value: unknown, root = false): unknown => {
+        if (value === null || typeof value !== "object") return value;
+        if (!root && kinds.has(value as ComponentType))
+          return ["component", colors.get(value as ComponentType)];
+        const position = ancestors.get(value);
+        if (position !== undefined) return ["payload-cycle", position];
+        ancestors.set(value, depth++);
+        const result = Array.isArray(value)
+          ? ["array", value.map((child) => encode(child))]
+          : [
+              "object",
+              Object.entries(value)
+                .filter(
+                  ([key, child]) =>
+                    child !== undefined && !(root && key === "index"),
+                )
+                .map(([key, child]) => [key, encode(child)]),
+            ];
+        ancestors.delete(value);
+        --depth;
+        return result;
+      };
+      const signature = JSON.stringify([
+        colors.get(node),
+        kinds.get(node),
+        encode(node, true),
+      ]);
+      let color = intern.get(signature);
+      if (color === undefined) {
+        color = intern.size;
+        intern.set(signature, color);
+      }
+      next.set(node, color);
+    }
+    colors = next;
+    if (intern.size === classes) break;
+    classes = intern.size;
+  }
+  return new Map(nodes.map((node) => [node, String(colors.get(node))]));
 };
 
 const normalizeComponentNamespace = (name: string): string => {
@@ -408,7 +522,9 @@ const normalizeComponentNamespace = (name: string): string => {
 };
 
 const escapeComponentName = (used: Set<string>, name: string): string =>
-  used.has(name) ? escapeComponentName(used, `_${name}`) : name;
+  used.has(StringUtil.accessorsOf(name).join("."))
+    ? escapeComponentName(used, `_${name}`)
+    : name;
 
 interface ICollectVisited {
   aliases: WeakSet<MetadataAliasType>;
@@ -426,9 +542,6 @@ const createCollectVisited = (): ICollectVisited => ({
   tuples: new WeakSet<MetadataTupleType>(),
 });
 
-const componentScore = (input: unknown): number =>
-  componentSignature(input as ComponentType).length;
-
 const enrollMetadata = (
   dictionary: IMetadataDictionary,
   metadata: MetadataSchema,
@@ -440,9 +553,11 @@ const enrollMetadata = (
   if (metadata.rest !== null)
     enrollMetadata(dictionary, metadata.rest, visited);
   if (metadata.escaped !== null) {
-    enrollMetadata(dictionary, metadata.escaped.original, visited);
     enrollMetadata(dictionary, metadata.escaped.returns, visited);
   }
+  for (const template of metadata.templates)
+    for (const elem of template.row ?? template)
+      enrollMetadata(dictionary, elem, visited);
   for (const func of metadata.functions) {
     for (const p of func.parameters)
       enrollMetadata(dictionary, p.type, visited);
@@ -492,15 +607,11 @@ const enroll = <
   dict: Map<string, T>,
   elem: T,
 ): boolean => {
+  // Collision refinement established equivalence for every remaining same-name
+  // entry in this kind; selecting another representative cannot add meaning.
   const oldbie: T | undefined = dict.get(elem.name);
   if (oldbie === elem) return false;
   if (oldbie === undefined) {
-    dict.set(elem.name, elem);
-    return true;
-  } else if (
-    elem.name.includes(".") ||
-    componentScore(oldbie) < componentScore(elem)
-  ) {
     dict.set(elem.name, elem);
     return true;
   }
