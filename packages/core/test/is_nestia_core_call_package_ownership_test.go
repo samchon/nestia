@@ -23,8 +23,9 @@ import (
 //  1. Author foreign lookalikes, nested foreign packages and actual-name packages.
 //  2. Load one TypeScript program with aliased and re-exported call signatures.
 //  3. Require every authored ownership verdict and reject an unresolved call.
+//  4. Repair an invalid nearest manifest and require a fresh program to recover.
 //
-// @evidence contracts/testing.md#behavioral-verification IsNestiaCoreCall judges actual resolved signatures in one driver program; foreign and nested-foreign declarations must be false, real-name and re-exported real declarations true, and an unresolved call false. Every named call must be visited.
+// @evidence contracts/testing.md#behavioral-verification IsNestiaCoreCall judges resolved signatures; foreign and nested-foreign declarations and their re-exports must be false, real-name and re-exported real declarations true, and an unresolved call false. Repairing the malformed nearest manifest must recover ownership in a fresh program. Every named call is visited.
 // @evidence contracts/testing.md#independent-expectations Handwritten package manifests identify the owner and literal expected booleans are assigned before loading the program; no current detector output generates the expectations.
 // @evidence contracts/testing.md#distinguishing-cases Both lib and src/decorators lookalikes, both nested foreign layouts, invalid/unnamed nearest manifests, ordinary installed core, relocated core, a renamed local binding, a transparent re-export, an unresolved call and absent program/source inputs distinguish path matching from closest-manifest ownership.
 // @evidence contracts/testing.md#execution-ownership The canonical core Go runner discovers this matching Test, loads and closes a real driver program in-process, and t.TempDir owns all fixture files. No host binary, CLI, runtime server or shared workspace package is changed.
@@ -56,7 +57,7 @@ func TestIsNestiaCoreCallPackageOwnership(t *testing.T) {
 		{"relocated", "linked-core/custom/decorator", "linked-core", `{"name":"@nestia/core"}`, true},
 	}
 	var imports, calls strings.Builder
-	want := map[string]bool{"reexported": true, "unresolved": false}
+	want := map[string]bool{"reexported": true, "foreignReexported": false, "unresolved": false}
 	for _, item := range cases {
 		write(item.manifest+"/package.json", item.contents)
 		write(item.location+".ts", "export declare function TypedBody(): unknown;\n")
@@ -65,8 +66,10 @@ func TestIsNestiaCoreCallPackageOwnership(t *testing.T) {
 		want[item.binding] = item.want
 	}
 	write("barrel.ts", `export { TypedBody } from "./linked-core/custom/decorator";`)
+	write("foreign-barrel.ts", `export { TypedBody } from "./packages/core/lib/decorator";`)
 	imports.WriteString("import { TypedBody as reexported } from './barrel';\n")
-	calls.WriteString("reexported();\nunresolved();\n")
+	imports.WriteString("import { TypedBody as foreignReexported } from './foreign-barrel';\n")
+	calls.WriteString("reexported();\nforeignReexported();\nunresolved();\n")
 	write("main.ts", imports.String()+calls.String())
 	write("tsconfig.json", `{"compilerOptions":{"target":"ES2022","module":"commonjs","ignoreDeprecations":"6.0","noLib":true},"files":["main.ts"]}`)
 	prog, diags, err := driver.LoadProgram(root, "tsconfig.json", driver.LoadProgramOptions{ForceNoEmit: true})
@@ -105,5 +108,33 @@ func TestIsNestiaCoreCallPackageOwnership(t *testing.T) {
 	}
 	if transform.IsNestiaCoreCall(nil, nil) || transform.SourceFilePackageName(nil, nil) != "" || transform.SourceFilePackageName(prog, nil) != "" {
 		t.Error("absent program/source must not identify an owner")
+	}
+	write("node_modules/@nestia/core/lib/broken/package.json", `{"name":"@nestia/core"}`)
+	recovered, diags, err := driver.LoadProgram(root, "tsconfig.json", driver.LoadProgramOptions{ForceNoEmit: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer recovered.Close()
+	if len(diags) != 0 {
+		t.Fatalf("recovery configuration diagnostics: %v", diags)
+	}
+	recoveredSource := recovered.SourceFile(filepath.ToSlash(filepath.Join(root, "main.ts")))
+	if recoveredSource == nil {
+		t.Fatal("recovery source missing")
+	}
+	recoveredCall := false
+	var recoveryWalk func(*shimast.Node)
+	recoveryWalk = func(node *shimast.Node) {
+		if node.Kind == shimast.KindCallExpression && transform.NodeText(node.AsCallExpression().Expression) == "invalidManifest" {
+			recoveredCall = true
+			if !transform.IsNestiaCoreCall(recovered, node) {
+				t.Error("repaired nearest core manifest retained the former rejection")
+			}
+		}
+		node.ForEachChild(func(child *shimast.Node) bool { recoveryWalk(child); return false })
+	}
+	recoveryWalk(recoveredSource.AsNode())
+	if !recoveredCall {
+		t.Error("repaired-owner call not visited")
 	}
 }

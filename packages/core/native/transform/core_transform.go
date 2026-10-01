@@ -1102,7 +1102,7 @@ var nestiaCoreSingleParameterArrowPattern = regexp.MustCompile(`(^|[\s(=,:?])([A
 //
 // The declared return type is used when it is `Promise<T>` or an rxjs `Observable<T>`, and `T` is returned, so an asynchronous method is typed by what it resolves to. A missing signature returns nil.
 //
-// @evidence contracts/common.md#principled-implementation An explicit `Promise<T>` or `Observable<T>` annotation is unwrapped syntactically first, and otherwise the checker's return type is unwrapped when its symbol is `Promise` or an rxjs `Observable`; an Observable is recognized by its resolved declaration, which the nearest package manifest must name rxjs, for the annotation and the checker's type alike, so a user type named Observable is left alone however an import spells it.
+// @evidence contracts/common.md#principled-implementation An explicit annotation is unwrapped only when its resolved symbol declares the TypeScript library Promise or an rxjs-owned Observable. Otherwise the checker's resolved return type uses the same provenance rule, preserving user wrappers and allowing aliases to the library type. Global Promise augmentations retain the library declaration in their merged symbol.
 // @evidence contracts/common.md#clear-and-simple-design One function with two unwrapping paths, sharing the private wrapper predicates.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The wrappers are the two types NestJS handlers return; no method or controller name is special-cased.
 // @evidence contracts/common.md#meaningful-documentation The comment states the unwrapped wrappers and the nil result.
@@ -1151,23 +1151,20 @@ func nestiaCoreExplicitAsyncReturnType(prog *driver.Program, node *shimast.Node)
 // a wrapper a route method's return type is unwrapped from: `Promise`, or the
 // rxjs `Observable` however it is imported, aliased or re-exported.
 //
-// `Promise` is read by its spelling. `Observable` is decided by its resolved
-// declaration, which must belong to the `rxjs` package, so a user type that is
-// merely named Observable is left alone.
+// Promise must have a resolved declaration in the program's TypeScript library.
+// Observable must have a resolved declaration owned by rxjs. A same-spelled
+// user wrapper remains an ordinary response type.
 //
-// @evidence contracts/common.md#principled-implementation The reference is the global Promise by its spelling, and otherwise its symbol is followed through import and re-export aliases to the class it names, which is the rxjs Observable only when that declaration's nearest package manifest names rxjs, so the decision depends on the actual declaration and not on how it was imported.
+// @evidence contracts/common.md#principled-implementation The checker resolves the reference and import aliases to their declarations. Promise requires a declaration in the compiler-identified library; Observable requires a nearest manifest naming rxjs. Namespace user types and missing library declarations cannot become asynchronous wrappers merely by spelling.
 // @evidence contracts/common.md#clear-and-simple-design One function that resolves the symbol and delegates the name and ownership test to the shared symbol predicate, so the syntactic annotation path and the checker path of the return type use one rule; the SDK reads the same function rather than keeping a second copy.
-// @evidence contracts/common.md#prohibited-implementation-shortcuts No import statement is scanned as text and no installed folder fragment substitutes for package ownership; a name other than Promise and Observable is never a wrapper, and a spelling alone never makes an Observable.
-// @evidence contracts/common.md#meaningful-documentation The comment states the two wrappers, that Promise is read by spelling, and that Observable is decided by its declaring package.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts No source spelling, fixture identity, filename fragment or folder name substitutes for declaration provenance. The TypeScript program identifies its actual library files and the program filesystem supplies nearest package ownership.
+// @evidence contracts/common.md#meaningful-documentation The comment identifies both supported wrappers and their declaration provenance requirements, including preservation of user lookalikes.
 func NestiaCoreIsAsyncReturnWrapperReference(
 	prog *driver.Program,
 	node *shimast.Node,
 ) bool {
 	if node == nil {
 		return false
-	}
-	if nestiaCoreTypeNodeText(node) == "Promise" {
-		return true
 	}
 	if prog == nil || prog.Checker == nil {
 		return false
@@ -1186,8 +1183,12 @@ func nestiaCoreIsAsyncReturnWrapperSymbol(
 	name string,
 	declarations []*shimast.Node,
 ) bool {
-	if name == "Promise" {
-		return true
+	if name == "Promise" && prog != nil && prog.TSProgram != nil {
+		for _, decl := range declarations {
+			if source := shimast.GetSourceFileOfNode(decl); source != nil && prog.TSProgram.IsLibFile(source) {
+				return true
+			}
+		}
 	}
 	return name == "Observable" && nestiaCoreIsRxjsDeclarations(prog, declarations)
 }
