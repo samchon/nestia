@@ -14,6 +14,9 @@ type AnyRoute = ITypedHttpRoute | ITypedWebSocketRoute | ITypedMcpRoute;
  * @evidence contracts/common.md#clear-and-simple-design One public function over three private passes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The passes follow the accessor structure and no route or controller name is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidence contracts/performance.md#efficient-algorithms For R routes of at most D accessor segments, the prefix maps avoid repeated route-to-route searches. Prefix slicing and joining costs O(R D²) character work before collision escapes; collisions add probes and longer names. Two shrink passes are required around escaping because escaping changes the names being shrunk.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
  */
 export namespace AccessorAnalyzer {
   /**
@@ -24,6 +27,9 @@ export namespace AccessorAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function that runs the passes in a fixed order.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules apply to every route, and reserved names are computed from the routes themselves.
    * @evidence contracts/common.md#meaningful-documentation The comment states the passes and the in-place rewrite.
+   * @evidence contracts/performance.md#efficient-algorithms For R routes of at most D accessor segments, the prefix maps avoid repeated route-to-route searches. Prefix slicing and joining costs O(R D²) character work before collision escapes; collisions add probes and longer names. Two shrink passes are required around escaping because escaping changes the names being shrunk.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const analyze = (routes: Array<AnyRoute>) => {
     shrink(routes);

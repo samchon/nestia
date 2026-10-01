@@ -28,7 +28,7 @@ import (
 //
 // @evidence contracts/testing.md#behavioral-verification A loaded controller must expose methods, a resolved core call, nonempty expression segments and a resolved return type through the exported AST helpers; every observation is required before success.
 // @evidence contracts/testing.md#independent-expectations The authored TypedBodyController imports actual core decorators and declares named methods with return types; those declarations establish the required observations independently of rewritten source.
-// @evidence contracts/testing.md#distinguishing-cases This case owns ordinary non-nil loaded nodes, complemented by the nil accessor case. It currently asserts existence, not exact segments or every return type, so it cannot prove complete AST spelling semantics.
+// @evidence contracts/testing.md#distinguishing-cases This case owns ordinary non-nil loaded nodes, complemented by the nil accessor case. The foreign @nestjs/common Controller() call in the same controller is the negative twin that IsNestiaCoreCall must not accept (package ownership cases own the rest). It otherwise asserts existence, not exact segments or every return type, so it cannot prove complete AST spelling semantics.
 // @evidence contracts/testing.md#execution-ownership Go discovers the external core Test and loads a driver program in-process; defer closes that program and no native host or runtime server is launched.
 func TestExportedAstHelpersOnProgram(t *testing.T) {
 	cwd := featureRootForCore(t, "body")
@@ -48,6 +48,7 @@ func TestExportedAstHelpersOnProgram(t *testing.T) {
 
 	var (
 		sawCoreCall bool
+		sawForeign  bool
 		sawSegments bool
 		sawReturn   bool
 		sawMethod   bool
@@ -71,9 +72,11 @@ func TestExportedAstHelpersOnProgram(t *testing.T) {
 			if call != nil {
 				if transform.IsNestiaCoreCall(prog, node) {
 					sawCoreCall = true
+				} else if transform.NodeText(call.Expression) == "Controller" {
+					sawForeign = true
 				}
 				segs := transform.NestiaCoreExpressionSegments(call.Expression)
-				if len(segs) > 0 && transform.NestiaCoreExpressionSegments(call.Expression) != nil {
+				if len(segs) > 0 {
 					sawSegments = true
 				}
 			}
@@ -90,6 +93,9 @@ func TestExportedAstHelpersOnProgram(t *testing.T) {
 	}
 	if !sawCoreCall {
 		t.Fatal("IsNestiaCoreCall never returned true for a @nestia/core decorator")
+	}
+	if !sawForeign {
+		t.Fatal("the @nestjs/common Controller() call was never visited as a foreign call")
 	}
 	if !sawSegments {
 		t.Fatal("NestiaCoreExpressionSegments never produced segments")

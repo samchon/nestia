@@ -7,6 +7,7 @@ import { VariadicSingleton } from "tstl";
  * @evidence contracts/common.md#clear-and-simple-design One function with one memoized directory creator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It writes exactly the given files, and injection is the supported boundary for the platform.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidence contracts/portability.md#os-neutral-implementation Each path is the root, a `/` and the key's `/`-separated segments, a spelling the filesystem calls of every supported platform accept, and creation and writing are delegated to injected functions, so the caller's filesystem decides existence, case policy and permissions. Directories are created one segment at a time because the injected creator is not recursive. Remaining assumptions: keys are trusted generated names, since a `..` or absolute segment would leave the root, and on a case-insensitive volume two keys that differ only in case write to the same file.
  */
 export namespace NestiaMigrateFileArchiver {
   /**
@@ -21,6 +22,7 @@ export namespace NestiaMigrateFileArchiver {
    * @evidence contracts/common.md#clear-and-simple-design One function; the memoized creator makes a repeated directory a no-op.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The dropped creation error is a stated consequence of the non-recursive creator, and the write still fails loudly when the directory is missing.
    * @evidence contracts/common.md#meaningful-documentation The comment states the order of creation and the deferred error.
+   * @evidence contracts/portability.md#os-neutral-implementation The memo of created directories is keyed by the spelled path, so on a case-insensitive volume a second spelling attempts the creation again and receives the already-exists error, which is the swallowed outcome.
    */
   export const archive = async (props: {
     mkdir: (path: string) => Promise<void>;

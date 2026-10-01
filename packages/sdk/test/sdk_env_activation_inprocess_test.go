@@ -38,7 +38,7 @@ func TestSDKEnvFlagActivatesContributorInProcess(t *testing.T) {
 		"controllers/TypedBodyController.ts",
 		"api/structures/IBbsArticle.ts",
 	})
-	file := filepath.Join(root, "tests/test-sdk/features/body/src/controllers/TypedBodyController.ts")
+	file := filepath.Join(root, "tests/test-sdk-e2e/features/body/src/controllers/TypedBodyController.ts")
 	outFile := filepath.Join(temp, "out.ts")
 	t.Setenv("NESTIA_SDK_TRANSFORM", "1")
 	code := transform.Run([]string{

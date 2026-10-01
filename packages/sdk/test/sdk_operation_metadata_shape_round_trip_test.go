@@ -29,12 +29,12 @@ func TestSDKOperationMetadataShapeRoundTrip(t *testing.T) {
 	root := repoRoot(t)
 	temp := t.TempDir()
 	tsconfig := filepath.Join(temp, "tsconfig.json")
-	sourceRoot := filepath.Join(root, "tests/test-sdk/features/body/src")
+	sourceRoot := filepath.Join(root, "tests/test-sdk-e2e/features/body/src")
 	typeRoots := nodeTypeRoots(t, root)
 	if err := os.WriteFile(
 		tsconfig,
 		[]byte(`{
-  "extends": "`+filepath.ToSlash(filepath.Join(root, "tests/test-sdk/features/body/tsconfig.json"))+`",
+  "extends": "`+filepath.ToSlash(filepath.Join(root, "tests/test-sdk-e2e/features/body/tsconfig.json"))+`",
   "compilerOptions": {
     "rootDir": "`+filepath.ToSlash(root)+`",
     "types": ["node"],

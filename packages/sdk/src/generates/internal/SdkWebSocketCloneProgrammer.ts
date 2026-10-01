@@ -1,3 +1,4 @@
+import { parse } from "@babel/parser";
 import fs from "fs";
 import path from "path";
 
@@ -8,8 +9,8 @@ import { ITypedApplication } from "../../structures/ITypedApplication";
  * `structures` directory.
  *
  * @evidence contracts/common.md#principled-implementation A WebSocket route refers to types by import, so the declaration and the declarations it uses are copied as text from the source files, not rebuilt from metadata.
- * @evidence contracts/common.md#clear-and-simple-design One public function with text helpers for declarations, imports, and comments.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The text analysis masks strings and comments before it looks for a declaration, and a package file or a name declared differently in two files is never copied.
+ * @evidence contracts/common.md#clear-and-simple-design One public function with syntax-tree helpers for declarations and imports.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The TypeScript syntax parser determines declaration and import boundaries, including automatic semicolon insertion; a package file or a name declared differently in two files is never copied.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
  */
 export namespace SdkWebSocketCloneProgrammer {
@@ -53,7 +54,7 @@ export namespace SdkWebSocketCloneProgrammer {
       ctx.visited.set(key, "pending");
 
       const text: string = await fs.promises.readFile(location, "utf8");
-      const declarations: string[] = getDeclarations(text, name);
+      const declarations: string[] = getDeclarations(text, name, location);
       if (declarations.length === 0) {
         ctx.visited.set(key, "missing");
         return false;
@@ -95,10 +96,10 @@ export namespace SdkWebSocketCloneProgrammer {
         if (imports.includes(line) === false) imports.push(line);
       };
 
-      for (const imp of getImports(props.source)) {
+      for (const imp of getImports(props.source, props.location)) {
         const relative: boolean = imp.specifier.startsWith(".");
         for (const elem of imp.elements) {
-          if (uses(props.body, elem.local) === false) continue;
+          if (uses(props.body, elem.local, props.location) === false) continue;
 
           if (relative === false) {
             add(imp.text);
@@ -118,12 +119,13 @@ export namespace SdkWebSocketCloneProgrammer {
           );
         }
         for (const name of [imp.default, imp.namespace])
-          if (name !== null && uses(props.body, name)) add(imp.text);
+          if (name !== null && uses(props.body, name, props.location))
+            add(imp.text);
       }
 
-      for (const name of getExportedNames(props.source)) {
+      for (const name of getExportedNames(props.source, props.location)) {
         if (name === null || name === props.target) continue;
-        if (uses(props.body, name) === false) continue;
+        if (uses(props.body, name, props.location) === false) continue;
         if ((await clone(ctx)(props.location, name)) === true)
           add(`import type { ${name} } from "./${name}";`);
       }
@@ -157,154 +159,102 @@ export namespace SdkWebSocketCloneProgrammer {
     return file;
   };
 
-  const getDeclarations = (source: string, name: string): string[] => {
-    const output: string[] = [];
-    const searchable: string = maskTrivia(source);
-    const regex: RegExp = declarationRegex(name);
-    for (const match of searchable.matchAll(regex)) {
-      if (isTopLevel(searchable, match.index!) === false) continue;
-      const end: number = declarationEnd(searchable, match.index!, match[1]!);
-      if (end !== -1) output.push(source.slice(match.index!, end).trim());
+  const syntax = (source: string, filename: string) => {
+    const options = {
+      sourceType: "module",
+      sourceFilename: filename,
+    } as const;
+    const dialect = (decorators: "decorators-legacy" | "decorators") =>
+      parse(source, {
+        ...options,
+        plugins: [
+          decorators,
+          "decoratorAutoAccessors",
+          ["typescript", { dts: /\.d\.[cm]?ts$/.test(filename) }],
+          ...(filename.endsWith(".tsx") ? (["jsx"] as const) : []),
+        ],
+      }).program;
+    // Nest parameter decorators use the legacy dialect. Standard decorators
+    // also permit placement after export; retry that strict grammar without
+    // enabling error recovery or accepting a partial syntax tree.
+    try {
+      return dialect("decorators-legacy");
+    } catch {
+      return dialect("decorators");
     }
-    return output;
   };
 
-  const getExportedNames = (source: string): string[] => {
-    const searchable: string = maskTrivia(source);
-    return Array.from(
-      searchable.matchAll(declarationRegex("[A-Za-z_$][\\w$]*")),
+  const exportedName = (
+    statement: ReturnType<typeof syntax>["body"][number],
+  ): string | null => {
+    if (statement.type !== "ExportNamedDeclaration") return null;
+    const declaration = statement.declaration;
+    if (
+      declaration === null ||
+      declaration === undefined ||
+      !("id" in declaration)
     )
-      .filter((match) => isTopLevel(searchable, match.index!))
-      .map((match) => match[2]!);
+      return null;
+    return declaration.id?.type === "Identifier" ? declaration.id.name : null;
   };
 
-  const declarationRegex = (name: string): RegExp =>
-    new RegExp(
-      `export\\s+(?:declare\\s+)?(interface|type|enum|namespace|class)\\s+(${name})\\b`,
-      "g",
-    );
-
-  const declarationEnd = (
+  const getDeclarations = (
     source: string,
-    start: number,
-    kind: string,
-  ): number => {
-    let depth: number = 0;
-    let block: boolean = false;
-    for (let i = start; i < source.length; ++i) {
-      const ch: string = source[i]!;
-      if (ch === "{") {
-        ++depth;
-        block = true;
-      } else if (ch === "}") {
-        --depth;
-        if (kind !== "type" && block && depth === 0) return i + 1;
-      } else if (ch === ";" && block === false && depth === 0) return i + 1;
-      else if (ch === ";" && kind === "type" && depth === 0) return i + 1;
-    }
-    return -1;
-  };
+    name: string,
+    filename: string,
+  ): string[] =>
+    syntax(source, filename)
+      .body.filter((statement) => exportedName(statement) === name)
+      .map((statement) => source.slice(statement.start!, statement.end!));
 
-  const isTopLevel = (source: string, index: number): boolean => {
-    let depth: number = 0;
-    for (let i = 0; i < index; ++i) {
-      const ch: string = source[i]!;
-      if (ch === "{") ++depth;
-      else if (ch === "}") --depth;
-    }
-    return depth === 0;
-  };
+  const getExportedNames = (source: string, filename: string): string[] =>
+    syntax(source, filename)
+      .body.map(exportedName)
+      .filter((name): name is string => name !== null);
 
-  const maskTrivia = (source: string): string => {
-    const out: string[] = source.split("");
-    const mask = (index: number): void => {
-      if (out[index] !== "\n" && out[index] !== "\r") out[index] = " ";
+  const getImports = (source: string, filename: string): IImport[] =>
+    syntax(source, filename)
+      .body.filter((statement) => statement.type === "ImportDeclaration")
+      .map((statement) => ({
+        text: source.slice(statement.start!, statement.end!),
+        specifier: statement.source.value,
+        default:
+          statement.specifiers.find(
+            (specifier) => specifier.type === "ImportDefaultSpecifier",
+          )?.local.name ?? null,
+        namespace:
+          statement.specifiers.find(
+            (specifier) => specifier.type === "ImportNamespaceSpecifier",
+          )?.local.name ?? null,
+        elements: statement.specifiers
+          .filter((specifier) => specifier.type === "ImportSpecifier")
+          .map((specifier) => ({
+            imported:
+              specifier.imported.type === "Identifier"
+                ? specifier.imported.name
+                : specifier.imported.value,
+            local: specifier.local.name,
+          })),
+      }));
+
+  const uses = (body: string, name: string, filename: string): boolean => {
+    const visit = (value: unknown): boolean => {
+      if (value === null || typeof value !== "object") return false;
+      if (Array.isArray(value)) return value.some(visit);
+      const node = value as Record<string, unknown>;
+      if (node.type === "Identifier" && node.name === name) return true;
+      return Object.entries(node).some(
+        ([key, child]) =>
+          key !== "comments" &&
+          key !== "leadingComments" &&
+          key !== "trailingComments" &&
+          key !== "innerComments" &&
+          key !== "loc" &&
+          visit(child),
+      );
     };
-
-    let quote: string | null = null;
-    let escaped: boolean = false;
-    for (let i = 0; i < out.length; ++i) {
-      const ch: string = source[i]!;
-      const next: string | undefined = source[i + 1];
-      if (quote !== null) {
-        mask(i);
-        if (escaped) escaped = false;
-        else if (ch === "\\") escaped = true;
-        else if (ch === quote) quote = null;
-      } else if (ch === "/" && next === "/") {
-        mask(i++);
-        for (; i < out.length && source[i] !== "\n"; ++i) mask(i);
-        --i;
-      } else if (ch === "/" && next === "*") {
-        mask(i++);
-        mask(i);
-        for (++i; i < out.length; ++i) {
-          const current: string = source[i]!;
-          const following: string | undefined = source[i + 1];
-          mask(i);
-          if (current === "*" && following === "/") {
-            mask(++i);
-            break;
-          }
-        }
-      } else if (ch === '"' || ch === "'" || ch === "`") {
-        quote = ch;
-        mask(i);
-      }
-    }
-    return out.join("");
+    return visit(syntax(body, filename));
   };
-
-  const getImports = (source: string): IImport[] =>
-    Array.from(
-      source.matchAll(/import\s+([\s\S]*?)\s+from\s+["']([^"']+)["'];?/g),
-    ).map((match) => {
-      const clause: string = match[1]!.trim();
-      const specifier: string = match[2]!;
-      return {
-        text: match[0]!.trim(),
-        specifier,
-        default: defaultImportName(clause),
-        namespace: namespaceImportName(clause),
-        elements: namedImportElements(clause),
-      };
-    });
-
-  const defaultImportName = (clause: string): string | null => {
-    const first: string = clause
-      .split(",")[0]!
-      .trim()
-      .replace(/^type\s+/, "");
-    return first.length && first.startsWith("{") === false ? first : null;
-  };
-
-  const namespaceImportName = (clause: string): string | null => {
-    const match: RegExpMatchArray | null = clause.match(/\*\s+as\s+(\w+)/);
-    return match?.[1] ?? null;
-  };
-
-  const namedImportElements = (clause: string): IImportElement[] => {
-    const match: RegExpMatchArray | null = clause.match(/\{([\s\S]*?)\}/);
-    if (match === null) return [];
-    return match[1]!
-      .split(",")
-      .map((part) => part.trim().replace(/^type\s+/, ""))
-      .filter((part) => part.length)
-      .map((part) => {
-        const pieces: string[] = part.split(/\s+as\s+/);
-        const imported: string = pieces[0]!.trim();
-        return {
-          imported,
-          local: (pieces[1] ?? imported).trim(),
-        };
-      });
-  };
-
-  const uses = (body: string, name: string): boolean =>
-    new RegExp(`\\b${escapeRegExp(name)}\\b`).test(body);
-
-  const escapeRegExp = (str: string): string =>
-    str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
   /**
    * Returns the key of an import: its file and name.

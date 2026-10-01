@@ -32,8 +32,8 @@ export const test_e2e_runner_collects_failures = () => {
   const log = path.join(root, "commands.jsonl");
   const status = path.join(root, "status.json");
   const expected = [
-    ["--filter", "./tests/test-boundaries", "--filter", "./tests/test-evidence", "--filter", "./tests/test-benchmark", "--filter", "./tests/test-migrate", "--filter", "./tests/test-transform-options", "-r", "--parallel", "--no-bail", "run", "start"],
-    ["--filter", "./tests/test-sdk", "start"],
+    ["--filter", "./tests/test-boundaries", "--filter", "./tests/test-evidence", "--filter", "./tests/test-benchmark-e2e", "--filter", "./tests/test-migrate-e2e", "--filter", "./tests/test-core-e2e", "-r", "--parallel", "--no-bail", "run", "start"],
+    ["--filter", "./tests/test-sdk-e2e", "start"],
     ["--filter", "./benchmark", "build"],
     ["--filter", "./benchmark", "test"],
   ];
@@ -58,7 +58,7 @@ process.exitCode = status[args.join(" ")] ?? 0;
       assert.deepEqual(executions.map(entry => entry.args), expected.slice(0, count));
       for (const entry of executions) {
         assert.equal(entry.cache, path.join(root, "node_modules/.cache/ttsc"));
-        if (entry.args[1] === "./tests/test-sdk") assert.equal(entry.reuse, "1");
+        if (entry.args[1] === "./tests/test-sdk-e2e") assert.equal(entry.reuse, "1");
       }
     }
   } finally {

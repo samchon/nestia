@@ -15,7 +15,7 @@ func TestSDKNativeBuildKeepsImportsArrayForInferredReturn(t *testing.T) {
 	root := repoRoot(t)
 	temp := t.TempDir()
 	tsconfig := filepath.Join(temp, "tsconfig.json")
-	featureRoot := filepath.Join(root, "tests/test-sdk/features/clone-implicit")
+	featureRoot := filepath.Join(root, "tests/test-sdk-e2e/features/clone-implicit")
 	sourceRoot := filepath.Join(featureRoot, "src")
 	typeRoots := nodeTypeRoots(t, root)
 	if err := os.WriteFile(

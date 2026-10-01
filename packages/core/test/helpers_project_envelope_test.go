@@ -30,7 +30,7 @@ type projectTransformGraph struct {
 }
 
 // runProjectTransformEnvelope drives the project-mode transform over a
-// tests/test-sdk feature with the feature's own cwd and tsconfig — project mode
+// tests/test-sdk-e2e feature with the feature's own cwd and tsconfig — project mode
 // keys every file relative to cwd and skips the ones that escape it, so a cwd
 // outside the feature would silently produce an empty envelope — and returns the
 // decoded stdout envelope.

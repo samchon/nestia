@@ -12,13 +12,13 @@ import (
 
 // writeSyntheticTsconfig writes a tsconfig in temp whose rootDir is temp itself,
 // so a self-authored controller under temp/src loads against the repo sources
-// without touching the tests/test-sdk fixtures. It pins @nestia/core,
+// without touching the tests/test-sdk-e2e fixtures. It pins @nestia/core,
 // @nestia/sdk, tgrid, typia and @types/node to the repository sources through
 // `paths` and `typeRoots`, the same wiring writeFeatureTsconfig uses, so the
 // in-process load resolves the linked SDK contributor the same way a real
 // nestia build does.
 //
-// Synthetic controllers exist because the existing tests/test-sdk fixtures carry
+// Synthetic controllers exist because the existing tests/test-sdk-e2e fixtures carry
 // no controller whose return/parameter type annotation is a `Record<...>`,
 // `keyof`, `readonly`, `typeof`, or a bare intersection — the reflect-type
 // switch in sdk_transform.go has a branch per AST shape, and only a fixture that
@@ -42,8 +42,8 @@ func writeSyntheticTsconfig(t *testing.T, root, temp string) {
       "@nestia/sdk": ["` + filepath.ToSlash(filepath.Join(root, "packages/sdk/src")) + `"],
       "@nestia/sdk/*": ["` + filepath.ToSlash(filepath.Join(root, "packages/sdk/src/*")) + `"],
       "tgrid": ["` + filepath.ToSlash(filepath.Join(root, "packages/core/node_modules/tgrid/lib/index.d.ts")) + `"],
-      "typia": ["` + filepath.ToSlash(filepath.Join(root, "tests/test-sdk/node_modules/typia/lib/index.d.ts")) + `"],
-      "typia/*": ["` + filepath.ToSlash(filepath.Join(root, "tests/test-sdk/node_modules/typia/lib/*")) + `"]
+      "typia": ["` + filepath.ToSlash(filepath.Join(root, "tests/test-sdk-e2e/node_modules/typia/lib/index.d.ts")) + `"],
+      "typia/*": ["` + filepath.ToSlash(filepath.Join(root, "tests/test-sdk-e2e/node_modules/typia/lib/*")) + `"]
     }
   },
   "include": ["src"]

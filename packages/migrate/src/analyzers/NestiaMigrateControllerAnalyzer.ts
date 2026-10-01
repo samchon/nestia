@@ -12,6 +12,7 @@ import { StringUtil } from "../utils/StringUtil";
  * @evidence contracts/common.md#clear-and-simple-design One namespace with the grouping and the path formatting, and small private helpers for the shared-prefix computation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names and paths derive from the document, with no route or controller name special-cased.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidence contracts/portability.md#os-neutral-implementation Generated controller locations use portable slash spelling and directoryName applies Windows filename constraints on every host: invalid/control characters and trailing dots/spaces become underscores, and device names, including extension and superscript-digit forms, receive a prefix. Router paths retain their original URL meaning. Directory normalization is intentionally many-to-one; distinct controllers retain their own filenames. Host filesystem case policy is not inferred.
  */
 export namespace NestiaMigrateControllerAnalyzer {
   /**
@@ -26,6 +27,7 @@ export namespace NestiaMigrateControllerAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function with two phases: grouping, then prefix computation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The extension name is part of the generated document contract; no other name is assumed.
    * @evidence contracts/common.md#meaningful-documentation The comment states how the name and the path are chosen.
+   * @evidence contracts/portability.md#os-neutral-implementation Generated controller locations use portable slash spelling and directoryName applies Windows filename constraints on every host: invalid/control characters and trailing dots/spaces become underscores, and device names, including extension and superscript-digit forms, receive a prefix. Router paths retain their original URL meaning. Directory normalization is intentionally many-to-one; distinct controllers retain their own filenames. Host filesystem case policy is not inferred.
    */
   export const analyze = (
     routes: IHttpMigrateRoute[],
@@ -83,6 +85,7 @@ export namespace NestiaMigrateControllerAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One expression over the shared path segmenter.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The reserved set is the router's syntax and is applied to every literal.
    * @evidence contracts/common.md#meaningful-documentation The comment states the escaping and the parameter form.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This operation emits router protocol spelling and does not select native filenames or filesystem identities.
    */
   export const routePath = (route: IHttpMigrateRoute): string =>
     PathTemplate.segments(route)
@@ -101,11 +104,21 @@ export namespace NestiaMigrateControllerAnalyzer {
 const ROUTER_RESERVED = /[\\:*?+!(){}[\]]/g;
 
 /**
- * A route segment as a directory name: unescaped, and each character a file
- * name cannot hold on Windows (`:` of an AIP custom method, `*`, `?`) as `_`.
+ * Maps a route segment to a portable directory component. Router escapes are
+ * removed, Windows-invalid characters and trailing dots/spaces become
+ * underscores, and reserved device names receive an underscore prefix. Distinct
+ * route segments may share a directory; controller files retain their
+ * independently assigned controller names.
  */
-const directoryName = (segment: string): string =>
-  segment.replace(/\\(.)/g, "$1").replace(/[<>:"|?*\\]/g, "_");
+const directoryName = (segment: string): string => {
+  const name: string = segment
+    .replace(/\\(.)/g, "$1")
+    .replace(/[<>:"|?*\\\u0000-\u001f]/g, "_")
+    .replace(/[. ]+$/, (suffix) => "_".repeat(suffix.length));
+  return /^(?:CON|PRN|AUX|NUL|COM[1-9¹²³]|LPT[1-9¹²³])(?:\.|$)/i.test(name)
+    ? `_${name}`
+    : name || "_";
+};
 
 const getSplitIndex = (x: string[], y: string[]) => {
   const n: number = Math.min(x.length, y.length);

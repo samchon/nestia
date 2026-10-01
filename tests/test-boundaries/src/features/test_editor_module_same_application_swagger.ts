@@ -23,7 +23,7 @@ import path from "path";
  * @evidence contracts/e2e.md#necessary-boundary The real fetch connection distinguishes deferred resolution before listening, successful response delivery and a failing HTTP location. Direct handler return values cannot establish URL resolution or fetch status handling.
  * @evidence contracts/e2e.md#shared-execution One installed editor build and one HTTP server serve both successful and failed requests; bootstrap before listen is part of the same scenario, with no separate browser or NestJS process.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The application adapter and route handlers belong to this invocation, the HTTP server listens on an assigned free port and finally closes after all fetches; other boundary tests execute sequentially.
- * @evidence contracts/e2e.md#preserved-coverage Bootstrap timing, same-application Swagger contents and failed-location status remain in this boundary case; archive, composer and markup operations remain in test-unit.
+ * @evidence contracts/e2e.md#preserved-coverage Bootstrap timing, same-application Swagger contents and failed-location status remain in this boundary case; archive, composer and markup operations remain in test-editor.
  */
 export const test_editor_module_same_application_swagger =
   async (): Promise<void> => {

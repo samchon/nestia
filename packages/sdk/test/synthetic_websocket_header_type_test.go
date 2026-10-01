@@ -24,10 +24,10 @@ import (
 //  1. Author routes whose acceptor header, or @WebSocketRoute.Header() parameter,
 //     is each rejected and each accepted type.
 //  2. Run the SDK metadata pass over them in-process.
-//  3. Assert each rejected parameter is reported with its type, and no accepted
-//     one is.
+//  3. Assert each rejected parameter is reported with its type, and that the
+//     reported diagnostics are exactly those and name no accepted type.
 //
-// @evidence contracts/testing.md#behavioral-verification SDK analysis must reject six unsendable header forms with their identifying reasons and avoid that rejection for eight supported header forms.
+// @evidence contracts/testing.md#behavioral-verification SDK analysis must reject six unsendable header forms with their identifying reasons, report exactly those six and none of the eight supported header types.
 // @evidence contracts/testing.md#independent-expectations WebSocket header transport permits undefined or object-like headers rather than null/scalars/unknown; the authored routes differ in the header type only and include a separately annotated Header parameter.
 // @evidence contracts/testing.md#distinguishing-cases Null, string, nullable, unknown, branded scalar and numeric decorator negatives contrast undefined, object, interface, any, never, Record, optional and intersection positives. The diagnostic-position case pins method locations.
 // @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
@@ -39,16 +39,6 @@ func TestSyntheticWebSocketHeaderType(t *testing.T) {
 		"unknownHeader":      "unknown",
 		"brandedString":      "string & {}",
 		"headerDecoratorNum": "number",
-	}
-	accepted := []string{
-		"undefinedHeader",
-		"objectHeader",
-		"interfaceHeader",
-		"anyHeader",
-		"neverHeader",
-		"recordHeader",
-		"optionalHeader",
-		"intersectionHeader",
 	}
 	var routes strings.Builder
 	acceptor := func(name, header string) {
@@ -121,11 +111,22 @@ export class SyntheticController {` + routes.String() + `}
 			t.Errorf("route %s with header %q is not reported:\n%s", name, header, joined)
 		}
 	}
-	for _, name := range accepted {
-		for _, message := range messages {
-			if strings.Contains(message, "which the SDK cannot send") && strings.Contains(message, name) {
-				t.Errorf("route %s is reported although the SDK can send its header:\n%s", name, message)
+	// The diagnostics carry the header type but no route name, so the accepted
+	// side is judged by the set of reported header types: exactly the six rejected
+	// ones, once each, and none of the types the SDK can send.
+	sendable := []string{"undefined", "object", "IHeader", "any", "never", "Record<string, string>", "IHeader | undefined", "IHeader & { extra: number }"}
+	cannot := 0
+	for _, message := range messages {
+		if strings.Contains(message, "which the SDK cannot send") {
+			cannot++
+		}
+		for _, header := range sendable {
+			if strings.Contains(message, `has the header type "`+header+`"`) {
+				t.Errorf("a sendable header %q is reported:\n%s", header, message)
 			}
 		}
+	}
+	if cannot != len(rejected) {
+		t.Errorf("%d unsendable-header diagnostics were reported, expected %d:\n%s", cannot, len(rejected), joined)
 	}
 }

@@ -70,8 +70,8 @@ export class McpAdaptor {
    * @param app Running Nest application instance.
    * @param options Transport and identity overrides.
    * @evidence contracts/common.md#principled-implementation Tools are collected once from the prototype chain of every controller instance by the `nestia/McpRoute` metadata, with the first definition of a method name winning, duplicates by tool name refused before serving, and each call runs through NestJS's `ExternalContextCreator` so guards, interceptors, pipes, and exception filters apply as for an HTTP route; every request gets a fresh MCP server and Streamable HTTP transport, which stateless mode requires, and both are closed in a `finally`.
-   * @evidence contracts/common.md#clear-and-simple-design One entry point does discovery and registration; the per-tool call (`createHandler`), the duplicate check, the SDK loader, and the response takeover check are separate module-private functions.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reading the module graph goes through the internal `app.container`, because `INestApplication` exposes no public accessor for it, and `tookOver` replaces the write functions of the request-scoped raw response only when an exception filter has already written it, so the transport cannot throw on a second write; both are foreign-internal uses kept as stated limits, confined to this adapter.
+   * @evidence contracts/common.md#clear-and-simple-design One entry point does discovery and registration; the per-tool call (`createHandler`), the duplicate check, the SDK loader, and the per-request response facade are separate module-private functions.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reading the module graph goes through the internal `app.container`, because `INestApplication` exposes no public accessor for it, `create_external_context_creator` constructs an owned subclass through the Nest constructor and overrides module selection on that type, because the default looks for provider classes while controllers belong to the controller collection, and `get_request_context_id` registers the request provider on the request object as NestJS's router does for an HTTP route, and a per-request response facade forwards native state, events and method receivers without replacing raw methods. After a tool or its exception filter has sent headers, only the facade suppresses subsequent transport writes and preserves callbacks and chaining. Native transport writes do not themselves activate takeover. The remaining foreign-internal reads are the application container and Nest request context registration; the MCP SDK uses its public Node response injection boundary.
    * @evidence contracts/common.md#meaningful-documentation The comment states the stateless mode, what is discovered, and that the SDK is an optional dependency; the options documentation states the path and server information.
    */
   public static async upgrade(
@@ -156,6 +156,7 @@ export class McpAdaptor {
         capabilities: { tools: {} },
       });
       const server = mcp.server;
+      const relay = transportResponse(res.raw ?? res);
 
       server.setRequestHandler(ListToolsRequestSchema, async () => ({
         tools: tools.map((t) => ({
@@ -183,7 +184,7 @@ export class McpAdaptor {
             response: res,
             args,
           });
-          if (tookOver(res)) return { content: [] };
+          if (relay.takeOver()) return { content: [] };
           if (result instanceof Error) throw result;
           if (result === undefined) return { content: [] };
           return {
@@ -196,7 +197,7 @@ export class McpAdaptor {
             ],
           };
         } catch (e) {
-          if (tookOver(res)) return { content: [] };
+          if (relay.takeOver()) return { content: [] };
           if (INVALID_ARGUMENTS.has(e as object)) {
             const body = (e as BadRequestException).getResponse() as any;
             throw new McpError(ErrorCode.InvalidParams, (e as Error).message, {
@@ -226,7 +227,7 @@ export class McpAdaptor {
       });
       try {
         await mcp.connect(transport);
-        await transport.handleRequest(req.raw ?? req, res.raw ?? res, req.body);
+        await transport.handleRequest(req.raw ?? req, relay.response, req.body);
       } finally {
         await transport.close().catch(() => {});
         await mcp.close().catch(() => {});
@@ -309,22 +310,55 @@ const createHandler = (props: {
 };
 
 /**
- * Whether an exception filter already wrote the HTTP response itself. The
- * response it wrote stands, so the transport's own is dropped: writing again
- * would throw, and the transport would destroy the connection mid-response.
+ * The transport's response view. Native state, events and method receivers stay
+ * on the real response; only this view's writes stop after a tool's exception
+ * filter has already answered. Normal transport writes never activate
+ * takeover.
  */
-const tookOver = (response: any): boolean => {
-  const raw: any = response.raw ?? response;
-  if (raw.headersSent !== true) return false;
-  raw.writeHead = () => raw;
-  raw.flushHeaders = () => {};
-  raw.write = () => true;
-  raw.end = (...args: unknown[]) => {
-    const callback: unknown = args.find((a) => typeof a === "function");
-    if (typeof callback === "function") queueMicrotask(() => callback());
-    return raw;
+const transportResponse = (
+  raw: any,
+): { response: any; takeOver: () => boolean } => {
+  let takenOver = false;
+  const respond = (key: string, args: unknown[]): unknown => {
+    if (takenOver) {
+      const callback = args.find((arg) => typeof arg === "function");
+      if ((key === "write" || key === "end") && typeof callback === "function")
+        queueMicrotask(() => callback());
+      return key === "write"
+        ? true
+        : key === "flushHeaders"
+          ? undefined
+          : response;
+    }
+    const result = Reflect.apply(raw[key], raw, args);
+    return result === raw ? response : result;
   };
-  return true;
+  const writes = new Map<PropertyKey, (...args: unknown[]) => unknown>(
+    ["writeHead", "flushHeaders", "write", "end"].map((key) => [
+      key,
+      (...args: unknown[]) => respond(key, args),
+    ]),
+  );
+  const response: any = new Proxy(raw, {
+    get: (target, key) => {
+      const write = writes.get(key);
+      if (write !== undefined) return write;
+      const value = Reflect.get(target, key, target);
+      if (typeof value !== "function") return value;
+      return (...args: unknown[]) => {
+        const result = Reflect.apply(value, target, args);
+        return result === target ? response : result;
+      };
+    },
+    set: (target, key, value) => Reflect.set(target, key, value, target),
+  });
+  return {
+    response,
+    takeOver: () => {
+      takenOver ||= raw.headersSent === true;
+      return takenOver;
+    },
+  };
 };
 
 const PARAMS_METADATA = "nestia/McpRoute/ExternalParameters";

@@ -12,17 +12,17 @@ import (
 // body/query properties and an unsupported response WeakMap without launching
 // a native host for each rule. Non-strict optional-property controls must build.
 //
-// The fixtures remain the original test-transform-options inputs. Each named
+// The fixtures remain the original test-core-e2e inputs. Each named
 // subtest builds directly through the dispatcher with local streams and outputs.
 // The remaining noEmit wrapper case verifies ttsc forwards that host protocol.
 //
 // @evidence contracts/testing.md#behavioral-verification Native builds must reject optional body/query properties under strict LLM mode and a WeakMap response with exit 3, the responsible decorator and schema reason, without publishing output. Non-strict versions of both optional DTOs must emit successfully.
 // @evidence contracts/testing.md#independent-expectations Strict LLM schemas require object properties, and WeakMap is unsupported; the handwritten fixtures establish these differences. Expected exit classifications and decorator names are literals, independent of generated validators.
-// @evidence contracts/testing.md#distinguishing-cases The two optional-property negatives have otherwise identical non-strict positive controls; the response case requires its original WeakMap reason and source line. Actual noEmit wrapper forwarding remains in test-transform-options rather than being inferred from direct dispatch.
+// @evidence contracts/testing.md#distinguishing-cases The two optional-property negatives have otherwise identical non-strict positive controls; the response case requires its original WeakMap reason and source line. Actual noEmit wrapper forwarding remains in test-core-e2e rather than being inferred from direct dispatch.
 // @evidence contracts/testing.md#execution-ownership The core Go module discovers this table case and invokes runCoreNative in the existing test binary. No compiler child or installed host is created per rule; t.TempDir owns every configuration and output.
 func TestBuildLlmStrictDiagnosticCases(t *testing.T) {
 	root := repoRootForCore(t)
-	suite := filepath.Join(root, "tests/test-transform-options")
+	suite := filepath.Join(root, "tests/test-core-e2e")
 	for _, item := range []struct {
 		source    string
 		strict    bool

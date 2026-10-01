@@ -52,6 +52,9 @@ catalogs:
       specifier: 15.0.0
       version: 15.0.0
   typescript:
+    '@babel/parser':
+      specifier: ^7.29.8
+      version: 7.29.8
     '@trivago/prettier-plugin-sort-imports':
       specifier: ^4.3.0
       version: 4.3.0
@@ -502,6 +505,9 @@ importers:
 
   packages/sdk:
     dependencies:
+      '@babel/parser':
+        specifier: catalog:typescript
+        version: 7.29.8
       '@nestia/core':
         specifier: workspace:^
         version: link:../core
@@ -564,7 +570,7 @@ importers:
         specifier: catalog:typescript
         version: 7.0.2
 
-  tests/test-benchmark:
+  tests/test-benchmark-e2e:
     dependencies:
       '@nestia/benchmark':
         specifier: workspace:^
@@ -638,7 +644,7 @@ importers:
         specifier: catalog:samchon
         version: 0.2.0(ttsc@0.28.1)(typescript@7.0.2)
 
-  tests/test-migrate:
+  tests/test-migrate-e2e:
     dependencies:
       '@nestia/benchmark':
         specifier: workspace:^
@@ -738,7 +744,7 @@ importers:
         specifier: catalog:typescript
         version: 7.0.2
 
-  tests/test-sdk:
+  tests/test-sdk-e2e:
     dependencies:
       '@fastify/multipart':
         specifier: ^8.1.0
@@ -832,7 +838,7 @@ importers:
         specifier: catalog:typescript
         version: 0.28.1
 
-  tests/test-transform-options:
+  tests/test-core-e2e:
     dependencies:
       '@nestia/core':
         specifier: workspace:^
@@ -875,35 +881,149 @@ importers:
         specifier: catalog:typescript
         version: 0.28.1
 
-  tests/test-unit:
+  tests/test-core:
     dependencies:
+      '@nestia/core':
+        specifier: workspace:^
+        version: link:../../packages/core
+      '@nestia/e2e':
+        specifier: workspace:^
+        version: link:../../packages/e2e
+      '@nestia/fetcher':
+        specifier: workspace:^
+        version: link:../../packages/fetcher
+    devDependencies:
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
+      ttsc:
+        specifier: catalog:typescript
+        version: 0.28.1
+
+  tests/test-sdk:
+    dependencies:
+      '@nestia/e2e':
+        specifier: workspace:^
+        version: link:../../packages/e2e
+      '@nestia/sdk':
+        specifier: workspace:^
+        version: link:../../packages/sdk
+    devDependencies:
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
+      ttsc:
+        specifier: catalog:typescript
+        version: 0.28.1
+
+  tests/test-fetcher:
+    dependencies:
+      '@nestia/e2e':
+        specifier: workspace:^
+        version: link:../../packages/e2e
+      '@nestia/fetcher':
+        specifier: workspace:^
+        version: link:../../packages/fetcher
+      typia:
+        specifier: catalog:samchon
+        version: 15.0.0(ttsc@0.28.1)
+    devDependencies:
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
+      ttsc:
+        specifier: catalog:typescript
+        version: 0.28.1
+
+  tests/test-migrate:
+    dependencies:
+      '@nestia/e2e':
+        specifier: workspace:^
+        version: link:../../packages/e2e
+      '@nestia/migrate':
+        specifier: workspace:^
+        version: link:../../packages/migrate
+      '@typia/interface':
+        specifier: catalog:samchon
+        version: 15.0.0
+    devDependencies:
+      '@nestjs/core':
+        specifier: catalog:nestjs
+        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
+      ttsc:
+        specifier: catalog:typescript
+        version: 0.28.1
+
+  tests/test-e2e:
+    dependencies:
+      '@nestia/e2e':
+        specifier: workspace:^
+        version: link:../../packages/e2e
+      typia:
+        specifier: catalog:samchon
+        version: 15.0.0(ttsc@0.28.1)
+    devDependencies:
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
+      ttsc:
+        specifier: catalog:typescript
+        version: 0.28.1
+
+  tests/test-benchmark:
+    dependencies:
+      '@nestia/e2e':
+        specifier: workspace:^
+        version: link:../../packages/e2e
       '@nestia/benchmark':
         specifier: workspace:^
         version: link:../../packages/benchmark
+    devDependencies:
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
+      ttsc:
+        specifier: catalog:typescript
+        version: 0.28.1
+
+  tests/test-editor:
+    dependencies:
       '@nestia/e2e':
         specifier: workspace:^
         version: link:../../packages/e2e
       '@nestia/editor':
         specifier: workspace:^
         version: link:../../packages/editor
-      '@nestia/fetcher':
-        specifier: workspace:^
-        version: link:../../packages/fetcher
       '@nestia/migrate':
         specifier: workspace:^
         version: link:../../packages/migrate
       '@nestia/sdk':
         specifier: workspace:^
         version: link:../../packages/sdk
-      '@typia/interface':
-        specifier: catalog:samchon
-        version: 15.0.0
       fflate:
         specifier: ^0.8.2
         version: 0.8.3
-      typia:
-        specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.28.1)
     devDependencies:
       '@types/node':
         specifier: catalog:utils
@@ -920,6 +1040,25 @@ importers:
       react-test-renderer:
         specifier: catalog:utils
         version: 18.3.1(react@18.3.1)
+      ttsc:
+        specifier: catalog:typescript
+        version: 0.28.1
+
+  tests/test-nestia:
+    dependencies:
+      'nestia':
+        specifier: workspace:^
+        version: link:../../packages/cli
+      '@nestia/e2e':
+        specifier: workspace:^
+        version: link:../../packages/e2e
+    devDependencies:
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
       ttsc:
         specifier: catalog:typescript
         version: 0.28.1

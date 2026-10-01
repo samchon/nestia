@@ -1,9 +1,6 @@
 package test
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 // TestTransformParamValidateAppendsFlag verifies the @TypedParam generator
 // injects a typia caster and, under validate-family modes, appends the
@@ -24,10 +21,11 @@ import (
 // @evidence contracts/testing.md#execution-ownership The core Go runner discovers this Test and invokes the native dispatcher in-process. The loaded fixture program and temporary emitted output exercise transformation without building or launching a native host; the generated-validator runtime batch owns installed-helper execution.
 func TestTransformParamValidateAppendsFlag(t *testing.T) {
 	out := transformFileToString(t, "param", "TypedParamController.ts", "validate", "assert")
-	if !strings.Contains(out, "@core.TypedParam(") {
-		t.Fatalf("param transform dropped the TypedParam decorator:\n%s", out)
+	calls, casters, flagged := typedParamCounts(out)
+	if calls == 0 || casters != calls {
+		t.Fatalf("validate-mode TypedParam carried %d casters for %d calls:\n%s", casters, calls, out)
 	}
-	if !strings.Contains(out, ", true)") {
-		t.Fatalf("validate-mode TypedParam did not append the boolean report flag:\n%s", out)
+	if flagged != calls {
+		t.Fatalf("validate-mode TypedParam appended the report flag %d times for %d calls:\n%s", flagged, calls, out)
 	}
 }

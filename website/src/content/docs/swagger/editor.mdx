@@ -12,7 +12,7 @@ import { ListItem } from "../../../components/basic/ListItem";
 
 `@nestia/editor` generates a TypeScript SDK or NestJS project from an OpenAPI document in your browser and delivers it as a ZIP download. Choose the project mode, package name and generation options, then extract the archive and install and run the project locally. Generated projects use the native Go-backed TypeScript compiler, so they require a local environment that can run that compiler.
 
-Enable the [mockup simulator](/docs/sdk/simulate) to exercise the SDK without a backend, or [generated e2e tests](/docs/sdk/e2e) to include randomized endpoint tests. The downloaded files retain their paths and UTF-8 contents.
+Enable the [mockup simulator](/docs/sdk/simulate) to exercise the SDK without a backend, or [generated e2e tests](/docs/sdk/e2e) to include randomized endpoint tests. The downloaded files retain their paths and UTF-8 contents. An operation that `@nestia/migrate` cannot convert is left out of the project, and both the static application and the components list each skipped operation with its reasons beside the download, so an incomplete project is never presented as complete.
 
 The examples below open project generators with simulation and e2e generation enabled.
 

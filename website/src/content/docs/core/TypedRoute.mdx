@@ -124,7 +124,7 @@ export function EncryptedController(
 - `@EncryptedController(path, password)` replaces `@Controller()` for one controller and gives it its own password. A subclass of it inherits that password.
 - The controller's own password wins. Inside an `EncryptedModule`, an `@EncryptedController` keeps its own password, and only the controllers without one take the module's.
 
-A closure receives the request headers, the body, and the direction (`"encode"` or `"decode"`), so the password can depend on the caller. The generated SDK encrypts with `connection.encryption`, which must hold the password of the controller being called.
+A closure receives the request headers, the body, and the direction (`"encode"` or `"decode"`), so the password can depend on the caller. The body is the serialized plain text when the direction is `"encode"` and the received cipher text when it is `"decode"`, on the server and in the generated SDK alike. The generated SDK encrypts with `connection.encryption`, which must hold the password of the controller being called.
 
 ---
 

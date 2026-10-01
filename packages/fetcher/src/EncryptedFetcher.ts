@@ -20,7 +20,7 @@ import { FetcherBase } from "./internal/FetcherBase";
  * {@link PlainFetcher} class would be used instead.
  *
  * @author Jeongho Nam - https://github.com/samchon
- * @evidence contracts/common.md#principled-implementation A per-call codec encrypts the request body only when the route declares its request encrypted and decrypts the response body only when the route declares its response encrypted; the password is read from the connection, directly or through a closure that receives the headers, the body, and the direction, and the request pipeline itself is shared with `PlainFetcher`.
+ * @evidence contracts/common.md#principled-implementation A per-call codec encrypts the request body only when the route declares its request encrypted and decrypts the response body only when the route declares its response encrypted; the password is read from the connection, directly or through a closure that receives the headers, the body text, and the direction, where the body is the serialized plain text when encoding and the received cipher text when decoding, as on the server, and the request pipeline itself is shared with `PlainFetcher`.
  * @evidence contracts/common.md#clear-and-simple-design Two public operations, `fetch` and `propagate`, share one private `codec` builder, so the encryption policy exists once and the transport lives in `FetcherBase`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No route, header, or key is special-cased: encryption follows the route metadata that `@nestia/sdk` generates, and a missing password is a thrown error rather than a silent plain request.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose says when the generated SDK uses this fetcher instead of `PlainFetcher`.
@@ -153,12 +153,9 @@ export namespace EncryptedFetcher {
       encode:
         route.request?.encrypted === true
           ? (input, headers) => {
-              const p: IEncryptionPassword = closure("encode")(headers, input);
-              return AesPkcs5.encrypt(
-                (stringify ?? JSON.stringify)(input),
-                p.key,
-                p.iv,
-              );
+              const text: string = (stringify ?? JSON.stringify)(input);
+              const p: IEncryptionPassword = closure("encode")(headers, text);
+              return AesPkcs5.encrypt(text, p.key, p.iv);
             }
           : (input) => input,
       decode:

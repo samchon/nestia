@@ -14,7 +14,7 @@ import (
 // each: KindTypeReference threads type arguments through nestiaSDKReflectTypeText
 // ("Record<string, number>"), KindTypeOperator prefixes the operand
 // ("keyof ...", "readonly ..."), and KindIntersectionType joins members with
-// " & ". No tests/test-sdk fixture writes these annotations, so without a
+// " & ". No tests/test-sdk-e2e fixture writes these annotations, so without a
 // synthetic controller the keyof/readonly/Record/intersection arms stay dark.
 //
 //  1. Author a controller whose methods return Record<...>, keyof, readonly[]

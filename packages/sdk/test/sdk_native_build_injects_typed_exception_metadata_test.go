@@ -7,7 +7,19 @@ import (
 	"testing"
 )
 
-// @evidence contracts/testing.md#behavioral-verification Native build must retain exception metadata with TypeGuardError, all three authored named error types and the throws description.
+// TestSDKNativeBuildInjectsTypedExceptionMetadata verifies a native build records
+// the authored typed exceptions of a controller in the exceptions of its
+// operation metadata, and the @throws description beside them.
+//
+// The Swagger generator reads exceptions from this metadata, so an exception
+// type present only in a parameter or response would not reach it.
+//
+//  1. Build ExceptionController with the core and sdk plugins in-process.
+//  2. Decode the injected OperationMetadata literals.
+//  3. Assert the exceptions entries name the TypeGuardError and the three
+//     authored error types, and the throws tag keeps its text.
+//
+// @evidence contracts/testing.md#behavioral-verification Native build must retain, within the decoded exceptions entries, TypeGuardError and all three authored named error types, and the throws description in the metadata, so a name that appears only outside the exceptions cannot satisfy it.
 // @evidence contracts/testing.md#independent-expectations The handwritten TypedException declarations and JSDoc specify the exception identities and 400 invalid request text independently of emitted JSON.
 // @evidence contracts/testing.md#distinguishing-cases This pins exception preservation through JavaScript emit; the in-process metadata case additionally checks union constituents and guard schema fields. Presence assertions alone do not pin every status association.
 // @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
@@ -15,7 +27,7 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
 	root := repoRoot(t)
 	temp := t.TempDir()
 	tsconfig := filepath.Join(temp, "tsconfig.json")
-	featureRoot := filepath.Join(root, "tests/test-sdk/features/exception")
+	featureRoot := filepath.Join(root, "tests/test-sdk-e2e/features/exception")
 	sourceRoot := filepath.Join(featureRoot, "src")
 	typeRoots := nodeTypeRoots(t, root)
 	if err := os.WriteFile(
@@ -58,16 +70,19 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	meta := extractOperationMetadataJSON(t, js)
+	exceptions := operationExceptionsJSON(t, js)
 	for _, expected := range []string{
-		`"exceptions":[`,
-		`"name":"TypeGuardError"`,
+		`"name":"TypeGuardError`,
 		`"name":"INotFound"`,
 		`"name":"IUnprocessibleEntity"`,
 		`"name":"IInternalServerError"`,
-		`"name":"throws"`,
-		`"text":"400 invalid request"`,
 	} {
+		if !strings.Contains(exceptions, expected) {
+			t.Fatalf("the exceptions of the OperationMetadata JSON are missing %q\n%s", expected, exceptions)
+		}
+	}
+	meta := extractOperationMetadataJSON(t, js)
+	for _, expected := range []string{`"name":"throws"`, `"text":"400 invalid request"`} {
 		if !strings.Contains(meta, expected) {
 			t.Fatalf("OperationMetadata JSON is missing %q\n%s", expected, meta)
 		}

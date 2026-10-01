@@ -1,5 +1,4 @@
 import fs from "fs";
-import NodePath from "path";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
@@ -7,6 +6,7 @@ import { IReflectType } from "../structures/IReflectType";
 import { ITypedApplication } from "../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { ITypedMcpRoute } from "../structures/ITypedMcpRoute";
+import { SDK_BUNDLE_PATH } from "../utils/SdkBundlePath";
 import { StringUtil } from "../utils/StringUtil";
 import { CloneGenerator } from "./CloneGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
@@ -210,12 +210,5 @@ export namespace SdkGenerator {
     }
   };
 
-  export const BUNDLE_PATH = NodePath.join(
-    __dirname,
-    "..",
-    "..",
-    "assets",
-    "bundle",
-    "api",
-  );
+  export const BUNDLE_PATH = SDK_BUNDLE_PATH;
 }

@@ -2,6 +2,7 @@ package test
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -49,13 +50,13 @@ const coreOnlyPlugins = `[{"name":"@nestia/core","stage":"transform","config":{"
 
 // writeFeatureTsconfig writes a tsconfig that extends the feature's own config
 // and pins @nestia/core, @nestia/sdk, @api and @types/node to the repository
-// sources, so an in-process load resolves the same way a real test-sdk build
+// sources, so an in-process load resolves the same way a real test-sdk-e2e build
 // does without needing the feature's node_modules symlinks. Returns the temp
 // dir holding the tsconfig.
 func writeFeatureTsconfig(t *testing.T, root, feature string, files []string) string {
 	t.Helper()
 	temp := t.TempDir()
-	featureRoot := filepath.Join(root, "tests/test-sdk/features", feature)
+	featureRoot := filepath.Join(root, "tests/test-sdk-e2e/features", feature)
 	sourceRoot := filepath.Join(featureRoot, "src")
 	typeRoots := nodeTypeRoots(t, root)
 
@@ -88,7 +89,7 @@ func writeFeatureTsconfig(t *testing.T, root, feature string, files []string) st
 	return temp
 }
 
-// loadFeatureProgram loads a *driver.Program over the given test-sdk feature
+// loadFeatureProgram loads a *driver.Program over the given test-sdk-e2e feature
 // without ForceEmit/outDir, so nothing is ever written to disk. The caller then
 // drives the SDK contributor's exported entry points in-process. The single
 // blank import in this file keeps coverage attributed to the SDK package.
@@ -196,4 +197,67 @@ func operationMetadataDecoratorLiteral(dec *shimast.Node) string {
 		return ""
 	}
 	return arg.Text()
+}
+
+// operationImportElements decodes every OperationMetadata literal of an emitted
+// controller and returns the names listed in the `imports` of each operation's
+// parameters and success response, so an assertion can tell an import entry from
+// the same word appearing elsewhere in the metadata (a schema name, a property
+// or a tag).
+func operationImportElements(t *testing.T, js []byte) []string {
+	t.Helper()
+	literals, err := extractAllOperationMetadataLiterals(js)
+	if err != nil {
+		t.Fatalf("could not locate __OperationMetadata literal: %v", err)
+	}
+	var names []string
+	for _, literal := range literals {
+		type importList []struct {
+			Elements []string `json:"elements"`
+		}
+		var metadata struct {
+			Parameters []struct {
+				Imports importList `json:"imports"`
+			} `json:"parameters"`
+			Success struct {
+				Imports importList `json:"imports"`
+			} `json:"success"`
+		}
+		if err := json.Unmarshal(literal, &metadata); err != nil {
+			t.Fatalf("operation metadata is not decodable: %v\n%s", err, literal)
+		}
+		for _, item := range metadata.Success.Imports {
+			names = append(names, item.Elements...)
+		}
+		for _, parameter := range metadata.Parameters {
+			for _, item := range parameter.Imports {
+				names = append(names, item.Elements...)
+			}
+		}
+	}
+	return names
+}
+
+// operationExceptionsJSON decodes every OperationMetadata literal of an emitted
+// controller and returns the re-encoded `exceptions` entries of all operations
+// joined by newlines, so an assertion about an exception type cannot be
+// satisfied by the same name appearing in a parameter, a success response or a
+// JSDoc tag.
+func operationExceptionsJSON(t *testing.T, js []byte) string {
+	t.Helper()
+	literals, err := extractAllOperationMetadataLiterals(js)
+	if err != nil {
+		t.Fatalf("could not locate __OperationMetadata literal: %v", err)
+	}
+	var parts []string
+	for _, literal := range literals {
+		var metadata struct {
+			Exceptions json.RawMessage `json:"exceptions"`
+		}
+		if err := json.Unmarshal(literal, &metadata); err != nil {
+			t.Fatalf("operation metadata is not decodable: %v\n%s", err, literal)
+		}
+		parts = append(parts, string(metadata.Exceptions))
+	}
+	return strings.Join(parts, "\n")
 }

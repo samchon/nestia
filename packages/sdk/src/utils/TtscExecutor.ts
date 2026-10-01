@@ -9,6 +9,7 @@ import path from "path";
  * @evidence contracts/common.md#clear-and-simple-design One function and a resolution cache.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The binary comes from the package manifest, not a fixed path.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidence contracts/portability.md#os-neutral-implementation The compiler runs as a child of the current Node executable (`process.execPath`) on the JavaScript entry that the package manifest's `bin` names, found through Node module resolution from the project directory, so no platform shim (`.cmd`, `.ps1` or shell script) and no `PATH` lookup is involved. Arguments are an array, never a command line, and the entry path is joined with `path.join` and checked with `existsSync`.
  */
 export namespace TtscExecutor {
   /**
@@ -21,6 +22,7 @@ export namespace TtscExecutor {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The environment is extended, not replaced.
    * @evidence contracts/common.md#meaningful-documentation The comment states the arguments and the failure.
+   * @evidence contracts/portability.md#os-neutral-implementation The working directory and the environment are explicit, standard output is piped with a 64 MiB buffer so the platform's pipe size does not truncate the result, and a non-zero exit surfaces as Node's process error carrying `status` and `stderr`.
    */
   export const run = (props: {
     cwd: string;

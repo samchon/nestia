@@ -32,6 +32,7 @@ catalogs:
     rimraf: ^6.1.3
     uuid: ^13.0.0
   typescript:
+    '@babel/parser': ^7.29.8
     ttsc: &ttsc ^0.28.1
     '@ttsc/factory': *ttsc
     '@ttsc/unplugin': *ttsc

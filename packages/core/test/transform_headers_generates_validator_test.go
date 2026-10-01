@@ -1,9 +1,6 @@
 package test
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 // TestTransformHeadersGeneratesValidator verifies the @TypedHeaders generator
 // injects a header validator (nestiaCoreGenerateTypedHeaders) into the
@@ -25,7 +22,5 @@ import (
 // @evidence contracts/testing.md#execution-ownership The core Go runner discovers this Test and invokes the native dispatcher in-process. The loaded fixture program and temporary emitted output exercise transformation without building or launching a native host; the generated-validator runtime batch owns installed-helper execution.
 func TestTransformHeadersGeneratesValidator(t *testing.T) {
 	out := transformFileToString(t, "headers", "HeadersController.ts", "assert", "assert")
-	if !strings.Contains(out, "@core.TypedHeaders({") {
-		t.Fatalf("headers transform did not inject a validator object:\n%s", out)
-	}
+	mustDecorateAll(t, out, `@core\.TypedHeaders`, "assert")
 }

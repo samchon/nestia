@@ -1,0 +1,25 @@
+{
+  "private": true,
+  "name": "@nestia/test-editor",
+  "version": "14.0.1",
+  "scripts": {
+    "dev": "ttsc --watch",
+    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node ../../scripts/run-unit.cjs --workspace test-editor"
+  },
+  "dependencies": {
+    "@nestia/e2e": "workspace:^",
+    "@nestia/editor": "workspace:^",
+    "@nestia/migrate": "workspace:^",
+    "@nestia/sdk": "workspace:^",
+    "fflate": "^0.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:utils",
+    "cross-env": "catalog:utils",
+    "jsdom": "catalog:utils",
+    "react": "catalog:utils",
+    "react-test-renderer": "catalog:utils",
+    "ttsc": "catalog:typescript"
+  },
+  "packageManager": "pnpm@10.6.4"
+}

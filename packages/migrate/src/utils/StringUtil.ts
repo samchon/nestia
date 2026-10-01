@@ -5,6 +5,9 @@
  * @evidence contracts/common.md#clear-and-simple-design Three functions and private tables of reserved words and replacements.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The tables are the language's reserved words and a fixed replacement of punctuation.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidence contracts/performance.md#efficient-algorithms Identifier escaping traverses the input with a fixed punctuation table and Unicode-aware per-segment replacements; total work and intermediate storage scale with encoded output length.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
  */
 export namespace StringUtil {
   /**
@@ -15,6 +18,9 @@ export namespace StringUtil {
    * @evidence contracts/common.md#clear-and-simple-design One expression.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It applies to every input.
    * @evidence contracts/common.md#meaningful-documentation The comment states the rule and the empty case.
+   * @evidence contracts/performance.md#efficient-algorithms One leading-character conversion and one remainder conversion cost O(N) in the input length.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const capitalize = (str: string): string =>
     str.length === 0 ? str : str[0]!.toUpperCase() + str.slice(1).toLowerCase();
@@ -26,6 +32,9 @@ export namespace StringUtil {
    * @evidence contracts/common.md#clear-and-simple-design One expression over the private normalizer.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules apply to every segment.
    * @evidence contracts/common.md#meaningful-documentation The comment states the normalization.
+   * @evidence contracts/performance.md#efficient-algorithms The path is split once and each segment normalized with a fixed number of transformations: O(N) total text work and output storage.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const splitWithNormalization = (path: string) =>
     path
@@ -34,27 +43,34 @@ export namespace StringUtil {
       .filter((str) => !!str.length);
 
   /**
-   * Escapes a string into a valid variable name.
+   * Escapes a string into a valid, possibly qualified, name.
    *
-   * Reserved words and leading digits get an underscore prefix, punctuation is
-   * replaced by a word such as `_at_`, and an empty result is `_empty_`.
+   * A dot separates the segments of a qualified name, so each segment is
+   * escaped as one identifier. Punctuation is replaced by a word such as
+   * `_at_`, any other character an identifier cannot hold by its code point, a
+   * reserved word or a segment that cannot start an identifier gets an
+   * underscore prefix, and an empty segment is `_empty_`. The last segment
+   * names a type, so it is also prefixed when it is a predefined type name.
    *
-   * @evidence contracts/common.md#principled-implementation The replacements are applied in a fixed order over the whole string, so the result contains no punctuation the table covers and starts with a letter or an underscore.
-   * @evidence contracts/common.md#clear-and-simple-design One function over two private tables.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The table is general.
-   * @evidence contracts/common.md#meaningful-documentation The comment states the rules.
+   * @evidence contracts/common.md#principled-implementation Whitespace at the edges is trimmed and the punctuation table is applied in its fixed order over the whole string; the string is then split at the dots, which stay as the namespace separators the DTO tree reads, and every segment is made an identifier by the ECMAScript rule: characters outside `ID_Continue` become their code point, and a reserved word, a predefined type name in the last segment or a segment not starting with `ID_Start`, `_` or `$` is prefixed with an underscore, so each segment is a valid identifier even where the punctuation table does not cover its characters.
+   * @evidence contracts/common.md#clear-and-simple-design One function over one segment helper and three private tables of reserved words, predefined type names and replacements.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No schema name is special-cased; the fixed punctuation table and Unicode identifier rules apply to every segment.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the segment rule, the replacements, the prefixes and the empty case.
+   * @evidence contracts/performance.md#efficient-algorithms A fixed punctuation table traverses the text before per-segment Unicode escaping. Work scales linearly with the encoded text length for the fixed table; expanded code-point spellings are retained only in the returned string.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const escapeNonVariable = (str: string): string => {
-    str = escape(str);
+    str = str.trim();
     for (const [before, after] of VARIABLE_REPLACERS)
       str = str.split(before).join(after);
-    for (let i: number = 0; i <= 9; ++i)
-      if (str[0] === i.toString()) {
-        str = "_" + str;
-        break;
-      }
     if (str === "") return "_empty_";
-    return str;
+    const segments: string[] = str.split(".");
+    return segments
+      .map((segment, index) =>
+        escapeSegment(segment, index === segments.length - 1),
+      )
+      .join(".");
   };
 }
 
@@ -66,10 +82,42 @@ const escape = (str: string): string => {
   return str;
 };
 
+// One identifier. The patterns are built at run time because the property
+// escapes need a newer script target than the one this package compiles to.
+const NON_IDENTIFIER_PART: RegExp = new RegExp("[^\\p{ID_Continue}]", "gu");
+const IDENTIFIER_START: RegExp = new RegExp("^[\\p{ID_Start}_$]", "u");
+
+const escapeSegment = (segment: string, type: boolean): string => {
+  segment = segment.replace(
+    NON_IDENTIFIER_PART,
+    (char) => `_u${char.codePointAt(0)!.toString(16)}_`,
+  );
+  if (segment.length === 0) return "_empty_";
+  return RESERVED.has(segment) ||
+    (type && TYPE_NAMES.has(segment)) ||
+    IDENTIFIER_START.test(segment) === false
+    ? `_${segment}`
+    : segment;
+};
+
 const normalize = (str: string): string =>
   escape(str.split(".").join("_").split("-").join("_"));
 
+const TYPE_NAMES: Set<string> = new Set([
+  "any",
+  "bigint",
+  "boolean",
+  "never",
+  "number",
+  "object",
+  "string",
+  "symbol",
+  "undefined",
+  "unknown",
+]);
+
 const RESERVED: Set<string> = new Set([
+  "await",
   "break",
   "case",
   "catch",
@@ -89,9 +137,12 @@ const RESERVED: Set<string> = new Set([
   "for",
   "function",
   "if",
+  "implements",
   "import",
   "in",
   "instanceof",
+  "interface",
+  "let",
   "module",
   "new",
   "null",
@@ -100,6 +151,7 @@ const RESERVED: Set<string> = new Set([
   "private",
   "protected",
   "return",
+  "static",
   "super",
   "switch",
   "this",
@@ -111,6 +163,7 @@ const RESERVED: Set<string> = new Set([
   "void",
   "while",
   "with",
+  "yield",
 ]);
 
 const VARIABLE_REPLACERS: [string, string][] = [

@@ -7,7 +7,19 @@ import (
 	"testing"
 )
 
-// @evidence contracts/testing.md#behavioral-verification Native build must emit the transaction controller and retain PubkeyInput import metadata for its local exported type alias.
+// TestSDKNativeBuildImportsLocalTypeAliases verifies a native build records the
+// local exported type alias of a transaction operation in the imports of its
+// metadata.
+//
+// The generated SDK imports each parameter and response type from its declaring
+// file, so an alias declared beside the controller must be listed with its
+// source file.
+//
+//  1. Build TransactionController with the core and sdk plugins in-process.
+//  2. Decode the injected OperationMetadata literals.
+//  3. Assert an operation's parameter or success imports list PubkeyInput.
+//
+// @evidence contracts/testing.md#behavioral-verification Native build must emit the transaction controller and list PubkeyInput in a decoded parameter or success imports entry of its operation metadata for its local exported type alias, so the name appearing only as a schema or property cannot satisfy it.
 // @evidence contracts/testing.md#independent-expectations The authored transaction signature names PubkeyInput from its local alias declaration; generated import metadata must preserve that usable source identity.
 // @evidence contracts/testing.md#distinguishing-cases This owns local alias import collection in emitted JavaScript; native import-alias and synthetic nested reflection cases own other alias forms. It checks presence rather than every import association.
 // @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
@@ -15,7 +27,7 @@ func TestSDKNativeBuildImportsLocalTypeAliases(t *testing.T) {
 	root := repoRoot(t)
 	temp := t.TempDir()
 	tsconfig := filepath.Join(temp, "tsconfig.json")
-	featureRoot := filepath.Join(root, "tests/test-sdk/features/tags")
+	featureRoot := filepath.Join(root, "tests/test-sdk-e2e/features/tags")
 	sourceRoot := filepath.Join(featureRoot, "src")
 	if err := os.WriteFile(
 		tsconfig,
@@ -53,8 +65,11 @@ func TestSDKNativeBuildImportsLocalTypeAliases(t *testing.T) {
 	if text := string(js); !strings.Contains(text, `TransactionController`) {
 		t.Fatalf("emitted JavaScript is missing the controller class\n%s", text)
 	}
-	meta := extractOperationMetadataJSON(t, js)
-	if !strings.Contains(meta, `"PubkeyInput"`) {
-		t.Fatalf("local type alias import metadata is missing %q\n%s", `"PubkeyInput"`, meta)
+	found := false
+	for _, name := range operationImportElements(t, js) {
+		found = found || name == "PubkeyInput"
+	}
+	if !found {
+		t.Fatalf("the parameter and success imports of the operation metadata do not name PubkeyInput\n%s", extractOperationMetadataJSON(t, js))
 	}
 }

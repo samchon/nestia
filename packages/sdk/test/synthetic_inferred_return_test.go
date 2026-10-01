@@ -36,13 +36,18 @@ export class SyntheticController {
   }
 }
 `
-	meta := buildSyntheticMetadata(t, controller)
-	for _, expected := range []string{
-		`"name":"__type"`,
-		`"label"`,
-	} {
-		if !strings.Contains(meta, expected) {
-			t.Fatalf("inferred-return metadata is missing %q\n%s", expected, meta)
-		}
+	metadata := decodeSyntheticMetadata(t, buildSyntheticMetadata(t, controller))
+	success := syntheticField(t, metadata, "success")
+	if actual := canonicalJSON(t, syntheticField(t, success, "type")); actual != `{"name":"__type"}` {
+		t.Fatalf("inferred success type is %s, expected the anonymous {\"name\":\"__type\"}", actual)
+	}
+	data := syntheticField(t, syntheticField(t, success, "primitive"), "data")
+	objects := syntheticField(t, syntheticField(t, data, "components"), "objects").([]any)
+	keys := []string{}
+	for _, property := range syntheticField(t, objects[0], "properties").([]any) {
+		keys = append(keys, syntheticMetadataConstant(t, syntheticField(t, property, "key")).(string))
+	}
+	if actual := strings.Join(keys, ","); actual != "value,label" {
+		t.Fatalf("the reflected object properties are %q, expected value,label", actual)
 	}
 }

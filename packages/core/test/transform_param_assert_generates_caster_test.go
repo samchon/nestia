@@ -1,9 +1,6 @@
 package test
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 // TestTransformParamAssertGeneratesCaster verifies the @TypedParam generator
 // injects a typia caster under the non-validate `assert` mode.
@@ -22,10 +19,11 @@ import (
 // @evidence contracts/testing.md#execution-ownership The core Go runner discovers this Test and invokes the native dispatcher in-process. The loaded fixture program and temporary emitted output exercise transformation without building or launching a native host; the generated-validator runtime batch owns installed-helper execution.
 func TestTransformParamAssertGeneratesCaster(t *testing.T) {
 	out := transformFileToString(t, "param", "TypedParamController.ts", "assert", "assert")
-	if !strings.Contains(out, "@core.TypedParam(") {
-		t.Fatalf("param transform dropped the TypedParam decorator:\n%s", out)
+	calls, casters, flagged := typedParamCounts(out)
+	if calls == 0 || casters != calls {
+		t.Fatalf("assert-mode TypedParam carried %d casters for %d calls:\n%s", casters, calls, out)
 	}
-	if !strings.Contains(out, "(input: string)") {
-		t.Fatalf("assert-mode TypedParam did not inject a caster:\n%s", out)
+	if flagged != 0 {
+		t.Fatalf("assert-mode TypedParam appended the validate-report flag %d times:\n%s", flagged, out)
 	}
 }

@@ -1,9 +1,6 @@
 package test
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 // TestTransformSingleFileStdoutWritesOutput verifies the single-file transform
 // path with no --out writes the rewritten TypeScript to stdout and exits 0.
@@ -35,7 +32,5 @@ func TestTransformSingleFileStdoutWritesOutput(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("single-file transform to stdout should exit 0, got %d:\n%s", code, stderr)
 	}
-	if !strings.Contains(stdout, "@core.TypedBody({") || !strings.Contains(stdout, `type: "assert"`) {
-		t.Fatalf("single-file stdout omitted its transformed body validator:\n%s", stdout)
-	}
+	mustDecorateAll(t, stdout, `@core\.TypedBody`, "assert")
 }

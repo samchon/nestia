@@ -64,6 +64,33 @@ export namespace TemporaryDirectory {
     fs.rmSync(directory, { recursive: true, force: true });
     owned.delete(directory);
   };
+
+  /**
+   * Releases all materializations owned by a completed disposable generation.
+   *
+   * Every child is attempted even when another removal fails; failed ownership
+   * remains registered for the termination hook to attempt again.
+   *
+   * @evidence contracts/common.md#principled-implementation The snapshot contains only registered mkdtemp results and remove checks ownership again; all children are attempted and aggregate failure prevents reporting successful cleanup.
+   * @evidence contracts/common.md#clear-and-simple-design One loop delegates deletion to the existing ownership-consuming operation and collects only removal errors.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Shared parents and foreign directories never enter this cleanup, and a failed removal is retained and reported rather than forgotten.
+   * @evidence contracts/common.md#meaningful-documentation The comment states generation-end release, continuation after a failed deletion and retained ownership for termination cleanup.
+   * @evidence contracts/portability.md#os-neutral-implementation The existing native fs/path removal operation handles each exact registered directory; no shell or platform-dependent signal is needed for explicit generation completion.
+   * @evidence contracts/performance.md#efficient-algorithms The loop visits each currently owned child once and stores only failed removals; filesystem cost follows their subtrees rather than the shared parent contents.
+   * @evidence contracts/performance.md#reuse-equivalent-work Explicit disposal consumes ownership, so the later shared exit hook sees no successfully released child and cannot repeat equivalent removals.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Successful completion releases every owned directory and registry entry before the worker reports its result. Failed entries remain owned and an AggregateError propagates the unresolved cleanup.
+   */
+  export const dispose = (): void => {
+    const errors: unknown[] = [];
+    for (const directory of [...owned])
+      try {
+        remove(directory);
+      } catch (error) {
+        errors.push(error);
+      }
+    if (errors.length)
+      throw new AggregateError(errors, "SDK temporary cleanup failed.");
+  };
 }
 
 const owned: Set<string> = new Set();

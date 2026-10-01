@@ -49,15 +49,15 @@ function runE2E(
     }
     return true;
   };
-  run("test-boundaries, test-evidence, test-benchmark, test-migrate, test-transform-options", [
+  run("test-boundaries, test-evidence, test-benchmark-e2e, test-migrate-e2e, test-core-e2e", [
     "--filter", "./tests/test-boundaries",
     "--filter", "./tests/test-evidence",
-    "--filter", "./tests/test-benchmark",
-    "--filter", "./tests/test-migrate",
-    "--filter", "./tests/test-transform-options",
+    "--filter", "./tests/test-benchmark-e2e",
+    "--filter", "./tests/test-migrate-e2e",
+    "--filter", "./tests/test-core-e2e",
     "-r", "--parallel", "--no-bail", "run", "start",
   ]);
-  run("test-sdk", ["--filter", "./tests/test-sdk", "start"], {
+  run("test-sdk-e2e", ["--filter", "./tests/test-sdk-e2e", "start"], {
     TEST_SDK_SKIP_BUILD: "1",
   });
   if (run("benchmark build", ["--filter", "./benchmark", "build"]))

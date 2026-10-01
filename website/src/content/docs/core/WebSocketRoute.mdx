@@ -243,6 +243,7 @@ public async auth(
 
 ## Caveats
 
+- **URI versions follow NestJS metadata.** A method's `@Version()` overrides its controller's version, and absent metadata uses the application's default version. An explicit empty version array registers no route; it does not inherit another version. `VERSION_NEUTRAL` omits the version segment. SDK and Swagger generation use the same precedence.
 - **Acceptor parameter is required.** Without an `@WebSocketRoute.Acceptor()` parameter the build fails: the transform reports that the method must have at least one parameter decorated by `@WebSocketRoute.Acceptor()`.
 - **Driver methods are async on the wire.** A server-side `plus(x: number, y: number): number` becomes `plus(x, y): Promise<number>` in the client's `Driver<T>`.
 - **One driver per direction.** Server-to-client calls go through `Driver<Listener>`; client-to-server calls go through the `Provider` instance you pass to `acceptor.accept()`. They're independent.

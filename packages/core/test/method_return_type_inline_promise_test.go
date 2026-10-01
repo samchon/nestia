@@ -3,6 +3,7 @@ package test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
@@ -11,7 +12,8 @@ import (
 )
 
 // TestMethodReturnTypeInlinePromise verifies inline and generic Promise return
-// types do not crash return-type analysis.
+// types unwrap to their payload type without crashing return-type analysis, and
+// a plain or non-Promise return keeps its own type.
 //
 // Locks the native replacement for the old TypeScript MethodTransformer branch
 // reported in #1382. Inline object literals and generic envelopes can expose
@@ -21,12 +23,13 @@ import (
 //
 //  1. Load a temporary program with inline and generic Promise return types.
 //  2. Visit both method declarations.
-//  3. Assert NestiaCoreMethodReturnType returns a type for each method without
-//     panicking.
+//  3. Assert NestiaCoreMethodReturnType returns the unwrapped payload type for each
+//     Promise method, and the own type for a plain string and a non-Promise
+//     method, without panicking.
 //
-// @evidence contracts/testing.md#behavioral-verification Both inline-object and generic-envelope Promise method declarations must be visited and yield non-nil return types without panicking.
-// @evidence contracts/testing.md#independent-expectations The fixture explicitly declares each Promise return type, so analysis must resolve a type for both named methods independently of generated schemas.
-// @evidence contracts/testing.md#distinguishing-cases Inline object and generic envelope spellings own the synthesized-symbol crash distinction; these assertions do not compare complete unwrapped type contents.
+// @evidence contracts/testing.md#behavioral-verification Inline-object, generic-envelope and plain Promise methods must be visited and yield the unwrapped payload, never text containing Promise, and a non-Promise method must keep its own type, without panicking.
+// @evidence contracts/testing.md#independent-expectations The fixture explicitly declares each return type, and TypeScript semantics fix that Promise<T> awaits to T; the expected prefixes are literals written from the declarations, independent of generated schemas.
+// @evidence contracts/testing.md#distinguishing-cases Inline object and generic envelope spellings own the synthesized-symbol crash distinction; the assertions compare the leading payload text, not every printed member, and the plain string case is compared exactly.
 // @evidence contracts/testing.md#execution-ownership The core Go runner discovers the case and loads an isolated source program in-process; traversal records both method names and defer closes the driver program.
 func TestMethodReturnTypeInlinePromise(t *testing.T) {
 	temp := t.TempDir()
@@ -49,6 +52,14 @@ class ReproController {
   public async envelope(): Promise<Envelope<{ foo: string; bar?: number }>> {
     return { message: "ok", data: { foo: "ok" } };
   }
+
+  public async plain(): Promise<string> {
+    return "ok";
+  }
+
+  public direct(): { foo: string } {
+    return { foo: "ok" };
+  }
 }
 `)
 
@@ -66,6 +77,14 @@ class ReproController {
 		t.Fatal("controller.ts not in program")
 	}
 
+	// The payload each method must resolve to: Promise<T> unwraps to T, and a
+	// method that is not a Promise keeps its own type.
+	expected := map[string]string{
+		"inline":   "{ foo: string;",
+		"envelope": "Envelope<{ foo: string;",
+		"plain":    "string",
+		"direct":   "{ foo: string;",
+	}
 	seen := map[string]bool{}
 	var walk func(node *shimast.Node)
 	walk = func(node *shimast.Node) {
@@ -74,9 +93,14 @@ class ReproController {
 		}
 		if node.Kind == shimast.KindMethodDeclaration {
 			name := transform.NodeName(node)
-			if name == "inline" || name == "envelope" {
-				if typ := transform.NestiaCoreMethodReturnType(prog, node); typ == nil {
+			if prefix, ok := expected[name]; ok {
+				typ := transform.NestiaCoreMethodReturnType(prog, node)
+				if typ == nil {
 					t.Fatalf("%s return type was not resolved", name)
+				}
+				text := prog.Checker.TypeToString(typ)
+				if strings.Contains(text, "Promise") || !strings.HasPrefix(text, prefix) || (name == "plain" && text != "string") {
+					t.Fatalf("%s resolved to %q, want the unwrapped payload %q", name, text, prefix)
 				}
 				seen[name] = true
 			}
@@ -88,7 +112,7 @@ class ReproController {
 	}
 	walk(source.AsNode())
 
-	for _, name := range []string{"inline", "envelope"} {
+	for name := range expected {
 		if !seen[name] {
 			t.Fatalf("%s method was not visited", name)
 		}

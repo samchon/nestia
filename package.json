@@ -11,7 +11,7 @@
     "format": "prettier --write \"packages/**/*.ts\" \"tests/**/*.ts\"",
     "format:check": "prettier --check \"packages/**/*.ts\" \"tests/**/*.ts\"",
     "test:go": "pnpm --filter @nestia/core --filter @nestia/sdk -r --parallel --no-bail run test:go && cd packages/core/native && go test -count=1 ./...",
-    "test:unit": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" pnpm --filter ./tests/test-unit start",
+    "test:unit": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node scripts/run-unit.cjs",
     "test:e2e": "cross-env TTSC_GO_BINARY=go NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node scripts/run-e2e.cjs",
     "test": "cross-env TTSC_GO_BINARY=go NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node scripts/run-tests.cjs",
     "package:prepare": "pnpm build && node deploy/copy-readme.cjs",

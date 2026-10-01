@@ -36,7 +36,7 @@ import { validate_request_body } from "./internal/validate_request_body";
  *
  * @author Jeongho Nam - https://github.com/samchon
  * @returns Parameter decorator
- * @evidence contracts/common.md#principled-implementation The body must be `text/plain` ciphertext; it is decrypted with the password of the controller or module, the plain text is parsed as JSON and validated by the transformed validator, and a decryption or parse failure becomes a 400 with a fixed message that does not echo the ciphertext.
+ * @evidence contracts/common.md#principled-implementation The body must be `text/plain` ciphertext; it is decrypted with the password of the controller or module, the plain text is parsed as JSON and validated by the transformed validator, and a decryption or parse failure becomes a 400 with one fixed message that does not echo the ciphertext and does not tell the two failures apart; a key or initialization vector the cipher itself refuses is the server's configuration, independent of the request, and is thrown as it is.
  * @evidence contracts/common.md#clear-and-simple-design One parameter decorator composed of the shared text reading, password lookup, and validator runner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The algorithm comes from `AesPkcs5` of the fetcher, the same one the client uses, and no key is embedded; a missing password is an error rather than a plain pass-through.
  * @evidence contracts/common.md#meaningful-documentation The comment describes the protocol and the requirement of a password on the controller or module, and the private decode helper documents why every decryption failure collapses into one response.
@@ -97,16 +97,32 @@ export function EncryptedBody<T>(
  * distinct error, because reaching it requires plaintext the attacker cannot
  * forge without already knowing it.
  *
+ * A key or initialization vector the cipher refuses is thrown as it is. It says
+ * nothing about the body, so it opens no oracle, and it is a defect of the
+ * server's configuration that a 400 would blame on the client.
+ *
  * @internal
  */
 const decode = (body: string, key: string, iv: string): unknown => {
   try {
     return JSON.parse(AesPkcs5.decrypt(body, key, iv));
   } catch (exp) {
-    if (exp instanceof Error)
+    // A password the cipher itself refuses is the server's configuration, which
+    // no request body can influence, so it is no oracle and no client's fault.
+    if (exp instanceof Error && PASSWORD_ERRORS.has((exp as any).code))
+      throw exp;
+    else if (exp instanceof Error)
       throw new BadRequestException(
         "Failed to decrypt the request body. Check your body content or encryption password.",
       );
     else throw exp;
   }
 };
+
+/** The error codes of a key or an initialization vector the cipher refuses. */
+const PASSWORD_ERRORS: Set<unknown> = new Set([
+  "ERR_INVALID_ARG_TYPE",
+  "ERR_CRYPTO_INVALID_IV",
+  "ERR_CRYPTO_INVALID_KEYLEN",
+  "ERR_CRYPTO_UNKNOWN_CIPHER",
+]);

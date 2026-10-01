@@ -1846,11 +1846,11 @@ func nestiaSDKReflectTypeNode(
 		ref := node.AsTypeReferenceNode()
 		name := nestiaSDKEntityNameText(ref.TypeName)
 		rootRefs := nestiaSDKReflectImports(name, imports)
-		if len(rootRefs) == 0 && nestiaSDKIsAsyncReturnWrapper(prog, ref.TypeName, name) == false {
+		if len(rootRefs) == 0 && transform.NestiaCoreIsAsyncReturnWrapperReference(prog, ref.TypeName) == false {
 			rootRefs = nestiaSDKReflectTypeReferenceSymbolImport(prog, ref.TypeName, name)
 		}
 		if ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) != 0 {
-			if nestiaSDKIsAsyncReturnWrapper(prog, ref.TypeName, name) && len(ref.TypeArguments.Nodes) == 1 {
+			if transform.NestiaCoreIsAsyncReturnWrapperReference(prog, ref.TypeName) && len(ref.TypeArguments.Nodes) == 1 {
 				return nestiaSDKReflectTypeNode(prog, imports, ref.TypeArguments.Nodes[0])
 			}
 			args := make([]any, 0, len(ref.TypeArguments.Nodes))
@@ -1902,10 +1902,11 @@ func nestiaSDKReflectTypeReferenceSymbolImport(prog *driver.Program, node *shima
 	if sourceFile == nil {
 		return nil
 	}
-	file := filepath.ToSlash(sourceFile.FileName())
-	if strings.Contains(file, "/typescript/lib/") {
+	// a default library type, whichever folder or replacement package supplies it
+	if prog.TSProgram != nil && prog.TSProgram.IsLibFile(sourceFile) {
 		return nil
 	}
+	file := filepath.ToSlash(sourceFile.FileName())
 	return []any{
 		map[string]any{
 			"file":     file,
@@ -2270,7 +2271,7 @@ func nestiaSDKMethodReturnTypeNode(prog *driver.Program, method *shimast.Node) *
 func nestiaSDKReturnTypeNode(prog *driver.Program, node *shimast.Node) *shimast.Node {
 	if node != nil && node.Kind == shimast.KindTypeReference {
 		ref := node.AsTypeReferenceNode()
-		if ref != nil && ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) == 1 && nestiaSDKIsAsyncReturnWrapper(prog, ref.TypeName, nestiaSDKEntityNameText(ref.TypeName)) {
+		if ref != nil && ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) == 1 && transform.NestiaCoreIsAsyncReturnWrapperReference(prog, ref.TypeName) {
 			return ref.TypeArguments.Nodes[0]
 		}
 	}
@@ -2280,76 +2281,6 @@ func nestiaSDKReturnTypeNode(prog *driver.Program, node *shimast.Node) *shimast.
 func nestiaSDKEntityNameText(node *shimast.Node) string {
 	return nestiaSDKTypeNodeText(node)
 }
-func nestiaSDKIsAsyncReturnWrapper(
-	prog *driver.Program,
-	node *shimast.Node,
-	name string,
-) bool {
-	if name == "Promise" {
-		return true
-	}
-	if name != "Observable" || prog == nil || prog.Checker == nil {
-		return false
-	}
-	symbol := prog.Checker.GetSymbolAtLocation(node)
-	return nestiaSDKIsRxjsObservableImport(node) ||
-		(symbol != nil && nestiaSDKIsRxjsDeclarations(symbol.Declarations))
-}
-
-func nestiaSDKIsRxjsDeclarations(declarations []*shimast.Node) bool {
-	for _, decl := range declarations {
-		sourceFile := shimast.GetSourceFileOfNode(decl)
-		if sourceFile == nil {
-			continue
-		}
-		file := filepath.ToSlash(sourceFile.FileName())
-		if strings.Contains(file, "/node_modules/rxjs/") {
-			return true
-		}
-	}
-	return false
-}
-
-func nestiaSDKIsRxjsObservableImport(node *shimast.Node) bool {
-	source, ok := transform.SourceFileText(shimast.GetSourceFileOfNode(node))
-	return ok && nestiaSDKHasNamedImport(source, "rxjs", "Observable", "Observable")
-}
-
-func nestiaSDKHasNamedImport(
-	source string,
-	module string,
-	imported string,
-	local string,
-) bool {
-	for _, match := range nestiaSDKImportFromPattern.FindAllStringSubmatch(source, -1) {
-		if len(match) < 3 || match[2] != module {
-			continue
-		}
-		open := strings.Index(match[1], "{")
-		close := strings.LastIndex(match[1], "}")
-		if open < 0 || close <= open {
-			continue
-		}
-		for _, part := range strings.Split(match[1][open+1:close], ",") {
-			fields := strings.Fields(strings.TrimPrefix(strings.TrimSpace(part), "type "))
-			if len(fields) == 1 && fields[0] == local && imported == local {
-				return true
-			}
-			if len(fields) == 3 &&
-				fields[0] == imported &&
-				fields[1] == "as" &&
-				fields[2] == local {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-var nestiaSDKImportFromPattern = regexp.MustCompile(
-	`(?s)import\s+(?:type\s+)?(.+?)\s+from\s+["']([^"']+)["']`,
-)
-
 func nestiaSDKTypeNodeText(node *shimast.Node) string {
 	if node == nil {
 		return ""

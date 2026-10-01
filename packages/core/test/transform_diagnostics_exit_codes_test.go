@@ -1,64 +1,40 @@
 package test
 
 import (
+	"strings"
 	"testing"
-
-	"github.com/samchon/nestia/packages/core/native/transform"
 )
 
-// TestTransformDiagnosticsExitCodes verifies the in-process transform reports
-// its two diagnostic classes with distinct exit codes: a tsgo config/type error
-// surfaces before the transform runs as exit 2, while a nestia transform-stage
-// diagnostic (invalid WebSocket driver) surfaces as exit 3.
+// TestTransformDiagnosticsExitCodes verifies a nestia transform-stage
+// diagnostic (an invalid WebSocket driver) of the single-file transform surfaces
+// as exit 3 with its diagnostic text.
 //
-// The exit code is the protocol ttsc keys on: 2 means "the program didn't even
-// compile", 3 means "nestia rejected a decorator". strictNullChecks-off trips
-// typia's hard precondition during the transform (exit 3 path via the global
-// diagnostic), and an invalid Driver<Listener> trips the WebSocket validator's
-// transform diagnostic. Driving both in-process pins the WriteTypiaTransform
-// Diagnostics emit branch and nestiaCoreWebSocketDiagnostic together.
+// Exit 3 is the code ttsc keys on for "nestia rejected a decorator", distinct
+// from a usage error (2) and from success. The strictNullChecks precondition has
+// its own table in TestTransformStrictModeRequired, and the project-mode path in
+// TestTransformProjectModeReportsDiagnostics, so this case owns the single-file
+// path of the driver diagnostic.
 //
-//  1. Transform the query feature with strictNullChecks off -> nonzero exit.
-//  2. Transform the invalid-driver websocket feature -> exit 3.
+//  1. Transform the invalid-driver websocket feature's controller with --file.
+//  2. Assert exit 3 and a WebSocketRoute diagnostic on stderr.
 //
-// @evidence contracts/testing.md#behavioral-verification A direct query transform with strictNullChecks disabled must fail, and the invalid WebSocket-driver fixture must fail specifically with transform exit 3.
-// @evidence contracts/testing.md#independent-expectations Strict validation requires null distinctions and a WebSocket route requires its supported driver type; the literal transform-error exit separates rejected decorators from success.
-// @evidence contracts/testing.md#distinguishing-cases The strict case currently asserts nonzero rather than a particular class; the dedicated strict-mode table pins exit 3 and wording across option spellings. This case independently pins the driver class.
-// @evidence contracts/testing.md#execution-ownership Go discovers this core unit case; each dispatch loads fixture source in the existing process with isolated configuration/output directories and no native subprocess.
+// @evidence contracts/testing.md#behavioral-verification The invalid WebSocket-driver fixture transformed with --file must fail with transform exit 3 and a nestia.core.WebSocketRoute diagnostic on stderr, so a loader failure or a silent success cannot stand in for it.
+// @evidence contracts/testing.md#independent-expectations A WebSocket route requires its supported driver type; the literal exit 3 and the diagnostic code separate a rejected decorator from success and from a usage error.
+// @evidence contracts/testing.md#distinguishing-cases This owns the single-file driver diagnostic. The strict null precondition is pinned with exit 3 and wording by the strict-mode table, project mode by its own case, and accepted forms by the clean WebSocket cases.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit case; the dispatch loads fixture source in the existing process with isolated configuration and no native subprocess.
 func TestTransformDiagnosticsExitCodes(t *testing.T) {
-	plugins := coreNativePlugins("validate", "assert")
-
-	strictTemp := t.TempDir()
-	queryRoot := featureRootForCore(t, "query")
-	strictTsconfig := writeExtendingTsconfig(t, strictTemp, queryRoot, `,
-    "strictNullChecks": false`, []string{
-		featureSource(t, "query", "controllers/QueryController.ts"),
-		featureSource(t, "query", "api/structures/IBigQuery.ts"),
-		featureSource(t, "query", "api/structures/INestQuery.ts"),
-		featureSource(t, "query", "api/structures/IQuery.ts"),
-	})
-	if code := transform.Run([]string{
+	feature := "websocket-error-invalid-driver"
+	temp := t.TempDir()
+	controller := featureSource(t, feature, "controllers/CalculateController.ts")
+	tsconfig := writeExtendingTsconfig(t, temp, featureRootForCore(t, feature), "", []string{controller})
+	_, stderr, code := runCoreNative([]string{
 		"transform",
-		"--cwd", strictTemp,
-		"--tsconfig", strictTsconfig,
-		"--file", featureSource(t, "query", "controllers/QueryController.ts"),
-		"--plugins-json", plugins,
-	}); code == 0 {
-		t.Fatal("strictNullChecks off should fail the transform")
-	}
-
-	wsTemp := t.TempDir()
-	wsRoot := featureRootForCore(t, "websocket-error-invalid-driver")
-	wsTsconfig := writeExtendingTsconfig(t, wsTemp, wsRoot, "", []string{
-		featureSource(t, "websocket-error-invalid-driver", "controllers/CalculateController.ts"),
+		"--cwd", temp,
+		"--tsconfig", tsconfig,
+		"--file", controller,
+		"--plugins-json", coreNativePlugins("validate", "assert"),
 	})
-	if code := transform.Run([]string{
-		"transform",
-		"--cwd", wsTemp,
-		"--tsconfig", wsTsconfig,
-		"--file", featureSource(t, "websocket-error-invalid-driver", "controllers/CalculateController.ts"),
-		"--plugins-json", plugins,
-	}); code != 3 {
-		t.Fatalf("invalid WebSocket driver should exit 3, got %d", code)
+	if code != 3 || !strings.Contains(stderr, "error TS(nestia.core.WebSocketRoute)") {
+		t.Fatalf("invalid WebSocket driver should exit 3 with a WebSocketRoute diagnostic, got %d:\n%s", code, stderr)
 	}
 }

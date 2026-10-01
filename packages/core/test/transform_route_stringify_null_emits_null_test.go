@@ -21,7 +21,7 @@ import (
 //  1. Transform the body controller with a manifest carrying stringify: null.
 //  2. Read the emitted --out source.
 //  3. Assert the route gained no stringifier object (no `type: "assert"` etc.)
-//     and instead carries a bare null response argument.
+//     in any TypedRoute call and instead carries a bare null response argument.
 //
 // @evidence contracts/testing.md#behavioral-verification With stringify null, the body JSON route must emit TypedRoute.Post(null) instead of a generated serializer object.
 // @evidence contracts/testing.md#independent-expectations The supported null option disables response serialization through the decorator runtime null argument.
@@ -32,5 +32,14 @@ func TestTransformRouteStringifyNullEmitsNull(t *testing.T) {
 	out := transformFileToStringWithPlugins(t, "body", "TypedBodyController.ts", plugins)
 	if !strings.Contains(out, "@core.TypedRoute.Post(null)") {
 		t.Fatalf("stringify:null should emit a bare null route response argument:\n%s", out)
+	}
+	types := decoratorValidatorTypes(out, `@core\.TypedRoute\.[A-Za-z]+`)
+	if len(types) == 0 {
+		t.Fatalf("no TypedRoute call was emitted:\n%s", out)
+	}
+	for index, got := range types {
+		if got != "" {
+			t.Fatalf("TypedRoute call #%d kept the %q stringifier under stringify:null:\n%s", index, got, out)
+		}
 	}
 }

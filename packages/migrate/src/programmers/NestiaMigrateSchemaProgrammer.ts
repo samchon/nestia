@@ -2,7 +2,7 @@ import { SyntaxKind, factory } from "@ttsc/factory";
 import { NamingConvention, OpenApiTypeChecker } from "@typia/utils";
 import type { OpenApi } from "typia";
 
-import { FormatCheatSheet } from "../factories/FormatCheatSheet";
+import { SUPPORTED_STRING_FORMATS } from "../factories/SupportedStringFormats";
 import { TypeFactory } from "../factories/TypeFactory";
 import ts from "../internal/ts";
 import { FilePrinter } from "../utils/FilePrinter";
@@ -225,8 +225,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       intersection.push(props.importer.tag("Pattern", props.schema.pattern));
     if (
       props.schema.format !== undefined &&
-      (FormatCheatSheet as Record<string, string>)[props.schema.format] !==
-        undefined
+      SUPPORTED_STRING_FORMATS.has(props.schema.format)
     )
       intersection.push(props.importer.tag("Format", props.schema.format));
     if (props.schema.contentMediaType !== undefined)

@@ -2,8 +2,6 @@ package transform
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimchecker "github.com/microsoft/typescript-go/shim/checker"
@@ -134,7 +132,7 @@ func NestiaCoreWebSocketTypeReference(prog *driver.Program, node *shimast.Node) 
 		if symbol == nil {
 			return nil, ""
 		}
-		if nestiaCoreIsTgridDeclarations(symbol.Declarations) {
+		if nestiaCoreIsTgridDeclarations(prog, symbol.Declarations) {
 			return chain, symbol.Name
 		}
 		if symbol.Flags&shimast.SymbolFlagsTypeAlias == 0 {
@@ -172,10 +170,10 @@ func nestiaCoreTypeReferenceName(node *shimast.Node) *shimast.Node {
 	return nil
 }
 
-func nestiaCoreIsTgridDeclarations(declarations []*shimast.Node) bool {
+func nestiaCoreIsTgridDeclarations(prog *driver.Program, declarations []*shimast.Node) bool {
 	for _, declaration := range declarations {
 		source := shimast.GetSourceFileOfNode(declaration)
-		if source != nil && strings.Contains(filepath.ToSlash(source.FileName()), "/tgrid/") {
+		if source != nil && SourceFilePackageName(prog, source) == "tgrid" {
 			return true
 		}
 	}

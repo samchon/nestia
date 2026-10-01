@@ -35,7 +35,7 @@ func TestSDKEnvGateOffSkipsContributor(t *testing.T) {
 		"controllers/TypedBodyController.ts",
 		"api/structures/IBbsArticle.ts",
 	})
-	file := filepath.Join(root, "tests/test-sdk/features/body/src/controllers/TypedBodyController.ts")
+	file := filepath.Join(root, "tests/test-sdk-e2e/features/body/src/controllers/TypedBodyController.ts")
 	outFile := filepath.Join(temp, "out.ts")
 	// Make sure the gate env is unset for this run even if the ambient
 	// environment carries it.

@@ -7,6 +7,20 @@ import (
 	"testing"
 )
 
+// TestSDKNativeBuildInjectsOperationMetadata verifies a native build with both
+// the core and sdk plugins emits the SDK metadata decorator and the core
+// validators together.
+//
+// The two passes share one emit, so the SDK namespace import and metadata call
+// must coexist with the core route and body validators and carry the named DTO
+// types of the operation.
+//
+//  1. Build TypedBodyController with the core and sdk plugins in-process.
+//  2. Assert the emitted JavaScript holds the SDK import, the metadata call and
+//     the core route and body decorators.
+//  3. Assert the decoded metadata names IBbsArticle.IUpdate and imports
+//     IBbsArticle.
+//
 // @evidence contracts/testing.md#behavioral-verification Native build must emit SDK namespace/imported metadata calls alongside core route/body validators and preserve IBbsArticle.IUpdate and IBbsArticle type metadata.
 // @evidence contracts/testing.md#independent-expectations The authored controller route, body and DTO types independently require these transformations; generated SDK metadata must coexist with the core validator pass.
 // @evidence contracts/testing.md#distinguishing-cases This owns combined core/SDK JavaScript emission and named DTO information. The shape-round-trip case validates required metadata fields, while gate-off/no-site cases own absent contributor output.
@@ -15,12 +29,12 @@ func TestSDKNativeBuildInjectsOperationMetadata(t *testing.T) {
 	root := repoRoot(t)
 	temp := t.TempDir()
 	tsconfig := filepath.Join(temp, "tsconfig.json")
-	sourceRoot := filepath.Join(root, "tests/test-sdk/features/body/src")
+	sourceRoot := filepath.Join(root, "tests/test-sdk-e2e/features/body/src")
 	typeRoots := nodeTypeRoots(t, root)
 	if err := os.WriteFile(
 		tsconfig,
 		[]byte(`{
-  "extends": "`+filepath.ToSlash(filepath.Join(root, "tests/test-sdk/features/body/tsconfig.json"))+`",
+  "extends": "`+filepath.ToSlash(filepath.Join(root, "tests/test-sdk-e2e/features/body/tsconfig.json"))+`",
   "compilerOptions": {
     "rootDir": "`+filepath.ToSlash(root)+`",
     "types": ["node"],

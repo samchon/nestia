@@ -5,12 +5,15 @@ import (
 	"testing"
 )
 
-// TestTransformFeatureDiagnosticMessages verifies four rejected route shapes retain their diagnostic reasons.
+// TestTransformFeatureDiagnosticMessages verifies four rejected route shapes
+// retain their diagnostic reasons.
 //
-// Counts alone could accept an unrelated rejection; the authored nested properties and acceptor contracts require these reasons.
+// Counts alone could accept an unrelated rejection; the authored nested
+// properties and acceptor contracts require these reasons.
 //
-// 1. Transform each named negative fixture in-process.
-// 2. Require exactly one diagnostic and all of that fixture's identifying phrases.
+//  1. Transform each named negative fixture in-process.
+//  2. Require exactly one diagnostic and all of that fixture's identifying
+//     phrases.
 //
 // @evidence contracts/testing.md#behavioral-verification Each nested form/query or invalid acceptor arity/import fixture must return exactly one diagnostic containing its own unsupported-type/property or required acceptor message.
 // @evidence contracts/testing.md#independent-expectations The authored nested field names and the required WebSocketAcceptor<Header, Provider, Listener> contract establish the literal diagnostic reasons independently of the transform output.
@@ -47,6 +50,3 @@ func TestTransformFeatureDiagnosticMessages(t *testing.T) {
 		}
 	}
 }
-
-// transformFeatureCohort runs the project-mode transform over the controllers
-// of the given test-sdk features, returning the file of each diagnostic.

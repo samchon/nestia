@@ -1,3 +1,4 @@
+import { parse } from "@babel/parser";
 import fs from "fs";
 import path from "path";
 
@@ -6,19 +7,21 @@ import path from "path";
  * CommonJS.
  *
  * @evidence contracts/common.md#principled-implementation A compiler can keep `import.meta.url` in CommonJS output, and Node then detects the file as ESM before `require()` loads it, so the token is replaced by an expression that gives the same URL.
- * @evidence contracts/common.md#clear-and-simple-design One public function with a scanner that skips strings and comments.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The patch changes only the temporary emit, and the scanner never rewrites text inside a string or a comment.
+ * @evidence contracts/common.md#clear-and-simple-design One public function collects emitted files and a JavaScript parser identifies import.meta.url expressions by their syntax nodes; source slices retain all unrelated text.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The patch changes only the temporary emit. The parser reads JavaScript grammar, so regular expressions after control-flow statements and property names resembling import.meta.url remain untouched; no previous-token approximation substitutes for parsing.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidence contracts/portability.md#os-neutral-implementation Entries are listed with `readdir` and joined with `path.join`; only regular `.js` and `.cjs` files, named case-insensitively, are read and rewritten as UTF-8, and symbolic links and other entry kinds are left alone. The replacement derives the file URL with `url.pathToFileURL(__filename)`, the platform's own conversion, so drive letters, UNC paths and percent-encoding follow the rules of `import.meta.url`. The text outside the token, line endings included, is preserved.
  */
 export namespace EmittedJavaScriptPatcher {
   /**
    * Replaces every `import.meta.url` in the `.js` and `.cjs` files under a
    * directory with `require("url").pathToFileURL(__filename).href`.
    *
-   * @evidence contracts/common.md#principled-implementation The token is replaced only at identifier boundaries and outside strings and comments, so the same file URL is produced under CommonJS as under ESM.
-   * @evidence contracts/common.md#clear-and-simple-design One function over a file collector and a scanner.
+   * @evidence contracts/common.md#principled-implementation The parser selects only a non-computed url property whose object is the import.meta meta-property, including spaced expressions and template substitutions. Literal and comment text is never an expression node, and the replacement derives the executing CommonJS file URL.
+   * @evidence contracts/common.md#clear-and-simple-design One function collects files and delegates expression detection to the JavaScript grammar parser.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It patches only files that contain the token.
    * @evidence contracts/common.md#meaningful-documentation The comment states the replacement and the scope.
+   * @evidence contracts/portability.md#os-neutral-implementation Files are read and rewritten concurrently without locking, one pending operation per file, so the caller must be the only writer of the directory, as it is for its own temporary emit.
    */
   export const importMetaUrl = async (root: string): Promise<void> => {
     const files: string[] = await collect(root);
@@ -26,7 +29,6 @@ export namespace EmittedJavaScriptPatcher {
   };
 }
 
-const TARGET = "import.meta.url";
 // TypeScript can preserve this token even in CommonJS output. Node 24 then
 // syntax-detects the temporary `.js` file as ESM before require() can load it.
 const REPLACEMENT = 'require("url").pathToFileURL(__filename).href';
@@ -48,59 +50,62 @@ const collect = async (location: string): Promise<string[]> => {
 
 const patch = async (file: string): Promise<void> => {
   const before: string = await fs.promises.readFile(file, "utf8");
-  if (before.includes(TARGET) === false) return;
+  if (before.includes("import") === false) return;
 
   const after: string = replaceImportMetaUrl(before);
   if (after !== before) await fs.promises.writeFile(file, after, "utf8");
 };
 
+// Parse module expressions without imposing module strictness: TypeScript may preserve
+// import.meta in otherwise CommonJS output. Top-level return is valid inside
+// Node's CommonJS wrapper. The parser, rather than token context guesses, owns
+// the distinction between regular expressions, divisions and property names.
 const replaceImportMetaUrl = (input: string): string => {
-  let output: string = "";
-  let cursor: number = 0;
-  for (let i = 0; i < input.length; ) {
-    if (isTarget(input, i)) {
-      output += input.slice(cursor, i);
-      output += REPLACEMENT;
-      i += TARGET.length;
-      cursor = i;
-      continue;
+  const root = parse(input, {
+    sourceType: "module",
+    strictMode: false,
+    attachComment: false,
+    allowImportExportEverywhere: true,
+    allowReturnOutsideFunction: true,
+    allowAwaitOutsideFunction: true,
+  });
+  const spans: Array<{ start: number; end: number }> = [];
+  const pending: Array<{
+    type: string;
+    start?: number | null;
+    end?: number | null;
+  }> = [root];
+  while (pending.length !== 0) {
+    const node = pending.pop()! as Record<string, any>;
+    if (
+      node.type === "MemberExpression" &&
+      node.computed === false &&
+      node.property?.type === "Identifier" &&
+      node.property.name === "url" &&
+      node.object?.type === "MetaProperty" &&
+      node.object.meta.name === "import" &&
+      node.object.property.name === "meta"
+    )
+      spans.push({ start: node.start, end: node.end });
+    for (const value of Object.values(node)) {
+      if (Array.isArray(value)) {
+        for (const child of value)
+          if (child && typeof child.type === "string") pending.push(child);
+      } else if (
+        value &&
+        typeof value === "object" &&
+        typeof value.type === "string"
+      )
+        pending.push(value);
     }
-
-    const ch: string = input[i]!;
-    const next: string | undefined = input[i + 1];
-    if (ch === '"' || ch === "'") i = skipQuoted(input, i, ch);
-    else if (ch === "/" && next === "/") i = skipLineComment(input, i);
-    else if (ch === "/" && next === "*") i = skipBlockComment(input, i);
-    else ++i;
   }
-  return output + input.slice(cursor);
-};
-
-const isTarget = (input: string, index: number): boolean =>
-  input.startsWith(TARGET, index) &&
-  isBoundary(input[index - 1]) &&
-  isBoundary(input[index + TARGET.length]);
-
-const isBoundary = (ch: string | undefined): boolean =>
-  ch === undefined || /[^A-Za-z0-9_$]/.test(ch);
-
-const skipQuoted = (input: string, index: number, quote: string): number => {
-  let escaped: boolean = false;
-  for (let i = index + 1; i < input.length; ++i) {
-    const ch: string = input[i]!;
-    if (escaped) escaped = false;
-    else if (ch === "\\") escaped = true;
-    else if (ch === quote) return i + 1;
+  spans.sort((a, b) => a.start - b.start);
+  const pieces: string[] = [];
+  let cursor = 0;
+  for (const span of spans) {
+    pieces.push(input.slice(cursor, span.start), REPLACEMENT);
+    cursor = span.end;
   }
-  return input.length;
-};
-
-const skipLineComment = (input: string, index: number): number => {
-  const found: number = input.indexOf("\n", index + 2);
-  return found === -1 ? input.length : found + 1;
-};
-
-const skipBlockComment = (input: string, index: number): number => {
-  const found: number = input.indexOf("*/", index + 2);
-  return found === -1 ? input.length : found + 2;
+  pieces.push(input.slice(cursor));
+  return pieces.join("");
 };

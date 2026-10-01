@@ -35,6 +35,9 @@
  * @evidence contracts/common.md#clear-and-simple-design Small generators build on each other (`name` on `paragraph`, `content` on `paragraph`, both on `alphabets`), so one integer helper decides the randomness.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The data are drawn, not taken from a fixed list of test values.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose says the functions are not seeded and lists the kinds of data, with an example.
+ * @evidence contracts/performance.md#efficient-algorithms Text construction scales with generated characters, sparse sampling with selected positions, and fixed-size draws use constant work. The namespace retains only fixed character tables; each generator owns its invocation-local result.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
  */
 export namespace RandomGenerator {
   /** Character set containing lowercase alphabetical characters a-z */
@@ -72,6 +75,9 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One expression over the shared integer helper.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The characters are drawn, not enumerated from a list of known values.
    * @evidence contracts/common.md#meaningful-documentation The comment states the character set, the independence of the draws, and examples.
+   * @evidence contracts/performance.md#efficient-algorithms Constructing L characters costs O(L) time and intermediate/result space.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const alphabets = (length: number): string =>
     new Array(length)
@@ -108,6 +114,9 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One expression over the shared integer helper.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The characters are drawn, not enumerated from a list of known values.
    * @evidence contracts/common.md#meaningful-documentation The comment states the character set and gives examples.
+   * @evidence contracts/performance.md#efficient-algorithms Constructing L characters costs O(L) time and intermediate/result space.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const alphaNumeric = (length: number): string =>
     new Array(length)
@@ -145,6 +154,9 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design A one-line delegation to `paragraph` with the sentence count as the word count.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The words are drawn letters, not a fixed list of names.
    * @evidence contracts/common.md#meaningful-documentation The comment states the default length and gives examples.
+   * @evidence contracts/performance.md#efficient-algorithms The delegated paragraph work scales with the requested word count and total generated characters.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const name = (length: number = randint(2, 3)): string =>
     paragraph({
@@ -191,6 +203,9 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One expression over `alphabets`, with three optional numbers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The words are drawn letters, not a fixed text.
    * @evidence contracts/common.md#meaningful-documentation The comment states the parameters and their defaults, with examples.
+   * @evidence contracts/performance.md#efficient-algorithms Each requested word is generated once; time and temporary space scale with the total generated character count and the number of words.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const paragraph = (
     props?: Partial<{
@@ -265,6 +280,9 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One expression over `paragraph`, with five optional numbers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The text is drawn, not a fixed corpus.
    * @evidence contracts/common.md#meaningful-documentation The comment states the parameters and their defaults, with examples.
+   * @evidence contracts/performance.md#efficient-algorithms Every paragraph is generated once; time and temporary space scale with the total output characters and paragraph/word counts.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const content = (
     props?: Partial<{
@@ -322,6 +340,9 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design Two draws and one slice.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The slice bounds are drawn, not fixed.
    * @evidence contracts/common.md#meaningful-documentation The comment states that the slice is random and trimmed, with examples.
+   * @evidence contracts/performance.md#efficient-algorithms Two draws choose the slice bounds; substring and trimming cost at most O(N) in the input length.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const substring = (content: string): string => {
     const first: number = randint(0, content.length - 1);
@@ -368,6 +389,9 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One expression with two draws.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The prefix is a parameter whose default is the documented Korean one, and the digits are drawn.
    * @evidence contracts/common.md#meaningful-documentation The comment states the format, the default prefix, and examples.
+   * @evidence contracts/performance.md#efficient-algorithms Two bounded integer draws and fixed-width decimal formatting use constant work.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const mobile = (prefix: string = "010"): string =>
     [
@@ -423,6 +447,9 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One expression over the shared integer helper.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The offset is drawn, not fixed.
    * @evidence contracts/common.md#meaningful-documentation The comment states the interval and the unit of the range, with examples.
+   * @evidence contracts/performance.md#efficient-algorithms One integer draw and one Date construction use constant work.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const date = (from: Date, range: number): Date =>
     new Date(from.getTime() + randint(0, range));
@@ -467,6 +494,9 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One loop with one map, and no rejection of repeated draws.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The array is not mutated or copied, and no element is favored or excluded.
    * @evidence contracts/common.md#meaningful-documentation The comment states without-replacement sampling, the cap, and the algorithm, with examples.
+   * @evidence contracts/performance.md#efficient-algorithms For K selected positions, sparse partial Fisher-Yates uses K map lookups/updates and K output entries: expected O(K) time and O(K) space, without copying the N-element input.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const sample = <T>(array: T[], count: number): T[] => {
     count = Math.min(count, array.length);
@@ -523,6 +553,9 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One guard and one draw.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The guard states the contract for the empty array and no default element is invented.
    * @evidence contracts/common.md#meaningful-documentation The comment states the uniform selection, the relation to sampling one element, and the `RangeError` for an empty array, with examples.
+   * @evidence contracts/performance.md#efficient-algorithms One bounded draw and one indexed lookup use constant work.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
    */
   export const pick = <T>(array: readonly T[]): T => {
     if (array.length === 0)

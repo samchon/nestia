@@ -135,7 +135,7 @@ After a pull request merges:
 6. Run `git worktree prune` and delete the local topic branch.
 7. Confirm `git worktree list --porcelain` contains no record of the removed path.
 
-A campaign worktree accumulates `node_modules`, `lib/`, `bin/`, compiled Go plugin caches, and the regenerated trees under `tests/test-sdk` and `tests/test-migrate/.generated`. `--force` is what removes them; leaving the directory behind leaves gigabytes on disk.
+A campaign worktree accumulates `node_modules`, `lib/`, `bin/`, compiled Go plugin caches, and the regenerated trees under `tests/test-sdk-e2e` and `tests/test-migrate-e2e/.generated`. `--force` is what removes them; leaving the directory behind leaves gigabytes on disk.
 
 If an assignment ends without a merge, first record retained evidence and confirm the remaining contents are disposable. Then remove its worktree, assigned Go temporary roots, and local branch by the same standard.
 

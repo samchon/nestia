@@ -69,6 +69,3 @@ export class SyntheticController {
 		}
 	}
 }
-
-// assertSyntheticReflectedType asserts a reflected type is name with type
-// arguments of the given names.

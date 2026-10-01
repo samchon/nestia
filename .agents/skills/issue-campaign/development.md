@@ -113,7 +113,7 @@ When any gate finds a defect:
 
 Fix every red CI lane in the same pull request even when the failure predates the campaign or is unrelated to the campaign's original issues. Do not dismiss it as another contributor's failure.
 
-The development skill records that a `test-sdk` e2e feature retries before the attempt whose output you see. In a campaign, treat an intermittent lane as a finding to adjudicate, not as noise to re-run away.
+The development skill records that a `test-sdk-e2e` e2e feature retries before the attempt whose output you see. In a campaign, treat an intermittent lane as a finding to adjudicate, not as noise to re-run away.
 
 Do not merge a head whose green checks belong to an older SHA or whose clean review predates a correction. Continue the loop until the same immutable head has green required checks, a complete Self-Review round with no sound improvement, and every applicable integration and mutation record final.
 
@@ -128,7 +128,7 @@ After merge:
 1. Verify GitHub records the pull request as merged into the intended target and every linked issue has the correct final state. Reopen any issue the squash merge closed without a surviving fix, and comment that the merge closed it mechanically.
 2. Confirm the checkout has no unpushed or uncommitted work worth preserving.
 3. Switch back to `master`, pull with `git pull --ff-only`, and delete the local topic branch.
-4. Preserve the command evidence in the campaign knowledge base, then remove every disposable mutable root the cycle created: disposable mutation checkouts, `GOCACHE`, `GOTMPDIR`, `TTSC_CACHE_DIR`, generated-output roots, tarballs under `deploy/tarballs/`, the regenerated trees under `tests/test-sdk` and `tests/test-migrate/.generated`, and clean-consumer install roots. Confirm no live process uses a path before deleting it, delete only the exact proven path, and verify it is absent.
+4. Preserve the command evidence in the campaign knowledge base, then remove every disposable mutable root the cycle created: disposable mutation checkouts, `GOCACHE`, `GOTMPDIR`, `TTSC_CACHE_DIR`, generated-output roots, tarballs under `deploy/tarballs/`, the regenerated trees under `tests/test-sdk-e2e` and `tests/test-migrate-e2e/.generated`, and clean-consumer install roots. Confirm no live process uses a path before deleting it, delete only the exact proven path, and verify it is absent.
 5. Never bulk-delete a shared temporary directory, a shared ttsc cache directory, an installed toolchain, or an asset whose ownership is uncertain.
 
 Formatting belongs to the unified cycle pull request, so a separate post-campaign formatting pull request is not part of this solo workflow.

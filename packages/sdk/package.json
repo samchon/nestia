@@ -55,7 +55,8 @@
     "tgrid": "catalog:samchon",
     "ttsc": "catalog:typescript",
     "tstl": "catalog:samchon",
-    "typia": "catalog:samchon"
+    "typia": "catalog:samchon",
+    "@babel/parser": "catalog:typescript"
   },
   "peerDependencies": {
     "@nestia/core": "workspace:^"

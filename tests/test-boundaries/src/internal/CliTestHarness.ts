@@ -8,7 +8,7 @@ import path from "path";
  *
  * The suite spawns the real `bin/index.js` executable of `packages/cli` against
  * a local fixture git repository, so no network access is needed. The engine's
- * own decisions are unit-tested in `tests/test-unit`.
+ * own decisions are unit-tested in `tests/test-nestia`.
  */
 export namespace CliTestHarness {
   /* -----------------------------------------------------------

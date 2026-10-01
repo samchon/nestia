@@ -2,6 +2,7 @@ import { INestiaConfig } from "../../INestiaConfig";
 import { NestiaSdkApplication } from "../../NestiaSdkApplication";
 import { NestiaConfigLoader } from "./NestiaConfigLoader";
 import { NestiaSdkWatcher } from "./NestiaSdkWatcher";
+import { NestiaSwaggerWatch } from "./NestiaSwaggerWatch";
 
 /**
  * The commands of the `nestia` CLI that run the generators: `sdk`, `swagger`,
@@ -145,13 +146,45 @@ export namespace NestiaSdkCommand {
       }
     };
 
-    if (props.watch === true)
+    if (props.watch === true) {
+      let generation: NestiaSwaggerWatch.IGeneration | undefined;
+      let opening: Promise<NestiaSwaggerWatch.IGeneration> | undefined;
+      let cancellation: AbortController | undefined;
       return NestiaSdkWatcher.watch({
         configFile,
-        configurations,
-        generate,
+        configurations: async () => {
+          cancellation = new AbortController();
+          opening = NestiaSwaggerWatch.open({
+            configFile,
+            projectFile: project,
+            signal: cancellation.signal,
+          });
+          generation = await opening;
+          return generation.configurations;
+        },
+        generate: async () => {
+          if (!generation)
+            throw new Error("Swagger watch generation was not prepared.");
+          await generation.generate();
+        },
+        finalize: async () => {
+          cancellation?.abort();
+          try {
+            await opening?.then(
+              (prepared) => prepared.close(),
+              (error: Error) => {
+                if (error.name !== "AbortError") throw error;
+              },
+            );
+          } finally {
+            generation = undefined;
+            opening = undefined;
+            cancellation = undefined;
+          }
+        },
         projectFile: project,
       });
+    }
 
     await generate(await configurations());
   };

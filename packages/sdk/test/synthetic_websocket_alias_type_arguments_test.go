@@ -100,17 +100,8 @@ export class SyntheticController {
 	}
 }
 
-// Verifies the SDK refuses, by name, an acceptor alias using its type
-// parameter inside a type argument.
-//
-// `RoomAcceptor<Member>` passes `IRoom<Member>` as the provider: the route's
-// type is tgrid's acceptor and serves, but no written node spells the provider
-// the route passes, `IRoom<string>`, and reflecting the alias's text would
-// write an unresolved `Member` into the generated client.
-//
-//  1. Author a route typing its acceptor by such an alias.
-//  2. Run the SDK metadata pass over it in-process.
-//  3. Assert it reports the parameter, the argument, and the way out.
+// assertSyntheticReflectedType asserts a reflected type is name with type
+// arguments of the given names.
 func assertSyntheticReflectedType(t *testing.T, reflected any, name string, arguments ...string) {
 	t.Helper()
 	if actual := syntheticField(t, reflected, "name"); actual != name {

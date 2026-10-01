@@ -27,7 +27,7 @@ import (
 // @evidence contracts/testing.md#execution-ownership The core Go runner discovers this Test and invokes the native dispatcher in-process. The loaded fixture program and temporary emitted output exercise transformation without building or launching a native host; the generated-validator runtime batch owns installed-helper execution.
 func TestTransformRouteStringifyValidateLogUsesLogKey(t *testing.T) {
 	out := transformFileToString(t, "body", "TypedBodyController.ts", "validate", "validate.log")
-	mustContainAll(t, out, "@core.TypedRoute.Post({", `type: "validate.log"`)
+	mustDecorateAll(t, out, `@core\.TypedRoute\.[A-Za-z]+`, "validate.log")
 	if strings.Contains(out, "validate.log: ") {
 		t.Fatalf("validate.log must be the stringifier type, not a property name\n%s", out)
 	}

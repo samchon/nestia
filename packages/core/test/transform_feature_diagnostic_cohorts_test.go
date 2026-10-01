@@ -8,13 +8,13 @@ import (
 	"testing"
 )
 
-// TestTransformFeatureDiagnosticCohorts verifies every test-sdk error feature
+// TestTransformFeatureDiagnosticCohorts verifies every test-sdk-e2e error feature
 // whose failure is a transform diagnostic reports exactly its expected
 // diagnostics, in one in-process transform over all of them.
 //
-// The features compiled through `nestia all` in test-sdk, an end-to-end run of
+// The features compiled through `nestia all` in test-sdk-e2e, an end-to-end run of
 // the CLI, ttsc, and the generators for what only the core transform decides.
-// They stay fixtures under tests/test-sdk/features; the transform alone reads
+// They stay fixtures under tests/test-sdk-e2e/features; the transform alone reads
 // them here.
 //
 //  1. List every controller of each cohort's features in one program.
@@ -98,12 +98,8 @@ func TestTransformFeatureDiagnosticCohorts(t *testing.T) {
 	}
 }
 
-// TestTransformFeatureDiagnosticMessages verifies the test-sdk error features
-// whose transform diagnostic names what it rejects report exactly one
-// diagnostic, carrying each expected phrase.
-//
-//  1. Transform each feature's controllers.
-//  2. Assert one diagnostic, holding every expected phrase.
+// transformFeatureCohort runs the project-mode transform over the controllers
+// of the given test-sdk-e2e features, returning the file of each diagnostic.
 func transformFeatureCohort(t *testing.T, cases map[string]int) []string {
 	t.Helper()
 	files := []string{}
@@ -119,10 +115,10 @@ type featureDiagnostic struct {
 }
 
 // transformFeatureDiagnostics runs the project-mode transform over the
-// controllers of the given test-sdk features, returning each diagnostic.
+// controllers of the given test-sdk-e2e features, returning each diagnostic.
 func transformFeatureDiagnostics(t *testing.T, cases map[string]int) []featureDiagnostic {
 	t.Helper()
-	root := filepath.Join(repoRootForCore(t), "tests", "test-sdk")
+	root := filepath.Join(repoRootForCore(t), "tests", "test-sdk-e2e")
 	files := []string{}
 	for feature := range cases {
 		matches, err := filepath.Glob(filepath.Join(root, "features", feature, "src", "controllers", "*.ts"))

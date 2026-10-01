@@ -27,6 +27,7 @@ import { pathToFileURL } from "url";
  * @evidence contracts/common.md#clear-and-simple-design Two public entry points share one private pipeline: discovery (`iterate`), the import specifier (`specifier`), and execution (`execute`) are separate helpers, and the two modes differ by one flag.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection is by prefix, extension, and the caller's filter, with no known file names; the import specifier logic distinguishes the module system in use rather than special-casing a platform.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose says what it runs and why, with links to example repositories, and the members document their options.
+ * @evidence contracts/portability.md#os-neutral-implementation Discovery lists directories with `readdir` and `stat` and joins children with `path.resolve`; symbolic links are followed, and each directory is entered once by its filesystem real path so aliases and ancestor cycles do not repeat discovery. The extension is matched as a file-name suffix and the prefix with `startsWith`, both case-sensitively as spelled, so name case is judged by the caller's spelling and not by the volume. A file is imported through a specifier: the path relative to this module in `/` form when `path.relative` can express one, and where it cannot, as on Windows between drive roots, the absolute path for a CommonJS build, whose `require` rejects a URL, or a `file:` URL from `pathToFileURL` for native ESM, which rejects a Windows path.
  */
 export namespace DynamicExecutor {
   /**
@@ -38,6 +39,7 @@ export namespace DynamicExecutor {
    * @evidence contracts/common.md#clear-and-simple-design A single call signature.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the parameter and return type arguments.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation A call signature owns no path or process access.
    */
   export interface Closure<Arguments extends any[], Ret = any> {
     (...args: Arguments): Promise<Ret>;
@@ -50,6 +52,7 @@ export namespace DynamicExecutor {
    * @evidence contracts/common.md#clear-and-simple-design A flat option record whose optional members are the extension points (listener, filter, wrapper).
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every value is caller-supplied; the defaults are the documented ones (`js`, one at a time).
    * @evidence contracts/common.md#meaningful-documentation Each option documents its meaning, including that the filter receives a file basename and never a function name.
+   * @evidence contracts/portability.md#os-neutral-implementation The location is a native directory path resolved with `path.resolve`, the extension is a suffix without a dot, and `simultaneous` bounds in-process runs only, so no process or thread is created.
    */
   export interface IProps<Parameters extends any[], Ret = any> {
     /**
@@ -76,6 +79,7 @@ export namespace DynamicExecutor {
      * @evidence contracts/common.md#clear-and-simple-design One required callback with one input.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Arguments come only from the caller's function.
      * @evidence contracts/common.md#meaningful-documentation The comment documents the parameter and the return value.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation A caller callback owns no filesystem or process access here.
      */
     parameters: (name: string) => Parameters;
 
@@ -89,6 +93,7 @@ export namespace DynamicExecutor {
      * @evidence contracts/common.md#clear-and-simple-design One optional callback with one record argument.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It only observes; the executor does not change behavior based on it.
      * @evidence contracts/common.md#meaningful-documentation The comment states that it listens to the completion of a test function.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation A caller callback owns no filesystem or process access here.
      */
     onComplete?: (exec: IExecution) => void;
 
@@ -106,6 +111,7 @@ export namespace DynamicExecutor {
      * @evidence contracts/common.md#clear-and-simple-design One optional predicate over one string.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection follows the caller's predicate, not fixed names.
      * @evidence contracts/common.md#meaningful-documentation The comment states the argument and the effect of a `false` answer.
+     * @evidence contracts/portability.md#os-neutral-implementation The predicate receives the entry name exactly as `readdir` lists it, without case or separator normalization, so a comparison on a case-insensitive volume is the caller's to make.
      */
     filter?: (file: string) => boolean;
 
@@ -124,6 +130,7 @@ export namespace DynamicExecutor {
      * @evidence contracts/common.md#clear-and-simple-design One optional callback that replaces the direct call.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The executor calls the wrapper for every function it runs, without a test-specific bypass.
      * @evidence contracts/common.md#meaningful-documentation The comment documents each parameter and the return value.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation A caller callback owns no filesystem or process access here.
      */
     wrapper?: (
       name: string,
@@ -158,6 +165,7 @@ export namespace DynamicExecutor {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every field is measured by the executor.
    * @evidence contracts/common.md#meaningful-documentation Each field documents its meaning.
+   * @evidence contracts/portability.md#os-neutral-implementation The location field holds the native absolute directory path as resolved, so it carries backslashes on Windows.
    */
   export interface IReport {
     /** Location path of dynamic functions. */
@@ -177,6 +185,7 @@ export namespace DynamicExecutor {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every field is measured by the executor.
    * @evidence contracts/common.md#meaningful-documentation Each field documents its meaning, and the two time fields state that they hold ISO 8601 strings.
+   * @evidence contracts/portability.md#os-neutral-implementation The location field holds the native absolute path of the file as resolved, so it carries backslashes on Windows.
    */
   export interface IExecution {
     /** Name of function. */
@@ -207,10 +216,11 @@ export namespace DynamicExecutor {
    *
    * @param props Properties of dynamic execution
    * @returns Report of dynamic test functions execution
-   * @evidence contracts/common.md#principled-implementation Strict mode rethrows the first error of a function, which rejects the returned promise and ends the run with that failure, after the execution record and the listener have seen it.
+   * @evidence contracts/common.md#principled-implementation Strict mode rethrows the first error of a function after the execution record and the listener have seen it; no further file is dispatched once a task has failed, and the returned promise rejects with that first failure only after the in-flight tasks have settled, so no test runs after the caller observes the failure.
    * @evidence contracts/common.md#clear-and-simple-design A one-line binding of the shared pipeline with the strict flag.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The mode changes only whether a failure is rethrown; nothing is silenced.
    * @evidence contracts/common.md#meaningful-documentation The comment states the strict behavior, contrasts it with `validate`, and documents the parameter and the report.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The function binds the shared pipeline to a mode and performs no path or process operation of its own; the namespace answers the boundary.
    */
   export const assert = <Arguments extends any[]>(
     props: IProps<Arguments>,
@@ -229,6 +239,7 @@ export namespace DynamicExecutor {
    * @evidence contracts/common.md#clear-and-simple-design A one-line binding of the shared pipeline with the loose flag.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The mode changes only whether a failure is rethrown; the error stays in the report.
    * @evidence contracts/common.md#meaningful-documentation The comment states the loose behavior, contrasts it with `assert`, and documents the parameter and the report.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The function binds the shared pipeline to a mode and performs no path or process operation of its own; the namespace answers the boundary.
    */
   export const validate = <Arguments extends any[]>(
     props: IProps<Arguments>,
@@ -258,14 +269,23 @@ export namespace DynamicExecutor {
         filter: props.filter,
         executor,
       });
+      // A rejected task stops the dispatch of the remaining files, and the run
+      // settles only after the in-flight tasks end, so that no test keeps
+      // running after the caller has seen the failure.
+      let failure: { error: unknown } | null = null;
       await Promise.all(
         new Array(simultaneous).fill(0).map(async () => {
-          while (processes.length !== 0) {
+          while (processes.length !== 0 && failure === null) {
             const task = processes.shift();
-            await task?.();
+            try {
+              await task?.();
+            } catch (error) {
+              failure ??= { error };
+            }
           }
         }),
       );
+      if (failure !== null) throw (failure as { error: unknown }).error;
       report.time = Date.now() - report.time;
       return report;
     };
@@ -301,16 +321,21 @@ export namespace DynamicExecutor {
     executor: (path: string, modulo: Module<Arguments>) => Promise<void>;
   }): Promise<Array<() => Promise<void>>> => {
     const container: Array<() => Promise<void>> = [];
+    const visited: Set<string> = new Set();
     const visitor = async (path: string): Promise<void> => {
+      const identity: string = await fs.promises.realpath(path);
+      if (visited.has(identity)) return;
+      visited.add(identity);
       const directory: string[] = await fs.promises.readdir(path);
       for (const file of directory) {
         const location: string = NodePath.resolve(`${path}/${file}`);
-        const stats: fs.Stats = await fs.promises.lstat(location);
+        const stats: fs.Stats = await fs.promises.stat(location);
 
         if (stats.isDirectory() === true) {
           await visitor(location);
           continue;
         }
+        if (stats.isFile() === false) continue;
         // Compare the whole suffix. A fixed-width slice silently assumed a
         // two-character extension, so every longer one ("mjs", "cjs", "tsx")
         // matched nothing and the run reported success with no test executed.

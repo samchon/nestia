@@ -1,9 +1,6 @@
 package test
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 // Verifies a return type carrying a function-typed property serializes its
 // function signature (the async flag and the output schema) through the metadata
@@ -11,7 +8,7 @@ import (
 //
 // nestiaSDKMetadataSchemaLiteral emits a "functions" array via
 // nestiaSDKMetadataFunctions whenever typia's MetadataFactory reflects a function
-// member on an object. None of the tests/test-sdk controllers return such a type,
+// member on an object. None of the tests/test-sdk-e2e controllers return such a type,
 // so the function-serialization arm stays dark; a synthetic controller returning
 // an interface with a callable member is the only in-process driver for it. (The
 // current typia reflection leaves the function's parameter list empty for an
@@ -40,13 +37,18 @@ export class SyntheticController {
   }
 }
 `
-	meta := buildSyntheticMetadata(t, controller)
-	for _, expected := range []string{
-		`"functions":[{`,
-		`"async":false`,
-	} {
-		if !strings.Contains(meta, expected) {
-			t.Fatalf("function-member metadata is missing %q\n%s", expected, meta)
-		}
+	metadata := decodeSyntheticMetadata(t, buildSyntheticMetadata(t, controller))
+	data := syntheticField(t, syntheticField(t, syntheticField(t, metadata, "success"), "primitive"), "data")
+	objects := syntheticField(t, syntheticField(t, data, "components"), "objects").([]any)
+	properties := syntheticField(t, objects[0], "properties").([]any)
+	if len(properties) != 1 {
+		t.Fatalf("expected the single invoke member, got %d properties", len(properties))
+	}
+	if key := syntheticMetadataConstant(t, syntheticField(t, properties[0], "key")); key != "invoke" {
+		t.Fatalf("the member is %v, expected invoke", key)
+	}
+	functions := syntheticField(t, syntheticField(t, properties[0], "value"), "functions").([]any)
+	if len(functions) != 1 || syntheticField(t, functions[0], "async") != false {
+		t.Fatalf("the invoke member carries %v, expected one synchronous function signature", functions)
 	}
 }

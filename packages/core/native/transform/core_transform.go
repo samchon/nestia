@@ -3,7 +3,6 @@ package transform
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 	"runtime/debug"
 	"strings"
@@ -128,7 +127,7 @@ func nestiaCoreOptionErrors(plan plugin.Plan) []string {
 		errors = append(errors, fmt.Sprintf("invalid %q option %s: it must be one of %s.", name, nestiaCoreOptionText(value), accepted))
 	}
 	for _, entry := range plan.Entries {
-		if entry.Name != "@nestia/core" && !strings.Contains(entry.Transform, "@nestia/core") {
+		if entry.Kind() != "core" {
 			continue
 		}
 		if value, ok := entry.Config["validate"]; ok {
@@ -151,7 +150,7 @@ func nestiaCoreOptionText(value any) string {
 func readNestiaCoreOptions(plan plugin.Plan) nestiaCoreOptions {
 	options := nestiaCoreOptions{}
 	for _, entry := range plan.Entries {
-		if entry.Name != "@nestia/core" && !strings.Contains(entry.Transform, "@nestia/core") {
+		if entry.Kind() != "core" {
 			continue
 		}
 		if value, ok := entry.Config["validate"].(string); ok {
@@ -1103,7 +1102,7 @@ var nestiaCoreSingleParameterArrowPattern = regexp.MustCompile(`(^|[\s(=,:?])([A
 //
 // The declared return type is used when it is `Promise<T>` or an rxjs `Observable<T>`, and `T` is returned, so an asynchronous method is typed by what it resolves to. A missing signature returns nil.
 //
-// @evidence contracts/common.md#principled-implementation An explicit `Promise<T>` or `Observable<T>` annotation is unwrapped syntactically first, and otherwise the checker's return type is unwrapped when its symbol is `Promise` or an rxjs `Observable`; the rxjs symbol is recognized by its declaring file under `node_modules/rxjs`, so a user type named Observable is left alone.
+// @evidence contracts/common.md#principled-implementation An explicit `Promise<T>` or `Observable<T>` annotation is unwrapped syntactically first, and otherwise the checker's return type is unwrapped when its symbol is `Promise` or an rxjs `Observable`; an Observable is recognized by its resolved declaration, which the nearest package manifest must name rxjs, for the annotation and the checker's type alike, so a user type named Observable is left alone however an import spells it.
 // @evidence contracts/common.md#clear-and-simple-design One function with two unwrapping paths, sharing the private wrapper predicates.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The wrappers are the two types NestJS handlers return; no method or controller name is special-cased.
 // @evidence contracts/common.md#meaningful-documentation The comment states the unwrapped wrappers and the nil result.
@@ -1121,7 +1120,7 @@ func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimc
 	}
 	symbol := typ.Symbol()
 	if symbol != nil &&
-		nestiaCoreIsAsyncReturnWrapperSymbol(symbol.Name, symbol.Declarations) {
+		nestiaCoreIsAsyncReturnWrapperSymbol(prog, symbol.Name, symbol.Declarations) {
 		args := prog.Checker.GetTypeArguments(typ)
 		if len(args) == 1 {
 			return args[0]
@@ -1142,91 +1141,66 @@ func nestiaCoreExplicitAsyncReturnType(prog *driver.Program, node *shimast.Node)
 	if ref == nil || ref.TypeArguments == nil || len(ref.TypeArguments.Nodes) != 1 {
 		return nil
 	}
-	if nestiaCoreIsAsyncReturnWrapperReference(prog, ref.TypeName) == false {
+	if NestiaCoreIsAsyncReturnWrapperReference(prog, ref.TypeName) == false {
 		return nil
 	}
 	return prog.Checker.GetTypeFromTypeNode(ref.TypeArguments.Nodes[0])
 }
 
-func nestiaCoreIsAsyncReturnWrapperReference(
+// NestiaCoreIsAsyncReturnWrapperReference reports whether a type reference names
+// a wrapper a route method's return type is unwrapped from: `Promise`, or the
+// rxjs `Observable` however it is imported, aliased or re-exported.
+//
+// `Promise` is read by its spelling. `Observable` is decided by its resolved
+// declaration, which must belong to the `rxjs` package, so a user type that is
+// merely named Observable is left alone.
+//
+// @evidence contracts/common.md#principled-implementation The reference is the global Promise by its spelling, and otherwise its symbol is followed through import and re-export aliases to the class it names, which is the rxjs Observable only when that declaration's nearest package manifest names rxjs, so the decision depends on the actual declaration and not on how it was imported.
+// @evidence contracts/common.md#clear-and-simple-design One function that resolves the symbol and delegates the name and ownership test to the shared symbol predicate, so the syntactic annotation path and the checker path of the return type use one rule; the SDK reads the same function rather than keeping a second copy.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts No import statement is scanned as text and no installed folder fragment substitutes for package ownership; a name other than Promise and Observable is never a wrapper, and a spelling alone never makes an Observable.
+// @evidence contracts/common.md#meaningful-documentation The comment states the two wrappers, that Promise is read by spelling, and that Observable is decided by its declaring package.
+func NestiaCoreIsAsyncReturnWrapperReference(
 	prog *driver.Program,
 	node *shimast.Node,
 ) bool {
-	name := nestiaCoreTypeNodeText(node)
-	if name == "Promise" {
+	if node == nil {
+		return false
+	}
+	if nestiaCoreTypeNodeText(node) == "Promise" {
 		return true
 	}
-	if name != "Observable" || prog == nil || prog.Checker == nil {
+	if prog == nil || prog.Checker == nil {
 		return false
 	}
 	symbol := prog.Checker.GetSymbolAtLocation(node)
-	return nestiaCoreIsRxjsObservableImport(node) ||
-		(symbol != nil && nestiaCoreIsRxjsDeclarations(symbol.Declarations))
+	if symbol != nil && symbol.Flags&shimast.SymbolFlagsAlias != 0 {
+		if aliased := shimchecker.Checker_getAliasedSymbol(prog.Checker, symbol); aliased != nil {
+			symbol = aliased
+		}
+	}
+	return symbol != nil && nestiaCoreIsAsyncReturnWrapperSymbol(prog, symbol.Name, symbol.Declarations)
 }
 
 func nestiaCoreIsAsyncReturnWrapperSymbol(
+	prog *driver.Program,
 	name string,
 	declarations []*shimast.Node,
 ) bool {
 	if name == "Promise" {
 		return true
 	}
-	return name == "Observable" && nestiaCoreIsRxjsDeclarations(declarations)
+	return name == "Observable" && nestiaCoreIsRxjsDeclarations(prog, declarations)
 }
 
-func nestiaCoreIsRxjsDeclarations(declarations []*shimast.Node) bool {
+func nestiaCoreIsRxjsDeclarations(prog *driver.Program, declarations []*shimast.Node) bool {
 	for _, decl := range declarations {
 		sourceFile := shimast.GetSourceFileOfNode(decl)
-		if sourceFile == nil {
-			continue
-		}
-		file := filepath.ToSlash(sourceFile.FileName())
-		if strings.Contains(file, "/node_modules/rxjs/") {
+		if sourceFile != nil && SourceFilePackageName(prog, sourceFile) == "rxjs" {
 			return true
 		}
 	}
 	return false
 }
-
-func nestiaCoreIsRxjsObservableImport(node *shimast.Node) bool {
-	source, ok := SourceFileText(shimast.GetSourceFileOfNode(node))
-	return ok && nestiaCoreHasNamedImport(source, "rxjs", "Observable", "Observable")
-}
-
-func nestiaCoreHasNamedImport(
-	source string,
-	module string,
-	imported string,
-	local string,
-) bool {
-	for _, match := range nestiaCoreImportFromPattern.FindAllStringSubmatch(source, -1) {
-		if len(match) < 3 || match[2] != module {
-			continue
-		}
-		open := strings.Index(match[1], "{")
-		close := strings.LastIndex(match[1], "}")
-		if open < 0 || close <= open {
-			continue
-		}
-		for _, part := range strings.Split(match[1][open+1:close], ",") {
-			fields := strings.Fields(strings.TrimPrefix(strings.TrimSpace(part), "type "))
-			if len(fields) == 1 && fields[0] == local && imported == local {
-				return true
-			}
-			if len(fields) == 3 &&
-				fields[0] == imported &&
-				fields[1] == "as" &&
-				fields[2] == local {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-var nestiaCoreImportFromPattern = regexp.MustCompile(
-	`(?s)import\s+(?:type\s+)?(.+?)\s+from\s+["']([^"']+)["']`,
-)
 
 func nestiaCoreTypeNodeText(node *shimast.Node) string {
 	if node == nil {

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -26,7 +27,7 @@ type llmRouteBuildProjectOptions struct {
 
 // repoRootForCore walks up from the external test module directory
 // (packages/core/test) to the monorepo root so the in-process tests can point
-// a tsconfig `extends` at the shared tests/test-sdk feature fixtures.
+// a tsconfig `extends` at the shared tests/test-sdk-e2e feature fixtures.
 func repoRootForCore(t *testing.T) string {
 	t.Helper()
 	root, err := filepath.Abs("../../..")
@@ -36,10 +37,10 @@ func repoRootForCore(t *testing.T) string {
 	return root
 }
 
-// featureRootForCore returns the absolute path of a tests/test-sdk feature.
+// featureRootForCore returns the absolute path of a tests/test-sdk-e2e feature.
 func featureRootForCore(t *testing.T, feature string) string {
 	t.Helper()
-	return filepath.Join(repoRootForCore(t), "tests/test-sdk/features", feature)
+	return filepath.Join(repoRootForCore(t), "tests/test-sdk-e2e/features", feature)
 }
 
 // coreNativePlugins composes a @nestia/core plugin manifest with the given
@@ -233,4 +234,112 @@ func writeExtendingTsconfig(t *testing.T, temp, featureRoot string, extraCompile
 		t.Fatal(err)
 	}
 	return tsconfig
+}
+
+var (
+	decoratorCallStart     = regexp.MustCompile(`@(?:core\.)?[A-Z][A-Za-z0-9_.]*\(`)
+	validatorDiscriminator = regexp.MustCompile(`type: "(assert|is|validate\.log|validate|stringify)"`)
+)
+
+// decoratorValidatorTypes returns, for every emitted call of the decorators
+// whose name matches pattern, the first validator discriminator
+// (`type: "assert"`, `type: "is"`, ...) written between that call and the next
+// decorator call, or "" when the call carries none. A whole-output substring
+// check cannot tell which decorator wrote a discriminator, because the route
+// and parameter decorators of one controller share the same plugin options.
+func decoratorValidatorTypes(out, pattern string) []string {
+	name := regexp.MustCompile(`^(?:` + pattern + `)\($`)
+	starts := decoratorCallStart.FindAllStringIndex(out, -1)
+	types := []string{}
+	for i, start := range starts {
+		if !name.MatchString(out[start[0]:start[1]]) {
+			continue
+		}
+		end := len(out)
+		if i+1 < len(starts) {
+			end = starts[i+1][0]
+		}
+		found := validatorDiscriminator.FindStringSubmatch(out[start[0]:end])
+		if found == nil {
+			types = append(types, "")
+		} else {
+			types = append(types, found[1])
+		}
+	}
+	return types
+}
+
+// mustDecorateAll asserts the output contains at least one call of the
+// decorators matching pattern and that every one of them carries the want
+// validator discriminator as its own argument.
+func mustDecorateAll(t *testing.T, out, pattern, want string) {
+	t.Helper()
+	types := decoratorValidatorTypes(out, pattern)
+	if len(types) == 0 {
+		t.Fatalf("output has no %s call\n%s", pattern, out)
+	}
+	for index, got := range types {
+		if got != want {
+			t.Fatalf("%s call #%d carries validator type %q, want %q\n%s", pattern, index, got, want, out)
+		}
+	}
+}
+
+// typedParamCounts counts the emitted @core.TypedParam calls, those that carry
+// an injected caster as their second argument, and those whose caster closes
+// with the validate-report flag `}, true)`. The flag text also occurs inside
+// the generated typia code, so only the closing of a caster counts.
+func typedParamCounts(out string) (calls, casters, flagged int) {
+	calls = len(regexp.MustCompile(`@core\.TypedParam\(`).FindAllString(out, -1))
+	casters = len(regexp.MustCompile(`@core\.TypedParam\("[^"]+", \(input: string\)`).FindAllString(out, -1))
+	flagged = strings.Count(out, "}, true)")
+	return
+}
+
+// decoratorSpans returns the emitted text of every call of the decorators whose
+// name matches pattern: from the call to the next decorator call.
+func decoratorSpans(out, pattern string) []string {
+	name := regexp.MustCompile(`^(?:` + pattern + `)\($`)
+	starts := decoratorCallStart.FindAllStringIndex(out, -1)
+	spans := []string{}
+	for i, start := range starts {
+		if !name.MatchString(out[start[0]:start[1]]) {
+			continue
+		}
+		end := len(out)
+		if i+1 < len(starts) {
+			end = starts[i+1][0]
+		}
+		spans = append(spans, out[start[0]:end])
+	}
+	return spans
+}
+
+// mustSpansContain asserts every call of the matching decorators carries each
+// needle in its own emitted text.
+func mustSpansContain(t *testing.T, out, pattern string, needles ...string) {
+	t.Helper()
+	spans := decoratorSpans(out, pattern)
+	if len(spans) == 0 {
+		t.Fatalf("output has no %s call\n%s", pattern, out)
+	}
+	for index, span := range spans {
+		for _, needle := range needles {
+			if !strings.Contains(span, needle) {
+				t.Fatalf("%s call #%d does not emit %q", pattern, index, needle)
+			}
+		}
+	}
+}
+
+// mustSpansOmit asserts no call of the matching decorators carries any needle.
+func mustSpansOmit(t *testing.T, out, pattern string, needles ...string) {
+	t.Helper()
+	for index, span := range decoratorSpans(out, pattern) {
+		for _, needle := range needles {
+			if strings.Contains(span, needle) {
+				t.Fatalf("%s call #%d unexpectedly emits %q", pattern, index, needle)
+			}
+		}
+	}
 }

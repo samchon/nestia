@@ -1,4 +1,4 @@
-import { SyntaxKind, factory } from "@ttsc/factory";
+import { type EntityName, SyntaxKind, factory } from "@ttsc/factory";
 
 import { TypeLiteralFactory } from "../factories/TypeLiteralFactory";
 import ts from "../internal/ts";
@@ -58,19 +58,23 @@ export class NestiaMigrateImportProgrammer {
    * Requests a DTO import and returns a reference to it, qualified by a
    * namespace when one is given.
    *
-   * @evidence contracts/common.md#principled-implementation The DTO is recorded by the first segment of its dotted name, which is the file that exports it, and the returned reference keeps the full name.
+   * @evidence contracts/common.md#principled-implementation The DTO is recorded by the first segment of its dotted name, which is the file that exports it, and the returned reference keeps the full name, with every segment qualified by the namespace when one is given.
    * @evidence contracts/common.md#clear-and-simple-design One function over one set.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The name comes from the caller.
    * @evidence contracts/common.md#meaningful-documentation The comment states the reference.
    */
   public dto(name: string, namespace?: string): ts.TypeReferenceNode {
-    const file: string = name.split(".")[0]!;
-    this.dtos_.add(file);
+    const segments: string[] = name.split(".");
+    this.dtos_.add(segments[0]!);
     return factory.createTypeReferenceNode(
       namespace?.length
-        ? factory.createQualifiedName(
+        ? segments.reduce<EntityName>(
+            (left, segment) =>
+              factory.createQualifiedName(
+                left,
+                factory.createIdentifier(segment),
+              ),
             factory.createIdentifier(namespace),
-            factory.createIdentifier(file),
           )
         : name,
     );

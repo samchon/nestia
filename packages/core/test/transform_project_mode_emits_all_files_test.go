@@ -17,7 +17,7 @@ import "testing"
 //  2. Decode the clean envelope and require nonempty outputs for its three
 //     controllers and article DTO, with no diagnostics.
 //
-// @evidence contracts/testing.md#behavioral-verification The valid body program must return a decoded project envelope with nonempty body, health, performance and article outputs and no diagnostics, rather than a vacuous successful exit.
+// @evidence contracts/testing.md#behavioral-verification The valid body program must return a decoded project envelope with nonempty body, health, performance and article outputs, the body controller carrying its injected validate validator, and no diagnostics, rather than a vacuous successful exit or an untransformed copy.
 // @evidence contracts/testing.md#independent-expectations These four authored files belong to the body fixture program; project-mode transformation publishes each local program source under its relative filename.
 // @evidence contracts/testing.md#distinguishing-cases The assertions cover transformed controllers and a declaration-only structure. The invalid-driver project case owns transform diagnostics, and graph tests own input dependency tracking.
 // @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
@@ -33,6 +33,9 @@ func TestTransformProjectModeEmitsAllFiles(t *testing.T) {
 			t.Errorf("project transform omitted nonempty output for %s", source)
 		}
 	}
+	// The controller was rewritten, not merely copied: its TypedBody carries the
+	// configured validator, while the declaration-only structure has no decorator.
+	mustDecorateAll(t, envelope.TypeScript["src/controllers/TypedBodyController.ts"], `@core\.TypedBody`, "validate")
 	if len(envelope.Diagnostics) != 0 {
 		t.Errorf("valid project reported diagnostics: %v", envelope.Diagnostics)
 	}

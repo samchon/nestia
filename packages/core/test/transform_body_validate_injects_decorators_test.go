@@ -23,9 +23,7 @@ import "testing"
 // @evidence contracts/testing.md#execution-ownership The core Go runner discovers this Test and invokes the native dispatcher in-process. The loaded fixture program and temporary emitted output exercise transformation without building or launching a native host; the generated-validator runtime batch owns installed-helper execution.
 func TestTransformBodyValidateInjectsDecorators(t *testing.T) {
 	out := transformFileToString(t, "body", "TypedBodyController.ts", "validate", "assert")
-	mustContainAll(t, out,
-		"@core.TypedRoute.Post({",
-		"@core.TypedBody({",
-		"_validateReport",
-	)
+	mustDecorateAll(t, out, `@core\.TypedRoute\.[A-Za-z]+`, "assert")
+	mustDecorateAll(t, out, `@core\.TypedBody`, "validate")
+	mustContainAll(t, out, "_validateReport")
 }

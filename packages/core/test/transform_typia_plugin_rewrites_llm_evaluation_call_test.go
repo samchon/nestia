@@ -19,7 +19,7 @@ import (
 // exactly what the runtime stub needs to throw, so asserting the call is gone
 // and the generated question is present pins the linked version from the
 // output side. Installed-runtime linking and version rejection are owned by
-// test-transform-options; committed source-tree equality is not a behavior test.
+// test-core-e2e; committed source-tree equality is not a behavior test.
 //
 //  1. Build a tsconfig including the llm evaluation fixture.
 //  2. Run transform with a typia-only plugin manifest, capturing --out.

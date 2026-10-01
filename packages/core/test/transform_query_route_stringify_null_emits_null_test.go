@@ -18,7 +18,7 @@ import (
 //  1. Transform QueryController with a manifest carrying stringify: null.
 //  2. Read the emitted --out source.
 //  3. Assert a @TypedQuery route emits a bare null response argument and no
-//     URLSearchParams querify body.
+//     TypedQuery.Post call carries a querifier discriminator.
 //
 // @evidence contracts/testing.md#behavioral-verification With stringify null, the body query route must emit the exact path-plus-null decorator argument instead of a serializer object.
 // @evidence contracts/testing.md#independent-expectations The documented null option disables response transformation; retaining the authored body route path and passing null is the runtime decorator protocol.
@@ -29,5 +29,14 @@ func TestTransformQueryRouteStringifyNullEmitsNull(t *testing.T) {
 	out := transformFileToStringWithPlugins(t, "query", "QueryController.ts", plugins)
 	if !strings.Contains(out, `@TypedQuery.Post("body", null)`) {
 		t.Fatalf("stringify:null should emit a bare null query-route response argument:\n%s", out)
+	}
+	types := decoratorValidatorTypes(out, `@TypedQuery\.Post`)
+	if len(types) == 0 {
+		t.Fatalf("no TypedQuery.Post call was emitted:\n%s", out)
+	}
+	for index, got := range types {
+		if got != "" {
+			t.Fatalf("TypedQuery.Post call #%d kept the %q querifier under stringify:null:\n%s", index, got, out)
+		}
 	}
 }

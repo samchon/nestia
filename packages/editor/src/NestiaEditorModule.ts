@@ -5,6 +5,7 @@ import type {
   SwaggerV2,
 } from "@typia/interface";
 import * as fs from "fs";
+import path from "path";
 
 import { NESTIA_EDITOR_DEFAULT_PACKAGE } from "./internal/NestiaEditorDefaultPackage";
 
@@ -18,6 +19,10 @@ import { NESTIA_EDITOR_DEFAULT_PACKAGE } from "./internal/NestiaEditorDefaultPac
  * @evidence contracts/common.md#clear-and-simple-design One namespace with one entry point; asset reading and location resolution stay in module-private helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The routes use the adapter's public `get` method, and the one read of NestJS internals is the global prefix, described at `setup`.
  * @evidence contracts/common.md#meaningful-documentation The comment states the entry point and that it must run before `listen()`.
+ * @evidence contracts/performance.md#efficient-algorithms Setup reads each page-referenced JavaScript asset once and stores strings in registered route closures. Work scales with page and referenced asset bytes plus serialized document size, rather than HTTP request count.
+ * @evidence contracts/performance.md#reuse-equivalent-work Every registered static route shares its setup-read string. One application route shares the successfully fetched serialized Swagger document and its in-flight producer; a failure clears the pending promise so a later request may retry. The location and document are fixed for that setup registration.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The application adapter owns registered closures and their asset/document strings for its route lifetime. Only one document producer is retained at a time and settles before pending is cleared; setup creates no process-global history. Fetch cancellation is not supplied by this API, so an unresolved producer remains pending until its transport settles.
+ * @evidence contracts/portability.md#os-neutral-implementation Built assets are read through Node fs and path from the installed module directory; page asset URL spelling is validated independently from native paths. Swagger locations use URL resolution and application.getUrl rather than native path joining.
  */
 export namespace NestiaEditorModule {
   /**
@@ -35,6 +40,10 @@ export namespace NestiaEditorModule {
    * @evidence contracts/common.md#clear-and-simple-design One function performs the registration; reading the built page and bundle, reading the global prefix, and resolving a location are separate module-private helpers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts NestJS exposes no public getter for the global prefix, so `getGlobalPrefix` reads the internal `config.globalPrefix` and falls back to an empty prefix when it is absent; this is the single foreign-internal read, kept as a stated limitation rather than replaced by a shadow copy of the prefix.
    * @evidence contracts/common.md#meaningful-documentation The comment lists the routes, the prefix rule, and when a location is fetched and cached.
+   * @evidence contracts/performance.md#efficient-algorithms Setup reads each page-referenced JavaScript asset once and stores strings in registered route closures. Work scales with page and referenced asset bytes plus serialized document size, rather than HTTP request count.
+   * @evidence contracts/performance.md#reuse-equivalent-work Every registered static route shares its setup-read string. One application route shares the successfully fetched serialized Swagger document and its in-flight producer; a failure clears the pending promise so a later request may retry. The location and document are fixed for that setup registration.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The application adapter owns registered closures and their asset/document strings for its route lifetime. Only one document producer is retained at a time and settles before pending is cleared; setup creates no process-global history. Fetch cancellation is not supplied by this API, so an unresolved producer remains pending until its transport settles.
+   * @evidence contracts/portability.md#os-neutral-implementation Built assets are read through Node fs and path from the installed module directory; page asset URL spelling is validated independently from native paths. Swagger locations use URL resolution and application.getUrl rather than native path joining.
    */
   export const setup = async (props: {
     path: string;
@@ -57,13 +66,14 @@ export namespace NestiaEditorModule {
         .filter((str) => str.length !== 0)
         .join("/");
     const adaptor: INestHttpAdaptor = props.application.getHttpAdapter();
+    const index: string = await getIndex(props);
     const staticFiles: IStaticFile[] = [
       {
         path: "/index.html",
         type: "text/html",
-        content: await getIndex(props),
+        content: index,
       },
-      await getJavaScript(),
+      ...(await getJavaScripts(index)),
     ];
     for (const f of staticFiles) {
       adaptor.get(prefix + f.path, (_: any, res: any) => {
@@ -80,15 +90,25 @@ export namespace NestiaEditorModule {
       typeof props.swagger === "string"
         ? null
         : JSON.stringify(props.swagger, null, 2);
+    let pending: Promise<string> | null = null;
     adaptor.get(prefix + "/swagger.json", async (_: any, res: any) => {
       try {
-        document ??= JSON.stringify(
-          await getSwagger(
-            await resolveLocation(props.application, props.swagger as string),
-          ),
-          null,
-          2,
-        );
+        if (document === null) {
+          pending ??= (async () =>
+            JSON.stringify(
+              await getSwagger(
+                await resolveLocation(
+                  props.application,
+                  props.swagger as string,
+                ),
+              ),
+              null,
+              2,
+            ))().finally(() => {
+            pending = null;
+          });
+          document = await pending;
+        }
       } catch (error) {
         res.status(502);
         res.type("text/plain");
@@ -142,30 +162,47 @@ const getIndex = async (props: {
     `${__dirname}/../dist/index.html`,
     "utf8",
   );
+  // Replacement functions, because a replacement string would read its dollar
+  // patterns, which a package name may legitimately contain.
   return content
-    .replace(
-      JSON.stringify(NESTIA_EDITOR_DEFAULT_PACKAGE),
+    .replace(JSON.stringify(NESTIA_EDITOR_DEFAULT_PACKAGE), () =>
       JSON.stringify(props.package ?? NESTIA_EDITOR_DEFAULT_PACKAGE),
     )
-    .replace("window.simulate = false", `window.simulate = ${!!props.simulate}`)
-    .replace("window.e2e = false", `window.e2e = ${!!props.e2e}`);
+    .replace(
+      "window.simulate = false",
+      () => `window.simulate = ${!!props.simulate}`,
+    )
+    .replace("window.e2e = false", () => `window.e2e = ${!!props.e2e}`);
 };
 
-const getJavaScript = async (): Promise<IStaticFile> => {
-  const directory: string[] = await fs.promises.readdir(
-    `${__dirname}/../dist/assets`,
+const getJavaScripts = async (index: string): Promise<IStaticFile[]> => {
+  const scripts: Set<string> = new Set();
+  for (const match of index.matchAll(
+    /<script\b[^>]*\bsrc\s*=\s*(["'])(.*?)\1[^>]*>/gi,
+  )) {
+    const url = new URL(match[2]!, "https://nestia.invalid/");
+    if (
+      url.origin !== "https://nestia.invalid" ||
+      url.pathname.startsWith("/assets/") === false ||
+      url.pathname.endsWith(".js") === false ||
+      url.search.length !== 0 ||
+      url.hash.length !== 0
+    )
+      throw new Error(`Unsupported editor script asset: ${match[2]}`);
+    scripts.add(url.pathname);
+  }
+  if (scripts.size === 0)
+    throw new Error("The editor page references no JavaScript asset.");
+  return Promise.all(
+    [...scripts].map(async (asset) => ({
+      path: asset,
+      type: "application/javascript",
+      content: await fs.promises.readFile(
+        path.join(__dirname, "../dist", asset.slice(1)),
+        "utf8",
+      ),
+    })),
   );
-  const path: string | undefined = directory[0];
-  if (path === undefined)
-    throw new Error("Unreachable code, no JS file exists.");
-  return {
-    path: `/assets/${path}`,
-    type: "application/javascript",
-    content: await fs.promises.readFile(
-      `${__dirname}/../dist/assets/${path}`,
-      "utf8",
-    ),
-  };
 };
 
 /** An absolute URL as is; a path of the application at its own address. */

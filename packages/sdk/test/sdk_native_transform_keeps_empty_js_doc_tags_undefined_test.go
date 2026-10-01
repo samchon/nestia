@@ -27,7 +27,7 @@ func TestSDKNativeTransformKeepsEmptyJSDocTagsUndefined(t *testing.T) {
 	root := repoRoot(t)
 	temp := t.TempDir()
 	tsconfig := filepath.Join(temp, "tsconfig.json")
-	featureRoot := filepath.Join(root, "tests/test-sdk/features/security")
+	featureRoot := filepath.Join(root, "tests/test-sdk-e2e/features/security")
 	sourceRoot := filepath.Join(featureRoot, "src")
 	typeRoots := nodeTypeRoots(t, root)
 	if err := os.WriteFile(
