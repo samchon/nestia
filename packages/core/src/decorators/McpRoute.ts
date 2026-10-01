@@ -83,7 +83,7 @@ export function McpRoute(input: string | McpRoute.IConfig): MethodDecorator {
  * Types and parameter decorator of {@link McpRoute}: the tool configuration and
  * `McpRoute.Params`.
  *
- * @evidence contracts/common.md#principled-implementation The decorator records the tool definition as metadata on the method, with an empty object schema as the default input, and `McpRoute.Params` records the position and validator of the argument parameter; the adapter reads both when it registers tools.
+ * @evidence contracts/common.md#principled-implementation Tool metadata retains its definition and default empty-object schema. Params records its argument position and shared checker; successful assert/validate data becomes the tool argument, while errors retain InvalidParams mapping and legacy error-only callbacks retain raw input. The adaptor reads the same metadata field names when registering tools.
  * @evidence contracts/common.md#clear-and-simple-design Two decorators and one config type in one namespace, sharing one `emplace` helper for parameter metadata.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the reflect metadata API and no NestJS internals; the input schema is filled by the generator, not hardcoded here.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the two call forms, the configuration fields, and the parameter decorator.
@@ -114,7 +114,8 @@ export namespace McpRoute {
    * `tools/call` request against the TypeScript type `T` using typia. A failed
    * validation surfaces to the client as a JSON-RPC `-32602` (`InvalidParams`)
    * error with structured diagnostics, giving the LLM precise feedback to
-   * self-correct.
+   * self-correct. Successful assert and validate data becomes the tool
+   * argument, so clone validators can supply a copy of the incoming arguments.
    *
    * MCP tools accept exactly one arguments object; applying this decorator more
    * than once on a single method is a compile-time error. The decorated type

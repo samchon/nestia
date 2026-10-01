@@ -203,6 +203,8 @@ A route path follows the syntax of an HTTP route in NestJS 11 (Express 5's path-
 
 Path / header / query are validated against their declared types — invalid handshakes are rejected before your handler runs.
 
+Header parameters receive the successful `assert` return value or `validate` result's `data`; `is` keeps the original input. Clone validators provide a copy while `acceptor.header` retains the original handshake header. Prune validators mutate that header in place.
+
 Every failing request ends with a close code and a reason, so the client's `connect()` or pending call rejects with a `WebSocketError` rather than waiting:
 
 | What failed                                   | Code   | Reason                                        |

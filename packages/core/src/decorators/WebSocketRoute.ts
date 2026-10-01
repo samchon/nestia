@@ -65,7 +65,7 @@ export function WebSocketRoute(
  * Parameter decorators of {@link WebSocketRoute}: `Acceptor`, `Driver`,
  * `Header`, `Param`, and `Query`.
  *
- * @evidence contracts/common.md#principled-implementation Each decorator appends a record with its category and position to the method's parameter metadata; the header, param, and query records carry the validator the transform generated, so the adapter can validate the handshake before calling the method.
+ * @evidence contracts/common.md#principled-implementation Each decorator appends category and position metadata. Header registration stores the shared checker whose resolver preserves successful callback data for the decorated argument without replacing the acceptor header; legacy error-only callbacks retain raw input. Param and query keep their own decoder contracts, and every rejected handshake retains its original error handling.
  * @evidence contracts/common.md#clear-and-simple-design Five decorators sharing one `emplace` helper for the metadata list.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The validators are generated from the types; without the transform the raw values are passed only when the configuration guard is off.
  * @evidence contracts/common.md#meaningful-documentation Each decorator documents its meaning.
@@ -140,7 +140,9 @@ export namespace WebSocketRoute {
    *
    * Also, this `@WebSocketRoute.Header()` decorator is optional, and can be
    * substituted by `@WebSocketRoute.Acceptor()` decorated parameter by
-   * accessting to the {@link WebSocketAcceptor.header} property.
+   * accessing the {@link WebSocketAcceptor.header} property. Clone validators
+   * supply a separate decorated argument; the acceptor keeps its original
+   * header.
    */
   export function Header<T>(
     validator?: IRequestBodyValidator<T>,

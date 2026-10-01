@@ -175,6 +175,8 @@ The parameter type must be a single object type without dynamic keys. Index
 signatures and `Record<string, T>` are rejected at compile time because MCP tool
 arguments must have statically known JSON schema properties.
 
+The tool receives the successful `assert` return value or `validate` result's `data`; `is` keeps the original arguments. Clone validators provide a separate object, while prune validators mutate the input in place. Validation failures retain the same `InvalidParams` response.
+
 ```ts filename="AllowedController.ts" copy
 @core.McpRoute("get_weather")
 public async getWeather(

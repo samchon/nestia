@@ -1,3 +1,5 @@
+import { IRequestBodyValidation } from "./IRequestBodyValidation";
+
 /**
  * The metadata `@WebSocketRoute()` writes on a method: its route paths.
  *
@@ -42,7 +44,7 @@ export namespace IWebSocketRouteReflect {
    * The record of a header parameter: the position and the validator of the
    * handshake header.
    *
-   * @evidence contracts/common.md#principled-implementation The validator returns an error or `null`, and the adapter rejects the handshake with the error when it is not `null`.
+   * @evidence contracts/common.md#principled-implementation The callable retains its error-or-null signature. An optional resolver carries successful callback data to the route argument; legacy callbacks without it preserve the raw header and any validation error rejects the handshake.
    * @evidence contracts/common.md#clear-and-simple-design It extends the shared base with one function member.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states which argument it stands for and what the validator returns.
@@ -50,14 +52,11 @@ export namespace IWebSocketRouteReflect {
   export interface IHeader extends IBase<"header"> {
     /**
      * Validates the handshake header and returns an error, or `null` when it is
-     * valid.
-     *
-     * @evidence contracts/common.md#principled-implementation The function is the body validator generated for the header type, adapted by `validate_request_body`.
-     * @evidence contracts/common.md#clear-and-simple-design One function member.
-     * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
-     * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+     * valid. Factory-owned callbacks also resolve successful data for the
+     * decorated argument without replacing the acceptor's raw header.
      */
-    validate: (input?: any) => Error | null;
+    validate: ((input?: any) => Error | null) &
+      Pick<IRequestBodyValidation<any>, "resolve">;
   }
   /**
    * The record of a path parameter: its position, the field name, and the

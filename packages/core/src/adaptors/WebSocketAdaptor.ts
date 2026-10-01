@@ -25,6 +25,7 @@ import { fileURLToPath } from "url";
 import WebSocket from "ws";
 
 import { IWebSocketRouteReflect } from "../decorators/internal/IWebSocketRouteReflect";
+import { resolve_request_body } from "../decorators/internal/validate_request_body";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { VersioningStrategy } from "../utils/VersioningStrategy";
 import { RoutePathMatcher } from "./internal/RoutePathMatcher";
@@ -379,9 +380,12 @@ const visitMethod = (props: {
                 else if (p.category === "driver")
                   args.push(input.acceptor.getDriver());
                 else if (p.category === "header") {
-                  const error: Error | null = p.validate(input.acceptor.header);
-                  if (error !== null) throw error;
-                  args.push(input.acceptor.header);
+                  const result = resolve_request_body(
+                    p.validate,
+                    input.acceptor.header,
+                  );
+                  if (!result.success) throw result.error;
+                  args.push(result.data);
                 } else if (p.category === "param")
                   args.push(p.assert(input.params[p.field]!));
                 else if (p.category === "query") {

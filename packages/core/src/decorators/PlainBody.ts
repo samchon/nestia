@@ -15,7 +15,8 @@ import { validate_request_body } from "./internal/validate_request_body";
  * Plain body decorator.
  *
  * `PlainBody` is a decorator function getting full body text from the HTTP
- * request.
+ * request. The transformed assertion's successful string is the decorated
+ * argument.
  *
  * If you adjust the regular {@link Body} decorator function to the body
  * parameter, you can't get the full body text because the {@link Body} tries to
@@ -35,7 +36,11 @@ import { validate_request_body } from "./internal/validate_request_body";
  */
 export function PlainBody(): ParameterDecorator;
 
-/** @internal */
+/**
+ * Registers the transformed text assertion and binds its successful value.
+ *
+ * @internal
+ */
 export function PlainBody(
   assert?: (input: unknown) => string,
 ): ParameterDecorator {
@@ -52,17 +57,18 @@ export function PlainBody(
     const request: express.Request | FastifyRequest = context
       .switchToHttp()
       .getRequest();
-    if (
-      is_request_body_undefined(request) &&
-      (checker ?? (() => null))(undefined as any) === null
-    )
-      return undefined;
-    else if (!is_media_type(request.headers["content-type"], "text/plain"))
+    if (is_request_body_undefined(request)) {
+      if (checker === null) return undefined;
+      const result = checker.resolve(undefined);
+      if (result.success) return result.data;
+    }
+    if (!is_media_type(request.headers["content-type"], "text/plain"))
       throw new BadRequestException(`Request body type is not "text/plain".`);
     const value: string = await get_text_body(request);
     if (checker) {
-      const error: Error | null = checker(value);
-      if (error !== null) throw error;
+      const result = checker.resolve(value);
+      if (!result.success) throw result.error;
+      return result.data;
     }
     return value;
   })();

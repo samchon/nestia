@@ -34,10 +34,13 @@ import { validate_request_body } from "./internal/validate_request_body";
  * - PKCS #5 Padding
  * - Base64 Encoding
  *
+ * Successful validator data becomes the decorated argument, including copies
+ * returned by clone validators after decryption and JSON parsing.
+ *
  * @author Jeongho Nam - https://github.com/samchon
  * @returns Parameter decorator
  * @evidence contracts/common.md#principled-implementation The body must be `text/plain` ciphertext; it is decrypted with the password of the controller or module, the plain text is parsed as JSON and validated by the transformed validator, and a decryption or parse failure becomes a 400 with one fixed message that does not echo the ciphertext and does not tell the two failures apart; a key or initialization vector the cipher itself refuses is the server's configuration, independent of the request, and is thrown as it is.
- * @evidence contracts/common.md#clear-and-simple-design One parameter decorator composed of the shared text reading, password lookup, and validator runner.
+ * @evidence contracts/common.md#clear-and-simple-design One parameter decorator composes shared text reading, password lookup and validator resolution; the successfully resolved data becomes the argument without repeating validation or changing decryption error handling.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The algorithm comes from `AesPkcs5` of the fetcher, the same one the client uses, and no key is embedded; a missing password is an error rather than a plain pass-through.
  * @evidence contracts/common.md#meaningful-documentation The comment describes the protocol and the requirement of a password on the controller or module, and the private decode helper documents why every decryption failure collapses into one response.
  */
@@ -74,9 +77,9 @@ export function EncryptedBody<T>(
 
     // PARSE AND VALIDATE DATA
     const data: any = decode(body, password.key, password.iv);
-    const error: Error | null = checker(data);
-    if (error !== null) throw error;
-    return data;
+    const result = checker.resolve(data);
+    if (!result.success) throw result.error;
+    return result.data;
   })();
 }
 

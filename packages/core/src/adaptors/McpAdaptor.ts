@@ -11,6 +11,7 @@ import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
 import { Module } from "@nestjs/core/injector/module";
 
 import { IMcpRouteReflect } from "../decorators/internal/IMcpRouteReflect";
+import { resolve_request_body } from "../decorators/internal/validate_request_body";
 import {
   create_external_context_creator,
   get_request_context_id,
@@ -245,7 +246,9 @@ export class McpAdaptor {
  * The arguments reach the method through the pipes as its body would, validated
  * by typia at that stage: after the guards, as `@TypedBody()` is. An invalid
  * argument is thrown as the validator's `BadRequestException`, which an
- * exception filter may map; unmapped, it becomes JSON-RPC `-32602`.
+ * exception filter may map; unmapped, it becomes JSON-RPC `-32602`. Successful
+ * resolver data becomes the argument before pipes execute. Legacy error-only
+ * metadata callbacks retain raw input on null success.
  *
  * A controller that is request-scoped, itself or through an enhancer or a
  * dependency, is built per request with its enhancers, as NestJS builds it for
@@ -278,10 +281,11 @@ const createHandler = (props: {
       {
         // [request, response, next] as an HTTP route has, then the arguments
         exchangeKeyForValue: (_type, _data, [, , , args]) => {
-          const error: Error | null = validate ? validate(args) : null;
-          if (error === null) return args;
-          INVALID_ARGUMENTS.add(error);
-          throw error;
+          if (!validate) return args;
+          const result = resolve_request_body(validate, args);
+          if (result.success) return result.data;
+          INVALID_ARGUMENTS.add(result.error);
+          throw result.error;
         },
       },
       contextId,

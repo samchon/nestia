@@ -173,6 +173,8 @@ Add a plugin entry only when you want to override those defaults:
 | `"is"`               | Boolean check only — no error detail. Use when you handle errors yourself.                |
 | `"equals"`           | Same as `"is"` but also rejects extras.                                                   |
 
+On success, `@TypedBody()` passes the validator's returned value to your handler: the return value of `assert`, the successful `validate` result's `data`, or the original input for `is`. Clone modes provide a separate object and leave the parsed request body untouched; prune modes mutate that body in place.
+
 Any other value, such as a misspelled `"assertEqual"`, fails the build with a diagnostic listing these values, rather than falling back to a default.
 
 Choose by your front-end contract:

@@ -454,10 +454,10 @@ func nestiaCoreParameterArgumentNodes(
 
 // nestiaCoreGenerateTypedBody preserves the selected helper's validation,
 // equality, clone or prune operation within the public three-tag validator ABI.
-// The helper's return value is not the decorator's returned body: the runtime
-// validate_request_body consumes each descriptor's success verdict and
-// discards clone/data returns, while TypedBody returns the parsed request.body.
-// A prune helper can still mutate that input in place before it is returned.
+// The shared runtime resolver retains assert returns and validation.data for
+// decorated arguments, so clone helpers supply copies while is retains the
+// input. Prune helpers mutate and return that same input. Explicit success tags
+// distinguish valid Error, null or undefined data from validation failures.
 func nestiaCoreGenerateTypedBody(
 	prog *driver.Program,
 	importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext,

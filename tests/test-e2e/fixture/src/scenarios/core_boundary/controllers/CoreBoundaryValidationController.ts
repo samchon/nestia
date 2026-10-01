@@ -1,5 +1,12 @@
-import { TypedBody, TypedParam } from "@nestia/core";
-import { Body, Controller, Post } from "@nestjs/common";
+import {
+  EncryptedBody,
+  McpRoute,
+  TypedBody,
+  TypedParam,
+  WebSocketRoute,
+} from "@nestia/core";
+import { Body, Controller, Post, Req } from "@nestjs/common";
+import { WebSocketAcceptor } from "tgrid";
 import typia, { TypeGuardError } from "typia";
 
 const validators = {
@@ -55,7 +62,7 @@ const validators = {
  * Observes compiled helper values separately from the manual decorator ABI.
  *
  * @evidence contracts/common.md#principled-implementation Ten public typia factories compile in the shared producer and preserve the original validator return and mutation semantics. The three manual TypedBody routes connect assertClone, equals and validatePrune to the distinct assert/is/validate public descriptors. Private descriptor types derive from the exported TypedBody validator parameter rather than an unexported option type, and retain real functions; inspect catches only actual TypeGuardError and derives its report from request-local inputs and helper results.
- * @evidence contracts/common.md#clear-and-simple-design One inspection route observes helper effects and three routes cover the core runtime's three discriminator branches. Helper return values are observed separately because TypedBody returns the parsed request body, discarding assertion/validation return values.
+ * @evidence contracts/common.md#clear-and-simple-design The inspection route observes helper effects separately from decorated argument binding. Manual HTTP routes project argument and raw-body identity, while encrypted, WebSocket and MCP routes connect successful cloned data to each transport's actual argument binding without another producer or host.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Public typia factories and core descriptors execute directly without replaced loaders, decorator probes or production changes. No global compiler option is changed or claimed to have run for each mode.
  * @evidence contracts/common.md#meaningful-documentation The class explains the helper-versus-decorator split and the private request-local observation protocol; methods identify the exact public branch they connect.
  */
@@ -115,11 +122,20 @@ export class CoreBoundaryValidationController {
    */
   public assertClone(
     @TypedBody(validators.assertClone) input: { title: string; count: number },
-  ): { title: string; count: number; extraPresent: boolean } {
+    @Req() request: { body: { title: string; count: number } },
+  ): {
+    title: string;
+    count: number;
+    extraPresent: boolean;
+    rawExtraPresent: boolean;
+    sameRawBody: boolean;
+  } {
     return {
       title: input.title,
       count: input.count,
       extraPresent: Object.hasOwn(input, "extra"),
+      rawExtraPresent: Object.hasOwn(request.body, "extra"),
+      sameRawBody: input === request.body,
     };
   }
 
@@ -134,11 +150,20 @@ export class CoreBoundaryValidationController {
    */
   public equals(
     @TypedBody(validators.equals) input: { title: string; count: number },
-  ): { title: string; count: number; extraPresent: boolean } {
+    @Req() request: { body: { title: string; count: number } },
+  ): {
+    title: string;
+    count: number;
+    extraPresent: boolean;
+    rawExtraPresent: boolean;
+    sameRawBody: boolean;
+  } {
     return {
       title: input.title,
       count: input.count,
       extraPresent: Object.hasOwn(input, "extra"),
+      rawExtraPresent: Object.hasOwn(request.body, "extra"),
+      sameRawBody: input === request.body,
     };
   }
 
@@ -153,6 +178,98 @@ export class CoreBoundaryValidationController {
    */
   public validatePrune(
     @TypedBody(validators.validatePrune)
+    input: {
+      title: string;
+      count: number;
+    },
+    @Req() request: { body: { title: string; count: number } },
+  ): {
+    title: string;
+    count: number;
+    extraPresent: boolean;
+    rawExtraPresent: boolean;
+    sameRawBody: boolean;
+  } {
+    return {
+      title: input.title,
+      count: input.count,
+      extraPresent: Object.hasOwn(input, "extra"),
+      rawExtraPresent: Object.hasOwn(request.body, "extra"),
+      sameRawBody: input === request.body,
+    };
+  }
+
+  @Post("manual/encryptedClone")
+  /**
+   * Projects a cloned decoded body using the shared encrypted module password.
+   *
+   * @evidence contracts/common.md#principled-implementation EncryptedBody decrypts and validates actual ciphertext before passing the successful clone to this ordinary JSON response; the response observes the argument rather than a separately invoked helper.
+   * @evidence contracts/common.md#clear-and-simple-design One stateless projection reuses the existing assertClone descriptor and module encryption policy.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No cipher key or decoding logic is substituted inside the route; the shared backend supplies its existing public encryption configuration.
+   * @evidence contracts/common.md#meaningful-documentation The description identifies successful decoded-value binding as this route's responsibility.
+   */
+  public encryptedClone(
+    @EncryptedBody(validators.assertClone)
+    input: {
+      title: string;
+      count: number;
+    },
+  ): { title: string; count: number; extraPresent: boolean } {
+    return {
+      title: input.title,
+      count: input.count,
+      extraPresent: Object.hasOwn(input, "extra"),
+    };
+  }
+
+  @WebSocketRoute("manual/wsClone")
+  /**
+   * Observes the cloned route argument beside the acceptor's original header.
+   *
+   * @evidence contracts/common.md#principled-implementation The request-local report compares actual argument identity and properties with the acceptor's raw header after the adaptor has resolved validation. An accepted provider returns that report through real RPC.
+   * @evidence contracts/common.md#clear-and-simple-design One connection-local provider exposes one inspection method and retains no cross-connection state.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Public WebSocketRoute decorators and acceptor.accept perform actual validation and transport; no framework callback or header is replaced.
+   * @evidence contracts/common.md#meaningful-documentation The description identifies argument-versus-header identity as the observed distinction.
+   */
+  public async wsClone(
+    @WebSocketRoute.Acceptor()
+    acceptor: WebSocketAcceptor<
+      { title: string; count: number },
+      {
+        inspect(): {
+          title: string;
+          count: number;
+          extraPresent: boolean;
+          rawExtraPresent: boolean;
+          sameRawBody: boolean;
+        };
+      },
+      null
+    >,
+    @WebSocketRoute.Header(validators.assertClone)
+    input: { title: string; count: number },
+  ): Promise<void> {
+    const report = {
+      title: input.title,
+      count: input.count,
+      extraPresent: Object.hasOwn(input, "extra"),
+      rawExtraPresent: Object.hasOwn(acceptor.header, "extra"),
+      sameRawBody: input === acceptor.header,
+    };
+    await acceptor.accept({ inspect: () => report });
+  }
+
+  @McpRoute("core_boundary_clone")
+  /**
+   * Projects cloned tool arguments after the MCP adaptor resolves validation.
+   *
+   * @evidence contracts/common.md#principled-implementation The method observes the actual Params argument supplied through the adaptor and returns its values and extra-property presence; invalid arguments are rejected before this method.
+   * @evidence contracts/common.md#clear-and-simple-design One stateless tool uses the same public validateClone descriptor already compiled for the HTTP helper inspection.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The real public tool and Params decorators own schema and argument validation; this method performs no replacement validation or protocol mapping.
+   * @evidence contracts/common.md#meaningful-documentation The description states that this method observes successful tool argument binding.
+   */
+  public mcpClone(
+    @McpRoute.Params(validators.validateClone)
     input: {
       title: string;
       count: number;
