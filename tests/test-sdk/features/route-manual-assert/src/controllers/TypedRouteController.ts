@@ -18,4 +18,28 @@ export class TypedRouteController {
       },
     };
   }
+
+  @core.TypedRoute.Get("is", {
+    type: "is",
+    is: typia.json.createIsStringify<IBbsArticle>(),
+  })
+  public async random_is(): Promise<IBbsArticle> {
+    return this.random();
+  }
+
+  @core.TypedRoute.Get("stringify", {
+    type: "stringify",
+    stringify: typia.json.createStringify<IBbsArticle>(),
+  })
+  public async random_stringify(): Promise<IBbsArticle> {
+    return this.random();
+  }
+
+  @core.TypedRoute.Get("validate", {
+    type: "validate",
+    validate: typia.json.createValidateStringify<IBbsArticle>(),
+  })
+  public async random_validate(): Promise<IBbsArticle> {
+    return this.random();
+  }
 }

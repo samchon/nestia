@@ -128,14 +128,6 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
     'target security scheme "undeclared" does not exist. (SecurityController.undeclared() at "GET /undeclared")',
   ],
   [
-    "security-error-not-oauth2",
-    `target security scheme "bearer" is neither "oauth2" nor "openIdConnect" type, but you've configured the scopes, which OpenAPI 3.0 requires to be empty.`,
-  ],
-  [
-    "security-error-out-of-scopes",
-    'target security scheme "oauth2" does not have a specific scope "read:pets".',
-  ],
-  [
     "query-error-plain",
     [
       "PlainQueryController.nested()",
@@ -285,11 +277,9 @@ const SDK_ERROR_COHORTS = [
   {
     name: "sdk-error-security",
     scoped: false,
-    members: [
-      "security-error-not-found",
-      "security-error-not-oauth2",
-      "security-error-out-of-scopes",
-    ],
+    // Scheme/scope/version rules have direct Swagger-generator unit owners.
+    // One missing-scheme fixture retains decorator/reflection/CLI propagation.
+    members: ["security-error-not-found"],
   },
 ];
 const SDK_COHORT_FEATURES = new Set(

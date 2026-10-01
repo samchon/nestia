@@ -26,7 +26,7 @@ export const test_sdk_swagger_beautify = async (): Promise<void> => {
       process.cwd(),
       "../../packages/sdk/lib/generates/SwaggerGenerator",
     ),
-  ) as typeof import("../../../../../packages/sdk/src/generates/SwaggerGenerator");
+  ) as typeof import("../../../../../packages/sdk/lib/generates/SwaggerGenerator");
   const directory = fs.mkdtempSync(
     path.join(os.tmpdir(), "nestia-swagger-format-"),
   );

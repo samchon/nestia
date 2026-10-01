@@ -21,4 +21,26 @@ export class TypedBodyController {
       created_at: new Date().toISOString(),
     };
   }
+
+  @core.TypedRoute.Post("is")
+  public async store_is(
+    @core.TypedBody({
+      type: "is",
+      is: typia.createIs<IBbsArticle.IStore>(),
+    })
+    input: IBbsArticle.IStore,
+  ): Promise<IBbsArticle> {
+    return this.store(input);
+  }
+
+  @core.TypedRoute.Post("validate")
+  public async store_validate(
+    @core.TypedBody({
+      type: "validate",
+      validate: typia.createValidate<IBbsArticle.IStore>(),
+    })
+    input: IBbsArticle.IStore,
+  ): Promise<IBbsArticle> {
+    return this.store(input);
+  }
 }
