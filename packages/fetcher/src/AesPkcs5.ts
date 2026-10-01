@@ -1,9 +1,9 @@
 import crypto from "crypto";
 
 /**
- * Utility class for the AES-128/256 encryption.
+ * Utilities for AES-CBC encryption.
  *
- * - AES-128/256
+ * - AES-128/192/256
  * - CBC mode
  * - PKCS#5 Padding
  * - Base64 Encoding

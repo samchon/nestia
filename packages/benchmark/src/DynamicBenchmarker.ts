@@ -108,7 +108,7 @@ export namespace DynamicBenchmarker {
      * @param complete The number of completed requests.
      * @evidence contracts/common.md#principled-implementation The callback receives the sum of the completed counts of every servant, so its argument is monotone toward the total and is called once more with the exact count at the end.
      * @evidence contracts/common.md#clear-and-simple-design One optional notification with a single number argument.
-     * @evidence contracts/common.md#prohibited-implementation-shortcuts The callback observes the run and cannot alter it.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts The callback does not configure request counts or concurrency; a throw from the final callback propagates after servants have been closed rather than being hidden.
      * @evidence contracts/common.md#meaningful-documentation The comment names the argument as the number of completed requests.
      */
     progress?: (complete: number) => void;
@@ -124,7 +124,8 @@ export namespace DynamicBenchmarker {
      *
      * The function is called once a second while the benchmark runs. If it
      * rejects, the sampling stops and the report keeps the samples taken so
-     * far.
+     * far. A result still pending when execution ends is discarded when it
+     * settles.
      *
      * @evidence contracts/common.md#principled-implementation When the server under test runs in another process, the master's own `process.memoryUsage()` measures the wrong process, so the caller supplies a getter for the right one; it is sampled once a second while the run lasts.
      * @evidence contracts/common.md#clear-and-simple-design One optional async getter that replaces the default sampler and nothing else.
@@ -368,9 +369,11 @@ export namespace DynamicBenchmarker {
       const getter = props.memory ?? (async () => process.memoryUsage());
       for (;;) {
         await sleep_for(1_000);
-        if (sampler.active === false) break;
+        if (!sampler.active) break;
+        const usage: NodeJS.MemoryUsage = await getter();
+        if (!sampler.active) break;
         memories.push({
-          usage: await getter(),
+          usage,
           time: new Date().toISOString(),
         });
       }

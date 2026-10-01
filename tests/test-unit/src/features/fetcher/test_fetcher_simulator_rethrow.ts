@@ -9,14 +9,14 @@ import { HttpError, NestiaSimulator } from "@nestia/fetcher";
  *
  * 1. Run a body assertion whose task throws a type-guard-shaped error, and assert
  *    an `HttpError` of status 400 whose body names the expectation.
- * 2. Run tasks that throw `null`, a string, and a plain error, and assert each
+ * 2. Run tasks that throw non-object values and a plain error, and assert each
  *    surfaces exactly as thrown.
  * 3. Run a task that returns, and assert it passes.
  *
- * @evidence contracts/testing.md#behavioral-verification It runs the body assertion of `NestiaSimulator` with a task throwing a type-guard-shaped error and asserts an `HttpError` of status 400, then with tasks throwing `null`, a string, and a plain error and asserts each surfaces unchanged.
+ * @evidence contracts/testing.md#behavioral-verification It runs the body assertion of `NestiaSimulator` with a type-guard-shaped error and requires status400 and the literal JSON validation body; unrelated thrown values must actually throw and retain identity, including undefined rather than passing via an unset capture.
  * @evidence contracts/testing.md#independent-expectations Only a validation failure becomes a 400 and any other throw belongs to the caller; the assertions compare identity with the thrown value.
- * @evidence contracts/testing.md#distinguishing-cases The guard-shaped error is the positive case, `null`, a string, and an ordinary error are the negatives, and a returning task is the control.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-unit` process discovered by `DynamicExecutor`, and drives the `@nestia/fetcher` operation in-process with a stubbed `connection.fetch`, so no server or socket is involved.
+ * @evidence contracts/testing.md#distinguishing-cases The guard-shaped error is positive; null, undefined, string, number, boolean, bigint, symbol and an ordinary error must be rethrown without conversion, and a returning task is the control.
+ * @evidence contracts/testing.md#execution-ownership Unit: DynamicExecutor discovers it in test-unit and it drives the public simulator assertion with caller-owned closures in-process; there is no fetch operation, server or socket.
  */
 export function test_fetcher_simulator_rethrow(): void {
   const asserter = NestiaSimulator.assert({
@@ -42,20 +42,38 @@ export function test_fetcher_simulator_rethrow(): void {
   }
   if (!(caught instanceof HttpError) || caught.status !== 400)
     throw new Error(`a type guard error was not a 400: ${String(caught)}.`);
-  if (caught.message.includes("$input.title") === false)
-    throw new Error(`the 400 does not name the path: ${caught.message}.`);
+  const expected = {
+    method: "typia.assert",
+    path: "$input.title",
+    expected: "string",
+    value: 1,
+    message: "Request body is not following the promised type.",
+  };
+  if (JSON.stringify(JSON.parse(caught.message)) !== JSON.stringify(expected))
+    throw new Error(`the 400 validation body changed: ${caught.message}.`);
 
   const plain: Error = new Error("plain");
-  for (const thrown of [null, "text", plain]) {
+  for (const thrown of [
+    null,
+    undefined,
+    "text",
+    0,
+    false,
+    1n,
+    Symbol("failure"),
+    plain,
+  ]) {
     let surfaced: unknown = undefined;
+    let didThrow: boolean = false;
     try {
       asserter.body(() => {
         throw thrown;
       });
     } catch (exp) {
+      didThrow = true;
       surfaced = exp;
     }
-    if (surfaced !== thrown)
+    if (!didThrow || surfaced !== thrown)
       throw new Error(`${String(thrown)} surfaced as ${String(surfaced)}.`);
   }
   asserter.body(() => 1);

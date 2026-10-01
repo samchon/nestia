@@ -42,12 +42,12 @@ export const test_api_calculate_simple = async (
       provider: listener,
     },
   );
-  const expected: ICalcEvent[] = [
-    { type: "plus", input: [10, 5], output: 15 },
-    { type: "minus", input: [10, 5], output: 5 },
-    { type: "multiplies", input: [10, 5], output: 50 },
-    { type: "divides", input: [10, 5], output: 2 },
-  ];
+  const expected = [
+    { type: "plus" as const, input: [10, 5], output: 15 },
+    { type: "minus" as const, input: [10, 5], output: 5 },
+    { type: "multiplies" as const, input: [10, 5], output: 50 },
+    { type: "divides" as const, input: [10, 5], output: 2 },
+  ] satisfies ICalcEvent[];
   try {
     for (const e of expected) {
       const z: number = await driver[e.type](e.input[0]!, e.input[1]!);
