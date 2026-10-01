@@ -8,6 +8,7 @@ const { run: runBenchmark } = require("./internal/benchmark.cjs");
 const { prepareMigration, prepareMigrationConsumer, testMigrationConsumer } = require("./internal/migration.cjs");
 const { test_sdk_cli_argument_diagnostics } = require("./internal/boundary/test_sdk_cli_argument_diagnostics.cjs");
 const { test_sdk_cli_dependencies } = require("./internal/boundary/test_sdk_cli_dependencies.cjs");
+const { test_sdk_distribution_cwd_restore } = require("./internal/boundary/test_sdk_distribution_cwd_restore.cjs");
 const { test_core_compiler_wrappers } = require("./internal/core_wrappers/test_core_compiler_wrappers.cjs");
 
 /**
@@ -150,9 +151,10 @@ const main = async () => {
     for (const [name, operation] of [
       ["sdk_cli_argument_diagnostics", test_sdk_cli_argument_diagnostics],
       ["sdk_cli_dependencies", test_sdk_cli_dependencies],
+      ["sdk_distribution_cwd_restore", test_sdk_distribution_cwd_restore],
     ]) {
       try {
-        await measure(name, () => operation({ installation, sandbox }));
+        await measure(name, () => operation({ installation, sandbox, record }));
         console.log(` - ${name}: passed`);
       } catch (error) {
         failures.push(name);

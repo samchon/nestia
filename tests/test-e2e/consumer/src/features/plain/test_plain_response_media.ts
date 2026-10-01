@@ -30,7 +30,7 @@ export const test_plain_response_media = async (
     ["string", markup],
     ["template", `something_123_interesting_${markup}_is_not_true_it?`],
     ["constant", "A"],
-  ]) {
+  ] as const) {
     const response = await fetch(`${connection.host}/plain/plain/${route}`, {
       method: "POST",
       headers: { "Content-Type": "text/plain" },

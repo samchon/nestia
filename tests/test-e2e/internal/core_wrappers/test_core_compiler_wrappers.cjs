@@ -282,35 +282,60 @@ const test_core_compiler_wrappers = async ({
     const result = api("strict-schema-batch", directory);
     assert.equal(result.type, "failure");
     assert.deepEqual(result.output, {});
-    const diagnostics = result.diagnostics;
-    for (const [file, code, reason] of [
-      ["llm-body.ts", "nestia.core.TypedBody", "optional"],
-      ["llm-query.ts", "nestia.core.TypedQuery", "optional"],
+    // The public API may retain native plugin stderr as one TTSC_PROCESS
+    // diagnostic. Project supported structured diagnostics into the same display
+    // form, then keep each reason within its own diagnostic header's section.
+    const sections = result.diagnostics.flatMap((item) => {
+      const code = String(item.code);
+      const text =
+        typeof item.file === "string" &&
+        item.line !== undefined &&
+        item.character !== undefined
+          ? `${item.file}:${item.line}:${item.character} - ${item.category} TS${
+              /^\d+$/.test(code) || code.startsWith("(") ? code : `(${code})`
+            }: ${item.messageText}`
+          : item.messageText;
+      return text
+        .replaceAll("\\", "/")
+        .split(
+          /(?=^[^\n]+:\d+:\d+ - (?:error|warning|suggestion|message) TS)/m,
+        );
+    });
+    for (const [file, line, character, code, details] of [
+      [
+        "llm-body.ts",
+        12,
+        17,
+        "nestia.core.TypedBody",
+        ["Strict mode does not support optional property in object."],
+      ],
+      [
+        "llm-query.ts",
+        12,
+        17,
+        "nestia.core.TypedQuery",
+        ["Strict mode does not support optional property in object."],
+      ],
       [
         "llm-route.ts",
+        11,
+        4,
         "nestia.core.TypedRoute",
-        "LLM schema does not support WeakMap type.",
+        ["IArticle.weak: WeakMap", "LLM schema does not support WeakMap type."],
       ],
-    ])
+    ]) {
+      const header = `src/${file}:${line}:${character} - error TS(${code}): unsupported type detected`;
       assert(
-        diagnostics.some(
-          (item) =>
-            item.file?.replaceAll("\\", "/").endsWith(`src/${file}`) &&
-            String(item.code).includes(code) &&
-            item.messageText.includes(reason),
-        ),
-        `Missing ${file} ${code} ${reason}: ${JSON.stringify(diagnostics)}`,
+        sections.some((section) => {
+          const firstLine = section.split(/\r?\n/, 1)[0];
+          return (
+            (firstLine === header || firstLine.endsWith(`/${header}`)) &&
+            details.every((detail) => section.includes(detail))
+          );
+        }),
+        `Missing diagnostic section ${header}: ${JSON.stringify(result.diagnostics)}`,
       );
-    assert(
-      diagnostics.some(
-        (item) =>
-          item.file?.endsWith("llm-route.ts") &&
-          item.line === 11 &&
-          item.character === 4 &&
-          item.messageText.includes("IArticle.weak: WeakMap"),
-      ),
-      "WeakMap source/type identity was lost.",
-    );
+    }
     absent(directory);
   });
   run("non-strict-publication-controls", () => {
