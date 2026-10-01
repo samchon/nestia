@@ -91,10 +91,10 @@ func (linkedPlugin) ApplyProgram(prog *driver.Program, _ driver.PluginContext) e
 // wires `nativetransform.Transform`. A site-collection failure is returned as
 // diagnostics; the returned transform is nil when there are no sites.
 //
-// @evidence contracts/common.md#principled-implementation The controller-method sites are collected once for the program, and the returned transform maps each original method to its synthetic counterpart made by the earlier typia and core transforms so the decorator lands on the node that is printed; a collection failure is returned as diagnostics and no sites give a nil transform.
-// @evidence contracts/common.md#clear-and-simple-design One function that collects the sites and returns a closure over them, sharing the file grouping and the module specifier per file.
-// @evidence contracts/common.md#prohibited-implementation-shortcuts The module specifier is shared so the generated name binds to one alias, and no controller or method is special-cased.
-// @evidence contracts/common.md#meaningful-documentation The comment states what is injected, why the mapping exists, and the nil and diagnostic results.
+// @evidence contracts/common.md#principled-implementation The controller-method sites are collected once for the program, and the returned transform maps each original method to its synthetic counterpart so the decorator lands on the printed node; collection failures return diagnostics and no sites return nil. Private reflection helpers use TypeReference/TypeQuery roles and checker aliases for authored imports, declaration sources for free types, and IsLibFile for actual libraries; locally bound TypeParameter symbols have no module import identity. Only fixed language keywords are excluded by spelling.
+// @evidence contracts/common.md#clear-and-simple-design Site collection and one per-file closure share file grouping and the module specifier. Private import reflection centralizes reference traversal, authored binding selection and declaration fallback so the reflected type forms use one policy.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The shared module specifier binds one generated alias without controller special cases. Import decisions use semantic AST roles, checker bindings and actual library identity rather than regex matches in literals, built-in-name whitelists or fixture/path spelling.
+// @evidence contracts/common.md#meaningful-documentation The public comment explains injected metadata, original-to-synthetic mapping and nil/diagnostic results. Private helper comments explain reference roles, shadowable library names, declaration fallback and annotation-local binders; these details remain documented at their implementation owners.
 func EmitTransform(prog *driver.Program) (driver.PluginTransform, []transform.Diagnostic) {
 	sites, diagnostics := collectNestiaSDKSites(prog)
 	if len(diagnostics) > 0 {

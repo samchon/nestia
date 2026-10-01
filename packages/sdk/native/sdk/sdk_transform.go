@@ -719,11 +719,6 @@ func nestiaSDKNormalizeImportPath(fileName string, module string) string {
 // nestiaSDKReflectImports collects imports from actual type references and
 // typeof queries. Literal values, property names and template text do not bind
 // imports, and named library types are classified by declaration provenance.
-//
-// @evidence contracts/common.md#principled-implementation TypeReference and TypeQuery nodes identify semantic references. A resolved root alias uses its authored import binding; other type references use their declaring source unless the program identifies a library file. Literal and member-name nodes contribute no reference.
-// @evidence contracts/common.md#clear-and-simple-design One traversal shares import binding and declaration fallback decisions across reflected type forms, replacing lexical name matching over arbitrary type text.
-// @evidence contracts/common.md#prohibited-implementation-shortcuts Actual AST roles and checker bindings decide imports; no fixture identity, built-in name whitelist or regex match inside a literal substitutes for a reference.
-// @evidence contracts/common.md#meaningful-documentation The comment states which references need imports and why literal/property/template text cannot create one.
 func nestiaSDKReflectImports(prog *driver.Program, node *shimast.Node, imports []nestiaSDKImportInfo) []any {
 	output := []any{}
 	add := func(entity *shimast.Node, typeReference bool) {
@@ -780,11 +775,6 @@ func nestiaSDKReflectImports(prog *driver.Program, node *shimast.Node, imports [
 
 // nestiaSDKIsTypeKeyword reports type spellings that cannot name an imported
 // declaration. Library names such as Date and Array can be shadowed in a module.
-//
-// @evidence contracts/common.md#principled-implementation The predicate excludes only the primitive, top, bottom and nullish TypeScript type keyword forms; named classes, interfaces and utility aliases remain eligible for binding resolution.
-// @evidence contracts/common.md#clear-and-simple-design One switch records the fixed language forms used by the lexical candidate and symbol fallback paths.
-// @evidence contracts/common.md#prohibited-implementation-shortcuts These values have language-defined meanings; no named library declaration is presumed global from spelling.
-// @evidence contracts/common.md#meaningful-documentation The comment explains why a library-looking name does not belong in this exclusion set.
 func nestiaSDKIsTypeKeyword(prefix string) bool {
 	switch prefix {
 	case "any", "unknown", "never", "void", "null", "undefined",
@@ -1916,11 +1906,6 @@ func nestiaSDKReflectTypeNode(
 // no authored import binding describes the referenced type. The actual program's
 // library-file identity keeps global library declarations out of client imports.
 // Locally bound type parameters have no importable module declaration.
-//
-// @evidence contracts/common.md#principled-implementation The checker resolves the declaration and IsLibFile identifies actual TypeScript libraries, so local interfaces with library-like names retain their source identity while true globals require no import. TypeParameter symbols are annotation-local bindings rather than module exports and contribute no import.
-// @evidence contracts/common.md#clear-and-simple-design The fallback follows one resolved symbol and its declaration source after the authored import path has been tried by the caller.
-// @evidence contracts/common.md#prohibited-implementation-shortcuts Source-file identity comes from the program; neither a package path substring nor a named built-in whitelist substitutes for declaration provenance.
-// @evidence contracts/common.md#meaningful-documentation The comment states the fallback's purpose and its distinction between local declaration identity and library membership.
 func nestiaSDKReflectTypeReferenceSymbolImport(prog *driver.Program, node *shimast.Node, name string) []any {
 	if prog == nil || prog.Checker == nil || node == nil {
 		return nil
