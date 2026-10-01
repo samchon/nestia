@@ -7,7 +7,7 @@ import path from "path";
  * TypeScript sources: they load the scaffolding engine through an absolute-path
  * `require()` because the package's exports map blocks deep subpath imports,
  * and they fake every side effect of the engine. The real executable is run by
- * `tests/test-cli`.
+ * `tests/test-boundaries`.
  */
 export namespace CliTestHarness {
   /* -----------------------------------------------------------

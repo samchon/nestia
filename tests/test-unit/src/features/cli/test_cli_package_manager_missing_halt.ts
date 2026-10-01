@@ -18,7 +18,7 @@ import { CliTestHarness } from "./internal/CliTestHarness";
  * @evidence contracts/testing.md#behavioral-verification It runs `nestia start` where every probe fails and asserts the halt names pnpm and corepack and that no package manager command ran, which detects a fall-through to npm.
  * @evidence contracts/testing.md#independent-expectations npm cannot resolve the `catalog:` protocol, so halting with installation guidance is the contract, and the words are asserted literally.
  * @evidence contracts/testing.md#distinguishing-cases All probes failing is the negative case beside pnpm-present and corepack-only.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-unit` process discovered by `DynamicExecutor`, loading the built `NestiaStarter`/`NestiaTemplate` engine of `packages/cli` by absolute path and driving it with a fake context that records every command, probe, directory change, and removal; no git, package manager, or network is touched, and the real executable is owned by `test-cli`.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-unit` process discovered by `DynamicExecutor`, loading the built `NestiaStarter`/`NestiaTemplate` engine of `packages/cli` by absolute path and driving it with a fake context that records every command, probe, directory change, and removal; no git, package manager, or network is touched, and the real executable is owned by `test-boundaries`.
  */
 export const test_cli_package_manager_missing_halt =
   async (): Promise<void> => {

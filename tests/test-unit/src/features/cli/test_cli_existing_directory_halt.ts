@@ -16,7 +16,7 @@ import { CliTestHarness } from "./internal/CliTestHarness";
  * @evidence contracts/testing.md#behavioral-verification It runs `nestia start` with a context whose `exists` is true and asserts the halt message and that no command ran, which detects a clone into an existing directory.
  * @evidence contracts/testing.md#independent-expectations The message `The target directory already exists.` is the wording users rely on, compared literally.
  * @evidence contracts/testing.md#distinguishing-cases An existing directory is the negative case beside the command sequence tests where it does not exist.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-unit` process discovered by `DynamicExecutor`, loading the built `NestiaStarter`/`NestiaTemplate` engine of `packages/cli` by absolute path and driving it with a fake context that records every command, probe, directory change, and removal; no git, package manager, or network is touched, and the real executable is owned by `test-cli`.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-unit` process discovered by `DynamicExecutor`, loading the built `NestiaStarter`/`NestiaTemplate` engine of `packages/cli` by absolute path and driving it with a fake context that records every command, probe, directory change, and removal; no git, package manager, or network is touched, and the real executable is owned by `test-boundaries`.
  */
 export const test_cli_existing_directory_halt = async (): Promise<void> => {
   const fake: CliTestHarness.IFakeContext = CliTestHarness.createFakeContext({

@@ -6,12 +6,13 @@ import fs from "fs";
  * template`.
  *
  * The flow clones the repository, installs, builds, optionally tests, and then
- * deletes the repository-only files. Every side effect goes through an injected
- * `IContext`, so the flow runs without a network, a file system, or a package
- * manager in unit tests.
+ * deletes the repository-only files. Command and file-system operations go
+ * through an injected `IContext`, so unit tests need no network or package
+ * manager. Logging and the corepack prompt environment flag remain process
+ * effects.
  *
  * @evidence contracts/common.md#principled-implementation The scaffold is the fixed sequence clone, install, build, optional test, cleanup, each step one explicit-argument command; the package manager is chosen by probing `pnpm` and then `corepack` because the template repositories are pnpm monorepos whose `catalog:` protocol npm cannot resolve.
- * @evidence contracts/common.md#clear-and-simple-design One namespace owns the flow: `clone` is the sequence, `IContext` the only side-effect boundary, and the private `parse`, `getPackageManager`, and `commandOf` each answer one question; `NestiaStarter` and `NestiaTemplate` only bind a title, URL, and test flag.
+ * @evidence contracts/common.md#clear-and-simple-design One namespace owns the flow: clone is the sequence, IContext is the injected command/file-system boundary, and private parse, getPackageManager and commandOf each answer one question; NestiaStarter and NestiaTemplate bind a title, URL and test flag.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Both templates run the identical flow parameterized by props, with no repository-name branches; the only ambient write is the documented corepack variable `COREPACK_ENABLE_DOWNLOAD_PROMPT`, set in the corepack branch to keep the prompt from blocking a scripted run.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose states what the flow does, its ordering, and why side effects are injected; the nested types and `clone` carry their own documentation.
  */
@@ -22,7 +23,7 @@ export namespace NestiaProjectTemplate {
    * Injected so that the scaffolding flow can be unit tested without touching
    * the network, the file system, or a real package manager.
    *
-   * @evidence contracts/common.md#principled-implementation The interface lists exactly the side effects the flow performs (run, probe, change directory, existence check, removal) as function members, so a fake can record every command and a real implementation can delegate to `child_process` and `fs`.
+   * @evidence contracts/common.md#principled-implementation The interface represents command execution/probing, directory changes, existence checks and removal as function members, so a fake can record those operations and production can delegate them to child_process and fs. Logging and the corepack prompt flag are separate process effects documented by the namespace.
    * @evidence contracts/common.md#clear-and-simple-design Five members, one per distinct effect, with no default behavior in the type; the real implementation is the private `CONTEXT` constant, which keeps the interface a pure seam.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The seam exists because the flow performs process and file-system effects, not to serve a particular test: the production `CONTEXT` implements every member with the real operation.
    * @evidence contracts/common.md#meaningful-documentation The type documentation says the effects are injected for offline testing, and each member states its contract in one sentence.
@@ -37,6 +38,7 @@ export namespace NestiaProjectTemplate {
      * @evidence contracts/common.md#meaningful-documentation The comment states the argument representation and that stdio is inherited.
      */
     execute: (executable: string, args: readonly string[]) => void;
+
     /**
      * Silently checks whether an executable accepts the supplied arguments.
      *
@@ -46,6 +48,7 @@ export namespace NestiaProjectTemplate {
      * @evidence contracts/common.md#meaningful-documentation The comment states that the check is silent and returns whether the executable accepted the arguments.
      */
     probe: (executable: string, args: readonly string[]) => boolean;
+
     /**
      * Changes the working directory.
      *
@@ -55,6 +58,7 @@ export namespace NestiaProjectTemplate {
      * @evidence contracts/common.md#meaningful-documentation The comment names the effect, a working-directory change.
      */
     chdir: (directory: string) => void;
+
     /**
      * Checks whether a path exists.
      *
@@ -64,6 +68,7 @@ export namespace NestiaProjectTemplate {
      * @evidence contracts/common.md#meaningful-documentation The comment states that it checks whether a path exists.
      */
     exists: (path: string) => boolean;
+
     /**
      * Removes a path recursively, ignoring missing entries.
      *
@@ -86,8 +91,10 @@ export namespace NestiaProjectTemplate {
   export interface IProps {
     /** Banner title printed before cloning. */
     title: string;
+
     /** Default repository URL, overridable through `--repository <url>`. */
     repository: string;
+
     /** Whether to run the test suite after building. */
     test: boolean;
   }
@@ -101,7 +108,7 @@ export namespace NestiaProjectTemplate {
    * `--repository` has no value, or when neither pnpm nor corepack is
    * available.
    *
-   * @evidence contracts/common.md#principled-implementation Currying separates the per-template props from the halter and context injected at the call site; validation runs before any side effect, so a rejected invocation clones nothing, and the ordered execute calls implement the documented scaffold sequence.
+   * @evidence contracts/common.md#principled-implementation Currying separates the per-template props from the halter and context injected at the call site. Argument and destination validation precede cloning; package-manager availability is checked after entering the clone, so an unavailable manager leaves that clone in place without installing or building it. Ordered execute calls implement the documented scaffold sequence.
    * @evidence contracts/common.md#clear-and-simple-design One curried function keeps the sequence readable in one place, delegating parsing, package-manager selection, and command shaping to private helpers rather than to options.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The flow contains no fixture or repository names, and the injected context is the production seam: the default `CONTEXT` performs the real clone, install, build, and cleanup.
    * @evidence contracts/common.md#meaningful-documentation The comment states the halting conditions and the injected parameters, and section comments inside the body mark the phases.
@@ -190,8 +197,9 @@ export namespace NestiaProjectTemplate {
         "",
         "  npm install --global pnpm",
         "",
-        "or activate it through corepack (bundled with Node.js):",
+        "or install and activate corepack:",
         "",
+        "  npm install --global corepack",
         "  corepack enable",
       ].join("\n"),
     );

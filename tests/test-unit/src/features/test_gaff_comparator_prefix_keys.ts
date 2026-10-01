@@ -9,6 +9,10 @@ import { GaffComparator, TestValidator } from "@nestia/e2e";
  * `numbers` and `dates` answered NaN, which `TestValidator.sort` read as sorted
  * (#1681).
  *
+ * 1. Compare string, date and number key lists with their proper extensions.
+ * 2. Reverse each pair and require the opposite order.
+ * 3. Require antisymmetric length differences for the equal prefixes.
+ *
  * @evidence contracts/testing.md#behavioral-verification It calls `GaffComparator.strings()`, `dates()`, and `numbers()` on a key list and its extension in both argument orders and asserts sign and antisymmetry, which detects a comparator that walks the first list only and answers -1 both ways or NaN.
  * @evidence contracts/testing.md#independent-expectations A proper prefix orders before its extension is the lexicographic contract, and the antisymmetry `f(y, x) = -f(x, y)` is a mathematical property, neither taken from the implementation.
  * @evidence contracts/testing.md#distinguishing-cases Three comparators each get a prefix pair in both orders, so the forward, the backward, and the symmetric cases are separate assertions; sorting by keys that differ at their first element goes through the same comparators in `test_validate_sort`.

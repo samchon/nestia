@@ -19,7 +19,7 @@ import { CliTestHarness } from "./internal/CliTestHarness";
  * @evidence contracts/testing.md#behavioral-verification It runs `nestia start` with `--repository <fork>` and asserts the clone uses the fork and the destination is parsed correctly, and that a `--repository` without a value halts.
  * @evidence contracts/testing.md#independent-expectations The fork URL is the input and appears verbatim in the recorded clone command.
  * @evidence contracts/testing.md#distinguishing-cases A given override, the parsed destination, and a missing value are three separate assertions.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-unit` process discovered by `DynamicExecutor`, loading the built `NestiaStarter`/`NestiaTemplate` engine of `packages/cli` by absolute path and driving it with a fake context that records every command, probe, directory change, and removal; no git, package manager, or network is touched, and the real executable is owned by `test-cli`.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-unit` process discovered by `DynamicExecutor`, loading the built `NestiaStarter`/`NestiaTemplate` engine of `packages/cli` by absolute path and driving it with a fake context that records every command, probe, directory change, and removal; no git, package manager, or network is touched, and the real executable is owned by `test-boundaries`.
  */
 export const test_cli_repository_option_override = async (): Promise<void> => {
   const url: string = "https://github.com/someone/nestia-start-fork";

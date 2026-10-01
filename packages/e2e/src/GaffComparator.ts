@@ -48,7 +48,7 @@
  *   await validator("-"); // descending
  *
  * @evidence contracts/common.md#principled-implementation Each comparator maps both operands to arrays of comparable values and decides by the first position where they differ, then by array length, which is a lexicographic order that satisfies the sort contract for well-defined values; it is used to check server-side sorting from the client.
- * @evidence contracts/common.md#clear-and-simple-design Three comparators over strings, dates, and numbers share two private helpers (`mismatch` and `wrap`) and differ only in how a value is converted and compared.
+ * @evidence contracts/common.md#clear-and-simple-design Three comparators share scalar-to-array wrapping. Strings compare each key by collation; dates and numbers use a shared strict mismatch search over their numeric keys.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The ordering rule is generic in the getter, with no field, entity, or locale special case.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose lists the features and the sort contract with an example.
  */
@@ -64,7 +64,10 @@ export namespace GaffComparator {
    *
    * When comparing arrays, performs lexicographic ordering: compares the first
    * elements, then the second elements if the first are equal, and so on. This
-   * enables complex sorting like "sort by last name, then by first name".
+   * enables complex sorting like "sort by last name, then by first name". Keys
+   * that compare equal under the runtime's collation, including different
+   * canonically equivalent Unicode spellings, continue to the next key. If the
+   * whole common prefix compares equal, the shorter key list sorts first.
    *
    * @example
    *   interface User {
@@ -136,8 +139,8 @@ export namespace GaffComparator {
    * @template T - The type of objects being compared
    * @param getter - Function that extracts string value(s) from input objects
    * @returns A comparator function suitable for Array.sort()
-   * @evidence contracts/common.md#principled-implementation Strings are compared with `localeCompare` at the first differing position, so the order follows the runtime's locale rules, which is what a server sorting with a locale-aware collation is compared against; a shorter equal prefix sorts first.
-   * @evidence contracts/common.md#clear-and-simple-design It uses the shared `wrap` and `mismatch`, and adds only the string comparison.
+   * @evidence contracts/common.md#principled-implementation Each common key position is compared once with localeCompare; a nonzero result decides the order, while collation-equal spellings continue to later keys. Only an entirely equal common prefix falls through to array length, establishing lexicographic order under the runtime's actual collation without assuming strict string equality.
+   * @evidence contracts/common.md#clear-and-simple-design Shared wrapping accepts scalar or array keys; one bounded loop returns the first nonzero collation result or the length difference.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The comparison is the platform's locale collation, not a hand-written ordering.
    * @evidence contracts/common.md#meaningful-documentation The comment states the locale sensitivity, the multi-value rule, and the arguments, with examples.
    */
@@ -147,8 +150,11 @@ export namespace GaffComparator {
       const a: string[] = wrap(getter(x));
       const b: string[] = wrap(getter(y));
 
-      const idx: number = mismatch(a, b);
-      return idx !== -1 ? compare(a[idx]!, b[idx]!) : a.length - b.length;
+      for (let index = 0; index < Math.min(a.length, b.length); ++index) {
+        const result: number = compare(a[index]!, b[index]!);
+        if (result !== 0) return result;
+      }
+      return a.length - b.length;
     };
 
   /**

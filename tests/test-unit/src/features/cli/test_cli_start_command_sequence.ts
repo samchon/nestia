@@ -19,7 +19,7 @@ import { CliTestHarness } from "./internal/CliTestHarness";
  * @evidence contracts/testing.md#behavioral-verification It runs the starter and asserts the executed commands are exactly clone, install, build, test and that `.git` and `.github/dependabot.yml` are removed afterwards.
  * @evidence contracts/testing.md#independent-expectations The sequence and the canonical `nestia-start` URL are the documented lifecycle, written literally, and pnpm is used because the template's `catalog:` protocol requires it.
  * @evidence contracts/testing.md#distinguishing-cases The exact list separates a missing, extra, or reordered step from the correct one.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-unit` process discovered by `DynamicExecutor`, loading the built `NestiaStarter`/`NestiaTemplate` engine of `packages/cli` by absolute path and driving it with a fake context that records every command, probe, directory change, and removal; no git, package manager, or network is touched, and the real executable is owned by `test-cli`.
+ * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-unit` process discovered by `DynamicExecutor`, loading the built `NestiaStarter`/`NestiaTemplate` engine of `packages/cli` by absolute path and driving it with a fake context that records every command, probe, directory change, and removal; no git, package manager, or network is touched, and the real executable is owned by `test-boundaries`.
  */
 export const test_cli_start_command_sequence = async (): Promise<void> => {
   const fake: CliTestHarness.IFakeContext = CliTestHarness.createFakeContext();
