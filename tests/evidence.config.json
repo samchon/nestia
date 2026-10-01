@@ -234,6 +234,27 @@
         "symbol": "h2",
         "checklist": true
       }
+    },
+    {
+      "name": "authored core fallback and alias runtime composition",
+      "type": "typescript",
+      "files": [
+        "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryFallbackController.ts",
+        "test-e2e/fixture/src/scenarios/core_boundary/controllers/CoreBoundaryAliasController.ts"
+      ],
+      "symbol": [
+        "type",
+        "function"
+      ],
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/common.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
     }
   ]
 }
