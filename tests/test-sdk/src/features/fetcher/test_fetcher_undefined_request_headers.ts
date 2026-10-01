@@ -14,8 +14,8 @@ import assert from "assert/strict";
  * 3. Retain language-level rejection controls for invalid values and header forms.
  *
  * @evidence contracts/testing.md#behavioral-verification PlainFetcher.fetch accepts a typed connection and passes only defined, stringified header lines to its supplied fetch callback. TypeScript language preparation checks public header acceptance and adjacent invalid value, cookie and singleton assignments, including optional and mixed array domains.
- * @evidence contracts/testing.md#independent-expectations Undefined denotes an omitted entry; boolean, number and bigint stringify to their literal decimal/boolean text, while array values produce separate lines. HeaderValue excludes object/null, and Headerify requires array set-cookie and scalar singleton content-type.
- * @evidence contracts/testing.md#distinguishing-cases Undefined-only and empty inputs contrast mixed atomic/array headers; object/null values, scalar set-cookie and required/optional array content-type remain rejected. Optional cookie arrays and undefined-only named headers remain permitted, while a scalar/array singleton union is rejected. The caller's undefined entry remains present in its input object.
+ * @evidence contracts/testing.md#independent-expectations Undefined denotes an omitted entry; boolean, number and bigint stringify to their literal decimal/boolean text, while array values produce separate lines. The route owns request media: a bodyless request has none and a JSON body supplies its declared Content-Type. HeaderValue excludes object/null, and Headerify requires array set-cookie and scalar singleton content-type.
+ * @evidence contracts/testing.md#distinguishing-cases Undefined-only and empty inputs contrast mixed atomic/array headers; object/null values, scalar set-cookie and required/optional array content-type remain rejected. Optional cookie arrays and undefined-only named headers remain permitted, while a scalar/array singleton union is rejected. Identical caller headers contrast bodyless omission with JSON-body route media, and caller input remains unchanged.
  * @evidence contracts/testing.md#execution-ownership The matching sole export is discovered by test-sdk. Public fetcher calls use the supported per-connection fetch callback in-process without sockets, installation, native artifact builds or product fixture compilation; type checks belong to ordinary test-language preparation.
  */
 export const test_fetcher_undefined_request_headers =
@@ -63,16 +63,24 @@ export const test_fetcher_undefined_request_headers =
       "content-type": undefined,
     });
     void [optionalSingleton, mixedSingleton];
-    for (const [headers, expected] of [
+    for (const [headers, expected, body] of [
       [{}, []],
       [{ missing: undefined }, []],
       [
-        { "set-cookie": ["a=1", "b=2"], "content-type": "application/json" },
+        { "set-cookie": ["a=1", "b=2"], "content-type": "application/xml" },
         [
           ["set-cookie", "a=1"],
           ["set-cookie", "b=2"],
-          ["content-type", "application/json"],
         ],
+      ],
+      [
+        { "set-cookie": ["a=1", "b=2"], "content-type": "application/xml" },
+        [
+          ["set-cookie", "a=1"],
+          ["set-cookie", "b=2"],
+          ["Content-Type", "application/json"],
+        ],
+        { active: true },
       ],
       [
         {
@@ -93,24 +101,40 @@ export const test_fetcher_undefined_request_headers =
     ] as [
       Record<string, IConnection.HeaderValue | undefined>,
       [string, string][],
+      { active: boolean }?,
     ][]) {
+      const originalHeaders = structuredClone(headers);
       let captured: unknown;
+      let capturedBody: unknown;
       const connection: IConnection = {
         host: "https://headers.example",
         headers,
         fetch: async (_input, init) => {
           captured = init?.headers;
+          capturedBody = init?.body;
           return new Response("null", { status: 200 });
         },
       };
-      await PlainFetcher.fetch(connection, {
-        method: "GET",
-        path: "/headers",
-        status: 200,
-        request: null,
-        response: { type: "application/json", encrypted: false },
-      });
+      await PlainFetcher.fetch(
+        connection,
+        {
+          method: body === undefined ? "GET" : "POST",
+          path: "/headers",
+          status: 200,
+          request:
+            body === undefined
+              ? null
+              : { type: "application/json", encrypted: false },
+          response: { type: "application/json", encrypted: false },
+        },
+        body,
+      );
       assert.deepEqual(captured, expected);
+      assert.equal(
+        capturedBody,
+        body === undefined ? undefined : '{"active":true}',
+      );
+      assert.deepEqual(headers, originalHeaders);
       if ("missing" in headers) {
         assert.ok(Object.hasOwn(headers, "missing"));
         assert.equal(headers.missing, undefined);
