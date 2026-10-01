@@ -183,7 +183,7 @@ export namespace TypedHttpRouteAnalyzer {
    * Returns the dictionary of the components the routes actually use, after
    * renaming components whose names collide with different definitions.
    *
-   * @evidence contracts/common.md#principled-implementation Objects and aliases share their emitted accessor-path slots, while arrays and tuples have kind-specific inline groups. Different semantic classes in one slot receive unique controller-qualified names, and the emitted dictionary follows escaped returns rather than original-only toJSON declarations.
+   * @evidence contracts/common.md#principled-implementation Objects, aliases and recursive arrays/tuples share their emitted accessor-path slots, while finite and object-mediated collections remain kind-specific inline groups. Different semantic classes in one slot receive unique controller-qualified names, and the emitted dictionary follows escaped returns rather than original-only toJSON declarations.
    * @evidence contracts/common.md#clear-and-simple-design One function over private collectors.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Finite partition refinement preserves semantic discriminators and user payloads while component edges reference equivalence classes. Only actual component ordinals are omitted; no foreign name cache or generated text is rewritten.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result and the rename.
@@ -258,10 +258,12 @@ const renameDuplicateComponents = (routes: ITypedHttpRoute[]): void => {
   );
   const groups: Map<string, IComponentEntry[]> = new Map();
   for (const entry of entries) {
-    // Objects and aliases occupy the same emitted TypeScript declaration slot.
-    // Arrays and tuples are inline forms and have no independent declaration.
+    // Named recursive collections also need a declaration to break cycles.
+    // Ordinary arrays and tuples remain inline forms without their own slot.
     const slot =
-      entry.kind === "objects" || entry.kind === "aliases"
+      entry.kind === "objects" ||
+      entry.kind === "aliases" ||
+      entry.type.recursive
         ? "declarations"
         : entry.kind;
     const name =

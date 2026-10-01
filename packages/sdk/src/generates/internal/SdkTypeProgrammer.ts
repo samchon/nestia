@@ -8,6 +8,7 @@ import { TypeFactory } from "../../factories/TypeFactory";
 import {
   MetadataAliasType,
   MetadataArray,
+  MetadataArrayType,
   MetadataAtomic,
   MetadataConstantValue,
   MetadataEscaped,
@@ -15,6 +16,7 @@ import {
   MetadataProperty,
   MetadataSchema,
   MetadataTuple,
+  MetadataTupleType,
   decodeMetadataValue,
   isRequiredOf,
   isSoleLiteralOf,
@@ -29,7 +31,7 @@ import { SdkTypeTagProgrammer } from "./SdkTypeTagProgrammer";
  * Writes the TypeScript type of a metadata.
  *
  * @evidence contracts/common.md#principled-implementation The namespace turns each member of the metadata into a type node and joins them as a union.
- * @evidence contracts/common.md#clear-and-simple-design Two public functions and one writer per form.
+ * @evidence contracts/common.md#clear-and-simple-design The schema facade and object writer use one writer per form; collection-body operations distinguish a named recursive definition from its nested references.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A name that cannot be referenced is written inline.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
  */
@@ -42,7 +44,7 @@ export namespace SdkTypeProgrammer {
    * escaped, constant, template, atomic, tuple, array, object, alias, and
    * native and typed collection forms. An empty union emits never.
    *
-   * @evidence contracts/common.md#principled-implementation A named object or alias is a reference and an implicit one is written in place, by the shared implicit rule.
+   * @evidence contracts/common.md#principled-implementation Named objects, aliases and recursive collections use references; implicit objects and nonrecursive collections use inline bodies. A recursive declaration writes its collection body once, and nested uses return through references.
    * @evidence contracts/common.md#clear-and-simple-design One function of ordered cases.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The member order is fixed, supported resolved natives retain their type references, and empty unions use the TypeScript bottom type rather than an empty printed node.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
@@ -262,7 +264,9 @@ export namespace SdkTypeProgrammer {
     (meta: MetadataArray): TypeNode =>
       write_type_tag_matrix(importer)(
         "array",
-        factory.createArrayTypeNode(write(project)(importer)(meta.type!.value)),
+        meta.type!.recursive
+          ? writeAlias(project)(importer)(meta.type!)
+          : write_array_type(project)(importer)(meta.type!),
         meta.tags,
       );
 
@@ -270,8 +274,40 @@ export namespace SdkTypeProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: MetadataTuple): TypeNode =>
+      meta.type!.recursive
+        ? writeAlias(project)(importer)(meta.type!)
+        : write_tuple_type(project)(importer)(meta.type!);
+
+  /**
+   * Writes an array definition's body, using named references for recursive
+   * collections reached through its element schema.
+   *
+   * @evidence contracts/common.md#principled-implementation A declaration needs one array body while its nested use sites use the ordinary writer's recursive references, so X=X[] is finite and retains its element meaning.
+   * @evidence contracts/common.md#clear-and-simple-design One array node delegates its element to write.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The declaration operation is distinct from reference emission and adds no test-only flags or names.
+   * @evidence contracts/common.md#meaningful-documentation The comment distinguishes a definition body from nested references.
+   */
+  export const write_array_type =
+    (project: INestiaProject) =>
+    (importer: ImportDictionary) =>
+    (meta: MetadataArrayType): TypeNode =>
+      factory.createArrayTypeNode(write(project)(importer)(meta.value));
+
+  /**
+   * Writes a tuple definition's body, retaining optional and rest elements
+   * while nested recursive collections use named references.
+   *
+   * @evidence contracts/common.md#principled-implementation Each element retains its optional/rest form and schema; nested uses return through write, whose recursive reference branch terminates self and mutual collection cycles.
+   * @evidence contracts/common.md#clear-and-simple-design One element map creates the tuple body.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The same body operation serves ordinary inline tuples and recursive declarations without special-cased source names.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the definition body and modifier responsibilities.
+   */
+  export const write_tuple_type =
+    (project: INestiaProject) =>
+    (importer: ImportDictionary) =>
+    (meta: MetadataTupleType): TypeNode =>
       factory.createTupleTypeNode(
-        meta.type!.elements.map((elem) =>
+        meta.elements.map((elem) =>
           elem.rest
             ? factory.createRestTypeNode(
                 factory.createArrayTypeNode(
@@ -354,7 +390,13 @@ export namespace SdkTypeProgrammer {
   const writeAlias =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (meta: MetadataAliasType | MetadataObjectType): TypeNode => {
+    (
+      meta:
+        | MetadataAliasType
+        | MetadataObjectType
+        | MetadataArrayType
+        | MetadataTupleType,
+    ): TypeNode => {
       importInternalFile(project)(importer)(meta.name);
       // The reference has to spell the accessor path the declaration was
       // written under, not the raw metadata name: a duplicated name carries

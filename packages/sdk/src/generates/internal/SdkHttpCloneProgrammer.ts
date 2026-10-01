@@ -18,9 +18,9 @@ import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 /**
  * Composes the DTO declarations of the HTTP routes.
  *
- * @evidence contracts/common.md#principled-implementation The namespace turns each named object and alias of the collection into a declaration, placed in a tree of modules by its dotted name.
- * @evidence contracts/common.md#clear-and-simple-design One public function and three helpers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unnamed type is never declared.
+ * @evidence contracts/common.md#principled-implementation The namespace turns each named object, alias and recursive collection into a declaration, placed in a tree of modules by its dotted name.
+ * @evidence contracts/common.md#clear-and-simple-design One declaration-tree operation dispatches object, alias and recursive collection bodies through their owning writers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Implicit object and alias names are not declared; native-marked recursive collections supply named declarations so recursive references have a definition.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
  */
 export namespace SdkHttpCloneProgrammer {
@@ -43,8 +43,8 @@ export namespace SdkHttpCloneProgrammer {
    * Returns the declaration tree of the application's named types, keyed by
    * their top-level name.
    *
-   * @evidence contracts/common.md#principled-implementation Objects and aliases with a name of their own are registered, and an implicit name is skipped.
-   * @evidence contracts/common.md#clear-and-simple-design Two loops.
+   * @evidence contracts/common.md#principled-implementation Named objects and aliases are registered, and implicit names are skipped. Recursive arrays and tuples also need declarations: each writes one collection body whose nested uses are named references. Finite and object-mediated collections stay inline.
+   * @evidence contracts/common.md#clear-and-simple-design Four collection loops feed the same declaration tree, so all named forms share namespace and import decisions.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The implicit test is the shared definition.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
    */
@@ -64,6 +64,32 @@ export namespace SdkHttpCloneProgrammer {
           dict,
           name: k,
           programmer: (importer) => writeAlias(app.project)(importer)(v),
+        });
+    for (const [k, v] of app.collection.arrays.entries())
+      if (v.recursive)
+        prepare({
+          dict,
+          name: k,
+          programmer: (importer) =>
+            factory.createTypeAliasDeclaration(
+              [factory.createModifier(SyntaxKind.ExportKeyword)],
+              StringUtil.accessorsOf(k).at(-1)!,
+              [],
+              SdkTypeProgrammer.write_array_type(app.project)(importer)(v),
+            ),
+        });
+    for (const [k, v] of app.collection.tuples.entries())
+      if (v.recursive)
+        prepare({
+          dict,
+          name: k,
+          programmer: (importer) =>
+            factory.createTypeAliasDeclaration(
+              [factory.createModifier(SyntaxKind.ExportKeyword)],
+              StringUtil.accessorsOf(k).at(-1)!,
+              [],
+              SdkTypeProgrammer.write_tuple_type(app.project)(importer)(v),
+            ),
         });
     return dict;
   };
