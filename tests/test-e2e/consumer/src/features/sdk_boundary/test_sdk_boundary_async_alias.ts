@@ -67,7 +67,7 @@ export const test_sdk_boundary_async_alias = async (
     Equal<Awaited<ReturnType<typeof route.chained>>, ISdkBoundaryPoint>,
     Equal<Awaited<ReturnType<typeof route.defaulted>>, ISdkBoundaryPoint>,
     Awaited<
-      ReturnType<typeof route.readonlyPayload>
+      ReturnType<typeof route.readonly.readonlyPayload>
     > extends readonly ISdkBoundaryPoint[]
       ? true
       : false,
@@ -78,5 +78,8 @@ export const test_sdk_boundary_async_alias = async (
   assert.deepEqual(await route.chained(connection, point), point);
   assert.deepEqual(await route.defaulted(connection, point), point);
   const points = [point, { x: 0, y: 31 }];
-  assert.deepEqual(await route.readonlyPayload(connection, points), points);
+  assert.deepEqual(
+    await route.readonly.readonlyPayload(connection, points),
+    points,
+  );
 };
