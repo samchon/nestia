@@ -70,88 +70,90 @@ export const test_sdk_mcp_json_clone = async (): Promise<void> => {
     path.join(sdk, "generates/internal/ImportDictionary"),
   ) as typeof import("../../../../../packages/sdk/lib/generates/internal/ImportDictionary");
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "nestia-mcp-json-clone-"));
-  const project: INestiaProject = {
-    config: { input: [], output: root, clone: true },
-    input: { controllers: [] },
-    errors: [],
-    warnings: [],
-  };
-  Reflect.defineMetadata(
-    "nestia/OperationMetadata",
-    HandWrittenMetadata.operation({ baked: false, members: [] }),
-    HttpController.prototype,
-    "get",
-  );
-  const http = SwaggerCompositionHarness.routes(HttpController)[0]!;
-  const originals: Array<{ metadata: IOperationMetadata; bytes: string }> = [];
-  const reflected = [
-    FirstController,
-    SecondController,
-    EquivalentController,
-  ].map((target, index) => {
-    const metadata = HandWrittenMetadata.operation({
-      baked: false,
-      members: [],
-    }) as unknown as IOperationMetadata;
-    assert.equal(metadata.parameters[0]!.primitive.success, true);
-    const pipe = metadata.parameters[0]!.primitive;
-    if (!pipe.success) throw new Error("authored pipe must succeed");
-    pipe.data.components.objects[0]!.properties[0]!.value.atomics[0]!.type =
-      index === 1 ? "string" : "number";
-    metadata.parameters[0]!.imports = [
-      {
-        file: "/server/controller.ts",
-        default: index === 0 ? "DefaultDto" : null,
-        asterisk: index === 1 ? "Dtos" : null,
-        elements: index === 2 ? ["LocalDto"] : [],
-        ...(index === 2
-          ? { elementAliases: { LocalDto: "ReexportedDto" } }
-          : {}),
-      },
-    ];
-    metadata.parameters[0]!.type = {
-      name: ["DefaultDto", "Dtos.Input", "LocalDto"][index]!,
-    };
-    metadata.success = {
-      ...metadata.parameters[0]!,
-      primitive: structuredClone(pipe),
-      type: { name: "Promise<SourceOutput>" },
-    };
-    if (metadata.success.primitive.success)
-      metadata.success.primitive.data.metadata.nullable = true;
-    originals.push({ metadata, bytes: JSON.stringify(metadata) });
-    Reflect.defineMetadata(
-      "nestia/McpRoute",
-      { name: `tool${index}`, inputSchema: {}, outputSchema: {} },
-      target.prototype.tool,
-    );
-    Reflect.defineMetadata(
-      "nestia/McpRoute/Parameters",
-      [{ category: "params", index: 0 }],
-      target.prototype,
-      "tool",
-    );
-    const controller = {
-      ...http.controller,
-      class: target,
-      file: "/server/controller.ts",
-    };
-    const operation = ReflectMcpOperationAnalyzer.analyze({
-      project,
-      controller,
-      function: target.prototype.tool,
-      name: "tool",
-      metadata,
-    });
-    assert.ok(operation);
-    assert.equal(
-      operation.parameters[0]!.metadata,
-      metadata.parameters[0]!.primitive,
-    );
-    assert.equal(operation.returnMetadata, metadata.success.primitive);
-    return { controller, operation };
-  });
   try {
+    const project: INestiaProject = {
+      config: { input: [], output: root, clone: true },
+      input: { controllers: [] },
+      errors: [],
+      warnings: [],
+    };
+    Reflect.defineMetadata(
+      "nestia/OperationMetadata",
+      HandWrittenMetadata.operation({ baked: false, members: [] }),
+      HttpController.prototype,
+      "get",
+    );
+    const http = SwaggerCompositionHarness.routes(HttpController)[0]!;
+    const originals: Array<{ metadata: IOperationMetadata; bytes: string }> =
+      [];
+    const reflected = [
+      FirstController,
+      SecondController,
+      EquivalentController,
+    ].map((target, index) => {
+      const metadata = HandWrittenMetadata.operation({
+        baked: false,
+        members: [],
+      }) as unknown as IOperationMetadata;
+      assert.equal(metadata.parameters[0]!.primitive.success, true);
+      const pipe = metadata.parameters[0]!.primitive;
+      if (!pipe.success) throw new Error("authored pipe must succeed");
+      pipe.data.components.objects[0]!.properties[0]!.value.atomics[0]!.type =
+        index === 1 ? "string" : "number";
+      metadata.parameters[0]!.imports = [
+        {
+          file: "/server/controller.ts",
+          default: index === 0 ? "DefaultDto" : null,
+          asterisk: index === 1 ? "Dtos" : null,
+          elements: index === 2 ? ["LocalDto"] : [],
+          ...(index === 2
+            ? { elementAliases: { LocalDto: "ReexportedDto" } }
+            : {}),
+        },
+      ];
+      metadata.parameters[0]!.type = {
+        name: ["DefaultDto", "Dtos.Input", "LocalDto"][index]!,
+      };
+      metadata.success = {
+        ...metadata.parameters[0]!,
+        primitive: structuredClone(pipe),
+        type: { name: "Promise<SourceOutput>" },
+      };
+      if (metadata.success.primitive.success)
+        metadata.success.primitive.data.metadata.nullable = true;
+      originals.push({ metadata, bytes: JSON.stringify(metadata) });
+      Reflect.defineMetadata(
+        "nestia/McpRoute",
+        { name: `tool${index}`, inputSchema: {}, outputSchema: {} },
+        target.prototype.tool,
+      );
+      Reflect.defineMetadata(
+        "nestia/McpRoute/Parameters",
+        [{ category: "params", index: 0 }],
+        target.prototype,
+        "tool",
+      );
+      const controller = {
+        ...http.controller,
+        class: target,
+        file: "/server/controller.ts",
+      };
+      const operation = ReflectMcpOperationAnalyzer.analyze({
+        project,
+        controller,
+        function: target.prototype.tool,
+        name: "tool",
+        metadata,
+      });
+      assert.ok(operation);
+      assert.equal(
+        operation.parameters[0]!.metadata,
+        metadata.parameters[0]!.primitive,
+      );
+      assert.equal(operation.returnMetadata, metadata.success.primitive);
+      return { controller, operation };
+    });
+
     const routes = reflected.flatMap((props) =>
       TypedMcpRouteAnalyzer.analyze({
         ...props,

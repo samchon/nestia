@@ -23,7 +23,8 @@
         "!src/utils/SdkInputFilter.ts",
         "!src/executable/internal/NestiaSwaggerWatch.ts",
         "!src/analyses/TypedHttpRouteAnalyzer.ts",
-        "!src/analyses/TypedMcpRouteAnalyzer.ts"
+        "!src/analyses/TypedMcpRouteAnalyzer.ts",
+        "!src/utils/StringUtil.ts"
       ],
       "symbol": [
         "type",
@@ -174,7 +175,8 @@
       "files": [
         "src/analyses/AccessorAnalyzer.ts",
         "src/analyses/TypedHttpRouteAnalyzer.ts",
-        "src/analyses/TypedMcpRouteAnalyzer.ts"
+        "src/analyses/TypedMcpRouteAnalyzer.ts",
+        "src/utils/StringUtil.ts"
       ],
       "symbol": [
         "type",
