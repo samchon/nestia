@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -717,43 +716,79 @@ func nestiaSDKNormalizeImportPath(fileName string, module string) string {
 	return filepath.ToSlash(filepath.Join("node_modules", module))
 }
 
-func nestiaSDKReflectImports(name string, imports []nestiaSDKImportInfo) []any {
-	prefixes := nestiaSDKTypePrefixes(name)
+// nestiaSDKReflectImports collects imports from actual type references and
+// typeof queries. Literal values, property names and template text do not bind
+// imports, and named library types are classified by declaration provenance.
+//
+// @evidence contracts/common.md#principled-implementation TypeReference and TypeQuery nodes identify semantic references. A resolved root alias uses its authored import binding; other type references use their declaring source unless the program identifies a library file. Literal and member-name nodes contribute no reference.
+// @evidence contracts/common.md#clear-and-simple-design One traversal shares import binding and declaration fallback decisions across reflected type forms, replacing lexical name matching over arbitrary type text.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts Actual AST roles and checker bindings decide imports; no fixture identity, built-in name whitelist or regex match inside a literal substitutes for a reference.
+// @evidence contracts/common.md#meaningful-documentation The comment states which references need imports and why literal/property/template text cannot create one.
+func nestiaSDKReflectImports(prog *driver.Program, node *shimast.Node, imports []nestiaSDKImportInfo) []any {
 	output := []any{}
-	seen := map[string]bool{}
-	for _, imp := range imports {
-		if nestiaSDKImportMatches(prefixes, imp) == false {
-			continue
+	add := func(entity *shimast.Node, typeReference bool) {
+		if entity == nil {
+			return
 		}
-		item := nestiaSDKImportLiteral(imp, prefixes)
-		key := fmt.Sprintf("%v", item)
-		if seen[key] {
-			continue
+		root := entity
+		for root != nil && root.Kind == shimast.KindQualifiedName {
+			root = root.AsQualifiedName().Left
 		}
-		seen[key] = true
-		output = append(output, item)
+		if root == nil || root.Kind != shimast.KindIdentifier {
+			return
+		}
+		prefix := root.Text()
+		if nestiaSDKIsTypeKeyword(prefix) {
+			return
+		}
+		if prog != nil && prog.Checker != nil {
+			symbol := prog.Checker.GetSymbolAtLocation(root)
+			if symbol != nil && symbol.Flags&shimast.SymbolFlagsAlias != 0 {
+				prefixes := map[string]bool{prefix: true}
+				for _, imp := range imports {
+					if nestiaSDKImportMatches(prefixes, imp) {
+						output = append(output, nestiaSDKImportLiteral(imp, prefixes))
+					}
+				}
+				return
+			}
+		}
+		if typeReference {
+			output = append(output, nestiaSDKReflectTypeReferenceSymbolImport(prog, entity, nestiaSDKEntityNameText(entity))...)
+		}
 	}
-	return output
+	var walk func(*shimast.Node)
+	walk = func(current *shimast.Node) {
+		if current == nil {
+			return
+		}
+		switch current.Kind {
+		case shimast.KindTypeReference:
+			add(current.AsTypeReferenceNode().TypeName, true)
+		case shimast.KindTypeQuery:
+			add(current.AsTypeQueryNode().ExprName, false)
+		}
+		current.ForEachChild(func(child *shimast.Node) bool { walk(child); return false })
+	}
+	if node != nil && (node.Kind == shimast.KindIdentifier || node.Kind == shimast.KindQualifiedName) {
+		add(node, true)
+	} else {
+		walk(node)
+	}
+	return nestiaSDKMergeImportLiterals(output)
 }
 
-func nestiaSDKTypePrefixes(name string) map[string]bool {
-	output := map[string]bool{}
-	re := regexp.MustCompile(`[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*)*`)
-	for _, match := range re.FindAllString(name, -1) {
-		prefix := strings.Split(match, ".")[0]
-		if nestiaSDKIsGlobalTypePrefix(prefix) == false {
-			output[prefix] = true
-		}
-	}
-	return output
-}
-
-func nestiaSDKIsGlobalTypePrefix(prefix string) bool {
+// nestiaSDKIsTypeKeyword reports type spellings that cannot name an imported
+// declaration. Library names such as Date and Array can be shadowed in a module.
+//
+// @evidence contracts/common.md#principled-implementation The predicate excludes only the primitive, top, bottom and nullish TypeScript type keyword forms; named classes, interfaces and utility aliases remain eligible for binding resolution.
+// @evidence contracts/common.md#clear-and-simple-design One switch records the fixed language forms used by the lexical candidate and symbol fallback paths.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts These values have language-defined meanings; no named library declaration is presumed global from spelling.
+// @evidence contracts/common.md#meaningful-documentation The comment explains why a library-looking name does not belong in this exclusion set.
+func nestiaSDKIsTypeKeyword(prefix string) bool {
 	switch prefix {
 	case "any", "unknown", "never", "void", "null", "undefined",
-		"string", "number", "boolean", "bigint", "symbol", "object",
-		"Array", "ReadonlyArray", "Promise", "Record", "Partial", "Pick", "Omit",
-		"Date", "File", "Blob", "Uint8Array", "ArrayBuffer", "Error":
+		"string", "number", "boolean", "bigint", "symbol", "object":
 		return true
 	default:
 		return false
@@ -1791,7 +1826,7 @@ func nestiaSDKReflectType(
 	if name == "any" && prog != nil && prog.Checker != nil && typ != nil {
 		name = prog.Checker.TypeToString(typ)
 	}
-	return map[string]any{"name": name}, nestiaSDKReflectImports(name, imports)
+	return map[string]any{"name": name}, nestiaSDKReflectImports(prog, typeNode, imports)
 }
 
 func nestiaSDKReflectTypeNode(
@@ -1813,7 +1848,7 @@ func nestiaSDKReflectTypeNode(
 		element, refs, ok := nestiaSDKReflectTypeNode(prog, imports, node.AsArrayTypeNode().ElementType)
 		if ok == false {
 			element = map[string]any{"name": nestiaSDKTypeNodeText(node.AsArrayTypeNode().ElementType)}
-			refs = nestiaSDKReflectImports(element["name"].(string), imports)
+			refs = nestiaSDKReflectImports(prog, node.AsArrayTypeNode().ElementType, imports)
 		}
 		return map[string]any{
 			"name":          "Array",
@@ -1823,7 +1858,7 @@ func nestiaSDKReflectTypeNode(
 		child, refs, ok := nestiaSDKReflectTypeNode(prog, imports, node.AsParenthesizedTypeNode().Type)
 		if ok == false {
 			child = map[string]any{"name": nestiaSDKTypeNodeText(node.AsParenthesizedTypeNode().Type)}
-			refs = nestiaSDKReflectImports(child["name"].(string), imports)
+			refs = nestiaSDKReflectImports(prog, node.AsParenthesizedTypeNode().Type, imports)
 		}
 		name, _ := child["name"].(string)
 		return map[string]any{"name": "(" + name + ")"}, refs, true
@@ -1836,7 +1871,7 @@ func nestiaSDKReflectTypeNode(
 		child, refs, ok := nestiaSDKReflectTypeNode(prog, imports, operator.Type)
 		if ok == false {
 			child = map[string]any{"name": nestiaSDKTypeNodeText(operator.Type)}
-			refs = nestiaSDKReflectImports(child["name"].(string), imports)
+			refs = nestiaSDKReflectImports(prog, operator.Type, imports)
 		}
 		name, _ := child["name"].(string)
 		return map[string]any{"name": prefix + " " + name}, refs, true
@@ -1845,10 +1880,7 @@ func nestiaSDKReflectTypeNode(
 	case shimast.KindTypeReference:
 		ref := node.AsTypeReferenceNode()
 		name := nestiaSDKEntityNameText(ref.TypeName)
-		rootRefs := nestiaSDKReflectImports(name, imports)
-		if len(rootRefs) == 0 && transform.NestiaCoreIsAsyncReturnWrapperReference(prog, ref.TypeName) == false {
-			rootRefs = nestiaSDKReflectTypeReferenceSymbolImport(prog, ref.TypeName, name)
-		}
+		rootRefs := nestiaSDKReflectImports(prog, ref.TypeName, imports)
 		if ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) != 0 {
 			if transform.NestiaCoreIsAsyncReturnWrapperReference(prog, ref.TypeName) && len(ref.TypeArguments.Nodes) == 1 {
 				return nestiaSDKReflectTypeNode(prog, imports, ref.TypeArguments.Nodes[0])
@@ -1860,7 +1892,7 @@ func nestiaSDKReflectTypeNode(
 				if ok == false {
 					text := nestiaSDKTypeNodeText(child)
 					arg = map[string]any{"name": text}
-					refs = nestiaSDKReflectImports(text, imports)
+					refs = nestiaSDKReflectImports(prog, child, imports)
 				}
 				args = append(args, arg)
 				groups = append(groups, refs)
@@ -1876,16 +1908,25 @@ func nestiaSDKReflectTypeNode(
 		if name == "" {
 			return nil, nil, false
 		}
-		return map[string]any{"name": name}, nestiaSDKReflectImports(name, imports), true
+		return map[string]any{"name": name}, nestiaSDKReflectImports(prog, node, imports), true
 	}
 }
 
+// nestiaSDKReflectTypeReferenceSymbolImport supplies a declaration import when
+// no authored import binding describes the referenced type. The actual program's
+// library-file identity keeps global library declarations out of client imports.
+// Locally bound type parameters have no importable module declaration.
+//
+// @evidence contracts/common.md#principled-implementation The checker resolves the declaration and IsLibFile identifies actual TypeScript libraries, so local interfaces with library-like names retain their source identity while true globals require no import. TypeParameter symbols are annotation-local bindings rather than module exports and contribute no import.
+// @evidence contracts/common.md#clear-and-simple-design The fallback follows one resolved symbol and its declaration source after the authored import path has been tried by the caller.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts Source-file identity comes from the program; neither a package path substring nor a named built-in whitelist substitutes for declaration provenance.
+// @evidence contracts/common.md#meaningful-documentation The comment states the fallback's purpose and its distinction between local declaration identity and library membership.
 func nestiaSDKReflectTypeReferenceSymbolImport(prog *driver.Program, node *shimast.Node, name string) []any {
 	if prog == nil || prog.Checker == nil || node == nil {
 		return nil
 	}
 	prefix := strings.Split(name, ".")[0]
-	if nestiaSDKIsGlobalTypePrefix(prefix) {
+	if nestiaSDKIsTypeKeyword(prefix) {
 		return nil
 	}
 	symbol := prog.Checker.GetSymbolAtLocation(node)
@@ -1895,7 +1936,7 @@ func nestiaSDKReflectTypeReferenceSymbolImport(prog *driver.Program, node *shima
 			symbol = typ.Symbol()
 		}
 	}
-	if symbol == nil || len(symbol.Declarations) == 0 {
+	if symbol == nil || symbol.Flags&shimast.SymbolFlagsTypeParameter != 0 || len(symbol.Declarations) == 0 {
 		return nil
 	}
 	sourceFile := shimast.GetSourceFileOfNode(symbol.Declarations[0])
@@ -1933,7 +1974,7 @@ func nestiaSDKReflectJoinedTypeNode(
 		if ok == false {
 			text := nestiaSDKTypeNodeText(child)
 			names = append(names, text)
-			groups = append(groups, nestiaSDKReflectImports(text, imports))
+			groups = append(groups, nestiaSDKReflectImports(prog, child, imports))
 		} else {
 			names = append(names, nestiaSDKReflectTypeText(ref))
 			groups = append(groups, refs)
@@ -2134,7 +2175,7 @@ func nestiaSDKWebSocketParameterType(
 			if ok == false {
 				text := nestiaSDKTypeNodeText(argument)
 				arg = map[string]any{"name": text}
-				refs = nestiaSDKReflectImports(text, imports)
+				refs = nestiaSDKReflectImports(context.prog, argument, imports)
 			}
 			args = append(args, arg)
 			groups = append(groups, refs)
