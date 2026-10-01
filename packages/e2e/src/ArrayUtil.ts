@@ -183,10 +183,10 @@ export namespace ArrayUtil {
    *   console.log("Generated data:", randomData);
    *
    * @template T - The type of the result from each execution
-   * @param count - The number of times to repeat (non-negative integer)
+   * @param count - The number of times to repeat (integer from 0 to 2^32 - 1)
    * @param closure - The asynchronous function to execute repeatedly
    * @returns A Promise resolving to an array of results
-   * @evidence contracts/common.md#principled-implementation A count that is not a non-negative safe integer is refused with a `RangeError`; otherwise the closure is awaited for each index from 0 to count minus one and the results are collected in order, so the cost is linear in the count with no index array.
+   * @evidence contracts/common.md#principled-implementation A count outside the integer range 0 through 2^32 - 1 is refused with a `RangeError` before any callback, because JavaScript arrays cannot represent a larger length; otherwise the closure is awaited for each index from 0 to count minus one and the results are collected in order, so the cost is linear in the count with no index array.
    * @evidence contracts/common.md#clear-and-simple-design One validation and one loop; the validator is shared with `repeat`.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The loop is the direct implementation of the documented behavior, and an invalid count is an error, not a coerced number.
    * @evidence contracts/common.md#meaningful-documentation The comment states the index range, the sequential execution, and the result, and the count must be a non-negative integer as documented.
@@ -271,7 +271,7 @@ export namespace ArrayUtil {
    *   // ]
    *
    * @template T - The type of the result from each execution
-   * @param count - The number of times to repeat (non-negative integer)
+   * @param count - The number of times to repeat (integer from 0 to 2^32 - 1)
    * @param closure - The function to execute repeatedly
    * @returns An array of results
    * @evidence contracts/common.md#principled-implementation An invalid count is refused with a `RangeError`, and otherwise the closure is called for each index from 0 to count minus one and the results are collected in order, with cost linear in the count.
@@ -355,7 +355,7 @@ export namespace ArrayUtil {
   };
 
   const validate = (method: string, count: number): void => {
-    if (!Number.isSafeInteger(count) || count < 0)
+    if (!Number.isSafeInteger(count) || count < 0 || count > 0xffffffff)
       throw new RangeError(
         `ArrayUtil.${method}(): count must be a non-negative integer.`,
       );

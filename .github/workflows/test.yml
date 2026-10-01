@@ -84,4 +84,5 @@ jobs:
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         env:
           NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
+          TEST_SDK_CONCURRENCY: 8
         run: pnpm test:e2e

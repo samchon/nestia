@@ -326,4 +326,4 @@ npm run build:test
 npm run test
 ```
 
-`ArrayUtil.repeat()` and `ArrayUtil.asyncRepeat()` require a non-negative safe integer count and throw `RangeError` for invalid counts. `RandomGenerator.pick()` throws `RangeError` for an empty array. `RandomGenerator.sample()` selects positions without replacement, caps the count at the array length, and leaves the input array unchanged.
+`ArrayUtil.repeat()` and `ArrayUtil.asyncRepeat()` require an integer count from 0 through 2^32 - 1, the maximum JavaScript array length, and throw `RangeError` for invalid counts before calling the callback. `RandomGenerator.pick()` throws `RangeError` for an empty array. `RandomGenerator.sample()` selects positions without replacement, caps the count at the array length, and leaves the input array unchanged.
