@@ -4,7 +4,7 @@ import { IConnection } from "./IConnection";
  * Encryption password.
  *
  * `IEncryptionPassword` is a type of interface who represents encryption
- * password used by the {@link Fetcher} with AES-128/256 algorithm. If your
+ * password used by the {@link Fetcher} with AES-128/192/256 algorithm. If your
  * encryption password is not fixed but changes according to the input content,
  * you can utilize the {@link IEncryptionPassword.Closure} function type.
  *

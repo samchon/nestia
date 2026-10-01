@@ -1,19 +1,19 @@
 import { EditorTestHarness } from "./internal/EditorTestHarness";
 
 /**
- * Verifies the archive name never becomes a hidden file or a path component.
+ * Verifies empty and dots-only archive bases use the default package name.
  *
- * A package name of only dots or of nothing gave `..zip` or `.zip`, which is a
- * hidden file or a relative path component, so the default package name is used
- * instead.
+ * A package name of only dots or of nothing gave an archive without a usable
+ * base, so the default package name is used instead. A nonempty dotted base
+ * retains its dots, including a leading dot.
  *
  * 1. Name archives for an empty, a dots-only, and a symbols-only package name.
  * 2. Assert the first two fall back to the default package's file name.
  * 3. Assert a scoped name and a dotted name keep their own file names.
  *
- * @evidence contracts/testing.md#behavioral-verification It names archives for empty, dots-only, and symbols-only packages and asserts the default package's file name, which detects `.zip` and `..zip`.
- * @evidence contracts/testing.md#independent-expectations A hidden file or a path component is never a valid download name, so the expected values are the default's file name and the literals `scope-name.zip` and `my.app.zip`.
- * @evidence contracts/testing.md#distinguishing-cases Empty, `...`, and `@` are the failing inputs and a scoped and a dotted name are the adjacent inputs that must keep their names.
+ * @evidence contracts/testing.md#behavioral-verification Empty, dots-only and stripped-scope inputs must produce the literal default archive name; scoped, dotted and leading-dot names retain their own literal results. This detects missing fallback without claiming every hidden filename is rejected.
+ * @evidence contracts/testing.md#independent-expectations The shared product default is ORGANIZATION/PROJECT, whose filename is the authored literal ORGANIZATION-PROJECT.zip. The character whitelist independently yields scope-name.zip, my.app.zip and .my-app.zip for the retained-name controls.
+ * @evidence contracts/testing.md#distinguishing-cases Empty, ... and @ have no usable base; @scope/name, my.app and .my-app distinguish scope/separator cleanup and retention of meaningful dots.
  * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-unit` process discovered by `DynamicExecutor`, against the built `@nestia/editor` library that the package ships; the internals are loaded by absolute path because the exports map hides them, and no browser, bundler, or server starts.
  */
 export const test_editor_archiver_name_fallback = (): void => {
@@ -25,6 +25,7 @@ export const test_editor_archiver_name_fallback = (): void => {
     ["@", fallback],
     ["@scope/name", "scope-name.zip"],
     ["my.app", "my.app.zip"],
+    [".my-app", ".my-app.zip"],
   ];
   for (const [input, output] of expected)
     if (archiver.name(input) !== output)

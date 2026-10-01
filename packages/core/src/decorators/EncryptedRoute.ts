@@ -29,8 +29,8 @@ import { route_error } from "./internal/route_error";
  * Encrypted router decorator functions.
  *
  * `EncryptedRoute` is a module containing router decorator functions which
- * encrypts response body data through AES-128/256 encryption. Furthermore, they
- * can boost up JSON string conversion speed about 50x times faster than
+ * encrypts response body data through AES-128/192/256 encryption. Furthermore,
+ * they can boost up JSON string conversion speed about 50x times faster than
  * `class-transformer`, even type safe through
  * [typia](https://github.com/samchon/typia).
  *
@@ -39,7 +39,7 @@ import { route_error } from "./internal/route_error";
  * `EncryptedRoute` composes JSON string through `typia.assertStringify<T>()`
  * function, it is not possible to modify response data through interceptors.
  *
- * - AES-128/256
+ * - AES-128/192/256
  * - CBC mode
  * - PKCS #5 Padding
  * - Base64 Encoding

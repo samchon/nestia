@@ -20,8 +20,8 @@ import { validate_request_body } from "./internal/validate_request_body";
  * Encrypted body decorator.
  *
  * `EncryptedBody` is a decorator function getting `application/json` typed data
- * from request body which has been encrypted by AES-128/256 algorithm. Also,
- * `EncryptedBody` validates the request body data type through
+ * from request body which has been encrypted by AES-128/192/256 algorithm.
+ * Also, `EncryptedBody` validates the request body data type through
  * [typia](https://github.com/samchon/typia) ad the validation speed is maximum
  * 15,000x times faster than `class-validator`.
  *
@@ -29,7 +29,7 @@ import { validate_request_body } from "./internal/validate_request_body";
  * `T`, `BadRequestException` error (status code: 400) would be thrown. Also,
  * `EncryptedRoute` decrypts request body using those options.
  *
- * - AES-128/256
+ * - AES-128/192/256
  * - CBC mode
  * - PKCS #5 Padding
  * - Base64 Encoding

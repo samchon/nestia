@@ -8,9 +8,9 @@ import { join_host_and_path } from "./internal/join_host_and_path";
  * typia and, when the input is wrong, throws the `HttpError` with status 400
  * that the real server would answer with.
  *
- * @evidence contracts/common.md#principled-implementation Each validator runs the caller's assertion and converts an error shaped like typia's `TypeGuardError` into an `HttpError` 400 whose JSON body carries the method, path, expected type, and value of the failure and a message that names the failing part, and rethrows every other error unchanged.
- * @evidence contracts/common.md#clear-and-simple-design One public entry point, `assert`, returns four validators that differ only in their message, sharing one private conversion; the error-shape guard and the error interface are module-private.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The guard checks the error's structure (method, path, expected type, name, message, and stack) rather than its class.
+ * @evidence contracts/common.md#principled-implementation Each validator runs the caller's assertion and converts a readable typia `TypeGuardError` shape into an `HttpError` 400 whose JSON body carries the method, path, expected type and value plus a message naming the failing part. A shared snapshot reads each needed property once; malformed or unreadable shapes rethrow the caller's original value. Payload values must support JSON serialization, whose errors still propagate.
+ * @evidence contracts/common.md#clear-and-simple-design One public entry point, `assert`, returns four validators that differ only in their message, sharing one private conversion; the shape snapshot reader and the error interface are module-private.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Classification checks the readable error structure (method, path, expected type, name, message and stack) rather than its class, then captures the payload value. Only property-access failures make the shape unclassifiable; unrelated task errors are neither replaced nor swallowed.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the simulator validates and what it throws.
  */
 export namespace NestiaSimulator {
@@ -97,7 +97,8 @@ export namespace NestiaSimulator {
       try {
         task();
       } catch (exp) {
-        if (isTypeGuardError(exp))
+        const guard: TypeGuardError | null = readTypeGuardError(exp);
+        if (guard !== null)
           throw new HttpError(
             props.method,
             join_host_and_path(props.host, props.path),
@@ -106,11 +107,11 @@ export namespace NestiaSimulator {
               "Content-Type": "application/json",
             },
             JSON.stringify({
-              method: exp.method,
-              path: exp.path,
-              expected: exp.expected,
-              value: exp.value,
-              message: message(exp),
+              method: guard.method,
+              path: guard.path,
+              expected: guard.expected,
+              value: guard.value,
+              message: message(guard),
             }),
           );
         throw exp;
@@ -118,15 +119,27 @@ export namespace NestiaSimulator {
     };
 }
 
-const isTypeGuardError = (input: any): input is TypeGuardError =>
-  "object" === typeof input &&
-  null !== input &&
-  "string" === typeof input.method &&
-  (undefined === input.path || "string" === typeof input.path) &&
-  "string" === typeof input.expected &&
-  "string" === typeof input.name &&
-  "string" === typeof input.message &&
-  (undefined === input.stack || "string" === typeof input.stack);
+const readTypeGuardError = (input: any): TypeGuardError | null => {
+  if (typeof input !== "object" || input === null) return null;
+  try {
+    const method: unknown = input.method;
+    if (typeof method !== "string") return null;
+    const path: unknown = input.path;
+    if (path !== undefined && typeof path !== "string") return null;
+    const expected: unknown = input.expected;
+    if (typeof expected !== "string") return null;
+    const name: unknown = input.name;
+    if (typeof name !== "string") return null;
+    const message: unknown = input.message;
+    if (typeof message !== "string") return null;
+    const stack: unknown = input.stack;
+    if (stack !== undefined && typeof stack !== "string") return null;
+    const value: unknown = input.value;
+    return { method, path, expected, name, message, stack, value };
+  } catch {
+    return null;
+  }
+};
 
 interface TypeGuardError extends Error {
   method: string;

@@ -7,7 +7,7 @@ import { ENCRYPTION_CONTROLLER_METADATA_KEY } from "./internal/EncryptedConstant
  * Encrypted controller.
  *
  * `EncryptedController` is an extension of the {@link nest.Controller} class
- * decorator function who configures encryption password of the AES-128/256
+ * decorator function who configures encryption password of the AES-128/192/256
  * algorithm. The encryption algorithm and password would be used by
  * {@link EncryptedRoute} and {@link EncryptedBody} to encrypt the request and
  * response body of the HTTP protocol.

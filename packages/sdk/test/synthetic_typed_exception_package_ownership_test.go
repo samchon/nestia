@@ -76,12 +76,21 @@ func TestSyntheticTypedExceptionPackageOwnership(t *testing.T) {
 	}
 	for index, literal := range metadata {
 		exceptions, ok := syntheticField(t, decodeSyntheticMetadata(t, literal), "exceptions").([]any)
-		if !ok || len(exceptions) != 1 {
-			t.Errorf("operation %d exception count = %d (array: %v), want one real exception", index, len(exceptions), ok)
+		if !ok {
+			t.Errorf("operation %d exceptions are not an array", index)
 			continue
 		}
-		if name := syntheticField(t, syntheticField(t, exceptions[0], "type"), "name"); name != "IMissing" {
-			t.Errorf("operation %d exception = %v, want IMissing", index, name)
+		real := 0
+		for _, exception := range exceptions {
+			if name := syntheticField(t, syntheticField(t, exception, "type"), "name"); name == "IMissing" {
+				real++
+			}
+		}
+		if real != 1 {
+			t.Errorf("operation %d real exception count = %d, want one IMissing", index, real)
+		}
+		if len(exceptions) != 1 {
+			t.Errorf("operation %d exception count = %d, want only the real exception", index, len(exceptions))
 		}
 	}
 }

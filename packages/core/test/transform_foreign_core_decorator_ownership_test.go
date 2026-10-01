@@ -75,8 +75,8 @@ func TestTransformForeignCoreDecoratorOwnership(t *testing.T) {
 		t.Fatalf("native transform exited %d", code)
 	}
 	output := mustReadFile(t, out)
+	mustContainAll(t, output, "@core.TypedBody({", `type: "assert"`)
 	for index := range locations {
 		mustContainAll(t, output, fmt.Sprintf("@Foreign%d.TypedBody()", index))
 	}
-	mustContainAll(t, output, "@core.TypedBody({", `type: "assert"`)
 }

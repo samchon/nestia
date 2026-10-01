@@ -9,9 +9,9 @@ import { load_controllers } from "./internal/load_controller";
  * Encrypted module.
  *
  * `EncryptedModule` is an extension of the {@link Module} class decorator
- * function who configures encryption password of the AES-128/256 algorithm. The
- * encryption algorithm and password would be used by {@link EncryptedRoute} and
- * {@link EncryptedBody} to encrypt the request and response bod of the HTTP
+ * function who configures encryption password of the AES-128/192/256 algorithm.
+ * The encryption algorithm and password would be used by {@link EncryptedRoute}
+ * and {@link EncryptedBody} to encrypt the request and response bod of the HTTP
  * protocol.
  *
  * By using this `EncryptedModule` decorator function, all of the
