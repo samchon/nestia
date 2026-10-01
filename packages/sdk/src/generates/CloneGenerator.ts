@@ -28,10 +28,10 @@ export namespace CloneGenerator {
   /**
    * Writes the `structures` directory of the SDK output.
    *
-   * Nothing is written, and the routes are left as they are, when neither the
-   * HTTP nor the WebSocket side has a type to clone.
+   * Structural route references are updated even when every JSON DTO is inline
+   * and no structure file is needed. WebSocket source cloning stays separate.
    *
-   * @evidence contracts/common.md#principled-implementation The HTTP declarations are composed, the WebSocket sources are copied, the routes are then rewritten to import the clones, and each top-level module is printed to its own file, in sequence, so a failure stops at the first file.
+   * @evidence contracts/common.md#principled-implementation HTTP and MCP JSON declarations share the analyzed collection; WebSocket sources are copied separately. Route references are updated even for inline-only graphs, then named modules are written sequentially so a failure stops at the first file.
    * @evidence contracts/common.md#clear-and-simple-design One function over the two programmers, the referencer, and the file writer.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The directory is created recursively and its failure is not swallowed.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
@@ -40,9 +40,8 @@ export namespace CloneGenerator {
     const dict: Map<string, SdkHttpCloneProgrammer.IModule> =
       SdkHttpCloneProgrammer.write(app);
     const websocket: Set<string> = await SdkWebSocketCloneProgrammer.write(app);
-    if (dict.size === 0 && websocket.size === 0) return;
-
     SdkHttpCloneReferencer.replace(app, websocket);
+    if (dict.size === 0 && websocket.size === 0) return;
     await fs.promises.mkdir(`${app.project.config.output}/structures`, {
       recursive: true,
     });

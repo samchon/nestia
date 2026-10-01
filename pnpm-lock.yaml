@@ -1071,6 +1071,9 @@ importers:
         specifier: catalog:samchon
         version: 15.0.0(ttsc@0.28.1)
     devDependencies:
+      '@ttsc/factory':
+        specifier: catalog:typescript
+        version: 0.28.1
       '@types/node':
         specifier: catalog:utils
         version: 25.9.0

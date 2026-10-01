@@ -1,5 +1,6 @@
 import { IJsDocTagInfo } from "typia";
 
+import { MetadataSchema } from "../internal/legacy";
 import { IReflectController } from "./IReflectController";
 import { IReflectImport } from "./IReflectImport";
 import { IReflectMcpOperation } from "./IReflectMcpOperation";
@@ -29,6 +30,11 @@ export interface ITypedMcpRoute {
   function: Function;
   input: IReflectMcpOperationParameter | null;
   returnType: IReflectType | null;
+  /** Resolved JSON wire graphs used by structural DTO cloning. */
+  inputMetadata?: MetadataSchema;
+
+  /** Absent when source-only analysis was requested without cloning. */
+  outputMetadata?: MetadataSchema;
   inputSchema: object;
   outputSchema: object | null;
   annotations: IReflectMcpOperation.IAnnotations | null;

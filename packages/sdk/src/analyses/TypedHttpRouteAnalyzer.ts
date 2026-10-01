@@ -18,12 +18,13 @@ import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { ITypedHttpRouteException } from "../structures/ITypedHttpRouteException";
 import { ITypedHttpRouteParameter } from "../structures/ITypedHttpRouteParameter";
 import { ITypedHttpRouteSuccess } from "../structures/ITypedHttpRouteSuccess";
+import { ITypedMcpRoute } from "../structures/ITypedMcpRoute";
 import { PathUtil } from "../utils/PathUtil";
 import { StringUtil } from "../utils/StringUtil";
 
 /**
  * Turns reflected HTTP operations into typed routes, one per path, and builds
- * the shared dictionary of the components the routes use.
+ * the shared dictionary of the JSON components HTTP and MCP routes use.
  *
  * @evidence contracts/common.md#principled-implementation Each operation's metadata is resolved against its own components and validated by the policy of its position, the routes carry the typed parameters, the success response, and the exceptions, and the dictionary of the routes is built after component names that collide with different definitions are renamed per controller.
  * @evidence contracts/common.md#clear-and-simple-design Two public functions and private collectors for the component rename.
@@ -192,7 +193,7 @@ export namespace TypedHttpRouteAnalyzer {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Collected nodes, partitions and visited sets are local to this synchronous call and are released with it; the returned dictionary retains only its reachable emitted representatives.
    */
   export const routeDictionary = (
-    routes: Array<ITypedHttpRoute>,
+    routes: Array<ITypedHttpRoute | ITypedMcpRoute>,
   ): IMetadataDictionary => {
     renameDuplicateComponents(routes);
     const dictionary: IMetadataDictionary = {
@@ -201,20 +202,9 @@ export namespace TypedHttpRouteAnalyzer {
       arrays: new Map(),
       tuples: new Map(),
     };
-    for (const route of routes) {
-      for (const p of [
-        ...route.pathParameters,
-        ...route.queryParameters,
-        ...route.headerParameters,
-        ...(route.queryObject ? [route.queryObject] : []),
-        ...(route.body ? [route.body] : []),
-        ...(route.headerObject ? [route.headerObject] : []),
-      ])
-        enrollMetadata(dictionary, p.metadata);
-      for (const e of Object.values(route.exceptions))
-        enrollMetadata(dictionary, e.metadata);
-      enrollMetadata(dictionary, route.success.metadata);
-    }
+    for (const route of routes)
+      for (const metadata of routeMetadatas(route))
+        enrollMetadata(dictionary, metadata);
     return dictionary;
   };
 }
@@ -228,12 +218,14 @@ type ComponentType =
 
 interface IComponentEntry {
   kind: ComponentKind;
-  route: ITypedHttpRoute;
+  route: ITypedHttpRoute | ITypedMcpRoute;
   signature: string;
   type: ComponentType;
 }
 
-const renameDuplicateComponents = (routes: ITypedHttpRoute[]): void => {
+const renameDuplicateComponents = (
+  routes: Array<ITypedHttpRoute | ITypedMcpRoute>,
+): void => {
   const entries: IComponentEntry[] = [];
   for (const route of routes)
     for (const metadata of routeMetadatas(route))
@@ -301,22 +293,29 @@ const renameDuplicateComponents = (routes: ITypedHttpRoute[]): void => {
   }
 };
 
-const routeMetadatas = (route: ITypedHttpRoute): MetadataSchema[] => [
-  ...[
-    ...route.pathParameters,
-    ...route.queryParameters,
-    ...route.headerParameters,
-    ...(route.queryObject ? [route.queryObject] : []),
-    ...(route.body ? [route.body] : []),
-    ...(route.headerObject ? [route.headerObject] : []),
-  ].map((p) => p.metadata),
-  ...Object.values(route.exceptions).map((e) => e.metadata),
-  route.success.metadata,
-];
+const routeMetadatas = (
+  route: ITypedHttpRoute | ITypedMcpRoute,
+): MetadataSchema[] =>
+  route.protocol === "mcp"
+    ? [route.inputMetadata, route.outputMetadata].filter(
+        (m): m is MetadataSchema => m !== undefined,
+      )
+    : [
+        ...[
+          ...route.pathParameters,
+          ...route.queryParameters,
+          ...route.headerParameters,
+          ...(route.queryObject ? [route.queryObject] : []),
+          ...(route.body ? [route.body] : []),
+          ...(route.headerObject ? [route.headerObject] : []),
+        ].map((p) => p.metadata),
+        ...Object.values(route.exceptions).map((e) => e.metadata),
+        route.success.metadata,
+      ];
 
 const collectComponentEntries = (
   entries: IComponentEntry[],
-  route: ITypedHttpRoute,
+  route: ITypedHttpRoute | ITypedMcpRoute,
   metadata: MetadataSchema,
   visited: ICollectVisited = createCollectVisited(),
   includeOriginal: boolean = false,
@@ -446,7 +445,7 @@ const collectComponentEntries = (
 };
 
 const componentEntry = <T extends ComponentType>(
-  route: ITypedHttpRoute,
+  route: ITypedHttpRoute | ITypedMcpRoute,
   kind: ComponentKind,
   type: T,
 ): IComponentEntry => ({

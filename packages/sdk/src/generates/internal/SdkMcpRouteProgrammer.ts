@@ -15,12 +15,14 @@ import { ITypedMcpRoute } from "../../structures/ITypedMcpRoute";
 import { StringUtil } from "../../utils/StringUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
+import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 /**
  * Emits a typed client wrapper for an MCP tool.
  *
- * Object output types are wrapped in `Primitive<T>` because MCP round-trips
- * values through JSON. Void MCP tools return `Promise<void>`.
+ * Cloned input and output declarations use the native JSON wire graph.
+ * Source-reference output types use `Primitive<T>` for the same JSON
+ * round-trip. Void MCP tools return `Promise<void>`.
  *
  * @author wildduck - https://github.com/wildduck2
  * @evidence contracts/common.md#principled-implementation The namespace prints the wrapper that calls the tool and its metadata, and turns a tool error into an exception.
@@ -79,7 +81,7 @@ export namespace SdkMcpRouteProgrammer {
         alias: "McpCallToolResult",
       });
       const isVoid = isVoidReturn(route);
-      if (!isVoid)
+      if (!isVoid && _project.config.clone !== true)
         importer.external({
           declaration: true,
           file: "typia",
@@ -327,7 +329,7 @@ export namespace SdkMcpRouteProgrammer {
     };
 
   const writeNamespace =
-    (_project: INestiaProject) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedMcpRoute): Node => {
       const statements: Statement[] = [];
@@ -338,25 +340,29 @@ export namespace SdkMcpRouteProgrammer {
             [factory.createModifier(SyntaxKind.ExportKeyword)],
             "Input",
             undefined,
-            factory.createTypeReferenceNode(route.input.type.name),
+            project.config.clone === true && route.inputMetadata
+              ? SdkTypeProgrammer.write(project)(importer)(route.inputMetadata)
+              : factory.createTypeReferenceNode(route.input.type.name),
           ),
         );
 
       const outputType: Node =
         !isVoidReturn(route) && route.returnType !== null
-          ? factory.createTypeReferenceNode(
-              importer.external({
-                declaration: true,
-                file: "typia",
-                type: "element",
-                name: "Primitive",
-              }),
-              [
-                factory.createTypeReferenceNode(
-                  unwrapPromise(route.returnType.name),
-                ),
-              ],
-            )
+          ? project.config.clone === true && route.outputMetadata
+            ? SdkTypeProgrammer.write(project)(importer)(route.outputMetadata)
+            : factory.createTypeReferenceNode(
+                importer.external({
+                  declaration: true,
+                  file: "typia",
+                  type: "element",
+                  name: "Primitive",
+                }),
+                [
+                  factory.createTypeReferenceNode(
+                    unwrapPromise(route.returnType.name),
+                  ),
+                ],
+              )
           : factory.createKeywordTypeNode(SyntaxKind.VoidKeyword);
       statements.push(
         factory.createTypeAliasDeclaration(

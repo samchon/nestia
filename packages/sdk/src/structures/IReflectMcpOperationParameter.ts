@@ -1,5 +1,6 @@
 import { IJsDocTagInfo } from "typia";
 
+import { IOperationMetadata } from "./IOperationMetadata";
 import { IReflectImport } from "./IReflectImport";
 import { IReflectType } from "./IReflectType";
 
@@ -18,6 +19,8 @@ export interface IReflectMcpOperationParameter {
   name: string;
   index: number;
   type: IReflectType;
+  /** Native JSON wire analysis, retained independently of the source import. */
+  metadata?: IOperationMetadata.IResponse["primitive"];
   imports: IReflectImport[];
   description: string | null;
   jsDocTags: IJsDocTagInfo[];

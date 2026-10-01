@@ -5,6 +5,7 @@ import { INestiaProject } from "../../structures/INestiaProject";
 import { IReflectType } from "../../structures/IReflectType";
 import { ITypedApplication } from "../../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { ITypedMcpRoute } from "../../structures/ITypedMcpRoute";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
@@ -14,17 +15,17 @@ import { SdkWebSocketCloneProgrammer } from "./SdkWebSocketCloneProgrammer";
 /**
  * Rewrites the routes to refer to the cloned DTOs.
  *
- * @evidence contracts/common.md#principled-implementation HTTP types and their namespace/tag imports are emitted together from resolved metadata by the same writer used for cloned declarations; WebSocket declarations retain their source types and redirect only cloned imports.
+ * @evidence contracts/common.md#principled-implementation HTTP and MCP JSON types and their namespace/tag imports are emitted together from resolved metadata by the cloned declaration writer; WebSocket declarations retain their source types and redirect only cloned imports.
  * @evidence contracts/common.md#clear-and-simple-design One public function and three visitors.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The routes are rewritten in place, once.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
  */
 export namespace SdkHttpCloneReferencer {
   /**
-   * Rewrites the HTTP and WebSocket routes so their types and imports refer to
-   * the `structures` files.
+   * Rewrites the HTTP, MCP and WebSocket routes so their types and imports
+   * refer to the `structures` files.
    *
-   * @evidence contracts/common.md#principled-implementation An HTTP route uses structural TypeNodes and the writer's registered imports. Empty and any/unknown forms retain their baked keyword distinction because they require no cloned component binding; WebSocket source types only redirect imports actually cloned.
+   * @evidence contracts/common.md#principled-implementation HTTP and MCP JSON routes use structural TypeNodes and the writer's registered imports. Empty and any/unknown forms retain their baked keyword distinction because they require no cloned component binding; WebSocket source types only redirect imports actually cloned.
    * @evidence contracts/common.md#clear-and-simple-design One loop.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The routes are edited in place, as the generation owns them.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
@@ -46,6 +47,33 @@ export namespace SdkHttpCloneReferencer {
           directory,
           route,
         });
+      else if (route.protocol === "mcp") visitMcpRoute(app.project, route);
+  };
+
+  const visitMcpRoute = (
+    project: INestiaProject,
+    route: ITypedMcpRoute,
+  ): void => {
+    const importer = new ImportDictionary(
+      `${project.config.output}/functional/${route.accessor.join("/")}/index.ts`,
+    );
+    if (route.input && route.inputMetadata)
+      visitType({
+        importer,
+        project,
+        metadata: route.inputMetadata,
+        type: route.input.type,
+        name: (name) => (route.input!.type = { name }),
+      });
+    if (route.returnType && route.outputMetadata)
+      visitType({
+        importer,
+        project,
+        metadata: route.outputMetadata,
+        type: route.returnType,
+        name: (name) => (route.returnType = { name }),
+      });
+    route.imports = importer.toImports();
   };
 
   const visitHttpRoute = (props: {

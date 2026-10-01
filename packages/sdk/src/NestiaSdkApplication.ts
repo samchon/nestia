@@ -263,6 +263,8 @@ export class NestiaSdkApplication {
             ...TypedMcpRouteAnalyzer.analyze({
               controller: c,
               operation: o,
+              clone: project.config.clone,
+              errors: project.errors,
             }),
           );
           continue;
@@ -313,7 +315,10 @@ export class NestiaSdkApplication {
 
     const collection: IMetadataDictionary =
       TypedHttpRouteAnalyzer.routeDictionary(
-        routes.filter((r): r is ITypedHttpRoute => r.protocol === "http"),
+        routes.filter(
+          (r): r is ITypedHttpRoute | ITypedMcpRoute =>
+            r.protocol !== "websocket",
+        ),
       );
 
     if (props.validate !== undefined)

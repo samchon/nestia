@@ -88,7 +88,7 @@ export namespace ReflectMcpOperationAnalyzer {
 
     const imports: IReflectImport[] = [];
     const declared: IReflectMcpOperationParameter[] = preconfigured
-      .map((p) => {
+      .map((p): IReflectMcpOperationParameter | null => {
         const matched: IOperationMetadata.IParameter | undefined =
           ctx.metadata.parameters.find(
             (m: IOperationMetadata.IParameter) => p.index === m.index,
@@ -111,6 +111,7 @@ export namespace ReflectMcpOperationAnalyzer {
           name: matched.name,
           index: p.index,
           type: matched.type,
+          metadata: matched.primitive,
           imports: matched.imports,
           description: matched.description,
           jsDocTags: matched.jsDocTags,
@@ -146,6 +147,7 @@ export namespace ReflectMcpOperationAnalyzer {
       function: ctx.function,
       parameters,
       returnType: ctx.metadata.success?.type ?? null,
+      returnMetadata: ctx.metadata.success?.primitive,
       imports: ImportAnalyzer.merge(imports),
       description: ctx.metadata.description ?? null,
       jsDocTags: ctx.metadata.jsDocTags,

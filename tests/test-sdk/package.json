@@ -18,7 +18,8 @@
   "devDependencies": {
     "@types/node": "catalog:utils",
     "cross-env": "catalog:utils",
-    "ttsc": "catalog:typescript"
+    "ttsc": "catalog:typescript",
+    "@ttsc/factory": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"
 }
