@@ -2,19 +2,6 @@
   "severity": "error",
   "claims": [
     {
-      "name": "SDK independent-program native producer",
-      "type": "go",
-      "files": ["test-sdk/native/**/*.go"],
-      "symbol": ["type", "function"],
-      "reference": {
-        "type": "markdown",
-        "root": "../.agents/skills",
-        "files": ["contracts/common.md", "contracts/portability.md", "contracts/performance.md"],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
       "name": "SDK and transform wrapper executable entries",
       "type": "javascript",
       "files": [

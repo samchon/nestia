@@ -9,7 +9,6 @@ const NODE = process.execPath;
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const PROJECT_CONFIG = "tsconfig.project.json";
 let consumer;
-let nativeProducer;
 const cli = (cwd) => {
   consumer.mount(cwd);
   return [consumer.binary("nestia", "nestia")];
@@ -539,8 +538,9 @@ const runCompiledTestFeature = async (name, cwd, port, options) => {
   }
 };
 
-// Ordinary features share dispatch processes, never compiler programs.
-// Each retains its configuration, generated files, backend and awaited entry.
+// Ordinary features share the installation and consumer entry processes.
+// The installed ttsc owns compilation and plugin composition; each project
+// retains its configuration, generated files, backend and awaited entry.
 // Actual CLI/file-discovery boundaries run separately.
 const BATCH_EXCLUDED = new Set([
   "all",
@@ -587,8 +587,8 @@ const planBatches = (names) => {
 
 // A cohort copies members as deep as features/, preserving authored imports,
 // configurations and relative paths. Only diagnostic cohorts rebase aliases.
-// One native process dispatches independent programs. Project-scoped metadata
-// collections remain separate even when tsconfigs or DTO spellings coincide.
+// The public compiler keeps project-scoped metadata separate even when
+// tsconfigs or DTO spellings coincide.
 const runBatch = async (name, port) => {
   const members = BATCHES.get(name);
   const cwd = fs.mkdtempSync(path.join(__dirname, ".tmp-" + name + "-"));
@@ -600,7 +600,7 @@ const runBatch = async (name, port) => {
       consumer.mount(directory);
       writeProducerProject(directory);
     }
-    await runNativeProjects(cwd, members, "producer");
+    await compileProjects(cwd, members, "producer");
     for (const member of members)
       copyEmittedAssets(path.join(cwd, member), ".producer-output");
     await runMemberEntries(cwd, members, "producer", port);
@@ -621,6 +621,7 @@ const runBatch = async (name, port) => {
             noEmit: false,
             noUnusedLocals: false,
             noUnusedParameters: false,
+            plugins: runtimePlugins(directory),
           },
           include: [
             "src",
@@ -633,7 +634,7 @@ const runBatch = async (name, port) => {
         }),
       );
     }
-    await runNativeProjects(cwd, members, "runtime");
+    await compileProjects(cwd, members, "runtime");
     for (const member of tested)
       copyEmittedAssets(path.join(cwd, member), ".runtime-output");
     if (tested.length !== 0)
@@ -694,6 +695,7 @@ const writeProducerProject = (cwd) => {
         noEmit: false,
         noUnusedLocals: false,
         noUnusedParameters: false,
+        plugins: runtimePlugins(cwd),
       },
       include: ["src", "nestia.config.ts"],
       exclude: [
@@ -706,43 +708,28 @@ const writeProducerProject = (cwd) => {
   );
 };
 
-const runNativeProjects = async (cwd, members, phase) => {
-  const plan = path.join(cwd, phase + "-plan.json");
-  fs.writeFileSync(
-    plan,
-    JSON.stringify(
-      members.map((member) => {
-        const directory = path.join(cwd, member);
-        const core = runtimePlugins(directory).find((plugin) =>
-          isTransform(plugin, "@nestia/core"),
-        );
-        return {
-          name: member,
-          cwd: directory,
-          config: "." + phase + ".json",
-          outDir: path.join(directory, "." + phase + "-output"),
-          plugins: [
-            {
-              name: "typia",
-              stage: "transform",
-              config: { transform: "typia/lib/transform" },
-            },
-            { name: "@nestia/core", stage: "transform", config: core },
-            {
-              name: "@nestia/sdk",
-              stage: "transform",
-              config: { transform: "@nestia/sdk/lib/transform" },
-            },
-          ],
-        };
-      }),
-    ),
-  );
-  await run(nativeProducer, [plan], {
-    cwd,
-    stdio: "inherit",
-    env: { ...process.env, NESTIA_SDK_TRANSFORM: "1" },
-  });
+const compileProjects = async (cwd, members, phase) => {
+  const failures = [];
+  for (const member of members) {
+    const directory = path.join(cwd, member);
+    const started = Date.now();
+    try {
+      await runNode(
+        directory,
+        consumer.binary("ttsc", "ttsc"),
+        ["-P", "." + phase + ".json"],
+        "inherit",
+        { NESTIA_SDK_TRANSFORM: "1" },
+      );
+    } catch (error) {
+      failures.push(member);
+      console.error(`SDK ${phase} compilation failed: ${member}`, error);
+    } finally {
+      console.log(`SDK ${phase} compilation ${member}: ${Date.now() - started} ms`);
+    }
+  }
+  if (failures.length)
+    throw new Error(`Failed SDK ${phase} compilations: ${failures.join(", ")}`);
 };
 
 // Copy authored JSON/source artifacts without replacing emitted JavaScript.
@@ -1982,7 +1969,7 @@ const assertFreshBuilds = () => {
  * Runs every selected SDK consumer feature against freshly built packages.
  *
  * Feature configurations and emitted clients remain real inputs; compatible
- * projects share native dispatch and Node processes while keeping independent
+ * projects share installed dependencies and Node consumer processes while keeping independent
  * compiler programs. Failure identities are collected across ordinary features,
  * generator diagnostics and wrapper-specific boundaries.
  *
@@ -1995,7 +1982,7 @@ const assertFreshBuilds = () => {
  * @evidence contracts/testing.md#distinguishing-cases Compatible successes, three phase-specific rejected-generator cohorts and distinct CLI/config/watch/install boundaries all retain feature identities. The explicit only/from developer filters select narrow runs; unfiltered CI runs the complete configuration-backed population.
  * @evidence contracts/testing.md#execution-ownership This exported JavaScript entry is invoked by the SDK workspace start command, and actual feature entries discover the separately enrolled TypeScript cases. Native rule-only error fixtures execute in the core Go cohorts rather than being counted as SDK runtime tests.
  * @evidence contracts/e2e.md#necessary-boundary This owns real CLI/configuration loading, native generation, generated TypeScript compilation and SDK/backend transport assembly; direct transformer unit calls cannot prove those installed-artifact connections.
- * @evidence contracts/e2e.md#shared-execution Caller builds are reused only after freshness checking and packed into one real installation. One native executable dispatches independent producer/runtime programs; ordinary projects share dispatch and Node processes without combining metadata collections or compiler options. Each generation runs in its own cwd, retaining manifest defaults. Source globs/files/exclusions delegate to the original public SDK source-input operation. Generator-error phases share an installed CLI process each; actual CLI/file-pattern/extension, watch and distribution transitions retain their distinct lifetimes.
+ * @evidence contracts/e2e.md#shared-execution Caller builds are reused only after freshness checking and packed into one real installation. The installed public ttsc compiles producer/runtime programs with their own options and metadata scopes, reusing its native plugin cache. Ordinary projects share Node consumer processes. Each generation runs in its own cwd, retaining manifest defaults. Source globs/files/exclusions delegate to the original public SDK source-input operation. Generator-error phases share an installed CLI process each; actual CLI/file-pattern/extension, watch and distribution transitions retain their distinct lifetimes. Independent project compilations remain a preparation cost requiring consolidation where equivalent fixtures permit it.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Cohorts copy authored inputs into unique owned trees and retain member imports/configs, compiler programs, metadata collections, outputs and ports. Only diagnostic copies rebase client aliases. Each producer closes its real application; feature entries finally close backends; cohort removal follows consuming children. Watch/install cases own their additional cleanup.
  * @evidence contracts/e2e.md#preserved-coverage Portable transform-rule diagnostics retain their named Go owners, and every meaningful API/output assertion remains in the runtime or generator cohorts. Retired directories without tracked configurations and unreachable runtime functions in expected-generation failures are omitted with verified provenance.
  */
@@ -2057,32 +2044,10 @@ const main = async () => {
         throw new Error(
           "No SDK test features matched the requested selection.",
         );
-      if (BATCHES.size !== 0) {
-        nativeProducer = path.join(
-          consumer.directory,
-          process.platform === "win32"
-            ? "sdk-native-producer.exe"
-            : "sdk-native-producer",
-        );
-        await measure("Shared Native Producer Build")(() =>
-          run(
-            process.env.TTSC_GO_BINARY ?? "go",
-            ["build", "-o", nativeProducer, "."],
-            {
-              cwd: path.join(__dirname, "native"),
-              stdio: "inherit",
-              env: {
-                GOCACHE: path.join(process.env.TTSC_CACHE_DIR, "go-build"),
-              },
-            },
-          ),
-        );
-      }
       await runFeatures(names);
     } finally {
       consumer.close();
       consumer = undefined;
-      nativeProducer = undefined;
     }
   });
 };
