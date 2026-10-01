@@ -529,7 +529,7 @@ const runCompiledTestFeature = async (name, cwd, port, options) => {
 };
 
 // Ordinary features share the installation and consumer entry processes.
-// The installed ttsc owns compilation and plugin composition; each project
+// The installed ttsc API owns compilation and plugin composition; each project
 // retains its configuration, generated files, backend and awaited entry.
 // Actual CLI/file-discovery boundaries run separately.
 const BATCH_EXCLUDED = new Set([
@@ -698,28 +698,47 @@ const writeProducerProject = (cwd) => {
   );
 };
 
+// One public compiler API process per phase retains ttsc's guarded toolchain
+// caches. Every immutable compiler context still owns a separate project.
 const compileProjects = async (cwd, members, phase) => {
-  const failures = [];
-  for (const member of members) {
-    const directory = path.join(cwd, member);
-    const started = Date.now();
-    try {
-      await runNode(
-        directory,
-        consumer.binary("ttsc", "ttsc"),
-        ["-P", "." + phase + ".json"],
-        "inherit",
-        { NESTIA_SDK_TRANSFORM: "1" },
-      );
-    } catch (error) {
-      failures.push(member);
-      console.error(`SDK ${phase} compilation failed: ${member}`, error);
-    } finally {
-      console.log(`SDK ${phase} compilation ${member}: ${Date.now() - started} ms`);
-    }
-  }
-  if (failures.length)
-    throw new Error(`Failed SDK ${phase} compilations: ${failures.join(", ")}`);
+  const entry = path.join(cwd, phase + "-compiler.cjs");
+  const compiler = require.resolve("ttsc", { paths: [consumer.directory] });
+  fs.writeFileSync(
+    entry,
+    [
+      'const fs = require("node:fs");',
+      'const path = require("node:path");',
+      "const { TtscCompiler } = require(" + JSON.stringify(compiler) + ");",
+      "const failures = [];",
+      "for (const member of " + JSON.stringify(members) + ") {",
+      "  const directory = path.join(__dirname, member);",
+      "  const outputRoot = path.join(directory, " + JSON.stringify("." + phase + "-output") + ");",
+      "  const started = Date.now();",
+      "  try {",
+      "    const result = new TtscCompiler({cwd: directory, tsconfig: " + JSON.stringify("." + phase + ".json") + "}).compile();",
+      '    if (result.type === "exception") throw result.error;',
+      '    if (result.type !== "success") throw new Error(JSON.stringify(result.diagnostics));',
+      '    if (Object.keys(result.output).length === 0) throw new Error("Compiler emitted no artifacts");',
+      "    for (const [file, text] of Object.entries(result.output)) {",
+      "      const destination = path.resolve(directory, file);",
+      "      const relative = path.relative(outputRoot, destination);",
+      '      if (!relative || relative === ".." || relative.startsWith(".." + path.sep) || path.isAbsolute(relative))',
+      '        throw new Error("Compiler output escapes its owned tree: " + file);',
+      "      fs.mkdirSync(path.dirname(destination), {recursive: true});",
+      "      fs.writeFileSync(destination, text);",
+      "    }",
+      "  } catch (error) {",
+      "    failures.push(member);",
+      '    console.error("SDK ' + phase + ' compilation failed: " + member, error);',
+      "  } finally {",
+      '    console.log("SDK ' + phase + ' compilation " + member + ": " + (Date.now() - started) + " ms");',
+      "  }",
+      "}",
+      'if (failures.length) throw new Error("Failed SDK ' + phase + ' compilations: " + failures.join(", "));',
+      "",
+    ].join("\n"),
+  );
+  await runNode(cwd, entry, [], "inherit", { NESTIA_SDK_TRANSFORM: "1" });
 };
 
 // Copy authored JSON/source artifacts without replacing emitted JavaScript.
@@ -1972,7 +1991,7 @@ const assertFreshBuilds = () => {
  * @evidence contracts/testing.md#distinguishing-cases Compatible successes, three phase-specific rejected-generator cohorts and distinct CLI/config/watch/install boundaries all retain feature identities. The explicit only/from developer filters select narrow runs; unfiltered CI runs the complete configuration-backed population.
  * @evidence contracts/testing.md#execution-ownership This exported JavaScript entry is invoked by the SDK workspace start command, and actual feature entries discover the separately enrolled TypeScript cases. Native rule-only error fixtures execute in the core Go cohorts rather than being counted as SDK runtime tests.
  * @evidence contracts/e2e.md#necessary-boundary This owns real CLI/configuration loading, native generation, generated TypeScript compilation and SDK/backend transport assembly; direct transformer unit calls cannot prove those installed-artifact connections.
- * @evidence contracts/e2e.md#shared-execution Caller builds are reused only after freshness checking and packed into one real installation. The installed public ttsc compiles producer/runtime programs with their own options and metadata scopes, reusing its native plugin cache. Ordinary projects share Node consumer processes. Each generation runs in its own cwd, retaining manifest defaults. Source globs/files/exclusions delegate to the original public SDK source-input operation. Generator-error phases share an installed CLI process each; actual CLI/file-pattern/extension, watch and distribution transitions retain their distinct lifetimes. Independent project compilations remain a preparation cost requiring consolidation where equivalent fixtures permit it.
+ * @evidence contracts/e2e.md#shared-execution Caller builds are reused only after freshness checking and packed into one real installation. One installed public TtscCompiler API process per producer/runtime phase shares ttsc's guarded toolchain caches while immutable per-member contexts retain options, programs and metadata scopes. API-emitted text is written only inside each member's owned output tree. Ordinary projects share Node consumer processes. Each generation runs in its own cwd, retaining manifest defaults. Source globs/files/exclusions delegate to the original public SDK source-input operation. Generator-error phases share an installed CLI process each; actual CLI/file-pattern/extension, watch and distribution transitions retain their distinct lifetimes. Independent project compilations remain a preparation cost requiring consolidation where equivalent fixtures permit it.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Cohorts copy authored inputs into unique owned trees and retain member imports/configs, compiler programs, metadata collections, outputs and ports. Only diagnostic copies rebase client aliases. Each producer closes its real application; feature entries finally close backends; cohort removal follows consuming children. Watch/install cases own their additional cleanup.
  * @evidence contracts/e2e.md#preserved-coverage Portable transform-rule diagnostics retain their named Go owners, and every meaningful API/output assertion remains in the runtime or generator cohorts. Retired directories without tracked configurations and unreachable runtime functions in expected-generation failures are omitted with verified provenance.
  */
