@@ -47,6 +47,20 @@ const main = async () => {
     fs.writeFileSync(path.join(sandbox, "package.json"), JSON.stringify({ private: true, type: "commonjs" }));
     fs.cpSync(path.join(__dirname, "fixture"), path.join(sandbox, "fixture"), { recursive: true });
     fs.cpSync(path.join(__dirname, "consumer"), path.join(sandbox, "consumer"), { recursive: true });
+    const authoredCases = [];
+    const caseRoot = path.join(sandbox, "consumer/src/features");
+    const inventoryCases = (directory) => {
+      for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+        const location = path.join(directory, entry.name);
+        if (entry.isDirectory()) inventoryCases(location);
+        else if (entry.name.startsWith("test_") && entry.name.endsWith(".ts"))
+          authoredCases.push({
+            file: path.relative(caseRoot, location).split(path.sep).join("/").replace(/\.ts$/, ".js"),
+            name: entry.name.slice(0, -3),
+          });
+      }
+    };
+    inventoryCases(caseRoot);
     try {
       await prepareMigration({ installation, sandbox });
     } catch (error) {
@@ -57,7 +71,13 @@ const main = async () => {
     const { NestiaSdkApplication } = require(require.resolve("@nestia/sdk", { paths: [installation.directory] }));
     const common = {
       extends: path.resolve(__dirname, "../config/tsconfig.json"),
-      compilerOptions: { noEmit: false, types: ["node"], noUnusedLocals: false, noUnusedParameters: false },
+      compilerOptions: {
+        noEmit: false,
+        types: ["node"],
+        noUnusedLocals: false,
+        noUnusedParameters: false,
+        plugins: [{ transform: "@nestia/core/native/transform.cjs" }],
+      },
     };
     const compile = (phase, source, options = {}) => {
       const outputRoot = path.join(sandbox, `.${phase}`);
@@ -95,6 +115,7 @@ const main = async () => {
     const application = await backend.open();
     const generation = new NestiaSdkApplication({
       input: async () => application,
+      clone: true,
       output: path.join(sandbox, "consumer/src/api"),
       e2e: path.join(sandbox, "consumer/src/features/generated"),
       swagger: {
@@ -122,7 +143,7 @@ const main = async () => {
     const host = `http://127.0.0.1:${address.port}`;
     const { main: consume } = require(path.join(sandbox, ".consumer/index.js"));
     try {
-      await consume(host);
+      await consume(host, authoredCases);
     } catch (error) {
       failures.push("rich request consumer");
       console.error(error);

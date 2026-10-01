@@ -70,7 +70,10 @@
         "test-e2e/internal/test_migrate_cli_archiving.cjs",
         "test-e2e/internal/test_migrate_generated_consumer.cjs",
         "test-e2e/internal/test_migrate_simulate_throws.cjs",
-        "test-e2e/internal/boundary/*.cjs"
+        "test-e2e/internal/boundary/*.cjs",
+        "test-e2e/internal/test_benchmark_http_connection.cjs",
+        "test-e2e/internal/test_benchmark_worker_discovery.cjs",
+        "test-e2e/internal/test_benchmark_worker_lifetimes.cjs"
       ],
       "symbol": "function",
       "reference": {
@@ -147,7 +150,8 @@
       "name": "authored rich backend native boundaries",
       "type": "typescript",
       "files": [
-        "test-e2e/fixture/src/Backend.ts"
+        "test-e2e/fixture/src/Backend.ts",
+        "test-e2e/fixture/src/scenarios/multipart_form_data/controllers/MultipartController.ts"
       ],
       "symbol": [
         "type",
@@ -202,6 +206,24 @@
         "type",
         "function"
       ],
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "shared official MCP client lifetime owner",
+      "type": "typescript",
+      "files": [
+        "test-e2e/consumer/src/internal/McpConnection.ts"
+      ],
+      "symbol": "function",
       "reference": {
         "type": "markdown",
         "root": "../.agents/skills",

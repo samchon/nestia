@@ -14,6 +14,17 @@ export namespace IMultipartMultipartFormData {
     description: null | string;
     flags: number[];
     notes?: string[];
+    uploads: {
+      blob: number[];
+      blobs: number[][];
+      file: IFileContent;
+      files: IFileContent[];
+    };
+  }
+
+  export interface IFileContent {
+    name: string;
+    bytes: number[];
   }
 
   export interface IDiskMultipartFormData {
