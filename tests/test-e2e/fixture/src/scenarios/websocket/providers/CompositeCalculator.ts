@@ -1,8 +1,8 @@
 import { Driver } from "tgrid";
 
-import { ICalcConfigWebsocket } from "../api/interfaces/ICalcConfigWebsocket";
-import { ICalcEventListenerWebsocket } from "../api/interfaces/ICalcEventListenerWebsocket";
-import { ICompositeCalculatorWebsocket } from "../api/interfaces/ICompositeCalculatorWebsocket";
+import { ICalcConfigWebsocket } from "../interfaces/ICalcConfigWebsocket";
+import { ICalcEventListenerWebsocket } from "../interfaces/ICalcEventListenerWebsocket";
+import { ICompositeCalculatorWebsocket } from "../interfaces/ICompositeCalculatorWebsocket";
 import { ScientificCalculator } from "./ScientificCalculator";
 import { SimpleCalculator } from "./SimpleCalculator";
 import { StatisticsCalculator } from "./StatisticsCalculator";

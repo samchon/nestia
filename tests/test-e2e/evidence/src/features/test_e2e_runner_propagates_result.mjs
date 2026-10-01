@@ -12,7 +12,7 @@ import { runE2E } from "../../../../../scripts/run-e2e.cjs";
  * A successful launch cannot hide an entry failure or signal. The fixture
  * observes delivered arguments and cache environment through real children.
  *
- * 1. Execute successful, nonzero and signalled children with fresh logs.
+ * 1. Execute successful, nonzero and signaled children with fresh logs.
  * 2. Require exactly one canonical workspace invocation for every outcome.
  * 3. Reject a missing launcher without invoking a consumer.
  *

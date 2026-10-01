@@ -1,7 +1,7 @@
 import { Driver } from "tgrid";
 
-import { ICalcConfigWebsocket } from "../api/interfaces/ICalcConfigWebsocket";
-import { ICalcEventListenerWebsocket } from "../api/interfaces/ICalcEventListenerWebsocket";
+import { ICalcConfigWebsocket } from "../interfaces/ICalcConfigWebsocket";
+import { ICalcEventListenerWebsocket } from "../interfaces/ICalcEventListenerWebsocket";
 
 export abstract class CalculatorBase {
   public constructor(

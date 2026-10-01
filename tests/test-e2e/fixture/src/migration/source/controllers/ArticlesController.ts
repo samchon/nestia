@@ -37,7 +37,7 @@ export class ArticlesController {
    */
   @core.TypedException<IProblem>({ status: 404, description: "not found" })
   @core.TypedRoute.Get(":id")
-  public at(@core.TypedParam("id") id: string): IArticle {
+  public at(@core.TypedParam("id") id: IArticle["id"]): IArticle {
     return {
       id,
       title: "fixture",
@@ -116,7 +116,7 @@ export class ArticlesController {
    */
   @core.TypedRoute.Put(":id")
   public update(
-    @core.TypedParam("id") id: string,
+    @core.TypedParam("id") id: IArticle["id"],
     @core.TypedBody() input: IArticle.IUpdate,
   ): IArticle.ISummary {
     return {
@@ -135,7 +135,7 @@ export class ArticlesController {
    * @security apiKey
    */
   @core.TypedRoute.Delete(":id")
-  public erase(@core.TypedParam("id") id: string): void {
+  public erase(@core.TypedParam("id") id: IArticle["id"]): void {
     void id;
   }
 }

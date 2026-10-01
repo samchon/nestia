@@ -35,7 +35,7 @@ export class OrdersController {
    * @security bearer orders:read
    */
   @core.TypedRoute.Get(":id")
-  public at(@core.TypedParam("id") id: string): IOrder {
+  public at(@core.TypedParam("id") id: IOrder["id"]): IOrder {
     return {
       id,
       buyer_id: "00000000-0000-0000-0000-000000000002",
@@ -63,7 +63,7 @@ export class OrdersController {
    */
   @core.TypedRoute.Patch(":id/status")
   public status(
-    @core.TypedParam("id") id: string,
+    @core.TypedParam("id") id: IOrder["id"],
     @core.TypedBody() input: IOrder.IStatus,
   ): IOrder.IStatus {
     void id;

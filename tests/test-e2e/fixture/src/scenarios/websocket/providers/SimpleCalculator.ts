@@ -1,4 +1,4 @@
-import { ISimpleCalculatorWebsocket } from "../api/interfaces/ISimpleCalculatorWebsocket";
+import { ISimpleCalculatorWebsocket } from "../interfaces/ISimpleCalculatorWebsocket";
 import { CalculatorBase } from "./CalculatorBase";
 
 export class SimpleCalculator

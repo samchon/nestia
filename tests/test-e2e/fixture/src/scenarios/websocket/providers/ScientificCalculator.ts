@@ -1,4 +1,4 @@
-import { IScientificCalculatorWebsocket } from "../api/interfaces/IScientificCalculatorWebsocket";
+import { IScientificCalculatorWebsocket } from "../interfaces/IScientificCalculatorWebsocket";
 import { CalculatorBase } from "./CalculatorBase";
 
 export class ScientificCalculator

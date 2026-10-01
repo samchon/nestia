@@ -1,4 +1,4 @@
-import { IStatisticsCalculatorWebsocket } from "../api/interfaces/IStatisticsCalculatorWebsocket";
+import { IStatisticsCalculatorWebsocket } from "../interfaces/IStatisticsCalculatorWebsocket";
 import { CalculatorBase } from "./CalculatorBase";
 
 export class StatisticsCalculator
