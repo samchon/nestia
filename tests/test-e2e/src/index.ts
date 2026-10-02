@@ -1,6 +1,6 @@
 import { DynamicExecutor } from "@nestia/e2e";
 
-/** Discovers direct validator tests and the relocated CLI and editor boundaries. */
+/** Discovers the direct unit tests for @nestia/e2e. */
 export async function main(): Promise<void> {
   const report: DynamicExecutor.IReport = await DynamicExecutor.assert({
     parameters: () => [],

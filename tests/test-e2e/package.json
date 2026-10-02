@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "@nestia/e2e": "workspace:^",
-    "@nestia/fetcher": "workspace:^",
     "typia": "catalog:samchon"
   },
   "devDependencies": {
