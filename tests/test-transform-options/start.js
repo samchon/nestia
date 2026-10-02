@@ -16,30 +16,9 @@ const NODE = process.execPath;
 const TTSC = packageBin("ttsc", "ttsc");
 const CACHE = path.resolve(
   __dirname,
-  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".cache", "ttsc"),
+  process.env.TTSC_CACHE_DIR ??
+    path.join(ROOT, "node_modules", ".cache", "ttsc"),
 );
-
-const VALIDATE_CASES = [
-  ["assert", "assert"],
-  ["is", "is"],
-  ["validate", "validate"],
-  ["assertEquals", "assert"],
-  ["equals", "is"],
-  ["validateEquals", "validate"],
-  ["assertClone", "assert"],
-  ["validateClone", "validate"],
-  ["assertPrune", "assert"],
-  ["validatePrune", "validate"],
-];
-
-const STRINGIFY_CASES = [
-  ["assert", "assert"],
-  ["is", "is"],
-  ["validate", "validate"],
-  ["stringify", "stringify"],
-  ["validate.log", "validate.log"],
-  [null, null],
-];
 
 const LLM_CASES = ["llm-body", "llm-query", "llm-route"];
 
@@ -47,71 +26,11 @@ const main = () => {
   fs.rmSync(LIB, { recursive: true, force: true });
   fs.mkdirSync(LIB, { recursive: true });
 
-  measure("validate options", () => {
-    for (const [option, expectedType] of VALIDATE_CASES) {
-      const file = compile({
-        name: `validate-${option}`,
-        source: "validate",
-        plugin: { validate: option },
-      });
-      const captured = load(file);
-      const body = first(captured.TypedBody)?.[0];
-      assert(body?.type === expectedType, `${option}: wrong body validator`);
-      assertValidate(option, body);
-
-      // Headers intentionally collapse the ten body modes to assert, is, and
-      // validate. Their HTTP decoder creates a fresh object, so clone, prune,
-      // and equals do not carry body-validator semantics.
-      const headers = first(captured.TypedHeaders)?.[0];
-      const expectedHeaderType =
-        option === "is" || option === "equals"
-          ? "is"
-          : option.startsWith("validate")
-            ? "validate"
-            : "assert";
-      assert(
-        headers?.type === expectedHeaderType,
-        `${option}: wrong headers validator (got ${headers?.type}, expected ${expectedHeaderType})`,
-      );
-
-      const param = first(captured.TypedParam);
-      const expectValidateParam = option.startsWith("validate");
-      assert(
-        (param?.[2] === true) === expectValidateParam,
-        `${option}: wrong TypedParam validation flag`,
-      );
-
-      // TypedQuery shares the assert/is/validate routing with TypedBody but
-      // collapses Clone/Prune variants onto the base assert/validate paths
-      // (see nestiaCoreGenerateTypedQuery in core_transform.go). Asserting
-      // the captured type per mode locks the same routing table integration
-      // tests cannot otherwise reach.
-      const query = first(captured.TypedQuery)?.[0];
-      assert(
-        query?.type === expectedType,
-        `${option}: wrong TypedQuery validator (got ${query?.type}, expected ${expectedType})`,
-      );
-    }
-  });
-
-  measure("stringify options", () => {
-    for (const [option, expectedType] of STRINGIFY_CASES) {
-      const file = compile({
-        name: `stringify-${option ?? "null"}`,
-        source: "stringify",
-        plugin: { stringify: option },
-      });
-      const captured = load(file);
-      const route = first(captured["TypedRoute.Get"])?.[0];
-      if (expectedType === null) assert(route === null, "null stringify failed");
-      else
-        assert(
-          route?.type === expectedType,
-          `${option}: wrong response stringifier`,
-        );
-    }
-  });
-
+  // Pure option routing belongs to core's in-process Go tests:
+  // TestTransformValidationModeProtocols covers all ten request modes, and
+  // TestTransformRouteStringify* covers the six response modes. The shared
+  // HTTP consumer's test_api_body_validator_variants executes every body
+  // helper's acceptance, equality, clone and prune semantics.
   measure("typia version guard", typiaVersionGuard);
 
   measure("llm strict diagnostics", () => {
@@ -362,9 +281,11 @@ const main = () => {
       "the v11 plugin list lost its stringify option",
     );
     const metadata =
-      fs.readFileSync(file, "utf8").match(/\.OperationMetadata\(/g)?.length ?? 0;
+      fs.readFileSync(file, "utf8").match(/\.OperationMetadata\(/g)?.length ??
+      0;
     assert(
-      metadata === captured["TypedRoute.Post"].length + captured["TypedRoute.Get"].length,
+      metadata ===
+        captured["TypedRoute.Post"].length + captured["TypedRoute.Get"].length,
       `the v11 plugin list attached ${metadata} SDK metadata decorators`,
     );
   });
@@ -406,18 +327,14 @@ const compile = (props) => {
   const project = writeProject(props);
   const args = [TTSC, "--cache-dir", CACHE, "-p", project];
   if (props.noEmit === true) args.push("--noEmit");
-  const result = cp.spawnSync(
-    NODE,
-    args,
-    {
-      cwd: __dirname,
-      encoding: "utf8",
-      env: {
-        ...process.env,
-        TTSC_CACHE_DIR: CACHE,
-      },
+  const result = cp.spawnSync(NODE, args, {
+    cwd: __dirname,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      TTSC_CACHE_DIR: CACHE,
     },
-  );
+  });
   // A compiler that never started is not a compiler that rejected the input.
   // Check this before the `fail: true` branch, or a spawn failure would satisfy
   // every expected-failure case and the suite would pass vacuously.
@@ -428,10 +345,8 @@ const compile = (props) => {
   if (props.fail === true) {
     if (result.status === 0)
       throw new Error(`${props.name}: compilation was expected to fail.`);
-    const diagnostics = `${result.stdout ?? ""}\n${result.stderr ?? ""}`.replaceAll(
-      "\\",
-      "/",
-    );
+    const diagnostics =
+      `${result.stdout ?? ""}\n${result.stderr ?? ""}`.replaceAll("\\", "/");
     for (const expected of props.expectedDiagnostics ?? [])
       assert(
         diagnostics.includes(expected),
@@ -678,7 +593,8 @@ const load = (file) => {
     "TypedRoute.Get": [],
     "TypedRoute.Post": [],
   };
-  const decorator = (key) =>
+  const decorator =
+    (key) =>
     (...args) => {
       captured[key].push(args);
       return () => undefined;
@@ -728,53 +644,6 @@ const load = (file) => {
 const loadRaw = (file) => {
   delete require.cache[file];
   return require(file);
-};
-
-const assertValidate = (option, validator) => {
-  const valid = () => ({ title: "title", count: 1 });
-  const extra = () => ({ ...valid(), extra: "x" });
-  if (option === "assert") validator.assert(extra());
-  else if (option === "is") assert(validator.is(extra()), "is rejected extra");
-  else if (option === "validate")
-    assert(validator.validate(extra()).success, "validate rejected extra");
-  else if (option === "assertEquals")
-    assertThrows(() => validator.assert(extra()), "assertEquals accepted extra");
-  else if (option === "equals")
-    assert(!validator.is(extra()), "equals accepted extra");
-  else if (option === "validateEquals")
-    assert(!validator.validate(extra()).success, "validateEquals accepted extra");
-  else if (option === "assertClone") {
-    const input = extra();
-    const output = validator.assert(input);
-    assert("extra" in input, "assertClone mutated input");
-    assert(!("extra" in output), "assertClone kept extra data");
-  } else if (option === "validateClone") {
-    const input = extra();
-    const output = validator.validate(input);
-    assert(output.success, "validateClone rejected valid input");
-    assert("extra" in input, "validateClone mutated input");
-    assert(!("extra" in output.data), "validateClone kept extra data");
-  } else if (option === "assertPrune") {
-    const input = extra();
-    const output = validator.assert(input);
-    assert(!("extra" in input), "assertPrune did not prune input");
-    assert(!("extra" in output), "assertPrune kept extra data");
-  } else if (option === "validatePrune") {
-    const input = extra();
-    const output = validator.validate(input);
-    assert(output.success, "validatePrune rejected valid input");
-    assert(!("extra" in input), "validatePrune did not prune input");
-    assert(!("extra" in output.data), "validatePrune kept extra data");
-  } else throw new Error(`Unknown validate option: ${option}`);
-};
-
-const assertThrows = (task, message) => {
-  try {
-    task();
-  } catch {
-    return;
-  }
-  throw new Error(message);
 };
 
 const first = (array) => array[0];
