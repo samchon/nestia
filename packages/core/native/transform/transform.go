@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
@@ -251,12 +252,15 @@ func writeSingleOutput(text, outPath string) int {
 	return 0
 }
 
-// SourceFileText returns the text of a source file object, or false when the value has no `Text()` method.
+// SourceFileText returns the text supplied by a present Text() provider.
+// Missing values, including typed nil receivers, and values without Text()
+// return empty text and false without invoking a method. Errors from a present
+// provider's Text() method propagate to its caller.
 //
-// @evidence contracts/common.md#principled-implementation The function accepts any value and asserts the one-method interface the compiler port's source file satisfies, so a nil or foreign value reports false instead of panicking.
-// @evidence contracts/common.md#clear-and-simple-design One type assertion.
-// @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the text and adds nothing to it.
-// @evidence contracts/common.md#meaningful-documentation The comment states the result and the false case.
+// @evidence contracts/common.md#principled-implementation Structural Text() support establishes the provider operation, while a guarded reflect nil-identity check establishes that a receiver exists before dispatch. Every nil-capable kind follows the same absent-source rule; non-nil providers return their own text unchanged.
+// @evidence contracts/common.md#clear-and-simple-design One structural type assertion, one constant-time receiver-presence check restricted to the kinds for which Go permits IsNil, and one method dispatch separate absent sources from actual provider behavior.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The nil rule applies to all structural providers without compiler-type names or recovery. It does not invoke missing receivers, mutate foreign providers or conceal errors raised by present providers.
+// @evidence contracts/common.md#meaningful-documentation The comment states exact absent-value behavior, typed nil receiver treatment and propagation of present-provider errors.
 func SourceFileText(target any) (string, bool) {
 	type sourceText interface {
 		Text() string
@@ -264,6 +268,13 @@ func SourceFileText(target any) (string, bool) {
 	file, ok := target.(sourceText)
 	if !ok {
 		return "", false
+	}
+	value := reflect.ValueOf(file)
+	switch value.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice, reflect.UnsafePointer:
+		if value.IsNil() {
+			return "", false
+		}
 	}
 	return file.Text(), true
 }
