@@ -40,8 +40,8 @@ catalogs:
       specifier: ^15.0.0
       version: 15.0.0
     '@wrtnlabs/evidence':
-      specifier: 0.2.0
-      version: 0.2.0
+      specifier: 0.2.1
+      version: 0.2.1
     tgrid:
       specifier: ^1.2.1
       version: 1.2.1
@@ -111,7 +111,7 @@ importers:
         version: ts-expose-internals@5.4.5
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.2.0(ttsc@0.28.1)(typescript@7.0.2)
+        version: 0.2.1(ttsc@0.28.1)(typescript@7.0.2)
       bumpp:
         specifier: ^10.4.1
         version: 10.4.1
@@ -2299,8 +2299,8 @@ packages:
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
-  '@wrtnlabs/evidence@0.2.0':
-    resolution: {integrity: sha512-gwKaHKEALmpPiw60eFUhAyMFZ6dBZ2H0MgDUS8eGsrcYFQIY+E1OllmUEa47etM0X3SGNZHe5cCZNkKtIoGhuw==}
+  '@wrtnlabs/evidence@0.2.1':
+    resolution: {integrity: sha512-rrl16SySOSxmiWCxU+x6gcNCFi48K46PMlwMHOeTh8RGR9NsjHxHcF35nVT4WbBYq02tSzlOz71CihOm56XEhQ==}
     hasBin: true
     peerDependencies:
       ttsc: ^0.30.1
@@ -5810,7 +5810,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@wrtnlabs/evidence@0.2.0(ttsc@0.28.1)(typescript@7.0.2)':
+  '@wrtnlabs/evidence@0.2.1(ttsc@0.28.1)(typescript@7.0.2)':
     dependencies:
       '@prisma/prisma-schema-wasm': 7.10.0-2.d0368e25c88e68caa4d283b5f2d88d1b76ed9356
       '@typia/interface': 14.0.6

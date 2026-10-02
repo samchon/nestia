@@ -5,9 +5,7 @@
       "name": "maintained TypeScript production declarations",
       "type": "typescript",
       "files": [
-        "src/**/*.ts",
-        "!src/index.ts",
-        "!src/HttpError.ts"
+        "src/**/*.ts"
       ],
       "symbol": [
         "type",
