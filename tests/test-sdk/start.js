@@ -550,16 +550,14 @@ const assertFeatureOutputs = (name, cwd) => {
 const runTtsxTestOnce = async (_name, cwd, port, options) =>
   runTtsxTest(cwd, "inherit", port, options);
 
-// Success features sharing a tsconfig run in batches: one `nestia all` over
-// every member's configuration, each rebased onto the member's directory, and
-// one ttsx program holding every member's sources, whose runner calls each
-// member's own test entry in turn. A project's generation and type check, not
-// its tests, are what a feature run costs, so a batch pays them once. Each
-// member keeps its directory, its configuration, its backend, and its test
-// entry, which runs alone as before.
+// Legacy batches share a CLI invocation and consumer program, but input
+// analysis still compiles each member configuration and each member opens its
+// own backend. Consolidated rich fixtures instead own one input configuration
+// and application; keep them outside this legacy grouping during transfer.
 const BATCH_SIZE = 12;
 const BATCH_EXCLUDED = new Set([
   "all",
+  "body-rich",
   "cli-config",
   "cli-config-project",
   "cli-project",
