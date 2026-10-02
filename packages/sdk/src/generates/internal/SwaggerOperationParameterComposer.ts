@@ -13,7 +13,6 @@ import {
 } from "../../internal/legacy";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
-import { SwaggerReadonlyArrayEmender } from "./SwaggerReadonlyArrayEmender";
 
 /**
  * Composes the parameters and the request body of an operation.
@@ -261,14 +260,9 @@ export namespace SwaggerOperationParameterComposer {
             value: p.value,
           });
         if (json === null) return null;
-        SwaggerReadonlyArrayEmender.emend({
-          components: json.components,
-          schema: json.schemas[0],
-          metadata: p.value,
-        });
         // Only what the document lacks: the parameter's own schema already
-        // brought every component its properties reach, emended for readonly
-        // arrays, and this copy is not.
+        // brought every component its properties reach from the native bake.
+        // Existing document components take precedence over this copy.
         props.document.components ??= {};
         props.document.components.schemas ??= {};
         for (const [name, schema] of Object.entries(

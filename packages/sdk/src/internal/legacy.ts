@@ -713,7 +713,7 @@ export namespace JsonSchemasProgrammer {
    *
    * The schemas and components are copies. The bake belongs to the route
    * metadata, which every composition in the process reads, while the composer
-   * edits what it is given in place (the readonly-array emender), and so can a
+   * may edit what it is given in place, and so can a
    * `SwaggerCustomizer`; handing the bake out by reference let each document
    * inherit the previous one's edits.
    *

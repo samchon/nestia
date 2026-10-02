@@ -204,7 +204,7 @@ func nestiaSDKMetadataLiteralText(metadata map[string]any) (string, error) {
 // nestiaSDKFiniteLiteral copies a metadata value for encoding/json, writing
 // every non-finite number as null, the way JavaScript's `JSON.stringify` does.
 //
-// typia hands over NaN and ±Infinity wherever a type or a comment spells one: a
+// typia hands over NaN and 筌욏댍nfinity wherever a type or a comment spells one: a
 // numeric literal type such as `1e999`, a type tag argument such as
 // `tags.Minimum<1e999>`, and a JSDoc `@x-` extension whose text parses as
 // a float, which `NaN`, `Infinity`, and `inf` all do. encoding/json
@@ -913,10 +913,10 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 	// JSON-schema representation (e.g. a `void` route return or a parameter
 	// whose only members are functions). The legacy reader on the JS side
 	// already treats a missing `jsonSchema` as "skip", so swallow the panic
-	// and omit the field — the sdk generator falls back to its own derived
+	// and omit the field ??the sdk generator falls back to its own derived
 	// schema path. This must never mask a real bug, so re-raise anything we
 	// don't recognize as a transformer error from the typia runtime.
-	if baked := nestiaSDKTryBakeJsonSchema(prog, typeNode, result.Data, properties); baked != nil {
+	if baked := nestiaSDKTryBakeJsonSchema(prog, typ, context.collection, result.Data, properties, escape); baked != nil {
 		metadataLiteral["jsonSchema"] = baked
 	}
 	data := map[string]any{
@@ -938,7 +938,7 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 // nestiaSDKTryBakeJsonSchema runs `JsonSchemasProgrammer.WriteSchemas` for a
 // single metadata and returns the OpenAPI 3.1 schema literal. Returns nil
 // when typia signals the metadata has no JSON-schema representation (e.g.
-// `void` returns, function-only types) — the JS-side reader handles missing
+// `void` returns, function-only types) ??the JS-side reader handles missing
 // `jsonSchema` fields. Any other panic is re-raised so real bugs surface.
 //
 // With `properties`, the literal also carries the schema of each property of
@@ -946,9 +946,11 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 // individual parameters (see `nestiaSDKPropertySchemas`).
 func nestiaSDKTryBakeJsonSchema(
 	prog *driver.Program,
-	typeNode *shimast.Node,
+	typ *shimchecker.Type,
+	registry *schemametadata.MetadataCollection,
 	metadata *schemametadata.MetadataSchema,
 	properties bool,
+	escape bool,
 ) (baked map[string]any) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -995,7 +997,7 @@ func nestiaSDKTryBakeJsonSchema(
 	if propertySchemas != nil {
 		baked["properties"] = propertySchemas
 	}
-	nestiaSDKMarkReadonlyArrayJsonSchema(prog, typeNode, baked)
+	nestiaSDKMarkReadonlyArrayJsonSchema(prog, typ, baked, registry, escape)
 	return baked
 }
 
@@ -1213,279 +1215,175 @@ func nestiaSDKIsNilLike(value any) bool {
 	}
 }
 
-func nestiaSDKMarkReadonlyArrayJsonSchema(prog *driver.Program, typeNode *shimast.Node, baked map[string]any) {
-	components, _ := baked["components"].(map[string]any)
-	schemas, _ := components["schemas"].(map[string]any)
-	schema := nestiaSDKSchemaMap(baked["schema"])
-	nestiaSDKMarkReadonlyArraySchemaNode(
-		prog,
-		typeNode,
-		schema,
-		schemas,
-		map[*shimast.Node]bool{},
-	)
+// nestiaSDKMarkReadonlyArrayJsonSchema carries the producing checker's readonly
+// facts into the baked schema. Alias spelling is never an immutability test.
+func nestiaSDKMarkReadonlyArrayJsonSchema(prog *driver.Program, typ *shimchecker.Type, baked map[string]any, registry *schemametadata.MetadataCollection, escape bool) {
+ registry = registry.Clone()
+ components, _ := baked["components"].(map[string]any)
+ schemas, _ := components["schemas"].(map[string]any)
+ nestiaSDKMarkReadonlySchemaType(prog, typ, nestiaSDKSchemaMap(baked["schema"]), schemas, registry, escape, map[nestiaSDKReadonlyVisit]bool{}, false)
+ for key, schema := range nestiaSDKSchemaMap(baked["properties"]) {
+  nestiaSDKMarkReadonlySchemaType(prog, prog.Checker.GetTypeOfPropertyOfType(typ, key), nestiaSDKSchemaMap(schema), schemas, registry, escape, map[nestiaSDKReadonlyVisit]bool{}, false)
+ }
 }
 
-func nestiaSDKMarkReadonlyArraySchemaNode(
-	prog *driver.Program,
-	typeNode *shimast.Node,
-	schema map[string]any,
-	components map[string]any,
-	visiting map[*shimast.Node]bool,
-) {
-	if typeNode == nil || schema == nil {
-		return
-	}
-	if visiting[typeNode] {
-		return
-	}
-	visiting[typeNode] = true
-	defer delete(visiting, typeNode)
-
-	switch typeNode.Kind {
-	case shimast.KindArrayType:
-		child := nestiaSDKSchemaMap(schema["items"])
-		nestiaSDKMarkReadonlyArraySchemaNode(
-			prog,
-			typeNode.AsArrayTypeNode().ElementType,
-			child,
-			components,
-			visiting,
-		)
-	case shimast.KindTupleType:
-		tuple := typeNode.AsTupleTypeNode()
-		items := nestiaSDKSchemaList(schema["prefixItems"])
-		if tuple.Elements != nil {
-			for i, elem := range tuple.Elements.Nodes {
-				if i >= len(items) {
-					break
-				}
-				child := nestiaSDKSchemaMap(items[i])
-				nestiaSDKMarkReadonlyArraySchemaNode(prog, elem, child, components, visiting)
-			}
-		}
-	case shimast.KindParenthesizedType:
-		nestiaSDKMarkReadonlyArraySchemaNode(
-			prog,
-			typeNode.AsParenthesizedTypeNode().Type,
-			schema,
-			components,
-			visiting,
-		)
-	case shimast.KindTypeOperator:
-		operator := typeNode.AsTypeOperatorNode()
-		if nestiaSDKTypeOperatorPrefix(typeNode, operator.Type) == "readonly" &&
-			nestiaSDKReadonlyArrayOperand(prog, operator.Type) {
-			schema["x-readonly-array"] = true
-		}
-		nestiaSDKMarkReadonlyArraySchemaNode(
-			prog,
-			operator.Type,
-			schema,
-			components,
-			visiting,
-		)
-	case shimast.KindTypeReference:
-		nestiaSDKMarkReadonlyArrayTypeReference(
-			prog,
-			typeNode,
-			schema,
-			components,
-			visiting,
-		)
-	case shimast.KindTypeLiteral:
-		nestiaSDKMarkReadonlyArrayTypeElements(
-			prog,
-			typeNode.AsTypeLiteralNode().Members,
-			schema,
-			components,
-			visiting,
-		)
-	}
+// nestiaSDKMarkReadonlySchemaType pairs actual substituted checker types with
+// the schema positions the writer emitted, including inferred types and cycles.
+func nestiaSDKMarkReadonlySchemaType(prog *driver.Program, typ *shimchecker.Type, schema map[string]any, components map[string]any, registry *schemametadata.MetadataCollection, escape bool, visiting map[nestiaSDKReadonlyVisit]bool, skipEscape bool) {
+ if prog == nil || prog.Checker == nil || typ == nil || schema == nil { return }
+ // The cloned registry preserves the producer's type-to-component identity.
+ // Public emplace lookups cannot mutate the analysis registry or its counters.
+ if escape && !skipEscape {
+  if method := prog.Checker.GetTypeOfPropertyOfType(typ, "toJSON"); method != nil {
+   for _, signature := range prog.Checker.GetSignaturesOfType(method, shimchecker.SignatureKindCall) {
+    if returned := prog.Checker.GetReturnTypeOfSignature(signature); returned != nil && returned != typ {
+     nestiaSDKMarkReadonlySchemaType(prog, returned, schema, components, registry, escape, visiting, true)
+     return
+    }
+   }
+  }
+ }
+ target := schema
+ if ref, ok := schema["$ref"].(string); ok && strings.HasPrefix(ref, "#/components/schemas/") {
+  name := strings.TrimPrefix(ref, "#/components/schemas/")
+  if component := nestiaSDKSchemaMap(components[name]); component != nil {
+   if component["type"] == "object" && typ.Flags() & shimchecker.TypeFlagsObject != 0 {
+    owner, fresh := registry.Emplace(prog.Checker, typ)
+    if fresh || owner.Name != name { return }
+   }
+   target = component
+  }
+ }
+ key := nestiaSDKReadonlyVisit{Type: typ, Schema: reflect.ValueOf(schema).Pointer()}
+ if visiting[key] { return }
+ visiting[key] = true
+ if typ.Flags() & (shimchecker.TypeFlagsUnion | shimchecker.TypeFlagsIntersection) != 0 {
+  for _, child := range typ.AsUnionOrIntersectionType().Types() {
+   matched := false
+   if typ.Flags() & shimchecker.TypeFlagsUnion != 0 {
+    for _, keyword := range []string{"oneOf", "anyOf"} {
+     if branches := nestiaSDKSchemaList(target[keyword]); len(branches) != 0 {
+      matched = true
+      analyzed := nativefactories.MetadataFactory.Analyze(nativefactories.MetadataFactory_IProps{
+       Checker: prog.Checker,
+       Options: nativefactories.MetadataFactory_IOptions{Escape: escape && !skipEscape, Constant: true, Absorb: true},
+       Components: registry.Clone(), Type: child,
+      })
+      if analyzed.Success {
+       written := nativejson.JsonSchemasProgrammer.WriteSchemas(struct { Version string; Metadatas []*schemametadata.MetadataSchema }{Version: "3.1", Metadatas: []*schemametadata.MetadataSchema{schemaprojection.Project(analyzed.Data)}})
+       for _, produced := range written.Schemas {
+        expected := nestiaSDKJsonSchemaLiteral(produced)
+        for _, branch := range branches {
+         if nestiaSDKReadonlySchemaEquivalent(expected, branch) {
+          nestiaSDKMarkReadonlySchemaType(prog, child, nestiaSDKSchemaMap(branch), components, registry, escape, visiting, skipEscape)
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+   if !matched { nestiaSDKMarkReadonlySchemaType(prog, child, schema, components, registry, escape, visiting, skipEscape) }
+  }
+  return
+ }
+ for _, keyword := range []string{"oneOf", "anyOf", "allOf"} {
+  if branches := nestiaSDKSchemaList(target[keyword]); len(branches) != 0 {
+   for _, branch := range branches {
+    nestiaSDKMarkReadonlySchemaType(prog, typ, nestiaSDKSchemaMap(branch), components, registry, escape, visiting, skipEscape)
+   }
+   return
+  }
+ }
+ if target["type"] == "array" {
+  readonly := false
+  var element *shimchecker.Type
+  if shimchecker.IsTupleType(typ) {
+   readonly = typ.TargetTupleType().IsReadonly()
+  } else {
+   for _, index := range prog.Checker.GetIndexInfosOfType(typ) {
+    if index.KeyType().Flags() & shimchecker.TypeFlagsNumber != 0 { element = index.ValueType(); readonly = index.IsReadonly() }
+   }
+  }
+  if !shimchecker.IsTupleType(typ) && element == nil { return }
+  mutableKey := nestiaSDKReadonlyVisit{Schema: reflect.ValueOf(target).Pointer()}
+  if !readonly {
+   visiting[mutableKey] = true
+   delete(schema, "x-readonly-array")
+   delete(target, "x-readonly-array")
+  } else if !visiting[mutableKey] { schema["x-readonly-array"] = true; target["x-readonly-array"] = true }
+  if shimchecker.IsTupleType(typ) {
+   arguments := prog.Checker.GetTypeArguments(typ)
+   for index, flag := range typ.TargetTupleType().ElementFlags() {
+    if flag == shimchecker.ElementFlagsRest && index < len(arguments) { nestiaSDKMarkReadonlySchemaType(prog, arguments[index], nestiaSDKSchemaMap(target["additionalItems"]), components, registry, escape, visiting, false) }
+   }
+   for index, child := range nestiaSDKSchemaList(target["prefixItems"]) {
+    if index < len(arguments) { nestiaSDKMarkReadonlySchemaType(prog, arguments[index], nestiaSDKSchemaMap(child), components, registry, escape, visiting, false) }
+   }
+  } else if element != nil {
+   nestiaSDKMarkReadonlySchemaType(prog, element, nestiaSDKSchemaMap(target["items"]), components, registry, escape, visiting, false)
+  }
+  return
+ }
+ for key, child := range nestiaSDKSchemaMap(target["properties"]) {
+  nestiaSDKMarkReadonlySchemaType(prog, prog.Checker.GetTypeOfPropertyOfType(typ, key), nestiaSDKSchemaMap(child), components, registry, escape, visiting, false)
+ }
+ for _, index := range prog.Checker.GetIndexInfosOfType(typ) {
+  nestiaSDKMarkReadonlySchemaType(prog, index.ValueType(), nestiaSDKSchemaMap(target["additionalProperties"]), components, registry, escape, visiting, false)
+ }
 }
 
-func nestiaSDKMarkReadonlyArrayTypeReference(
-	prog *driver.Program,
-	typeNode *shimast.Node,
-	schema map[string]any,
-	components map[string]any,
-	visiting map[*shimast.Node]bool,
-) {
-	ref := typeNode.AsTypeReferenceNode()
-	name := nestiaSDKEntityNameText(ref.TypeName)
-	libraryArray := nestiaSDKLibraryArrayName(prog, ref.TypeName)
-	if libraryArray == "ReadonlyArray" {
-		schema["x-readonly-array"] = true
-	}
-	if libraryArray != "" && ref.TypeArguments != nil &&
-		len(ref.TypeArguments.Nodes) != 0 {
-		child := nestiaSDKSchemaMap(schema["items"])
-		nestiaSDKMarkReadonlyArraySchemaNode(
-			prog,
-			ref.TypeArguments.Nodes[0],
-			child,
-			components,
-			visiting,
-		)
-	}
-	for _, decl := range nestiaSDKTypeReferenceDeclarations(prog, ref.TypeName) {
-		switch decl.Kind {
-		case shimast.KindInterfaceDeclaration:
-			target := nestiaSDKReferencedSchema(schema, components, name)
-			nestiaSDKMarkReadonlyArrayTypeElements(
-				prog,
-				decl.AsInterfaceDeclaration().Members,
-				target,
-				components,
-				visiting,
-			)
-		case shimast.KindTypeAliasDeclaration:
-			target := nestiaSDKReferencedSchema(schema, components, name)
-			nestiaSDKMarkReadonlyArraySchemaNode(
-				prog,
-				decl.AsTypeAliasDeclaration().Type,
-				target,
-				components,
-				visiting,
-			)
-		}
-	}
+// nestiaSDKReadonlySchemaEquivalent compares the native writer's branch shape,
+// ignoring only the readonly facts this traversal has already attached.
+func nestiaSDKReadonlySchemaEquivalent(expected any, actual any) bool {
+ left, right := nestiaSDKSchemaMap(expected), nestiaSDKSchemaMap(actual)
+ if left != nil && right != nil {
+  count := 0
+  for key, value := range left {
+   if key == "x-readonly-array" { continue }
+   other, exists := right[key]
+   if !exists || !nestiaSDKReadonlySchemaEquivalent(value, other) { return false }
+   count++
+  }
+  for key := range right { if key != "x-readonly-array" { count-- } }
+  return count == 0
+ }
+ leftList, rightList := nestiaSDKSchemaList(expected), nestiaSDKSchemaList(actual)
+ if leftList != nil && rightList != nil {
+  if len(leftList) != len(rightList) { return false }
+  for i := range leftList { if !nestiaSDKReadonlySchemaEquivalent(leftList[i], rightList[i]) { return false } }
+  return true
+ }
+ return reflect.DeepEqual(expected, actual)
+}
+// nestiaSDKReadonlyVisit identifies one checker-type/schema-map pair per bake.
+type nestiaSDKReadonlyVisit struct {
+ Type *shimchecker.Type
+ Schema uintptr
 }
 
-func nestiaSDKMarkReadonlyArrayTypeElements(
-	prog *driver.Program,
-	members *shimast.TypeElementList,
-	schema map[string]any,
-	components map[string]any,
-	visiting map[*shimast.Node]bool,
-) {
-	if members == nil || schema == nil {
-		return
-	}
-	properties := nestiaSDKSchemaMap(schema["properties"])
-	if properties == nil {
-		return
-	}
-	for _, member := range members.Nodes {
-		if member == nil || member.Kind != shimast.KindPropertySignature {
-			continue
-		}
-		property := member.AsPropertySignatureDeclaration()
-		name := nestiaSDKSchemaPropertyName(property.Name())
-		child := nestiaSDKSchemaMap(properties[name])
-		nestiaSDKMarkReadonlyArraySchemaNode(
-			prog,
-			property.Type,
-			child,
-			components,
-			visiting,
-		)
-	}
-}
-
-func nestiaSDKTypeReferenceDeclarations(prog *driver.Program, node *shimast.Node) []*shimast.Node {
-	if prog == nil || prog.Checker == nil || node == nil {
-		return nil
-	}
-	symbol := prog.Checker.GetSymbolAtLocation(node)
-	if symbol == nil {
-		typ := prog.Checker.GetTypeFromTypeNode(node)
-		if typ != nil {
-			symbol = typ.Symbol()
-		}
-	}
-	if symbol == nil {
-		return nil
-	}
-	if symbol.Flags&shimast.SymbolFlagsAlias != 0 {
-		if aliased := shimchecker.Checker_getAliasedSymbol(prog.Checker, symbol); aliased != nil {
-			symbol = aliased
-		}
-	}
-	return symbol.Declarations
-}
-
-// nestiaSDKLibraryArrayName recognizes array declarations through their checker
-// symbol and the actual program's default-library identity. Module-local types
-// may use either array name without acquiring library array semantics.
-func nestiaSDKLibraryArrayName(prog *driver.Program, node *shimast.Node) string {
-	if prog == nil || prog.TSProgram == nil {
-		return ""
-	}
-	for _, declaration := range nestiaSDKTypeReferenceDeclarations(prog, node) {
-		name := declaration.Name()
-		source := shimast.GetSourceFileOfNode(declaration)
-		if name == nil || source == nil || !prog.TSProgram.IsLibFile(source) {
-			continue
-		}
-		if name.Text() == "Array" || name.Text() == "ReadonlyArray" {
-			return name.Text()
-		}
-	}
-	return ""
-}
-
-func nestiaSDKReferencedSchema(schema map[string]any, components map[string]any, name string) map[string]any {
-	ref, _ := schema["$ref"].(string)
-	if ref == "" {
-		return schema
-	}
-	const prefix = "#/components/schemas/"
-	if strings.HasPrefix(ref, prefix) {
-		name = strings.TrimPrefix(ref, prefix)
-	}
-	target := nestiaSDKSchemaMap(components[name])
-	if target != nil {
-		return target
-	}
-	return schema
-}
-
+// nestiaSDKSchemaMap exposes schema maps and the values of an ordered property
+// dictionary without copying or changing its key order.
 func nestiaSDKSchemaMap(input any) map[string]any {
-	switch value := input.(type) {
-	case map[string]any:
-		return value
-	case nativeiterate.JsonSchema:
-		return map[string]any(value)
-	default:
-		return nil
-	}
+ switch value := input.(type) {
+ case map[string]any: return value
+ case nativeiterate.JsonSchema: return map[string]any(value)
+ case nativefactories.LiteralFactory_OrderedObject: return value.Values
+ case *nativefactories.LiteralFactory_OrderedObject:
+  if value != nil { return value.Values }
+ }
+ return nil
 }
 
 func nestiaSDKSchemaList(input any) []any {
-	switch value := input.(type) {
-	case []any:
-		return value
-	case []nativeiterate.JsonSchema:
-		output := make([]any, len(value))
-		for i, elem := range value {
-			output[i] = elem
-		}
-		return output
-	default:
-		return nil
-	}
-}
-
-func nestiaSDKReadonlyArrayOperand(prog *driver.Program, node *shimast.Node) bool {
-	if node == nil {
-		return false
-	}
-	switch node.Kind {
-	case shimast.KindArrayType, shimast.KindTupleType:
-		return true
-	case shimast.KindTypeReference:
-		return nestiaSDKLibraryArrayName(prog, node.AsTypeReferenceNode().TypeName) == "Array"
-	case shimast.KindParenthesizedType:
-		return nestiaSDKReadonlyArrayOperand(prog, node.AsParenthesizedTypeNode().Type)
-	default:
-		return false
-	}
-}
-
-func nestiaSDKSchemaPropertyName(node *shimast.Node) string {
-	text := nestiaSDKTypeNodeText(node)
-	return strings.Trim(text, "\"'")
+ switch value := input.(type) {
+ case []any: return value
+ case []nativeiterate.JsonSchema:
+  output := make([]any, len(value))
+  for i, elem := range value { output[i] = elem }
+  return output
+ default: return nil
+ }
 }
 
 func nestiaSDKRestoreUnionOrder(typeNode *shimast.Node, metadata *schemametadata.MetadataSchema) {
@@ -1678,7 +1576,7 @@ func nestiaSDKIsTypiaSourceFile(prog *driver.Program, source *shimast.SourceFile
 }
 
 func nestiaSDKTypeGuardErrorSchemaPipe() any {
-	// Synthetic metadata for `TypeGuardError` exception responses — does not
+	// Synthetic metadata for `TypeGuardError` exception responses ??does not
 	// flow through `nestiaSDKSchemaPipe`, so the pre-baked fields legacy.ts
 	// reads (size/name/empty/jsonSchema) have to be filled by hand.
 	metadata := nestiaSDKObjectReferenceSchema("TypeGuardErrorany")

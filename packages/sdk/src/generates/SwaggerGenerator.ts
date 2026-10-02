@@ -24,7 +24,6 @@ import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { FileRetriever } from "../utils/FileRetriever";
 import { SdkHttpParameterProgrammer } from "./internal/SdkHttpParameterProgrammer";
 import { SwaggerOperationComposer } from "./internal/SwaggerOperationComposer";
-import { SwaggerReadonlyArrayEmender } from "./internal/SwaggerReadonlyArrayEmender";
 
 /**
  * Composes and writes the OpenAPI document.
@@ -137,13 +136,6 @@ export namespace SwaggerGenerator {
       version: "3.1",
       metadatas,
     });
-    json.schemas.forEach((schema, i) =>
-      SwaggerReadonlyArrayEmender.emend({
-        components: json.components,
-        schema,
-        metadata: metadatas[i]!,
-      }),
-    );
     const dict: WeakMap<MetadataSchema, OpenApi.IJsonSchema> = new WeakMap();
     json.schemas.forEach((schema, i) => dict.set(metadatas[i]!, schema));
     const schema = (
