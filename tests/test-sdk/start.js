@@ -557,7 +557,7 @@ const runTtsxTestOnce = async (_name, cwd, port, options) =>
 const BATCH_SIZE = 12;
 const BATCH_EXCLUDED = new Set([
   "all",
-  "body-rich",
+  "http-rich",
   "cli-config",
   "cli-config-project",
   "cli-project",
