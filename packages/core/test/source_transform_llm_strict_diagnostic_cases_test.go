@@ -21,7 +21,7 @@ import (
 //
 // @evidence contracts/testing.md#behavioral-verification Native source transforms reject optional body/query properties under strict LLM mode and WeakMap responses with exit 3, the responsible decorator and schema reason, without publishing output. Non-strict optional DTOs and required-property/supported-response strict controls must inject successfully.
 // @evidence contracts/testing.md#independent-expectations Strict LLM schemas require object properties, and WeakMap is unsupported; the handwritten fixtures establish these differences. Expected exit classifications and decorator names are literals, independent of generated validators.
-// @evidence contracts/testing.md#distinguishing-cases Optional body/query negatives have otherwise identical non-strict twins and strict required-property controls; WeakMap fails with strict both true and false while an ordinary response succeeds. The WeakMap diagnostic must retain its source and property type. Actual wrapper forwarding belongs to the common E2E population.
+// @evidence contracts/testing.md#distinguishing-cases Optional body/query negatives have otherwise identical non-strict twins and strict required-property controls, both alone and beside an already required string property. Query controls include an optional number. WeakMap fails with strict both true and false, alone and beside a required id, while an ordinary response succeeds. The WeakMap diagnostic must retain its source and property type. Actual wrapper forwarding belongs to the common SDK integration population.
 // @evidence contracts/testing.md#execution-ownership The core Go module discovers this table case and invokes the source-to-source operation in-process on authored files. No JavaScript consumer compilation, compiler child or installed host is created; t.TempDir owns declarations and output.
 func TestSourceTransformLlmStrictDiagnosticCases(t *testing.T) {
 	for _, item := range []struct {
@@ -41,6 +41,14 @@ func TestSourceTransformLlmStrictDiagnosticCases(t *testing.T) {
 		{"llm-body", true, false, "", "", "value: string"},
 		{"llm-query", true, false, "", "", "value: string"},
 		{"llm-route", true, false, "", "", "value: string"},
+		{"llm-body", true, true, "nestia.core.TypedBody", "optional", "title: string; thumbnail?: string"},
+		{"llm-body", false, false, "", "", "title: string; thumbnail?: string"},
+		{"llm-body", true, false, "", "", "title: string; thumbnail: string"},
+		{"llm-query", true, true, "nestia.core.TypedQuery", "optional", "name: string; age?: number"},
+		{"llm-query", false, false, "", "", "name: string; age?: number"},
+		{"llm-query", true, false, "", "", "name: string; age: number"},
+		{"llm-route", true, true, "nestia.core.TypedRoute", "LLM schema does not support WeakMap type.", "id: string; weak: WeakMap<object, object>"},
+		{"llm-route", false, true, "nestia.core.TypedRoute", "LLM schema does not support WeakMap type.", "id: string; weak: WeakMap<object, object>"},
 	} {
 		name := item.source + "-non-strict-" + item.property
 		if item.strict {

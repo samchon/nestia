@@ -20,8 +20,6 @@ const CACHE = path.resolve(
     path.join(ROOT, "node_modules", ".cache", "ttsc"),
 );
 
-const LLM_CASES = ["llm-body", "llm-query", "llm-route"];
-
 const main = () => {
   fs.rmSync(LIB, { recursive: true, force: true });
   fs.mkdirSync(LIB, { recursive: true });
@@ -33,24 +31,10 @@ const main = () => {
   // helper's acceptance, equality, clone and prune semantics.
   measure("typia version guard", typiaVersionGuard);
 
-  measure("llm strict diagnostics", () => {
-    for (const source of LLM_CASES)
-      compile({
-        name: source,
-        source,
-        plugin: { llm: { strict: true } },
-        fail: true,
-        expectedDiagnostics:
-          source === "llm-route"
-            ? [
-                "src/llm-route.ts:11:4 - error TS(nestia.core.TypedRoute): unsupported type detected",
-                "- IArticle.weak: WeakMap",
-                "- LLM schema does not support WeakMap type.",
-              ]
-            : undefined,
-      });
-  });
-
+  // Strict body/query/response schema decisions and their non-strict/valid
+  // twins run in TestSourceTransformLlmStrictDiagnosticCases. The following
+  // single wrapper connection still checks public --noEmit forwarding and
+  // diagnostics; TestBuildNoEmitWeakMapLlmDiagnostic owns all native entry paths.
   measure("llm route no-emit diagnostics", () => {
     compile({
       name: "llm-route-no-emit",
