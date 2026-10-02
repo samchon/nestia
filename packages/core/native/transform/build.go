@@ -136,7 +136,13 @@ func runBuild(args []string) int {
 	if profile {
 		started = time.Now()
 	}
-	newPathsRewriter(prog).applyAll(prog.SourceFiles())
+	// Path remapping serves published output, not type analysis. The private
+	// ForceEmit program used by noEmit has not run semantic diagnostics, so its
+	// checker still resolves imports lazily. Changing those imports to output
+	// paths would make it look for JavaScript files that do not exist.
+	if shouldEmit {
+		newPathsRewriter(prog).applyAll(prog.SourceFiles())
+	}
 	profileBuildStep(profile, "paths-rewrite", started)
 
 	typiaTransform := nestiaTypiaNodeTransform(prog, readTypiaPluginOptions(plan), addDiagnostic)
