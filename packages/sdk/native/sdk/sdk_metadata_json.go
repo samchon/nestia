@@ -284,7 +284,12 @@ func nestiaSDKMetadataTypeTag(tag schemametadata.IMetadataTypeTag) map[string]an
 		"kind":      tag.Kind,
 		"exclusive": tag.Exclusive,
 		"value":     value,
-		"schema":    tag.Schema,
+	}
+	// TagBase's optional schema is absent when the analyzer supplies nil.
+	// An explicit empty object and null leaves inside an actual schema object
+	// remain intact; writing an absent schema as null creates an invalid tag.
+	if tag.Schema != nil {
+		output["schema"] = tag.Schema
 	}
 	// A tag's target is the type it tags, not its value's: `tags.Sequence<1>`
 	// on a bigint holds a number, `tags.Example<"Infinity">` on a number a
