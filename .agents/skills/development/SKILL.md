@@ -38,7 +38,7 @@ These four are never acceptable; choosing any one means the approach is already 
 - Migration templates ship without interactive dependencies — generated projects stay non-interactive.
 - Keep local outputs local. Do not commit `.env`, the tarballs under `deploy/tarballs/`, or any tree the harnesses regenerate (`tests/test-e2e/.tmp-*`, generated consumers and benchmark reports under the integrated E2E workspace).
 - When public behavior changes, update the matching page under `website/src/content/docs/**` in the same change. Follow `.agents/skills/documentation/SKILL.md`.
-- Run `pnpm format` before every ordinary commit and stage the result; never commit unformatted output. One invocation [covers both the package and test trees](../project/SKILL.md#commands), so no workspace needs formatting separately. Issue campaigns move that timing rather than relaxing it, and their own procedures state when: [the solo cycle](../issue-campaign/development.md#implement-and-write-tests) and [a parallel batch](../multi-agent/issue-campaign.md#post-campaign-cleanup).
+- Run `pnpm format` once on the final pull-request changes before merge and include its result in that pull request. Formatting is not a prerequisite for each commit or push, including campaign commits. If later edits change a formatter target, rerun it before merge; an unchanged final snapshot needs no repeat. One invocation [covers both the package and test trees](../project/SKILL.md#commands), so no workspace needs formatting separately. All other validation and merge gates remain required.
 
 ## Consequence Analysis
 

@@ -76,7 +76,7 @@ Each issue remains an evidence and acceptance unit inside the combined diff. Kee
 
 Promote every reproduced defect class, consequence-matrix boundary, and mutation that caught an implementation error into a permanent regression that a canonical package or root command discovers and executes. A dormant or one-off scratch witness is not enough when the same class could recur after the campaign.
 
-Follow the development skill for test shape and narrow-then-broad local evidence. Do not treat a local build or test result as a substitute for the pull request's ordinary CI acceptance gate. After the source, tests, documentation, fixtures, and generated consequences are ready, run `pnpm format` and include its integrated result in the same pull request.
+Follow the development skill for test shape and narrow-then-broad local evidence. Do not treat a local build or test result as a substitute for the pull request's ordinary CI acceptance gate. Apply its final formatting rule before merge and include the result in the same pull request; intermediate commits and pushes need no formatter run.
 
 If implementation disproves, narrows, or externally blocks an issue, reopen the evidence and revalidate that conclusion from primary sources before changing the claimed scope. Record the evidence on the issue and pull-request thread, update the campaign ledger, and close a confirmed-invalid issue. Do not leave an orphan issue or pretend an unresolved accepted issue was completed.
 
@@ -90,7 +90,7 @@ Overlap stops where it would destroy evidence: a [Self-Review round](#validate-w
 
 ## Validate With CI And Self-Review
 
-Commit and push the formatted integrated snapshot, then let every ordinary pull-request check run. Start solo Self-Review immediately over that exact base-to-head diff while CI executes. A test process may run during the round because it does not change the snapshot; a source edit does, so commit any correction and restart the round over the new head.
+Commit and push the integrated snapshot, then let every ordinary pull-request check run. Start solo Self-Review immediately over that exact base-to-head diff while CI executes. A test process may run during the round because it does not change the snapshot; a source edit does, so commit any correction and restart the round over the new head. Include final formatting before merge and apply these same gates to any resulting head change.
 
 Submit every Self-Review finding round and the final clean round as a formal GitHub pull-request review with the `COMMENT` event. Attach line-specific findings as inline review comments and summarize round-wide findings or the clean conclusion in the review body; do not post ordinary issue-style pull-request comments for Self-Review.
 
@@ -109,7 +109,7 @@ When any gate finds a defect:
 
 1. Diagnose the real cause from the CI log, review evidence, or gate output.
 2. Correct the source and complete the corresponding regression coverage.
-3. Run `pnpm format`.
+3. Apply final formatting only when the correction is ready for merge, following the development skill's Work Rules.
 4. Commit and push the correction to the same pull request.
 5. Let the new CI run to completion and restart Self-Review as a fresh complete round over the new head.
 

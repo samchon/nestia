@@ -19,7 +19,7 @@ Solo work never creates a clone or worktree; only an explicit multi-agent campai
 
 Use one commit per coherent unit when the diff is large. Follow the repository's `<type>(<scope>): <subject>` history with an imperative lowercase subject and no trailing period.
 
-Run the validation and [formatting](../development/SKILL.md#work-rules) the development skill requires. A campaign's own procedure states when its formatter result lands.
+Run the validation the development skill requires. [Formatting](../development/SKILL.md#work-rules) belongs to the final changes before merge, not to each commit or push.
 
 Stage explicit paths when the worktree is mixed. Never include unrelated user changes silently.
 
@@ -39,7 +39,7 @@ An ordinary pull request carries one GitHub issue unless two issues are genuinel
 
 ## Issue Campaign Override
 
-Before any issue-campaign push or pull request, complete `.agents/skills/issue-campaign/development.md`. A solo campaign uses one formatted cycle pull request and the ordinary check loop, plus its integration-sensitive gate. Only `.agents/skills/multi-agent/issue-campaign.md` overrides that flow with worktree batches, exact-SHA campaign-run cancellation, local implementation gates, and Post-Campaign Cleanup.
+Before any issue-campaign push or pull request, complete the applicable steps of `.agents/skills/issue-campaign/development.md`; its final formatting step remains a merge gate. A solo campaign uses one cycle pull request and the ordinary check loop, plus its integration-sensitive gate. Only `.agents/skills/multi-agent/issue-campaign.md` overrides that flow with worktree batches, exact-SHA campaign-run cancellation, local implementation gates, and Post-Campaign Cleanup.
 
 ## Watch Checks After Every Ordinary Push
 
@@ -51,4 +51,4 @@ The single `test.yml` job checks Evidence, Go, unit and E2E populations after sh
 
 Do not merge, squash-merge, rebase, or update the target branch on unprompted initiative. Merge when the user explicitly asks, or when a standing autonomous mandate authorizes end-to-end delivery; use the repository's established merge method unless another is specified. Under an autonomous mandate the author that owns the pull request merges it themselves once the merge gate below passes, without separate approval.
 
-Before merging an ordinary or Post-Campaign Cleanup pull request, confirm required checks pass. For a multi-agent campaign implementation pull request whose automatic CI is deliberately suspended, confirm its local-verification, independent-verification, and integration gates instead. If branch protection blocks the requested merge, report the blocker rather than bypassing it.
+Before merging, apply the development skill's [final formatting rule](../development/SKILL.md#work-rules) and include any resulting changes in the pull-request head. Confirm required checks pass on that final head for an ordinary or Post-Campaign Cleanup pull request. For a multi-agent campaign implementation pull request whose automatic CI is deliberately suspended, confirm its local-verification, independent-verification, and integration gates instead. If branch protection blocks the requested merge, report the blocker rather than bypassing it.

@@ -18,7 +18,7 @@ The base issue-campaign skill owns authorization, the knowledge base, candidate 
 Four rules govern the parallel implementation phase, which is the wave of concurrent batch pull requests. A campaign whose implementation returns to the solo procedure has no such phase, so its cycle pull request follows the solo rules and ordinary CI instead:
 
 - Local and package verification, solo Self-Review, independent verification, lead readback, and every applicable integration gate are mandatory implementation gates.
-- Do not run `pnpm format` during discovery, issue publication, or parallel batch implementation. Post-Campaign Cleanup owns the repository-wide formatter result. A campaign that returns implementation to the solo procedure formats its cycle pull request there instead, and then needs no cleanup format pull request.
+- Apply the development skill's final formatting rule to each batch or solo cycle pull request before merge. Discovery, issue publication and intermediate implementation commits need no formatter run. Include each formatter result in its owning pull request rather than deferring it to Post-Campaign Cleanup.
 - Never disable repository Actions or any workflow for a campaign. [Cancel Campaign CI](#cancel-campaign-ci) owns the exact-SHA record that replaces ordinary checks.
 - Campaign branches and pull requests freeze package versions, release tags, and publication state, exactly as the [solo rule](../issue-campaign/development.md#flow) states.
 
@@ -33,7 +33,7 @@ Switch to parallel discovery with solo implementation only when the user explici
 1. Run Parallel Discovery and let the lead complete candidate adjudication and authorized publication.
 2. Stop every discovery agent before implementation begins.
 3. Read the base issue campaign's [solo development procedure](../issue-campaign/development.md).
-4. Put every implementation-ready issue into its one empty-claim pull request, use the current checkout without a worktree, run `pnpm format`, validate through ordinary CI, and complete solo Self-Review while CI runs.
+4. Put every implementation-ready issue into its one empty-claim pull request, use the current checkout without a worktree, validate through ordinary CI, and complete solo Self-Review while CI runs. Apply final formatting before merge under the development skill's Work Rules.
 5. Apply that procedure's implementation, CI, merge, branch cleanup, and temporary-asset rules, but return here for the next parallel discovery round instead of switching to solo discovery.
 
 Do not infer solo implementation from quota concerns, a small issue count, or the fact that the lead performs publication. Only the user's explicit phase boundary selects it.
@@ -154,12 +154,12 @@ If the user authorized discovery but not implementation, report the campaign as 
 Run normal completion cleanup only after the terminal repository-wide round satisfies the review skill's stop rule, every campaign pull request is resolved, every campaign worktree is removed, and no campaign branch needs another push.
 
 1. Return to `master` in the main checkout, confirm it contains no unrelated user changes, and pull the final campaign result with `git pull --ff-only origin master`.
-2. Run `pnpm format` once against the integrated repository.
-3. If formatting produces no diff, report that no cleanup pull request was needed and stop.
-4. If formatting changes files, create a dedicated topic branch containing the formatter result and only directly necessary fixes.
+2. Confirm every merged campaign pull request included its final formatting result. Do not rerun formatting on an unchanged integrated snapshot.
+3. If no cleanup change is needed, report that no cleanup pull request was needed and stop.
+4. If cleanup needs directly necessary fixes, create a dedicated topic branch containing them.
 5. Commit and push under the pull-request skill, pass the exact-SHA cancellation gate, open the Post-Campaign Cleanup pull request, and pass the gate again for pull-request-triggered runs.
 6. Diagnose any locally reproducible failure, fix it, commit, push, and cancel the new commit's runs by the same gate.
-7. Merge once required checks pass: with explicit user authorization, or on a standing autonomous mandate without a separate request.
+7. Apply final formatting before merge, include any resulting changes in the cleanup pull request, and merge once required checks pass on the final head: with explicit user authorization, or on a standing autonomous mandate without a separate request.
 8. Return the checkout to `master` and pull with `git pull --ff-only origin master`, deleting the local cleanup branch; remove an auxiliary cleanup worktree under Remove Every Finished Worktree instead.
 9. Require the main checkout to be clean. Compare the final repository Actions permission and workflow inventory with the initial record and require that the campaign made no change.
 
