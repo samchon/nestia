@@ -20,7 +20,26 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
 
+/**
+ * Writes the function of an HTTP route.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace prints the exported async function with its parameters and the fetcher call and its headers.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and the body writers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The names come from the parameter programmer.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpFunctionProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace SdkHttpFunctionProgrammer {
+  /**
+   * Returns the exported async function of a route: `connection`, then the
+   * parameters, returning the output or `void`.
+   *
+   * @evidence contracts/common.md#principled-implementation The identifiers were decided once by the parameter programmer, and the body calls the plain or the encrypted fetcher.
+   * @evidence contracts/common.md#clear-and-simple-design One declaration built from the parameter and body helpers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The function uses the route's assigned name; SdkFileProgrammer may assign a private binding and export it under the public accessor when the module scope collides.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpFunctionProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>

@@ -5,6 +5,11 @@ import type { OpenApi } from "typia";
  * Definition for the `nestia.config.ts` file.
  *
  * @author Jeongho Nam - https://github.com/samchon
+ * @evidence contracts/common.md#principled-implementation The input names the controllers to analyze and every optional property enables or refines one output (SDK, distribution, e2e, Swagger), so one configuration file drives every generator.
+ * @evidence contracts/common.md#clear-and-simple-design A flat record whose nested types describe the input and the Swagger options.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation Every property documents its meaning and default, which are the public contract of the configuration file.
+ * @evidence contracts/portability.md#os-neutral-implementation Source inputs and output/distribution/e2e destinations carry native pathname strings interpreted by their owning Node filesystem operations; the application callback bypasses source compilation. Swagger route paths are distinct protocol values, not native file identities.
  */
 export interface INestiaConfig {
   /**
@@ -49,11 +54,16 @@ export interface INestiaConfig {
    */
   distribute?: string;
 
-  /** @default false */
+  /**
+   * Groups HTTP and WebSocket SDK call arguments in one props object after the
+   * connection. MCP wrappers retain their client and arguments parameters.
+   *
+   * @default false
+   */
   keyword?: boolean;
 
   /**
-   * Allow simulation mode.
+   * Allow simulation mode for HTTP SDK calls.
    *
    * If you configure this property to be `true`, the SDK library would be
    * contain simulation mode. In the simulation mode, the SDK library would not
@@ -72,7 +82,8 @@ export interface INestiaConfig {
    *
    * If you configure this property and runs `npx nestia e2e` command,
    * `@nestia/sdk` will analyze your NestJS backend server code, and generates
-   * e2e test functions for every API endpoints.
+   * e2e test functions for the analyzed HTTP endpoints. WebSocket and MCP
+   * operations have no generated HTTP test function.
    *
    * If not configured, you can't run `npx nestia e2e` command.
    */
@@ -82,10 +93,10 @@ export interface INestiaConfig {
    * Whether to use propagation mode or not.
    *
    * If being configured, interaction functions of the SDK library would perform
-   * the propagation mode. The propagation mode means that never throwing
-   * exception even when status code is not 200 (or 201), but just returning the
+   * propagation mode. HTTP failure statuses are returned through the
    * {@link IPropagation} typed instance, which can specify its body type through
-   * discriminated union determined by status code.
+   * discriminated union determined by status code. Transport, decoding and
+   * configured assertion failures can still throw.
    *
    * @default false
    */
@@ -94,9 +105,10 @@ export interface INestiaConfig {
   /**
    * Whether to clone DTO structures or not.
    *
-   * If being configured, all of DTOs used in the backend server would be cloned
-   * into the `structures` directory, and the SDK library would be refer to the
-   * cloned DTOs instead of the original.
+   * If enabled, named DTOs reachable from analyzed routes are emitted into
+   * `structures`, with anonymous forms written inline. HTTP and MCP DTOs use
+   * their wire metadata; supported WebSocket declarations are copied from local
+   * sources, while external or unsupported imports retain source links.
    *
    * @default false
    */
@@ -105,8 +117,10 @@ export interface INestiaConfig {
   /**
    * Whether to wrap DTO by primitive type.
    *
-   * If you don't configure this property as `false`, all of DTOs in the SDK
-   * library would be automatically wrapped by {@link Primitive} type.
+   * Unless false, source DTO aliases use Primitive for JSON bodies and
+   * responses, and Resolved for query, headers and other resolved wire forms.
+   * Clone mode writes the analyzed metadata directly; multipart bodies use
+   * FormDataInput and binary responses use ReadableStream.
    *
    * For refenrece, if a DTO type be capsuled by the {@link Primitive} type, all
    * of methods in the DTO type would be automatically erased. Also, if the DTO
@@ -120,9 +134,10 @@ export interface INestiaConfig {
   /**
    * Whether to assert parameter types or not.
    *
-   * If you configure this property to be `true`, all of the function parameters
-   * of SDK library would be checked through [`typia.assert<T>()`
-   * function](https://typia.io/docs/validators/assert/).
+   * If true, HTTP path, query and body arguments are checked through
+   * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
+   * The connection, connection headers, WebSocket and MCP arguments are outside
+   * this option.
    *
    * This option would make your SDK library compilation time a little bit
    * slower, but would enahcne the type safety even in the runtime level.
@@ -132,16 +147,13 @@ export interface INestiaConfig {
   assert?: boolean;
 
   /**
-   * Whether to optimize JSON string conversion 10x faster or not.
+   * Generates specialized JSON serialization for JSON and encrypted request
+   * bodies.
    *
-   * If you configure this property to be `true`, the SDK library would utilize
-   * the [`typia.assertStringify<T>()
-   * function`](https://github.com/samchon/typia#enhanced-json) to boost up JSON
-   * serialization speed and ensure type safety.
-   *
-   * This option would make your SDK library compilation time a little bit
-   * slower, but would enhance JSON serialization speed 10x faster. Also, it can
-   * ensure type safety even in the runtime level.
+   * When enabled, the SDK emits a `typia.json.assertStringify` function for the
+   * body type. With `assert` enabled, argument validation runs separately and
+   * serialization uses `typia.json.stringify` without repeating the assertion.
+   * Compilation and runtime costs depend on the body type and workload.
    *
    * @default false
    */
@@ -151,6 +163,12 @@ export namespace INestiaConfig {
   /**
    * List of files or directories to include or exclude to specifying the NestJS
    * controllers.
+   *
+   * @evidence contracts/common.md#principled-implementation Include lists select controller files or directories and exclude lists remove files from that selection.
+   * @evidence contracts/common.md#clear-and-simple-design A two-member record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidence contracts/portability.md#os-neutral-implementation Include and exclude strings represent native files, directories or glob patterns. SourceFinder owns resolving them against the current working directory and distinguishing literal existing paths from wildcard suffixes.
    */
   export interface IInput {
     /** List of files or directories containing the NestJS controller classes. */
@@ -160,7 +178,15 @@ export namespace INestiaConfig {
     exclude?: string[];
   }
 
-  /** Building `swagger.json` is also possible. */
+  /**
+   * Building `swagger.json` is also possible.
+   *
+   * @evidence contracts/common.md#principled-implementation The output path is required and every other option refines the composed OpenAPI document before it is written.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record of options with one callback.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidence contracts/portability.md#os-neutral-implementation output is a native destination interpreted by path.parse/resolve in SwaggerGenerator; a nonempty extension denotes a file and otherwise the destination is a directory. Server URLs and operation paths retain protocol spelling independently of that filesystem boundary.
+   */
   export interface ISwaggerConfig {
     /**
      * Response path of the `swagger.json`.
@@ -265,6 +291,11 @@ export namespace INestiaConfig {
      *
      * @param props Properties of the API endpoint.
      * @returns Operation ID.
+     * @evidence contracts/common.md#principled-implementation An explicit @operationId tag takes precedence; otherwise this callback receives the four identifying facts once for the composed operation and supplies its identifier.
+     * @evidence contracts/common.md#clear-and-simple-design One optional callback with a single argument object.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a caller-supplied function and nothing about a particular naming scheme is built in.
+     * @evidence contracts/common.md#meaningful-documentation The comment documents the arguments and the result.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation This callback receives HTTP endpoint identity and returns an OpenAPI identifier; it owns no native pathname or process boundary.
      */
     operationId?(props: {
       class: string;

@@ -26,6 +26,11 @@ import (
 //     list its DTO declaration file under the same key `typescript` uses.
 //  3. Assert `configs` starts at the feature tsconfig and reaches the shared
 //     base config it extends.
+//
+// @evidence contracts/testing.md#behavioral-verification A project transform must publish a graph with the emitted body controller pointing to its article DTO, and a config list starting at tsconfig.json and including its extended base.
+// @evidence contracts/testing.md#independent-expectations The authored controller references IBbsArticle and the fixture tsconfig extends the shared test config; the graph protocol must expose both as incremental input identities.
+// @evidence contracts/testing.md#distinguishing-cases This owns positive reference/config tracking; the complementary graph omission test owns an unrelated declaration and virtual library identities.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformProjectEnvelopeStampsReferenceGraph(t *testing.T) {
 	envelope := runProjectTransformEnvelope(t, "body")
 	if envelope.Graph == nil {

@@ -5,6 +5,16 @@ import typia from "typia";
 import api from "@api";
 import { IListener } from "@api/lib/structures/IListener";
 
+/**
+ * Verifies arithmetic RPC results and callback order at the
+ * app-globalPrefix-versionUri-routerModule route.
+ *
+ * Route composition must connect the generated WebSocket client to the same
+ * authored calculator after prefix, version or router-module composition.
+ *
+ * 1. Connect a generated client with a listener recording callback events.
+ * 2. Compare each result and the full callback list with independent arithmetic.
+ */
 export const test_api_api_v3_websocket_calculate = async (
   connection: api.IConnection,
 ): Promise<void> => {

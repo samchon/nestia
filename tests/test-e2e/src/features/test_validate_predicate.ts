@@ -1,5 +1,16 @@
 import { TestValidator } from "@nestia/e2e";
 
+/**
+ * Verifies testValidator.predicate accepts true and rejects false consistently
+ * across task forms.
+ *
+ * Boolean truth establishes predicate success and false establishes a labeled
+ * Error.
+ *
+ * 1. Exercise the authored scenario and its controls.
+ * 2. Assert scalar, closure and asynchronous forms exercise both truth values and
+ *    verify that all three failures carry the same Error message.
+ */
 export async function test_validate_predicate(): Promise<void> {
   // SCALAR
   TestValidator.predicate("true", true);

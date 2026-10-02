@@ -23,12 +23,12 @@ export const test_mcp_tools_call = async (
   connection: IConnection,
 ): Promise<void> => {
   const client = new Client({ name: "nestia-test", version: "1.0.0" });
-  await client.connect(
-    new StreamableHTTPClientTransport(
-      new URL(`${connection.host}${connection.path}`),
-    ),
-  );
   try {
+    await client.connect(
+      new StreamableHTTPClientTransport(
+        new URL(`${connection.host}${connection.path}`),
+      ),
+    );
     const addResult: any = await client.callTool({
       name: "add",
       arguments: { a: 2, b: 3 },

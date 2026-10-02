@@ -12,6 +12,7 @@ import { PlainFetcher } from "@nestia/fetcher";
  * 2. Propagate the response through `PlainFetcher`.
  * 3. Assert each cookie remains a full string including its attributes.
  */
+
 export async function test_fetcher_set_cookie_response_headers(): Promise<void> {
   const first: string =
     "cookie1=qwe123; Path=/; Expires=Fri, 05 Apr 2024 12:31:46 GMT; HttpOnly; Secure; SameSite=Lax";

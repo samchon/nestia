@@ -3,6 +3,15 @@ import { v4 } from "uuid";
 
 import api from "@api";
 
+/**
+ * Verifies a UUID path echoes while null and malformed UUID text are rejected.
+ *
+ * Generated path transport and the native UUID format tag must agree.
+ *
+ * 1. Execute the authored fixture inputs through the owning route.
+ * 2. Assert the supplied UUID must be returned unchanged; null and 12345678 must
+ *    throw.
+ */
 export const test_api_param_uuid = async (
   connection: api.IConnection,
 ): Promise<void> => {

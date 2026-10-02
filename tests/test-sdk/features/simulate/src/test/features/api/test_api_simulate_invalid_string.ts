@@ -2,6 +2,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import api from "@api";
 
+/**
+ * Calls the generated at simulator with null section and a valid UUID and
+ * requires HttpError 400.
+ */
 export const test_api_simulate_invalid_string = (
   connection: api.IConnection,
 ): Promise<void> =>

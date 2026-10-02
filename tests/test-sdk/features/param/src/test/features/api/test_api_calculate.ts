@@ -1,11 +1,22 @@
 import { TestValidator } from "@nestia/e2e";
 import { sleep_for } from "tstl";
-import typia from "typia";
 import { v4 } from "uuid";
 
 import api from "@api";
 import { IListener } from "@api/lib/structures/IListener";
 
+/**
+ * Verifies the generated websocket driver and listener deliver arithmetic
+ * results and ordered callbacks.
+ *
+ * The RPC connection and callback delivery cross the generated client/server
+ * websocket boundary; connection teardown belongs to the finally block.
+ *
+ * 1. Execute the authored fixture inputs through the owning route.
+ * 2. Assert four operators with x=10 and y=5 are checked by arithmetic
+ *    expressions, getId preserves the supplied UUID, and listener events equal
+ *    the authored request sequence.
+ */
 export const test_api_calculate = async (
   connection: api.IConnection,
 ): Promise<void> => {
@@ -19,8 +30,9 @@ export const test_api_calculate = async (
     id,
     listener,
   );
-  const expected: IListener.IEvent[] = new Array(100).fill(0).map(() => {
-    const operator = typia.random<IListener.IEvent["operator"]>();
+  const expected: IListener.IEvent[] = (
+    ["plus", "minus", "divide", "multiply"] as const
+  ).map((operator) => {
     const x: number = 10;
     const y: number = 5;
     return {

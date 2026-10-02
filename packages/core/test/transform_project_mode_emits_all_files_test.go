@@ -1,10 +1,6 @@
 package test
 
-import (
-	"testing"
-
-	"github.com/samchon/nestia/packages/core/native/transform"
-)
+import "testing"
 
 // TestTransformProjectModeEmitsAllFiles verifies that running transform without
 // --file walks every non-declaration source file in the program and emits the
@@ -18,16 +14,29 @@ import (
 // the success branch.
 //
 //  1. Run transform against the body feature's own tsconfig with no --file.
-//  2. Assert the exit code is 0 (clean program, no transform diagnostics).
+//  2. Decode the clean envelope and require nonempty outputs for its three
+//     controllers and article DTO, with no diagnostics.
+//
+// @evidence contracts/testing.md#behavioral-verification The valid body program must return a decoded project envelope with nonempty body, health, performance and article outputs, the body controller carrying its injected validate validator, and no diagnostics, rather than a vacuous successful exit or an untransformed copy.
+// @evidence contracts/testing.md#independent-expectations These four authored files belong to the body fixture program; project-mode transformation publishes each local program source under its relative filename.
+// @evidence contracts/testing.md#distinguishing-cases The assertions cover transformed controllers and a declaration-only structure. The invalid-driver project case owns transform diagnostics, and graph tests own input dependency tracking.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformProjectModeEmitsAllFiles(t *testing.T) {
-	cwd := featureRootForCore(t, "body")
-	code := transform.Run([]string{
-		"transform",
-		"--cwd", cwd,
-		"--tsconfig", "tsconfig.json",
-		"--plugins-json", coreNativePlugins("validate", "assert"),
-	})
-	if code != 0 {
-		t.Fatalf("project-mode transform should exit 0, got %d", code)
+	envelope := runProjectTransformEnvelope(t, "body")
+	for _, source := range []string{
+		"src/controllers/TypedBodyController.ts",
+		"src/controllers/HealthController.ts",
+		"src/controllers/PerformanceController.ts",
+		"src/api/structures/IBbsArticle.ts",
+	} {
+		if text, ok := envelope.TypeScript[source]; !ok || text == "" {
+			t.Errorf("project transform omitted nonempty output for %s", source)
+		}
+	}
+	// The controller was rewritten, not merely copied: its TypedBody carries the
+	// configured validator, while the declaration-only structure has no decorator.
+	mustDecorateAll(t, envelope.TypeScript["src/controllers/TypedBodyController.ts"], `@core\.TypedBody`, "validate")
+	if len(envelope.Diagnostics) != 0 {
+		t.Errorf("valid project reported diagnostics: %v", envelope.Diagnostics)
 	}
 }

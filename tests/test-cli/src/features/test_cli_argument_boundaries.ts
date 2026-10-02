@@ -2,6 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { CliTestHarness } from "../internal/CliTestHarness";
 
+/** Keeps quotes and shell operators inside individual git arguments. */
 export const test_cli_argument_boundaries = async (): Promise<void> => {
   const repository = 'https://example.com/template" && malicious';
   const destination = 'project" && malicious';

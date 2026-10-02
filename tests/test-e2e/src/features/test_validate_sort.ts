@@ -4,6 +4,16 @@ import { generate_random_articles } from "./internal/generate_random_articles";
 import { IBbsArticle } from "./structures/IBbsArticle";
 import { IPage } from "./structures/IPage";
 
+/**
+ * Verifies testValidator.sort checks ascending and descending article ordering.
+ *
+ * The fixture endpoint sorts date timestamps numerically and text through
+ * localeCompare independently of the supplied comparator closures.
+ *
+ * 1. Exercise the authored scenario and its controls.
+ * 2. Assert created and updated timestamps, title, writer and compound
+ *    writer/title are checked in both directions.
+ */
 export async function test_validate_sort(): Promise<void> {
   const validator = TestValidator.sort<
     IBbsArticle.ISummary,

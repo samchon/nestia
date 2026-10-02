@@ -26,8 +26,8 @@ export const test_mcp_initialize = async (
   const transport = new StreamableHTTPClientTransport(
     new URL(`${connection.host}${connection.path}`),
   );
-  await client.connect(transport);
   try {
+    await client.connect(transport);
     const version: string | undefined = client.getServerVersion()?.name;
     TestValidator.predicate("serverInfo returned", !!version);
 

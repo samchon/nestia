@@ -1,3 +1,4 @@
+/// <reference path="../../src/internal/legacy-augmentation.d.ts" preserve="true" />
 // Internal utilities for the plain metadata emitted by the SDK's Go
 // contributor in `packages/sdk/native/sdk/sdk_transform.go`. These adapters
 // preserve the names formerly provided by `@typia/core` without rebuilding
@@ -14,21 +15,6 @@ import type {
   OpenApi,
 } from "@typia/interface";
 
-// Module augmentation: typia v13's `IReference` carries only a symbolic
-// `name` + tags, but `MetadataSchema.from(plain, dictionary)` mutates
-// each reference to also hold the resolved target type so downstream
-// sdk code can keep its `ref.type!.value` / `ref.type!.elements` access
-// pattern from the legacy `@typia/core` `MetadataArray` / `MetadataTuple`
-// classes. The field is optional because it is only populated after a
-// `MetadataSchema.from` walk against a dictionary.
-declare module "@typia/interface" {
-  namespace IMetadataSchema {
-    interface IReference {
-      type?: IArrayType | ITupleType | IObjectType | IAliasType;
-    }
-  }
-}
-
 /**
  * Plain `IMetadataSchema` augmented with the fields the nestia transform
  * pre-bakes. `size`, `name`, and `empty` replace the methods the legacy
@@ -41,6 +27,12 @@ declare module "@typia/interface" {
  * overlay — still satisfy the type when passed through legacy utilities. The
  * utilities read the fields via the optional accessor and fall back when
  * absent.
+ *
+ * @evidence contracts/common.md#principled-implementation The plain metadata carries baked members the legacy class computed by methods, and each is optional because nested metadata does not carry them.
+ * @evidence contracts/common.md#clear-and-simple-design One extending interface.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the baked fields.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export interface IReflectMetadata extends IMetadataSchema {
   size?: number;
@@ -49,6 +41,16 @@ export interface IReflectMetadata extends IMetadataSchema {
   jsonSchema?: IReflectJsonSchema;
 }
 
+/**
+ * The JSON schema that the transform bakes beside a metadata: the version, the
+ * components, the schema, and the schema of each property.
+ *
+ * @evidence contracts/common.md#principled-implementation The bake is data produced by the Go side, so the record only names its parts.
+ * @evidence contracts/common.md#clear-and-simple-design A record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment and its members state what each part is.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export interface IReflectJsonSchema {
   version: "3.0" | "3.1";
   components: OpenApi.IComponents;
@@ -72,6 +74,12 @@ export interface IReflectJsonSchema {
  * Cross-reference dictionary produced by `MetadataComponents.from`. Each map is
  * keyed by the entry's `.name`, matching the lookup pattern the legacy
  * `MetadataComponents.dictionary` getter offered.
+ *
+ * @evidence contracts/common.md#principled-implementation Four maps by kind let a reference be resolved by name in constant time.
+ * @evidence contracts/common.md#clear-and-simple-design A four-member record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the four kinds.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export interface IMetadataDictionary {
   objects: Map<string, IMetadataSchema.IObjectType>;
@@ -84,25 +92,110 @@ export interface IMetadataDictionary {
 //  Type aliases — the legacy class names ↔ typia v13 plain interfaces.
 // ---------------------------------------------------------------------
 
+/**
+ * The name the SDK uses for a metadata schema.
+ *
+ * @evidence contracts/common.md#principled-implementation The alias maps the legacy class name to the plain interface of typia, so the generators keep their names.
+ * @evidence contracts/common.md#clear-and-simple-design One alias.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ */
 export type MetadataSchema = IMetadataSchema;
+/**
+ * The components of a metadata together with their dictionary.
+ *
+ * @evidence contracts/common.md#principled-implementation The intersection adds the name index to the plain components.
+ * @evidence contracts/common.md#clear-and-simple-design One intersection type and a namespace with one builder.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior. The builder only indexes.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the added dictionary.
+ */
 export type MetadataComponents = IMetadataComponents & {
   dictionary: IMetadataDictionary;
 };
+/**
+ * The name the SDK uses for an alias type.
+ *
+ * @evidence contracts/common.md#principled-implementation The alias maps the legacy class name to the plain interface of typia, so the generators keep their names.
+ * @evidence contracts/common.md#clear-and-simple-design One alias.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export type MetadataAliasType = IMetadataSchema.IAliasType;
+/**
+ * The name the SDK uses for an array type.
+ *
+ * @evidence contracts/common.md#principled-implementation The alias maps the legacy class name to the plain interface of typia, so the generators keep their names.
+ * @evidence contracts/common.md#clear-and-simple-design One alias.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export type MetadataArrayType = IMetadataSchema.IArrayType;
+/**
+ * The name the SDK uses for a tuple type.
+ *
+ * @evidence contracts/common.md#principled-implementation The alias maps the legacy class name to the plain interface of typia, so the generators keep their names.
+ * @evidence contracts/common.md#clear-and-simple-design One alias.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export type MetadataTupleType = IMetadataSchema.ITupleType;
+/**
+ * The name the SDK uses for an object type.
+ *
+ * @evidence contracts/common.md#principled-implementation The alias maps the legacy class name to the plain interface of typia, so the generators keep their names.
+ * @evidence contracts/common.md#clear-and-simple-design One alias.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export type MetadataObjectType = IMetadataSchema.IObjectType;
+/**
+ * The name the SDK uses for an atomic type.
+ *
+ * @evidence contracts/common.md#principled-implementation The alias maps the legacy class name to the plain interface of typia, so the generators keep their names.
+ * @evidence contracts/common.md#clear-and-simple-design One alias.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export type MetadataAtomic = IMetadataSchema.IAtomic;
 /**
  * Flattened constant-value shape: typia v13 splits `IConstant.IValue<T>` by the
  * atomic discriminator, but sdk's literal writer just needs the runtime `value`
  * payload, so collapse the union to a single ergonomic shape.
+ *
+ * @evidence contracts/common.md#principled-implementation The generators need only the value payload, so the union is collapsed into one shape.
+ * @evidence contracts/common.md#clear-and-simple-design A two-member record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the flattening.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export interface MetadataConstantValue {
   value: string | number | bigint | boolean;
   tags: IMetadataTypeTag[][];
 }
+/**
+ * The name the SDK uses for an escaped type.
+ *
+ * @evidence contracts/common.md#principled-implementation The alias maps the legacy class name to the plain interface of typia, so the generators keep their names.
+ * @evidence contracts/common.md#clear-and-simple-design One alias.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export type MetadataEscaped = IMetadataSchema.IEscaped;
+/**
+ * The name the SDK uses for an object property.
+ *
+ * @evidence contracts/common.md#principled-implementation The alias maps the legacy class name to the plain interface of typia, so the generators keep their names.
+ * @evidence contracts/common.md#clear-and-simple-design One alias.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export type MetadataProperty = IMetadataSchema.IProperty;
 
 /**
@@ -112,16 +205,49 @@ export type MetadataProperty = IMetadataSchema.IProperty;
  * dictionary. `MetadataSchema.from` walks the metadata tree once and attaches
  * the resolved `.type` field so downstream sdk code can keep its `ref.type`
  * access pattern.
+ *
+ * @evidence contracts/common.md#principled-implementation The reference is the plain interface plus the `type` that `MetadataSchema.from` resolves against the dictionary.
+ * @evidence contracts/common.md#clear-and-simple-design One intersection type.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the resolved member.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataArray = IMetadataSchema.IReference & {
   type: MetadataArrayType;
 };
+/**
+ * A reference to a named tuple type, with the resolved type attached.
+ *
+ * @evidence contracts/common.md#principled-implementation The reference is the plain interface plus the `type` that `MetadataSchema.from` resolves against the dictionary.
+ * @evidence contracts/common.md#clear-and-simple-design One intersection type.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the resolved member.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export type MetadataTuple = IMetadataSchema.IReference & {
   type: MetadataTupleType;
 };
+/**
+ * A reference to a named object type, with the resolved type attached.
+ *
+ * @evidence contracts/common.md#principled-implementation The reference is the plain interface plus the `type` that `MetadataSchema.from` resolves against the dictionary.
+ * @evidence contracts/common.md#clear-and-simple-design One intersection type.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the resolved member.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export type MetadataObject = IMetadataSchema.IReference & {
   type: MetadataObjectType;
 };
+/**
+ * A reference to a named alias type, with the resolved type attached.
+ *
+ * @evidence contracts/common.md#principled-implementation The reference is the plain interface plus the `type` that `MetadataSchema.from` resolves against the dictionary.
+ * @evidence contracts/common.md#clear-and-simple-design One intersection type.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the resolved member.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export type MetadataAlias = IMetadataSchema.IReference & {
   type: MetadataAliasType;
 };
@@ -130,19 +256,39 @@ export type MetadataAlias = IMetadataSchema.IReference & {
 //  Metadata utility functions — read pre-baked fields, no class wrapping.
 // ---------------------------------------------------------------------
 
-/** `MetadataSchema.size()` → reads the pre-baked `size` field. */
+/**
+ * `MetadataSchema.size()` → reads the pre-baked `size` field.
+ *
+ * @evidence contracts/common.md#principled-implementation The transform bakes the size, which replaces a method of the legacy class.
+ * @evidence contracts/common.md#clear-and-simple-design One read.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the baked field.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the fallback.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export const sizeOf = (m: IMetadataSchema): number =>
   (m as IReflectMetadata).size ?? 0;
 
-/** `MetadataSchema.getName()` → reads the pre-baked `name` field. */
+/**
+ * `MetadataSchema.getName()` → reads the pre-baked `name` field.
+ *
+ * @evidence contracts/common.md#principled-implementation The transform bakes the name, which replaces a method of the legacy class.
+ * @evidence contracts/common.md#clear-and-simple-design One read.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the baked field.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the fallback.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export const nameOf = (m: IMetadataSchema): string =>
   (m as IReflectMetadata).name ?? "";
 
-/** `MetadataSchema.empty()` → reads the pre-baked `empty` field. */
-export const emptyOf = (m: IMetadataSchema): boolean =>
-  (m as IReflectMetadata).empty ?? false;
-
-/** A property is required only when neither omission nor undefined is allowed. */
+/**
+ * A property is required only when neither omission nor undefined is allowed.
+ *
+ * @evidence contracts/common.md#principled-implementation Both flags must exclude absence, so the conjunction with the negated optional flag is the definition.
+ * @evidence contracts/common.md#clear-and-simple-design One expression.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads two flags.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the definition.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export const isRequiredOf = (m: IMetadataSchema): boolean =>
   m.required && !m.optional;
 
@@ -154,6 +300,12 @@ export const isRequiredOf = (m: IMetadataSchema): boolean =>
  * (`"Infinity"`), both as strings. `type` is the constant's type, which is its
  * value's own, so a bigint or number constant's string is always one of those;
  * every other value is returned as it is.
+ *
+ * @evidence contracts/common.md#principled-implementation JSON holds neither bigint nor a non-finite number, so those are carried as strings and converted back by the constant's own type.
+ * @evidence contracts/common.md#clear-and-simple-design One conditional.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The conversion follows the documented encoding.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the encoding.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export const decodeMetadataValue = (type: string, value: unknown): unknown =>
   typeof value !== "string"
@@ -171,6 +323,12 @@ export const decodeMetadataValue = (type: string, value: unknown): unknown =>
  * a bigint holds a number, and `tags.Example<"Infinity">` on a number holds a
  * string. So a value encoded as a string, a bigint's digits or a non-finite
  * number's name, arrives with the type it stands for in `encoding`.
+ *
+ * @evidence contracts/common.md#principled-implementation A tag's target is the type it tags, so a value carried as a string states the type it stands for in `encoding`.
+ * @evidence contracts/common.md#clear-and-simple-design One conditional over `decodeMetadataValue`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It follows the documented encoding.
+ * @evidence contracts/common.md#meaningful-documentation The comment states why the encoding exists.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export const decodeTagValue = (
   tag: IMetadataTypeTag & { encoding?: "bigint" | "number" },
@@ -184,6 +342,12 @@ export const decodeTagValue = (
  * the schema represents exactly one constant literal value and nothing else.
  * Used by sdk's type printer to fall back to literal emission instead of a
  * union.
+ *
+ * @evidence contracts/common.md#principled-implementation Every other form must be empty, the metadata must not be nullable, any, rest, or escaped, and there must be one constant with one value.
+ * @evidence contracts/common.md#clear-and-simple-design One function of guards.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The list of forms is exhaustive over the metadata's members.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the meaning.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export const isSoleLiteralOf = (m: IMetadataSchema): boolean => {
   if (m.any) return false;
@@ -208,7 +372,22 @@ export const isSoleLiteralOf = (m: IMetadataSchema): boolean => {
 //  `MetadataComponents.from(plain)` — namespace utility, not a class.
 // ---------------------------------------------------------------------
 
+/**
+ * Indexes metadata component names in memory; component names are symbolic type
+ * identities rather than native pathnames.
+ *
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Indexes metadata component names in memory; component names are symbolic type identities rather than native pathnames.
+ */
 export namespace MetadataComponents {
+  /**
+   * Builds the components with a dictionary indexing each kind by name.
+   *
+   * @evidence contracts/common.md#principled-implementation Each kind is a map from name to type, and the plain components are kept beside it.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It only indexes.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+   */
   export const from = (plain: IMetadataComponents): MetadataComponents => {
     const dictionary: IMetadataDictionary = {
       objects: new Map(plain.objects.map((o) => [o.name, o])),
@@ -224,6 +403,12 @@ export namespace MetadataComponents {
 //  `MetadataSchema.from(plain, dictionary)` — reference resolution.
 // ---------------------------------------------------------------------
 
+/**
+ * Resolves symbolic type references in a metadata graph; dictionary lookup owns
+ * no native file or process boundary.
+ *
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Resolves symbolic type references in a metadata graph; dictionary lookup owns no native file or process boundary.
+ */
 export namespace MetadataSchema {
   /**
    * Walks the metadata tree and attaches the resolved `.type` field to every
@@ -231,6 +416,12 @@ export namespace MetadataSchema {
    * index. This is idempotent — references whose `.type` has already been
    * resolved are left alone — and mutates the input, matching the in-place
    * resolution model `@typia/core` 12.x used.
+   *
+   * @evidence contracts/common.md#principled-implementation The walk tracks visited targets, not wrapper schemas, because wrappers are rebuilt on this side and are not shared, so a cyclic type such as a node with children terminates.
+   * @evidence contracts/common.md#clear-and-simple-design One function over two private walkers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The in-place mutation is documented and is confined to the metadata the analysis owns.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the mutation, the idempotence, and the cycle rule.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export const from = (
     plain: IMetadataSchema,
@@ -312,18 +503,56 @@ const attachReferences = <Target extends { name: string }>(
 //  are SDK-policy choices that the SDK still has to flag itself.
 // ---------------------------------------------------------------------
 
+/**
+ * Validation of a metadata by a policy function.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace walks the metadata once and collects the messages of the validator, and holds the types of the walk.
+ * @evidence contracts/common.md#clear-and-simple-design One function and three types.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The policies are the callers'.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export namespace MetadataFactory {
+  /**
+   * Where a node is: its object, property, parameter, and whether it is an
+   * output.
+   *
+   * @evidence contracts/common.md#principled-implementation The record locates a visited node for the error report.
+   * @evidence contracts/common.md#clear-and-simple-design A four-member record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+   */
   export interface IExplore {
     object: IMetadataSchema.IObjectType | null;
     property: string | null;
     parameter: string | null;
     output: boolean;
   }
+  /**
+   * A validation error: the name of the type, where it is, and the messages.
+   *
+   * @evidence contracts/common.md#principled-implementation The record is one violation of the policy.
+   * @evidence contracts/common.md#clear-and-simple-design A three-member record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+   */
   export interface IError {
     name: string;
     explore: IExplore;
     messages: string[];
   }
+  /**
+   * A policy: it receives a node and its location and returns the messages of
+   * the violations, if any.
+   *
+   * @evidence contracts/common.md#principled-implementation The function type is the whole contract of a policy.
+   * @evidence contracts/common.md#clear-and-simple-design One function type.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the arguments and the result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+   */
   export type Validator = (props: {
     metadata: IMetadataSchema;
     explore: IExplore;
@@ -337,9 +566,14 @@ export namespace MetadataFactory {
    * walker, kept lean: the typia native transform has already validated
    * structural invariants, so the validator is only called for SDK-side policy
    * checks (JSON-serializability, query/header atomic-only rules, …).
+   *
+   * @evidence contracts/common.md#principled-implementation The walk visits objects, arrays, tuples, aliases, and escaped types through their resolved references, tracking visited targets rather than wrappers, and reports each node with the location of its property.
+   * @evidence contracts/common.md#clear-and-simple-design One function with one recursive visitor.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It calls only the caller's policy.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the walk and the termination.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export const validate = (props: {
-    options?: unknown;
     functor: Validator;
     metadata: IMetadataSchema;
   }): IError[] => {
@@ -417,6 +651,15 @@ export namespace MetadataFactory {
   };
 }
 
+/**
+ * The JSON policy of the SDK.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace holds the validator that rejects types JSON cannot carry.
+ * @evidence contracts/common.md#clear-and-simple-design One function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule is JSON's.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export namespace JsonMetadataFactory {
   /**
    * Rejects metadata that cannot be losslessly JSON-serialized. The typia
@@ -424,6 +667,12 @@ export namespace JsonMetadataFactory {
    * only adds the JSON-policy bans the legacy `@typia/core` walker enforced —
    * bare `bigint` payloads, function-typed properties, and `Map` / `Set`
    * containers that have no canonical JSON representation.
+   *
+   * @evidence contracts/common.md#principled-implementation JSON has no representation for those four forms, so each is a violation, and other structural problems are already rejected by the transform.
+   * @evidence contracts/common.md#clear-and-simple-design One function of four checks.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The list is the JSON limitation.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the four bans.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export const validate: MetadataFactory.Validator = (props) => {
     const messages: string[] = [];
@@ -444,6 +693,15 @@ export namespace JsonMetadataFactory {
 //  pre-baked `jsonSchema` field the nestia transform emits.
 // ---------------------------------------------------------------------
 
+/**
+ * Produces the JSON schemas of metadata from what the transform baked.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace copies the baked schemas and components, and falls back to a small converter for metadata without a bake.
+ * @evidence contracts/common.md#clear-and-simple-design Two functions with a private converter.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The copies keep one composition from editing another's data.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
+ */
 export namespace JsonSchemasProgrammer {
   /**
    * Consumes the per-metadata `jsonSchema` field the nestia transform
@@ -455,9 +713,15 @@ export namespace JsonSchemasProgrammer {
    *
    * The schemas and components are copies. The bake belongs to the route
    * metadata, which every composition in the process reads, while the composer
-   * edits what it is given in place (the readonly-array emender), and so can a
-   * `SwaggerCustomizer`; handing the bake out by reference let each document
-   * inherit the previous one's edits.
+   * may edit what it is given in place, and so can a `SwaggerCustomizer`;
+   * handing the bake out by reference let each document inherit the previous
+   * one's edits.
+   *
+   * @evidence contracts/common.md#principled-implementation The bake belongs to route metadata that every composition reads while the composer edits its input in place, so copies are returned, and the components are copied once after the last bake of each name wins.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The fallback is stated as weaker than the bake.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the copies and the fallback.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export const writeSchemas = (props: {
     version: "3.0" | "3.1";
@@ -498,6 +762,12 @@ export namespace JsonSchemasProgrammer {
    * entry for the property, because typia's object schema omits it, so no
    * parameter describes it either. Only metadata the transform did not bake
    * falls back to {@link writeSchemas} over the property value.
+   *
+   * @evidence contracts/common.md#principled-implementation The property schemas are baked beside the metadata's own schema and resolved against the same components, copied for the same reason as `writeSchemas`, and a bake without the property means typia omits it.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only metadata without a bake falls back.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result and the null case.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export const writeProperty = (props: {
     version: "3.0" | "3.1";

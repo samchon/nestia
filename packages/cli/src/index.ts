@@ -18,7 +18,20 @@ function halt(desc: string): never {
   process.exit(-1);
 }
 
-async function main(): Promise<void> {
+/**
+ * Dispatches the command in the current process arguments.
+ *
+ * Scaffold commands load only their engine. Generator commands require the
+ * installed SDK executable, which reads the unchanged process arguments itself.
+ * Missing SDK installation and unsupported commands terminate with guidance.
+ *
+ * @evidence contracts/common.md#principled-implementation The command discriminant chooses the corresponding scaffold or the SDK executable; slicing arguments after the subcommand preserves the scaffolder's option values, while importing the SDK retains its process-argument contract.
+ * @evidence contracts/common.md#clear-and-simple-design One dispatcher owns command selection and SDK installation guidance. The scaffold engines own their lifecycle, and the SDK executable owns generator behavior.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The recognized names are the documented CLI commands, and require.resolve checks the installed SDK instead of guessing a workspace location or replacing its implementation.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies lazy dispatch, the SDK argument ownership and terminal failures; USAGE lists the supported invocations.
+ * @evidence contracts/portability.md#os-neutral-implementation Node module resolution locates the SDK through its package address on the current installation; relative module imports locate scaffold engines. The dispatcher launches no subprocess and leaves native executable handling to those engines.
+ */
+export async function main(): Promise<void> {
   const type: string | undefined = process.argv[2];
   const argv: string[] = process.argv.slice(3);
 

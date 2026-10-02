@@ -3,6 +3,16 @@ import { v4 } from "uuid";
 
 import api from "@api";
 
+/**
+ * Verifies a nullable UUID path accepts a UUID and null but rejects malformed
+ * text.
+ *
+ * The SDK null spelling must reach the nullable tagged native parameter as
+ * null.
+ *
+ * 1. Execute the authored fixture inputs through the owning route.
+ * 2. Assert the authored UUID echoes, null returns null, and 12345678 is rejected.
+ */
 export const test_api_param_uuid_nullable = async (
   connection: api.IConnection,
 ): Promise<void> => {

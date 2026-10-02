@@ -8,6 +8,7 @@ import { TypeFactory } from "../../factories/TypeFactory";
 import {
   MetadataAliasType,
   MetadataArray,
+  MetadataArrayType,
   MetadataAtomic,
   MetadataConstantValue,
   MetadataEscaped,
@@ -15,10 +16,10 @@ import {
   MetadataProperty,
   MetadataSchema,
   MetadataTuple,
+  MetadataTupleType,
   decodeMetadataValue,
   isRequiredOf,
   isSoleLiteralOf,
-  sizeOf,
 } from "../../internal/legacy";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { StringUtil } from "../../utils/StringUtil";
@@ -26,10 +27,30 @@ import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeTagProgrammer } from "./SdkTypeTagProgrammer";
 
+/**
+ * Writes the TypeScript type of a metadata.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace turns each member of the metadata into a type node and joins them as a union.
+ * @evidence contracts/common.md#clear-and-simple-design The schema facade and object writer use one writer per form; collection-body operations distinguish a named recursive definition from its nested references.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A name that cannot be referenced is written inline.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace SdkTypeProgrammer {
   /* -----------------------------------------------------------
     FACADE
   ----------------------------------------------------------- */
+  /**
+   * Returns the type of a metadata: the union of its any, null, undefined,
+   * escaped, constant, template, atomic, tuple, array, object, alias, and
+   * native and typed collection forms. An empty union emits never.
+   *
+   * @evidence contracts/common.md#principled-implementation Named objects, aliases and recursive collections use references; implicit objects and nonrecursive collections use inline bodies. A recursive declaration writes its collection body once, and nested uses return through references.
+   * @evidence contracts/common.md#clear-and-simple-design One function of ordered cases.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The member order is fixed, supported resolved natives retain their type references, and empty unions use the TypeScript bottom type rather than an empty printed node.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -70,15 +91,39 @@ export namespace SdkTypeProgrammer {
         union.push(
           writeAlias(project)(importer)(alias.type as MetadataAliasType),
         );
-      for (const native of meta.natives)
-        if (native.name === "Blob" || native.name === "File")
-          union.push(write_native(native.name));
+      for (const native of meta.natives) union.push(write_native(native.name));
+      for (const set of meta.sets)
+        union.push(
+          factory.createTypeReferenceNode("Set", [
+            write(project)(importer)(set.value),
+          ]),
+        );
+      for (const map of meta.maps)
+        union.push(
+          factory.createTypeReferenceNode("Map", [
+            write(project)(importer)(map.key),
+            write(project)(importer)(map.value),
+          ]),
+        );
 
-      return union.length === 1
-        ? union[0]!
-        : factory.createUnionTypeNode(union);
+      return union.length === 0
+        ? TypeFactory.keyword("never")
+        : union.length === 1
+          ? union[0]!
+          : factory.createUnionTypeNode(union);
     };
 
+  /**
+   * Returns the type of an object: the regular properties as one literal,
+   * intersected with each dynamic key's index signature. Both signature forms
+   * retain the metadata's readonly modifier.
+   *
+   * @evidence contracts/common.md#principled-implementation A key that is a sole literal is regular, and every other key is dynamic. Each property's mutability supplies the readonly modifier for its corresponding property or index signature.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The cases are exhaustive over the keys.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeProgrammer.write_object composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const write_object =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -102,9 +147,22 @@ export namespace SdkTypeProgrammer {
     (importer: ImportDictionary) =>
     (meta: MetadataEscaped): TypeNode => {
       if (
-        sizeOf(meta.original) === 1 &&
         meta.original.natives.length === 1 &&
-        meta.original.natives[0]!.name === "Date"
+        meta.original.natives[0]!.name === "Date" &&
+        !meta.original.any &&
+        meta.original.escaped === null &&
+        [
+          meta.original.atomics,
+          meta.original.constants,
+          meta.original.templates,
+          meta.original.arrays,
+          meta.original.tuples,
+          meta.original.objects,
+          meta.original.aliases,
+          meta.original.sets,
+          meta.original.maps,
+          meta.original.functions,
+        ].every((members) => members.length === 0)
       )
         return factory.createIntersectionTypeNode([
           TypeFactory.keyword("string"),
@@ -209,7 +267,9 @@ export namespace SdkTypeProgrammer {
     (meta: MetadataArray): TypeNode =>
       write_type_tag_matrix(importer)(
         "array",
-        factory.createArrayTypeNode(write(project)(importer)(meta.type!.value)),
+        meta.type!.recursive
+          ? writeAlias(project)(importer)(meta.type!)
+          : write_array_type(project)(importer)(meta.type!),
         meta.tags,
       );
 
@@ -217,8 +277,42 @@ export namespace SdkTypeProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: MetadataTuple): TypeNode =>
+      meta.type!.recursive
+        ? writeAlias(project)(importer)(meta.type!)
+        : write_tuple_type(project)(importer)(meta.type!);
+
+  /**
+   * Writes an array definition's body, using named references for recursive
+   * collections reached through its element schema.
+   *
+   * @evidence contracts/common.md#principled-implementation A declaration needs one array body while its nested use sites use the ordinary writer's recursive references, so X=X[] is finite and retains its element meaning.
+   * @evidence contracts/common.md#clear-and-simple-design One array node delegates its element to write.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The declaration operation is distinct from reference emission and adds no test-only flags or names.
+   * @evidence contracts/common.md#meaningful-documentation The comment distinguishes a definition body from nested references.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeProgrammer.write_array_type composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
+  export const write_array_type =
+    (project: INestiaProject) =>
+    (importer: ImportDictionary) =>
+    (meta: MetadataArrayType): TypeNode =>
+      factory.createArrayTypeNode(write(project)(importer)(meta.value));
+
+  /**
+   * Writes a tuple definition's body, retaining optional and rest elements
+   * while nested recursive collections use named references.
+   *
+   * @evidence contracts/common.md#principled-implementation Each element retains its optional/rest form and schema; nested uses return through write, whose recursive reference branch terminates self and mutual collection cycles.
+   * @evidence contracts/common.md#clear-and-simple-design One element map creates the tuple body.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The same body operation serves ordinary inline tuples and recursive declarations without special-cased source names.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the definition body and modifier responsibilities.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeProgrammer.write_tuple_type composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
+  export const write_tuple_type =
+    (project: INestiaProject) =>
+    (importer: ImportDictionary) =>
+    (meta: MetadataTupleType): TypeNode =>
       factory.createTupleTypeNode(
-        meta.type!.elements.map((elem) =>
+        meta.elements.map((elem) =>
           elem.rest
             ? factory.createRestTypeNode(
                 factory.createArrayTypeNode(
@@ -243,7 +337,9 @@ export namespace SdkTypeProgrammer {
               p.jsDocTags,
             );
             const signature = factory.createPropertySignature(
-              undefined,
+              p.mutability === "readonly"
+                ? [factory.createModifier(SyntaxKind.ReadonlyKeyword)]
+                : undefined,
               NamingConvention.variable(
                 String(p.key.constants[0]!.values[0]!.value),
               )
@@ -275,7 +371,9 @@ export namespace SdkTypeProgrammer {
       factory.createTypeLiteralNode([
         FilePrinter.description(
           factory.createIndexSignature(
-            undefined,
+            property.mutability === "readonly"
+              ? [factory.createModifier(SyntaxKind.ReadonlyKeyword)]
+              : undefined,
             [
               factory.createParameterDeclaration(
                 undefined,
@@ -297,7 +395,13 @@ export namespace SdkTypeProgrammer {
   const writeAlias =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (meta: MetadataAliasType | MetadataObjectType): TypeNode => {
+    (
+      meta:
+        | MetadataAliasType
+        | MetadataObjectType
+        | MetadataArrayType
+        | MetadataTupleType,
+    ): TypeNode => {
       importInternalFile(project)(importer)(meta.name);
       // The reference has to spell the accessor path the declaration was
       // written under, not the raw metadata name: a duplicated name carries

@@ -38,7 +38,8 @@ process.env.NODE_OPTIONS = [
 // such process would build the plugins from cold. It is resolved here, once.
 process.env.TTSC_CACHE_DIR = path.resolve(
   __dirname,
-  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".cache", "ttsc"),
+  process.env.TTSC_CACHE_DIR ??
+    path.join(ROOT, "node_modules", ".cache", "ttsc"),
 );
 process.env.NODE_PATH = [
   path.join(ROOT, "node_modules"),
@@ -109,17 +110,11 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
   ],
   [
     "method-error-get-body",
-    [
-      "MethodController.body():",
-      "@Body() is not allowed in the GET method.",
-    ],
+    ["MethodController.body():", "@Body() is not allowed in the GET method."],
   ],
   [
     "method-error-head-body",
-    [
-      "MethodController.body():",
-      "@Body() is not allowed in the HEAD method.",
-    ],
+    ["MethodController.body():", "@Body() is not allowed in the HEAD method."],
   ],
   [
     "method-error-head-non-void",
@@ -186,7 +181,7 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
       "PlainHeadersController.nullable()",
       "nullable type is not allowed.",
       "PlainHeadersController.native()",
-      "(INativeHeaders[\"x-tags\"])",
+      '(INativeHeaders["x-tags"])',
       "PlainHeadersController.field()",
       "only atomic or array of atomic types are allowed.",
     ],
@@ -434,9 +429,7 @@ const runNestiaForError = (cwd, args) =>
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
 const feature = async (name, port) => {
-  const cohort = SDK_ERROR_COHORTS.find(
-    (candidate) => candidate.name === name,
-  );
+  const cohort = SDK_ERROR_COHORTS.find((candidate) => candidate.name === name);
   if (cohort !== undefined) return runSdkErrorCohort(cohort);
   if (BATCHES.has(name)) return runBatch(name, port);
   if (name === "swagger-watch") return runSwaggerWatchFeature();
@@ -458,6 +451,21 @@ const feature = async (name, port) => {
       [],
       "inherit",
     );
+  if (name === "reflection-error-ordering")
+    return runNode(
+      ROOT,
+      path.join(__dirname, "reflection-error-ordering.js"),
+      [],
+      "inherit",
+    );
+  if (
+    name === "swagger-description-nonempty-text" ||
+    name === "websocket-header-reflection" ||
+    name === "sdk-propagation-exception-wire-type" ||
+    name === "http-malformed-path-reflection" ||
+    name === "websocket-clone-mixed-imports"
+  )
+    return runNode(ROOT, path.join(__dirname, `${name}.js`), [], "inherit");
 
   const cwd = featureDirectory(name);
   const configFile =
@@ -467,11 +475,7 @@ const feature = async (name, port) => {
   const generate = async (type, mustBeError = false) => {
     const args = [type, ...generationTail(name)];
     if (mustBeError) return runNestia(cwd, args);
-    try {
-      await runNestia(cwd, args);
-    } catch {
-      await runNestia(cwd, args, "inherit");
-    }
+    await runNestia(cwd, args, "inherit");
   };
 
   if (name.includes("error")) {
@@ -512,13 +516,9 @@ const feature = async (name, port) => {
 
   assertFeatureOutputs(name, cwd);
   if (name === "cli-project" || name === "cli-config-project") return;
-  else if (hasTtsxTestFiles(cwd)) await runTtsxTestWithRetries(name, cwd, port);
+  else if (hasTtsxTestFiles(cwd)) await runTtsxTestOnce(name, cwd, port);
   else {
-    try {
-      await runTsc(cwd);
-    } catch {
-      await runTsc(cwd, "inherit");
-    }
+    await runTsc(cwd, "inherit");
   }
 };
 
@@ -537,10 +537,8 @@ const generatedPaths = (name) => [
 
 // The checks a feature's generated files must pass before its e2e run.
 const assertFeatureOutputs = (name, cwd) => {
-  if (name === "nested-output-directories")
-    assertNestedOutputDirectories(cwd);
-  if (name === "native-namespace-methods")
-    assertNativeNamespaceMethods(cwd);
+  if (name === "nested-output-directories") assertNestedOutputDirectories(cwd);
+  if (name === "native-namespace-methods") assertNativeNamespaceMethods(cwd);
   if (name === "native-import-alias") assertNativeImportAlias(cwd);
   if (name === "native-typeguard-provenance")
     assertNativeTypeGuardProvenance(cwd);
@@ -548,25 +546,9 @@ const assertFeatureOutputs = (name, cwd) => {
   assertGeneratedImportsAreExtensionless(cwd);
 };
 
-// A pass that needed a retry is reported, never passed off as clean: an
-// intermittent failure is a finding.
-// `explain` names what failed inside a quiet attempt, whose output is gone.
-const runTtsxTestWithRetries = async (name, cwd, port, options) => {
-  const failures = [];
-  for (let i = 0; i < 3; ++i)
-    try {
-      await runTtsxTest(cwd, "ignore", port, options);
-      if (failures.length !== 0) reportRetries(name, failures);
-      return;
-    } catch (error) {
-      const reason = options?.explain?.();
-      failures.push(
-        reason ? new Error(`${reason} (${error.message.split("\n")[0]})`) : error,
-      );
-    }
-  reportRetries(name, failures);
-  await runTtsxTest(cwd, "inherit", port, options);
-};
+// Preserve the first runtime failure and its diagnostic output.
+const runTtsxTestOnce = async (_name, cwd, port, options) =>
+  runTtsxTest(cwd, "inherit", port, options);
 
 // Success features sharing a tsconfig run in batches: one `nestia all` over
 // every member's configuration, each rebased onto the member's directory, and
@@ -590,14 +572,19 @@ const planBatches = (names) => {
       name.includes("error") ||
       name.includes("distribute") ||
       BATCH_EXCLUDED.has(name) ||
-      fs.existsSync(path.join(featureDirectory(name), "nestia.config.ts")) === false ||
+      fs.existsSync(path.join(featureDirectory(name), "nestia.config.ts")) ===
+        false ||
       // the Swagger document's info defaults to the working directory's
       // package.json, which a batch, run from features/, would not read
       fs.existsSync(path.join(featureDirectory(name), "package.json")) ||
-      fs.existsSync(path.join(featureDirectory(name), "tsconfig.json")) === false
+      fs.existsSync(path.join(featureDirectory(name), "tsconfig.json")) ===
+        false
     )
       continue;
-    const key = fs.readFileSync(path.join(featureDirectory(name), "tsconfig.json"), "utf8");
+    const key = fs.readFileSync(
+      path.join(featureDirectory(name), "tsconfig.json"),
+      "utf8",
+    );
     groups.set(key, [...(groups.get(key) ?? []), name]);
   }
   const batched = new Set();
@@ -690,18 +677,15 @@ const runBatch = async (name, port) => {
         "",
         "export default [",
         ...members.map(
-          (member, i) => `  ...pick(C${i}).map(rebase(${JSON.stringify(member)})),`,
+          (member, i) =>
+            `  ...pick(C${i}).map(rebase(${JSON.stringify(member)})),`,
         ),
         "];",
         "",
       ].join("\n"),
       "utf8",
     );
-    try {
-      await runNestia(cwd, ["all"]);
-    } catch {
-      await runNestia(cwd, ["all"], "inherit");
-    }
+    await runNestia(cwd, ["all"], "inherit");
     for (const member of members)
       assertFeatureOutputs(member, path.join(cwd, member));
 
@@ -759,7 +743,7 @@ const runBatch = async (name, port) => {
       "utf8",
     );
     const report = path.join(cwd, "failures.txt");
-    await runTtsxTestWithRetries(name, cwd, port, {
+    await runTtsxTestOnce(name, cwd, port, {
       plugins: path.join(cwd, members[0]),
       explain: () => {
         if (fs.existsSync(report) === false) return null;
@@ -923,8 +907,10 @@ const assertNativeTypeGuardProvenance = (cwd) => {
   const swagger = JSON.parse(
     fs.readFileSync(path.join(cwd, "swagger.json"), "utf8"),
   );
-  const schema = swagger.paths?.["/provenance/local"]?.get?.responses?.[409]
-    ?.content?.["application/json"]?.schema;
+  const schema =
+    swagger.paths?.["/provenance/local"]?.get?.responses?.[409]?.content?.[
+      "application/json"
+    ]?.schema;
   if (schema?.$ref !== "#/components/schemas/TypeGuardError")
     throw new Error(
       "native-typeguard-provenance did not preserve the local TypeGuardError schema.",
@@ -934,8 +920,10 @@ const assertNativeTypeGuardProvenance = (cwd) => {
     throw new Error(
       "native-typeguard-provenance omitted the local TypeGuardError.reason property.",
     );
-  const typia = swagger.paths?.["/provenance/typia"]?.get?.responses?.[400]
-    ?.content?.["application/json"]?.schema;
+  const typia =
+    swagger.paths?.["/provenance/typia"]?.get?.responses?.[400]?.content?.[
+      "application/json"
+    ]?.schema;
   if (typia?.$ref !== "#/components/schemas/TypeGuardErrorany")
     throw new Error(
       "native-typeguard-provenance did not retain typia's synthetic TypeGuardError schema.",
@@ -1057,18 +1045,12 @@ const runDistributeFeature = async (cwd, name) => {
     throw new Error(`${name} configures no distribute location.`);
   const stage = path.join(cwd, distribute);
   await fs.promises.rm(stage, { force: true, recursive: true });
-  // quiet like every other feature, and repeated with the output on failure
-  const quietly = async (task) => {
-    try {
-      await task("ignore");
-    } catch {
-      await task("inherit");
-    }
-  };
-  await quietly((stdio) =>
+  // Each command exposes its first outcome without rerunning side effects.
+  const visibly = async (task) => task("inherit");
+  await visibly((stdio) =>
     runNestia(cwd, ["sdk", ...generationTail(name)], stdio),
   );
-  await quietly((stdio) =>
+  await visibly((stdio) =>
     run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "compile"], {
       cwd: stage,
       stdio,
@@ -1232,12 +1214,7 @@ const runCliDependenciesFeature = async () => {
     );
     await run(
       NODE,
-      [
-        ...CLI,
-        "dependencies",
-        "--manager",
-        `node ${JSON.stringify(manager)}`,
-      ],
+      [...CLI, "dependencies", "--manager", `node ${JSON.stringify(manager)}`],
       { cwd, stdio: "ignore" },
     );
 
@@ -1371,13 +1348,7 @@ const runBundlePreserveFeature = async () => {
     const assert = (condition, message) => {
       if (!condition) throw new Error(`bundle-preserve: ${message}`);
     };
-    const generate = async () => {
-      try {
-        await runNestia(cwd, ["sdk"]);
-      } catch {
-        await runNestia(cwd, ["sdk"], "inherit");
-      }
-    };
+    const generate = async () => runNestia(cwd, ["sdk"], "inherit");
 
     // 1. FIRST GENERATION FILLS AN EMPTY DIRECTORY FROM THE BUNDLE
     await generate();
@@ -1434,11 +1405,7 @@ const runBundlePreserveFeature = async () => {
       );
 
     // 4. THE PRESERVED OUTPUT MUST COMPILE
-    try {
-      await runTsc(cwd);
-    } catch {
-      await runTsc(cwd, "inherit");
-    }
+    await runTsc(cwd, "inherit");
   } finally {
     await fs.promises.rm(cwd, { force: true, recursive: true });
   }
@@ -1828,19 +1795,6 @@ const measure = (title) => async (task) => {
 const EXCLUSIVE_FEATURES = new Set(["swagger-watch"]);
 
 // Features whose e2e run failed before one passed, with each failure's reason.
-const RETRIED_FEATURES = [];
-const reportRetries = (name, failures) => {
-  const reasons = failures.map((error) =>
-    String(error instanceof Error ? error.message : error)
-      .split("\n")[0]
-      .slice(0, 200),
-  );
-  RETRIED_FEATURES.push({ name, reasons });
-  console.log(
-    `  - ${name}: e2e failed ${failures.length} time(s) before the attempt that decides it: ${reasons.join("; ")}`,
-  );
-};
-
 const runFeatures = async (names) => {
   const pooled = names.filter((name) => !EXCLUSIVE_FEATURES.has(name));
   const exclusive = names.filter((name) => EXCLUSIVE_FEATURES.has(name));
@@ -1868,15 +1822,6 @@ const runFeatures = async (names) => {
   await Promise.all(Array.from({ length: parallel }, worker));
   for (const [index, name] of exclusive.entries())
     await runFeature(name, BASE_PORT + pooled.length + index);
-  for (const { name, reasons } of RETRIED_FEATURES)
-    if (process.env.GITHUB_ACTIONS === "true")
-      console.log(
-        `::warning title=test-sdk retry::${name} passed its e2e run only after ${reasons.length} failure(s): ${reasons.join("; ")}`,
-      );
-  if (RETRIED_FEATURES.length !== 0)
-    console.log(
-      `\nFeatures whose e2e run needed a retry: ${RETRIED_FEATURES.map((f) => f.name).join(", ")}`,
-    );
   if (failures.length !== 0)
     throw new Error(
       `Failed test-sdk features: ${failures.map((f) => f.name).join(", ")}`,
@@ -1925,7 +1870,10 @@ const main = async () => {
       PNPM,
       [
         "--workspace-concurrency=1",
-        ...BUILT_PACKAGES.flatMap(([name]) => ["--filter", `./packages/${name}`]),
+        ...BUILT_PACKAGES.flatMap(([name]) => [
+          "--filter",
+          `./packages/${name}`,
+        ]),
         "-r",
         "run",
         "build",
@@ -1960,6 +1908,16 @@ const main = async () => {
     if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
     if (filter("output-directory-diagnostics"))
       names.push("output-directory-diagnostics");
+    if (filter("reflection-error-ordering"))
+      names.push("reflection-error-ordering");
+    for (const name of [
+      "swagger-description-nonempty-text",
+      "websocket-header-reflection",
+      "sdk-propagation-exception-wire-type",
+      "http-malformed-path-reflection",
+      "websocket-clone-mixed-imports",
+    ])
+      if (filter(name)) names.push(name);
     await runFeatures(shard(names));
   });
 };

@@ -38,8 +38,8 @@ export const test_encrypted_route_content_type = async (
       new FastifyAdapter(),
       { logger: false },
     );
-  await fastify.listen(0, "127.0.0.1");
   try {
+    await fastify.listen(0, "127.0.0.1");
     const hosts: Array<[string, string]> = [
       ["express", connection.host],
       ["fastify", await url(fastify)],
@@ -51,6 +51,7 @@ export const test_encrypted_route_content_type = async (
         mediaType(success.headers.get("content-type")),
         "text/plain",
       );
+      await success.arrayBuffer();
       const failure: Response = await fetch(`${host}/echo/missing`);
       TestValidator.equals(`${adapter} error status`, failure.status, 404);
       TestValidator.equals(
@@ -58,6 +59,7 @@ export const test_encrypted_route_content_type = async (
         mediaType(failure.headers.get("content-type")),
         "application/json",
       );
+      await failure.arrayBuffer();
 
       const sdk: api.IConnection = { host, encryption: ENCRYPTION };
       TestValidator.equals(

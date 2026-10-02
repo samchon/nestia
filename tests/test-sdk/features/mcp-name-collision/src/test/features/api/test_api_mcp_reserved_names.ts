@@ -28,12 +28,12 @@ export const test_api_mcp_reserved_names = async (
   connection: IConnection,
 ): Promise<void> => {
   const client = new Client({ name: "nestia-test", version: "1.0.0" });
-  await client.connect(
-    new StreamableHTTPClientTransport(
-      new URL(`${connection.host}${connection.path}`),
-    ),
-  );
   try {
+    await client.connect(
+      new StreamableHTTPClientTransport(
+        new URL(`${connection.host}${connection.path}`),
+      ),
+    );
     const mcp = api.functional.mcp;
     for (const [name, call] of [
       ["client", mcp.client],

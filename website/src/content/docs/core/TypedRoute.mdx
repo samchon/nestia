@@ -98,7 +98,7 @@ export namespace EncryptedRoute {
 }
 ```
 
-Same family, but the response body is **AES-128/256 CBC** encrypted with PKCS #5 padding and Base64 encoded, and the SDK decrypts it automatically.
+Same family, but the response body is **AES-128/192/256 CBC** encrypted with PKCS #5 padding and Base64 encoded, and the SDK decrypts it automatically. The key's UTF-8 byte length must be 16, 24, or 32 bytes, respectively, and the initialization vector must be 16 UTF-8 bytes.
 
 Like `@EncryptedBody`, this is an obfuscation layer to run on top of TLS, not authenticated encryption. AES-CBC here carries no message authentication code, so treat it as a way to hide the payload from casual inspection or to satisfy a second-encryption-pass mandate, and keep HTTPS as the transport rather than relying on it as your only confidentiality or integrity control.
 
@@ -124,7 +124,7 @@ export function EncryptedController(
 - `@EncryptedController(path, password)` replaces `@Controller()` for one controller and gives it its own password. A subclass of it inherits that password.
 - The controller's own password wins. Inside an `EncryptedModule`, an `@EncryptedController` keeps its own password, and only the controllers without one take the module's.
 
-A closure receives the request headers, the body, and the direction (`"encode"` or `"decode"`), so the password can depend on the caller. The generated SDK encrypts with `connection.encryption`, which must hold the password of the controller being called.
+A closure receives the request headers, the body, and the direction (`"encode"` or `"decode"`), so the password can depend on the caller. The body is the serialized plain text when the direction is `"encode"` and the received cipher text when it is `"decode"`, on the server and in the generated SDK alike. The generated SDK encrypts with `connection.encryption`, which must hold the password of the controller being called.
 
 ---
 

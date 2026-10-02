@@ -1,5 +1,12 @@
 import { ContextId, ContextIdFactory, NestContainer } from "@nestjs/core";
+import { ExternalExceptionFilterContext } from "@nestjs/core/exceptions/external-exception-filter-context";
+import { GuardsConsumer, GuardsContextCreator } from "@nestjs/core/guards";
 import { ExternalContextCreator } from "@nestjs/core/helpers/external-context-creator";
+import {
+  InterceptorsConsumer,
+  InterceptorsContextCreator,
+} from "@nestjs/core/interceptors";
+import { PipesConsumer, PipesContextCreator } from "@nestjs/core/pipes";
 import { REQUEST_CONTEXT_ID } from "@nestjs/core/router/request/request-constants";
 
 /**
@@ -15,12 +22,36 @@ import { REQUEST_CONTEXT_ID } from "@nestjs/core/router/request/request-constant
 export const create_external_context_creator = (
   container: NestContainer,
   moduleKey: string,
-): ExternalContextCreator => {
-  const creator: ExternalContextCreator =
-    ExternalContextCreator.fromContainer(container);
-  creator.getContextModuleKey = () => moduleKey;
-  return creator;
-};
+): ExternalContextCreator => new ControllerContextCreator(container, moduleKey);
+
+class ControllerContextCreator extends ExternalContextCreator {
+  public constructor(
+    private readonly owner: NestContainer,
+    private readonly moduleKey: string,
+  ) {
+    super(
+      new GuardsContextCreator(owner, owner.applicationConfig),
+      new GuardsConsumer(),
+      new InterceptorsContextCreator(owner, owner.applicationConfig),
+      new InterceptorsConsumer(),
+      owner.getModules(),
+      new PipesContextCreator(owner, owner.applicationConfig),
+      new PipesConsumer(),
+      new ExternalExceptionFilterContext(owner, owner.applicationConfig),
+    );
+  }
+
+  public override getContextModuleKey(): string {
+    return this.moduleKey;
+  }
+
+  public override registerRequestProvider<T = any>(
+    request: T,
+    contextId: ContextId,
+  ): void {
+    this.owner.registerRequestProvider(request, contextId);
+  }
+}
 
 /**
  * The context a request-scoped provider is built in for this request, the one

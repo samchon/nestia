@@ -2,6 +2,18 @@ import { TestValidator } from "@nestia/e2e";
 
 import { generate_random_articles } from "./internal/generate_random_articles";
 
+/**
+ * Verifies testValidator.index validates matching identifier order and
+ * meaningful prefixes.
+ *
+ * The authored identifier lists define literal order and prefix expectations
+ * independently.
+ *
+ * 1. Exercise the authored scenario and its controls.
+ * 2. Assert descending strings and numbers pass, changed identifiers and reversed
+ *    order fail, prefixes and two empty arrays pass, and unilateral empty
+ *    arrays fail.
+ */
 export async function test_validate_index(): Promise<void> {
   const { data } = generate_random_articles();
 

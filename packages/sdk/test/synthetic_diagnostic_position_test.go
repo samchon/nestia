@@ -20,6 +20,11 @@ import (
 //     with a header type the SDK cannot send.
 //  2. Run the SDK metadata pass.
 //  3. Assert each diagnostic's line and column are the method's first token.
+//
+// @evidence contracts/testing.md#behavioral-verification SDK EmitTransform must report null-header and string-header diagnostics at the documented and plain methods' actual line/column, rather than at JSDoc trivia.
+// @evidence contracts/testing.md#independent-expectations The literal fixture places the methods at 10:3 and 15:3; unsupported header types require method-level diagnostics independently of source trivia length.
+// @evidence contracts/testing.md#distinguishing-cases A method with preceding JSDoc contrasts one without it, and both expected reasons must be found. The header-type matrix owns supported and unsupported type decisions.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
 func TestSyntheticDiagnosticPosition(t *testing.T) {
 	controller := `import core from "@nestia/core";
 import { WebSocketAcceptor } from "tgrid";

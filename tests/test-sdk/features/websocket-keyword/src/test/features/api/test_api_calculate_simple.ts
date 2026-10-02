@@ -6,6 +6,7 @@ import api from "@api";
 import { ICalcEvent } from "@api/lib/interfaces/ICalcEvent";
 import { ICalcEventListener } from "@api/lib/interfaces/ICalcEventListener";
 
+/** Validates the generated consumer result. */
 export const test_api_calculate_simple = async (
   connection: api.IConnection,
 ): Promise<void> => {

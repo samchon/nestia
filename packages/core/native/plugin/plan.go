@@ -14,6 +14,16 @@ const (
 	TypiaTransform      = "typia/lib/transform"
 )
 
+// Entry is one plugin of the ordered list that ttsc hands to the host: its name, stage, the `transform` specifier of its configuration, and the whole configuration.
+//
+// @evidence contracts/common.md#principled-implementation The fields are the parts of the payload that classification and option reading need, with the transform specifier lifted out of the configuration map once so every later comparison reads a string.
+// @evidence contracts/common.md#clear-and-simple-design A plain record with no behavior; the two methods answer questions about it.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts It carries the payload as given, and no plugin name or option is special-cased here.
+// @evidence contracts/common.md#meaningful-documentation The comment names the fields and where the value comes from.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation Plugin specifiers are module identifiers and configuration is decoded data, not native file identity.
+// @evidenceExclude contracts/performance.md#efficient-algorithms This record defines data rather than choosing a processing algorithm.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This record does not coordinate computations across consumers.
+// @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The parsed entry stores configuration but does not own its consumers lifetimes.
 type Entry struct {
 	Name      string
 	Stage     string
@@ -21,6 +31,16 @@ type Entry struct {
 	Config    map[string]any
 }
 
+// Plan is the parsed plugin list: the entries in order and one flag for each plugin family present.
+//
+// @evidence contracts/common.md#principled-implementation The three flags are computed once by `ParsePlan` from the classification of every entry, so the callers ask a boolean instead of rescanning the list.
+// @evidence contracts/common.md#clear-and-simple-design A record of three flags and the ordered entries, with one derived accessor.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts It holds parsed data only, and the flags follow from the entries.
+// @evidence contracts/common.md#meaningful-documentation The comment states what each part of the plan means.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The ordered plugin list and family flags contain no native paths or process handles.
+// @evidenceExclude contracts/performance.md#efficient-algorithms This record defines data rather than choosing a processing algorithm.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This record does not coordinate computations across consumers.
+// @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The plan stores parsed entries; the command owns their lifetime.
 type Plan struct {
 	Core    bool
 	SDK     bool
@@ -28,12 +48,31 @@ type Plan struct {
 	Entries []Entry
 }
 
+// UsesNestia reports whether the plan contains a `@nestia/core` or a `@nestia/sdk` entry, that is, whether any nestia rewrite is wanted.
+//
+// @evidence contracts/common.md#principled-implementation The result is the disjunction of the two family flags, which is exactly the condition under which the nestia passes run.
+// @evidence contracts/common.md#clear-and-simple-design A one-line accessor over two fields, so the condition has one definition.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the flags and nothing else.
+// @evidence contracts/common.md#meaningful-documentation The comment states the condition.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The family-flag predicate reads only booleans.
+// @evidence contracts/performance.md#efficient-algorithms Reading two family flags takes constant work and allocates no collection.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources No state survives the boolean result.
 func (p Plan) UsesNestia() bool {
 	return p.Core || p.SDK
 }
 
 // Kind reports which plugin family an entry belongs to: "core", "sdk", "typia",
 // or "" when it is none of them.
+//
+// @evidence contracts/common.md#principled-implementation The family is decided by the entry name or by the `transform` specifier compared with the known published specifiers, so an entry written under either spelling of the plugin is recognized, and any other entry is not a family member.
+// @evidence contracts/common.md#clear-and-simple-design A one-line method over the private classifier, so one function owns the naming rules.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The names are the published package specifiers, which are contract constants, and no consumer or path is special-cased.
+// @evidence contracts/common.md#meaningful-documentation The comment lists the four possible results.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation Classification compares published module specifiers, not native paths.
+// @evidence contracts/performance.md#efficient-algorithms Classification trims and compares the name and transform strings, linear in their bytes.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources Only temporary trimmed strings are used; no registry entry is retained.
 func (e Entry) Kind() string {
 	return classify(e)
 }
@@ -41,6 +80,15 @@ func (e Entry) Kind() string {
 // BoolConfig reads a boolean option from an entry's resolved plugin config. The
 // second result distinguishes an option explicitly set to false from one that is
 // absent, which the tri-state options depend on.
+//
+// @evidence contracts/common.md#principled-implementation A boolean read from the configuration returns its value and a presence flag, so an option explicitly set to false is distinct from an absent one, which the tri-state options need; a non-boolean value reads as absent.
+// @evidence contracts/common.md#clear-and-simple-design One map lookup and one type assertion.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts It reads only the configuration of the entry it is called on.
+// @evidence contracts/common.md#meaningful-documentation The comment states why the second result exists.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The lookup reads an in-memory JSON option map.
+// @evidence contracts/performance.md#efficient-algorithms One map lookup and type assertion use expected constant work.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The lookup retains no state or handle.
 func (e Entry) BoolConfig(key string) (bool, bool) {
 	if e.Config == nil {
 		return false, false
@@ -49,13 +97,25 @@ func (e Entry) BoolConfig(key string) (bool, bool) {
 	return value, ok
 }
 
+// ParsePlan parses the ordered plugin payload that ttsc passes as `--plugins-json`.
+//
+// An empty payload is an empty plan. A payload that is not a JSON list of plugin objects is an error naming the flag. JSON null is not an empty list, and a null list entry is not a plugin object. An entry without a stage is a `transform` stage entry.
+//
+// @evidence contracts/common.md#principled-implementation The standard JSON decoder checks the list and object field types. A nil decoded list identifies JSON null rather than an empty array; pointer elements retain null entries for explicit rejection. Each object keeps its order, defaults its stage, supplies its transform string and contributes its classified family flag. A rejected list returns a zero plan even when a prior element was valid.
+// @evidence contracts/common.md#clear-and-simple-design One function that decodes, normalizes, and classifies; the string reading and the classification are private helpers.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The defaults are the ttsc protocol's, and the function trusts the payload only as far as decoding it.
+// @evidence contracts/common.md#meaningful-documentation The comment states the accepted payloads, the error, and the stage default.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The command payload is a JSON string; plugin transform specifiers remain module identifiers rather than native paths.
+// @evidence contracts/performance.md#efficient-algorithms Decoding is linear in payload bytes and one classification is performed per entry; the output holds one entry per plugin.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources Decoded maps and the result list belong to the returned plan and become reclaimable with its caller.
 func ParsePlan(payload string) (Plan, error) {
 	payload = strings.TrimSpace(payload)
 	if payload == "" {
 		return Plan{}, nil
 	}
 
-	var raws []struct {
+	var raws []*struct {
 		Name   string         `json:"name"`
 		Stage  string         `json:"stage"`
 		Config map[string]any `json:"config"`
@@ -63,11 +123,17 @@ func ParsePlan(payload string) (Plan, error) {
 	if err := json.Unmarshal([]byte(payload), &raws); err != nil {
 		return Plan{}, fmt.Errorf("parse plugins-json: %w", err)
 	}
+	if raws == nil {
+		return Plan{}, fmt.Errorf("parse plugins-json: expected a JSON list of plugin objects")
+	}
 
 	plan := Plan{
 		Entries: make([]Entry, 0, len(raws)),
 	}
-	for _, raw := range raws {
+	for index, raw := range raws {
+		if raw == nil {
+			return Plan{}, fmt.Errorf("parse plugins-json: entry %d must be a JSON object", index)
+		}
 		stage := raw.Stage
 		if stage == "" {
 			stage = "transform"

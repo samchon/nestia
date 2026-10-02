@@ -7,7 +7,7 @@ import { ENCRYPTION_CONTROLLER_METADATA_KEY } from "./internal/EncryptedConstant
  * Encrypted controller.
  *
  * `EncryptedController` is an extension of the {@link nest.Controller} class
- * decorator function who configures encryption password of the AES-128/256
+ * decorator function who configures encryption password of the AES-128/192/256
  * algorithm. The encryption algorithm and password would be used by
  * {@link EncryptedRoute} and {@link EncryptedBody} to encrypt the request and
  * response body of the HTTP protocol.
@@ -28,6 +28,11 @@ import { ENCRYPTION_CONTROLLER_METADATA_KEY } from "./internal/EncryptedConstant
  * @param path Path of the HTTP request
  * @param password Encryption password or its getter function
  * @returns Class decorator
+ * @evidence contracts/common.md#principled-implementation The decorator stores the password as metadata on the class and then applies Nest's `Controller(path)`, so the encrypted decorators can find the password by reading the class.
+ * @evidence contracts/common.md#clear-and-simple-design One decorator that composes a metadata write with the standard decorator.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses Nest's public `Controller` decorator and the reflect metadata API.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the password forms and the encrypted decorators it enables.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Controller paths are HTTP routing metadata and passwords are in-memory values; neither is a native filesystem path.
  */
 export function EncryptedController(
   path: string,

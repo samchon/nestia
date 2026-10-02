@@ -3,6 +3,10 @@ import fs from "fs";
 import path from "path";
 import { pathToFileURL } from "url";
 
+/**
+ * Reads CLI-generated info and servers, comparing package version, configured
+ * title/servers and the default generator description.
+ */
 export async function test_swagger(): Promise<void> {
   // `import()` takes a URL specifier, not a filesystem path. On POSIX the two
   // coincide for an absolute path; on Windows one starts with a drive letter,

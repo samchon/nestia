@@ -19,6 +19,7 @@ import { PlainFetcher } from "@nestia/fetcher";
  *    separators.
  * 3. Assert each captured URL equals the host and path joined by one separator.
  */
+
 export async function test_fetcher_host_and_path_join(): Promise<void> {
   const capture = async (host: string, path: string): Promise<string> => {
     let captured: string = "";

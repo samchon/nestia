@@ -14,8 +14,11 @@ description: Defines nestia implementation rules, testing standards, validation,
 - [Testing](#testing)
 - [Validation](#validation)
 - [Change Integrity](#change-integrity)
+- [Evidence Adoption](#evidence-adoption)
 
 ## Forbidden
+
+Read the [contracts skill](../contracts/SKILL.md) before changing maintained production declarations. Its common checklist owns implementation acknowledgments; scoped checklists apply by responsibility. When a failure disproves an assumption, correct its owner and remove superseded compensations in the same repair.
 
 These four are never acceptable; choosing any one means the approach is already wrong.
 
@@ -33,9 +36,9 @@ These four are never acceptable; choosing any one means the approach is already 
 - Preserve the public contract in `.agents/skills/project/SKILL.md`. Decorator names, `INestiaConfig` options, CLI flags, and the generated SDK / Swagger / e2e surface are public; renaming or removing any of them is a deliberate product change, not incidental cleanup.
 - Use the workspace catalogs. `pnpm-workspace.yaml` pins versions under `catalog:typescript`, `catalog:samchon`, `catalog:nestjs`, `catalog:utils`, `catalog:modelcontextprotocol`, and `catalog:rolldown`. New dependencies go through the matching catalog; internal references use `workspace:^`.
 - Migration templates ship without interactive dependencies — generated projects stay non-interactive.
-- Keep local outputs local. Do not commit `.env`, the tarballs under `deploy/tarballs/`, or any tree the harnesses regenerate (`tests/test-migrate/.generated`, the generated halves of `tests/test-sdk/features/*/src/api`, `tests/test-benchmark/BENCHMARK.md`).
+- Keep local outputs local. Do not commit `.env`, the tarballs under `deploy/tarballs/`, or any tree the harnesses regenerate (`tests/test-e2e/.tmp-*`, generated consumers and benchmark reports under the integrated E2E workspace).
 - When public behavior changes, update the matching page under `website/src/content/docs/**` in the same change. Follow `.agents/skills/documentation/SKILL.md`.
-- Run `pnpm format` before every ordinary commit and stage the result; never commit unformatted output. One invocation [covers both the package and test trees](../project/SKILL.md#commands), so no workspace needs formatting separately. Issue campaigns move that timing rather than relaxing it, and their own procedures state when: [the solo cycle](../issue-campaign/development.md#implement-and-write-tests) and [a parallel batch](../multi-agent/issue-campaign.md#post-campaign-cleanup).
+- Run `pnpm format` once on the final pull-request changes before merge and include its result in that pull request. Formatting is not a prerequisite for each commit or push, including campaign commits. If later edits change a formatter target, rerun it before merge; an unchanged final snapshot needs no repeat. One invocation [covers both the package and test trees](../project/SKILL.md#commands), so no workspace needs formatting separately. All other validation and merge gates remain required.
 
 ## Consequence Analysis
 
@@ -64,33 +67,32 @@ Test workspaces point at `@nestia/core/native/transform.cjs`. Do not add a secon
 
 ### Go tests
 
-All tracked Go tests live in two dedicated modules, not beside the source:
+Go unit tests live in two dedicated package modules, not beside the source:
 
 - `packages/core/test`, run by `pnpm --filter @nestia/core test:go`.
 - `packages/sdk/test`, run by `pnpm --filter @nestia/sdk test:go`.
 
-Each module carries `replace` directives back to `../native` (and, for the SDK, to `../../core/native`) plus the pinned typescript-go shim redirects. Use one `Test*` function per file, named after the assertion, and mirror a nearby test's package, fixture, and cleanup pattern. Tests that exercise the CLI surface or the emit pipeline should invoke the real binary so the wrapper branches stay covered.
+Each module carries `replace` directives back to `../native` (and, for the SDK, to `../../core/native`) plus the pinned typescript-go shim redirects. Use one `Test*` function per file, named after the assertion, and mirror a nearby test's package, fixture, and cleanup pattern. Exercise option, analysis and emit semantics through the owning operations in-process; reserve native-binary or installed-CLI execution for the necessary wrapper connection in the E2E population. Do not rebuild or launch a host per rule.
 
-`packages/core/native` and `packages/sdk/native` currently contain no `*_test.go`. Root `pnpm test:go` appends `go test -count=1 ./...` in `packages/core/native` only, so a colocated test added there would run but one added under `packages/sdk/native` would be invisible to every script. Prefer the existing `test/` modules unless the case genuinely requires same-package access, and wire up a runner if it does.
+Generated-validator runtime connections belong to `tests/test-e2e`. Pure option selection, diagnostics and declaration provenance belong to the core unit module; a native dispatch plus Node execution is an integration boundary even if its test file is Go. Count those actual operations separately from test-language preparation.
+
+Native production trees contain no `*_test.go`; root `pnpm test:go` runs the two owning `test/` modules. Keep new tests there unless same-package access is necessary and wire any exceptional test location into the canonical runner. Package compilation remains a prerequisite, not an additional empty test population.
 
 Every `test:go` script passes `-count=1`, and so should a hand-run `go test`. Cacheable mode instruments the test binary to record every file a test opens, and these tests open the whole TypeScript program and its `node_modules` typings, which on Windows made one package take minutes instead of seconds. A cached pass would also be stale, because the tests read the pnpm-installed toolchain and fixtures outside Go's view.
 
 ### TypeScript suites
 
-Root `pnpm test` starts every `tests/test-*` workspace through its `start` script. They have these shapes:
+The baseline TypeScript workspace names are `test-benchmark`, `test-cli`, `test-e2e`, `test-editor`, `test-migrate`, `test-sdk` and `test-transform-options`. All integration execution belongs to `tests/test-e2e`; every other workspace contains only direct pure-unit logic. Preserve the existing implementation when aligning names with master. Empty legacy entries must not produce a vacuous pass.
 
-- **Function-per-file via `DynamicExecutor`:** `test-e2e`, `test-cli`, and `test-editor` discover files under `src/features/**` whose name starts with the configured `test` prefix. Export exactly one `test_<snake_case>` function from a matching filename.
-  - Name every non-discovered helper so it cannot match that prefix. The gate is the *filename*, not the directory: `DynamicExecutor` recurses into every subdirectory and would import a helper named `test_*.ts` wherever it lives, including the sibling `internal/` or `structures/` directory where helpers conventionally sit.
-  - `test-e2e` and `test-editor` throw when discovery returns zero tests. A hardcoded `js` extension once made a suite pass vacuously, so the extension now derives from `__filename` at runtime.
-  - `test-cli` and `test-editor` build the package under test first, because their harnesses `require()` built artifacts by absolute path that the exports map does not expose.
-- **Project-shaped:** `tests/test-sdk/features/<name>` — one directory per feature, each a real nestia project with its own `tsconfig.json` and a `nestia.config.ts`. `start.js` runs the CLI, compiles, and asserts on observable output, with a parallel worker pool and one port per feature. Within a successful feature the e2e layer is function-per-file again.
-  - Successful features sharing a `tsconfig.json` run in batches of twelve, since a feature's cost is its project's generation and type check, not its tests. A batch copies its members into `tests/test-sdk/.tmp-batch-<n>/`, as deep as `features/`, and runs one `nestia all` over every member's own `nestia.config.ts`, rebased onto the member's copy, and one ttsx program over every copy's sources, whose runner calls each member's `src/test/index.ts` in turn. One program cannot map one `@api` alias onto many projects, so the copies alone spell a member's `@api` imports as relative paths; the features keep the alias. A batched feature's test entry exports `main`, runs it only when it is the entry module, and throws on failure instead of exiting, and the feature reads its own files by `__dirname`, never by the working directory. A feature with its own `package.json`, whose Swagger info defaults to it, runs alone, as do the `error`, `distribute`, `all`, and `cli-*` features and a feature whose `tsconfig.json` no other feature shares.
-  - The directory name encodes the expected behavior. A name containing `error` **must** fail, and the harness throws if it compiles; a name containing `distribute` returns immediately after the output is cleaned, so it neither generates nor compiles; `cli-*` names drive the `--project` and `--config` flags.
-  - `cli-config` and `cli-config-project` carry `nestia.configuration.ts` instead, precisely to exercise that path.
-  - Mirror `tests/test-sdk/template/success/` or `template/error/` when adding a feature. They are siblings of `features/`, not entries in it.
-- **Hybrid pipeline:** `test-migrate` has function-per-file features but imports and calls them by hand from `src/index.ts`, wrapped in a generate-migrate-compile pipeline over the real project in `fixture/`. `assertFixtureSwagger` guards fixture richness (minimum path, operation, and schema counts plus `oneOf`, multipart, plain-text, and both security schemes); keep the fixture above those thresholds rather than lowering them.
-- **Benchmark-driven:** `test-benchmark` boots a real NestJS app and runs `DynamicBenchmarker` over `src/features/test_api_*.ts`.
-- **Synthetic:** `tests/test-transform-options` drives `ttsc` with hand-written project files and inspects the arguments the transform baked into the decorator calls, using `Module._load` capture stubs. Its cases are tables in `start.js` (`VALIDATE_CASES`, `STRINGIFY_CASES`, `LLM_CASES`), and an expected compile failure is the `fail: true` flag rather than a directory name. Add new option combinations here instead of inventing new project fixtures.
+Classify by the real call path. Consumer installation, separate product compilation, Nest application creation, HTTP hosts, worker sessions and CLI/IPC processes are integration preparation. Running TypeScript test source is language preparation; directly calling a parser, composer or writer with authored input remains unit logic when it does not create those integration boundaries. Loading an already-built internal operation by absolute path does not itself make the direct unit E2E.
+
+Function-per-file unit entries use `DynamicExecutor` under `src/features/**`; editor browser cases use `src/browser/features/**` in a separate process to prevent DOM-dependent initialization leaking into SSR. Export exactly one `test_<snake_case>` function from a matching filename. Name helpers outside the discovered prefix, derive the source extension from `__filename` and reject zero discoveries.
+
+The sole E2E entry owns shared preparation and teardown. Combine compatible connections into one rich authored input program and one generated consumer, using public `ttsc`/`ttsx` or `TtscCompiler`. Do not preserve per-feature compiler contexts behind two Node processes, create arbitrary shards, invoke the old workspace starts or introduce a dedicated SDK Go host. Transfer exact pure name/schema/option judgments to their owning units when independent-program premises conflict with a shared fixture.
+
+Record every original valid assertion's owning operation, independent oracle, normal/error controls, unit or integration destination and preparation costs before replacing its execution path. Rich migration inputs must retain request/response, security, multipart, plain-text and schema distinctions; lowering fixture thresholds or treating compile success as those assertions is invalid. Failed preparation and tests retain their first result, and cleanup must cover partial startup.
+
+Keep code under a JSDoc `@example` unfenced. The JSDoc formatter can emit a closing fence with a trailing semicolon and move acknowledgment tags behind it, making the checker read those tags as example code. Use a description-level fenced block when a displayed fence is needed, and separate acknowledgment tags from prose with a blank comment line.
 
 Use the shared helpers in `@nestia/e2e` and each suite's local `internal/` helpers. Do not reach into another suite's internals.
 
@@ -121,7 +123,7 @@ export const test_body_config_assertPrune_strips_extras = (): void => {
 A test that only feeds a controller its ordinary valid input and asserts a 200 proves one path, not correctness. The transform spans validators, serializers, Swagger metadata, SDK emit, mockup simulators, and diagnostics; each predicate or branch needs more than its happy path:
 
 - **The transformation direction.** When a call should be rewritten, assert observable emitted or runtime behavior that differs from the untransformed stub. For the generators, start from a hand-written controller and verify the generated SDK, Swagger, or e2e output — not merely that an existing output still compiles.
-- **A negative twin for every positive.** Wherever a predicate accepts, rewrites, narrows, serializes, or reports a diagnostic, pin an adjacent case one property away where it must not do so. An over-match stays invisible until the counter-example exists. `test-sdk`'s `error` features are this rule expressed as directories.
+- **A negative twin for every positive.** Wherever a predicate accepts, rewrites, narrows, serializes, or reports a diagnostic, pin an adjacent case one property away where it must not do so. An over-match stays invisible until the counter-example exists. Rejected authored inputs in the owning unit or shared E2E fixture supply the same negative controls.
 - **Boundaries.** Cover the empty case, the single-element case, recursion limits, optional and nullable members, exact numeric limits, deepest nesting, and the decorator option or compiler flag that flips the decision.
 - **Oracle-derived expectations.** Take expected behavior from TypeScript semantics, the NestJS contract, and the authoritative OpenAPI specification — never from whatever the current code happens to emit. A snapshot written against the implementation's own output locks its bugs in.
 
@@ -129,12 +131,13 @@ A test that only feeds a controller its ordinary valid input and asserts a 200 p
 
 Run the narrowest command that proves the change first, then a broader command when shared behavior, the transform, packaging, or documentation changed. Report any command that could not be run.
 
-- **One Go module:** `pnpm --filter @nestia/core test:go` or `pnpm --filter @nestia/sdk test:go`; root `pnpm test:go` runs both plus `go test -count=1 ./...` in `packages/core/native`.
+- **One Go module:** `pnpm --filter @nestia/core test:go` or `pnpm --filter @nestia/sdk test:go`; root `pnpm test:go` runs both modules.
 - **One TypeScript workspace:** `pnpm --filter ./tests/<name> start`.
-- **One `test-sdk` feature:** `pnpm --filter ./tests/test-sdk start -- --only <substring>`, which runs only the features whose name contains that substring. `--from <name>` resumes lexicographically, `--shard <index>/<count>` (or `TEST_SDK_SHARD`) runs one of `count` disjoint slices of the selected features, as the CI `sdk` jobs do, and `TEST_SDK_SKIP_BUILD=1` reuses the current package builds, refusing to run when a package source is newer than its build. The harness runs the `nestia` CLI from its build (`packages/cli/bin`) under plain node, with `tests/test-sdk/built-packages.cjs` serving each workspace package from the entries its `publishConfig.exports` names, as a published install resolves them.
+- **Unit population:** `pnpm test:unit` runs the populated pure TypeScript unit workspaces against caller-built artifacts. Editor browser initialization stays in its additional process. Continue independent populations after a failure; no unit entry installs consumers, compiles product fixtures or starts hosts, workers or CLI/IPC sessions. `pnpm test:go` runs the native unit modules through owning operations in-process.
+- **E2E population:** after `pnpm build`, run `pnpm test:e2e`, which calls only the shared `tests/test-e2e` entry. Count actual installation, compiler, generation, backend and worker operations. `test.yml` owns all tests in one job after one installation and package build, without matrix or shards; measure its complete duration against the eight-minute target while preserving assertions.
 - **One package:** `pnpm --filter ./packages/<name> build`.
 - **Transform, decorators, or generators broadly:** `pnpm test`; use `pnpm build` as the faster compilation gate.
-- **Packaging:** run root `pnpm package:tgz`, then inspect or smoke-test a clean install. `deploy/verify-package-exports.cjs` already runs inside the `fetcher`, `migrate`, and `editor` builds; trust its failure over a green typecheck.
+- **Packaging:** run root `pnpm package:tgz`, then inspect or smoke-test a clean install.
 - **Website or guide changes:** run root `pnpm install` and `pnpm run package:tgz` first, because `website/package.json` depends on `../deploy/tarballs/editor.tgz` and `../deploy/tarballs/migrate.tgz`. Then run `npm install --force && npm run build` inside `website/`, which also rebuilds `@nestia/migrate` and `@nestia/editor` and runs TypeDoc into `public/api`.
 
 Verification shape depends on the change type:
@@ -144,7 +147,7 @@ Verification shape depends on the change type:
 - **Refactor:** name what should stay unchanged; rely on the existing test suite or a behavior-locking probe.
 - **Review:** name concrete risks, missing tests, or regressions.
 
-A `test-sdk` e2e feature gets three quiet attempts and then one final attempt with inherited stdio, so the output you see belongs to a fourth run. A pass that needed a retry is still reported: the feature line names each failed attempt, the run ends with the list of retried features, and on GitHub Actions each one is a warning annotation. Do not read such a pass as a clean result; an intermittent failure is a finding.
+Each shared E2E producer and consumer phase runs once with visible diagnostics. A failed compilation or intermittent transport result remains a failed feature while unrelated features continue; do not repeat project preparation merely to reveal its output or replace an earlier failure with a later pass. The eight-minute CI target requires shared preparation and preserved first-failure evidence.
 
 ## Change Integrity
 
@@ -155,3 +158,19 @@ Go source under `packages/*/native` must ship under a version newer than the lat
 One maintainer-owned release change assigns that version, where `bumpp -r` moves all eight packages together. Multiple unreleased native changes belong to the same future release instead of consuming one patch number each, and no implementation pull request changes a `version` field. A release change may begin only after campaign completion, or after the user explicitly suspends the campaign and lifts the freeze, and it uses the version the user assigned.
 
 For mechanical ports, migrations, or broad rewrites, preserve the existing algorithm and public behavior in reviewable slices. Prefer a concrete exemplar over abstract instructions, and inspect the diff before trusting a green test run.
+
+## Evidence Adoption
+
+Each package's `evidence.config.json` selects the files that directly declare its maintained TypeScript types and functions and, for `@nestia/core` and `@nestia/sdk`, the Go types and functions under `native/`, and references `contracts/common.md` under `../../.agents/skills`. Pure re-export barrels own no selected declaration and are excluded; review their public wiring through package and consumer checks while selecting each symbol at its direct declaration. A file that mixes a declaration with a foreign re-export or an ambient `declare module` block is split so the declaration owner stays selected, because the checker resolves only relative modules inside the selected source root. Hand-written `.d.ts` files for untyped dependencies own no implementation and are excluded. Properties keep native documentation and are reviewed through their type. Add the portability and performance chapters only to the operations that own those decisions. Tests have their own selection in `tests/evidence.config.json` and always answer `contracts/testing.md`; an actual E2E boundary also answers `contracts/e2e.md`.
+
+Run root `pnpm evidence` to collect every owner without stopping at its first failure: it runs each package owner, then `tests/evidence.config.json`, then the root `evidence.config.json` that enrolls the runner itself, and exits 2 when any analysis was incomplete, 1 when only obligations are missing, and 0 otherwise. Use `pnpm --filter <package> evidence` for one package and `pnpm evidence:tests` for tests. JSON configuration keeps the checker independent of the native plugin this repository ships. `.github/workflows/test.yml` runs the command together with every test population; its path filter covers the full contract surface. Acknowledgments do not replace behavioral tests.
+
+The root `deploy/**` scripts are top-level script bodies with no exported declaration the adapter can address, so they are review-only.
+
+1. Finish the complete report before repairing obligations. Group missing answers, code and documentation defects, selection mistakes, and incomplete analysis by cause.
+2. Inspect each selected declaration and its private helpers against every applicable chapter. Fix verified defects before writing the answer; the acknowledgment describes the resulting implementation.
+3. Write `@evidence contracts/<document>.md#<anchor> <reason>` in native documentation, separated from descriptive prose by a blank comment line. Address the actual question for that declaration. Use `@evidenceExclude` only for a genuinely inapplicable individual chapter with its concrete reason.
+4. Inspect public addresses with `pnpm exec evidence list --config <config>` and resolution with `pnpm exec evidence inspect '<target>' --config <config>`. Account for private helpers, anonymous callbacks, dynamically registered cases, script entry bodies, and compile-only cases that the adapter cannot address. Make executable entries selectable where practical; record remaining review-only coverage honestly.
+5. Recheck the complete population after each coherent repair. Verify composed claims together, including local re-export resolution.
+
+Do not weaken severity, narrow a maintained population, add generic compliance prose, or exclude a whole document to silence obligations. Exclude generated output, copied fixture input, dependencies, and build output only with verified provenance. Authored generators and helpers remain maintained source. Verify selection against the actual runners rather than inferring enrollment from globs.

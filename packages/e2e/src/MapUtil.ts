@@ -5,9 +5,21 @@
  * objects, providing convenient methods for common Map operations like
  * retrieving values with lazy initialization.
  *
+ * Processing cost: The get-or-create operation uses native Map membership and
+ * lookup, and calls the factory only for an absent key; its dominant extra cost
+ * is the caller factory.
+ *
+ * Reuse: Stored values, including promises and undefined, are reused while the
+ * supplied Map retains the key. The caller must key every relevant dependency
+ * and remove stale or rejected entries; this helper cannot establish
+ * external-data freshness or prevent reentrant factory calls.
+ *
+ * Resource ownership: New values are transferred into the caller-owned Map,
+ * whose growth and eviction remain the caller responsibility; the helper
+ * acquires no external handle or background task.
+ *
  * @author Jeongho Nam - https://github.com/samchon
  * @example
- *   ```typescript
  *   // Create a cache with lazy initialization
  *   const cache = new Map<string, ExpensiveObject>();
  *
@@ -19,7 +31,11 @@
  *   // Subsequent calls return cached value without re-creating
  *   const sameObj = MapUtil.take(cache, "key1", () => new ExpensiveObject());
  *   console.log(obj === sameObj); // true
- *   ```;
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace offers the get-or-create pattern over the native `Map`, whose `has` distinguishes an absent key from a stored `undefined`.
+ * @evidence contracts/common.md#clear-and-simple-design One function, without options or state.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses only the public Map methods.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the lazy initialization pattern with an example.
  */
 export namespace MapUtil {
   /**
@@ -32,8 +48,20 @@ export namespace MapUtil {
    * returns it. The factory function is only called when the key doesn't exist,
    * enabling lazy initialization and caching patterns.
    *
+   * Processing cost: One membership test and lookup, or one factory invocation
+   * and insertion, avoid a map scan; native Map access is sublinear on average
+   * and factory cost belongs to the supplied computation.
+   *
+   * Reuse: Stored values, including promises and undefined, are reused while
+   * the supplied Map retains the key. The caller must key every relevant
+   * dependency and remove stale or rejected entries; this helper cannot
+   * establish external-data freshness or prevent reentrant factory calls.
+   *
+   * Resource ownership: New values are transferred into the caller-owned Map,
+   * whose growth and eviction remain the caller responsibility; the helper
+   * acquires no external handle or background task.
+   *
    * @example
-   *   ```typescript
    *   // Simple caching example
    *   const userCache = new Map<number, User>();
    *
@@ -48,7 +76,7 @@ export namespace MapUtil {
    *   const dbConfig = MapUtil.take(configs, "database", () => ({
    *     host: "localhost",
    *     port: 5432,
-   *     database: "myapp"
+   *     database: "myapp",
    *   }));
    *
    *   // Lazy computation results
@@ -64,9 +92,8 @@ export namespace MapUtil {
    *   const key: [number, number] = [rows, cols];
    *
    *   const matrix = MapUtil.take(cache, key, () =>
-   *     generateIdentityMatrix(rows, cols)
+   *     generateIdentityMatrix(rows, cols),
    *   );
-   *   ```;
    *
    * @template K - The type of keys in the Map
    * @template V - The type of values in the Map
@@ -75,6 +102,10 @@ export namespace MapUtil {
    * @param value - A factory function that creates the value if key doesn't
    *   exist
    * @returns The existing value if found, or the newly created value
+   * @evidence contracts/common.md#principled-implementation The key is looked up with `has`, so an existing value, even `undefined`, is returned without calling the factory; otherwise the factory is called once, its value is stored, and the same value is returned.
+   * @evidence contracts/common.md#clear-and-simple-design A single check, one factory call, and one store.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The factory result is stored as returned, with no copying or expiry.
+   * @evidence contracts/common.md#meaningful-documentation The comment states when the factory runs and documents the parameters with several examples.
    */
   export function take<K, V>(map: Map<K, V>, key: K, value: () => V): V {
     if (map.has(key)) {

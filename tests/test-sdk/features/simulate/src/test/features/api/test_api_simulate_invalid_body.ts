@@ -4,6 +4,10 @@ import typia, { Primitive } from "typia";
 import api from "@api";
 import type { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
+/**
+ * Calls the generated store simulator with a numeric title and requires
+ * HttpError 400.
+ */
 export const test_api_simulate_invalid_body = (
   connection: api.IConnection,
 ): Promise<void> =>

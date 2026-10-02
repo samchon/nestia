@@ -23,7 +23,32 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
 
+/**
+ * Writes the mockup functions of an HTTP route.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace prints random for the response type and simulate for structural parameter assertions followed by random response creation. Simulation operates on typed SDK arguments rather than parsing HTTP transport values.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions and their helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Generated validation calls typia.assert through NestiaSimulator's error adapter. It does not reproduce arbitrary server pipes or the server transform's prune and equality modes; simulation rejects structural type violations without contacting a server.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * efficient algorithms: Response construction has a fixed AST skeleton; request assertion emission visits significant parameters once and allocates one validator expression per parameter. Type and parameter projection costs belong to the called programmers.
+ * reuse equivalent work: These writers construct route-specific mutable AST nodes and coordinate no completed or in-flight generation across requests.
+ * bound retention and release resources: Returned ASTs transfer to the file writer. The emitted binary random function closes its empty stream during construction; the programmer itself retains no stream or producer task.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpSimulationProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace SdkHttpSimulationProgrammer {
+  /**
+   * Returns `random`: it makes a value of the response, a closed empty stream
+   * for a binary one. Binary readers receive EOF without waiting for payload.
+   *
+   * @evidence contracts/common.md#principled-implementation Ordinary responses call typia.random of the output type. Binary responses construct a stream with the existing binary chunk type and a start callback that closes its own controller synchronously; no bytes are enqueued, so the first read reports EOF under Streams semantics.
+   * @evidence contracts/common.md#clear-and-simple-design The existing binary versus ordinary expression branch owns response generation. Its inline stream source supplies closure without another runtime helper, import or transport.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The binary case has no random content.
+   * @evidence contracts/common.md#meaningful-documentation The prose states that binary random output is closed and readers receive EOF without waiting for payload.
+   * bound retention and release resources: The emitted binary source queues no bytes or producer task and closes each empty stream during construction. The writer returns its AST without retaining stream handles; runtime readers belong to the generated SDK caller.
+   * efficient algorithms: After response-type projection, either branch allocates a fixed AST skeleton; the binary branch emits one empty stream constructor without traversing or generating payload bytes.
+   * reuse equivalent work: The returned AST belongs to this route and importer. Each generated runtime call needs its own random value or stream, so neither mutable syntax nor runtime response identity is shared.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpSimulationProgrammer.random composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const random =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -47,7 +72,34 @@ export namespace SdkHttpSimulationProgrammer {
             ? factory.createNewExpression(
                 factory.createIdentifier("ReadableStream"),
                 [SdkAliasCollection.binaryChunk() as TypeNode],
-                [],
+                [
+                  factory.createObjectLiteralExpression([
+                    factory.createPropertyAssignment(
+                      "start",
+                      factory.createArrowFunction(
+                        undefined,
+                        undefined,
+                        [
+                          factory.createParameterDeclaration(
+                            undefined,
+                            undefined,
+                            "controller",
+                          ),
+                        ],
+                        undefined,
+                        undefined,
+                        factory.createCallExpression(
+                          IdentifierFactory.access(
+                            factory.createIdentifier("controller"),
+                            "close",
+                          ),
+                          undefined,
+                          [],
+                        ),
+                      ),
+                    ),
+                  ]),
+                ],
               )
             : factory.createCallExpression(
                 IdentifierFactory.access(
@@ -61,6 +113,19 @@ export namespace SdkHttpSimulationProgrammer {
       );
     };
 
+  /**
+   * Returns `simulate`: it asserts the parameters and returns a random output,
+   * wrapped as a propagation when configured.
+   *
+   * @evidence contracts/common.md#principled-implementation The status of the wrapper is the declared one or the method's default. A response without a content type has no Content-Type entry; a declared media type supplies a string header, preserving the propagation header contract.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The parameters are validated before a response is made.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * efficient algorithms: Parameter declarations and assertion nodes grow linearly with significant route parameters; propagation adds a fixed response wrapper and one catch block. The private assertion writer handles the connection headers separately rather than duplicating every parameter validation.
+   * reuse equivalent work: Simulation syntax contains this route's names, arguments, output type and importer aliases; this operation coordinates no reusable result across generation requests.
+   * bound retention and release resources: This function returns an AST to its caller and owns no retained cache, stream, handle or background task; runtime random response creation is documented by random.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpSimulationProgrammer.simulate composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const simulate =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -125,9 +190,11 @@ export namespace SdkHttpSimulationProgrammer {
                           ),
                           factory.createPropertyAssignment(
                             "headers",
-                            LiteralFactory.write({
-                              "Content-Type": route.success.contentType,
-                            }),
+                            LiteralFactory.write(
+                              route.success.contentType === null
+                                ? {}
+                                : { "Content-Type": route.success.contentType },
+                            ),
                           ),
                           factory.createPropertyAssignment("data", caller()),
                         ],
@@ -240,7 +307,7 @@ export namespace SdkHttpSimulationProgrammer {
           ),
         )
         .map(factory.createExpressionStatement);
-      // the headers travel in the connection, validated as the server does
+      // Headers travel in the connection and receive a structural assertion.
       if (route.headerObject !== null)
         individual.push(
           factory.createExpressionStatement(

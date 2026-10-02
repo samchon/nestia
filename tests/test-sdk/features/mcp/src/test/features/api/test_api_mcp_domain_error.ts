@@ -26,12 +26,12 @@ export const test_api_mcp_domain_error = async (
   connection: IConnection,
 ): Promise<void> => {
   const client = new Client({ name: "nestia-test", version: "1.0.0" });
-  await client.connect(
-    new StreamableHTTPClientTransport(
-      new URL(`${connection.host}${connection.path}`),
-    ),
-  );
   try {
+    await client.connect(
+      new StreamableHTTPClientTransport(
+        new URL(`${connection.host}${connection.path}`),
+      ),
+    );
     const error: unknown = await api.functional.mcp
       .divide(client, { a: 10, b: 0 })
       .then(

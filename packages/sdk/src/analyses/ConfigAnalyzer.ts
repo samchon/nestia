@@ -6,20 +6,49 @@ import { Module } from "@nestjs/core/injector/module";
 import fs from "fs";
 import getFunctionLocation from "get-function-location";
 import path from "path";
-import { HashMap, Pair, Singleton } from "tstl";
+import { HashMap } from "tstl";
 import { pathToFileURL } from "url";
 
 import { INestiaConfig } from "../INestiaConfig";
-import { SdkGenerator } from "../generates/SdkGenerator";
 import { INestiaSdkInput } from "../structures/INestiaSdkInput";
-import { ArrayUtil } from "../utils/ArrayUtil";
 import { EmittedJavaScriptPatcher } from "../utils/EmittedJavaScriptPatcher";
 import { MapUtil } from "../utils/MapUtil";
+import { PathUtil } from "../utils/PathUtil";
+import { SdkInputFilter } from "../utils/SdkInputFilter";
 import { SourceFinder } from "../utils/SourceFinder";
+import { TemporaryDirectory } from "../utils/TemporaryDirectory";
 import { TsConfigReader } from "../utils/TsConfigReader";
 import { TtscExecutor } from "../utils/TtscExecutor";
 
+/**
+ * Finds the controllers a configuration names, either by compiling and
+ * importing sources or by reading a running application.
+ *
+ * @evidence contracts/common.md#principled-implementation Sources are compiled once through ttsc into a temporary directory, imported, and the exports that carry the Nest `path` metadata are the controllers; an application is read from its module container; results are memoized per configuration object in a weakly keyed map, so a configuration the watcher reloads releases its entry with the object.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions and a private runtime compiler; the output-specific bundle filter comes from SdkInputFilter and configuration/runtime materializations share the owned-child cleanup registry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The generated SDK's own files are excluded from the input by the bundle list of the SDK, not by name, and the container is read through internals, as noted at `application`.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * efficient algorithms: Discovery traverses candidate files once, compiles one runtime project and inspects every exported value; work scales with source/compiler input and export population. Application input instead traverses container controllers and resolves each unique class location.
+ * reuse equivalent work: The promise cache shares concurrent and completed analyses for the same config object. It assumes that object, its input sources and application state remain unchanged during its lifetime; callers must supply a fresh config object after changes. Bundle exclusion shares only installed asset descriptions and derives native/realpath roots separately for each output; distinct outputs never reuse one captured prefix.
+ * bound retention and release resources: The weakly keyed input map does not retain released config objects, but emitted directories are registered until owned generation cleanup or process exit. Imported CommonJS/ESM modules remain in the hosting Node loader; direct programmatic callers have no per-generation unload guarantee. CLI watch generations isolate this state in a short-lived child.
+ * @evidence contracts/portability.md#os-neutral-implementation Source/controller identity is obtained from Node path/file-URL conversion, module resolution and native fs. Compiler projects use explicit cwd and native paths; emitted module imports use file URLs. Route prefix/version spelling is kept as protocol text, not treated as filesystem identity.
+ */
 export namespace ConfigAnalyzer {
+  /**
+   * Returns the analyzed input of a configuration: the controllers with their
+   * files and the global prefix and versioning options.
+   *
+   * The result is cached per configuration object.
+   *
+   * @evidence contracts/common.md#principled-implementation A function input is asked for the application and read as a running app; otherwise the matched TypeScript sources are compiled and imported, and the memo stores the promise so concurrent callers share one compilation.
+   * @evidence contracts/common.md#clear-and-simple-design One function delegating to `application` or to the runtime compiler.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The cache is keyed by the identity of the configuration object, so a different or reloaded configuration object is never served another's result; one object keeps its first result, which is the contract of a configuration that is not mutated between generations.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the two input forms and the caching.
+   * efficient algorithms: Discovery traverses candidate files once, compiles one runtime project and inspects every exported value; work scales with source/compiler input and export population. Application input instead traverses container controllers and resolves each unique class location.
+   * reuse equivalent work: The promise cache shares concurrent and completed analyses for the same config object. It assumes that object, its input sources and application state remain unchanged during its lifetime; callers must supply a fresh config object after changes. Bundle exclusion shares only installed asset descriptions and derives native/realpath roots separately for each output; distinct outputs never reuse one captured prefix.
+   * bound retention and release resources: The weakly keyed input map does not retain released config objects, but emitted directories are registered until owned generation cleanup or process exit. Imported CommonJS/ESM modules remain in the hosting Node loader; direct programmatic callers have no per-generation unload guarantee. CLI watch generations isolate this state in a short-lived child.
+   * @evidence contracts/portability.md#os-neutral-implementation Source/controller identity is obtained from Node path/file-URL conversion, module resolution and native fs. Compiler projects use explicit cwd and native paths; emitted module imports use file URLs. Route prefix/version spelling is kept as protocol text, not treated as filesystem identity.
+   */
   export const input = async (
     config: INestiaConfig,
   ): Promise<INestiaSdkInput> => {
@@ -37,7 +66,7 @@ export namespace ConfigAnalyzer {
           typeof config.input === "object" && !Array.isArray(config.input)
             ? (config.input.exclude ?? [])
             : [],
-        filter: filter(config),
+        filter: await SdkInputFilter.create(config.output),
       });
       const runtime: RuntimeCompiler = await RuntimeCompiler.compile(sources);
       const controllers: INestiaSdkInput.IController[] = [];
@@ -62,6 +91,19 @@ export namespace ConfigAnalyzer {
     });
   };
 
+  /**
+   * Reads the controllers, the global prefix, and the versioning options of a
+   * running NestJS application.
+   *
+   * @evidence contracts/common.md#principled-implementation The controllers come from the module container with their module paths, their files from the location of each class, decoded from the `file:` URL, and the prefix and versioning options from the application's configuration.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts NestJS exposes no public accessor for the container or the configuration, so the function reads `app.container` and `app.config`; this is the one foreign-internal read of the package and stays a stated limit.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is read.
+   * efficient algorithms: The container is traversed once and a hash map groups each class with its module prefixes, so location lookup occurs once per unique controller class.
+   * reuse equivalent work: This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * bound retention and release resources: The invocation retains local module/controller collections until it returns. The running application and its controllers remain caller-owned; this reader neither starts nor closes the app.
+   * @evidence contracts/portability.md#os-neutral-implementation Source/controller identity is obtained from Node path/file-URL conversion, module resolution and native fs. Compiler projects use explicit cwd and native paths; emitted module imports use file URLs. Route prefix/version spelling is kept as protocol text, not treated as filesystem identity.
+   */
   export const application = async (
     app: INestApplication,
   ): Promise<INestiaSdkInput> => {
@@ -88,7 +130,7 @@ export namespace ConfigAnalyzer {
       const file: string | null =
         (await getFunctionLocation(it.first))?.source ?? null;
       if (file === null) continue;
-      const location: string = normalize_file(file);
+      const location: string = PathUtil.location(file);
       if (location.length === 0) continue;
       controllers.push({
         class: it.first,
@@ -120,7 +162,7 @@ export namespace ConfigAnalyzer {
     };
   };
 }
-const memory = new Map<INestiaConfig, Promise<INestiaSdkInput>>();
+const memory = new WeakMap<INestiaConfig, Promise<INestiaSdkInput>>();
 class RuntimeCompiler {
   private constructor(
     private readonly cwd: string,
@@ -135,11 +177,7 @@ class RuntimeCompiler {
       ".nestia",
       "runtime",
     );
-    await fs.promises.mkdir(runtimeRoot, { recursive: true });
-    ensureRuntimeCleanup(runtimeRoot);
-    const outDir: string = await fs.promises.mkdtemp(
-      path.join(runtimeRoot, "run-"),
-    );
+    const outDir: string = TemporaryDirectory.create(runtimeRoot, "run-");
     const project: string = path.join(
       cwd,
       `.nestia.runtime.${process.pid}.${Date.now()}.json`,
@@ -194,42 +232,6 @@ class RuntimeCompiler {
     return emitted;
   }
 }
-
-const RUNTIME_ROOTS: Set<string> = new Set();
-let RUNTIME_CLEANUP_REGISTERED: boolean = false;
-
-const ensureRuntimeCleanup = (runtimeRoot: string): void => {
-  RUNTIME_ROOTS.add(runtimeRoot);
-  if (RUNTIME_CLEANUP_REGISTERED === true) return;
-  RUNTIME_CLEANUP_REGISTERED = true;
-  const sweep = (): void => {
-    for (const location of RUNTIME_ROOTS)
-      fs.rmSync(location, { force: true, recursive: true });
-  };
-  process.once("exit", sweep);
-  // process.once("exit", …) does not fire on SIGINT/SIGTERM. Without these
-  // handlers a Ctrl-C during codegen leaves `run-*` mkdtemp directories
-  // behind under node_modules/.nestia/runtime/ until a subsequent clean exit.
-  // The module-level RUNTIME_CLEANUP_REGISTERED flag above guards against
-  // re-entrancy within this module; we deliberately do NOT gate on
-  // `process.listenerCount(signal) > 0` because NestiaConfigLoader's parallel
-  // sweep registers first, and that gate would skip our registration —
-  // leaving RUNTIME_ROOTS unswept on Ctrl-C while config-loader cleans up.
-  // Windows note: `process.kill(pid, "SIGINT")` calls TerminateProcess
-  // rather than re-raising through the listener queue, so the handler
-  // cascade documented above only holds on POSIX. On Windows, whichever
-  // module registers FIRST runs its sweep and the second is skipped —
-  // RUNTIME_ROOTS cleanup is best-effort there. SIGHUP is a no-op for
-  // most common code paths on Windows (Node fires it on console-close
-  // and exits within seconds).
-  const onSignal = (signal: NodeJS.Signals): void => {
-    sweep();
-    process.kill(process.pid, signal);
-  };
-  for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
-    process.once(signal, onSignal);
-  }
-};
 
 type RuntimePlugin = Record<string, unknown> & { transform?: unknown };
 
@@ -298,47 +300,7 @@ const normalizeProjectPath = (project: string | undefined): string => {
   return path.isAbsolute(next) || next.startsWith(".") ? next : `./${next}`;
 };
 
-const normalize_file = (str: string) =>
-  str.substring(
-    str.startsWith("file:///")
-      ? process.cwd()[0] === "/"
-        ? 7
-        : 8
-      : str.startsWith("file://")
-        ? 7
-        : 0,
-  );
-
-const filter =
-  (config: INestiaConfig) =>
-  async (location: string): Promise<boolean> =>
-    SourceFinder.isTypeScriptSource(location) &&
-    (config.output === undefined ||
-      (location.indexOf(path.join(config.output, "functional")) === -1 &&
-        (await (
-          await bundler.get(config.output)
-        )(location))) === false);
-
 const dynamicImport: (specifier: string) => Promise<any> = Function(
   "specifier",
   "return import(specifier);",
 ) as (specifier: string) => Promise<any>;
-
-const bundler = new Singleton(async (output: string) => {
-  const assets: string[] = await fs.promises.readdir(SdkGenerator.BUNDLE_PATH);
-  const tuples: Pair<string, boolean>[] = await ArrayUtil.asyncMap(
-    assets,
-    async (file) => {
-      const relative: string = path.join(output, file);
-      const location: string = path.join(SdkGenerator.BUNDLE_PATH, file);
-      const stats: fs.Stats = await fs.promises.stat(location);
-      return new Pair(relative, stats.isDirectory());
-    },
-  );
-  return async (file: string): Promise<boolean> => {
-    for (const it of tuples)
-      if (it.second === false && file === it.first) return true;
-      else if (it.second === true && file.indexOf(it.first) === 0) return true;
-    return false;
-  };
-});

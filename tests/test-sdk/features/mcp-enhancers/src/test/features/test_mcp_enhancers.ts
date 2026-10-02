@@ -34,8 +34,8 @@ export const test_mcp_enhancers = async (
   connection: IConnection,
 ): Promise<void> => {
   const fastify: INestApplication = await Backend.fastify();
-  await fastify.listen(0, "127.0.0.1");
   try {
+    await fastify.listen(0, "127.0.0.1");
     for (const [adapter, host] of [
       ["express", connection.host],
       ["fastify", (await fastify.getUrl()).replace("[::1]", "127.0.0.1")],
@@ -57,12 +57,12 @@ const validate = async (
     headers: Record<string, string> = {},
   ): Promise<any> => {
     const client = new Client({ name: "nestia-test", version: "1.0.0" });
-    await client.connect(
-      new StreamableHTTPClientTransport(new URL(`${host}${path}`), {
-        requestInit: { headers },
-      }),
-    );
     try {
+      await client.connect(
+        new StreamableHTTPClientTransport(new URL(`${host}${path}`), {
+          requestInit: { headers },
+        }),
+      );
       return await client.callTool({ name, arguments: args as any });
     } finally {
       await client.close();

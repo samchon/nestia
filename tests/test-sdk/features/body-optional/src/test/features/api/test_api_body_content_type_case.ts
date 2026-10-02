@@ -2,6 +2,16 @@ import { TestValidator } from "@nestia/e2e";
 
 import api from "@api";
 
+/**
+ * Verifies checks mixed-case JSON and text media types preserve payloads and
+ * application/xml is rejected with 400.
+ *
+ * HTTP media types are case-insensitive; the authored JSON and text endpoints
+ * accept their own media types only.
+ *
+ * 1. Execute the authored feature through its prepared generated artifacts.
+ * 2. Assert the distinctions described below.
+ */
 export const test_api_body_content_type_case = async (
   connection: api.IConnection,
 ): Promise<void> => {

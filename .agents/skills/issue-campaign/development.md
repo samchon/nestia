@@ -2,6 +2,8 @@
 
 Read this document in full when the user authorizes implementation pull requests or the end of a solo issue campaign that entered implementation. Also read the repository development, pull-request, and review skills before acting.
 
+For explicit continuation under issue #1775, read [its campaign procedure](../multi-agent/campaign-1775.md) before applying the topology below. Its existing shared checkout, branch, pull request and ordinary CI replace new claims, disposable checkout/worktree creation and campaign cancellation; every applicable verification and review gate remains required.
+
 ## Flow
 
 - [Plan One Cycle Pull Request](#plan-one-cycle-pull-request)
@@ -74,7 +76,7 @@ Each issue remains an evidence and acceptance unit inside the combined diff. Kee
 
 Promote every reproduced defect class, consequence-matrix boundary, and mutation that caught an implementation error into a permanent regression that a canonical package or root command discovers and executes. A dormant or one-off scratch witness is not enough when the same class could recur after the campaign.
 
-Follow the development skill for test shape and narrow-then-broad local evidence. Do not treat a local build or test result as a substitute for the pull request's ordinary CI acceptance gate. After the source, tests, documentation, fixtures, and generated consequences are ready, run `pnpm format` and include its integrated result in the same pull request.
+Follow the development skill for test shape and narrow-then-broad local evidence. Do not treat a local build or test result as a substitute for the pull request's ordinary CI acceptance gate. Apply its final formatting rule before merge and include the result in the same pull request; intermediate commits and pushes need no formatter run.
 
 If implementation disproves, narrows, or externally blocks an issue, reopen the evidence and revalidate that conclusion from primary sources before changing the claimed scope. Record the evidence on the issue and pull-request thread, update the campaign ledger, and close a confirmed-invalid issue. Do not leave an orphan issue or pretend an unresolved accepted issue was completed.
 
@@ -88,11 +90,11 @@ Overlap stops where it would destroy evidence: a [Self-Review round](#validate-w
 
 ## Validate With CI And Self-Review
 
-Commit and push the formatted integrated snapshot, then let every ordinary pull-request check run. Start solo Self-Review immediately over that exact base-to-head diff while CI executes. A test process may run during the round because it does not change the snapshot; a source edit does, so commit any correction and restart the round over the new head.
+Commit and push the integrated snapshot, then let every ordinary pull-request check run. Start solo Self-Review immediately over that exact base-to-head diff while CI executes. A test process may run during the round because it does not change the snapshot; a source edit does, so commit any correction and restart the round over the new head. Include final formatting before merge and apply these same gates to any resulting head change.
 
 Submit every Self-Review finding round and the final clean round as a formal GitHub pull-request review with the `COMMENT` event. Attach line-specific findings as inline review comments and summarize round-wide findings or the clean conclusion in the review body; do not post ordinary issue-style pull-request comments for Self-Review.
 
-Read CI once per settled head. It gates the cycle, not each commit. Only `test.yml` sets `cancel-in-progress`, so an intermediate commit's other lanes run to completion against a snapshot the cycle has already moved past; waiting on that result stalls implementation and proves nothing about the head that will merge. Note also that `.github/workflows/` is not the whole check surface: CodeQL default setup and the Socket Security app report on pull requests without a workflow file in this repository.
+Read CI once per settled head. It gates the cycle, not each commit. The single test workflow cancels superseded pull-request runs; other lanes can finish against an intermediate snapshot. Waiting on that result stalls implementation and proves nothing about the head that will merge. Evidence, Go, unit and E2E are distinct steps in that one job, without a matrix. Note also that `.github/workflows/` is not the whole check surface: CodeQL default setup and the Socket Security app report on pull requests without a workflow file in this repository.
 
 CI and review are independent gates:
 
@@ -107,13 +109,13 @@ When any gate finds a defect:
 
 1. Diagnose the real cause from the CI log, review evidence, or gate output.
 2. Correct the source and complete the corresponding regression coverage.
-3. Run `pnpm format`.
+3. Apply final formatting only when the correction is ready for merge, following the development skill's Work Rules.
 4. Commit and push the correction to the same pull request.
 5. Let the new CI run to completion and restart Self-Review as a fresh complete round over the new head.
 
 Fix every red CI lane in the same pull request even when the failure predates the campaign or is unrelated to the campaign's original issues. Do not dismiss it as another contributor's failure.
 
-The development skill records that a `test-sdk` e2e feature retries before the attempt whose output you see. In a campaign, treat an intermittent lane as a finding to adjudicate, not as noise to re-run away.
+Every integrated E2E phase retains its first failure. Treat an intermittent lane as a finding to adjudicate, not as noise to re-run away.
 
 Do not merge a head whose green checks belong to an older SHA or whose clean review predates a correction. Continue the loop until the same immutable head has green required checks, a complete Self-Review round with no sound improvement, and every applicable integration and mutation record final.
 
@@ -128,7 +130,7 @@ After merge:
 1. Verify GitHub records the pull request as merged into the intended target and every linked issue has the correct final state. Reopen any issue the squash merge closed without a surviving fix, and comment that the merge closed it mechanically.
 2. Confirm the checkout has no unpushed or uncommitted work worth preserving.
 3. Switch back to `master`, pull with `git pull --ff-only`, and delete the local topic branch.
-4. Preserve the command evidence in the campaign knowledge base, then remove every disposable mutable root the cycle created: disposable mutation checkouts, `GOCACHE`, `GOTMPDIR`, `TTSC_CACHE_DIR`, generated-output roots, tarballs under `deploy/tarballs/`, the regenerated trees under `tests/test-sdk` and `tests/test-migrate/.generated`, and clean-consumer install roots. Confirm no live process uses a path before deleting it, delete only the exact proven path, and verify it is absent.
+4. Preserve the command evidence in the campaign knowledge base, then remove every disposable mutable root the cycle created: disposable mutation checkouts, `GOCACHE`, `GOTMPDIR`, `TTSC_CACHE_DIR`, generated-output roots, tarballs under `deploy/tarballs/`, the assignment-owned regenerated trees under `tests/test-e2e`, and clean-consumer install roots. Confirm no live process uses a path before deleting it, delete only the exact proven path, and verify it is absent.
 5. Never bulk-delete a shared temporary directory, a shared ttsc cache directory, an installed toolchain, or an asset whose ownership is uncertain.
 
 Formatting belongs to the unified cycle pull request, so a separate post-campaign formatting pull request is not part of this solo workflow.

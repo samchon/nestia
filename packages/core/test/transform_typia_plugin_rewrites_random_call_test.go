@@ -22,6 +22,11 @@ import (
 //  1. Build a tsconfig including the random fixture and IPage.
 //  2. Run transform with a typia-only plugin manifest, capturing --out.
 //  3. Assert the integer random artifacts are present and the float one is gone.
+//
+// @evidence contracts/testing.md#behavioral-verification A uint random transform must emit an integer random helper with integer metadata and minimum zero, while forbidding the floating random helper.
+// @evidence contracts/testing.md#independent-expectations The handwritten unsigned integer constraint independently requires integral nonnegative specimens, not arbitrary floating values.
+// @evidence contracts/testing.md#distinguishing-cases This contrasts integer helper presence with floating helper absence and pins the zero boundary; installed runtime tests own evaluating generated helpers.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformTypiaPluginRewritesRandomCall(t *testing.T) {
 	temp := t.TempDir()
 	featureRoot := featureRootForCore(t, "app")

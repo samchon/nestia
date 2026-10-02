@@ -45,6 +45,11 @@ import { validate_request_query } from "./internal/validate_request_query";
  *
  * @author Jeongho Nam - https://github.com/samchon
  * @returns Parameter decorator
+ * @evidence contracts/common.md#principled-implementation The query string is read from the request URL after the first question mark, grouped by the transformed decoder into the typed object, and a failure is thrown as the 400 response; the decoder receives a `URLSearchParams`, so both Express and Fastify requests are handled by the same code.
+ * @evidence contracts/common.md#clear-and-simple-design One parameter decorator on top of the shared query validator runner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The decoder is generated from the type by the transform; without it the grouped raw query is returned only when the configuration guard is off.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the supported property types and the validation modes.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Query decoding and response encoding operate on URLSearchParams and HTTP route metadata rather than native filesystem paths.
  */
 export function TypedQuery<T extends object>(
   validator?: IRequestQueryValidator<T>,
@@ -64,6 +69,17 @@ export function TypedQuery<T extends object>(
     return output;
   })();
 }
+/**
+ * Variants of {@link TypedQuery}: `TypedQuery.Body` reads an urlencoded body,
+ * and `TypedQuery.Get`, `Post`, `Put`, `Patch`, and `Delete` return the value
+ * as an urlencoded response.
+ *
+ * @evidence contracts/common.md#principled-implementation `Body` requires the `application/x-www-form-urlencoded` media type and decodes the parsed body, and the route decorators serialize the returned value through the querifier the transform chose and set the response content type.
+ * @evidence contracts/common.md#clear-and-simple-design One body decorator and one generator that creates the five route decorators, with a small adapter class for parsed bodies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The route decorators copy typia's marker properties onto themselves exactly as `TypedRoute` does, which mutates only these exported functions.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the body decorator and the route decorators.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Query decoding and response encoding operate on URLSearchParams and HTTP route metadata rather than native filesystem paths.
+ */
 export namespace TypedQuery {
   /**
    * Request body decorator.

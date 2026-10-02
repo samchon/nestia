@@ -13,6 +13,11 @@ import { OpenApi } from "@typia/interface";
  * @author Jeongho Nam - https://github.com/samchon
  * @param closure Callback function which can customize the swagger data
  * @returns Method decorator
+ * @evidence contracts/common.md#principled-implementation Each use appends the closure to an array of metadata owned by the method, created on first use, so several customizers on one method run in order.
+ * @evidence contracts/common.md#clear-and-simple-design One decorator function with one metadata list per method.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the reflect metadata API; the closure is the caller's.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents that the closure receives the document, the operation, and lookup helpers.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The callback and endpoint accessors edit an OpenAPI document; their path fields are HTTP routes rather than native file identities.
  */
 export function SwaggerCustomizer(
   closure: (props: SwaggerCustomizer.IProps) => unknown,
@@ -44,6 +49,16 @@ export function SwaggerCustomizer(
     return descriptor;
   };
 }
+/**
+ * Types of {@link SwaggerCustomizer}: the properties the closure receives and
+ * the endpoint accessors.
+ *
+ * @evidence contracts/common.md#principled-implementation The types describe the document, the current operation, and lookups by function or by path and method, which is what a customization needs to edit the generated document.
+ * @evidence contracts/common.md#clear-and-simple-design Three types with no runtime members.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It contains types only.
+ * @evidence contracts/common.md#meaningful-documentation Each type and member documents its meaning.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The callback and endpoint accessors edit an OpenAPI document; their path fields are HTTP routes rather than native file identities.
+ */
 export namespace SwaggerCustomizer {
   /**
    * Properties for the `SwaggerCustomizer` decorator.

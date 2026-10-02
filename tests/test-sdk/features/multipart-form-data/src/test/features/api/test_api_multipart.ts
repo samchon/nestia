@@ -4,6 +4,7 @@ import typia from "typia";
 import api from "@api";
 import { IMultipart } from "@api/lib/structures/IMultipart";
 
+/** Validates the generated consumer result. */
 export const test_api_multipart = async (
   connection: api.IConnection,
 ): Promise<void> => {

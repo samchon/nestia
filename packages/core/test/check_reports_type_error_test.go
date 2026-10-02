@@ -20,6 +20,11 @@ import (
 //  1. Write a temp .ts assigning a string to a number and a tsconfig including it.
 //  2. Run check against it.
 //  3. Assert the exit code is 2.
+//
+// @evidence contracts/testing.md#behavioral-verification The check dispatcher must reject assigning a string to a number with its TypeScript diagnostic exit code 2.
+// @evidence contracts/testing.md#independent-expectations TypeScript assignment compatibility forbids the deliberately authored string-to-number assignment independently of any generated validator.
+// @evidence contracts/testing.md#distinguishing-cases The malformed assignment is the negative twin of TestCheckPassesOnValidFeature; this assertion pins exit classification, not the full diagnostic wording.
+// @evidence contracts/testing.md#execution-ownership Go discovers the case in the core test module and calls transform.Run in-process; source and configuration are isolated in t.TempDir.
 func TestCheckReportsTypeError(t *testing.T) {
 	temp := t.TempDir()
 	bad := filepath.Join(temp, "bad.ts")

@@ -22,10 +22,16 @@ import (
 //
 //  1. Author a non-controller class whose decorated methods take an object
 //     and an array pattern or have a literal and an expression computed name,
-//     and a route whose body parameter is destructured beside a named one.
+//     adjacent undecorated methods, and a route whose body parameter is
+//     destructured beside a named one.
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert one metadata literal per decorated method, each listing its
 //     parameters' names: empty for a pattern, the identifier otherwise.
+//
+// @evidence contracts/testing.md#behavioral-verification Metadata for five decorated methods must publish the exact parameter-name vectors, including empty names for destructuring and the ordinary query identifier.
+// @evidence contracts/testing.md#independent-expectations Object/array binding patterns have no single identifier name, computed method names are valid declarations, and an ordinary parameter retains its authored query name.
+// @evidence contracts/testing.md#distinguishing-cases Object destructuring, array destructuring, literal/dynamic computed methods and a route mixing destructured body with a named query distinguish safe node-name handling from inventing names or dropping methods. Undecorated destructured and computed methods must add no metadata, contrasting the same name forms under Span.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticNonIdentifierNames(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 
@@ -37,6 +43,14 @@ export interface IBody {
 }
 
 export class Repository {
+  public untouched({ organizationId }: { organizationId: string }): string {
+    return organizationId;
+  }
+
+  public ["untouched-literal"](): string {
+    return "untouched";
+  }
+
   @Span()
   public async findPending({ organizationId }: { organizationId: string }): Promise<string> {
     return organizationId;

@@ -1,35 +1,127 @@
 import cp from "child_process";
 import fs from "fs";
 
+/**
+ * Scaffolds a project from a template repository for `nestia start` and `nestia
+ * template`.
+ *
+ * The flow clones the repository, installs, builds, optionally tests, and then
+ * deletes the repository-only files. Command and file-system operations go
+ * through an injected `IContext`, so unit tests need no network or package
+ * manager. Logging and the corepack prompt environment flag remain process
+ * effects.
+ *
+ * @evidence contracts/common.md#principled-implementation The scaffold is the fixed sequence clone, install, build, optional test, cleanup, each step one explicit-argument command; the package manager is chosen by probing `pnpm` and then `corepack` because the template repositories are pnpm monorepos whose `catalog:` protocol npm cannot resolve.
+ * @evidence contracts/common.md#clear-and-simple-design One namespace owns the flow: clone is the sequence, IContext is the injected command/file-system boundary, and private parse, getPackageManager and commandOf each answer one question; NestiaStarter and NestiaTemplate bind a title, URL and test flag.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Both templates run the identical flow parameterized by props, with no repository-name branches; the only ambient write is the documented corepack variable `COREPACK_ENABLE_DOWNLOAD_PROMPT`, set in the corepack branch to keep the prompt from blocking a scripted run.
+ * @evidence contracts/common.md#meaningful-documentation The namespace prose states what the flow does, its ordering, and why side effects are injected; the nested types and `clone` carry their own documentation.
+ * @evidence contracts/portability.md#os-neutral-implementation The only platform difference is how a program is launched. `git` runs directly through `execFileSync` with an argument array, while `pnpm` and `corepack`, which Windows installs as `.cmd` shims that Node refuses to start without a shell, run through `cmd.exe /d /s /c` with their fixed arguments on Windows and directly elsewhere. The repository and the destination are never part of a shell command line. The destination is a path relative to the current directory, its existence is the filesystem's own answer, and the directory change and the removal use Node's native calls. Remaining assumptions: `git` and a package manager are on `PATH`, and on a case-insensitive volume a destination spelled in another case than an existing directory is refused while a case-sensitive volume would accept it.
+ */
 export namespace NestiaProjectTemplate {
   /**
    * Side effects performed while scaffolding a template project.
    *
    * Injected so that the scaffolding flow can be unit tested without touching
    * the network, the file system, or a real package manager.
+   *
+   * @evidence contracts/common.md#principled-implementation The interface represents command execution/probing, directory changes, existence checks and removal as function members, so a fake can record those operations and production can delegate them to child_process and fs. Logging and the corepack prompt flag are separate process effects documented by the namespace.
+   * @evidence contracts/common.md#clear-and-simple-design Five members, one per distinct effect, with no default behavior in the type; the real implementation is the private `CONTEXT` constant, which keeps the interface a pure seam.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The seam exists because the flow performs process and file-system effects, not to serve a particular test: the production `CONTEXT` implements every member with the real operation.
+   * @evidence contracts/common.md#meaningful-documentation The type documentation says the effects are injected for offline testing, and each member states its contract in one sentence.
+   * @evidence contracts/portability.md#os-neutral-implementation The interface names the effects whose platform spelling lives in the production context: launching a program with an argument vector, silent probing of an executable, changing the working directory, testing existence and removing a tree.
    */
   export interface IContext {
-    /** Runs an executable with explicit arguments, inheriting stdio. */
+    /**
+     * Runs an executable with explicit arguments, inheriting stdio.
+     *
+     * @evidence contracts/common.md#principled-implementation An executable and an argument array, never a command string, mirror `execFileSync` semantics, so the flow never depends on shell quoting; inherited stdio lets the user see the clone and install output.
+     * @evidence contracts/common.md#clear-and-simple-design One member for commands whose output the user must see and whose failure must stop the flow, separate from the silent `probe`.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts The production implementation runs the requested command; no command is skipped or rewritten based on the repository or destination.
+     * @evidence contracts/common.md#meaningful-documentation The comment states the argument representation and that stdio is inherited.
+     * @evidence contracts/portability.md#os-neutral-implementation The executable and its arguments are separate values, so no quoting rule of any shell is part of the contract, and standard streams are inherited so the platform's terminal shows the program's output.
+     */
     execute: (executable: string, args: readonly string[]) => void;
-    /** Silently checks whether an executable accepts the supplied arguments. */
+
+    /**
+     * Silently checks whether an executable accepts the supplied arguments.
+     *
+     * @evidence contracts/common.md#principled-implementation A probe runs the executable with the given arguments and reports success as a boolean, which is enough to decide whether `pnpm --version` or `corepack --version` is available without interpreting output.
+     * @evidence contracts/common.md#clear-and-simple-design Separate from `execute` because a probe is silent and its failure is an answer rather than an error.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts Availability is decided by actually invoking the tool; no PATH scan is guessed and no tool name is assumed present.
+     * @evidence contracts/common.md#meaningful-documentation The comment states that the check is silent and returns whether the executable accepted the arguments.
+     * @evidence contracts/portability.md#os-neutral-implementation A program that cannot be started, as a missing executable on any platform, and one that exits non-zero both answer `false`, because the production context catches the failure of `execFileSync` instead of distinguishing platform error codes.
+     */
     probe: (executable: string, args: readonly string[]) => boolean;
-    /** Changes the working directory. */
+
+    /**
+     * Changes the working directory.
+     *
+     * @evidence contracts/common.md#principled-implementation The flow must run install and build inside the cloned directory, and changing the working directory of the process is the one operation that redirects every later relative command.
+     * @evidence contracts/common.md#clear-and-simple-design A single-purpose member so a fake can record the directory the flow entered.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts The production implementation calls `process.chdir` on the requested path, with no fallback directory.
+     * @evidence contracts/common.md#meaningful-documentation The comment names the effect, a working-directory change.
+     * @evidence contracts/portability.md#os-neutral-implementation `process.chdir` changes the working directory of the whole process, so the flow supports one scaffold per process at a time.
+     */
     chdir: (directory: string) => void;
-    /** Checks whether a path exists. */
+
+    /**
+     * Checks whether a path exists.
+     *
+     * @evidence contracts/common.md#principled-implementation Refusing to scaffold into an existing directory needs one boolean existence check for the destination path.
+     * @evidence contracts/common.md#clear-and-simple-design One question with one boolean answer, kept apart from removal.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts The production implementation asks the file system directly, with no cached listing.
+     * @evidence contracts/common.md#meaningful-documentation The comment states that it checks whether a path exists.
+     * @evidence contracts/portability.md#os-neutral-implementation Node's `existsSync` lets the volume decide the case policy and the links, and nothing is canonicalized.
+     */
     exists: (path: string) => boolean;
-    /** Removes a path recursively, ignoring missing entries. */
+
+    /**
+     * Removes a path recursively, ignoring missing entries.
+     *
+     * @evidence contracts/common.md#principled-implementation Deleting the repository-only files (`.git`, `.github/dependabot.yml`) after scaffolding is a recursive removal that must succeed when the entry is already absent.
+     * @evidence contracts/common.md#clear-and-simple-design One effect, isolated so a fake can record which paths the flow removed.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts The production implementation uses `fs.rmSync` with `recursive` and `force`, which is the supported way to make a missing path a no-op, not a swallowed error handler.
+     * @evidence contracts/common.md#meaningful-documentation The comment states that removal is recursive and ignores missing entries.
+     * @evidence contracts/portability.md#os-neutral-implementation `fs.rmSync` with `recursive` and `force` also removes the read-only files a clone leaves in `.git` on Windows, and a missing entry is not an error on any platform.
+     */
     remove: (path: string) => void;
   }
 
+  /**
+   * Per-template constants that parameterize the shared scaffolding flow.
+   *
+   * @evidence contracts/common.md#principled-implementation The three fields are the only differences between the starter and the template kits: what to announce, where to clone from, and whether to run the tests.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record of per-template constants with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Template-specific values live in data passed to one flow, which avoids branching on a template name inside the flow.
+   * @evidence contracts/common.md#meaningful-documentation Each field documents its role, including that the repository is overridable through `--repository <url>`.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The record holds a banner, a URL string and a flag, which are ordinary options and not a path or process representation; the repository is passed to git as one argument.
+   */
   export interface IProps {
     /** Banner title printed before cloning. */
     title: string;
+
     /** Default repository URL, overridable through `--repository <url>`. */
     repository: string;
+
     /** Whether to run the test suite after building. */
     test: boolean;
   }
 
+  /**
+   * Creates the `nestia start` or `nestia template` command for one template.
+   *
+   * The returned function takes a halter that terminates the process, an
+   * optional context, and the command-line arguments after the sub-command. It
+   * halts when the destination is missing or already exists, when the
+   * destination or the repository starts with a dash, when `--repository` has
+   * no value, or when neither pnpm nor corepack is available.
+   *
+   * @evidence contracts/common.md#principled-implementation Currying separates the per-template props from the halter and context injected at the call site. Argument and destination validation precede cloning, and a destination or repository that starts with a dash is refused because git would read it as an option; package-manager availability is checked after entering the clone, so an unavailable manager leaves that clone in place without installing or building it. Ordered execute calls implement the documented scaffold sequence.
+   * @evidence contracts/common.md#clear-and-simple-design One curried function keeps the sequence readable in one place, delegating parsing, package-manager selection, and command shaping to private helpers rather than to options.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The flow contains no fixture or repository names, and the injected context is the production seam: the default `CONTEXT` performs the real clone, install, build, and cleanup.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the halting conditions and the injected parameters, and section comments inside the body mark the phases.
+   * @evidence contracts/portability.md#os-neutral-implementation Every program invocation is one `execute` call with an argument vector, and the pnpm or corepack choice is made by probing, not by an operating-system name. A destination or repository starting with a dash is refused, since git would read it as an option and the vector has no separator.
+   */
   export const clone =
     (props: IProps) =>
     (halter: (msg?: string) => never, context: IContext = CONTEXT) =>
@@ -37,6 +129,10 @@ export namespace NestiaProjectTemplate {
       // VALIDATION
       const { dest, repository } = parse(argv, halter);
       if (dest === undefined) halter();
+      else if (dest.startsWith("-") || repository?.startsWith("-") === true)
+        halter(
+          "The destination and the repository must not start with a dash, which git would read as an option.",
+        );
       else if (context.exists(dest) === true)
         halter("The target directory already exists.");
 
@@ -114,8 +210,9 @@ export namespace NestiaProjectTemplate {
         "",
         "  npm install --global pnpm",
         "",
-        "or activate it through corepack (bundled with Node.js):",
+        "or install and activate corepack:",
         "",
+        "  npm install --global corepack",
         "  corepack enable",
       ].join("\n"),
     );

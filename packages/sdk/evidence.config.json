@@ -1,0 +1,68 @@
+{
+  "severity": "error",
+  "claims": [
+    {
+      "name": "maintained TypeScript production declarations",
+      "type": "typescript",
+      "files": [
+        "src/**/*.ts",
+        "!src/**/*.d.ts"
+      ],
+      "symbol": [
+        "type",
+        "function"
+      ],
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/portability.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "maintained native Go production declarations",
+      "type": "go",
+      "files": [
+        "native/**/*.go",
+        "!native/**/*_test.go"
+      ],
+      "symbol": [
+        "type",
+        "function"
+      ],
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/performance.md",
+          "contracts/portability.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "native test declarations",
+      "type": "go",
+      "files": [
+        "test/**/*_test.go",
+        "native/**/*_test.go"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/testing.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    }
+  ]
+}

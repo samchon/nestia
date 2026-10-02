@@ -9,7 +9,26 @@ import { IReflectMcpOperationParameter } from "../structures/IReflectMcpOperatio
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { ParameterNameAnalyzer } from "./ParameterNameAnalyzer";
 
+/**
+ * Reflects an `@McpRoute` method into a tool operation.
+ *
+ * @evidence contracts/common.md#principled-implementation The tool definition comes from the route metadata, the single params parameter is matched with its compile-time type, and combinations with HTTP or WebSocket decorators and extra parameters are errors.
+ * @evidence contracts/common.md#clear-and-simple-design One public function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules follow the decorator contract.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectMcpOperationAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace ReflectMcpOperationAnalyzer {
+  /**
+   * The input of the MCP operation analysis: the project, the controller, the
+   * method, and its metadata.
+   *
+   * @evidence contracts/common.md#principled-implementation The record holds what the analysis needs.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectMcpOperationAnalyzer.IProps analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export interface IProps {
     project: Omit<INestiaProject, "config">;
     controller: IReflectController;
@@ -18,6 +37,16 @@ export namespace ReflectMcpOperationAnalyzer {
     metadata: IOperationMetadata;
   }
 
+  /**
+   * Returns the tool operation of a method, or `null` when the method is not an
+   * MCP route or has errors.
+   *
+   * @evidence contracts/common.md#principled-implementation The method is an MCP route when it carries the route metadata; at most one params parameter is allowed and the function may have at most one argument; the return type and imports come from the metadata.
+   * @evidence contracts/common.md#clear-and-simple-design One function that collects errors once and reports them together.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules follow the decorator contract.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the null result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectMcpOperationAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const analyze = (ctx: IProps): IReflectMcpOperation | null => {
     const route:
       | {
@@ -62,7 +91,7 @@ export namespace ReflectMcpOperationAnalyzer {
 
     const imports: IReflectImport[] = [];
     const declared: IReflectMcpOperationParameter[] = preconfigured
-      .map((p) => {
+      .map((p): IReflectMcpOperationParameter | null => {
         const matched: IOperationMetadata.IParameter | undefined =
           ctx.metadata.parameters.find(
             (m: IOperationMetadata.IParameter) => p.index === m.index,
@@ -85,6 +114,7 @@ export namespace ReflectMcpOperationAnalyzer {
           name: matched.name,
           index: p.index,
           type: matched.type,
+          metadata: matched.primitive,
           imports: matched.imports,
           description: matched.description,
           jsDocTags: matched.jsDocTags,
@@ -120,6 +150,7 @@ export namespace ReflectMcpOperationAnalyzer {
       function: ctx.function,
       parameters,
       returnType: ctx.metadata.success?.type ?? null,
+      returnMetadata: ctx.metadata.success?.primitive,
       imports: ImportAnalyzer.merge(imports),
       description: ctx.metadata.description ?? null,
       jsDocTags: ctx.metadata.jsDocTags,

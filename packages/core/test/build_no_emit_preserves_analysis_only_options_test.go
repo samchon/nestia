@@ -18,6 +18,11 @@ import (
 //  1. Create a valid no-emit TypedRoute project with the analysis-only option.
 //  2. Run the native build path and require a clean exit.
 //  3. Prove the private traversal publishes no output or build metadata.
+//
+// @evidence contracts/testing.md#behavioral-verification The native build dispatcher receives a valid noEmit project with allowImportingTsExtensions and must return zero with no streams, output directory, build-info or manifest.
+// @evidence contracts/testing.md#independent-expectations allowImportingTsExtensions is legal in analysis-only TypeScript configurations; private transform traversal must preserve that accepted configuration and publish no artifacts.
+// @evidence contracts/testing.md#distinguishing-cases This is the valid analysis-only option control; tuple-schema rejection across no-emit entries belongs to TestBuildNoEmitReportsLlmRouteDiagnostic.
+// @evidence contracts/testing.md#execution-ownership Go discovers the case in the core module and runCoreNative calls the dispatcher in-process with scoped stream buffers; the fixture and all possible outputs belong to t.TempDir.
 func TestBuildNoEmitPreservesAnalysisOnlyOptions(t *testing.T) {
 	project := writeLlmRouteBuildProject(t, llmRouteBuildProjectOptions{
 		NoEmit:                     true,

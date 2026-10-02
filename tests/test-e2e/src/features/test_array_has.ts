@@ -10,6 +10,7 @@ import { ArrayUtil } from "@nestia/e2e";
  * 1. Assert a satisfying `undefined`, `null`, `0`, and `false` are found.
  * 2. Assert no satisfying element, and an empty array, report `false`.
  */
+
 export function test_array_has(): void {
   const cases: Array<[string, boolean, boolean]> = [
     ["undefined", ArrayUtil.has([undefined], (e) => e === undefined), true],

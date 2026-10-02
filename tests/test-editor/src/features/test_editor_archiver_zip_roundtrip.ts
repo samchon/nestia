@@ -33,6 +33,14 @@ export const test_editor_archiver_zip_roundtrip = (): void => {
     if (strFromU8(unzipped[key]!) !== value)
       throw new Error(`zip content mismatch at ${key}`);
 
+  if (Object.keys(unzipSync(archiver.pack({}))).length !== 0)
+    throw new Error("An empty project must produce an empty ZIP archive.");
+  for (const input of ["", ".", "..."])
+    if (archiver.name(input) !== "ORGANIZATION-PROJECT.zip")
+      throw new Error(`Unusable archive basename was not replaced: ${input}`);
+  if (archiver.name(".hidden") !== ".hidden.zip")
+    throw new Error("A usable leading-dot name must be preserved.");
+
   const name: string = archiver.name("@ORGANIZATION/PROJECT");
   if (name !== "ORGANIZATION-PROJECT.zip")
     throw new Error(`unexpected archive name: ${name}`);

@@ -1,7 +1,44 @@
+/**
+ * String helpers of the SDK generator.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace holds capitalization, duplicate escaping, and the recognition of anonymous type names.
+ * @evidence contracts/common.md#clear-and-simple-design Five small functions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The markers are the spellings typia uses for anonymous types.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * efficient algorithms: The namespace groups string operations; each function owns its scan or duplicate lookup.
+ * reuse equivalent work: The namespace coordinates no shared computation.
+ * bound retention and release resources: The namespace owns no input-dependent retained state or handles.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
+ */
 export namespace StringUtil {
+  /**
+   * Upper-cases the first character and lower-cases the rest.
+   *
+   * @evidence contracts/common.md#principled-implementation The first character is transformed alone and the rest is lower-cased.
+   * @evidence contracts/common.md#clear-and-simple-design One expression.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It applies to every input.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the rule.
+   * efficient algorithms: Case conversion and copying process the input characters once with proportional returned string storage.
+   * reuse equivalent work: Case conversion coordinates no shared requests.
+   * bound retention and release resources: The returned string belongs to the caller; this operation retains no state or handles.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil.capitalize transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
+   */
   export const capitalize = (text: string): string =>
     text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 
+  /**
+   * Returns the name with underscores prefixed until it is not in the list of
+   * names to keep clear of.
+   *
+   * @evidence contracts/common.md#principled-implementation The recursion adds one underscore at a time, so the result is the shortest such name.
+   * @evidence contracts/common.md#clear-and-simple-design One curried function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule is generic.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   * efficient algorithms: Each occupied candidate scans the supplied keep list and adds one underscore; the number of recursive candidates is bounded by distinct occupied spellings in that list, with string comparison and copying costs proportional to candidate lengths.
+   * reuse equivalent work: The caller supplies the current keep list; this operation coordinates no shared computation between calls.
+   * bound retention and release resources: The closure retains only the caller's keep list for its own lifetime and owns no history, handles or tasks.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil.escapeDuplicate transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
+   */
   export const escapeDuplicate =
     (keep: string[]) =>
     (change: string): string =>
@@ -18,6 +55,15 @@ export namespace StringUtil {
    * whether its name collided. Three call sites carried their own copy of this
    * list, only one of them learned the `-` spelling, and the two that did not
    * declared and referenced modules that do not exist.
+   *
+   * @evidence contracts/common.md#principled-implementation The names `__type` and `__object` and their dotted or dashed forms are the anonymous markers, so the predicate is a list of those spellings.
+   * @evidence contracts/common.md#clear-and-simple-design One expression.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The list is the shared definition that the generators use.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the markers.
+   * efficient algorithms: A fixed number of equalities and constant-length prefix checks inspect each name without graph traversal or input-dependent state.
+   * reuse equivalent work: This predicate coordinates no shared computation.
+   * bound retention and release resources: This predicate retains no input or handles.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil.isAnonymous transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
    */
   export const isAnonymous = (str: string): boolean =>
     str === "__type" ||
@@ -27,12 +73,32 @@ export namespace StringUtil {
     str.startsWith("__type-") ||
     str.startsWith("__object-");
 
+  /**
+   * Reports whether a type name is implicit: the name `object`, an anonymous
+   * name, or a readonly tuple.
+   *
+   * @evidence contracts/common.md#principled-implementation It extends the anonymous test with the two other names that cannot be referenced.
+   * @evidence contracts/common.md#clear-and-simple-design One expression over `isAnonymous`.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It shares the anonymous list.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the cases.
+   * efficient algorithms: Fixed name checks and one substring search take at most linear time in the name's length, without allocating a graph or cache.
+   * reuse equivalent work: This predicate coordinates no shared computation.
+   * bound retention and release resources: This predicate retains no input or handles.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil.isImplicit transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
+   */
   export const isImplicit = (str: string) =>
     str === "object" || isAnonymous(str) || str.includes("readonly [");
 
   /**
-   * Split a typia metadata name into the accessor path a generated SDK declares
-   * it under.
+   * Splits a metadata name into legal TypeScript declaration accessors.
+   *
+   * Component keys remain unchanged: this conversion owns only the cloned
+   * declaration, reference and import spelling. Identifier code points survive;
+   * other code points are written as hexadecimal identifier fragments. Reserved
+   * binding and intrinsic type names receive an underscore. The route
+   * dictionary compares these same accessors when separating unequal component
+   * definitions, including a source name which already contains an escaped
+   * fragment.
    *
    * Typia separates a qualified name with `.` and a _duplicated_ name from its
    * disambiguating counter with a trailing `-o<counter>`
@@ -47,11 +113,122 @@ export namespace StringUtil {
    * guessing at the name is what the new separator makes possible -- `-` cannot
    * occur in a qualified name, so unlike the old spelling this cannot be
    * confused with one.
+   *
+   * @evidence contracts/common.md#principled-implementation The historical trailing duplicate marker and namespace dots are interpreted before each segment is encoded under Unicode IdentifierStart/IdentifierPart and strict binding/type-name restrictions. All clone declarations, references, imports and collision slots consume this same spelling; raw metadata component keys are not rewritten.
+   * @evidence contracts/common.md#clear-and-simple-design One accessor operation delegates segment encoding to a private helper with language-defined reserved names.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Encoding depends on identifier grammar, not a DTO or consumer name; the existing semantic collision partition separates unequal definitions whose accessors coincide.
+   * @evidence contracts/common.md#meaningful-documentation The comment distinguishes raw component keys from TypeScript accessors and explains Unicode encoding, reserved bindings and duplicate compatibility.
+   * efficient algorithms: Each name and its code points are scanned once, with output space proportional to the encoded spelling; reserved-name lookup uses a fixed set.
+   * reuse equivalent work: This pure conversion coordinates no completed or in-flight work across consumers; its callers own graph and dictionary reuse.
+   * bound retention and release resources: The fixed grammar set has no input-dependent history; temporary accessor strings belong to the caller and no handles or tasks are retained.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil.accessorsOf transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
    */
   export const accessorsOf = (name: string): string[] => {
     const duplicated: RegExpMatchArray | null = name.match(/^(.+)-o(\d+)$/);
-    return duplicated === null
-      ? name.split(".")
-      : [...duplicated[1]!.split("."), `o${duplicated[2]!}`];
+    return (
+      duplicated === null
+        ? name.split(".")
+        : [...duplicated[1]!.split("."), `o${duplicated[2]!}`]
+    ).map((segment, index, accessors) =>
+      identifier(segment, index === 0, index === accessors.length - 1),
+    );
   };
+
+  // Unicode IdentifierStart/IdentifierPart additionally admit $ and _, and
+  // IdentifierPart admits the two joining controls. Iterate code points so a
+  // supplementary letter is kept whole and an isolated surrogate is encoded.
+  const identifier = (
+    segment: string,
+    root: boolean,
+    leaf: boolean,
+  ): string => {
+    const fragments: string[] = [];
+    for (const point of segment) {
+      const valid = (
+        fragments.length === 0 ? identifierStart : identifierPart
+      ).test(point);
+      fragments.push(
+        valid
+          ? point
+          : `_x${point.codePointAt(0)!.toString(16).toUpperCase()}_`,
+      );
+    }
+    const output = fragments.join("");
+    if (output.length === 0) return "_";
+    return reserved.has(output) ||
+      (root && output === "await") ||
+      ((root || leaf) && typeNames.has(output))
+      ? `_${output}`
+      : output;
+  };
+
+  const identifierStart = /^[$_\p{ID_Start}]$/u;
+  const identifierPart = /^[$_\u200C\u200D\p{ID_Continue}]$/u;
+
+  // ECMAScript strict/module bindings and names TypeScript reserves for its
+  // intrinsic types. Contextual labels such as type, async and readonly remain
+  // ordinary identifiers here.
+  const reserved = new Set([
+    "break",
+    "case",
+    "catch",
+    "class",
+    "const",
+    "continue",
+    "debugger",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "enum",
+    "export",
+    "extends",
+    "false",
+    "finally",
+    "for",
+    "function",
+    "if",
+    "import",
+    "in",
+    "instanceof",
+    "new",
+    "null",
+    "return",
+    "super",
+    "switch",
+    "this",
+    "throw",
+    "true",
+    "try",
+    "typeof",
+    "var",
+    "void",
+    "while",
+    "with",
+    "implements",
+    "interface",
+    "let",
+    "package",
+    "private",
+    "protected",
+    "public",
+    "static",
+    "yield",
+  ]);
+
+  // These names are forbidden for type aliases and imported bindings, but a
+  // nested namespace can use them. Await likewise remains legal inside a
+  // namespace, whose scope is distinct from the surrounding external module.
+  const typeNames = new Set([
+    "any",
+    "unknown",
+    "never",
+    "number",
+    "bigint",
+    "boolean",
+    "string",
+    "symbol",
+    "object",
+    "undefined",
+  ]);
 }

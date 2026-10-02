@@ -1,16 +1,11 @@
-import cp from "child_process";
-import fs from "fs";
-import os from "os";
 import path from "path";
 
 /**
- * Local helpers for the `nestia start` / `nestia template` test suite.
+ * Records scaffold effects and loads caller-built CLI engines.
  *
- * The suite exercises the built CLI artifacts under `packages/cli/bin`, not the
- * TypeScript sources: unit tests load the scaffolding engine through an
- * absolute-path `require()` (the package's exports map blocks deep subpath
- * imports), and end-to-end tests spawn the real `bin/index.js` executable
- * against a local fixture git repository so no network access is needed.
+ * Engines are required by absolute artifact paths because the package exports
+ * map blocks deep imports. Process-boundary cases and their fixtures belong to
+ * the integrated E2E population.
  */
 export namespace CliTestHarness {
   /* -----------------------------------------------------------
@@ -19,26 +14,37 @@ export namespace CliTestHarness {
   /** Ttsx relocates compiled sources, so anchor on the workspace cwd. */
   export const ROOT: string = path.resolve(process.cwd(), "..", "..");
   export const CLI_BIN: string = path.join(ROOT, "packages", "cli", "bin");
-  export const CLI_MAIN: string = path.join(CLI_BIN, "index.js");
 
   /* -----------------------------------------------------------
     BUILT ENGINE ACCESSORS
   ----------------------------------------------------------- */
-  /** Mirrors `NestiaProjectTemplate.IContext` of `packages/cli`. */
+  /** Effect boundary implemented by each unit context. */
   export interface IContext {
+    /** Records a program and its unchanged argument boundaries. */
     execute: (executable: string, args: readonly string[]) => void;
+
+    /** Supplies whether the requested program is available. */
     probe: (executable: string, args: readonly string[]) => boolean;
+
+    /** Records the directory entered after cloning. */
     chdir: (directory: string) => void;
+
+    /** Supplies whether the destination already exists. */
     exists: (path: string) => boolean;
+
+    /** Records a repository-only path removed after scaffolding. */
     remove: (path: string) => void;
   }
+  /** Built scaffold command after its template properties are bound. */
   export type Cloner = (
     halter: (msg?: string) => never,
     context?: IContext,
   ) => (argv: string[]) => Promise<void>;
 
+  /** Loads the caller-built starter command. */
   export const getStarter = (): Cloner =>
     load("NestiaStarter.js").NestiaStarter.clone;
+  /** Loads the caller-built template command. */
   export const getTemplate = (): Cloner =>
     load("NestiaTemplate.js").NestiaTemplate.clone;
 
@@ -47,6 +53,7 @@ export namespace CliTestHarness {
   /* -----------------------------------------------------------
     UNIT TEST FAKES
   ----------------------------------------------------------- */
+  /** Injected context and the effect records owned by one unit invocation. */
   export interface IFakeContext {
     context: IContext;
     commands: IInvocation[];
@@ -54,10 +61,15 @@ export namespace CliTestHarness {
     chdirs: string[];
     removed: string[];
   }
+  /** Program name and argument vector recorded by a unit context. */
   export interface IInvocation {
     executable: string;
     args: string[];
   }
+  /**
+   * Creates isolated effect records and customizable existence/availability
+   * answers.
+   */
   export const createFakeContext = (props?: {
     exists?: (path: string) => boolean;
     probe?: (invocation: IInvocation) => boolean;
@@ -84,15 +96,20 @@ export namespace CliTestHarness {
     return { context, commands, probes, chdirs, removed };
   };
 
-  /** Thrown by {@link halter} so tests can observe the halt reason. */
+  /** Distinguishes intentional CLI halts from unexpected engine errors. */
   export class HaltError extends Error {
     public constructor(public readonly reason: string | undefined) {
       super(reason ?? "(usage)");
     }
   }
+  /** Throws an observable intentional halt instead of exiting the unit runner. */
   export const halter = (msg?: string): never => {
     throw new HaltError(msg);
   };
+  /**
+   * Returns the halt reason and rejects ordinary completion or unrelated
+   * errors.
+   */
   export const expectHalt = async (
     task: () => Promise<void>,
   ): Promise<string | undefined> => {
@@ -103,108 +120,5 @@ export namespace CliTestHarness {
       throw error;
     }
     throw new Error("Expected the command to halt, but it completed.");
-  };
-
-  /* -----------------------------------------------------------
-    END TO END FIXTURES
-  ----------------------------------------------------------- */
-  export interface IFixture {
-    /** Local git repository standing in for the template repository. */
-    repository: string;
-    /** Scaffold destination; does not exist until the CLI creates it. */
-    dest: string;
-    /** Best-effort removal of every temporary directory. */
-    clean: () => void;
-  }
-
-  /**
-   * Creates a local git repository shaped like a tiny pnpm monorepo whose root
-   * `build` / `test` scripts drop `.built` / `.tested` marker files, so tests
-   * can prove which lifecycle steps the CLI actually ran.
-   */
-  export const prepareFixture = (): IFixture => {
-    const repository: string = fs.mkdtempSync(
-      path.join(os.tmpdir(), "nestia-cli-fixture-"),
-    );
-    const workspace: string = fs.mkdtempSync(
-      path.join(os.tmpdir(), "nestia-cli-scaffold-"),
-    );
-    write(
-      repository,
-      "package.json",
-      JSON.stringify(
-        {
-          name: "nestia-cli-fixture",
-          version: "0.0.1",
-          private: true,
-          scripts: {
-            build: `node -e "require('fs').writeFileSync('.built','1')"`,
-            test: `node -e "require('fs').writeFileSync('.tested','1')"`,
-          },
-        },
-        null,
-        2,
-      ),
-    );
-    write(repository, "pnpm-workspace.yaml", `packages:\n  - "packages/*"\n`);
-    write(
-      repository,
-      path.join("packages", "api", "package.json"),
-      JSON.stringify(
-        { name: "nestia-cli-fixture-api", version: "0.0.1", private: true },
-        null,
-        2,
-      ),
-    );
-    write(
-      repository,
-      path.join(".github", "dependabot.yml"),
-      "version: 2\nupdates: []\n",
-    );
-
-    const git = (...args: string[]): void =>
-      void cp.execFileSync("git", args, { cwd: repository, stdio: "ignore" });
-    git("init");
-    git("add", ".");
-    git(
-      "-c",
-      "user.name=nestia",
-      "-c",
-      "user.email=nestia@test",
-      "-c",
-      "commit.gpgsign=false",
-      "commit",
-      "-m",
-      "fixture",
-    );
-
-    return {
-      repository,
-      dest: path.join(workspace, "project"),
-      clean: () => {
-        for (const directory of [repository, workspace])
-          try {
-            fs.rmSync(directory, {
-              recursive: true,
-              force: true,
-              maxRetries: 4,
-            });
-          } catch {
-            // temporary directories; leftovers are harmless
-          }
-      },
-    };
-  };
-
-  /** Runs the real CLI executable (`packages/cli/bin/index.js`). */
-  export const runCli = (args: string[]): void =>
-    void cp.execFileSync(process.execPath, [CLI_MAIN, ...args], {
-      stdio: "inherit",
-    });
-
-  const write = (root: string, file: string, content: string): void => {
-    const location: string = path.join(root, file);
-    fs.mkdirSync(path.dirname(location), { recursive: true });
-    fs.writeFileSync(location, content, "utf8");
   };
 }

@@ -15,16 +15,32 @@ import { ITypedMcpRoute } from "../../structures/ITypedMcpRoute";
 import { StringUtil } from "../../utils/StringUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
+import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 /**
  * Emits a typed client wrapper for an MCP tool.
  *
- * Object output types are wrapped in `Primitive<T>` because MCP round-trips
- * values through JSON. Void MCP tools return `Promise<void>`.
+ * Cloned input and output declarations use the native JSON wire graph.
+ * Source-reference output types use `Primitive<T>` for the same JSON
+ * round-trip. Void MCP tools return `Promise<void>`.
  *
  * @author wildduck - https://github.com/wildduck2
+ * @evidence contracts/common.md#principled-implementation The namespace prints the wrapper that calls the tool and its metadata, and turns a tool error into an exception.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and the writers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The function's identifiers yield to the tool's own name.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkMcpRouteProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkMcpRouteProgrammer {
+  /**
+   * Returns the function and the namespace of an MCP tool.
+   *
+   * @evidence contracts/common.md#principled-implementation The two nodes are composed together so they share names.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The shape follows the tool metadata.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkMcpRouteProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -67,7 +83,7 @@ export namespace SdkMcpRouteProgrammer {
         alias: "McpCallToolResult",
       });
       const isVoid = isVoidReturn(route);
-      if (!isVoid)
+      if (!isVoid && _project.config.clone !== true)
         importer.external({
           declaration: true,
           file: "typia",
@@ -315,7 +331,7 @@ export namespace SdkMcpRouteProgrammer {
     };
 
   const writeNamespace =
-    (_project: INestiaProject) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedMcpRoute): Node => {
       const statements: Statement[] = [];
@@ -326,25 +342,29 @@ export namespace SdkMcpRouteProgrammer {
             [factory.createModifier(SyntaxKind.ExportKeyword)],
             "Input",
             undefined,
-            factory.createTypeReferenceNode(route.input.type.name),
+            project.config.clone === true && route.inputMetadata
+              ? SdkTypeProgrammer.write(project)(importer)(route.inputMetadata)
+              : factory.createTypeReferenceNode(route.input.type.name),
           ),
         );
 
       const outputType: Node =
         !isVoidReturn(route) && route.returnType !== null
-          ? factory.createTypeReferenceNode(
-              importer.external({
-                declaration: true,
-                file: "typia",
-                type: "element",
-                name: "Primitive",
-              }),
-              [
-                factory.createTypeReferenceNode(
-                  unwrapPromise(route.returnType.name),
-                ),
-              ],
-            )
+          ? project.config.clone === true && route.outputMetadata
+            ? SdkTypeProgrammer.write(project)(importer)(route.outputMetadata)
+            : factory.createTypeReferenceNode(
+                importer.external({
+                  declaration: true,
+                  file: "typia",
+                  type: "element",
+                  name: "Primitive",
+                }),
+                [
+                  factory.createTypeReferenceNode(
+                    unwrapPromise(route.returnType.name),
+                  ),
+                ],
+              )
           : factory.createKeywordTypeNode(SyntaxKind.VoidKeyword);
       statements.push(
         factory.createTypeAliasDeclaration(

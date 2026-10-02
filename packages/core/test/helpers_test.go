@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -11,11 +12,12 @@ import (
 )
 
 type llmRouteBuildProject struct {
-	Root        string
-	OutDir      string
-	BuildInfo   string
-	Manifest    string
-	PluginsJSON string
+	Root            string
+	OutDir          string
+	BuildInfo       string
+	Manifest        string
+	PluginsJSON     string
+	CoreDeclaration string
 }
 
 type llmRouteBuildProjectOptions struct {
@@ -25,8 +27,7 @@ type llmRouteBuildProjectOptions struct {
 }
 
 // repoRootForCore walks up from the external test module directory
-// (packages/core/test) to the monorepo root so the in-process tests can point
-// a tsconfig `extends` at the shared tests/test-sdk feature fixtures.
+// (packages/core/test) to the monorepo root for shared test-language settings.
 func repoRootForCore(t *testing.T) string {
 	t.Helper()
 	root, err := filepath.Abs("../../..")
@@ -36,10 +37,10 @@ func repoRootForCore(t *testing.T) string {
 	return root
 }
 
-// featureRootForCore returns the absolute path of a tests/test-sdk feature.
+// featureRootForCore returns an authored source-only core unit fixture.
 func featureRootForCore(t *testing.T, feature string) string {
 	t.Helper()
-	return filepath.Join(repoRootForCore(t), "tests/test-sdk/features", feature)
+	return filepath.Join(repoRootForCore(t), "packages/core/test/fixtures", feature)
 }
 
 // coreNativePlugins composes a @nestia/core plugin manifest with the given
@@ -110,15 +111,11 @@ func writeLlmRouteBuildProject(t *testing.T, options llmRouteBuildProjectOptions
 	if err := os.MkdirAll(src, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	declaration := `declare module "@nestia/core" {
-  export namespace TypedRoute {
-    function Get(): MethodDecorator;
-  }
+	declaration := `export namespace TypedRoute {
+  function Get(): MethodDecorator;
 }
 `
-	if err := os.WriteFile(filepath.Join(src, "core.d.ts"), []byte(declaration), 0o644); err != nil {
-		t.Fatal(err)
-	}
+	coreDeclaration := writeCoreDeclarationPackage(t, root, declaration)
 	property := `pair: [string, number];`
 	value := `{ pair: ["one", 1] }`
 	if options.Valid {
@@ -169,17 +166,18 @@ export class Controller {
     "incremental": true,
     "tsBuildInfoFile": "cache.tsbuildinfo"` + noEmit + allowImporting + `
   },
-  "files": ["src/core.d.ts", "src/main.ts"]
+  "files": ["src/main.ts"]
 }
 `
 	if err := os.WriteFile(filepath.Join(root, "tsconfig.json"), []byte(config), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	return llmRouteBuildProject{
-		Root:      root,
-		OutDir:    filepath.Join(root, "dist"),
-		BuildInfo: buildInfo,
-		Manifest:  filepath.Join(root, "artifacts", "manifest.json"),
+		Root:            root,
+		OutDir:          filepath.Join(root, "dist"),
+		BuildInfo:       buildInfo,
+		Manifest:        filepath.Join(root, "artifacts", "manifest.json"),
+		CoreDeclaration: coreDeclaration,
 		PluginsJSON: `[{
   "name": "@nestia/core",
   "stage": "transform",
@@ -191,6 +189,20 @@ export class Controller {
   }
 }]`,
 	}
+}
+
+// writeCoreDeclarationPackage authors an external module declaration whose
+// nearest package manifest establishes core ownership, without installation.
+func writeCoreDeclarationPackage(t *testing.T, root, declaration string) string {
+	t.Helper()
+	packageRoot := filepath.Join(root, "node_modules", "@nestia", "core")
+	if err := os.MkdirAll(packageRoot, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	writeFile(t, filepath.Join(packageRoot, "package.json"), `{"name":"@nestia/core","types":"index.d.ts"}`)
+	file := filepath.Join(packageRoot, "index.d.ts")
+	writeFile(t, file, declaration)
+	return file
 }
 
 // runCoreNative captures both process streams around one in-process native
@@ -233,4 +245,112 @@ func writeExtendingTsconfig(t *testing.T, temp, featureRoot string, extraCompile
 		t.Fatal(err)
 	}
 	return tsconfig
+}
+
+var (
+	decoratorCallStart     = regexp.MustCompile(`@(?:core\.)?[A-Z][A-Za-z0-9_.]*\(`)
+	validatorDiscriminator = regexp.MustCompile(`type: "(assert|is|validate\.log|validate|stringify)"`)
+)
+
+// decoratorValidatorTypes returns, for every emitted call of the decorators
+// whose name matches pattern, the first validator discriminator
+// (`type: "assert"`, `type: "is"`, ...) written between that call and the next
+// decorator call, or "" when the call carries none. A whole-output substring
+// check cannot tell which decorator wrote a discriminator, because the route
+// and parameter decorators of one controller share the same plugin options.
+func decoratorValidatorTypes(out, pattern string) []string {
+	name := regexp.MustCompile(`^(?:` + pattern + `)\($`)
+	starts := decoratorCallStart.FindAllStringIndex(out, -1)
+	types := []string{}
+	for i, start := range starts {
+		if !name.MatchString(out[start[0]:start[1]]) {
+			continue
+		}
+		end := len(out)
+		if i+1 < len(starts) {
+			end = starts[i+1][0]
+		}
+		found := validatorDiscriminator.FindStringSubmatch(out[start[0]:end])
+		if found == nil {
+			types = append(types, "")
+		} else {
+			types = append(types, found[1])
+		}
+	}
+	return types
+}
+
+// mustDecorateAll asserts the output contains at least one call of the
+// decorators matching pattern and that every one of them carries the want
+// validator discriminator as its own argument.
+func mustDecorateAll(t *testing.T, out, pattern, want string) {
+	t.Helper()
+	types := decoratorValidatorTypes(out, pattern)
+	if len(types) == 0 {
+		t.Fatalf("output has no %s call\n%s", pattern, out)
+	}
+	for index, got := range types {
+		if got != want {
+			t.Fatalf("%s call #%d carries validator type %q, want %q\n%s", pattern, index, got, want, out)
+		}
+	}
+}
+
+// typedParamCounts counts the emitted @core.TypedParam calls, those that carry
+// an injected caster as their second argument, and those whose caster closes
+// with the validate-report flag `}, true)`. The flag text also occurs inside
+// the generated typia code, so only the closing of a caster counts.
+func typedParamCounts(out string) (calls, casters, flagged int) {
+	calls = len(regexp.MustCompile(`@core\.TypedParam\(`).FindAllString(out, -1))
+	casters = len(regexp.MustCompile(`@core\.TypedParam\("[^"]+", \(input: string\)`).FindAllString(out, -1))
+	flagged = strings.Count(out, "}, true)")
+	return
+}
+
+// decoratorSpans returns the emitted text of every call of the decorators whose
+// name matches pattern: from the call to the next decorator call.
+func decoratorSpans(out, pattern string) []string {
+	name := regexp.MustCompile(`^(?:` + pattern + `)\($`)
+	starts := decoratorCallStart.FindAllStringIndex(out, -1)
+	spans := []string{}
+	for i, start := range starts {
+		if !name.MatchString(out[start[0]:start[1]]) {
+			continue
+		}
+		end := len(out)
+		if i+1 < len(starts) {
+			end = starts[i+1][0]
+		}
+		spans = append(spans, out[start[0]:end])
+	}
+	return spans
+}
+
+// mustSpansContain asserts every call of the matching decorators carries each
+// needle in its own emitted text.
+func mustSpansContain(t *testing.T, out, pattern string, needles ...string) {
+	t.Helper()
+	spans := decoratorSpans(out, pattern)
+	if len(spans) == 0 {
+		t.Fatalf("output has no %s call\n%s", pattern, out)
+	}
+	for index, span := range spans {
+		for _, needle := range needles {
+			if !strings.Contains(span, needle) {
+				t.Fatalf("%s call #%d does not emit %q", pattern, index, needle)
+			}
+		}
+	}
+}
+
+// mustSpansOmit asserts no call of the matching decorators carries any needle.
+func mustSpansOmit(t *testing.T, out, pattern string, needles ...string) {
+	t.Helper()
+	for index, span := range decoratorSpans(out, pattern) {
+		for _, needle := range needles {
+			if strings.Contains(span, needle) {
+				t.Fatalf("%s call #%d unexpectedly emits %q", pattern, index, needle)
+			}
+		}
+	}
 }

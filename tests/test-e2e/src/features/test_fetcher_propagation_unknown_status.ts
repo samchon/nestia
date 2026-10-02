@@ -13,6 +13,7 @@ import typia from "typia";
  * 2. Fill it with an undeclared 413 failure response.
  * 3. Assert typia accepts the fallback failure branch.
  */
+
 export async function test_fetcher_propagation_unknown_status(): Promise<void> {
   typia.assert<IPropagation<{ 200: string }, 200>>({
     success: false,

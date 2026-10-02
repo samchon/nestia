@@ -26,12 +26,12 @@ export const test_api_mcp_alias_imports = async (
   connection: IConnection,
 ): Promise<void> => {
   const client = new Client({ name: "nestia-test", version: "1.0.0" });
-  await client.connect(
-    new StreamableHTTPClientTransport(
-      new URL(`${connection.host}${connection.path}`),
-    ),
-  );
   try {
+    await client.connect(
+      new StreamableHTTPClientTransport(
+        new URL(`${connection.host}${connection.path}`),
+      ),
+    );
     const result = await api.functional.mcp.echo_client(client, {
       name: "generated",
     });

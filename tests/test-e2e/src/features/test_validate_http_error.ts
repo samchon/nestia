@@ -1,5 +1,16 @@
 import { TestValidator } from "@nestia/e2e";
 
+/**
+ * Verifies testValidator.httpError matches synchronous and asynchronous errors
+ * by their HTTP status.
+ *
+ * The HTTP-error assertion requires a status-bearing Error with the requested
+ * status.
+ *
+ * 1. Exercise the authored scenario and its controls.
+ * 2. Assert 400 errors pass; 500 errors and plain Errors fail in both synchronous
+ *    and asynchronous task forms.
+ */
 export async function test_validate_http_error(): Promise<void> {
   // ASYNCHRONOUS
   await TestValidator.httpError("async-400-error", 400, async () => {

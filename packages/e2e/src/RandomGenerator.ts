@@ -3,8 +3,8 @@
  *
  * RandomGenerator provides a collection of functions for generating random data
  * including strings, names, content, dates, and array sampling. All functions
- * are designed to be deterministic within a single execution but produce varied
- * output across different runs, making them ideal for testing scenarios.
+ * draw from `Math.random()`, so they are not seeded and produce varied output
+ * across executions, which suits testing scenarios that need arbitrary data.
  *
  * The namespace includes specialized generators for:
  *
@@ -13,21 +13,33 @@
  * - Date ranges and time-based data
  * - Array sampling and element selection
  *
+ * Processing cost: Text construction scales with generated characters, sparse
+ * sampling with selected positions, and fixed-size draws use constant work. The
+ * namespace retains only fixed character tables; each generator owns its
+ * invocation-local result.
+ *
  * @author Jeongho Nam - https://github.com/samchon
  * @example
- *   ```typescript
  *   // Generate test user data
  *   const testUser = {
  *     id: RandomGenerator.alphaNumeric(8),
  *     name: RandomGenerator.name(),
- *     bio: RandomGenerator.paragraph({ sentences: 3, wordMin: 5, wordMax: 10 }),
+ *     bio: RandomGenerator.paragraph({
+ *       sentences: 3,
+ *       wordMin: 5,
+ *       wordMax: 10,
+ *     }),
  *     phone: RandomGenerator.mobile(),
- *     createdAt: RandomGenerator.date(new Date(), 1000 * 60 * 60 * 24 * 30) // 30 days
+ *     createdAt: RandomGenerator.date(new Date(), 1000 * 60 * 60 * 24 * 30), // 30 days
  *   };
  *
  *   // Sample data for testing
  *   const testSample = RandomGenerator.sample(allUsers, 5);
- *   ```;
+ *
+ * @evidence contracts/common.md#principled-implementation The private integer helper partitions Math.random output into equally sized bins for finite ordered integer bounds, and generators compose text, dates and selections from those draws. Math.random is approximately uniform and not cryptographically secure; exact probability guarantees do not follow from its finite precision.
+ * @evidence contracts/common.md#clear-and-simple-design Small generators build on each other (`name` on `paragraph`, `content` on `paragraph`, both on `alphabets`), so one integer helper decides the randomness.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The data are drawn, not taken from a fixed list of test values.
+ * @evidence contracts/common.md#meaningful-documentation The namespace prose says the functions are not seeded and lists the kinds of data, with an example.
  */
 export namespace RandomGenerator {
   /** Character set containing lowercase alphabetical characters a-z */
@@ -48,10 +60,12 @@ export namespace RandomGenerator {
    * appear multiple times. Useful for generating random identifiers, test
    * names, or placeholder text.
    *
+   * Processing cost: Constructing L characters costs O(L) time and
+   * intermediate/result space.
+   *
    * @example
-   *   ```typescript
-   *   RandomGenerator.alphabets(5);  // e.g. "kxqpw"
-   *   RandomGenerator.alphabets(3);  // e.g. "mzr"
+   *   RandomGenerator.alphabets(5); // e.g. "kxqpw"
+   *   RandomGenerator.alphabets(3); // e.g. "mzr"
    *   RandomGenerator.alphabets(10); // e.g. "qwertasdfg"
    *
    *   // Generate random CSS class names
@@ -59,10 +73,13 @@ export namespace RandomGenerator {
    *
    *   // Create random variable names for testing
    *   const varName = RandomGenerator.alphabets(8);
-   *   ```
    *
    * @param length - The desired length of the generated alphabetic string
    * @returns A string containing only lowercase letters of the specified length
+   * @evidence contracts/common.md#principled-implementation Each requested character maps a Math.random draw to one of 26 lowercase letters. Repeats are possible, and distribution inherits Math.random rather than guaranteeing exact uniformity.
+   * @evidence contracts/common.md#clear-and-simple-design One expression over the shared integer helper.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The characters are drawn, not enumerated from a list of known values.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the character set, the independence of the draws, and examples.
    */
   export const alphabets = (length: number): string =>
     new Array(length)
@@ -79,9 +96,11 @@ export namespace RandomGenerator {
    * character set. Ideal for generating random IDs, tokens, passwords, or
    * unique identifiers that need both numeric and alphabetic characters.
    *
+   * Processing cost: Constructing L characters costs O(L) time and
+   * intermediate/result space.
+   *
    * @example
-   *   ```typescript
-   *   RandomGenerator.alphaNumeric(8);  // e.g. "a1b2c3d4"
+   *   RandomGenerator.alphaNumeric(8); // e.g. "a1b2c3d4"
    *   RandomGenerator.alphaNumeric(12); // e.g. "x9y8z7w6v5u4"
    *
    *   // Generate random API keys
@@ -92,11 +111,14 @@ export namespace RandomGenerator {
    *
    *   // Generate test database IDs
    *   const testId = RandomGenerator.alphaNumeric(10);
-   *   ```
    *
    * @param length - The desired length of the generated alphanumeric string
    * @returns A string containing digits and lowercase letters of the specified
    *   length
+   * @evidence contracts/common.md#principled-implementation Each character maps a Math.random draw to one of ten digits and 26 lowercase letters. Repeated characters are allowed and exact uniformity is not guaranteed.
+   * @evidence contracts/common.md#clear-and-simple-design One expression over the shared integer helper.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The characters are drawn, not enumerated from a list of known values.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the character set and gives examples.
    */
   export const alphaNumeric = (length: number): string =>
     new Array(length)
@@ -112,26 +134,31 @@ export namespace RandomGenerator {
    * Each word is between 3-7 characters by default, creating realistic-looking
    * names.
    *
+   * Processing cost: The delegated paragraph work scales with the requested
+   * word count and total generated characters.
+   *
    * @example
-   *   ```typescript
-   *   RandomGenerator.name();    // e.g. "lorem ipsum" (2-3 words)
-   *   RandomGenerator.name(1);   // e.g. "dolor" (single word)
-   *   RandomGenerator.name(3);   // e.g. "sit amet consectetur" (3 words)
+   *   RandomGenerator.name(); // e.g. "lorem ipsum" (2-3 words)
+   *   RandomGenerator.name(1); // e.g. "dolor" (single word)
+   *   RandomGenerator.name(3); // e.g. "sit amet consectetur" (3 words)
    *
    *   // Generate test user names
    *   const users = Array.from({ length: 10 }, () => ({
-   *   id: RandomGenerator.alphaNumeric(8),
-   *   name: RandomGenerator.name(),
-   *   email: `${RandomGenerator.name(1)}@test.com`
+   *     id: RandomGenerator.alphaNumeric(8),
+   *     name: RandomGenerator.name(),
+   *     email: `${RandomGenerator.name(1)}@test.com`,
    *   }));
    *
    *   // Create random author names for blog posts
    *   const authorName = RandomGenerator.name();
-   *   ```
    *
    * @param length - Number of words in the name (default: random between 2-3)
    * @returns A space-separated string of random words (each 3-7 chars by
    *   default)
+   * @evidence contracts/common.md#principled-implementation A name is a short paragraph of two or three lowercase words by default, so it reads as a person or entity name without an external name list.
+   * @evidence contracts/common.md#clear-and-simple-design A one-line delegation to `paragraph` with the sentence count as the word count.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The words are drawn letters, not a fixed list of names.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the default length and gives examples.
    */
   export const name = (length: number = randint(2, 3)): string =>
     paragraph({
@@ -146,13 +173,16 @@ export namespace RandomGenerator {
    * joined with spaces. Accepts an optional configuration object for fine-tuned
    * control over the paragraph structure.
    *
+   * Processing cost: Each requested word is generated once; time and temporary
+   * space scale with the total generated character count and the number of
+   * words.
+   *
    * @example
-   *   ```typescript
    *   // Generate with defaults (random 2-5 words, 3-7 characters each)
-   *   RandomGenerator.paragraph();  // e.g. "lorem ipsum dolor"
+   *   RandomGenerator.paragraph(); // e.g. "lorem ipsum dolor"
    *
    *   // Specific number of sentences
-   *   RandomGenerator.paragraph({ sentences: 5 });  // "lorem ipsum dolor sit amet"
+   *   RandomGenerator.paragraph({ sentences: 5 }); // "lorem ipsum dolor sit amet"
    *
    *   // Custom word length ranges
    *   RandomGenerator.paragraph({ sentences: 4, wordMin: 2, wordMax: 5 });
@@ -162,20 +192,23 @@ export namespace RandomGenerator {
    *   const description = RandomGenerator.paragraph({
    *     sentences: 8,
    *     wordMin: 4,
-   *     wordMax: 8
+   *     wordMax: 8,
    *   });
    *
    *   // Create test content for forms
    *   const placeholder = RandomGenerator.paragraph({
    *     sentences: 3,
    *     wordMin: 5,
-   *     wordMax: 10
+   *     wordMax: 10,
    *   });
-   *   ```;
    *
    * @param props - Optional configuration object with sentences count and word
    *   length ranges
    * @returns A string containing the generated paragraph
+   * @evidence contracts/common.md#principled-implementation A paragraph is a number of words joined by spaces, each word a random lowercase string of a length between the minimum and maximum, with the defaults of two to five words of three to seven letters.
+   * @evidence contracts/common.md#clear-and-simple-design One expression over `alphabets`, with three optional numbers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The words are drawn letters, not a fixed text.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the parameters and their defaults, with examples.
    */
   export const paragraph = (
     props?: Partial<{
@@ -198,8 +231,10 @@ export namespace RandomGenerator {
    * character lengths. Ideal for generating realistic-looking text content for
    * testing.
    *
+   * Processing cost: Every paragraph is generated once; time and temporary
+   * space scale with the total output characters and paragraph/word counts.
+   *
    * @example
-   *   ```typescript
    *   // Generate with all defaults
    *   const article = RandomGenerator.content();
    *
@@ -209,7 +244,7 @@ export namespace RandomGenerator {
    *     sentenceMin: 15,
    *     sentenceMax: 25,
    *     wordMin: 4,
-   *     wordMax: 8
+   *     wordMax: 8,
    *   });
    *
    *   // Short content with brief sentences
@@ -218,7 +253,7 @@ export namespace RandomGenerator {
    *     sentenceMin: 5,
    *     sentenceMax: 8,
    *     wordMin: 2,
-   *     wordMax: 4
+   *     wordMax: 4,
    *   });
    *
    *   // Generate blog post content
@@ -229,9 +264,9 @@ export namespace RandomGenerator {
    *       sentenceMin: 10,
    *       sentenceMax: 20,
    *       wordMin: 3,
-   *       wordMax: 7
+   *       wordMax: 7,
    *     }),
-   *     summary: RandomGenerator.paragraph({ sentences: 2 })
+   *     summary: RandomGenerator.paragraph({ sentences: 2 }),
    *   };
    *
    *   // Create test data for CMS
@@ -240,14 +275,17 @@ export namespace RandomGenerator {
    *     content: RandomGenerator.content({
    *       paragraphs: randint(2, 6),
    *       sentenceMin: 8,
-   *       sentenceMax: 15
-   *     })
+   *       sentenceMax: 15,
+   *     }),
    *   }));
-   *   ```;
    *
    * @param props - Optional configuration object with paragraph, sentence, and
    *   word parameters
    * @returns A string containing the generated multi-paragraph content
+   * @evidence contracts/common.md#principled-implementation The content has three to eight paragraphs by default, each containing ten to forty space-separated words of one to seven lowercase letters, joined by blank lines. The legacy sentence-named options count words, not grammatical sentences.
+   * @evidence contracts/common.md#clear-and-simple-design One expression over `paragraph`, with five optional numbers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The text is drawn, not a fixed corpus.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the parameters and their defaults, with examples.
    */
   export const content = (
     props?: Partial<{
@@ -280,13 +318,15 @@ export namespace RandomGenerator {
    * Automatically trims whitespace from the beginning and end of the result.
    * Useful for creating excerpts, search terms, or partial content samples.
    *
+   * Processing cost: Two draws choose the slice bounds; substring and trimming
+   * cost at most O(N) in the input length.
+   *
    * @example
-   *   ```typescript
    *   const text = "The quick brown fox jumps over the lazy dog";
    *
-   *   RandomGenerator.substring(text);  // e.g. "quick brown fox"
-   *   RandomGenerator.substring(text);  // e.g. "jumps over"
-   *   RandomGenerator.substring(text);  // e.g. "fox jumps over the lazy"
+   *   RandomGenerator.substring(text); // e.g. "quick brown fox"
+   *   RandomGenerator.substring(text); // e.g. "jumps over"
+   *   RandomGenerator.substring(text); // e.g. "fox jumps over the lazy"
    *
    *   // Generate search terms from content
    *   const searchQuery = RandomGenerator.substring(articleContent);
@@ -299,10 +339,13 @@ export namespace RandomGenerator {
    *
    *   // Create random selections for highlight testing
    *   const selectedText = RandomGenerator.substring(documentContent);
-   *   ```;
    *
    * @param content - The source string to extract a substring from
    * @returns A trimmed substring of the original content
+   * @evidence contracts/common.md#principled-implementation For nonempty input, the first index is a valid position and the last is strictly later up to the length. Trimming can empty a whitespace slice. Empty input also returns an empty string; substring clamps its drawn bounds to the empty input.
+   * @evidence contracts/common.md#clear-and-simple-design Two draws and one slice.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The slice bounds are drawn, not fixed.
+   * @evidence contracts/common.md#meaningful-documentation The comment states that the slice is random and trimmed, with examples.
    */
   export const substring = (content: string): string => {
     const first: number = randint(0, content.length - 1);
@@ -320,31 +363,39 @@ export namespace RandomGenerator {
    * if necessary. Commonly used for generating Korean mobile phone numbers or
    * similar formats.
    *
+   * Processing cost: Two bounded integer draws and fixed-width decimal
+   * formatting use constant work; joining the caller prefix costs O(P) output
+   * time and space for P prefix characters.
+   *
    * @example
-   *   ```typescript
-   *   RandomGenerator.mobile();        // e.g. "0103341234" or "01012345678"
-   *   RandomGenerator.mobile("011");   // e.g. "0119876543" or "01112345678"
-   *   RandomGenerator.mobile("+82");   // e.g. "+823341234" or "+8212345678"
+   *   RandomGenerator.mobile(); // e.g. "0103341234" or "01012345678"
+   *   RandomGenerator.mobile("011"); // e.g. "0119876543" or "01112345678"
+   *   RandomGenerator.mobile("+82"); // e.g. "+823341234" or "+8212345678"
    *
    *   // Generate test user phone numbers
    *   const testUsers = Array.from({ length: 100 }, () => ({
    *     name: RandomGenerator.name(),
    *     phone: RandomGenerator.mobile(),
-   *     altPhone: RandomGenerator.mobile("011")
+   *     altPhone: RandomGenerator.mobile("011"),
    *   }));
    *
    *   // Create international phone numbers
    *   const internationalPhone = RandomGenerator.mobile("+821");
    *
    *   // Generate contact list for testing
-   *   const contacts = ["010", "011", "016", "017", "018", "019"].map(prefix => ({
-   *     carrier: prefix,
-   *     number: RandomGenerator.mobile(prefix)
-   *   }));
-   *   ```;
+   *   const contacts = ["010", "011", "016", "017", "018", "019"].map(
+   *     (prefix) => ({
+   *       carrier: prefix,
+   *       number: RandomGenerator.mobile(prefix),
+   *     }),
+   *   );
    *
    * @param prefix - The prefix string for the phone number (default: "010")
    * @returns A formatted mobile phone number string
+   * @evidence contracts/common.md#principled-implementation A mobile number is the prefix, a middle group of three digits when the drawn value is below 1,000 and four digits otherwise, and a four-digit group, all zero-padded, which matches the 010-XXX-XXXX and 010-XXXX-XXXX Korean formats the default prefix implies.
+   * @evidence contracts/common.md#clear-and-simple-design One expression with two draws.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The prefix is a parameter whose default is the documented Korean one, and the digits are drawn.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the format, the default prefix, and examples.
    */
   export const mobile = (prefix: string = "010"): string =>
     [
@@ -364,8 +415,10 @@ export namespace RandomGenerator {
    * date. Useful for generating timestamps, creation dates, or scheduling test
    * data.
    *
+   * Processing cost: One integer draw and one Date construction use constant
+   * work.
+   *
    * @example
-   *   ```typescript
    *   const now = new Date();
    *   const oneDay = 24 * 60 * 60 * 1000;
    *   const oneMonth = 30 * oneDay;
@@ -379,40 +432,52 @@ export namespace RandomGenerator {
    *
    *   // Generate random creation dates for test data
    *   const startOfYear = new Date(2024, 0, 1);
-   *   const endOfYear = new Date(2024, 11, 31).getTime() - startOfYear.getTime();
-   *   const randomCreationDate = RandomGenerator.date(startOfYear, endOfYear);
+   *   const endOfYear =
+   *     new Date(2024, 11, 31).getTime() - startOfYear.getTime();
+   *   const randomCreationDate = RandomGenerator.date(
+   *     startOfYear,
+   *     endOfYear,
+   *   );
    *
    *   // Create test events with random timestamps
    *   const events = Array.from({ length: 50 }, () => ({
    *     id: RandomGenerator.alphaNumeric(8),
    *     title: RandomGenerator.name(2),
    *     createdAt: RandomGenerator.date(new Date(), oneMonth),
-   *     scheduledFor: RandomGenerator.date(new Date(), oneMonth * 3)
+   *     scheduledFor: RandomGenerator.date(new Date(), oneMonth * 3),
    *   }));
-   *   ```;
    *
    * @param from - The starting date for the random range
    * @param range - The range in milliseconds from the starting date
    * @returns A random date within the specified range
+   * @evidence contracts/common.md#principled-implementation For a valid start date and finite nonnegative integer range whose endpoint is Date-representable, the result adds an integer offset from zero through range. Unsupported invalid dates or bounds are not validated and can produce an Invalid Date or an out-of-range result.
+   * @evidence contracts/common.md#clear-and-simple-design One expression over the shared integer helper.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The offset is drawn, not fixed.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the interval and the unit of the range, with examples.
    */
   export const date = (from: Date, range: number): Date =>
     new Date(from.getTime() + randint(0, range));
 
   /**
-   * Randomly samples a specified number of unique elements from an array.
+   * Randomly samples a specified number of positions from an array.
    *
-   * Selects random elements from the input array without replacement, ensuring
-   * all returned elements are unique. The sample size is automatically capped
-   * at the array length to prevent errors. Uses a Set-based approach to
-   * guarantee uniqueness of selected indices. Ideal for creating test datasets
-   * or selecting random subsets for validation.
+   * Selects input positions without replacement. Equal values at different
+   * positions remain separate candidates and can both appear in the result. The
+   * sample size is automatically capped at the array length to prevent errors.
+   * Uses a partial Fisher-Yates shuffle over a sparse index map, so every draw
+   * is final and the cost grows with the sample size, not with the array
+   * length. Ideal for creating test datasets or selecting random subsets for
+   * validation.
+   *
+   * Processing cost: For K selected positions, sparse partial Fisher-Yates uses
+   * K map lookups/updates and K output entries: expected O(K) time and O(K)
+   * space, without copying the N-element input.
    *
    * @example
-   *   ```typescript
    *   const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
    *
-   *   RandomGenerator.sample(numbers, 3);  // e.g. [2, 7, 9]
-   *   RandomGenerator.sample(numbers, 5);  // e.g. [1, 4, 6, 8, 10]
+   *   RandomGenerator.sample(numbers, 3); // e.g. [2, 7, 9]
+   *   RandomGenerator.sample(numbers, 5); // e.g. [1, 4, 6, 8, 10]
    *   RandomGenerator.sample(numbers, 15); // returns all 10 elements (capped at array length)
    *
    *   // Sample users for testing
@@ -427,62 +492,80 @@ export namespace RandomGenerator {
    *
    *   // Random A/B testing groups
    *   const groupA = RandomGenerator.sample(allParticipants, 50);
-   *   const remaining = allParticipants.filter(p => !groupA.includes(p));
+   *   const remaining = allParticipants.filter((p) => !groupA.includes(p));
    *   const groupB = RandomGenerator.sample(remaining, 50);
-   *   ```;
    *
    * @param array - The source array to sample from
    * @param count - The number of elements to sample
    * @returns An array containing the randomly selected elements
+   * @evidence contracts/common.md#principled-implementation A partial Fisher-Yates shuffle over a sparse map of moved positions draws each result element from the not-yet-chosen positions uniformly, so the sample is without replacement, approximately uniform under Math.random, and its cost grows with the sample size; the count is capped at the array length, a positive fractional count rounds upward through the loop condition, and a count that is zero, negative, or NaN yields an empty array.
+   * @evidence contracts/common.md#clear-and-simple-design One loop with one map, and no rejection of repeated draws.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The array is not mutated or copied, and no element is favored or excluded.
+   * @evidence contracts/common.md#meaningful-documentation The comment states without-replacement sampling, the cap, and the algorithm, with examples.
    */
   export const sample = <T>(array: T[], count: number): T[] => {
     count = Math.min(count, array.length);
-    const indexes: Set<number> = new Set();
-    while (indexes.size < count) indexes.add(randint(0, array.length - 1));
-    return Array.from(indexes).map((i) => array[i]!);
+    // `moved` holds the positions whose element differs from the identity, so
+    // the shuffle needs no copy of the array
+    const moved: Map<number, number> = new Map();
+    const output: T[] = [];
+    for (let i: number = 0; i < count; ++i) {
+      const j: number = randint(i, array.length - 1);
+      output.push(array[moved.get(j) ?? j]!);
+      moved.set(j, moved.get(i) ?? i);
+    }
+    return output;
   };
 
   /**
    * Randomly selects a single element from an array.
    *
-   * Chooses one element at random from the provided array using uniform
-   * distribution. Each element has an equal probability of being selected. This
-   * is a convenience function equivalent to sampling with a count of 1, but
-   * returns the element directly rather than an array containing one element.
+   * Chooses one element at random from the provided array using approximately
+   * uniform distribution inherited from Math.random. This is a convenience
+   * function equivalent to sampling with a count of 1, but returns the element
+   * directly rather than an array containing one element.
+   *
+   * Processing cost: One bounded draw and one indexed lookup use constant work.
    *
    * @example
-   *   ```typescript
-   *   const colors = ['red', 'blue', 'green', 'yellow', 'purple'];
-   *   const fruits = ['apple', 'banana', 'orange', 'grape', 'kiwi'];
+   *   const colors = ["red", "blue", "green", "yellow", "purple"];
+   *   const fruits = ["apple", "banana", "orange", "grape", "kiwi"];
    *
-   *   RandomGenerator.pick(colors);  // e.g. "blue"
-   *   RandomGenerator.pick(fruits);  // e.g. "apple"
+   *   RandomGenerator.pick(colors); // e.g. "blue"
+   *   RandomGenerator.pick(fruits); // e.g. "apple"
    *
    *   // Select random configuration options
-   *   const randomTheme = RandomGenerator.pick(['light', 'dark', 'auto']);
-   *   const randomLocale = RandomGenerator.pick(['en', 'ko', 'ja', 'zh']);
+   *   const randomTheme = RandomGenerator.pick(["light", "dark", "auto"]);
+   *   const randomLocale = RandomGenerator.pick(["en", "ko", "ja", "zh"]);
    *
    *   // Choose random test scenarios
    *   const testScenario = RandomGenerator.pick([
-   *     'happy_path',
-   *     'edge_case',
-   *     'error_condition',
-   *     'boundary_test'
+   *     "happy_path",
+   *     "edge_case",
+   *     "error_condition",
+   *     "boundary_test",
    *   ]);
    *
    *   // Random user role assignment
-   *   const userRole = RandomGenerator.pick(['admin', 'user', 'moderator']);
+   *   const userRole = RandomGenerator.pick(["admin", "user", "moderator"]);
    *
    *   // Select random API endpoints for testing
-   *   const endpoints = ['/users', '/posts', '/comments', '/categories'];
+   *   const endpoints = ["/users", "/posts", "/comments", "/categories"];
    *   const randomEndpoint = RandomGenerator.pick(endpoints);
-   *   ```;
    *
    * @param array - The source array to pick an element from
    * @returns A randomly selected element from the array
+   * @throws RangeError when the array is empty
+   * @evidence contracts/common.md#principled-implementation One index maps a Math.random draw to a valid position, giving approximately uniform selection; an empty array has no element to return, so it raises a `RangeError` instead of returning `undefined` under the element type.
+   * @evidence contracts/common.md#clear-and-simple-design One guard and one draw.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The guard states the contract for the empty array and no default element is invented.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the approximately uniform selection, the relation to sampling one element, and the `RangeError` for an empty array, with examples.
    */
-  export const pick = <T>(array: readonly T[]): T =>
-    array[randint(0, array.length - 1)]!;
+  export const pick = <T>(array: readonly T[]): T => {
+    if (array.length === 0)
+      throw new RangeError("RandomGenerator.pick(): the array is empty.");
+    return array[randint(0, array.length - 1)]!;
+  };
 }
 
 /** @internal */

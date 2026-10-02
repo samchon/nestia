@@ -24,9 +24,29 @@ import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { FileRetriever } from "../utils/FileRetriever";
 import { SdkHttpParameterProgrammer } from "./internal/SdkHttpParameterProgrammer";
 import { SwaggerOperationComposer } from "./internal/SwaggerOperationComposer";
-import { SwaggerReadonlyArrayEmender } from "./internal/SwaggerReadonlyArrayEmender";
 
+/**
+ * Composes and writes the OpenAPI document.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace resolves the output location, builds the document from the routes, downgrades it when an older version is configured, and writes it.
+ * @evidence contracts/common.md#clear-and-simple-design Three public functions and private helpers for security, customizers, and the copy of the document.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The composition never edits data it does not own.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidence contracts/portability.md#os-neutral-implementation Output locations use Node path.parse/resolve/join and UTF-8 fs writes; package defaults are located through FileRetriever from the current native working directory. HTTP operation paths remain protocol strings handled by PathAnalyzer.
+ */
 export namespace SwaggerGenerator {
+  /**
+   * Writes the document to the configured location: a `.json` path as it is,
+   * and a directory as its `swagger.json`.
+   *
+   * The document is downgraded when `openapi` names an older version.
+   *
+   * @evidence contracts/common.md#principled-implementation The directory is created recursively and a failure to create it is reported with its cause; the document is composed, converted, and written in that order.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The failure to create the directory is not swallowed.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation path.parse classifies an output by its extension, path.resolve and path.dirname obtain native destinations, and fs.mkdir/writeFile own creation and writing without shell interpretation. Any nonempty extension denotes a file; the example .json extension is not an exclusive suffix check.
+   */
   export const generate = async (app: ITypedApplication): Promise<void> => {
     // GET CONFIGURATION
     console.log("Generating Swagger Document");
@@ -40,14 +60,15 @@ export namespace SwaggerGenerator {
       ? path.resolve(config.output)
       : path.join(path.resolve(config.output), "swagger.json");
     const directory: string = path.dirname(location);
-    if (fs.existsSync(directory) === false)
-      try {
-        await fs.promises.mkdir(directory, { recursive: true });
-      } catch {}
-    if (fs.existsSync(directory) === false)
+    try {
+      await fs.promises.mkdir(directory, { recursive: true });
+    } catch (error) {
       throw new Error(
-        `Error on NestiaApplication.swagger(): failed to create output directory: ${directory}`,
+        `Error on NestiaApplication.swagger(): failed to create output directory: ${directory} (${
+          error instanceof Error ? error.message : String(error)
+        })`,
       );
+    }
     // COMPOSE SWAGGER DOCUMENT
     const document: OpenApi.IDocument = compose({
       config,
@@ -76,6 +97,19 @@ export namespace SwaggerGenerator {
     );
   };
 
+  /**
+   * Composes the document of the HTTP routes into the given document: the
+   * components of every schema, and the paths.
+   *
+   * A route tagged `@internal` or `@hidden`, or excluded by
+   * `@ApiExcludeEndpoint`, is left out.
+   *
+   * @evidence contracts/common.md#principled-implementation The schemas of all routes are composed in one call, so a component shared by routes exists once, and the readonly arrays are emended before the paths refer to them.
+   * @evidence contracts/common.md#clear-and-simple-design One function of sequential steps.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The exclusion is the documented set of tags and decorators.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation compose operates on analyzed metadata and OpenAPI protocol paths; it neither opens native files nor launches processes.
+   */
   export const compose = (props: {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     routes: ITypedHttpRoute[];
@@ -102,13 +136,6 @@ export namespace SwaggerGenerator {
       version: "3.1",
       metadatas,
     });
-    json.schemas.forEach((schema, i) =>
-      SwaggerReadonlyArrayEmender.emend({
-        components: json.components,
-        schema,
-        metadata: metadatas[i]!,
-      }),
-    );
     const dict: WeakMap<MetadataSchema, OpenApi.IJsonSchema> = new WeakMap();
     json.schemas.forEach((schema, i) => dict.set(metadatas[i]!, schema));
     const schema = (
@@ -128,6 +155,21 @@ export namespace SwaggerGenerator {
     return document;
   };
 
+  /**
+   * Returns the document the composition starts from: the configured info,
+   * servers, security schemes, and tags, or the defaults.
+   *
+   * Tags are copied immediately; configured servers, security schemes and
+   * nested info values remain shared until compose detaches the document before
+   * customizers run. Callers using initialize alone must preserve those shared
+   * values.
+   *
+   * @evidence contracts/common.md#principled-implementation A per-call lazy Singleton reads package metadata at most once when info defaults need it. Each call allocates a document and copies the tag list; configured servers, security schemes and nested info values are detached later by compose before customization.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The defaults follow the configuration contract; initialize does not mutate configured values, while compose owns detaching the remaining shared JSON trees.
+   * @evidence contracts/common.md#meaningful-documentation The comment identifies defaults and distinguishes the immediate tag copy from values shared until compose, including the restriction on initialize-only callers.
+   * @evidence contracts/portability.md#os-neutral-implementation The lazy package-info reader starts from process.cwd and FileRetriever supplies the nearest package.json within its bounded native-parent search. fs.readFile reads UTF-8; unreadable or malformed package metadata yields documented info defaults rather than an OS-specific fallback command.
+   */
   export const initialize = async (
     config: Omit<INestiaConfig.ISwaggerConfig, "output">,
   ): Promise<OpenApi.IDocument> => {

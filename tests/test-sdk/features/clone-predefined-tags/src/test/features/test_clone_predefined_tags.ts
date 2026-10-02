@@ -1,5 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
+import path from "path";
 
 import { ITagged as Cloned } from "@api/lib/structures/ITagged";
 import { IUnaccepted as ClonedUnaccepted } from "@api/lib/structures/IUnaccepted";
@@ -30,7 +31,9 @@ type Same<T, U> = {
  * `@format uri`, keeps printing as the tag it names. A custom tag expanding
  * like a predefined tag given an argument that tag does not accept, such as
  * `tags.Format<"phone">`, keeps the `TagBase` form too, as the predefined form
- * would not compile.
+ * would not compile. Ordinary tag values and schema examples whose `kind`
+ * fields name TypeScript expressions remain JSON objects rather than being
+ * treated as syntax nodes.
  *
  * 1. Assert at compile time that every property of the clones is the source's
  *    type.
@@ -73,6 +76,7 @@ export const test_clone_predefined_tags = async (): Promise<void> => {
     nested: true,
     listed: true,
     phone: true,
+    expressionKinds: true,
   };
   unaccepted;
 
@@ -122,4 +126,46 @@ export const test_clone_predefined_tags = async (): Promise<void> => {
     'phone: string & tags.TagBase<{ target: "string"; kind: "format"; value: "phone";',
   ])
     TestValidator.equals(needle, unacceptedContent.includes(needle), true);
+
+  const { parse } = require(
+    require.resolve("@babel/parser", {
+      paths: [path.dirname(require.resolve("@nestia/sdk"))],
+    }),
+  );
+  const source = parse(unacceptedContent, {
+    sourceType: "module",
+    plugins: ["typescript"],
+  });
+  const examples: Array<Record<string, string>> = [];
+  const visit = (node: any): void => {
+    if (node === null || typeof node !== "object") return;
+    if (
+      node.type === "TSPropertySignature" &&
+      node.key.name === "examples" &&
+      node.typeAnnotation?.typeAnnotation.type === "TSTupleType"
+    )
+      for (const element of node.typeAnnotation.typeAnnotation.elementTypes)
+        if (element.type === "TSTypeLiteral") {
+          const value: Record<string, string> = {};
+          for (const member of element.members)
+            if (
+              member.type === "TSPropertySignature" &&
+              member.typeAnnotation?.typeAnnotation.type === "TSLiteralType" &&
+              member.typeAnnotation.typeAnnotation.literal.type ===
+                "StringLiteral"
+            )
+              value[member.key.name] =
+                member.typeAnnotation.typeAnnotation.literal.value;
+          examples.push(value);
+        }
+    for (const value of Object.values(node))
+      if (Array.isArray(value)) value.forEach(visit);
+      else if (value !== null && typeof value === "object") visit(value);
+  };
+  visit(source);
+  TestValidator.equals("ordinary JSON schema examples", examples, [
+    { kind: "Identifier", label: "ordinary value" },
+    { kind: "CallExpression", label: "ordinary example" },
+    { kind: "ArrowFunction", label: "another example" },
+  ]);
 };

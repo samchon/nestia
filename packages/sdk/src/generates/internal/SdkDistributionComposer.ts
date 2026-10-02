@@ -4,97 +4,148 @@ import path from "path";
 
 import { INestiaConfig } from "../../INestiaConfig";
 
+/**
+ * Composes the npm package of the SDK in the distribution directory.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace copies the bundle, fills its paths in, and installs the dependencies at the versions the project uses.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and the private steps.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Each filesystem step resolves against the distribution directory; no process-global directory or foreign method is changed.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidence contracts/portability.md#os-neutral-implementation Native paths use path.relative/path.join and generated paths use slash separators. npm receives an argument vector and an explicit cwd. POSIX launches npm directly; Windows launches the npm-cli.js shipped beside the first npm.cmd on PATH through Node because a cmd shim itself requires shell interpretation. A nonstandard Windows npm shim lacking that adjacent npm installation is rejected explicitly.
+ */
 export namespace SdkDistributionComposer {
+  /**
+   * Prepares the distribution package once: files, paths, and dependencies, and
+   * does nothing when the package is already configured.
+   *
+   * @evidence contracts/common.md#principled-implementation The package counts as configured when it holds `@nestia/fetcher`, which is installed last with its peers, so an interrupted setup runs again. The caller directory is captured once, and every output path and package-manager cwd is explicit.
+   * @evidence contracts/common.md#clear-and-simple-design One function of sequential steps.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No process-global directory is changed, so independent compositions retain their own destinations.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation Existence of the two package files is the filesystem's own answer, and the bundle files are copied over any file of the same name in a distribution directory that is not yet configured, so an interrupted setup repeats the copy.
+   */
   export const compose = async (props: {
     config: INestiaConfig;
     mcp: boolean;
     websocket: boolean;
   }) => {
-    if (!fs.existsSync(props.config.distribute!))
-      await fs.promises.mkdir(props.config.distribute!, { recursive: true });
-
     const root: string = process.cwd();
+    const directory: string = path.resolve(props.config.distribute!);
     const output: string = path.resolve(props.config.output!);
-    process.chdir(props.config.distribute!);
-    try {
-      if (await configured()) return;
+    await fs.promises.mkdir(directory, { recursive: true });
+    if (await configured(directory)) return;
 
-      // COPY FILES
-      console.log("Composing SDK distribution environments...");
-      for (const file of await fs.promises.readdir(BUNDLE))
-        await fs.promises.copyFile(`${BUNDLE}/${file}`, file);
-
-      // CONFIGURE PATHS
-      for (const file of ["package.json", "tsconfig.json"])
-        await replace({ root, output })(file);
-
-      // INSTALL PACKAGES
-      //
-      // The package compiles with ttsc, which applies the typia transform the
-      // SDK's `assert` and `simulate` code needs through typia's own plugin;
-      // typia removed its `setup` command in 14.0.0.
-      const v: IDependencies = await dependencies({
-        root,
-        websocket: props.websocket,
-      });
-      // one install per dependency kind: each npm run resolves and reifies the
-      // whole tree again, and the runtime set lands together or not at all, so
-      // an interrupted setup never leaves @nestia/fetcher, which marks the
-      // package configured, without its peers
-      execute(
-        `npm install --save-dev rimraf ttsc@${v.ttsc} typescript@${v.typescript}`,
+    console.log("Composing SDK distribution environments...");
+    for (const file of await fs.promises.readdir(BUNDLE))
+      await fs.promises.copyFile(
+        path.join(BUNDLE, file),
+        path.join(directory, file),
       );
-      execute(
-        [
-          "npm install --save",
-          `@nestia/fetcher@${v.version}`,
-          `typia@${v.typia}`,
-          ...(props.mcp && v.mcp !== undefined
-            ? [`@modelcontextprotocol/sdk@${v.mcp}`]
-            : []),
-          ...(props.websocket && v.tgrid !== undefined
-            ? [`tgrid@${v.tgrid}`]
-            : []),
-        ].join(" "),
-      );
-    } finally {
-      process.chdir(root);
-    }
+    for (const file of ["package.json", "tsconfig.json"])
+      await replace({ root, output, directory })(file);
+
+    // Compile with ttsc, which applies typia's transform; typia no longer has
+    // a setup command. Install each dependency kind together so an interrupted
+    // setup cannot mark @nestia/fetcher configured before its runtime peers.
+    const v: IDependencies = await dependencies({
+      root,
+      websocket: props.websocket,
+    });
+    execute(directory, [
+      "install",
+      "--save-dev",
+      "rimraf",
+      `ttsc@${v.ttsc}`,
+      `typescript@${v.typescript}`,
+    ]);
+    execute(directory, [
+      "install",
+      "--save",
+      `@nestia/fetcher@${v.version}`,
+      `typia@${v.typia}`,
+      ...(props.mcp && v.mcp !== undefined
+        ? [`@modelcontextprotocol/sdk@${v.mcp}`]
+        : []),
+      ...(props.websocket && v.tgrid !== undefined ? [`tgrid@${v.tgrid}`] : []),
+    ]);
   };
 
-  const configured = async (): Promise<boolean> =>
-    ["package.json", "tsconfig.json"].every(fs.existsSync) &&
+  const configured = async (directory: string): Promise<boolean> =>
+    ["package.json", "tsconfig.json"].every((file) =>
+      fs.existsSync(path.join(directory, file)),
+    ) &&
     (await (async () => {
       const content = JSON.parse(
-        await fs.promises.readFile("package.json", "utf8"),
+        await fs.promises.readFile(
+          path.join(directory, "package.json"),
+          "utf8",
+        ),
       );
       return !!content.dependencies?.["@nestia/fetcher"];
     })());
 
-  const execute = (command: string) => {
-    console.log(`  - ${command}`);
-    cp.execSync(command, { stdio: "ignore" });
+  const execute = (cwd: string, args: string[]): void => {
+    console.log(`  - npm ${args.join(" ")}`);
+    if (process.platform !== "win32")
+      cp.execFileSync("npm", args, { cwd, stdio: "ignore" });
+    else {
+      // Windows cannot execute npm.cmd without cmd.exe. Launch the JavaScript
+      // entry point installed beside that shim instead, so dependency ranges
+      // and paths never pass through a shell's metacharacter interpretation.
+      const directories = (process.env.PATH ?? "").split(path.delimiter);
+      const directory = directories.find((entry) =>
+        fs.existsSync(path.join(entry, "npm.cmd")),
+      );
+      const cli =
+        directory === undefined
+          ? undefined
+          : [
+              path.join(directory, "node_modules/npm/bin/npm-cli.js"),
+              path.resolve(directory, "../npm/bin/npm-cli.js"),
+            ].find((entry) => fs.existsSync(entry));
+      if (cli === undefined)
+        throw new Error(
+          "Unable to locate npm's JavaScript entry point beside npm.cmd on PATH.",
+        );
+      cp.execFileSync(process.execPath, [cli, ...args], {
+        cwd,
+        stdio: "ignore",
+      });
+    }
   };
 
   const replace =
-    (props: { root: string; output: string }) =>
+    (props: { root: string; output: string; directory: string }) =>
     async (file: string): Promise<void> => {
       const relative = (from: string) => (to: string) =>
         path.relative(from, to).split("\\").join("/");
-      const root: string = relative(process.cwd())(props.root);
-      const output: string = relative(process.cwd())(props.output);
-      const current: string = relative(props.root)(process.cwd());
-
-      const content: string = await fs.promises.readFile(file, "utf8");
+      const root: string = relative(props.directory)(props.root);
+      const output: string = relative(props.directory)(props.output);
+      const current: string = relative(props.root)(props.directory);
+      const replacements: Record<string, string> = { root, output, current };
+      const location: string = path.join(props.directory, file);
+      const content: unknown = JSON.parse(
+        await fs.promises.readFile(location, "utf8"),
+      );
+      const substitute = (value: unknown): unknown => {
+        if (typeof value === "string")
+          return value.replace(
+            /\$\{(root|output|current)\}/g,
+            (_match, key: string) => replacements[key]!,
+          );
+        if (Array.isArray(value)) return value.map(substitute);
+        if (value !== null && typeof value === "object")
+          return Object.fromEntries(
+            Object.entries(value).map(([key, element]) => [
+              key,
+              substitute(element),
+            ]),
+          );
+        return value;
+      };
       await fs.promises.writeFile(
-        file,
-        content
-          .split("${root}")
-          .join(root)
-          .split("${output}")
-          .join(output)
-          .split("${current}")
-          .join(current),
+        location,
+        JSON.stringify(substitute(content), null, 2) + "\n",
         "utf8",
       );
     };

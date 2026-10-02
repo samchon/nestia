@@ -5,16 +5,16 @@ import { IFetchEvent } from "./IFetchEvent";
 /**
  * Connection information.
  *
- * `IConnection` is an interface ttype who represents connection information of
- * the remote HTTP server. You can target the remote HTTP server by wring the
+ * `IConnection` is an interface type that represents connection information of
+ * the remote HTTP server. You can target the remote HTTP server by writing the
  * {@link IConnection.host} variable down. Also, you can configure special header
  * values by specializing the {@link IConnection.headers} variable.
  *
  * If the remote HTTP server encrypts or decrypts its body data through the
- * AES-128/256 algorithm, specify the {@link IConnection.encryption} with
+ * AES-128/192/256 algorithm, specify the {@link IConnection.encryption} with
  * {@link IEncryptionPassword} or {@link IEncryptionPassword.Closure} variable.
  *
- * @author Jenogho Nam - https://github.com/samchon
+ * @author Jeongho Nam - https://github.com/samchon
  * @author Seungjun We - https://github.com/SeungjunWe
  */
 export interface IConnection<
@@ -23,8 +23,11 @@ export interface IConnection<
   /** Host address of the remote HTTP server. */
   host: string;
 
-  /** Header values delivered to the remote HTTP server. */
-  headers?: Record<string, IConnection.HeaderValue> &
+  /**
+   * Header values delivered to the remote HTTP server; undefined entries are
+   * omitted.
+   */
+  headers?: Record<string, IConnection.HeaderValue | undefined> &
     IConnection.Headerify<Headers>;
 
   /**
@@ -37,7 +40,7 @@ export interface IConnection<
    * By the way, to utilize this simulation mode, SDK library must be generated
    * with {@link INestiaConfig.simulate} option, too. Open `nestia.config.ts`
    * file, and configure {@link INestiaConfig.simulate} property to be `true`.
-   * Them, newly generated SDK library would have a built-in mock-up data
+   * Then, newly generated SDK library would have a built-in mock-up data
    * generator.
    *
    * @default false
@@ -47,9 +50,17 @@ export interface IConnection<
   /**
    * Logger function.
    *
-   * This function is called when the fetch event is completed.
+   * This function is called and awaited after transport and response
+   * processing, whether they succeeded or failed. Configuration, body encoding
+   * and URL errors that occur before transport do not produce an event. Logger
+   * errors are ignored; event input and output share the caller's payload
+   * references, so a logger should treat them as read-only.
    *
    * @param event Event information of the fetch event.
+   * @evidence contracts/common.md#principled-implementation The callback receives the event from the transport finally block after completed_at is set. respond_at and status stay null without a response, and output stays undefined if body processing throws. Its rejection is ignored, but its argument includes mutable payload references and its awaiting can delay completion.
+   * @evidence contracts/common.md#clear-and-simple-design One optional callback with a single event argument.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The optional callback uses the connection's supported logging boundary; the pipeline catches its errors without replacing a transport or decoding failure.
+   * @evidence contracts/common.md#meaningful-documentation The comment states when the callback runs, which pretransport errors create no event, that it is awaited, and why shared payload references should be treated as read-only.
    */
   logger?: (event: IFetchEvent) => Promise<void>;
 
@@ -77,6 +88,15 @@ export interface IConnection<
    */
   fetch?: typeof fetch;
 }
+/**
+ * Support types of {@link IConnection}: the fetch options, the allowed header
+ * values, and the header mapping.
+ *
+ * @evidence contracts/common.md#principled-implementation The merged connection interface and namespace share one public identity for addressing, transport settings and support types. Header entries accept HeaderValue or undefined omission, while Headerify retains name-specific constraints; the HeaderValue union continues to exclude null and objects.
+ * @evidence contracts/common.md#clear-and-simple-design The interface separates addressing, header input, simulation, observation, encryption and fetch options; three supporting types organize their representations without runtime members.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It contains types only.
+ * @evidence contracts/common.md#meaningful-documentation The interface member comments explain addressing, omitted headers and optional transport settings; the logger separately documents completion, awaiting and ignored errors. Each support type has its own documentation.
+ */
 export namespace IConnection {
   /**
    * Additional options for the `fetch` function.
@@ -84,9 +104,14 @@ export namespace IConnection {
    * Almost same with {@link RequestInit} type of the {@link fetch} function, but
    * `body`, `headers` and `method` properties are omitted.
    *
-   * The reason why defining duplicated definition of {@link RequestInit} is for
-   * legacy NodeJS environments, which does not have the {@link fetch} function
-   * type.
+   * The explicit option record exposes the supported subset independently of
+   * changes to {@link RequestInit}. DOM types are still required by the
+   * connection's custom fetch and abort signal members.
+   *
+   * @evidence contracts/common.md#principled-implementation The record exposes a subset of RequestInit options while omitting body, headers and method, whose construction belongs to the route pipeline; AbortSignal and the connection's fetch member still depend on DOM declarations.
+   * @evidence contracts/common.md#clear-and-simple-design A flat option record, with each member mirroring one field of the standard request options.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type; the fetcher spreads the options into the request and then sets the method and headers itself.
+   * @evidence contracts/common.md#meaningful-documentation The comment explains the supported subset and remaining DOM type dependency, and each member documents the standard field's meaning.
    */
   export interface IOptions {
     /**
@@ -161,17 +186,20 @@ export namespace IConnection {
    * Type of allowed header values.
    *
    * Only atomic or array of atomic values are allowed.
+   *
+   * @evidence contracts/common.md#principled-implementation A header value is a string, boolean, number, or bigint, or an array of the non-string atomic types or of strings, which the request pipeline stringifies, one header line per array element.
+   * @evidence contracts/common.md#clear-and-simple-design A single union of the allowed atomic and array values.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states that only atomic values and arrays of them are allowed.
    */
   export type HeaderValue =
     | string
     | boolean
     | number
     | bigint
-    | string
     | Array<boolean>
     | Array<number>
     | Array<bigint>
-    | Array<number>
     | Array<string>;
 
   /**
@@ -182,7 +210,7 @@ export namespace IConnection {
    *
    * Below are list of prohibited in HTTP headers.
    *
-   * 1. Value type one of {@link HeaderValue}
+   * 1. Value type is neither {@link HeaderValue} nor omitted `undefined`
    * 2. Key is "set-cookie", but value is not an Array type
    * 3. Key is one of them, but value is Array type
    *
@@ -204,12 +232,17 @@ export namespace IConnection {
    * - "retry-after"
    * - "server"
    * - "user-agent"
+   *
+   * @evidence contracts/common.md#principled-implementation Each key admits only HeaderValue or omitted undefined. Classifying the defined value domain preserves optional array set-cookie inputs; singleton headers reject any array member even in a scalar/array union. An undefined-only domain transmits nothing and stays permitted. Lowercase keys follow HTTP's case-insensitive names, and ordinary keys retain their type.
+   * @evidence contracts/common.md#clear-and-simple-design One mapped type that rejects an entry by turning it into `never`, with the rule spelled out in the comment.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment lists the prohibited cases and the singleton headers.
    */
   export type Headerify<T extends object | undefined> = {
     [P in keyof T]?: T[P] extends HeaderValue | undefined
       ? P extends string
         ? Lowercase<P> extends "set-cookie"
-          ? T[P] extends Array<HeaderValue>
+          ? Exclude<T[P], undefined> extends Array<HeaderValue>
             ? T[P] | undefined
             : never
           : Lowercase<P> extends
@@ -231,9 +264,12 @@ export namespace IConnection {
                 | "retry-after"
                 | "server"
                 | "user-agent"
-            ? T[P] extends Array<HeaderValue>
-              ? never
-              : T[P] | undefined
+            ? Extract<
+                Exclude<T[P], undefined>,
+                Array<HeaderValue>
+              > extends never
+              ? T[P] | undefined
+              : never
             : T[P] | undefined
         : never
       : never;

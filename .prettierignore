@@ -15,3 +15,11 @@ packages/sdk/assets/bundle/e2e/index.ts
 # a tree the repository does not own.
 packages/migrate/assets/
 packages/migrate/src/bundles/
+
+# Disposable output of the sole integrated E2E entry. Authored fixture
+# sources stay in the formatter population.
+tests/test-e2e/.tmp-*/
+
+# Legacy migration output retained on disk while the assertion migration finishes.
+# Its owning .gitignore excludes this regenerated tree; authored inputs remain.
+tests/test-migrate-e2e/.generated/

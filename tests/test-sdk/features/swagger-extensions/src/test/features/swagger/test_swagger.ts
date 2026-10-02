@@ -1,6 +1,10 @@
 import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 
+/**
+ * Checks the generated GET operation carries both ApiExtension values from its
+ * controller decorations.
+ */
 export async function test_swagger(): Promise<void> {
   const swagger = JSON.parse(
     await fs.promises.readFile(__dirname + "/../../../../swagger.json", "utf8"),

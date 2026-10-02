@@ -15,10 +15,28 @@ import { SdkMcpRouteProgrammer } from "./SdkMcpRouteProgrammer";
 import { SdkRouteDirectory } from "./SdkRouteDirectory";
 import { SdkWebSocketRouteProgrammer } from "./SdkWebSocketRouteProgrammer";
 
+/**
+ * Writes the functional part of the SDK.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace builds the directory tree of the routes by accessor and prints one `index.ts` per directory.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and two private helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The tree follows the accessors of the routes.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidence contracts/portability.md#os-neutral-implementation Node mkdir creates native directories from the configured output and analyzed identifier accessors; ImportDictionary separately renders relative module specifiers with forward slashes. No filesystem case equivalence is inferred from route names.
+ */
 export namespace SdkFileProgrammer {
   /* ---------------------------------------------------------
         CONSTRUCTOR
     --------------------------------------------------------- */
+  /**
+   * Writes the `functional` tree of the SDK from the routes' accessors.
+   *
+   * @evidence contracts/common.md#principled-implementation A route lands in the directory of its accessor without the last segment, and each directory exports its children as namespaces.
+   * @evidence contracts/common.md#clear-and-simple-design One tree build and one recursive writer.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The order of routes is the analysis order.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation The recursive writer passes output paths to Node fs and FilePrinter, which accept the slash suffixes on Windows and POSIX. Accessor analysis supplies valid namespace names; module specifier spelling remains the importer’s separate responsibility.
+   */
   export const generate = async (app: ITypedApplication): Promise<void> => {
     // CONSTRUCT FOLDER TREE
     const root: SdkRouteDirectory = new SdkRouteDirectory(null, "functional");

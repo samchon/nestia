@@ -66,9 +66,7 @@ func nestiaCoreHttpQuerifyProgrammer(prog *driver.Program, ec *shimprinter.EmitC
 			if ok == false || property == nil || property.Value == nil {
 				continue
 			}
-			statements = append(statements, nestiaCoreFactory.NewExpressionStatement(
-				nestiaCoreHttpQuerifyDecode(key, property.Value, ec),
-			))
+			statements = append(statements, nestiaCoreHttpQuerifyDecode(key, property.Value, ec))
 		}
 	}
 	statements = append(statements, nestiaCoreFactory.NewReturnStatement(nestiaCoreFactory.NewIdentifier("output")))
@@ -194,7 +192,43 @@ func nestiaCoreQueryWrapperArrow(statements []*shimast.Node) *shimast.Node {
 	)
 }
 
+// nestiaCoreHttpQuerifyDecode writes one property into the URLSearchParams.
+//
+// An omitted optional property and a null array both write nothing, which the
+// request decoder reads back as undefined and null; a nullable scalar still
+// writes its "null" marker.
 func nestiaCoreHttpQuerifyDecode(key string, value *schemametadata.MetadataSchema, ec *shimprinter.EmitContext) *shimast.Node {
+	statement := nestiaCoreFactory.NewExpressionStatement(nestiaCoreHttpQuerifyWrite(key, value, ec))
+	absent := []shimast.Kind{}
+	if value.IsRequired() == false {
+		absent = append(absent, shimast.KindUndefinedKeyword)
+	}
+	if len(value.Arrays) != 0 && value.Nullable {
+		absent = append(absent, shimast.KindNullKeyword)
+	}
+	for i := len(absent) - 1; i >= 0; i-- {
+		var marker *shimast.Node
+		if absent[i] == shimast.KindUndefinedKeyword {
+			marker = nestiaCoreFactory.NewIdentifier("undefined")
+		} else {
+			marker = nestiaCoreFactory.NewKeywordExpression(absent[i])
+		}
+		statement = nestiaCoreFactory.NewIfStatement(
+			nestiaCoreFactory.NewBinaryExpression(
+				nil,
+				nativefactories.IdentifierFactory.Access(ec, nestiaCoreFactory.NewIdentifier("input"), key),
+				nil,
+				nestiaCoreFactory.NewToken(shimast.KindExclamationEqualsEqualsToken),
+				marker,
+			),
+			statement,
+			nil,
+		)
+	}
+	return statement
+}
+
+func nestiaCoreHttpQuerifyWrite(key string, value *schemametadata.MetadataSchema, ec *shimprinter.EmitContext) *shimast.Node {
 	if len(value.Arrays) != 0 {
 		return nestiaCoreFactory.NewCallExpression(
 			nativefactories.IdentifierFactory.Access(

@@ -1,5 +1,9 @@
 import { IPage } from "./IPage";
 
+/**
+ * The namespace groups article request and summary records used by validator
+ * scenarios.
+ */
 export namespace IBbsArticle {
   /** Page request info with some options. */
   export interface IRequest extends IPage.IRequest {
@@ -14,8 +18,14 @@ export namespace IBbsArticle {
     search?: IRequest.ISearch;
   }
   export namespace IRequest {
+    /**
+     * Independent optional writer and title fields permit either filter or
+     * both.
+     */
     export interface ISearch {
+      /** Optional writer text to search for. */
       writer?: string;
+      /** Optional title text to search for. */
       title?: string;
     }
     /** List of sortable columns. */
@@ -28,10 +38,15 @@ export namespace IBbsArticle {
 
   /** Summarized info. */
   export interface ISummary {
+    /** Article identifier. */
     id: string;
+    /** Article author. */
     writer: string;
+    /** Article title. */
     title: string;
+    /** Creation instant encoded as ISO text. */
     created_at: string;
+    /** Last update instant encoded as ISO text. */
     updated_at: string;
   }
 }

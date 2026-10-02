@@ -6,6 +6,10 @@ import {
   InheritedSwaggerControllerBase,
 } from "../../controllers/SwaggerController";
 
+/**
+ * Checks decorator examples and generated customizer extensions remain
+ * separated between base, derived and inherited routes.
+ */
 export const test_swagger_inherited_metadata = async (): Promise<void> => {
   const swagger: any = JSON.parse(
     await fs.promises.readFile(`${__dirname}/../../../swagger.json`, "utf8"),

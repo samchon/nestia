@@ -1,85 +1,10 @@
 name: test
 on:
   pull_request:
-    paths:
-      - '.github/workflows/test.yml'
-      - '.github/actions/**'
-      - 'config/**'
-      - 'benchmark/**'
-      # every file a package build or a test reads: sources, bundler and
-      # TypeScript configs, and the deploy scripts the build scripts run
-      - 'packages/**'
-      - 'deploy/**'
-      - 'tests/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'package.json'
-
 permissions:
   contents: read
-
-concurrency:
-  group: test-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
   test:
-    name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # the Go tests read the TypeScript sources and the installed typings,
-          # not the built packages, so they skip the build; GOCACHE is the
-          # restored Go object store build.yml compiles the Go tests into
-          - { name: go, run: "GOCACHE=\"$GITHUB_WORKSPACE/node_modules/.cache/ttsc/go-build\" pnpm test:go", skip_build: true }
-          # test-sdk is the longest suite by far: five disjoint shards run it
-          # in parallel, and its harness builds the packages it runs itself
-          - { name: sdk (1/5), run: "pnpm --filter ./tests/test-sdk start --shard 1/5", skip_build: true }
-          - { name: sdk (2/5), run: "pnpm --filter ./tests/test-sdk start --shard 2/5", skip_build: true }
-          - { name: sdk (3/5), run: "pnpm --filter ./tests/test-sdk start --shard 3/5", skip_build: true }
-          - { name: sdk (4/5), run: "pnpm --filter ./tests/test-sdk start --shard 4/5", skip_build: true }
-          - { name: sdk (5/5), run: "pnpm --filter ./tests/test-sdk start --shard 5/5", skip_build: true }
-          - { name: migrate, run: "pnpm --filter ./tests/test-migrate start" }
-          - { name: transform-options, run: "pnpm --filter ./tests/test-transform-options start" }
-          - { name: e2e, run: "pnpm --filter ./tests/test-e2e start" }
-          - { name: benchmark, run: "pnpm --filter ./tests/test-benchmark start" }
-          - { name: cli, run: "pnpm --filter ./tests/test-cli start" }
-          - { name: editor, run: "pnpm --filter ./tests/test-editor start" }
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24.x
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: packages/core/native/go.mod
-          cache-dependency-path: packages/core/native/go.sum
-      - uses: pnpm/action-setup@v4
-
-      - name: Install Dependencies
-        run: pnpm install
-
-      - uses: ./.github/actions/ttsc-cache
-
-      - name: Use System Go For Source Plugin Build
-        run: echo "TTSC_GO_BINARY=$(go env GOROOT)/bin/go" >> "$GITHUB_ENV"
-
-      - name: Build Packages
-        # a matrix entry without the key builds: GitHub compares a missing
-        # value equal to false, so the flag names the exception
-        if: ${{ !matrix.skip_build }}
-        env:
-          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
-        run: pnpm build
-
-      - name: Run ${{ matrix.name }}
-        env:
-          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
-        run: ${{ matrix.run }}
-
-  benchmark-system:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -91,22 +16,13 @@ jobs:
           go-version-file: packages/core/native/go.mod
           cache-dependency-path: packages/core/native/go.sum
       - uses: pnpm/action-setup@v4
-
       - name: Install Dependencies
         run: pnpm install
-
-      - uses: ./.github/actions/ttsc-cache
-
-      - name: Use System Go For Source Plugin Build
-        shell: bash
-        run: echo "TTSC_GO_BINARY=$(go env GOROOT)/bin/go" >> "$GITHUB_ENV"
-
-      - name: Build Packages
-        env:
-          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
-        run: pnpm build
-
-      - name: Build and Test Benchmark System
-        env:
-          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
-        run: pnpm --filter ./benchmark build && pnpm --filter ./benchmark test
+      - name: Restore ttsc Plugin Cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/ttsc
+          key: ttsc-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'packages/typia/native/**') }}
+          restore-keys: ttsc-cache-${{ runner.os }}-
+      - name: Run Tests
+        run: pnpm test

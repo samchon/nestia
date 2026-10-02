@@ -15,17 +15,38 @@ import { SdkHttpCloneProgrammer } from "./internal/SdkHttpCloneProgrammer";
 import { SdkHttpCloneReferencer } from "./internal/SdkHttpCloneReferencer";
 import { SdkWebSocketCloneProgrammer } from "./internal/SdkWebSocketCloneProgrammer";
 
+/**
+ * Writes the DTO declarations of the SDK: the `structures` files that the
+ * functions import when `clone` is on.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace composes the declarations from the analyzed types, rewrites the routes to reference them, and prints one file per top-level module.
+ * @evidence contracts/common.md#clear-and-simple-design One public function with two private helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every declaration goes through the shared printer, and no type is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidence contracts/portability.md#os-neutral-implementation The writer passes native output locations to Node fs and FilePrinter; module specifiers are produced separately by ImportDictionary. The structures suffix uses forward slashes, which Node accepts on Windows and POSIX, without treating spelling as canonical file identity.
+ */
 export namespace CloneGenerator {
+  /**
+   * Writes the `structures` directory of the SDK output.
+   *
+   * Structural route references are updated even when every JSON DTO is inline
+   * and no structure file is needed. WebSocket source cloning stays separate.
+   *
+   * @evidence contracts/common.md#principled-implementation HTTP and MCP JSON declarations share the analyzed collection; WebSocket sources are copied separately. Route references are updated even for inline-only graphs, then named modules are written sequentially so a failure stops at the first file.
+   * @evidence contracts/common.md#clear-and-simple-design One function over the two programmers, the referencer, and the file writer.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The directory is created recursively and its failure is not swallowed.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation Node mkdir creates the output structures directory and FilePrinter writes generated declarations; WebSocket source lookup and copying remain delegated to its source-cloning owner. Filesystem errors propagate rather than being translated into platform-specific shell commands.
+   */
   export const write = async (app: ITypedApplication): Promise<void> => {
     const dict: Map<string, SdkHttpCloneProgrammer.IModule> =
       SdkHttpCloneProgrammer.write(app);
     const websocket: Set<string> = await SdkWebSocketCloneProgrammer.write(app);
-    if (dict.size === 0 && websocket.size === 0) return;
-
     SdkHttpCloneReferencer.replace(app, websocket);
-    try {
-      await fs.promises.mkdir(`${app.project.config.output}/structures`);
-    } catch {}
+    if (dict.size === 0 && websocket.size === 0) return;
+    await fs.promises.mkdir(`${app.project.config.output}/structures`, {
+      recursive: true,
+    });
     for (const [key, value] of dict)
       await writeDtoFile(app.project)(key, value);
   };

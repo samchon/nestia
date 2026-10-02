@@ -18,6 +18,7 @@ import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
  * 2. Assert a JSON and a body-less request carry their own content type, or none,
  *    as before.
  */
+
 export async function test_fetcher_multipart_content_type(): Promise<void> {
   const send = async (props: {
     fetcher: typeof PlainFetcher | typeof EncryptedFetcher;

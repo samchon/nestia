@@ -18,6 +18,11 @@ import (
 //  1. Create equivalent tuple-return TypedRoute projects for all no-emit paths.
 //  2. Require the preserved source location, decorator code, and LLM reason.
 //  3. Prove every analysis-only path publishes no compiler artifact.
+//
+// @evidence contracts/testing.md#behavioral-verification check, explicit --noEmit and configured noEmit must each return transform exit 3 for a tuple response under LLM validation, preserve its source location and reason, and publish no artifacts.
+// @evidence contracts/testing.md#independent-expectations A tuple is valid JSON but unsupported by the configured LLM schema contract; the source fixture fixes line 8 and the required decorator diagnostic, while noEmit prohibits publication.
+// @evidence contracts/testing.md#distinguishing-cases Three entry routes and verbose versus quiet reporting are independently named subtests; valid analysis-only options are the adjacent control in TestBuildNoEmitPreservesAnalysisOnlyOptions.
+// @evidence contracts/testing.md#execution-ownership Go discovers the parent Test and its table subtests; each native command executes in-process against a separate temporary project and captured streams, without per-case Go compilation.
 func TestBuildNoEmitReportsLlmRouteDiagnostic(t *testing.T) {
 	cases := []struct {
 		name       string

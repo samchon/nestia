@@ -17,9 +17,9 @@ import api from "@api";
  *
  * 1. Encrypt a valid JSON login body with the connection's own key/iv and POST the
  *    raw ciphertext; it must succeed (the wire format is unchanged).
- * 2. Flip the last ciphertext byte to break the final block's padding, and flip
- *    the first ciphertext byte so CBC corrupts the early plaintext into
- *    non-JSON while the final block's padding survives.
+ * 2. Flip the penultimate block's last byte to break the final block's padding,
+ *    and flip the first ciphertext byte so CBC corrupts the early plaintext
+ *    into non-JSON while the final block's padding survives.
  * 3. Assert neither forged request returns 500 and that the two responses are
  *    identical in both status (400) and body.
  */
@@ -75,7 +75,7 @@ export const test_api_encrypted_padding_oracle = async (
   };
   const brokenPadding: Buffer = flip(
     Buffer.from(ciphertext),
-    ciphertext.length - 1,
+    ciphertext.length - 17,
   );
 
   // (b) VALID PADDING, NON-JSON PLAINTEXT: JSON.parse throws

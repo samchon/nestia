@@ -1,3 +1,5 @@
+import { IRequestBodyValidation } from "./IRequestBodyValidation";
+
 /**
  * Reflection metadata stored by the {@link McpRoute} decorator.
  *
@@ -29,12 +31,16 @@ export namespace IMcpRouteReflect {
    *
    * `validate` is the closure returned by `validate_request_body(...)`; it
    * returns `null` on success or an Error carrying validation details.
+   * Factory-owned callbacks additionally resolve successful data. The optional
+   * resolver preserves compatibility with existing error-only metadata
+   * callbacks.
    *
    * @internal
    */
   export interface IArgument {
     category: "params";
     index: number;
-    validate: (input: any) => Error | null;
+    validate: ((input: any) => Error | null) &
+      Pick<IRequestBodyValidation<any>, "resolve">;
   }
 }

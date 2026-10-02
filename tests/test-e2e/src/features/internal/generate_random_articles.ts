@@ -3,6 +3,10 @@ import { RandomGenerator } from "@nestia/e2e";
 import { IBbsArticle } from "../structures/IBbsArticle";
 import { IPage } from "../structures/IPage";
 
+/**
+ * The helper constructs count article summaries and matching single-page
+ * metadata using published random generators.
+ */
 export const generate_random_articles = (
   count: number = 100,
 ): IPage<IBbsArticle.ISummary> => ({

@@ -14,6 +14,7 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A returning task throws the validator's message, synchronously.
  * 3. A resolving task rejects with the validator's message.
  */
+
 export async function test_validate_error(): Promise<void> {
   // SYNCHRONOUS
   TestValidator.error("error", () => {

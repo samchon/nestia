@@ -1,3 +1,12 @@
+/**
+ * Helpers for security requirements.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace merges requirement lists into a canonical, duplicate-free list.
+ * @evidence contracts/common.md#clear-and-simple-design One function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a plain helper.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SecurityAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace SecurityAnalyzer {
   /**
    * Joins lists of security requirements into one, as OpenAPI reads them.
@@ -8,6 +17,12 @@ export namespace SecurityAnalyzer {
    * `read` or `write` scope alternatives of one scheme into both scopes. Only a
    * requirement repeating an earlier one, such as a controller's restated on
    * its method, is dropped; an empty one, anonymous access, is kept.
+   *
+   * @evidence contracts/common.md#principled-implementation Each requirement is normalized to unique scopes and keyed by its sorted schemes and sorted scopes, so equality does not depend on order, and the first occurrence keeps its position.
+   * @evidence contracts/common.md#clear-and-simple-design One function with one key computation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Equality is defined by content.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the equality and the order.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SecurityAnalyzer.merge analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const merge = (
     ...entire: Record<string, string[]>[]

@@ -16,10 +16,26 @@ const isNode = (value: unknown): value is Expression =>
 
 /**
  * Recursive value-to-AST-literal builder. Hands back already-AST inputs
- * unchanged (so callers can mix factory output with raw JS values inside the
- * same object/array), and emits the appropriate literal node otherwise.
+ * unchanged for arrow functions, calls and identifiers (so callers can mix
+ * those factory expressions with raw values inside objects/arrays), and emits
+ * the appropriate literal node otherwise.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace maps null, booleans, numbers, strings, bigint text, arrays and object entries to literal expressions, passes through the three accepted AST kinds, maps functions to undefined and refuses unsupported primitive types.
+ * @evidence contracts/common.md#clear-and-simple-design One entry function and two private helpers for containers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The mapping is by type, with no value special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
  */
 export namespace LiteralFactory {
+  /**
+   * Builds the expression of a value: `null`, a boolean, a number, a string, a
+   * bigint as its text, an array, an object without its `undefined` members, or
+   * an expression node as it is.
+   *
+   * @evidence contracts/common.md#principled-implementation The value is dispatched by type in a fixed order; nodes of the kinds arrow function, call, and identifier pass through, functions become `undefined`, and an unsupported type is a `TypeError`, so the result is total over the listed types.
+   * @evidence contracts/common.md#clear-and-simple-design One function with one branch per type.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The dispatch is general, and a bigint becomes text because a literal bigint is not supported by the target syntax here.
+   * @evidence contracts/common.md#meaningful-documentation The comment lists the mapping.
+   */
   export const write = (input: any): Expression => {
     if (input === null) return factory.createNull();
     if (isNode(input) && PASSTHROUGH_KINDS.has(input.kind)) return input;

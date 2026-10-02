@@ -21,6 +21,11 @@ import (
 //  1. Load a temporary controller method returning a local Observable<T> type.
 //  2. Resolve the method's return type through NestiaCoreMethodReturnType.
 //  3. Assert the resolved type remains the Observable wrapper.
+//
+// @evidence contracts/testing.md#behavioral-verification NestiaCoreMethodReturnType resolves the handwritten local Observable alias and its displayed type must retain Observable, rejecting name-only unwrapping.
+// @evidence contracts/testing.md#independent-expectations The local alias is a DTO with a subscribe member, not the RxJS asynchronous wrapper, so the route payload remains that alias.
+// @evidence contracts/testing.md#distinguishing-cases This owns the foreign same-name negative; Promise payload resolution is the neighboring inline-Promise case. It does not assert every alias member or a real RxJS positive.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit case and loads its temporary program in-process; the program is deferred closed and no compiler host is launched.
 func TestMethodReturnTypeObservable(t *testing.T) {
 	temp := t.TempDir()
 	writeFile(t, filepath.Join(temp, "tsconfig.json"), `{

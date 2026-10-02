@@ -117,6 +117,16 @@ export function TypedException<T>(...args: any[]): MethodDecorator {
     return descriptor;
   };
 }
+/**
+ * Types of {@link TypedException}: the response properties a declaration
+ * carries, and its named examples.
+ *
+ * @evidence contracts/common.md#principled-implementation The decorator records each declared status, description, and example on the method's metadata list, so the document generator can add the responses; the overloads without a type argument return `never` so a missing type argument is a compile error.
+ * @evidence contracts/common.md#clear-and-simple-design One decorator whose overloads split the property form and the positional form.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It records declarations and never changes how the route responds.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the forms and that the status accepts range spellings.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Response declarations contain HTTP status codes and examples, without native files or subprocesses.
+ */
 export namespace TypedException {
   /** Properties for the exception. */
   export interface IProps<T> {

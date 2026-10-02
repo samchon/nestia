@@ -25,6 +25,11 @@ import (
 //  2. Run EmitTransform and decode every injected OperationMetadata literal.
 //  3. Assert the TypeGuardError synthetic schema, the named exceptions, and the
 //     union exception members are all present.
+//
+// @evidence contracts/testing.md#behavioral-verification Collected exception metadata must retain the synthetic typia TypeGuardError schema fields, authored exception names, union members and throws text.
+// @evidence contracts/testing.md#independent-expectations The handwritten decorators, union declarations and JSDoc establish these exception identities and descriptions; typia guard errors require their documented method/expected schema fields.
+// @evidence contracts/testing.md#distinguishing-cases This covers synthetic and named exceptions, union constituents and documentation preservation; local same-name TypeGuardError provenance is exercised by the SDK generated-Swagger fixture. Substring assertions do not validate every exception association.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
 func TestSDKExceptionMetadataInProcess(t *testing.T) {
 	root, prog := loadFeatureProgram(t, "exception", []string{
 		"controllers/ExceptionController.ts",

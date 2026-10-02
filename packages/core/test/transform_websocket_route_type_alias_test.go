@@ -19,6 +19,11 @@ import (
 //
 //  1. Transform the fixture's controller.
 //  2. Assert the transform exits 0, reporting no WebSocket diagnostic.
+//
+// @evidence contracts/testing.md#behavioral-verification A valid WebSocket acceptor reached through a TypeScript type alias must transform with exit 0 rather than being rejected for its alias spelling.
+// @evidence contracts/testing.md#independent-expectations A TypeScript type alias preserves the underlying supported acceptor type; the alias fixture has the required Header/Provider/Listener structure.
+// @evidence contracts/testing.md#distinguishing-cases This owns accepted aliasing; invalid identity/arity/import fixtures own negative distinctions and the SDK websocket-type-alias feature exercises client assembly.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformWebSocketRouteTypeAlias(t *testing.T) {
 	const feature = "websocket-type-alias"
 	temp := t.TempDir()

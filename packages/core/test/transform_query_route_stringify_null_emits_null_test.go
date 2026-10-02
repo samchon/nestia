@@ -18,11 +18,25 @@ import (
 //  1. Transform QueryController with a manifest carrying stringify: null.
 //  2. Read the emitted --out source.
 //  3. Assert a @TypedQuery route emits a bare null response argument and no
-//     URLSearchParams querify body.
+//     TypedQuery.Post call carries a querifier discriminator.
+//
+// @evidence contracts/testing.md#behavioral-verification With stringify null, the body query route must emit the exact path-plus-null decorator argument instead of a serializer object.
+// @evidence contracts/testing.md#independent-expectations The documented null option disables response transformation; retaining the authored body route path and passing null is the runtime decorator protocol.
+// @evidence contracts/testing.md#distinguishing-cases This owns disabled query serialization; assert/is/validate/plain query cases own enabled conversion. The JSON-route null case owns the other decorator family.
+// @evidence contracts/testing.md#execution-ownership The core Go runner discovers this Test and invokes the native dispatcher in-process. The loaded fixture program and temporary emitted output exercise transformation without building or launching a native host; the generated-validator runtime batch owns installed-helper execution.
 func TestTransformQueryRouteStringifyNullEmitsNull(t *testing.T) {
 	plugins := `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"assert","stringify":null}}]`
 	out := transformFileToStringWithPlugins(t, "query", "QueryController.ts", plugins)
 	if !strings.Contains(out, `@TypedQuery.Post("body", null)`) {
 		t.Fatalf("stringify:null should emit a bare null query-route response argument:\n%s", out)
+	}
+	types := decoratorValidatorTypes(out, `@TypedQuery\.Post`)
+	if len(types) == 0 {
+		t.Fatalf("no TypedQuery.Post call was emitted:\n%s", out)
+	}
+	for index, got := range types {
+		if got != "" {
+			t.Fatalf("TypedQuery.Post call #%d kept the %q querifier under stringify:null:\n%s", index, got, out)
+		}
 	}
 }

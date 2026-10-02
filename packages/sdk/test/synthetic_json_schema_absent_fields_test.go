@@ -36,6 +36,11 @@ import (
 //     assert the only null members are the declared instance and extension
 //     values.
 //  4. Assert the documented enum member keeps its description.
+//
+// @evidence contracts/testing.md#behavioral-verification Primitive/resolved parameter and response schemas must contain null only at authored null-valued extension/example/default sites, retain an empty any schema, and preserve only the documented enum member description.
+// @evidence contracts/testing.md#independent-expectations Typia JSON-schema omission semantics distinguish undefined optional fields from explicit null tags. The fixture authors the five null sites and enum documentation independently.
+// @evidence contracts/testing.md#distinguishing-cases The recursive null scan checks all nested schema fields; parameter decomposition and component schemas retain explicit null, while undocumented enum fields must remain absent and any must remain an empty object.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticJsonSchemaOmitsTypiaAbsentFields(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 import { tags } from "typia";

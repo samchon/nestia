@@ -20,6 +20,10 @@ import { FetcherBase } from "./internal/FetcherBase";
  * {@link PlainFetcher} class would be used instead.
  *
  * @author Jeongho Nam - https://github.com/samchon
+ * @evidence contracts/common.md#principled-implementation A per-call codec encrypts the request body only when the route declares its request encrypted and decrypts the response body only when the route declares its response encrypted; the password is read from the connection, directly or through a closure that receives the headers, the body text, and the direction, where the body is the serialized plain text when encoding and the received cipher text when decoding, as on the server, and the request pipeline itself is shared with `PlainFetcher`.
+ * @evidence contracts/common.md#clear-and-simple-design Two public operations, `fetch` and `propagate`, share one private `codec` builder, so the encryption policy exists once and the transport lives in `FetcherBase`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No route, header, or key is special-cased: encryption follows the route metadata that `@nestia/sdk` generates, and a missing password is a thrown error rather than a silent plain request.
+ * @evidence contracts/common.md#meaningful-documentation The namespace prose says when the generated SDK uses this fetcher instead of `PlainFetcher`.
  */
 export namespace EncryptedFetcher {
   /**
@@ -28,6 +32,10 @@ export namespace EncryptedFetcher {
    * @param connection Connection information for the remote HTTP server
    * @param route Route information about the target API
    * @returns Nothing because of `HEAD` method
+   * @evidence contracts/common.md#principled-implementation The overloads narrow the route method to the argument list and return type that method allows; the implementation builds the codec, which throws before any request when an encrypted route has no password, and delegates to `FetcherBase.request`, which returns the body on success and throws `HttpError` otherwise.
+   * @evidence contracts/common.md#clear-and-simple-design The implementation is one delegation, and the overloads exist only for the type-level split between `HEAD`, `GET`, and the body methods.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The function gates on the route's declared encryption and adds no branch for a particular path or password.
+   * @evidence contracts/common.md#meaningful-documentation Each overload documents its parameters and return value.
    */
   export function fetch(
     connection: IConnection,
@@ -66,75 +74,91 @@ export namespace EncryptedFetcher {
     input?: Input,
     stringify?: (input: Input) => string,
   ): Promise<Output> {
-    if (
-      (route.request?.encrypted === true || route.response?.encrypted) &&
-      connection.encryption === undefined
-    )
-      throw new Error(
-        "Error on EncryptedFetcher.fetch(): the encryption password has not been configured.",
-      );
-    const closure =
-      typeof connection.encryption === "function"
-        ? (direction: "encode" | "decode") =>
-            (
-              headers: Record<string, IConnection.HeaderValue | undefined>,
-              body: string,
-            ) =>
-              (connection.encryption as IEncryptionPassword.Closure)({
-                headers,
-                body,
-                direction,
-              })
-        : () => () => connection.encryption as IEncryptionPassword;
-
-    return FetcherBase.request({
-      className: "EncryptedFetcher",
-      encode:
-        route.request?.encrypted === true
-          ? (input, headers) => {
-              const p: IEncryptionPassword = closure("encode")(headers, input);
-              return AesPkcs5.encrypt(
-                (stringify ?? JSON.stringify)(input),
-                p.key,
-                p.iv,
-              );
-            }
-          : (input) => input,
-      decode:
-        route.response?.encrypted === true
-          ? (input, headers) => {
-              const p: IEncryptionPassword = closure("decode")(headers, input);
-              const s: string = AesPkcs5.decrypt(input, p.key, p.iv);
-              return s.length ? JSON.parse(s) : s;
-            }
-          : (input) => input,
-    })(connection, route, input, stringify);
+    return FetcherBase.request(
+      codec({ method: "fetch", connection, route, stringify }),
+    )(connection, route, input, stringify);
   }
 
-  export function propagate<Output extends IPropagation<any, any>>(
+  /**
+   * Fetch function that returns every response as an {@link IPropagation},
+   * encrypting and decrypting the bodies the route declares encrypted.
+   *
+   * An HTTP failure status is returned as a failed branch instead of being
+   * thrown. A missing encryption password and a transport failure still throw.
+   * The output must describe numeric status branches with boolean success and
+   * string or string-array headers; its data type remains caller-owned.
+   *
+   * @evidence contracts/common.md#principled-implementation It builds the same codec as `fetch` and delegates to `FetcherBase.propagate`. Its structural branch constraint accepts numeric literal successes, numeric range failures and unknown-status fallback without instantiating a status map with any, while requiring boolean success and actual numeric status/header shapes.
+   * @evidence contracts/common.md#clear-and-simple-design The implementation is one delegation to the shared pipeline, and the overloads only split the argument types by method.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The function adds no status-specific branch: the success flag comes from the status rules in `FetcherBase`.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the returned union carries and which failures still throw.
+   */
+  export function propagate<
+    Output extends {
+      success: boolean;
+      status: number;
+      headers: Record<string, string | string[]>;
+      data: unknown;
+    },
+  >(
     connection: IConnection,
     route: IFetchRoute<"GET" | "HEAD">,
   ): Promise<Output>;
 
-  export function propagate<Input, Output extends IPropagation<any, any>>(
+  export function propagate<
+    Input,
+    Output extends {
+      success: boolean;
+      status: number;
+      headers: Record<string, string | string[]>;
+      data: unknown;
+    },
+  >(
     connection: IConnection,
     route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
     input?: Input,
     stringify?: (input: Input) => string,
   ): Promise<Output>;
 
-  export async function propagate<Input, Output extends IPropagation<any, any>>(
+  export async function propagate<
+    Input,
+    Output extends {
+      success: boolean;
+      status: number;
+      headers: Record<string, string | string[]>;
+      data: unknown;
+    },
+  >(
     connection: IConnection,
     route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
     input?: Input,
     stringify?: (input: Input) => string,
   ): Promise<Output> {
+    return FetcherBase.propagate(
+      codec({ method: "propagate", connection, route, stringify }),
+    )(connection, route, input, stringify) as Promise<Output>;
+  }
+
+  /**
+   * Builds the body codec of one call: encrypt the request body when the route
+   * declares it encrypted, and decrypt the response body likewise.
+   *
+   * Refuses the call before any request when the route needs a password and the
+   * connection has none.
+   */
+  const codec = <Input>(props: {
+    method: "fetch" | "propagate";
+    connection: IConnection;
+    route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">;
+    stringify: ((input: Input) => string) | undefined;
+  }): FetcherBase.IProps => {
+    const { connection, route, stringify } = props;
     if (
       (route.request?.encrypted === true || route.response?.encrypted) &&
       connection.encryption === undefined
     )
       throw new Error(
-        "Error on EncryptedFetcher.propagate(): the encryption password has not been configured.",
+        `Error on EncryptedFetcher.${props.method}(): the encryption password has not been configured.`,
       );
     const closure =
       typeof connection.encryption === "function"
@@ -149,18 +173,14 @@ export namespace EncryptedFetcher {
                 direction,
               })
         : () => () => connection.encryption as IEncryptionPassword;
-
-    return FetcherBase.propagate({
+    return {
       className: "EncryptedFetcher",
       encode:
         route.request?.encrypted === true
           ? (input, headers) => {
-              const p: IEncryptionPassword = closure("encode")(headers, input);
-              return AesPkcs5.encrypt(
-                (stringify ?? JSON.stringify)(input),
-                p.key,
-                p.iv,
-              );
+              const text: string = (stringify ?? JSON.stringify)(input);
+              const p: IEncryptionPassword = closure("encode")(headers, text);
+              return AesPkcs5.encrypt(text, p.key, p.iv);
             }
           : (input) => input,
       decode:
@@ -171,6 +191,6 @@ export namespace EncryptedFetcher {
               return s.length ? JSON.parse(s) : s;
             }
           : (input) => input,
-    })(connection, route, input, stringify) as Promise<Output>;
-  }
+    };
+  };
 }

@@ -2,8 +2,31 @@ import { INestiaConfig } from "../../INestiaConfig";
 import { NestiaSdkApplication } from "../../NestiaSdkApplication";
 import { NestiaConfigLoader } from "./NestiaConfigLoader";
 import { NestiaSdkWatcher } from "./NestiaSdkWatcher";
+import { NestiaSwaggerWatch } from "./NestiaSwaggerWatch";
 
+/**
+ * The commands of the `nestia` CLI that run the generators: `sdk`, `swagger`,
+ * `e2e`, and `all`.
+ *
+ * @evidence contracts/common.md#principled-implementation Each command loads the configurations, keeps the ones that can generate what it needs, and runs the application; `swagger` can watch.
+ * @evidence contracts/common.md#clear-and-simple-design Four commands over one private runner and two argument readers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The commands differ only by title, validation, and generator.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidence contracts/portability.md#os-neutral-implementation Project and config arguments remain native pathname strings supplied to NestiaConfigLoader and NestiaSdkWatcher. Those owners resolve files and launch compiler processes; dispatch does not rewrite path case or separators.
+ */
 export namespace NestiaSdkCommand {
+  /**
+   * Runs the generator of the SDK library for every valid configuration.
+   *
+   * With several configurations, those that cannot generate this output are
+   * skipped, and it is an error when none can.
+   *
+   * @evidence contracts/common.md#principled-implementation The project and configuration files come from the `--project` and `--config` flags with defaults, each flag's value is checked, and the shared runner applies the configurations in order.
+   * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   * @evidence contracts/portability.md#os-neutral-implementation Project and config arguments remain native pathname strings supplied to NestiaConfigLoader and NestiaSdkWatcher. Those owners resolve files and launch compiler processes; dispatch does not rewrite path case or separators.
+   */
   export const sdk = () =>
     main({
       title: "SDK library",
@@ -12,6 +35,19 @@ export namespace NestiaSdkCommand {
       solution: "configure INestiaConfig.output property.",
     });
 
+  /**
+   * Runs the generator of the Swagger document, optionally in watch mode for
+   * every valid configuration.
+   *
+   * With several configurations, those that cannot generate this output are
+   * skipped, and it is an error when none can.
+   *
+   * @evidence contracts/common.md#principled-implementation The project and configuration files come from the `--project` and `--config` flags with defaults, each flag's value is checked, and the shared runner applies the configurations in order.
+   * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   * @evidence contracts/portability.md#os-neutral-implementation Project and config arguments remain native pathname strings supplied to NestiaConfigLoader and NestiaSdkWatcher. Those owners resolve files and launch compiler processes; dispatch does not rewrite path case or separators.
+   */
   export const swagger = () =>
     main({
       title: "Swagger Document",
@@ -21,6 +57,18 @@ export namespace NestiaSdkCommand {
       watch: hasFlagArgument("watch"),
     });
 
+  /**
+   * Runs the generator of the e2e test functions for every valid configuration.
+   *
+   * With several configurations, those that cannot generate this output are
+   * skipped, and it is an error when none can.
+   *
+   * @evidence contracts/common.md#principled-implementation The project and configuration files come from the `--project` and `--config` flags with defaults, each flag's value is checked, and the shared runner applies the configurations in order.
+   * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   * @evidence contracts/portability.md#os-neutral-implementation Project and config arguments remain native pathname strings supplied to NestiaConfigLoader and NestiaSdkWatcher. Those owners resolve files and launch compiler processes; dispatch does not rewrite path case or separators.
+   */
   export const e2e = () =>
     main({
       title: "E2E Functions",
@@ -34,6 +82,19 @@ export namespace NestiaSdkCommand {
       ].join("\n"),
     });
 
+  /**
+   * Runs the generator of everything the configurations ask for for every valid
+   * configuration.
+   *
+   * With several configurations, those that cannot generate this output are
+   * skipped, and it is an error when none can.
+   *
+   * @evidence contracts/common.md#principled-implementation The project and configuration files come from the `--project` and `--config` flags with defaults, each flag's value is checked, and the shared runner applies the configurations in order.
+   * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   * @evidence contracts/portability.md#os-neutral-implementation Project and config arguments remain native pathname strings supplied to NestiaConfigLoader and NestiaSdkWatcher. Those owners resolve files and launch compiler processes; dispatch does not rewrite path case or separators.
+   */
   export const all = () =>
     main({
       title: "everything",
@@ -90,13 +151,45 @@ export namespace NestiaSdkCommand {
       }
     };
 
-    if (props.watch === true)
+    if (props.watch === true) {
+      let generation: NestiaSwaggerWatch.IGeneration | undefined;
+      let opening: Promise<NestiaSwaggerWatch.IGeneration> | undefined;
+      let cancellation: AbortController | undefined;
       return NestiaSdkWatcher.watch({
         configFile,
-        configurations,
-        generate,
+        configurations: async () => {
+          cancellation = new AbortController();
+          opening = NestiaSwaggerWatch.open({
+            configFile,
+            projectFile: project,
+            signal: cancellation.signal,
+          });
+          generation = await opening;
+          return generation.configurations;
+        },
+        generate: async () => {
+          if (!generation)
+            throw new Error("Swagger watch generation was not prepared.");
+          await generation.generate();
+        },
+        finalize: async () => {
+          cancellation?.abort();
+          try {
+            await opening?.then(
+              (prepared) => prepared.close(),
+              (error: Error) => {
+                if (error.name !== "AbortError") throw error;
+              },
+            );
+          } finally {
+            generation = undefined;
+            opening = undefined;
+            cancellation = undefined;
+          }
+        },
         projectFile: project,
       });
+    }
 
     await generate(await configurations());
   };

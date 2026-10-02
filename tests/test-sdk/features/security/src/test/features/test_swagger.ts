@@ -1,3 +1,4 @@
+import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 import typia from "typia";
 
@@ -10,8 +11,8 @@ import typia from "typia";
  * (`/basic`, `/bearer`, `/oauth2`) and their JSDoc-tagged counterparts
  * (`*_by_comment`) both populate `security`, (b) `/optional_by_comment` emits
  * `[{}, { bearer: [] }]` where the `{}` is the "no auth" option, and (c) the
- * route with no security MUST emit `undefined` — NOT an empty array, which
- * OpenAPI would interpret as "apply the document-level default." Note that
+ * route with no security emits `undefined`, which inherits any document-level
+ * default; an empty array would override that default. Note that
  * `typia.assertEquals` is type-shaped, so the assertion locks the literal shape
  * of each requirement, not byte equality across pairs.
  *
@@ -37,6 +38,16 @@ export const test_swagger = async () => {
   typia.assertEquals<[{ oauth2: ("write:pets" | "read:pets")[] }]>(
     swagger.paths["/oauth2_by_comment"].get.security,
   );
+  for (const route of ["/oauth2", "/oauth2_by_comment"])
+    TestValidator.equals(
+      "declared OAuth2 scopes",
+      swagger.paths[route].get.security.map(
+        (requirement: { oauth2: string[] }) => ({
+          oauth2: [...requirement.oauth2].sort(),
+        }),
+      ),
+      [{ oauth2: ["read:pets", "write:pets"] }],
+    );
   typia.assertEquals<[{}, { bearer: [] }]>(
     swagger.paths["/optional_by_comment"].get.security,
   );

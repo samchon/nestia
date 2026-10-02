@@ -75,6 +75,8 @@ For each generated function:
 2. Generate a `Primitive<Output>` value using `typia.random<Output>()`.
 3. Return it.
 
+Input-validation failures become structured `HttpError` responses. Unrelated thrown values are rethrown unchanged; malformed or unreadable error metadata does not replace the original error. The validation error body is JSON, so its reported value must support JSON serialization.
+
 That means:
 
 - **Field-level constraints** (`tags.MinLength<3>`, `tags.Format<"email">`) propagate to the random data. Random strings respect minimum lengths; random `Format<"email">` strings look like emails.

@@ -11,7 +11,25 @@ import { ITypedWebSocketRouteParameter } from "../../structures/ITypedWebSocketR
 import { StringUtil } from "../../utils/StringUtil";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 
+/**
+ * The parameters of a WebSocket route's SDK function.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace decides the identifiers, lists the entries, and writes the declarations, as the HTTP one does.
+ * @evidence contracts/common.md#clear-and-simple-design Several small functions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The identifiers are decided once.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace SdkWebSocketParameterProgrammer {
+  /**
+   * One parameter of a WebSocket route: its key and its type.
+   *
+   * @evidence contracts/common.md#principled-implementation The record is what a declaration needs.
+   * @evidence contracts/common.md#clear-and-simple-design A two-member record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.IEntry composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export interface IEntry {
     key: string;
     type: TypeNode;
@@ -27,6 +45,12 @@ export namespace SdkWebSocketParameterProgrammer {
    * carry the query object and the provider, so they yield to a path parameter
    * of the same name instead of repeating it. A `props` key shadows nothing, so
    * it yields to nothing else.
+   *
+   * @evidence contracts/common.md#principled-implementation One decision serves the two scopes.
+   * @evidence contracts/common.md#clear-and-simple-design A record of names and two lookups.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.INames composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface INames {
     connection: string;
@@ -42,13 +66,38 @@ export namespace SdkWebSocketParameterProgrammer {
     value: string;
     elem: string;
 
-    /** Local identifier of a path parameter in positional mode. */
+    /**
+     * Local identifier of a path parameter in positional mode.
+     *
+     * @evidence contracts/common.md#principled-implementation A path parameter keeps its name unless the SDK cannot change the name it collides with.
+     * @evidence contracts/common.md#clear-and-simple-design One lookup.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the decision.
+     * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.INames.parameter composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+     */
     parameter: (p: ITypedWebSocketRouteParameter.IParam) => string;
 
-    /** Reads a parameter, or one of `query` and `provider`, by its key. */
+    /**
+     * Reads a parameter, or one of `query` and `provider`, by its key.
+     *
+     * @evidence contracts/common.md#principled-implementation The read follows the mode of the function.
+     * @evidence contracts/common.md#clear-and-simple-design One lookup.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the decision.
+     * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.INames.access composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+     */
     access: (key: string) => Expression;
   }
 
+  /**
+   * Decides the identifiers of a WebSocket route's function and `path()` once.
+   *
+   * @evidence contracts/common.md#principled-implementation The fixed names each scope references are collected, and `query` and `provider` yield to a path parameter of the same name.
+   * @evidence contracts/common.md#clear-and-simple-design One function over the scope sets.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only shadowed names are renamed.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.getNames composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const getNames = (props: {
     project: INestiaProject;
     route: ITypedWebSocketRoute;
@@ -133,6 +182,16 @@ export namespace SdkWebSocketParameterProgrammer {
     };
   };
 
+  /**
+   * Returns the entries of a WebSocket route: its path parameters, its query,
+   * and its provider.
+   *
+   * @evidence contracts/common.md#principled-implementation The query exists only when the route has one, and the provider is included only when the caller requests it.
+   * @evidence contracts/common.md#clear-and-simple-design One list.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The order is the call order.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.getEntries composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const getEntries = (props: {
     project: INestiaProject;
     route: ITypedWebSocketRoute;
@@ -165,6 +224,16 @@ export namespace SdkWebSocketParameterProgrammer {
     ];
   };
 
+  /**
+   * Returns the parameter declarations of a WebSocket route's function: `props`
+   * in keyword mode, and one positional parameter per entry otherwise.
+   *
+   * @evidence contracts/common.md#principled-implementation The names come from `getNames`.
+   * @evidence contracts/common.md#clear-and-simple-design One function of two modes.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The two modes share the entries.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.getParameterDeclarations composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const getParameterDeclarations = (props: {
     project: INestiaProject;
     route: ITypedWebSocketRoute;
@@ -207,6 +276,16 @@ export namespace SdkWebSocketParameterProgrammer {
     );
   };
 
+  /**
+   * Reports whether the route's path holds no parameter, so `path()` takes
+   * none.
+   *
+   * @evidence contracts/common.md#principled-implementation The route has no path parameter and no query.
+   * @evidence contracts/common.md#clear-and-simple-design One expression.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the route.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.isPathEmpty composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const isPathEmpty = (route: ITypedWebSocketRoute): boolean =>
     route.pathParameters.length === 0 && route.query === null;
 }

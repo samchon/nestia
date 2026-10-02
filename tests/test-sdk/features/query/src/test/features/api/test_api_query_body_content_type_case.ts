@@ -2,6 +2,17 @@ import { TestValidator } from "@nestia/e2e";
 
 import api from "@api";
 
+/**
+ * Verifies URL-encoded bodies accept mixed-case media types with a charset
+ * parameter.
+ *
+ * The raw HTTP header reaches decorator media-type normalization without
+ * generated metadata hiding its case.
+ *
+ * 1. Execute the authored fixture inputs through the owning route.
+ * 2. Assert application/X-Www-Form-Urlencoded; Charset=UTF-8 must return 201 and
+ *    preserve every authored field in the response query text.
+ */
 export const test_api_query_body_content_type_case = async (
   connection: api.IConnection,
 ): Promise<void> => {

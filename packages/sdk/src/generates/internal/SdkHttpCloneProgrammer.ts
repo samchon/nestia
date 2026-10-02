@@ -15,13 +15,42 @@ import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
+/**
+ * Composes the DTO declarations of the HTTP routes.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace turns each named object, alias and recursive collection into a declaration, placed in a tree of modules by its dotted name.
+ * @evidence contracts/common.md#clear-and-simple-design One declaration-tree operation dispatches object, alias and recursive collection bodies through their owning writers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Implicit object and alias names are not declared; native-marked recursive collections supply named declarations so recursive references have a definition.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpCloneProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace SdkHttpCloneProgrammer {
+  /**
+   * A module of the declaration tree: its name, its children, and the writer of
+   * its own declaration.
+   *
+   * @evidence contracts/common.md#principled-implementation A module without a writer only holds children.
+   * @evidence contracts/common.md#clear-and-simple-design A three-member record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpCloneProgrammer.IModule composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export interface IModule {
     name: string;
     children: Map<string, IModule>;
     programmer: null | ((importer: ImportDictionary) => Node);
   }
 
+  /**
+   * Returns the declaration tree of the application's named types, keyed by
+   * their top-level name.
+   *
+   * @evidence contracts/common.md#principled-implementation Named objects and aliases are registered, and implicit names are skipped. Recursive arrays and tuples also need declarations: each writes one collection body whose nested uses are named references. Finite and object-mediated collections stay inline.
+   * @evidence contracts/common.md#clear-and-simple-design Four collection loops feed the same declaration tree, so all named forms share namespace and import decisions.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The implicit test is the shared definition.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpCloneProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const write = (app: ITypedApplication): Map<string, IModule> => {
     // COMPOSE THE DICTIONARY
     const dict: Map<string, IModule> = new Map();
@@ -38,6 +67,32 @@ export namespace SdkHttpCloneProgrammer {
           dict,
           name: k,
           programmer: (importer) => writeAlias(app.project)(importer)(v),
+        });
+    for (const [k, v] of app.collection.arrays.entries())
+      if (v.recursive)
+        prepare({
+          dict,
+          name: k,
+          programmer: (importer) =>
+            factory.createTypeAliasDeclaration(
+              [factory.createModifier(SyntaxKind.ExportKeyword)],
+              StringUtil.accessorsOf(k).at(-1)!,
+              [],
+              SdkTypeProgrammer.write_array_type(app.project)(importer)(v),
+            ),
+        });
+    for (const [k, v] of app.collection.tuples.entries())
+      if (v.recursive)
+        prepare({
+          dict,
+          name: k,
+          programmer: (importer) =>
+            factory.createTypeAliasDeclaration(
+              [factory.createModifier(SyntaxKind.ExportKeyword)],
+              StringUtil.accessorsOf(k).at(-1)!,
+              [],
+              SdkTypeProgrammer.write_tuple_type(app.project)(importer)(v),
+            ),
         });
     return dict;
   };

@@ -1,5 +1,4 @@
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
 
 /**
@@ -25,8 +24,10 @@ const main = async () => {
       "NestiaSdkApplication.js",
     ),
   );
+  const cache = path.join(process.cwd(), "node_modules", ".cache", "test-sdk");
+  await fs.promises.mkdir(cache, { recursive: true });
   const directory = await fs.promises.mkdtemp(
-    path.join(os.tmpdir(), "nestia-output-directory-"),
+    path.join(cache, "nestia-output-directory-"),
   );
   const file = path.join(directory, "file");
   await fs.promises.writeFile(file, "", "utf8");

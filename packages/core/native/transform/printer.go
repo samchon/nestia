@@ -4,8 +4,6 @@ import (
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 )
 
-const nestiaKindColonToken = shimast.KindQuestionToken + 1
-
 func normalizeNestiaSyntheticTokens(node *shimast.Node) {
 	if node == nil {
 		return
@@ -17,7 +15,7 @@ func normalizeNestiaSyntheticTokens(node *shimast.Node) {
 			conditional.QuestionToken = factory.NewToken(shimast.KindQuestionToken)
 		}
 		if conditional.ColonToken == nil {
-			conditional.ColonToken = factory.NewToken(nestiaKindColonToken)
+			conditional.ColonToken = factory.NewToken(shimast.KindColonToken)
 		}
 	}
 	node.ForEachChild(func(child *shimast.Node) bool {

@@ -2,6 +2,10 @@ import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 import { OpenApi } from "typia";
 
+/**
+ * Reads generated Swagger and checks the customizer description, selected
+ * original route and emitted OpenAPI version.
+ */
 export const test_swagger_file = async (): Promise<void> => {
   const content: string = await fs.promises.readFile(
     `${__dirname}/../../../swagger.json`,

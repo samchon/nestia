@@ -8,7 +8,25 @@ import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
 import { SwaggerOperationParameterComposer } from "./SwaggerOperationParameterComposer";
 import { SwaggerOperationResponseComposer } from "./SwaggerOperationResponseComposer";
 
+/**
+ * Composes the operation object of a route.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace collects tags, security, parameters, and responses.
+ * @evidence contracts/common.md#clear-and-simple-design One function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The document's own tag list is edited only by adding.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationComposer composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace SwaggerOperationComposer {
+  /**
+   * Returns the operation of a route, registering its tags in the document.
+   *
+   * @evidence contracts/common.md#principled-implementation The tags are the controller's, the route's, and the `@tag` comments, each registered once with the first description, and the security is merged from the controller, the route, and the `@security` comments.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A tag's description is never overwritten.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationComposer.compose composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const compose = (props: {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     document: OpenApi.IDocument;

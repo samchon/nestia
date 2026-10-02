@@ -23,3 +23,20 @@ package-lock.json
 
 # TypeScript incremental build caches
 *.tsbuildinfo
+
+# Local Go build cache
+/.cache/go-build/
+
+# Test runner scratch workspaces and generated consumer output
+/tests/test-sdk/.tmp-*/
+/tests/test-sdk/features/.tmp-*/
+/tests/test-sdk/features/*/swagger.json
+/tests/test-sdk/features/*/*.swagger.json
+/tests/test-sdk/features/*/src/api/functional/
+/tests/test-sdk/features/*/src/api/HttpError.ts
+/tests/test-sdk/features/*/src/api/IConnection.ts
+/tests/test-sdk/features/*/src/api/index.ts
+/tests/test-sdk/features/*/src/api/module.ts
+/tests/test-sdk/features/*/src/api/Primitive.ts
+/tests/test-sdk/features/*/src/test/features/api/automated/
+/tests/test-sdk/features/nested-output-directories/generated/

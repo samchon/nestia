@@ -1,5 +1,6 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { ErrorCode, McpError } from "@modelcontextprotocol/sdk/types.js";
 import { TestValidator } from "@nestia/e2e";
 
 import api from "@api";
@@ -25,12 +26,12 @@ export const test_api_mcp_weather_nested = async (
   connection: IConnection,
 ): Promise<void> => {
   const client = new Client({ name: "nestia-test", version: "1.0.0" });
-  await client.connect(
-    new StreamableHTTPClientTransport(
-      new URL(`${connection.host}${connection.path}`),
-    ),
-  );
   try {
+    await client.connect(
+      new StreamableHTTPClientTransport(
+        new URL(`${connection.host}${connection.path}`),
+      ),
+    );
     const result = await api.functional.mcp.get_weather(client, {
       location: "Tokyo",
       unit: "fahrenheit",
@@ -38,13 +39,20 @@ export const test_api_mcp_weather_nested = async (
     });
     TestValidator.equals("weather.location", result.location, "Tokyo");
     TestValidator.equals("weather.unit", result.unit, "fahrenheit");
+    TestValidator.equals("weather.temperature", result.temperature, 72);
+    TestValidator.equals("weather.conditions", result.conditions, "sunny");
+    const invalid: unknown = await api.functional.mcp
+      .get_weather(client, {
+        location: "Tokyo",
+        coords: { lat: "invalid", lng: 139.76 } as any,
+      })
+      .then(
+        () => null,
+        (error) => error,
+      );
     TestValidator.predicate(
-      "weather.temperature is number",
-      typeof result.temperature === "number",
-    );
-    TestValidator.predicate(
-      "weather.conditions is string",
-      typeof result.conditions === "string",
+      "nested coordinate validation",
+      invalid instanceof McpError && invalid.code === ErrorCode.InvalidParams,
     );
   } finally {
     await client.close();

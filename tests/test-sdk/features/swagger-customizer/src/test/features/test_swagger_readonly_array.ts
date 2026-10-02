@@ -36,6 +36,8 @@ export const test_swagger_readonly_array = async (): Promise<void> => {
 const assertReadonlyArraySchema = (label: string, schema: any): void => {
   const properties = schema.properties as Record<string, any>;
   const mutable = properties.mutable!;
+  const misleadingObject = properties.misleadingObject!;
+  const misleadingAlias = properties.misleadingAlias!;
   const readonlyArray = properties.readonlyArray!;
   const readonlyGeneric = properties.readonlyGeneric!;
   const readonlyProperty = properties.readonlyProperty!;
@@ -44,6 +46,16 @@ const assertReadonlyArraySchema = (label: string, schema: any): void => {
   TestValidator.equals(
     `${label} mutable`,
     mutable["x-readonly-array"],
+    undefined,
+  );
+  TestValidator.equals(
+    `${label} misleading object name`,
+    misleadingObject["x-readonly-array"],
+    undefined,
+  );
+  TestValidator.equals(
+    `${label} misleading mutable alias name`,
+    misleadingAlias["x-readonly-array"],
     undefined,
   );
   TestValidator.equals(

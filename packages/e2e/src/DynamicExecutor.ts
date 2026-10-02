@@ -16,12 +16,45 @@ import { pathToFileURL } from "url";
  *
  * When you want to see some utilization cases, see the below example links.
  *
+ * Native boundary: Discovery lists directories with `readdir` and `stat` and
+ * joins children with `path.resolve`; symbolic links are followed, and each
+ * directory is entered once by its filesystem real path so aliases and ancestor
+ * cycles do not repeat discovery. The extension is matched as a file-name
+ * suffix and the prefix with `startsWith`, both case-sensitively as spelled, so
+ * name case is judged by the caller's spelling and not by the volume. A file is
+ * imported through a specifier: the path relative to this module in `/` form
+ * when `path.relative` can express one, and where it cannot, as on Windows
+ * between drive roots, the absolute path for a CommonJS build, whose `require`
+ * rejects a URL, or a `file:` URL from `pathToFileURL` for native ESM, which
+ * rejects a Windows path.
+ *
+ * Processing cost: Discovery visits each real directory once and performs one
+ * metadata lookup per listed entry. A monotone queue index dispatches each
+ * admitted module once without shifting the remaining queue; execution walks
+ * module exports once. Storage grows with discovered directories, modules and
+ * execution records; concurrency allocates the requested number of workers.
+ *
+ * Reuse: Discovery and module loading are shared by the tests of one run. New
+ * runs rediscover files; Node owns module caching, so editing an already
+ * imported module does not promise reload in the same process.
+ *
+ * Resource ownership: One run owns the discovered module queue, visited
+ * directory set and report. At most the requested number of module tasks are
+ * active, all are awaited before success or strict rejection, and returned
+ * records transfer to the caller. Listener failure also settles workers;
+ * cancellation and unloading Node cached modules are not provided.
+ *
  * @author Jeongho Nam - https://github.com/samchon
  * @example
  *   https://github.com/samchon/nestia-start/blob/master/test/index.ts
  *
  * @example
  *   https://github.com/samchon/backend/blob/master/test/index.ts
+ *
+ * @evidence contracts/common.md#principled-implementation The executor walks the location recursively, admits a file only when its basename ends with the extension and starts with the prefix and the filter accepts it, imports the admitted files, and runs every exported function whose name starts with the prefix, with at most `simultaneous` runs in flight; the file gate runs before the import so an excluded file is never loaded.
+ * @evidence contracts/common.md#clear-and-simple-design Two public entry points share one private pipeline: discovery (`iterate`), the import specifier (`specifier`), and execution (`execute`) are separate helpers, and the two modes differ by one flag.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection is by prefix, extension, and the caller's filter, with no known file names; the import specifier logic distinguishes the module system in use rather than special-casing a platform.
+ * @evidence contracts/common.md#meaningful-documentation The namespace prose says what it runs and why, with links to example repositories, and the members document their options.
  */
 export namespace DynamicExecutor {
   /**
@@ -29,12 +62,27 @@ export namespace DynamicExecutor {
    *
    * @template Arguments Type of parameters
    * @template Ret Type of return value
+   * @evidence contracts/common.md#principled-implementation A dynamic function is an asynchronous function of the parameters the executor supplies.
+   * @evidence contracts/common.md#clear-and-simple-design A single call signature.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment names the parameter and return type arguments.
    */
   export interface Closure<Arguments extends any[], Ret = any> {
     (...args: Arguments): Promise<Ret>;
   }
 
-  /** Options for dynamic executor. */
+  /**
+   * Options for dynamic executor.
+   *
+   * Native boundary: The location is a native directory path resolved with
+   * `path.resolve`, the extension is a suffix without a dot, and `simultaneous`
+   * bounds in-process runs only, so no process or thread is created.
+   *
+   * @evidence contracts/common.md#principled-implementation The fields are what selection and execution need: the prefix, the location, the parameter factory, and optional hooks, concurrency, and extension; `simultaneous` and the extension have documented defaults.
+   * @evidence contracts/common.md#clear-and-simple-design A flat option record whose optional members are the extension points (listener, filter, wrapper).
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Every value is caller-supplied; the defaults are the documented ones (`js`, one at a time).
+   * @evidence contracts/common.md#meaningful-documentation Each option documents its meaning, including that the filter receives a file basename and never a function name.
+   */
   export interface IProps<Parameters extends any[], Ret = any> {
     /**
      * Prefix of function name.
@@ -56,6 +104,10 @@ export namespace DynamicExecutor {
      *
      * @param name Function name
      * @returns Parameters
+     * @evidence contracts/common.md#principled-implementation The function is called with the function name at each execution and returns the argument list, so each test gets fresh parameters keyed by its name.
+     * @evidence contracts/common.md#clear-and-simple-design One required callback with one input.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts Arguments come only from the caller's function.
+     * @evidence contracts/common.md#meaningful-documentation The comment documents the parameter and the return value.
      */
     parameters: (name: string) => Parameters;
 
@@ -64,7 +116,14 @@ export namespace DynamicExecutor {
      *
      * Listener of completion of a test function.
      *
+     * A thrown listener error rejects the run in either mode after active
+     * module tasks settle; listeners should handle their reporting errors.
+     *
      * @param exec Execution result of a test function
+     * @evidence contracts/common.md#principled-implementation The listener is called from the `finally` of each execution with the execution record, so it observes both success and failure, after the completion time is set.
+     * @evidence contracts/common.md#clear-and-simple-design One optional callback with one record argument.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts The completion hook receives the actual execution record in finally; its own exception is not swallowed and can reject either execution mode.
+     * @evidence contracts/common.md#meaningful-documentation The comment states that it listens to the completion of a test function.
      */
     onComplete?: (exec: IExecution) => void;
 
@@ -76,8 +135,16 @@ export namespace DynamicExecutor {
      * `false`, the file would never be imported, so that every function defined
      * in the file would never be executed either.
      *
+     * Native boundary: The predicate receives the entry name exactly as
+     * `readdir` lists it, without case or separator normalization, so a
+     * comparison on a case-insensitive volume is the caller's to make.
+     *
      * @param file File name (basename) of the dynamic functions
      * @returns Whether to run or not
+     * @evidence contracts/common.md#principled-implementation The predicate is evaluated on the file basename before the file is imported, so a `false` result prevents both the import and the execution of every function in it.
+     * @evidence contracts/common.md#clear-and-simple-design One optional predicate over one string.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection follows the caller's predicate, not fixed names.
+     * @evidence contracts/common.md#meaningful-documentation The comment states the argument and the effect of a `false` answer.
      */
     filter?: (file: string) => boolean;
 
@@ -92,6 +159,10 @@ export namespace DynamicExecutor {
      * @param closure Function to be executed
      * @param parameters Parameters, result of options.parameters function.
      * @returns Wrapper function
+     * @evidence contracts/common.md#principled-implementation When present, the wrapper is called instead of the function directly with the name, the function, and the parameters, so a caller can add setup, retries, or measurement around each test.
+     * @evidence contracts/common.md#clear-and-simple-design One optional callback that replaces the direct call.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts The executor calls the wrapper for every function it runs, without a test-specific bypass.
+     * @evidence contracts/common.md#meaningful-documentation The comment documents each parameter and the return value.
      */
     wrapper?: (
       name: string,
@@ -119,7 +190,18 @@ export namespace DynamicExecutor {
     extension?: string;
   }
 
-  /** Report, result of dynamic execution. */
+  /**
+   * Report, result of dynamic execution.
+   *
+   * Native boundary: The report preserves the caller's native directory
+   * spelling, including relative paths; discovered execution locations are
+   * resolved separately with Node path operations.
+   *
+   * @evidence contracts/common.md#principled-implementation The report keeps the location, every execution record in start order, and the elapsed time computed as the difference of two clock reads.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Every field is measured by the executor.
+   * @evidence contracts/common.md#meaningful-documentation Each field documents its meaning.
+   */
   export interface IReport {
     /** Location path of dynamic functions. */
     location: string;
@@ -131,7 +213,17 @@ export namespace DynamicExecutor {
     time: number;
   }
 
-  /** Execution of a test function. */
+  /**
+   * Execution of a test function.
+   *
+   * Native boundary: The location field holds the native absolute path of the
+   * file as resolved, so it carries backslashes on Windows.
+   *
+   * @evidence contracts/common.md#principled-implementation An execution records the function name, its file, the returned value, the error or `null`, and the start and completion instants, which is what a listener needs to report a test.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Every field is measured by the executor.
+   * @evidence contracts/common.md#meaningful-documentation Each field documents its meaning, and the two time fields state that they hold ISO 8601 strings.
+   */
   export interface IExecution {
     /** Name of function. */
     name: string;
@@ -145,22 +237,40 @@ export namespace DynamicExecutor {
     /** Error when occurred. */
     error: Error | null;
 
-    /** Elapsed time. */
+    /** Start time, as an ISO 8601 string. */
     started_at: string;
 
-    /** Completion time. */
+    /** Completion time, as an ISO 8601 string. */
     completed_at: string;
   }
 
   /**
    * Prepare dynamic executor in strict mode.
    *
-   * In strict mode, if any error occurs, the program will be terminated
-   * directly. Otherwise, {@link validate} mode does not terminate when error
-   * occurs, but just archive the error log.
+   * Strict mode stops dispatching further modules after a failure and rejects
+   * after active module tasks settle. {@link validate} records test failures and
+   * continues instead.
+   *
+   * Processing cost: The shared executor discovers modules once, dispatches
+   * each queue index once and walks each admitted export; this entry only
+   * selects the failure policy.
+   *
+   * Reuse: Discovery and module loading are shared by the tests of one run. New
+   * runs rediscover files; Node owns module caching, so editing an already
+   * imported module does not promise reload in the same process.
+   *
+   * Resource ownership: One run owns the discovered module queue, visited
+   * directory set and report. At most the requested number of module tasks are
+   * active, all are awaited before success or strict rejection, and returned
+   * records transfer to the caller. Listener failure also settles workers;
+   * cancellation and unloading Node cached modules are not provided.
    *
    * @param props Properties of dynamic execution
    * @returns Report of dynamic test functions execution
+   * @evidence contracts/common.md#principled-implementation Strict mode rethrows the first error of a function after the execution record and the listener have seen it; no further file is dispatched once a task has failed, and the returned promise rejects with that first failure only after the in-flight tasks have settled, so no test runs after the caller observes the failure.
+   * @evidence contracts/common.md#clear-and-simple-design A one-line binding of the shared pipeline with the strict flag.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The mode changes only whether a failure is rethrown; nothing is silenced.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the strict behavior, contrasts it with `validate`, and documents the parameter and the report.
    */
   export const assert = <Arguments extends any[]>(
     props: IProps<Arguments>,
@@ -169,12 +279,30 @@ export namespace DynamicExecutor {
   /**
    * Prepare dynamic executor in loose mode.
    *
-   * In loose mode, the program would not be terminated even when error occurs.
-   * Instead, the error would be archived and returns as a list. Otherwise,
-   * {@link assert} mode terminates the program directly when error occurs.
+   * Loose mode records test failures and continues with subsequent tests.
+   * Discovery, import and completion-listener errors still reject the run.
+   * {@link assert} rejects on a test failure after active tasks settle.
+   *
+   * Processing cost: The shared executor discovers modules once, dispatches
+   * each queue index once and walks each admitted export; this entry only
+   * selects the failure policy.
+   *
+   * Reuse: Discovery and module loading are shared by the tests of one run. New
+   * runs rediscover files; Node owns module caching, so editing an already
+   * imported module does not promise reload in the same process.
+   *
+   * Resource ownership: One run owns the discovered module queue, visited
+   * directory set and report. At most the requested number of module tasks are
+   * active, all are awaited before success or strict rejection, and returned
+   * records transfer to the caller. Listener failure also settles workers;
+   * cancellation and unloading Node cached modules are not provided.
    *
    * @param props Properties of dynamic executor
    * @returns Report of dynamic test functions execution
+   * @evidence contracts/common.md#principled-implementation Loose mode records test errors and continues, returning them in execution records. Discovery, module import and completion-listener failures are outside that test-error policy and reject the run.
+   * @evidence contracts/common.md#clear-and-simple-design A one-line binding of the shared pipeline with the loose flag.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The mode changes only whether a failure is rethrown; the error stays in the report.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the loose behavior, contrasts it with `assert`, and documents the parameter and the report.
    */
   export const validate = <Arguments extends any[]>(
     props: IProps<Arguments>,
@@ -204,14 +332,24 @@ export namespace DynamicExecutor {
         filter: props.filter,
         executor,
       });
+      // A rejected task stops the dispatch of the remaining files, and the run
+      // settles only after the in-flight tasks end, so that no test keeps
+      // running after the caller has seen the failure.
+      let failure: { error: unknown } | null = null;
+      let next: number = 0;
       await Promise.all(
         new Array(simultaneous).fill(0).map(async () => {
-          while (processes.length !== 0) {
-            const task = processes.shift();
-            await task?.();
+          while (next < processes.length && failure === null) {
+            const task = processes[next++];
+            try {
+              await task?.();
+            } catch (error) {
+              failure ??= { error };
+            }
           }
         }),
       );
+      if (failure !== null) throw (failure as { error: unknown }).error;
       report.time = Date.now() - report.time;
       return report;
     };
@@ -247,16 +385,21 @@ export namespace DynamicExecutor {
     executor: (path: string, modulo: Module<Arguments>) => Promise<void>;
   }): Promise<Array<() => Promise<void>>> => {
     const container: Array<() => Promise<void>> = [];
+    const visited: Set<string> = new Set();
     const visitor = async (path: string): Promise<void> => {
+      const identity: string = await fs.promises.realpath(path);
+      if (visited.has(identity)) return;
+      visited.add(identity);
       const directory: string[] = await fs.promises.readdir(path);
       for (const file of directory) {
         const location: string = NodePath.resolve(`${path}/${file}`);
-        const stats: fs.Stats = await fs.promises.lstat(location);
+        const stats: fs.Stats = await fs.promises.stat(location);
 
         if (stats.isDirectory() === true) {
           await visitor(location);
           continue;
         }
+        if (stats.isFile() === false) continue;
         // Compare the whole suffix. A fixed-width slice silently assumed a
         // two-character extension, so every longer one ("mjs", "cjs", "tsx")
         // matched nothing and the run reported success with no test executed.

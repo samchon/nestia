@@ -10,21 +10,13 @@ import (
 	shimprinter "github.com/microsoft/typescript-go/shim/printer"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 
-	// Blank-import the SDK contributor so its init() registers the linked plugin
+	// Import the SDK contributor so its init() registers the linked plugin
 	// and the build/transform/source-rewrite/emit collectors with the shared
-	// @nestia/core transform host. The no-emit tests here call the SDK package's
-	// exported EmitTransform / linkedPlugin.ApplyProgram directly, but importing
-	// the package this way also runs its init(), so the register.go init body and
-	// the contributor wiring are attributed to packages/sdk/native/sdk under
-	// -coverpkg even though no disk emit ever happens.
+	// @nestia/core transform host. The tests exercise exported EmitTransform and
+	// the driver's linked plugin dispatch in-process. Import initialization
+	// installs those entry points before either operation is called.
 	nativesdk "github.com/samchon/nestia/packages/sdk/native/sdk"
 )
-
-// corePlusSDKPlugins is the plugin plan a real nestia build feeds the host when
-// a project depends on both @nestia/core and @nestia/sdk: the SDK entry makes
-// plugin.ParsePlan mark plan.SDK. It is kept for the env/plan tests that pass a
-// plugin-json string to the build subcommand.
-const corePlusSDKPlugins = `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`
 
 // coreOnlyPlugins drops the @nestia/sdk plugin entry, so the SDK contributor
 // only runs when NESTIA_SDK_TRANSFORM activates it from the runtime env — the
@@ -32,15 +24,14 @@ const corePlusSDKPlugins = `[{"name":"@nestia/core","stage":"transform","config"
 // contributor rather than a top-level plugin.
 const coreOnlyPlugins = `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}}]`
 
-// writeFeatureTsconfig writes a tsconfig that extends the feature's own config
+// writeFeatureTsconfig writes a tsconfig over owned authored native input
 // and pins @nestia/core, @nestia/sdk, @api and @types/node to the repository
-// sources, so an in-process load resolves the same way a real test-sdk build
-// does without needing the feature's node_modules symlinks. Returns the temp
+// declarations. No E2E runner or fixture installation is needed. Returns the temp
 // dir holding the tsconfig.
 func writeFeatureTsconfig(t *testing.T, root, feature string, files []string) string {
 	t.Helper()
 	temp := t.TempDir()
-	featureRoot := filepath.Join(root, "tests/test-sdk/features", feature)
+	featureRoot := filepath.Join(root, "packages/sdk/test/fixtures", feature)
 	sourceRoot := filepath.Join(featureRoot, "src")
 	typeRoots := nodeTypeRoots(t, root)
 
@@ -73,10 +64,10 @@ func writeFeatureTsconfig(t *testing.T, root, feature string, files []string) st
 	return temp
 }
 
-// loadFeatureProgram loads a *driver.Program over the given test-sdk feature
+// loadFeatureProgram loads a *driver.Program over owned source fixture input
 // without ForceEmit/outDir, so nothing is ever written to disk. The caller then
 // drives the SDK contributor's exported entry points in-process. The single
-// blank import in this file keeps coverage attributed to the SDK package.
+// SDK import in this file initializes contributor registration.
 func loadFeatureProgram(t *testing.T, feature string, files []string) (root string, prog *driver.Program) {
 	t.Helper()
 	root = repoRoot(t)
@@ -181,4 +172,32 @@ func operationMetadataDecoratorLiteral(dec *shimast.Node) string {
 		return ""
 	}
 	return arg.Text()
+}
+
+func repoRoot(t *testing.T) string {
+	t.Helper()
+	root, err := filepath.Abs("../../..")
+	if err != nil {
+		t.Fatal(err)
+	}
+	return root
+}
+
+func nodeTypeRoots(t *testing.T, root string) string {
+	t.Helper()
+	candidates := []string{
+		filepath.Join(root, "node_modules/@types"),
+	}
+	matches, err := filepath.Glob(filepath.Join(root, "node_modules/.pnpm/@types+node@*/node_modules/@types"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	candidates = append(candidates, matches...)
+	for _, candidate := range candidates {
+		if _, err := os.Stat(filepath.Join(candidate, "node")); err == nil {
+			return filepath.ToSlash(candidate)
+		}
+	}
+	t.Fatal("unable to locate @types/node")
+	return ""
 }

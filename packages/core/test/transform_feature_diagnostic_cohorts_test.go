@@ -8,18 +8,23 @@ import (
 	"testing"
 )
 
-// TestTransformFeatureDiagnosticCohorts verifies every test-sdk error feature
+// TestTransformFeatureDiagnosticCohorts verifies every preserved invalid fixture
 // whose failure is a transform diagnostic reports exactly its expected
 // diagnostics, in one in-process transform over all of them.
 //
-// The features compiled through `nestia all` in test-sdk, an end-to-end run of
+// The features compiled through `nestia all` in test-sdk-e2e, an end-to-end run of
 // the CLI, ttsc, and the generators for what only the core transform decides.
-// They stay fixtures under tests/test-sdk/features; the transform alone reads
-// them here.
+// Only authored controllers and DTOs remain as source-only core fixture inputs;
+// no application, generated client or CLI preparation is executed here.
 //
 //  1. List every controller of each cohort's features in one program.
 //  2. Run the project-mode transform and collect its diagnostics.
 //  3. Assert each feature reports its expected count, and nothing else does.
+//
+// @evidence contracts/testing.md#behavioral-verification Two in-process project cohorts must report exactly each feature's authored diagnostic count and no additional diagnostic, so one feature's failures cannot substitute for another's missing rejection.
+// @evidence contracts/testing.md#independent-expectations Each handwritten invalid controller declares the counted unsupported parameters or responses. Per-feature file provenance and the literal counts identify expected rejection populations; counts alone do not pin every message.
+// @evidence contracts/testing.md#distinguishing-cases The error and MCP cohorts retain separate named execution and every original feature count. The diagnostic-message test pins nested-form/query and acceptor reason text; accepted transforms remain in their positive cases.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformFeatureDiagnosticCohorts(t *testing.T) {
 	for name, cases := range map[string]map[string]int{
 		"error": {
@@ -74,7 +79,7 @@ func TestTransformFeatureDiagnosticCohorts(t *testing.T) {
 			for feature, expected := range cases {
 				actual := 0
 				for _, file := range diagnostics {
-					if strings.Contains(file, "/features/"+feature+"/src/controllers/") {
+					if strings.Contains(file, "/fixtures/"+feature+"/src/controllers/") {
 						actual++
 					}
 				}
@@ -93,46 +98,8 @@ func TestTransformFeatureDiagnosticCohorts(t *testing.T) {
 	}
 }
 
-// TestTransformFeatureDiagnosticMessages verifies the test-sdk error features
-// whose transform diagnostic names what it rejects report exactly one
-// diagnostic, carrying each expected phrase.
-//
-//  1. Transform each feature's controllers.
-//  2. Assert one diagnostic, holding every expected phrase.
-func TestTransformFeatureDiagnosticMessages(t *testing.T) {
-	for feature, needles := range map[string][]string{
-		"form-data-error-nested": {
-			"unsupported type detected",
-			"INestedForm.nested",
-			"nested object type is not allowed.",
-		},
-		"query-route-error-nested": {
-			"unsupported type detected",
-			"INestedQueryOutput.nested",
-			"nested object type is not allowed.",
-		},
-		"websocket-error-invalid-acceptor-arity": {
-			`parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.`,
-		},
-		"websocket-error-invalid-acceptor-import": {
-			`parameter "acceptor" must have WebSocketAcceptor<Header, Provider, Listener> type.`,
-		},
-	} {
-		diagnostics := transformFeatureDiagnostics(t, map[string]int{feature: 1})
-		if len(diagnostics) != 1 {
-			t.Errorf("%s reported %d diagnostics; expected 1: %v", feature, len(diagnostics), diagnostics)
-			continue
-		}
-		for _, needle := range needles {
-			if strings.Contains(diagnostics[0].message, needle) == false {
-				t.Errorf("%s diagnostic misses %q:\n%s", feature, needle, diagnostics[0].message)
-			}
-		}
-	}
-}
-
 // transformFeatureCohort runs the project-mode transform over the controllers
-// of the given test-sdk features, returning the file of each diagnostic.
+// of the given source-only core fixtures, returning the file of each diagnostic.
 func transformFeatureCohort(t *testing.T, cases map[string]int) []string {
 	t.Helper()
 	files := []string{}
@@ -148,13 +115,13 @@ type featureDiagnostic struct {
 }
 
 // transformFeatureDiagnostics runs the project-mode transform over the
-// controllers of the given test-sdk features, returning each diagnostic.
+// controllers of the given source-only core fixtures, returning each diagnostic.
 func transformFeatureDiagnostics(t *testing.T, cases map[string]int) []featureDiagnostic {
 	t.Helper()
-	root := filepath.Join(repoRootForCore(t), "tests", "test-sdk")
+	root := filepath.Join(repoRootForCore(t), "packages/core/test/fixtures")
 	files := []string{}
 	for feature := range cases {
-		matches, err := filepath.Glob(filepath.Join(root, "features", feature, "src", "controllers", "*.ts"))
+		matches, err := filepath.Glob(filepath.Join(root, feature, "src", "controllers", "*.ts"))
 		if err != nil || len(matches) == 0 {
 			t.Fatalf("%s has no controller: %v", feature, err)
 		}

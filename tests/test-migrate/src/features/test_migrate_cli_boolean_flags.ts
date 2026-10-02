@@ -1,6 +1,5 @@
 import cp from "child_process";
 import fs from "fs";
-import os from "os";
 import path from "path";
 
 /**
@@ -17,9 +16,9 @@ import path from "path";
  *    `false`.
  */
 export const test_migrate_cli_boolean_flags = (): void => {
-  const root: string = fs.mkdtempSync(
-    path.join(os.tmpdir(), "nestia-migrate-"),
-  );
+  const generated: string = path.join(__dirname, "../../.generated");
+  fs.mkdirSync(generated, { recursive: true });
+  const root: string = fs.mkdtempSync(path.join(generated, "nestia-migrate-"));
   try {
     const input: string = path.join(root, "swagger.json");
     fs.writeFileSync(

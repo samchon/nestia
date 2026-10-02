@@ -7,6 +7,7 @@ import { TestValidator } from "@nestia/e2e";
  * dates compared equal: `equals` passed for different instants and `notEquals`
  * threw for them (#1679).
  */
+
 export async function test_validate_equals_date(): Promise<void> {
   const early: Date = new Date(0);
   const late: Date = new Date(86_400_000);

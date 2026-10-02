@@ -29,22 +29,26 @@ import { route_error } from "./internal/route_error";
  * Encrypted router decorator functions.
  *
  * `EncryptedRoute` is a module containing router decorator functions which
- * encrypts response body data through AES-128/256 encryption. Furthermore, they
- * can boost up JSON string conversion speed about 50x times faster than
- * `class-transformer`, even type safe through
- * [typia](https://github.com/samchon/typia).
+ * encrypts response body data through AES-128/192/256 encryption after
+ * serializing it with a [typia](https://github.com/samchon/typia) function
+ * generated from the declared return type.
  *
- * For reference, if you try to invalid data that is not following the promised
- * type `T`, 500 internal server error would be thrown. Also, as
- * `EncryptedRoute` composes JSON string through `typia.assertStringify<T>()`
- * function, it is not possible to modify response data through interceptors.
+ * The default assert serializer rejects a response outside the declared type
+ * with a 500 error. The configured stringify mode chooses the validation policy
+ * before encryption; `validate.log` logs failures and serializes the original
+ * value. Interceptors running afterwards receive ciphertext.
  *
- * - AES-128/256
+ * - AES-128/192/256
  * - CBC mode
  * - PKCS #5 Padding
  * - Base64 Encoding
  *
  * @author Jeongho Nam - https://github.com/samchon
+ * @evidence contracts/common.md#principled-implementation Each route method decorates Nest's router decorator with an interceptor that serializes the value as the transform chose, encrypts it with the password of the controller or module, and answers `text/plain` on success only, so an error keeps its own JSON type.
+ * @evidence contracts/common.md#clear-and-simple-design One generator function creates the five HTTP-method decorators, and the interceptor and the router table are module-private.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The password lookup and the serializer come from shared modules; the loop after the namespace copies the marker properties of typia's stringify functions onto the five decorators as the transform expects, which mutates only these exported functions.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents the decorator family and its password requirement.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Route paths and serialized ciphertext are HTTP protocol values; response interception does not access native files or launch a process.
  */
 export namespace EncryptedRoute {
   /**
@@ -56,7 +60,7 @@ export namespace EncryptedRoute {
   export const Get = Generator("Get");
 
   /**
-   * Encrypted router decorator function for the GET method.
+   * Encrypted router decorator function for the POST method.
    *
    * @param paths Path(s) of the HTTP request
    * @returns Method decorator
@@ -93,7 +97,7 @@ export namespace EncryptedRoute {
    * If you've configured the transformation option to `validate.log` in the
    * `tsconfig.json` file, then the error log information of the response
    * validation failure would be logged through this function instead of
-   * throwing the 400 bad request error.
+   * throwing the 500 internal server error.
    *
    * By the way, be careful. If you've configured the response transformation
    * option to be `validate.log`, client may get wrong response data. Therefore,
@@ -101,6 +105,11 @@ export namespace EncryptedRoute {
    *
    * @default console.log
    * @param func Logger function
+   * @evidence contracts/common.md#principled-implementation It stores the logger in `TypedRoute`, which owns the single logger both route families use.
+   * @evidence contracts/common.md#clear-and-simple-design A one-line delegation, so the logger has one owner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It changes only the logger variable.
+   * @evidence contracts/common.md#meaningful-documentation The comment states which validate mode uses the logger.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Route paths and serialized ciphertext are HTTP protocol values; response interception does not access native files or launch a process.
    */
   export function setValidateErrorLogger(
     func: (log: IValidateErrorLog) => void,

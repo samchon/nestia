@@ -21,7 +21,8 @@
   "scripts": {
     "build": "rimraf lib && ttsc",
     "dev": "ttsc --watch",
-    "test:go": "cd test && go test -count=1 ./..."
+    "test:go": "cd test && go test -count=1 ./...",
+    "evidence": "evidence"
   },
   "repository": {
     "type": "git",
@@ -54,7 +55,8 @@
     "tgrid": "catalog:samchon",
     "ttsc": "catalog:typescript",
     "tstl": "catalog:samchon",
-    "typia": "catalog:samchon"
+    "typia": "catalog:samchon",
+    "@babel/parser": "catalog:typescript"
   },
   "peerDependencies": {
     "@nestia/core": "workspace:^"

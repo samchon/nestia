@@ -12,6 +12,7 @@ import { PathParameter } from "@nestia/fetcher";
  *    segment encode as `encodeURIComponent` does.
  * 2. Assert `.` and `..` throw, naming the parameter.
  */
+
 export function test_fetcher_path_parameter(): void {
   const cases: Array<[unknown, string]> = [
     ["abc", "abc"],

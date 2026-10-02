@@ -12,14 +12,48 @@ import { NestiaMigrateApiNamespaceProgrammer } from "./NestiaMigrateApiNamespace
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
+/**
+ * Generates the mockup simulator members of a route: a random response and a
+ * simulate function that validates the request first.
+ *
+ * @evidence contracts/common.md#principled-implementation The random member calls `typia.random` for the response type, and the simulate function validates the parameters, query, body, and headers with `typia.assert` through the fetcher's simulator, so an invalid simulated request throws the error the real server answers.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions and one private assertion writer.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The simulation follows the schemas of the route.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is generated.
+ */
 export namespace NestiaMigrateApiSimulationProgrammer {
+  /**
+   * The input of the simulation members: the configuration, the components, the
+   * importer, and the route.
+   *
+   * @evidence contracts/common.md#principled-implementation The record holds exactly what the generation needs.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment lists the fields.
+   */
   export interface IContext {
+    /** Calling convention and optional generated features for this operation. */
     config: INestiaMigrateConfig;
+
+    /** Component schemas used to resolve DTO references. */
     components: OpenApi.IComponents;
+
+    /** File-local import collector shared with the surrounding file writer. */
     importer: NestiaMigrateImportProgrammer;
+
+    /** Analyzed operation, with the accessor chosen for this generation. */
     route: IHttpMigrateRoute;
   }
 
+  /**
+   * Returns the `random` constant: a function that returns a random value of
+   * the response type.
+   *
+   * @evidence contracts/common.md#principled-implementation The response schema is written as a type and given to `typia.random`, and a route without a response uses `void`.
+   * @evidence contracts/common.md#clear-and-simple-design One expression.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The value is produced by typia at run time.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const random = (ctx: IContext) => {
     const output = ctx.route.success
       ? NestiaMigrateSchemaProgrammer.write({
@@ -54,6 +88,15 @@ export namespace NestiaMigrateApiSimulationProgrammer {
     );
   };
 
+  /**
+   * Returns the `simulate` constant: a function with the route's parameters
+   * that validates the request and returns a random response.
+   *
+   * @evidence contracts/common.md#principled-implementation The parameters are those of the real function, the assertions run first, and an unused connection is renamed so the compiler does not report it.
+   * @evidence contracts/common.md#clear-and-simple-design One expression over the shared parameter builder.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The validation is generated from the same schemas as the real function's types.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const simulate = (ctx: IContext): ts.VariableStatement => {
     const caller = () =>
       factory.createCallExpression(

@@ -35,11 +35,11 @@ import {
   EMPTY_PATHS_DOCUMENT,
   test_migrate_sdk_empty_paths,
 } from "./features/test_migrate_sdk_empty_paths";
-import { test_migrate_sdk_key_snapshot } from "./features/test_migrate_sdk_key_snapshot";
 import { test_migrate_sdk_pnpm_template } from "./features/test_migrate_sdk_pnpm_template";
 import { test_migrate_simulate_headers } from "./features/test_migrate_simulate_headers";
 import { test_migrate_simulate_throws } from "./features/test_migrate_simulate_throws";
 import { test_migrate_success_status } from "./features/test_migrate_success_status";
+import { test_migrate_tuple_rest } from "./features/test_migrate_tuple_rest";
 
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
@@ -62,7 +62,8 @@ const TTSC_BIN: string = path.join(
 );
 const TTSC_CACHE_DIR: string = path.resolve(
   TEST_ROOT,
-  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
+  process.env.TTSC_CACHE_DIR ??
+    path.join(ROOT, "node_modules", ".cache", "ttsc"),
 );
 
 type SwaggerDocument =
@@ -235,7 +236,12 @@ const execute = (
   });
 };
 
-const main = async (): Promise<void> => {
+/**
+ * Generates the controller fixture's Swagger document, exercises migration
+ * assertions, and compiles the generated NestJS and SDK projects in both
+ * calling conventions. The generated files remain available for diagnosis.
+ */
+export const main = async (): Promise<void> => {
   if (fs.existsSync(GENERATED))
     await fs.promises.rm(GENERATED, { recursive: true });
   await fs.promises.mkdir(OUTPUT, { recursive: true });
@@ -272,13 +278,13 @@ const main = async (): Promise<void> => {
     test_migrate_success_status();
     test_migrate_keyword_optional_body();
     test_migrate_additional_properties();
+    test_migrate_tuple_rest();
     test_migrate_cli_boolean_flags();
     test_migrate_cli_plain_files();
     test_migrate_nest_dto_package_import();
     test_migrate_nest_workspace_catalog_stamp();
     test_migrate_nest_keyword_config_path();
     test_migrate_sdk_empty_paths();
-    test_migrate_sdk_key_snapshot();
     test_migrate_sdk_pnpm_template();
     test_migrate_sdk_dependency_catalog_stamp();
     await execute(

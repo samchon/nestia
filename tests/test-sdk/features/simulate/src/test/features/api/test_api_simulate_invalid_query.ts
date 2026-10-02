@@ -4,6 +4,10 @@ import typia, { Primitive } from "typia";
 import api from "@api";
 import { IPage } from "@api/lib/structures/IPage";
 
+/**
+ * Calls the generated query simulator with page set to one and requires
+ * HttpError 400.
+ */
 export const test_api_simulate_invalid_query = (
   connection: api.IConnection,
 ): Promise<void> =>

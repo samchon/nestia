@@ -39,6 +39,9 @@ catalogs:
     '@typia/utils':
       specifier: ^15.0.0
       version: 15.0.0
+    '@wrtnlabs/evidence':
+      specifier: 0.2.0
+      version: 0.2.0
     tgrid:
       specifier: ^1.2.1
       version: 1.2.1
@@ -49,6 +52,9 @@ catalogs:
       specifier: 15.0.0
       version: 15.0.0
   typescript:
+    '@babel/parser':
+      specifier: ^7.29.8
+      version: 7.29.8
     '@trivago/prettier-plugin-sort-imports':
       specifier: ^4.3.0
       version: 4.3.0
@@ -80,6 +86,12 @@ catalogs:
     cross-env:
       specifier: ^10.1.0
       version: 10.1.0
+    jsdom:
+      specifier: ^22.0.0
+      version: 22.1.0
+    react:
+      specifier: ^18.3.1
+      version: 18.3.1
     rimraf:
       specifier: ^6.1.3
       version: 6.1.3
@@ -97,6 +109,9 @@ importers:
       '@types/ts-expose-internals':
         specifier: npm:ts-expose-internals@5.4.5
         version: ts-expose-internals@5.4.5
+      '@wrtnlabs/evidence':
+        specifier: catalog:samchon
+        version: 0.2.0(ttsc@0.28.1)(typescript@7.0.2)
       bumpp:
         specifier: ^10.4.1
         version: 10.4.1
@@ -487,6 +502,9 @@ importers:
 
   packages/sdk:
     dependencies:
+      '@babel/parser':
+        specifier: catalog:typescript
+        version: 7.29.8
       '@nestia/core':
         specifier: workspace:^
         version: link:../core
@@ -657,6 +675,12 @@ importers:
       fflate:
         specifier: ^0.8.2
         version: 0.8.3
+      jsdom:
+        specifier: catalog:utils
+        version: 22.1.0
+      react:
+        specifier: catalog:utils
+        version: 18.3.1
       ttsc:
         specifier: catalog:typescript
         version: 0.28.1
@@ -1615,6 +1639,9 @@ packages:
   '@popperjs/core@2.11.8':
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
+  '@prisma/prisma-schema-wasm@7.10.0-2.d0368e25c88e68caa4d283b5f2d88d1b76ed9356':
+    resolution: {integrity: sha512-loEbWBr+xUSqtIYaoJCrIuDeVs/fSY29Efshp+3rrTgQtyEqJ2iGuLTt9XnRZYBUE+eWC8ps0nOblyckgBehJQ==}
+
   '@rolldown/binding-android-arm64@1.1.5':
     resolution: {integrity: sha512-lZg8fqIv2v7FF237bwMgzGZEJvGL79/s5knJ/i6FmsGF4XXlzccZ4jb+TrFIxtSSxFtIpdsgrPZeMk1I9AFcyQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -2254,8 +2281,14 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@typia/interface@14.0.6':
+    resolution: {integrity: sha512-Ct4cW8vt1OfZNFlRBrVFeWZZrM/KvNUg4bmeIU4amXgYYp1sZkY71h+6GdrL+ApdF0KNnRxZ92hrrlbDodsjNg==}
+
   '@typia/interface@15.0.0':
     resolution: {integrity: sha512-iLl1Xtawi+GkdIILJdRyEKi1CZxj/ZRoz5jZ636GLGX83xWy95CZEo/WMJEcjJfdc3UhVK6xbh881d9iuZ+3uA==}
+
+  '@typia/utils@14.0.6':
+    resolution: {integrity: sha512-g1LLQiOdPNyFR6dEQKsaa8HQnpZAAW+XAG0tVQ3/fVCARR5n4Yn59jBSI1UcNEv4F9DaM7vzHZi0b4iS+liajw==}
 
   '@typia/utils@15.0.0':
     resolution: {integrity: sha512-8gELqfowtStO/3gEc1ABRbFB8rKhabBJ7pNuhQ+7DV9aPKJGDfni6nxkRR0BCV7nuKZ5ev9DGjo8uAgnQ3vq+g==}
@@ -2265,6 +2298,13 @@ packages:
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+
+  '@wrtnlabs/evidence@0.2.0':
+    resolution: {integrity: sha512-gwKaHKEALmpPiw60eFUhAyMFZ6dBZ2H0MgDUS8eGsrcYFQIY+E1OllmUEa47etM0X3SGNZHe5cCZNkKtIoGhuw==}
+    hasBin: true
+    peerDependencies:
+      ttsc: ^0.30.1
+      typescript: ^7.0.2
 
   abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
@@ -4239,6 +4279,14 @@ packages:
     engines: {node: '>=16.20.0'}
     hasBin: true
 
+  typia@14.0.6:
+    resolution: {integrity: sha512-dWtC9sMgmlR26yms6BAHWO0/P4Vzfw/cs1Mg+ZRYFlGub1CXRnF343EVgoZcxQdzoaPh50nTOtgd2Oaym73pIg==}
+    peerDependencies:
+      ttsc: '>=0.19.2'
+    peerDependenciesMeta:
+      ttsc:
+        optional: true
+
   typia@15.0.0:
     resolution: {integrity: sha512-ZP+58aI7G4CK/NKIfgY4zoMDwtJvtEc9bzb3E3QKnAJs/PeGFJEFbjXLiMq0qYapX6z6BGbDi3NLxetmREhwFg==}
     peerDependencies:
@@ -4352,6 +4400,9 @@ packages:
 
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
+
+  web-tree-sitter@0.27.0:
+    resolution: {integrity: sha512-XK08gj6RwTMQatAG7uVRP8MunqotL/XC19vHgkSPKmELgbGPBj4ECvB8haHOUnyj6ls2B8t42UTro14zxGgAHg==}
 
   webidl-conversions@7.0.0:
     resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
@@ -5205,6 +5256,8 @@ snapshots:
 
   '@popperjs/core@2.11.8': {}
 
+  '@prisma/prisma-schema-wasm@7.10.0-2.d0368e25c88e68caa4d283b5f2d88d1b76ed9356': {}
+
   '@rolldown/binding-android-arm64@1.1.5':
     optional: true
 
@@ -5733,7 +5786,13 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
+  '@typia/interface@14.0.6': {}
+
   '@typia/interface@15.0.0': {}
+
+  '@typia/utils@14.0.6':
+    dependencies:
+      '@typia/interface': 14.0.6
 
   '@typia/utils@15.0.0':
     dependencies:
@@ -5750,6 +5809,18 @@ snapshots:
       vite: 5.4.21(@types/node@25.9.0)(terser@5.47.1)
     transitivePeerDependencies:
       - supports-color
+
+  '@wrtnlabs/evidence@0.2.0(ttsc@0.28.1)(typescript@7.0.2)':
+    dependencies:
+      '@prisma/prisma-schema-wasm': 7.10.0-2.d0368e25c88e68caa4d283b5f2d88d1b76ed9356
+      '@typia/interface': 14.0.6
+      '@typia/utils': 14.0.6
+      tstl: 3.0.0
+      ttsc: 0.28.1
+      typescript: 7.0.2
+      typia: 14.0.6(ttsc@0.28.1)
+      web-tree-sitter: 0.27.0
+      yaml: 2.9.0
 
   abab@2.0.6: {}
 
@@ -8050,6 +8121,14 @@ snapshots:
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
 
+  typia@14.0.6(ttsc@0.28.1):
+    dependencies:
+      '@typia/interface': 14.0.6
+      '@typia/utils': 14.0.6
+      randexp: 0.5.3
+    optionalDependencies:
+      ttsc: 0.28.1
+
   typia@15.0.0(ttsc@0.28.1):
     dependencies:
       '@typia/interface': 15.0.0
@@ -8129,6 +8208,8 @@ snapshots:
   wcwidth@1.0.1:
     dependencies:
       defaults: 1.0.4
+
+  web-tree-sitter@0.27.0: {}
 
   webidl-conversions@7.0.0: {}
 

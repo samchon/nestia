@@ -22,6 +22,11 @@ import (
 //  1. ParsePlan("") and assert a zero Plan with no entries and no error.
 //  2. ParsePlan an entry with no `config` key and assert no panic / empty transform.
 //  3. ParsePlan entries naming the native `.cjs` transforms and assert Core/SDK.
+//
+// @evidence contracts/testing.md#behavioral-verification ParsePlan returns a zero plan for empty input, preserves the before stage of a config-less entry, and recognizes the two native descriptor paths with UsesNestia true.
+// @evidence contracts/testing.md#independent-expectations An empty payload has no entries; missing configuration supplies no transform string; native descriptor constants are the supported paths published by the core and SDK descriptors.
+// @evidence contracts/testing.md#distinguishing-cases Empty input, absent config and recognized native paths own separate branches; the neighboring case covers numeric config and legacy path classification.
+// @evidence contracts/testing.md#execution-ownership The core Go runner discovers this unit function; all cases call ParsePlan directly and create no filesystem, program or subprocess state.
 func TestParsePlanNativeTransformAndEmpty(t *testing.T) {
 	empty, err := plugin.ParsePlan("")
 	if err != nil {

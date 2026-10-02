@@ -1,6 +1,22 @@
 import { IHttpMigrateRoute } from "@typia/interface";
 
+/**
+ * Splits a route path template into literal and parameter segments.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace scans the template for `{name}` placeholders and matches each with the route's parameter of that name.
+ * @evidence contracts/common.md#clear-and-simple-design One type and one function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The scan is by the template syntax.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ */
 export namespace PathTemplate {
+  /**
+   * A segment of a path: a literal text or a parameter.
+   *
+   * @evidence contracts/common.md#principled-implementation The union is discriminated by `type`, so a consumer handles each case once.
+   * @evidence contracts/common.md#clear-and-simple-design A two-member union.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment names the two cases.
+   */
   export type ISegment =
     | { type: "literal"; value: string }
     | { type: "param"; parameter: IHttpMigrateRoute.IParameter };
@@ -11,7 +27,13 @@ export namespace PathTemplate {
    * parameter name. The emended path (`/files/:id.json`) cannot be split back:
    * its `:id.json` could name `id` or `id.json`, and a name such as `item-id`
    * would read as `item` followed by `-id`. It always starts with `/`, as the
-   * emended path does.
+   * emended path does. A placeholder without a matching route parameter remains
+   * literal text; adjacent literals are merged.
+   *
+   * @evidence contracts/common.md#principled-implementation The scan uses a regular expression over the placeholders and joins the text between them, and merging adjacent literals keeps the segment list minimal.
+   * @evidence contracts/common.md#clear-and-simple-design One function with one helper for merging.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It never drops text of the template.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the merging and the unmatched placeholder rule.
    */
   export const segments = (route: IHttpMigrateRoute): ISegment[] => {
     const path: string = route.path.startsWith("/")

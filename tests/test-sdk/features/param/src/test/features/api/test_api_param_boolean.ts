@@ -3,6 +3,17 @@ import typia from "typia";
 
 import api from "@api";
 
+/**
+ * Verifies boolean path conversion accepts false and the numeric 0/1 spellings
+ * while rejecting other values.
+ *
+ * Generated path encoding and native TypedParam boolean parsing are exercised
+ * together over HTTP.
+ *
+ * 1. Execute the authored fixture inputs through the owning route.
+ * 2. Assert false and zero return false, one returns true, and two or a nonboolean
+ *    string produce HTTP 400.
+ */
 export const test_api_param_boolean = async (
   connection: api.IConnection,
 ): Promise<void> => {

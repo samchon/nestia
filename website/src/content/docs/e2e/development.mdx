@@ -325,3 +325,9 @@ npm install
 npm run build:test
 npm run test
 ```
+
+`ArrayUtil.repeat()` and `ArrayUtil.asyncRepeat()` require an integer count from 0 through 2^32 - 1, the maximum JavaScript array length, and throw `RangeError` for invalid counts before calling the callback. `RandomGenerator.pick()` throws `RangeError` for an empty array. `RandomGenerator.sample()` selects positions without replacement, caps the count at the array length, and leaves the input array unchanged.
+
+`TestValidator.equals()` and `notEquals()` compare record contents and array contents, distinguish arrays from records, and require matching array lengths. Record comparisons permit additional keys on the actual value. `TestValidator.httpError()` rejects primitive or malformed thrown values as failed status expectations, including when the task is asynchronous.
+
+`GaffComparator.strings()` compares scalar or array keys with the runtime's locale collation. Keys that collate equally, including canonically equivalent Unicode spellings, continue to the next key. If every key in the common prefix compares equal, the shorter key list sorts first. The collation must match your backend's sorting rules when you use this comparator to validate a response.

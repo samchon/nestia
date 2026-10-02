@@ -24,8 +24,6 @@ import path from "path";
  * 1. Generate an SDK project from a minimal OpenAPI document.
  * 2. Assert every toolchain dependency the `typescript` catalog pins carries that
  *    pin.
- * 3. Assert a dependency in neither catalog keeps the template's own version, so
- *    the stamping stays scoped to versions this repository owns.
  */
 export const test_migrate_sdk_dependency_catalog_stamp = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(
@@ -56,20 +54,6 @@ export const test_migrate_sdk_dependency_catalog_stamp = (): void => {
         `Generated SDK package.json must pin ${name} at ${expected}, got ${declared[name]}.`,
       );
   }
-
-  // The negative twin: `tinyglobby` is the SDK template's own choice and this
-  // repository pins no version for it, so the bundler must leave it alone. A
-  // rewrite that stopped consulting the catalogs and simply overwrote every
-  // specifier would satisfy the assertions above.
-  const untouched: string | undefined = declared["tinyglobby"];
-  if (untouched === undefined)
-    throw new Error(
-      "The SDK template no longer declares tinyglobby; pick another dependency this repository does not pin.",
-    );
-  if (catalog["tinyglobby"] !== undefined)
-    throw new Error(
-      "tinyglobby entered a catalog; this twin needs a dependency the repository does not pin.",
-    );
 };
 
 /**

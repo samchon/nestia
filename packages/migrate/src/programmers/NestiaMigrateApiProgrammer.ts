@@ -8,7 +8,25 @@ import { NestiaMigrateApiFileProgrammer } from "./NestiaMigrateApiFileProgrammer
 import { NestiaMigrateDtoProgrammer } from "./NestiaMigrateDtoProgrammer";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 
+/**
+ * Generates the functional API files and, for an SDK project, the DTO structure
+ * files.
+ *
+ * @evidence contracts/common.md#principled-implementation Routes are grouped by namespace path in a hash map, each parent namespace is given its child, and each namespace becomes one `index.ts`; the DTO files are written per top-level component name.
+ * @evidence contracts/common.md#clear-and-simple-design One entry function and two private helpers for the DTO files.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The layout follows the accessors of the routes.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is generated.
+ */
 export namespace NestiaMigrateApiProgrammer {
+  /**
+   * Returns the map from file path to content of the functional API, with the
+   * DTO files for an SDK project.
+   *
+   * @evidence contracts/common.md#principled-implementation The grouping creates every ancestor namespace so that each level has an index, and the paths differ between the two modes only by their root.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The layout follows the accessors.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const write = (ctx: INestiaMigrateContext): Record<string, string> => {
     const dict: HashMap<string[], NestiaMigrateApiFileProgrammer.IProps> =
       new HashMap(

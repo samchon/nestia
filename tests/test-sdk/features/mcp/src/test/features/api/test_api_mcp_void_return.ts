@@ -25,12 +25,12 @@ export const test_api_mcp_void_return = async (
   connection: IConnection,
 ): Promise<void> => {
   const client = new Client({ name: "nestia-test", version: "1.0.0" });
-  await client.connect(
-    new StreamableHTTPClientTransport(
-      new URL(`${connection.host}${connection.path}`),
-    ),
-  );
   try {
+    await client.connect(
+      new StreamableHTTPClientTransport(
+        new URL(`${connection.host}${connection.path}`),
+      ),
+    );
     const result: api.functional.mcp.notify.Output =
       await api.functional.mcp.notify(client, { message: "generated" });
     TestValidator.equals("notify output", result, undefined);

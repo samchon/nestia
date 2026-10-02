@@ -1,6 +1,17 @@
 import { TestValidator } from "@nestia/e2e";
 import { PlainFetcher } from "@nestia/fetcher";
 
+/**
+ * Verifies plainFetcher.fetch replaces a lowercase conflicting connection
+ * content type.
+ *
+ * The route declares application/json, which must own request serialization and
+ * its header.
+ *
+ * 1. Exercise the authored scenario and its controls.
+ * 2. Assert a lowercase application/xml connection header must become
+ *    application/json on the JSON request.
+ */
 export async function test_fetcher_content_type_header_casing(): Promise<void> {
   let captured: string | null = null;
   await PlainFetcher.fetch(

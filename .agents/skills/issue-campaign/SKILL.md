@@ -9,6 +9,8 @@ An issue campaign is a repeatable solo sequence of exhaustive discovery, issue p
 
 Use the [multi-agent skill](../multi-agent/SKILL.md) and its issue-campaign procedure instead only when the user explicitly asks for a parallel or multi-agent issue campaign.
 
+For the explicit continuation under issue #1775, read [its campaign procedure](../multi-agent/campaign-1775.md). It keeps the existing shared checkout and pull request with ordinary CI, instead of the generic parallel worktree and cancellation flow.
+
 The user's requested phase boundary controls how far to proceed. Do not infer permission to publish issues, push branches, open pull requests, or merge from an audit-only request.
 
 Apply [AGENTS.md's **Choose the principled course** rule](../../../AGENTS.md#attitude) to every admission, disposition, implementation, and review decision.

@@ -3,6 +3,10 @@ import typia from "typia";
 import api from "@api";
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
+/**
+ * Calls the route configured with an explicit is stringifier and validates
+ * exact IBbsArticle output.
+ */
 export const test_api_route = async (
   connection: api.IConnection,
 ): Promise<void> => {

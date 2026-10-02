@@ -21,7 +21,7 @@ export class BbsArticlesController {
         current,
         limit,
         records,
-        pages: Math.ceil(records / limit),
+        pages: limit === 0 ? 0 : Math.ceil(records / limit),
       },
       data: new Array(limit).fill("").map(() => ({
         ...typia.random<IBbsArticle.ISummary>(),

@@ -16,6 +16,16 @@ import { NestiaEditorComposer } from "./internal/NestiaEditorComposer";
 import { NESTIA_EDITOR_DEFAULT_PACKAGE } from "./internal/NestiaEditorDefaultPackage";
 import { NestiaEditorFileUploader } from "./internal/NestiaEditorFileUploader";
 
+/**
+ * The uploader form: reads a Swagger file, and downloads the generated project.
+ *
+ * The user picks a document, a package name, the mode (SDK or NestJS project), and the options. The project is generated in the browser and downloaded as a zip file. Operations the converter could not handle are reported, so an incomplete project is never presented as complete.
+ *
+ * @evidence contracts/common.md#principled-implementation The form keeps its inputs in component state, composes on request with `NestiaEditorComposer`, and hands the files to `NestiaEditorArchiver`. Composition and archive failures, file-parser errors reported by the picker, and skipped operations reach the error handler. File-reading rejection belongs to the picker callback and is not caught by this form.
+ * @evidence contracts/common.md#clear-and-simple-design One component owns the form state and delegates parsing the file, composing, and archiving to internal modules.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The defaults are the same product defaults as the iframe flow and the package name comes from the shared constant; an error goes to `onError` when given and to `alert` otherwise, with no fixture-specific path.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the inputs, the output, and how skipped operations are reported.
+ */
 export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
   // PARAMETERS
   const [mode, setMode] = React.useState<"nest" | "sdk">("sdk");
@@ -149,8 +159,17 @@ export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
     </>
   );
 }
+/**
+ * Properties of {@link NestiaEditorUploader}.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace holds the property type of the component with the same name, so the component and its inputs are one public identity.
+ * @evidence contracts/common.md#clear-and-simple-design It contains one interface with one optional callback.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It adds no behavior; when the callback is absent the component reports errors with `alert`.
+ * @evidence contracts/common.md#meaningful-documentation The comment names the component the properties belong to.
+ */
 export namespace NestiaEditorUploader {
   export interface IProps {
+    /** Receives conversion errors and skipped-operation warnings; absent uses alert. */
     onError?: (error: string) => void;
   }
 }

@@ -1,6 +1,25 @@
 import { MetadataSchema, sizeOf } from "../internal/legacy";
 
+/**
+ * Validates that a type can be a `text/plain` body or response.
+ *
+ * @evidence contracts/common.md#principled-implementation A plain text body is a string, so the type may hold only string forms.
+ * @evidence contracts/common.md#clear-and-simple-design One function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule follows the content type.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation TextPlainValidator checks the metadata union accepted for a text/plain payload; it owns no native filesystem or executable representation.
+ */
 export namespace TextPlainValidator {
+  /**
+   * Returns an error message unless every member of the metadata is a string, a
+   * string constant, a string template, or the native String.
+   *
+   * @evidence contracts/common.md#principled-implementation The number of string forms is counted and compared with the size of the metadata, so any other form makes the counts differ, and an empty type is also refused.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The count is exact and no type is special-cased.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the accepted forms.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation TextPlainValidator.validate checks the metadata union accepted for a text/plain payload; it owns no native filesystem or executable representation.
+   */
   export const validate = (props: { metadata: MetadataSchema }): string[] => {
     const expected: number =
       props.metadata.atomics.filter((a) => a.type === "string").length +

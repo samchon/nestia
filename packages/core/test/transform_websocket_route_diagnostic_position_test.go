@@ -15,6 +15,11 @@ import (
 //  1. Transform the websocket-error-no-acceptor controller, whose method's
 //     decorator opens line 9 at column 3.
 //  2. Assert the missing-acceptor diagnostic is reported at 9:3.
+//
+// @evidence contracts/testing.md#behavioral-verification A missing-acceptor transform must return exit 3 and identify CalculateController.ts:9:3, detecting a diagnostic attached to the wrong node or wrong failure class.
+// @evidence contracts/testing.md#independent-expectations The authored method begins at line 9 column 3 and lacks the required acceptor; method-level diagnostics should identify that declaration.
+// @evidence contracts/testing.md#distinguishing-cases This owns missing-acceptor position; the variant table owns additional invalid parameter/type shapes and valid WebSocket cases own acceptance.
+// @evidence contracts/testing.md#execution-ownership Go discovers this core unit function and executes the native dispatcher in the test process against real fixture source. Temporary configuration/output files belong to t.TempDir; no consumer installation or native host process is started.
 func TestTransformWebSocketRouteDiagnosticPosition(t *testing.T) {
 	const feature = "websocket-error-no-acceptor"
 	temp := t.TempDir()

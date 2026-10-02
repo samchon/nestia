@@ -3,7 +3,6 @@ package transform
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 	"runtime/debug"
 	"strings"
@@ -128,7 +127,7 @@ func nestiaCoreOptionErrors(plan plugin.Plan) []string {
 		errors = append(errors, fmt.Sprintf("invalid %q option %s: it must be one of %s.", name, nestiaCoreOptionText(value), accepted))
 	}
 	for _, entry := range plan.Entries {
-		if entry.Name != "@nestia/core" && !strings.Contains(entry.Transform, "@nestia/core") {
+		if entry.Kind() != "core" {
 			continue
 		}
 		if value, ok := entry.Config["validate"]; ok {
@@ -151,7 +150,7 @@ func nestiaCoreOptionText(value any) string {
 func readNestiaCoreOptions(plan plugin.Plan) nestiaCoreOptions {
 	options := nestiaCoreOptions{}
 	for _, entry := range plan.Entries {
-		if entry.Name != "@nestia/core" && !strings.Contains(entry.Transform, "@nestia/core") {
+		if entry.Kind() != "core" {
 			continue
 		}
 		if value, ok := entry.Config["validate"].(string); ok {
@@ -222,7 +221,7 @@ func nestiaCoreDecoratorCall(prog *driver.Program, decorator *shimast.Node) (*sh
 	}
 	context := newNestiaCoreFileContext(shimast.GetSourceFileOfNode(decorator))
 	canonical := nestiaCoreCanonicalSegments(context, segments)
-	if nestiaCoreDecoratorReference(prog, context, decorator, segments, canonical) == false {
+	if IsNestiaCoreCall(prog, call.AsNode()) == false {
 		return nil, nil, false
 	}
 	return call, canonical, true
@@ -232,6 +231,18 @@ func nestiaCoreDecoratorCall(prog *driver.Program, decorator *shimast.Node) (*sh
 // @nestia/core export its import binds, so `import { TypedException as TE }`
 // reads `TE<T>()` as `TypedException`. It returns nil for a decorator that is
 // no call.
+//
+// This mapping names the imported syntax. IsNestiaCoreCall separately verifies
+// that the resolved declaration belongs to core, including re-export facades.
+//
+// @evidence contracts/common.md#principled-implementation The decorator's callee is split into identifier segments, and the leading identifier is replaced by the `@nestia/core` export that its import binds, so an aliased import reads as the canonical name; a decorator that is not a call reads as nil.
+// @evidence contracts/common.md#clear-and-simple-design A thin exported wrapper that builds the file's import context and delegates the mapping to a private function.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The names come from the import declarations of the file, and no alias or file name is special-cased.
+// @evidence contracts/common.md#meaningful-documentation The comment gives the aliasing example and the nil result.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The import mapping reads TypeScript AST module specifiers and names rather than native paths.
+// @evidence contracts/performance.md#efficient-algorithms The helper scans file statements and named imports to build its mapping on each call, then walks the callee segments. Repeated decorator calls in one file rebuild that mapping.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The file context map and returned segment slice are call-local; no program is retained globally by this helper.
 func NestiaCoreCanonicalDecoratorSegments(decorator *shimast.Node) []string {
 	_, segments, ok := nestiaCoreRawDecoratorCall(decorator)
 	if !ok {
@@ -308,32 +319,24 @@ func nestiaCoreCanonicalSegments(context nestiaCoreFileContext, segments []strin
 	return canonical
 }
 
-func nestiaCoreDecoratorReference(
-	prog *driver.Program,
-	context nestiaCoreFileContext,
-	decorator *shimast.Node,
-	segments []string,
-	canonical []string,
-) bool {
-	if len(segments) == 0 {
-		return false
-	}
-	if _, ok := context.coreImports[segments[0]]; ok {
-		return true
-	}
-	if nestiaCorePotentialDecoratorSegments(canonical) == false {
-		return false
-	}
-	return IsNestiaCoreCall(prog, decorator.AsDecorator().Expression)
-}
-
-func nestiaCorePotentialDecoratorSegments(segments []string) bool {
-	return nestiaCoreParameterKind(segments) != "" ||
-		nestiaCoreMethodKind(segments) != "" ||
-		(len(segments) != 0 && segments[len(segments)-1] == "WebSocketRoute")
-}
-
+// IsNestiaCoreCall reports whether the call resolves to a declaration in `@nestia/core`.
+//
+// The resolved signature's declaration belongs to core only when its nearest
+// package manifest names @nestia/core, including relocated or re-exported core
+// declarations and excluding foreign nested packages.
+//
+// @evidence contracts/common.md#principled-implementation The resolved signature identifies the actual declaration source, and SourceFilePackageName establishes its nearest owner; unresolved calls or non-core ownership return false without relying on lexical aliases or directory spelling.
+// @evidence contracts/common.md#clear-and-simple-design Signature/source nil guards precede one shared package-ownership operation and an exact name comparison.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts Foreign workspace lookalikes and nested packages cannot inherit core identity from their path, while a relocated or transparently re-exported core declaration keeps its actual manifest owner.
+// @evidence contracts/common.md#meaningful-documentation The comment defines resolved declaration ownership and describes relocation, re-export and nested-package behavior.
+// @evidence contracts/portability.md#os-neutral-implementation Declaration package ownership delegates to SourceFilePackageName, which walks native ancestors through filepath and the loaded program filesystem rather than source-path substrings.
+// @evidence contracts/performance.md#efficient-algorithms Resolved signature lookup is followed by one nearest-manifest ancestor walk, proportional to directory depth and manifest bytes.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources No separate cache is retained by this predicate; the compiler program owns resolved signatures and filesystem observations.
 func IsNestiaCoreCall(prog *driver.Program, node *shimast.Node) bool {
+	if prog == nil || prog.Checker == nil || node == nil {
+		return false
+	}
 	signature := prog.Checker.GetResolvedSignature(node)
 	if signature == nil || signature.Declaration() == nil {
 		return false
@@ -342,11 +345,7 @@ func IsNestiaCoreCall(prog *driver.Program, node *shimast.Node) bool {
 	if source == nil {
 		return false
 	}
-	location := filepath.ToSlash(source.FileName())
-	return strings.Contains(location, "@nestia/core/lib/") ||
-		strings.Contains(location, "packages/core/lib/") ||
-		strings.Contains(location, "@nestia/core/src/decorators/") ||
-		strings.Contains(location, "packages/core/src/decorators/")
+	return SourceFilePackageName(prog, source) == "@nestia/core"
 }
 func nestiaCoreParameterKind(segments []string) string {
 	suffixes := map[string]string{
@@ -461,6 +460,12 @@ func nestiaCoreParameterArgumentNodes(
 	return output, true, nil
 }
 
+// nestiaCoreGenerateTypedBody preserves the selected helper's validation,
+// equality, clone or prune operation within the public three-tag validator ABI.
+// The shared runtime resolver retains assert returns and validation.data for
+// decorated arguments, so clone helpers supply copies while is retains the
+// input. Prune helpers mutate and return that same input. Explicit success tags
+// distinguish valid Error, null or undefined data from validation failures.
 func nestiaCoreGenerateTypedBody(
 	prog *driver.Program,
 	importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext,
@@ -522,13 +527,12 @@ func nestiaCoreGenerateTypedBody(
 	}
 }
 
-// nestiaCoreGenerateTypedHeaders intentionally collapses the 10-mode validate
-// option down to {assert, is, validate}. Header values are strings keyed by
-// name; deep-clone and prune semantics that @TypedBody honors (assertClone,
-// assertPrune, validateClone, validatePrune, etc.) have no meaningful effect
-// on a flat string→string map. Pass-through to the base programmer is the
-// intended behavior, not a fallthrough — matches v6 parity. See also
-// nestiaCoreGenerateTypedQuery and nestiaCoreGenerateTypedFormDataBody.
+// nestiaCoreGenerateTypedHeaders maps all ten validate options onto the HTTP
+// header decoder's three base validator families: assert, is and validate.
+// Equality, clone and prune options select their corresponding base family;
+// this operation generates decoded header values rather than a plain body helper.
+// Body helper return semantics and the decorator's returned body are distinct:
+// see nestiaCoreGenerateTypedBody for clone results and in-place pruning.
 func nestiaCoreGenerateTypedHeaders(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	context := nestiaCoreTypiaContext(prog, importer, ec, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
@@ -1085,6 +1089,18 @@ func safeNestiaCoreGenerateNode(generator func() (*shimast.Node, error)) (node *
 
 var nestiaCoreSingleParameterArrowPattern = regexp.MustCompile(`(^|[\s(=,:?])([A-Za-z_$][A-Za-z0-9_$]*) =>`)
 
+// NestiaCoreMethodReturnType returns the type of a route method's response body.
+//
+// The declared return type is used when it is `Promise<T>` or an rxjs `Observable<T>`, and `T` is returned, so an asynchronous method is typed by what it resolves to. A missing signature returns nil.
+//
+// @evidence contracts/common.md#principled-implementation An explicit annotation is unwrapped only when its resolved symbol declares the TypeScript library Promise or an rxjs-owned Observable. Otherwise the checker's resolved return type uses the same provenance rule, preserving user wrappers and allowing aliases to the library type. Global Promise augmentations retain the library declaration in their merged symbol.
+// @evidence contracts/common.md#clear-and-simple-design One function with two unwrapping paths, sharing the private wrapper predicates.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The wrappers are the two types NestJS handlers return; no method or controller name is special-cased.
+// @evidence contracts/common.md#meaningful-documentation The comment states the unwrapped wrappers and the nil result.
+// @evidence contracts/portability.md#os-neutral-implementation Promise provenance comes from compiler library identity; Observable package ownership uses SourceFilePackageName and the program filesystem with native filepath ancestors.
+// @evidence contracts/performance.md#efficient-algorithms The function inspects one annotation/signature and its wrapper declarations; Observable ownership may perform one native ancestor walk per candidate declaration.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources Returned types are owned by the caller program; this helper retains no type or program cache.
 func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimchecker.Type {
 	if typ := nestiaCoreExplicitAsyncReturnType(prog, node); typ != nil {
 		return typ
@@ -1099,7 +1115,7 @@ func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimc
 	}
 	symbol := typ.Symbol()
 	if symbol != nil &&
-		nestiaCoreIsAsyncReturnWrapperSymbol(symbol.Name, symbol.Declarations) {
+		nestiaCoreIsAsyncReturnWrapperSymbol(prog, symbol.Name, symbol.Declarations) {
 		args := prog.Checker.GetTypeArguments(typ)
 		if len(args) == 1 {
 			return args[0]
@@ -1120,91 +1136,71 @@ func nestiaCoreExplicitAsyncReturnType(prog *driver.Program, node *shimast.Node)
 	if ref == nil || ref.TypeArguments == nil || len(ref.TypeArguments.Nodes) != 1 {
 		return nil
 	}
-	if nestiaCoreIsAsyncReturnWrapperReference(prog, ref.TypeName) == false {
+	if NestiaCoreIsAsyncReturnWrapperReference(prog, ref.TypeName) == false {
 		return nil
 	}
 	return prog.Checker.GetTypeFromTypeNode(ref.TypeArguments.Nodes[0])
 }
 
-func nestiaCoreIsAsyncReturnWrapperReference(
+// NestiaCoreIsAsyncReturnWrapperReference reports whether a type reference names
+// a wrapper a route method's return type is unwrapped from: `Promise`, or the
+// rxjs `Observable` however it is imported, aliased or re-exported.
+//
+// Promise must have a resolved declaration in the program's TypeScript library.
+// Observable must have a resolved declaration owned by rxjs. A same-spelled
+// user wrapper remains an ordinary response type.
+//
+// @evidence contracts/common.md#principled-implementation The checker resolves the reference and import aliases to their declarations. Promise requires a declaration in the compiler-identified library; Observable requires a nearest manifest naming rxjs. Namespace user types and missing library declarations cannot become asynchronous wrappers merely by spelling.
+// @evidence contracts/common.md#clear-and-simple-design One function that resolves the symbol and delegates the name and ownership test to the shared symbol predicate, so the syntactic annotation path and the checker path of the return type use one rule; the SDK reads the same function rather than keeping a second copy.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts No source spelling, fixture identity, filename fragment or folder name substitutes for declaration provenance. The TypeScript program identifies its actual library files and the program filesystem supplies nearest package ownership.
+// @evidence contracts/common.md#meaningful-documentation The comment identifies both supported wrappers and their declaration provenance requirements, including preservation of user lookalikes.
+// @evidence contracts/portability.md#os-neutral-implementation Library identity uses the compiler; rxjs ownership uses program filesystem reads and filepath ancestor traversal through SourceFilePackageName.
+// @evidence contracts/performance.md#efficient-algorithms Symbol/alias resolution is followed by a declaration scan and at most one ancestor walk per Observable declaration.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources No result cache or handle is owned here; returned truth is independent of any retained storage.
+func NestiaCoreIsAsyncReturnWrapperReference(
 	prog *driver.Program,
 	node *shimast.Node,
 ) bool {
-	name := nestiaCoreTypeNodeText(node)
-	if name == "Promise" {
-		return true
+	if node == nil {
+		return false
 	}
-	if name != "Observable" || prog == nil || prog.Checker == nil {
+	if prog == nil || prog.Checker == nil {
 		return false
 	}
 	symbol := prog.Checker.GetSymbolAtLocation(node)
-	return nestiaCoreIsRxjsObservableImport(node) ||
-		(symbol != nil && nestiaCoreIsRxjsDeclarations(symbol.Declarations))
+	if symbol != nil && symbol.Flags&shimast.SymbolFlagsAlias != 0 {
+		if aliased := shimchecker.Checker_getAliasedSymbol(prog.Checker, symbol); aliased != nil {
+			symbol = aliased
+		}
+	}
+	return symbol != nil && nestiaCoreIsAsyncReturnWrapperSymbol(prog, symbol.Name, symbol.Declarations)
 }
 
 func nestiaCoreIsAsyncReturnWrapperSymbol(
+	prog *driver.Program,
 	name string,
 	declarations []*shimast.Node,
 ) bool {
-	if name == "Promise" {
-		return true
+	if name == "Promise" && prog != nil && prog.TSProgram != nil {
+		for _, decl := range declarations {
+			if source := shimast.GetSourceFileOfNode(decl); source != nil && prog.TSProgram.IsLibFile(source) {
+				return true
+			}
+		}
 	}
-	return name == "Observable" && nestiaCoreIsRxjsDeclarations(declarations)
+	return name == "Observable" && nestiaCoreIsRxjsDeclarations(prog, declarations)
 }
 
-func nestiaCoreIsRxjsDeclarations(declarations []*shimast.Node) bool {
+func nestiaCoreIsRxjsDeclarations(prog *driver.Program, declarations []*shimast.Node) bool {
 	for _, decl := range declarations {
 		sourceFile := shimast.GetSourceFileOfNode(decl)
-		if sourceFile == nil {
-			continue
-		}
-		file := filepath.ToSlash(sourceFile.FileName())
-		if strings.Contains(file, "/node_modules/rxjs/") {
+		if sourceFile != nil && SourceFilePackageName(prog, sourceFile) == "rxjs" {
 			return true
 		}
 	}
 	return false
 }
-
-func nestiaCoreIsRxjsObservableImport(node *shimast.Node) bool {
-	source, ok := SourceFileText(shimast.GetSourceFileOfNode(node))
-	return ok && nestiaCoreHasNamedImport(source, "rxjs", "Observable", "Observable")
-}
-
-func nestiaCoreHasNamedImport(
-	source string,
-	module string,
-	imported string,
-	local string,
-) bool {
-	for _, match := range nestiaCoreImportFromPattern.FindAllStringSubmatch(source, -1) {
-		if len(match) < 3 || match[2] != module {
-			continue
-		}
-		open := strings.Index(match[1], "{")
-		close := strings.LastIndex(match[1], "}")
-		if open < 0 || close <= open {
-			continue
-		}
-		for _, part := range strings.Split(match[1][open+1:close], ",") {
-			fields := strings.Fields(strings.TrimPrefix(strings.TrimSpace(part), "type "))
-			if len(fields) == 1 && fields[0] == local && imported == local {
-				return true
-			}
-			if len(fields) == 3 &&
-				fields[0] == imported &&
-				fields[1] == "as" &&
-				fields[2] == local {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-var nestiaCoreImportFromPattern = regexp.MustCompile(
-	`(?s)import\s+(?:type\s+)?(.+?)\s+from\s+["']([^"']+)["']`,
-)
 
 func nestiaCoreTypeNodeText(node *shimast.Node) string {
 	if node == nil {
@@ -1316,6 +1312,17 @@ func matchClosingParen(text string, pos int) (int, bool) {
 	}
 	return 0, false
 }
+
+// NestiaCoreExpressionSegments returns the identifier segments of an identifier or a property-access chain, such as `core.TypedRoute.Get` as `core`, `TypedRoute`, `Get`, and nil for any other expression.
+//
+// @evidence contracts/common.md#principled-implementation The recursion follows the left side of each property access to its root identifier and appends the property names, and any other node kind makes the whole chain not a name, so a call, an element access, or a computed name is never read as a path.
+// @evidence contracts/common.md#clear-and-simple-design One recursive function over two node kinds.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the syntax only.
+// @evidence contracts/common.md#meaningful-documentation The comment gives the example and the nil result.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation Identifier segments describe source syntax rather than native file paths.
+// @evidence contracts/performance.md#efficient-algorithms The recursion visits each property access once; append amortizes slice growth, with space proportional to chain depth.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The returned slice is caller-owned and recursion state ends at return.
 func NestiaCoreExpressionSegments(node *shimast.Node) []string {
 	if node == nil {
 		return nil

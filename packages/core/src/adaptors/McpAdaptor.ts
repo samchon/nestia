@@ -11,6 +11,7 @@ import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
 import { Module } from "@nestjs/core/injector/module";
 
 import { IMcpRouteReflect } from "../decorators/internal/IMcpRouteReflect";
+import { resolve_request_body } from "../decorators/internal/validate_request_body";
 import {
   create_external_context_creator,
   get_request_context_id,
@@ -47,14 +48,12 @@ import {
  *
  * @author wildduck - https://github.com/wildduck2
  * @example
- *   ```typescript
  *   import core from "@nestia/core";
  *   import { NestFactory } from "@nestjs/core";
  *
  *   const app = await NestFactory.create(AppModule);
  *   await core.McpAdaptor.upgrade(app, { path: "/mcp" });
  *   await app.listen(3000);
- *   ```;
  */
 export class McpAdaptor {
   /**
@@ -71,6 +70,11 @@ export class McpAdaptor {
    *
    * @param app Running Nest application instance.
    * @param options Transport and identity overrides.
+   * @evidence contracts/common.md#principled-implementation Tools are collected once from the prototype chain of every controller instance by the `nestia/McpRoute` metadata, with the first definition of a property name winning and accessors skipped without execution, duplicates by tool name refused before serving, and each call runs through NestJS's `ExternalContextCreator` so guards, interceptors, pipes, and exception filters apply as for an HTTP route; every request gets a fresh MCP server and Streamable HTTP transport, which stateless mode requires, and both are closed in a `finally`.
+   * @evidence contracts/common.md#clear-and-simple-design One entry point does discovery and registration; the per-tool call (`createHandler`), the duplicate check, the SDK loader, and the per-request response facade are separate module-private functions.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reading the module graph goes through the internal `app.container`, because `INestApplication` exposes no public accessor for it, `create_external_context_creator` constructs an owned subclass through the Nest constructor and overrides module selection on that type, because the default looks for provider classes while controllers belong to the controller collection, and `get_request_context_id` registers the request provider on the request object as NestJS's router does for an HTTP route, and a per-request response facade forwards native state, events and method receivers without replacing raw methods. After a tool or its exception filter has sent headers, only the facade suppresses subsequent transport writes and preserves callbacks and chaining. Native transport writes do not themselves activate takeover. The remaining foreign-internal reads are the application container and Nest request context registration; the MCP SDK uses its public Node response injection boundary.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the stateless mode, what is discovered, and that the SDK is an optional dependency; the options documentation states the path and server information.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation MCP tool discovery and HTTP transport callbacks carry protocol values; optional SDK imports use Node module resolution and no native file identity or child process is defined here.
    */
   public static async upgrade(
     app: INestApplication,
@@ -101,7 +105,8 @@ export class McpAdaptor {
           for (const key of Object.getOwnPropertyNames(proto)) {
             if (key === "constructor" || visited.has(key)) continue;
             visited.add(key);
-            const method = proto[key];
+            // Route discovery inspects data descriptors without invoking accessors.
+            const method = Object.getOwnPropertyDescriptor(proto, key)?.value;
             if (typeof method !== "function") continue;
 
             const meta: IMcpRouteReflect | undefined = Reflect.getMetadata(
@@ -154,6 +159,7 @@ export class McpAdaptor {
         capabilities: { tools: {} },
       });
       const server = mcp.server;
+      const relay = transportResponse(res.raw ?? res);
 
       server.setRequestHandler(ListToolsRequestSchema, async () => ({
         tools: tools.map((t) => ({
@@ -181,7 +187,7 @@ export class McpAdaptor {
             response: res,
             args,
           });
-          if (tookOver(res)) return { content: [] };
+          if (relay.takeOver()) return { content: [] };
           if (result instanceof Error) throw result;
           if (result === undefined) return { content: [] };
           return {
@@ -194,7 +200,7 @@ export class McpAdaptor {
             ],
           };
         } catch (e) {
-          if (tookOver(res)) return { content: [] };
+          if (relay.takeOver()) return { content: [] };
           if (INVALID_ARGUMENTS.has(e as object)) {
             const body = (e as BadRequestException).getResponse() as any;
             throw new McpError(ErrorCode.InvalidParams, (e as Error).message, {
@@ -224,7 +230,7 @@ export class McpAdaptor {
       });
       try {
         await mcp.connect(transport);
-        await transport.handleRequest(req.raw ?? req, res.raw ?? res, req.body);
+        await transport.handleRequest(req.raw ?? req, relay.response, req.body);
       } finally {
         await transport.close().catch(() => {});
         await mcp.close().catch(() => {});
@@ -242,7 +248,9 @@ export class McpAdaptor {
  * The arguments reach the method through the pipes as its body would, validated
  * by typia at that stage: after the guards, as `@TypedBody()` is. An invalid
  * argument is thrown as the validator's `BadRequestException`, which an
- * exception filter may map; unmapped, it becomes JSON-RPC `-32602`.
+ * exception filter may map; unmapped, it becomes JSON-RPC `-32602`. Successful
+ * resolver data becomes the argument before pipes execute. Legacy error-only
+ * metadata callbacks retain raw input on null success.
  *
  * A controller that is request-scoped, itself or through an enhancer or a
  * dependency, is built per request with its enhancers, as NestJS builds it for
@@ -275,10 +283,11 @@ const createHandler = (props: {
       {
         // [request, response, next] as an HTTP route has, then the arguments
         exchangeKeyForValue: (_type, _data, [, , , args]) => {
-          const error: Error | null = validate ? validate(args) : null;
-          if (error === null) return args;
-          INVALID_ARGUMENTS.add(error);
-          throw error;
+          if (!validate) return args;
+          const result = resolve_request_body(validate, args);
+          if (result.success) return result.data;
+          INVALID_ARGUMENTS.add(result.error);
+          throw result.error;
         },
       },
       contextId,
@@ -307,22 +316,55 @@ const createHandler = (props: {
 };
 
 /**
- * Whether an exception filter already wrote the HTTP response itself. The
- * response it wrote stands, so the transport's own is dropped: writing again
- * would throw, and the transport would destroy the connection mid-response.
+ * The transport's response view. Native state, events and method receivers stay
+ * on the real response; only this view's writes stop after a tool's exception
+ * filter has already answered. Normal transport writes never activate
+ * takeover.
  */
-const tookOver = (response: any): boolean => {
-  const raw: any = response.raw ?? response;
-  if (raw.headersSent !== true) return false;
-  raw.writeHead = () => raw;
-  raw.flushHeaders = () => {};
-  raw.write = () => true;
-  raw.end = (...args: unknown[]) => {
-    const callback: unknown = args.find((a) => typeof a === "function");
-    if (typeof callback === "function") queueMicrotask(() => callback());
-    return raw;
+const transportResponse = (
+  raw: any,
+): { response: any; takeOver: () => boolean } => {
+  let takenOver = false;
+  const respond = (key: string, args: unknown[]): unknown => {
+    if (takenOver) {
+      const callback = args.find((arg) => typeof arg === "function");
+      if ((key === "write" || key === "end") && typeof callback === "function")
+        queueMicrotask(() => callback());
+      return key === "write"
+        ? true
+        : key === "flushHeaders"
+          ? undefined
+          : response;
+    }
+    const result = Reflect.apply(raw[key], raw, args);
+    return result === raw ? response : result;
   };
-  return true;
+  const writes = new Map<PropertyKey, (...args: unknown[]) => unknown>(
+    ["writeHead", "flushHeaders", "write", "end"].map((key) => [
+      key,
+      (...args: unknown[]) => respond(key, args),
+    ]),
+  );
+  const response: any = new Proxy(raw, {
+    get: (target, key) => {
+      const write = writes.get(key);
+      if (write !== undefined) return write;
+      const value = Reflect.get(target, key, target);
+      if (typeof value !== "function") return value;
+      return (...args: unknown[]) => {
+        const result = Reflect.apply(value, target, args);
+        return result === target ? response : result;
+      };
+    },
+    set: (target, key, value) => Reflect.set(target, key, value, target),
+  });
+  return {
+    response,
+    takeOver: () => {
+      takenOver ||= raw.headersSent === true;
+      return takenOver;
+    },
+  };
 };
 
 const PARAMS_METADATA = "nestia/McpRoute/ExternalParameters";
@@ -374,8 +416,26 @@ const loadMcpSdk = async () => {
   }
 };
 
+/**
+ * Types of {@link McpAdaptor}: the options of `upgrade` and the record of a
+ * registered tool.
+ *
+ * @evidence contracts/common.md#principled-implementation The class exposes one static entry point, so the adapter has no instance state: the tool list is closed over by the registered route handler.
+ * @evidence contracts/common.md#clear-and-simple-design One static method and two nested types.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It has no fixture or tool name, and the MCP SDK is loaded lazily so an application that never enables MCP does not need it.
+ * @evidence contracts/common.md#meaningful-documentation The class comment explains what an MCP route is and how to enable it.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation MCP tool discovery and HTTP transport callbacks carry protocol values; optional SDK imports use Node module resolution and no native file identity or child process is defined here.
+ */
 export namespace McpAdaptor {
-  /** Configuration options for {@link McpAdaptor.upgrade}. */
+  /**
+   * Configuration options for {@link McpAdaptor.upgrade}.
+   *
+   * @evidence contracts/common.md#principled-implementation The two options are the route path, with `/mcp` as the default, and the server information reported to clients, with a default name and version.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record of two optional values.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type; the defaults are stated in the code that reads them.
+   * @evidence contracts/common.md#meaningful-documentation Each option documents its meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation MCP tool discovery and HTTP transport callbacks carry protocol values; optional SDK imports use Node module resolution and no native file identity or child process is defined here.
+   */
   export interface IOptions {
     /**
      * HTTP path where the MCP endpoint will be mounted.

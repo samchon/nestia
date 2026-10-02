@@ -20,22 +20,30 @@ import { validate_request_body } from "./internal/validate_request_body";
  * Encrypted body decorator.
  *
  * `EncryptedBody` is a decorator function getting `application/json` typed data
- * from request body which has been encrypted by AES-128/256 algorithm. Also,
- * `EncryptedBody` validates the request body data type through
- * [typia](https://github.com/samchon/typia) ad the validation speed is maximum
- * 15,000x times faster than `class-validator`.
+ * from request body which has been encrypted by AES-128/192/256 algorithm.
+ * Also, `EncryptedBody` validates the request body data type through
+ * [typia](https://github.com/samchon/typia) using the declared TypeScript
+ * type.
  *
  * For reference, when the request body data is not following the promised type
  * `T`, `BadRequestException` error (status code: 400) would be thrown. Also,
- * `EncryptedRoute` decrypts request body using those options.
+ * This decorator decrypts the request body using these options.
  *
- * - AES-128/256
+ * - AES-128/192/256
  * - CBC mode
  * - PKCS #5 Padding
  * - Base64 Encoding
  *
+ * Successful validator data becomes the decorated argument, including copies
+ * returned by clone validators after decryption and JSON parsing.
+ *
  * @author Jeongho Nam - https://github.com/samchon
  * @returns Parameter decorator
+ * @evidence contracts/common.md#principled-implementation The body must be `text/plain` ciphertext; it is decrypted with the password of the controller or module, the plain text is parsed as JSON and validated by the transformed validator, and a decryption or parse failure becomes a 400 with one fixed message that does not echo the ciphertext and does not tell the two failures apart; a key or initialization vector the cipher itself refuses is the server's configuration, independent of the request, and is thrown as it is.
+ * @evidence contracts/common.md#clear-and-simple-design One parameter decorator composes shared text reading, password lookup and validator resolution; the successfully resolved data becomes the argument without repeating validation or changing decryption error handling.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The algorithm comes from `AesPkcs5` of the fetcher, the same one the client uses, and no key is embedded; a missing password is an error rather than a plain pass-through.
+ * @evidence contracts/common.md#meaningful-documentation The comment describes the protocol and the requirement of a password on the controller or module, and the private decode helper documents why every decryption failure collapses into one response.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Ciphertext parsing, AES decryption and request validation operate on HTTP values, with no native filesystem or subprocess boundary.
  */
 export function EncryptedBody<T>(
   validator?: IRequestBodyValidator<T>,
@@ -70,9 +78,9 @@ export function EncryptedBody<T>(
 
     // PARSE AND VALIDATE DATA
     const data: any = decode(body, password.key, password.iv);
-    const error: Error | null = checker(data);
-    if (error !== null) throw error;
-    return data;
+    const result = checker.resolve(data);
+    if (!result.success) throw result.error;
+    return result.data;
   })();
 }
 
@@ -89,9 +97,13 @@ export function EncryptedBody<T>(
  *
  * Both failure modes must therefore collapse into one indistinguishable
  * `BadRequestException` (identical status, message, and body). Only the
- * downstream type validation of an already-parsed body may report its own
- * distinct error, because reaching it requires plaintext the attacker cannot
- * forge without already knowing it.
+ * downstream type validation of an already-parsed body reports its own distinct
+ * error. AES-CBC provides no authentication; collapsing parse and padding
+ * errors does not establish ciphertext authenticity.
+ *
+ * A key or initialization vector the cipher refuses is thrown as it is. It says
+ * nothing about the body, so it opens no oracle, and it is a defect of the
+ * server's configuration that a 400 would blame on the client.
  *
  * @internal
  */
@@ -99,10 +111,22 @@ const decode = (body: string, key: string, iv: string): unknown => {
   try {
     return JSON.parse(AesPkcs5.decrypt(body, key, iv));
   } catch (exp) {
-    if (exp instanceof Error)
+    // A password the cipher itself refuses is the server's configuration, which
+    // no request body can influence, so it is no oracle and no client's fault.
+    if (exp instanceof Error && PASSWORD_ERRORS.has((exp as any).code))
+      throw exp;
+    else if (exp instanceof Error)
       throw new BadRequestException(
         "Failed to decrypt the request body. Check your body content or encryption password.",
       );
     else throw exp;
   }
 };
+
+/** The error codes of a key or an initialization vector the cipher refuses. */
+const PASSWORD_ERRORS: Set<unknown> = new Set([
+  "ERR_INVALID_ARG_TYPE",
+  "ERR_CRYPTO_INVALID_IV",
+  "ERR_CRYPTO_INVALID_KEYLEN",
+  "ERR_CRYPTO_UNKNOWN_CIPHER",
+]);

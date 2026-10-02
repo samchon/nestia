@@ -1,5 +1,4 @@
 import fs from "fs";
-import NodePath from "path";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
@@ -7,13 +6,34 @@ import { IReflectType } from "../structures/IReflectType";
 import { ITypedApplication } from "../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { ITypedMcpRoute } from "../structures/ITypedMcpRoute";
+import { SDK_BUNDLE_PATH } from "../utils/SdkBundlePath";
 import { StringUtil } from "../utils/StringUtil";
 import { CloneGenerator } from "./CloneGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
 import { SdkHttpParameterProgrammer } from "./internal/SdkHttpParameterProgrammer";
 
+/**
+ * Generates the SDK library and validates the analyzed routes it needs.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace bundles the static files, writes the DTOs and the functions, composes the distribution package, and reports the errors the generation would meet.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions, one public constant, and the private validators.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Validation and generation share the same route model.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidence contracts/portability.md#os-neutral-implementation Static bundle enumeration and output creation use Node fs; declaration/module path conversion and distribution process launching are delegated to ImportDictionary and SdkDistributionComposer. Existing file spelling is checked by the filesystem rather than an OS-name case rule.
+ */
 export namespace SdkGenerator {
+  /**
+   * Writes the SDK into the configured output directory: the bundled files, the
+   * DTOs when `clone` is on, the functions, and the distribution package when
+   * `distribute` is set.
+   *
+   * @evidence contracts/common.md#principled-implementation The steps run in dependency order, the bundle first and the distribution last. An absent output option throws before writing; a configured directory that does not exist is created recursively.
+   * @evidence contracts/common.md#clear-and-simple-design One function that delegates each step.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The steps are sequential and each awaits the previous one.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation Node mkdir and the bundle writer accept the configured native output path; subsequent file and process boundaries belong to their delegated writers. Configuration omission is distinct from a missing on-disk directory.
+   */
   export const generate = async (app: ITypedApplication): Promise<void> => {
     if (app.project.config.output === undefined)
       throw new Error("Output directory is not defined.");
@@ -40,6 +60,18 @@ export namespace SdkGenerator {
       });
   };
 
+  /**
+   * Returns the errors of routes that cannot become an SDK: MCP tools with
+   * duplicate names or accessors, and, without `clone`, HTTP routes whose
+   * parameter or return types are implicit, plus implicit exception types when
+   * propagation is enabled.
+   *
+   * @evidence contracts/common.md#principled-implementation The MCP checks always apply, and the implicit return check applies only where the SDK would have to name the type, because `clone` writes it as a declaration instead.
+   * @evidence contracts/common.md#clear-and-simple-design One function over three checks.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The list is collected, not thrown, so one run reports every error.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Validation judges analyzed route types and names and performs no native filesystem or process operation.
+   */
   export const validate = (
     app: ITypedApplication,
   ): IReflectOperationError[] => {
@@ -162,6 +194,12 @@ export namespace SdkGenerator {
    * Files the user already has are never touched, so that hand-written
    * customizations (e.g. extra re-exports in `module.ts`) survive regeneration.
    * Only missing files are filled in from the bundle.
+   *
+   * @evidence contracts/common.md#principled-implementation A file that the user has customized is never overwritten, and only files that are missing are filled in from the bundle.
+   * @evidence contracts/common.md#clear-and-simple-design One loop with two guards.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The existing target is checked before the write.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation fs.readdir/stat enumerate the installed bundle and fs.existsSync checks each target under the filesystem's own policy before writing UTF-8. Forward slash suffixes are accepted by Node on supported native platforms; concurrent generation into the same output is not an exclusive ownership guarantee.
    */
   export const bundle = async (output: string): Promise<void> => {
     const files: string[] = await fs.promises.readdir(BUNDLE_PATH);
@@ -177,12 +215,5 @@ export namespace SdkGenerator {
     }
   };
 
-  export const BUNDLE_PATH = NodePath.join(
-    __dirname,
-    "..",
-    "..",
-    "assets",
-    "bundle",
-    "api",
-  );
+  export const BUNDLE_PATH = SDK_BUNDLE_PATH;
 }

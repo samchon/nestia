@@ -9,7 +9,27 @@ import { SdkHttpFunctionProgrammer } from "./SdkHttpFunctionProgrammer";
 import { SdkHttpNamespaceProgrammer } from "./SdkHttpNamespaceProgrammer";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 
+/**
+ * Writes an HTTP route into the SDK: its function and its namespace.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace pairs the two declarations and describes the function.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and one description helper.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The description is from the route's own comment.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpRouteProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace SdkHttpRouteProgrammer {
+  /**
+   * Returns the function and the namespace of a route, the function carrying
+   * the route's description, `@param`, and exception tags, and a `@nestia`
+   * postfix.
+   *
+   * @evidence contracts/common.md#principled-implementation The two nodes share the identifiers of one decision.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The description keeps the names the function declares.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpRouteProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>

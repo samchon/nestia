@@ -5,16 +5,57 @@ import { pathToFileURL } from "url";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { EmittedJavaScriptPatcher } from "../../utils/EmittedJavaScriptPatcher";
+import { TemporaryDirectory } from "../../utils/TemporaryDirectory";
 import { TsConfigReader } from "../../utils/TsConfigReader";
 import { TtscExecutor } from "../../utils/TtscExecutor";
 
+/**
+ * Loads the TypeScript configuration of a project and its `nestia.config.ts`.
+ *
+ * @evidence contracts/common.md#principled-implementation The project file is found and merged with its `extends` chain, and the configuration is compiled through ttsc with the nestia plugin into a temporary directory, imported, and validated by type checks of the input, the scalar options and the swagger options; the swagger `info`, `servers`, `security` and `tags` values are passed on unchecked.
+ * @evidence contracts/common.md#clear-and-simple-design Two public functions with private helpers for the temporary roots, the plugin list, and the validation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only this process's unique materializations are removed on exit and handled termination signals; shared cache parents and other processes' children remain, and a compile error is reported with the compiler output.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * efficient algorithms: Project inheritance delegates one per-read traversal to TsConfigReader; configuration loading compiles one wrapper project, patches emitted JavaScript once and validates each returned config.
+ * reuse equivalent work: This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+ * bound retention and release resources: Wrapper project directories are removed in finally after compilation. Emitted output remains owned by the temporary registry until generation cleanup or process termination; imported module loader entries live in that process. A CLI watch child ends after each generation, whereas direct callers retain loaded exports and have no module-unload guarantee.
+ * @evidence contracts/portability.md#os-neutral-implementation Native project and materialization paths use path resolution/joining and Node fs/module resolution. The ttsc executor represents platform-specific executables at its process boundary; emitted ESM imports use pathToFileURL, and filename extensions preserve .mts/.cts module format.
+ */
 export namespace NestiaConfigLoader {
+  /**
+   * The compiler options of a project as the loader reads them: the raw
+   * `compilerOptions` object.
+   *
+   * @evidence contracts/common.md#principled-implementation The record wraps the raw options so callers can read them without a compiler API.
+   * @evidence contracts/common.md#clear-and-simple-design A one-member record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * efficient algorithms: The compiler-options record represents parsed values and selects no algorithm.
+   * reuse equivalent work: This record coordinates no configuration loads or shared producers.
+   * bound retention and release resources: This record owns neither materialization cleanup nor compiler tasks.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The raw compiler option record performs no native path resolution or process launch; its loader owns those boundaries.
+   */
   export interface ICompilerOptions {
     raw: {
       compilerOptions?: Record<string, any>;
     };
   }
 
+  /**
+   * Returns the merged compiler options of the project file, following its
+   * `extends` chain.
+   *
+   * It throws when the file cannot be found.
+   *
+   * @evidence contracts/common.md#principled-implementation The file is searched upward from the working directory when the name is relative, and `TsConfigReader` merges the chain, so the options are those the compiler would use.
+   * @evidence contracts/common.md#clear-and-simple-design One function delegating the reading.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads what the compiler reads.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result and the error.
+   * efficient algorithms: Upward project search visits each ancestor directory once, and TsConfigReader shares repeated ancestors inside one read.
+   * reuse equivalent work: This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * bound retention and release resources: This operation owns only invocation-local values, with no retained cache, handle or background task.
+   * @evidence contracts/portability.md#os-neutral-implementation Native project and materialization paths use path resolution/joining and Node fs/module resolution. The ttsc executor represents platform-specific executables at its process boundary; emitted ESM imports use pathToFileURL, and filename extensions preserve .mts/.cts module format.
+   */
   export const compilerOptions = async (
     project: string,
   ): Promise<ICompilerOptions> => {
@@ -31,6 +72,22 @@ export namespace NestiaConfigLoader {
     };
   };
 
+  /**
+   * Returns the configurations exported by a `nestia.config.ts`, validated.
+   *
+   * The file is compiled through ttsc with the nestia plugin into a temporary
+   * directory and imported; a missing file, a compile error, or an invalid
+   * field is an error.
+   *
+   * @evidence contracts/common.md#principled-implementation The wrapper project extends the user's project with emit forced on and declarations off, the typia plugin disabled and the nestia one enabled, the emitted file is patched for `import.meta.url`, and the exported value is checked for its input, scalar options and swagger options, so a malformed one is rejected before generation, while the OpenAPI `info`, `servers`, `security` and `tags` values are not inspected here.
+   * @evidence contracts/common.md#clear-and-simple-design One function over private helpers for compilation, extraction, and validation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The shared registry removes only owned children on exit and handled termination signals, and the checks follow the `INestiaConfig` contract.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the compile step and the errors.
+   * efficient algorithms: Each invocation compiles one wrapper project, traverses its emitted JavaScript once and validates each returned config and option field.
+   * reuse equivalent work: This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * bound retention and release resources: Wrapper project directories are removed in finally after compilation. Emitted output remains owned by the temporary registry until generation cleanup or process termination; imported module loader entries live in that process. A CLI watch child ends after each generation, whereas direct callers retain loaded exports and have no module-unload guarantee.
+   * @evidence contracts/portability.md#os-neutral-implementation Native project and materialization paths use path resolution/joining and Node fs/module resolution. The ttsc executor represents platform-specific executables at its process boundary; emitted ESM imports use pathToFileURL, and filename extensions preserve .mts/.cts module format.
+   */
   export const configurations = async (
     file: string,
     compilerOptions: Record<string, any>,
@@ -59,9 +116,6 @@ export namespace NestiaConfigLoader {
     return assertConfigurations(file, configurations);
   };
 
-  const MATERIALIZED_ROOTS: Set<string> = new Set();
-  let CLEANUP_REGISTERED: boolean = false;
-
   const materializeConfiguration = async (props: {
     file: string;
     compilerOptions: Record<string, any>;
@@ -76,11 +130,13 @@ export namespace NestiaConfigLoader {
       throw new Error(`unable to find "${project}" file.`);
 
     const projectRoot: string = path.dirname(path.resolve(projectFile));
-    const wrapperRoot: string = fs.mkdtempSync(
-      path.join(ensureMaterializedRoot(projectRoot), "tsconfig-"),
+    const wrapperRoot: string = TemporaryDirectory.create(
+      materializedRoot(projectRoot),
+      "tsconfig-",
     );
-    const outputRoot: string = fs.mkdtempSync(
-      path.join(ensureMaterializedRoot(projectRoot), "run-"),
+    const outputRoot: string = TemporaryDirectory.create(
+      materializedRoot(projectRoot),
+      "run-",
     );
     const wrapperFile: string = path.join(wrapperRoot, "tsconfig.json");
     const wrapperConfig = {
@@ -130,7 +186,7 @@ export namespace NestiaConfigLoader {
         { cause },
       );
     } finally {
-      fs.rmSync(wrapperRoot, { force: true, recursive: true });
+      TemporaryDirectory.remove(wrapperRoot);
     }
     await EmittedJavaScriptPatcher.importMetaUrl(outputRoot);
 
@@ -143,48 +199,8 @@ export namespace NestiaConfigLoader {
     return next;
   };
 
-  const ensureMaterializedRoot = (projectRoot: string): string => {
-    const root: string = path.join(
-      projectRoot,
-      "node_modules",
-      ".nestia",
-      "config-loader",
-    );
-    fs.mkdirSync(root, { recursive: true });
-    MATERIALIZED_ROOTS.add(root);
-    if (CLEANUP_REGISTERED === false) {
-      CLEANUP_REGISTERED = true;
-      const sweep = (): void => {
-        for (const location of MATERIALIZED_ROOTS)
-          fs.rmSync(location, { force: true, recursive: true });
-      };
-      process.once("exit", sweep);
-      // process.once("exit", …) does not fire on SIGINT/SIGTERM. Without
-      // these handlers a Ctrl-C during codegen leaves `run-*` and
-      // `tsconfig-*` mkdtempSync directories behind under
-      // node_modules/.nestia/config-loader/ until a subsequent clean exit.
-      // The module-level CLEANUP_REGISTERED flag above guards against
-      // re-entrancy within this module; we deliberately do NOT gate on
-      // `process.listenerCount(signal) > 0` because the parallel sweep in
-      // `ConfigAnalyzer.ensureRuntimeCleanup` (or any user-app SIGINT
-      // handler) could register first, and that gate would skip our
-      // registration — leaving MATERIALIZED_ROOTS unswept on Ctrl-C.
-      // Windows note: `process.kill(pid, "SIGINT")` calls TerminateProcess
-      // rather than re-raising; whichever module registers FIRST runs its
-      // sweep, the second is skipped, RUNTIME/MATERIALIZED cleanup is
-      // best-effort on Windows. SIGHUP is a no-op for most common code
-      // paths on Windows (Node fires it on console-close and exits within
-      // seconds).
-      const onSignal = (signal: NodeJS.Signals): void => {
-        sweep();
-        process.kill(process.pid, signal);
-      };
-      for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
-        process.once(signal, onSignal);
-      }
-    }
-    return root;
-  };
+  const materializedRoot = (projectRoot: string): string =>
+    path.join(projectRoot, "node_modules", ".nestia", "config-loader");
 
   const emittedJavaScriptKey = (projectRoot: string, file: string): string => {
     const relative: string = path.relative(projectRoot, file);

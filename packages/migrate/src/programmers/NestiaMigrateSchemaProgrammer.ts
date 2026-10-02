@@ -2,17 +2,33 @@ import { SyntaxKind, factory } from "@ttsc/factory";
 import { NamingConvention, OpenApiTypeChecker } from "@typia/utils";
 import type { OpenApi } from "typia";
 
-import { FormatCheatSheet } from "../factories/FormatCheatSheet";
+import { SUPPORTED_STRING_FORMATS } from "../factories/SupportedStringFormats";
 import { TypeFactory } from "../factories/TypeFactory";
 import ts from "../internal/ts";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 
+/**
+ * Generates the TypeScript type of an OpenAPI schema.
+ *
+ * @evidence contracts/common.md#principled-implementation The schema kind is decided by the type checker of `@typia/utils`, and each kind becomes a type: constants as literal types, numbers, integers, and strings with their constraints as `typia.tags` intersections, arrays, tuples, objects, references, and unions, with `any` for an unknown schema.
+ * @evidence contracts/common.md#clear-and-simple-design One entry function that dispatches to one private writer per kind.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The dispatch follows the schema kinds of OpenAPI, and no schema name is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is generated.
+ */
 export namespace NestiaMigrateSchemaProgrammer {
   /* -----------------------------------------------------------
     FACADE
   ----------------------------------------------------------- */
+  /**
+   * Returns the type node of a schema.
+   *
+   * @evidence contracts/common.md#principled-implementation An unknown schema is `any`, a `oneOf` becomes a TypeScript union, integer formats outside the supported four use the migration default `int64`, a binary string becomes `File`, and known string formats become typia tags. TypeScript unions do not encode oneOf exclusivity, and unsupported formats impose no generated constraint.
+   * @evidence contracts/common.md#clear-and-simple-design One function with an ordered chain of schema kind tests.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Schema-kind dispatch applies uniformly; the int64 fallback and supported-format table are generator policies rather than constraints supplied by the document.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   */
   export const write = (props: {
     components: OpenApi.IComponents;
     importer: NestiaMigrateImportProgrammer;
@@ -209,8 +225,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       intersection.push(props.importer.tag("Pattern", props.schema.pattern));
     if (
       props.schema.format !== undefined &&
-      (FormatCheatSheet as Record<string, string>)[props.schema.format] !==
-        undefined
+      SUPPORTED_STRING_FORMATS.has(props.schema.format)
     )
       intersection.push(props.importer.tag("Format", props.schema.format));
     if (props.schema.contentMediaType !== undefined)
@@ -267,11 +282,13 @@ export namespace NestiaMigrateSchemaProgrammer {
       props.schema.additionalItems !== null
         ? [
             factory.createRestTypeNode(
-              write({
-                components: props.components,
-                importer: props.importer,
-                schema: props.schema.additionalItems,
-              }),
+              factory.createArrayTypeNode(
+                write({
+                  components: props.components,
+                  importer: props.importer,
+                  schema: props.schema.additionalItems,
+                }),
+              ),
             ),
           ]
         : props.schema.additionalItems === true

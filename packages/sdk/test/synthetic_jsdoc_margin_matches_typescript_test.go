@@ -30,6 +30,11 @@ import (
 //     spaces, and typed `@returns` and `@return` descriptions.
 //  2. Run the SDK metadata pass over each in-process.
 //  3. Assert the description and each tag's text equal TypeScript's.
+//
+// @evidence contracts/testing.md#behavioral-verification Eleven authored JSDoc forms must preserve exact description and tag text, including paragraph breaks and meaningful indentation.
+// @evidence contracts/testing.md#independent-expectations The literal table records TypeScript JSDoc parsing semantics for margin stripping, typed parameter tags and continuation text rather than copying SDK output.
+// @evidence contracts/testing.md#distinguishing-cases Opening-line text, no description, doubled margin, blank paragraphs, example indentation, aligned continuation, typed tags and nested braces distinguish normalizing margins from deleting meaningful whitespace.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticJSDocMarginMatchesTypeScript(t *testing.T) {
 	for _, expected := range []struct {
 		comment     string

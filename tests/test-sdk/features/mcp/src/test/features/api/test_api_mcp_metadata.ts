@@ -12,7 +12,7 @@ import api from "@api";
  *
  * 1. Read each generated MCP wrapper namespace's `METADATA`.
  * 2. Assert protocol, tool names, and selected descriptions.
- * 3. Assert all expected tools are represented exactly once.
+ * 3. Assert the six selected generated tools are represented exactly once.
  */
 export const test_api_mcp_metadata = (): void => {
   TestValidator.equals(

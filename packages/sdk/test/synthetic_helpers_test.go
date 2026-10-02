@@ -10,19 +10,10 @@ import (
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 )
 
-// writeSyntheticTsconfig writes a tsconfig in temp whose rootDir is temp itself,
-// so a self-authored controller under temp/src loads against the repo sources
-// without touching the tests/test-sdk fixtures. It pins @nestia/core,
-// @nestia/sdk, tgrid, typia and @types/node to the repository sources through
-// `paths` and `typeRoots`, the same wiring writeFeatureTsconfig uses, so the
-// in-process load resolves the linked SDK contributor the same way a real
-// nestia build does.
-//
-// Synthetic controllers exist because the existing tests/test-sdk fixtures carry
-// no controller whose return/parameter type annotation is a `Record<...>`,
-// `keyof`, `readonly`, `typeof`, or a bare intersection — the reflect-type
-// switch in sdk_transform.go has a branch per AST shape, and only a fixture that
-// writes those exact annotations drives the matching branch in-process.
+// writeSyntheticTsconfig prepares TypeScript-language input for native SDK
+// analysis. Authored source resolves repository declarations through explicit
+// paths; no product consumer is built or executed. Library typings supply the
+// checker's language model, and the test owns the temporary config/program.
 func writeSyntheticTsconfig(t *testing.T, root, temp string) {
 	t.Helper()
 	typeRoots := nodeTypeRoots(t, root)
@@ -42,8 +33,8 @@ func writeSyntheticTsconfig(t *testing.T, root, temp string) {
       "@nestia/sdk": ["` + filepath.ToSlash(filepath.Join(root, "packages/sdk/src")) + `"],
       "@nestia/sdk/*": ["` + filepath.ToSlash(filepath.Join(root, "packages/sdk/src/*")) + `"],
       "tgrid": ["` + filepath.ToSlash(filepath.Join(root, "packages/core/node_modules/tgrid/lib/index.d.ts")) + `"],
-      "typia": ["` + filepath.ToSlash(filepath.Join(root, "tests/test-sdk/node_modules/typia/lib/index.d.ts")) + `"],
-      "typia/*": ["` + filepath.ToSlash(filepath.Join(root, "tests/test-sdk/node_modules/typia/lib/*")) + `"]
+      "typia": ["` + filepath.ToSlash(filepath.Join(root, "packages/sdk/node_modules/typia/lib/index.d.ts")) + `"],
+      "typia/*": ["` + filepath.ToSlash(filepath.Join(root, "packages/sdk/node_modules/typia/lib/*")) + `"]
     }
   },
   "include": ["src"]

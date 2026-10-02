@@ -27,7 +27,7 @@ import { SourceFinder } from "../../../../../../../packages/sdk/src/utils/Source
 export const test_dynamic_module_paths = async (): Promise<void> => {
   const root: string = path.resolve(
     __dirname,
-    "../../../.tmp-dynamic-module-paths",
+    "../../../node_modules/.tmp-dynamic-module-paths",
   );
   const directory: string = path.join(root, "app [v2]", "controllers");
   const file: string = path.join(directory, "ProbeController.js");

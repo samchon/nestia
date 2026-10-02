@@ -4,6 +4,16 @@ import typia from "typia";
 import api from "@api";
 import { ISeller } from "@api/lib/structures/ISeller";
 
+/**
+ * Verifies sends a million-character company field through encrypted join and
+ * validates ISeller.
+ *
+ * The authored ISeller contract permits a string company and defines the
+ * expected decrypted response shape.
+ *
+ * 1. Execute the authored feature through its prepared generated artifacts.
+ * 2. Assert the distinctions described below.
+ */
 export const test_api_encrypted_long = async (
   connection: api.IConnection,
 ): Promise<void> => {

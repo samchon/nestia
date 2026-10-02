@@ -11,7 +11,26 @@ import { TextPlainValidator } from "../validators/TextPlainValidator";
 import { ParameterNameAnalyzer } from "./ParameterNameAnalyzer";
 import { SwaggerExampleAnalyzer } from "./SwaggerExampleAnalyzer";
 
+/**
+ * Reflects the parameters of a route method.
+ *
+ * @evidence contracts/common.md#principled-implementation Nest's route argument metadata gives each parameter's category and position, the nestia decorators are recognized by the name of their factory function, the metadata of the transform gives the type, and the wire rules of the HTTP input are checked against it.
+ * @evidence contracts/common.md#clear-and-simple-design One public function with private classification and duplicate checks.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The recognition by factory name couples this package to the function names of `@nestia/core`, a contract between the two packages.
+ * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationParameterAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace ReflectHttpOperationParameterAnalyzer {
+  /**
+   * The input of the parameter analysis: the controller, the method, its name,
+   * the HTTP method, the metadata, and the error list.
+   *
+   * @evidence contracts/common.md#principled-implementation The record holds what the analysis needs.
+   * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationParameterAnalyzer.IContext analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export interface IContext {
     controller: IReflectController;
     function: Function;
@@ -20,6 +39,18 @@ export namespace ReflectHttpOperationParameterAnalyzer {
     metadata: IOperationMetadata;
     errors: IReflectOperationError[];
   }
+  /**
+   * Returns the parameters of a route method in position order.
+   *
+   * Contradictions, such as a body on GET, duplicated bodies or fields,
+   * unreadable types, and types the HTTP input cannot carry, are errors.
+   *
+   * @evidence contracts/common.md#principled-implementation Contradictions are collected first, each parameter is composed with the schema that matches its content type, its wire rules are checked, unnamed parameters are named, and duplicate keys between field parameters and objects are reported.
+   * @evidence contracts/common.md#clear-and-simple-design One function that gathers every error before returning.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Every rule follows the HTTP or NestJS contract, and a parameter that cannot be sent is an error, not silently dropped.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the errors.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationParameterAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const analyze = (ctx: IContext): IReflectHttpOperationParameter[] => {
     const preconfigured: IReflectHttpOperationParameter.IPreconfigured[] =
       analyzePreconfigured(ctx);

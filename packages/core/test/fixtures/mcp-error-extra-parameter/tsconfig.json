@@ -1,0 +1,7 @@
+{
+  "extends": "../../../../../tests/config/tsconfig.json",
+  "compilerOptions": {
+    "paths": { "@api": ["./src/api"], "@api/lib/*": ["./src/api/*"] }
+  },
+  "include": ["src/controllers/**/*.ts", "src/api/structures/**/*.ts", "src/test/transform_*_fixture.ts"]
+}

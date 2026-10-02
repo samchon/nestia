@@ -1,6 +1,6 @@
 ---
 title: "Reference · Nestia Editor"
-description: "Replace Swagger UI with an in-browser TypeScript editor that embeds the generated SDK. Test endpoints as TypeScript with auto-completion, mockups, and e2e scaffolds."
+description: "Generate and download a TypeScript SDK or NestJS project from an OpenAPI document, with mockup simulation and e2e scaffolds."
 ---
 import { EDITOR_EXAMPLES } from "../../../constants/EDITOR_EXAMPLES";
 import EditorMovie from "../../../movies/editor/EditorMovie";
@@ -10,18 +10,13 @@ import { ListItem } from "../../../components/basic/ListItem";
 
 # Nestia Editor
 
-![Example Case](/images/editor/stackblitz.png)
+`@nestia/editor` generates a TypeScript SDK or NestJS project from an OpenAPI document in your browser and delivers it as a ZIP download. Choose the project mode, package name and generation options, then extract the archive and install and run the project locally. Generated projects use the native Go-backed TypeScript compiler, so they require a local environment that can run that compiler.
 
-**Swagger UI, but with a real TypeScript editor.**
+Enable the [mockup simulator](/docs/sdk/simulate) to exercise the SDK without a backend, or [generated e2e tests](/docs/sdk/e2e) to include randomized endpoint tests. The downloaded files retain their paths and UTF-8 contents. An operation that `@nestia/migrate` cannot convert is left out of the project, and both the static application and the components list each skipped operation with its reasons beside the download, so an incomplete project is never presented as complete.
 
-`@nestia/editor` pairs the OpenAPI document browser you're used to with a [StackBlitz](https://stackblitz.com/)-powered TypeScript playground that has the generated SDK pre-installed. Click an endpoint → it opens in the editor with autocomplete on the request DTO, the response type, and every helper. Press run; the call goes through, the response comes back, and you can step through the TypeScript code that called it.
+The examples below open project generators with simulation and e2e generation enabled.
 
-Two things flip on automatically:
-
-- **[Mockup simulator](/docs/sdk/simulate)** — the SDK answers without a backend, so reviewers can drive your API even when the server is offline.
-- **[Auto e2e tests](/docs/sdk/e2e)** — every endpoint ships with a randomized test you can run with one click.
-
-Below are some live editors you can open right now to see the workflow.
+The static application accepts `keyword`, `simulate` and `e2e` as query options. Each is enabled by `true` or `1`; other values disable it. Query values take precedence over matching `window` settings, and an absent setting defaults to false. For example, `?url=...&keyword=false` generates positional SDK arguments. When you use `NestiaEditorIframe` directly, omitted generation options default to true.
 
 <List>
   <ListItem>
@@ -52,24 +47,29 @@ Below are some live editors you can open right now to see the workflow.
 
 <EditorMovie />
 
-> Put your `swagger.json` file, then `@nestia/editor` be opened.
+The video shows the earlier browser playground. The current application downloads a project ZIP.
 
 
 
 
 ## Frontend Setup
 ### React Library
-```typescript
-import { NestiaEditorIframe } from "@nestia/editor";
-import { SwaggerV2, OpenApiV3, OpenApiV3_1 } from "@samchon/openapi";
+```tsx
+import { NestiaEditorIframe, NestiaEditorUploader } from "@nestia/editor";
+import type { SwaggerV2, OpenApiV3, OpenApiV3_1 } from "@typia/interface";
 
-const document: SwaggerV2 | OpenApiV3 | OpenApiV3_1;
+function DocumentEditor(props: {
+  document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument;
+}) {
+  return <NestiaEditorIframe swagger={props.document}
+                             package="your-package-name"
+                             e2e={true}
+                             simulate={true} />;
+}
 
-<NestiaEditorIframe swagger={document} 
-                    package="your-package-name"
-                    e2e={true} 
-                    simulate={true} />
-<NestiaEditorUploader />
+function UploadEditor() {
+  return <NestiaEditorUploader />;
+}
 ```
 
 Install `@nestia/editor` and import one of below components.
@@ -89,32 +89,21 @@ If you've prepared the Swagger Document to serve, you can directly launch the cl
 
 Unzip and place your `swagger.json` file into the extracted directory.
 
-Just download unzip the above [`editor.zip`](/downloads/editor.zip) file, and place your `swagger.json` (or `swagger.yaml`) file into the extracted directory. When you open the unzipped `index.html` in your browser, you can see the `@nestia/editor` is serving the "TypeScript Swagger Editor" application with your `swagger.json` (or `swagger.yaml`) file.
+Download and extract [`editor.zip`](/downloads/editor.zip) to serve the project generator alongside your `swagger.json` or `swagger.yaml` file. Open the hosted `index.html` in your browser to generate and download a project from that document.
 
 Also, if you want to specify the package name, or activate the Mockup Simulator, open the `index.html` file of unzipped and edit some variables like below. Guiding the users th fill these `package`, `simulate` and `e2e` query parameters like `http://localhost/?simulate=true&e2e=true` can be an alternative way. 
 
 By the way, if you do not place the `swagger.json` (or `swagger.yaml`) file into the directory, the `@nestia/editor` will just show you the "Swagger File Uploader" (`NestiaEditorUploader`) instead.
 
-```html filename="editor/index.html" showLineNumbers {14-16}
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, height=device-height, initial-scale=1, minimum-scale=1.0, maximum-scale=3.0s"
-    />
-    <title>Nestia Editor</title>
-    <script type="module"  src="./assets/index-DwHERS4Q.js"></script>
-  </head>
-  <body style="width: 100%; height: 100%; margin: 0px; overflow: hidden;">
-    <div id="root" style="width: 100%; height: 100%"></div>
-    <script>
-      window.package = "@ORGANIZATION/PROJECT";
-      window.simulate = false; 
-      window.e2e = false;
-    </script>
-  </body>
-</html>
+Keep the downloaded page's generated bundle reference and change its settings script:
+
+```html filename="editor/index.html" showLineNumbers
+<script>
+  window.package = "@ORGANIZATION/PROJECT";
+  window.keyword = false;
+  window.simulate = false;
+  window.e2e = false;
+</script>
 ```
 
 
@@ -122,14 +111,14 @@ By the way, if you do not place the `swagger.json` (or `swagger.yaml`) file into
 
 ### `<iframe>` Embedding
 ```html
-<iframe url="https://nestia.io/editor/?url={URL_ADDRESS}&package={NAME}&simulate=true&e2e=true"></iframe>
+<iframe src="https://nestia.io/editor/?url={URL_ADDRESS}&amp;package={NAME}&amp;simulate=true&amp;e2e=true"></iframe>
 ```
 
 You also can embed the `@nestia/editor` with static URL address.
 
 When embedding the `@nestia/editor` application through the `<iframe>` tag, fill the `url` query parameter with the URL address of your `swagger.json` (or `swagger.yaml`) file. Also, the `simulate` and `e2e` query parameters are optional, but recommended to be filled with `true` for the best experience. As you know, they activate the Mockup Simulator and automatic e2e test functions' generation.
 
-By the way, if you do not fill the `url` query parameter, the `@nestia/editor` will just show you the "Swagger File Uploader" (`NestiaEditorUploader`) instead.
+Without a `url` query parameter, the application probes `swagger.json` and then `swagger.yaml` beside the page. If neither document is available, it shows `NestiaEditorUploader`.
 
 If you wanna see the example cases of the `<iframe>` embedding, let's see the below list again.
 

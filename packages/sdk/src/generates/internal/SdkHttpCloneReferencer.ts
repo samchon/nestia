@@ -1,13 +1,37 @@
+import { TsPrinter } from "@ttsc/factory";
+
 import { MetadataSchema, nameOf } from "../../internal/legacy";
+import { INestiaProject } from "../../structures/INestiaProject";
 import { IReflectType } from "../../structures/IReflectType";
 import { ITypedApplication } from "../../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { ITypedMcpRoute } from "../../structures/ITypedMcpRoute";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
-import { StringUtil } from "../../utils/StringUtil";
+import { ImportDictionary } from "./ImportDictionary";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
+import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 import { SdkWebSocketCloneProgrammer } from "./SdkWebSocketCloneProgrammer";
 
+/**
+ * Rewrites the routes to refer to the cloned DTOs.
+ *
+ * @evidence contracts/common.md#principled-implementation HTTP and MCP JSON types and their namespace/tag imports are emitted together from resolved metadata by the cloned declaration writer; WebSocket declarations retain their source types and redirect only cloned imports.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and three visitors.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The routes are rewritten in place, once.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpCloneReferencer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace SdkHttpCloneReferencer {
+  /**
+   * Rewrites the HTTP, MCP and WebSocket routes so their types and imports
+   * refer to the `structures` files.
+   *
+   * @evidence contracts/common.md#principled-implementation HTTP and MCP JSON routes use structural TypeNodes and the writer's registered imports. Empty and any/unknown forms retain their baked keyword distinction because they require no cloned component binding; WebSocket source types only redirect imports actually cloned.
+   * @evidence contracts/common.md#clear-and-simple-design One loop.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The routes are edited in place, as the generation owns them.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpCloneReferencer.replace composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const replace = (
     app: ITypedApplication,
     websocket: Set<string> = new Set(),
@@ -16,7 +40,7 @@ export namespace SdkHttpCloneReferencer {
     for (const route of app.routes)
       if (route.protocol === "http")
         visitHttpRoute({
-          directory,
+          project: app.project,
           route,
         });
       else if (route.protocol === "websocket")
@@ -25,43 +49,70 @@ export namespace SdkHttpCloneReferencer {
           directory,
           route,
         });
+      else if (route.protocol === "mcp") visitMcpRoute(app.project, route);
+  };
+
+  const visitMcpRoute = (
+    project: INestiaProject,
+    route: ITypedMcpRoute,
+  ): void => {
+    const importer = new ImportDictionary(
+      `${project.config.output}/functional/${route.accessor.join("/")}/index.ts`,
+    );
+    if (route.input && route.inputMetadata)
+      visitType({
+        importer,
+        project,
+        metadata: route.inputMetadata,
+        type: route.input.type,
+        name: (name) => (route.input!.type = { name }),
+      });
+    if (route.returnType && route.outputMetadata)
+      visitType({
+        importer,
+        project,
+        metadata: route.outputMetadata,
+        type: route.returnType,
+        name: (name) => (route.returnType = { name }),
+      });
+    route.imports = importer.toImports();
   };
 
   const visitHttpRoute = (props: {
-    directory: string;
+    project: INestiaProject;
     route: ITypedHttpRoute;
   }): void => {
-    const unique: Set<string> = new Set();
+    const importer = new ImportDictionary(
+      `${props.project.config.output}/functional/${props.route.accessor.join("/")}/index.ts`,
+    );
     for (const p of SdkHttpParameterProgrammer.getSignificant(
       props.route,
       true,
     ))
       visitType({
-        unique,
+        importer,
+        project: props.project,
         metadata: p.metadata,
         type: p.type,
         name: (name) => (p.type = { name }),
       });
     for (const v of Object.values(props.route.exceptions))
       visitType({
-        unique,
+        importer,
+        project: props.project,
         metadata: v.metadata,
         type: v.type,
         name: (name) => (v.type = { name }),
       });
     if (props.route.success.binary === false)
       visitType({
-        unique,
+        importer,
+        project: props.project,
         metadata: props.route.success.metadata,
         type: props.route.success.type,
         name: (name) => (props.route.success.type = { name }),
       });
-    props.route.imports = Array.from(unique).map((str) => ({
-      file: `${props.directory}/${str}`,
-      asterisk: null,
-      default: null,
-      elements: [str],
-    }));
+    props.route.imports = importer.toImports();
   };
 
   const visitWebSocketRoute = (props: {
@@ -113,20 +164,43 @@ export namespace SdkHttpCloneReferencer {
   };
 
   const visitType = (p: {
-    unique: Set<string>;
+    importer: ImportDictionary;
+    project: INestiaProject;
     metadata: MetadataSchema;
     type: IReflectType;
     name: (key: string) => void;
   }): void => {
-    const enroll = (key: string) => {
-      if (key.length && StringUtil.isImplicit(key) === false)
-        p.unique.add(StringUtil.accessorsOf(key)[0]!);
-    };
-    for (const alias of p.metadata.aliases) enroll(alias.type!.name);
-    for (const array of p.metadata.arrays) enroll(array.type!.name);
-    for (const tuple of p.metadata.tuples) enroll(tuple.type!.name);
-    for (const object of p.metadata.objects) enroll(object.type!.name);
-    p.name(nameOf(p.metadata));
+    // Empty and any/unknown metadata carries no structural declaration from
+    // which to recover its source-level keyword distinction. These forms require
+    // no cloned component binding; retain the producer's baked name (or declared
+    // route type for authored metadata without a bake).
+    if (
+      p.metadata.any ||
+      (p.metadata.nullable === false &&
+        p.metadata.escaped === null &&
+        p.metadata.rest === null &&
+        [
+          p.metadata.atomics,
+          p.metadata.constants,
+          p.metadata.templates,
+          p.metadata.arrays,
+          p.metadata.tuples,
+          p.metadata.objects,
+          p.metadata.aliases,
+          p.metadata.natives,
+          p.metadata.sets,
+          p.metadata.maps,
+          p.metadata.functions,
+        ].every((members) => members.length === 0))
+    ) {
+      p.name(nameOf(p.metadata) || getFullText(p.type));
+      return;
+    }
+    p.name(
+      new TsPrinter().print(
+        SdkTypeProgrammer.write(p.project)(p.importer)(p.metadata),
+      ),
+    );
   };
 }
 

@@ -45,6 +45,10 @@ export namespace IPage {
     limit?: number;
   }
   export namespace IRequest {
+    /**
+     * Template literal members restrict sort terms to a sign and a permitted
+     * column name.
+     */
     export type Sort<Literal extends string> = Array<
       `-${Literal}` | `+${Literal}`
     >;

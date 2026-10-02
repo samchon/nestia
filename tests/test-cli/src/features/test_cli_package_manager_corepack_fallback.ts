@@ -6,11 +6,10 @@ import { CliTestHarness } from "../internal/CliTestHarness";
  * Verifies the scaffolder falls back to `corepack pnpm` when pnpm is not
  * directly installed.
  *
- * Node.js bundles corepack, so most machines without a global pnpm can still
- * resolve the `catalog:` protocol through it — but only if the CLI both
- * prefixes every lifecycle command with `corepack pnpm` and suppresses the
- * interactive download prompt that would otherwise hang a non-interactive
- * scaffold.
+ * When corepack is installed, machines without a global pnpm can still resolve
+ * the `catalog:` protocol through it — but only if the CLI both prefixes every
+ * lifecycle command with `corepack pnpm` and suppresses the interactive
+ * download prompt that would otherwise hang a non-interactive scaffold.
  *
  * 1. Run `nestia start` with a fake context where only `corepack --version` probes
  *    successfully.

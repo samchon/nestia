@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
@@ -251,6 +252,19 @@ func writeSingleOutput(text, outPath string) int {
 	return 0
 }
 
+// SourceFileText returns the text supplied by a present Text() provider.
+// Missing values, including typed nil receivers, and values without Text()
+// return empty text and false without invoking a method. Errors from a present
+// provider's Text() method propagate to its caller.
+//
+// @evidence contracts/common.md#principled-implementation Structural Text() support establishes the provider operation, while a guarded reflect nil-identity check establishes that a receiver exists before dispatch. Every nil-capable kind follows the same absent-source rule; non-nil providers return their own text unchanged.
+// @evidence contracts/common.md#clear-and-simple-design One structural type assertion, one constant-time receiver-presence check restricted to the kinds for which Go permits IsNil, and one method dispatch separate absent sources from actual provider behavior.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts The nil rule applies to all structural providers without compiler-type names or recovery. It does not invoke missing receivers, mutate foreign providers or conceal errors raised by present providers.
+// @evidence contracts/common.md#meaningful-documentation The comment states exact absent-value behavior, typed nil receiver treatment and propagation of present-provider errors.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The Text provider is an in-memory structural interface; the helper does not read a native source file.
+// @evidence contracts/performance.md#efficient-algorithms Type and nil checks are constant work; obtaining the string has the provider-defined cost.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The provider owns source text and the returned string may retain those bytes; no global provider reference is stored.
 func SourceFileText(target any) (string, bool) {
 	type sourceText interface {
 		Text() string
@@ -258,6 +272,13 @@ func SourceFileText(target any) (string, bool) {
 	file, ok := target.(sourceText)
 	if !ok {
 		return "", false
+	}
+	value := reflect.ValueOf(file)
+	switch value.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice, reflect.UnsafePointer:
+		if value.IsNil() {
+			return "", false
+		}
 	}
 	return file.Text(), true
 }

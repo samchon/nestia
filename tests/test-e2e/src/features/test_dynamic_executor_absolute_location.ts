@@ -1,6 +1,5 @@
 import { DynamicExecutor, TestValidator } from "@nestia/e2e";
 import fs from "fs";
-import os from "os";
 import path from "path";
 
 /**
@@ -14,20 +13,24 @@ import path from "path";
  * relative nor absolute — and every discovered file failed with
  * `MODULE_NOT_FOUND`.
  *
- * The system temp directory is the vehicle because it is the ordinary way to
- * land on another volume: on a Windows checkout outside the system drive this
- * case is genuinely cross-drive and reproduces the defect, while on the POSIX
- * CI runner it degrades to a long `../..` chain and still proves the common
- * path keeps working. The suite's own `src/features` run is the near-location
- * control.
+ * A fixture under the ignored workspace cache exercises an absolute location
+ * outside the package tree. It covers same-volume relative resolution;
+ * cross-volume Windows resolution is not exercised by this fixture. The suite's
+ * own `src/features` run is the near-location control.
  *
- * 1. Write a fixture into a fresh directory under the system temp root.
+ * 1. Write a fixture into a fresh directory under the ignored workspace cache.
  * 2. Discover it through `DynamicExecutor` by absolute path.
  * 3. Assert the function was found and actually executed.
  */
+
 export async function test_dynamic_executor_absolute_location(): Promise<void> {
+  const cache: string = path.resolve(
+    __dirname,
+    "../../../../node_modules/.cache/test-e2e",
+  );
+  fs.mkdirSync(cache, { recursive: true });
   const directory: string = fs.mkdtempSync(
-    path.join(os.tmpdir(), "nestia-e2e-location-"),
+    path.join(cache, "nestia-e2e-location-"),
   );
   try {
     fs.writeFileSync(

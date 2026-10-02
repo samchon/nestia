@@ -6,20 +6,41 @@ import { IPropagation } from "../IPropagation";
 import { is_binary_response_content_type } from "./is_binary_response_content_type";
 import { join_host_and_path, normalize_route_path } from "./join_host_and_path";
 
-/** @internal */
+/**
+ * Shared transport pipeline with injected body codecs.
+ *
+ * @internal
+ */
 export namespace FetcherBase {
+  /**
+   * Body transformations supplied by the plain or encrypted fetcher.
+   *
+   * The encode input has already undergone the route's body transformation.
+   * Header records describe the corresponding request or response.
+   */
   export interface IProps {
+    /** Fetcher name used in request configuration errors. */
     className: string;
+
+    /** Convert a transformed request body into its wire representation. */
     encode: (
       input: any,
       headers: Record<string, IConnection.HeaderValue | undefined>,
     ) => string;
+
+    /** Decode a textual response not handled by a structured media branch. */
     decode: (
       input: string,
       headers: Record<string, IConnection.HeaderValue | undefined>,
     ) => any;
   }
 
+  /**
+   * Return successful response data and throw HttpError for a failed status.
+   *
+   * Binary response streams transfer to the caller for reading or cancellation;
+   * an absent binary body is represented by a closed empty stream.
+   */
   export const request =
     (props: IProps) =>
     async <Input, Output>(
@@ -45,6 +66,13 @@ export namespace FetcherBase {
       return result.data as Output;
     };
 
+  /**
+   * Return the classified HTTP response, including failed status payloads.
+   *
+   * Failed JSON responses are parsed when readable; malformed JSON remains
+   * text. Transport and successful-body decoding errors still reject. Binary
+   * response streams transfer to the caller for consumption or cancellation.
+   */
   export const propagate =
     (props: IProps) =>
     async <Input>(
@@ -55,7 +83,15 @@ export namespace FetcherBase {
     ): Promise<IPropagation<any, any>> =>
       _Propagate("propagate")(props)(connection, route, input, stringify);
 
-  /** @internal */
+  /**
+   * Executes one request and transfers binary stream ownership to its caller.
+   *
+   * A null successful binary body has no producer or bytes, so its replacement
+   * stream must start closed. Actual response streams retain their identity;
+   * reading and cancellation remain the caller's responsibility.
+   *
+   * @internal
+   */
   const _Propagate =
     (method: string) =>
     (props: IProps) =>
@@ -176,14 +212,16 @@ export namespace FetcherBase {
             );
             result.data = route.parseQuery ? route.parseQuery(query) : query;
           } else if (is_binary_response_content_type(route.response?.type))
-            result.data = response.body ?? new ReadableStream<Uint8Array>();
+            result.data =
+              response.body ??
+              new ReadableStream<Uint8Array>({
+                start: (controller) => controller.close(),
+              });
           else
             result.data = props.decode(await response.text(), result.headers);
         }
         event.output = result.data;
         return result;
-      } catch (exp) {
-        throw exp;
       } finally {
         event.completed_at = new Date();
         if (connection.logger)
@@ -215,7 +253,7 @@ const request_form_data_body = (input: Record<string, any>): FormData => {
     else encoded.append(key, value);
   };
   for (const [key, value] of Object.entries(input))
-    if (Array.isArray(value)) value.map(append(key));
+    if (Array.isArray(value)) value.forEach(append(key));
     else append(key)(value);
   return encoded;
 };

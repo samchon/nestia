@@ -17,6 +17,11 @@ import (
 //  1. Build a tuple-return TypedRoute project with LLM validation enabled.
 //  2. Require the transform exit code and exact LLM diagnostic.
 //  3. Assert no output, build-info, or manifest artifact was published.
+//
+// @evidence contracts/testing.md#behavioral-verification An emitting build with an LLM-invalid tuple must return exit 3 and its precise reason while leaving JavaScript, declarations, build-info and manifest unpublished.
+// @evidence contracts/testing.md#independent-expectations The tuple response is JSON-valid but violates the enabled LLM schema contract; a rejected producer must not publish apparently runnable partial output.
+// @evidence contracts/testing.md#distinguishing-cases This case owns failed emitting publication; the sibling no-emit table owns analysis-only entries, and successful build behavior remains in normal transform fixtures.
+// @evidence contracts/testing.md#execution-ownership The core Go runner discovers this case and calls its dispatcher through runCoreNative in-process; t.TempDir owns every candidate artifact and no installed consumer is launched.
 func TestBuildTransformDiagnosticPublishesNoArtifacts(t *testing.T) {
 	project := writeLlmRouteBuildProject(t, llmRouteBuildProjectOptions{})
 	out, errText, code := runCoreNative([]string{

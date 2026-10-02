@@ -19,16 +19,23 @@ export const test_api_query_validate_log = async (
 ): Promise<void> => {
   const logs: TypedRoute.IValidateErrorLog[] = [];
   TypedRoute.setValidateErrorLogger((l) => logs.push(l));
-
-  const response: Response = await fetch(`${connection.host}/query`);
-  TestValidator.equals("status", response.status, 200);
-  TestValidator.equals("body", await response.text(), "id=wrong-data&count=3");
-  TestValidator.equals("logs", logs.length, 1);
-  TestValidator.equals("method", logs[0]?.method, "GET");
-  TestValidator.equals("path", logs[0]?.path, "/query");
-  TestValidator.equals(
-    "error path",
-    logs[0]?.errors.map((e) => e.path),
-    ["$input.id"],
-  );
+  try {
+    const response: Response = await fetch(`${connection.host}/query`);
+    TestValidator.equals("status", response.status, 200);
+    TestValidator.equals(
+      "body",
+      await response.text(),
+      "id=wrong-data&count=3",
+    );
+    TestValidator.equals("logs", logs.length, 1);
+    TestValidator.equals("method", logs[0]?.method, "GET");
+    TestValidator.equals("path", logs[0]?.path, "/query");
+    TestValidator.equals(
+      "error path",
+      logs[0]?.errors.map((e) => e.path),
+      ["$input.id"],
+    );
+  } finally {
+    TypedRoute.setValidateErrorLogger(console.log);
+  }
 };

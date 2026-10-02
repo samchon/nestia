@@ -39,6 +39,11 @@ import (
 //     values by name, the bigint ones as digits, each encoded tag value with
 //     the type it stands for, and each tag's schema as a JSON schema, keeping
 //     the finite and string ones as they are.
+//
+// @evidence contracts/testing.md#behavioral-verification Metadata and baked schemas must preserve nonfinite/bigint identities using the defined JSON encoding while retaining finite numbers and ordinary strings exactly.
+// @evidence contracts/testing.md#independent-expectations JSON cannot encode Infinity, NaN or bigint directly; schema values follow null conversion while metadata carries number/bigint string encodings. Authored literals and tags establish exact expected values.
+// @evidence contracts/testing.md#distinguishing-cases Both decomposed and component schemas compare explicit expected values for nonfinite constants, enum/union, extensions and tags. Finite 1.5/3, string Infinity/digits and bigint range/sequence controls detect indiscriminate stringification or null substitution.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticMetadataValuesJsonCannotHold(t *testing.T) {
 	const controller = `import core from "@nestia/core";
 import { tags } from "typia";

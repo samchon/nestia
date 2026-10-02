@@ -7,7 +7,26 @@ import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { StringUtil } from "../../utils/StringUtil";
 import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
 
+/**
+ * Composes the responses of an operation.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace writes the responses of the exceptions, of the `@throws` comments, and of the success, and shares the media type of a 2.0 operation.
+ * @evidence contracts/common.md#clear-and-simple-design One public function and helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every response goes through one content writer.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationResponseComposer composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+ */
 export namespace SwaggerOperationResponseComposer {
+  /**
+   * Returns the responses of a route, by status: the declared exceptions, the
+   * `@throws` comments, and the success.
+   *
+   * @evidence contracts/common.md#principled-implementation Decorated exceptions retain their schemas and gain a missing description from comments. The success response replaces any entry at its own status. A 2.0 document omits named examples and shares the success body's media type where present.
+   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The sources are ordered.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationResponseComposer.compose composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   */
   export const compose = (props: {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     schema: (metadata: MetadataSchema) => OpenApi.IJsonSchema | undefined;
