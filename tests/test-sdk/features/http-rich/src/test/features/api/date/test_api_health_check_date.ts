@@ -1,4 +1,4 @@
-import api from "@api";
+import api from "../../../../api";
 
 /**
  * Verifies the generated void health request resolves without a transport or

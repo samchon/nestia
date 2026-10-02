@@ -38,7 +38,8 @@
     "chalk": "4.1.2",
     "cross-env": "catalog:utils",
     "nestia": "workspace:^",
-    "ttsc": "catalog:typescript"
+    "ttsc": "catalog:typescript",
+    "yaml": "catalog:utils"
   },
   "packageManager": "pnpm@10.6.4"
 }

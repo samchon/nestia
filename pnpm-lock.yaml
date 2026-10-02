@@ -98,6 +98,9 @@ catalogs:
     uuid:
       specifier: ^13.0.0
       version: 13.0.2
+    yaml:
+      specifier: ^2.9.0
+      version: 2.9.0
 
 importers:
 
@@ -872,6 +875,9 @@ importers:
       ttsc:
         specifier: catalog:typescript
         version: 0.28.1
+      yaml:
+        specifier: catalog:utils
+        version: 2.9.0
 
   tests/test-transform-options:
     dependencies:

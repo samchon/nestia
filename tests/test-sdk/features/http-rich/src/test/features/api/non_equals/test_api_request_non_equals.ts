@@ -1,8 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
-import api from "@api";
-
+import api from "../../../../api";
 import { IRequestDto } from "../../../../structures/non_equals/IRequestDto";
 
 /**

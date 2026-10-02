@@ -1,7 +1,6 @@
 import typia from "typia";
 
-import api from "@api";
-
+import api from "../../../../api";
 import { IDateDefined } from "../../../../structures/date/IDateDefined";
 
 /**

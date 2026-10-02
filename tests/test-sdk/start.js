@@ -467,6 +467,15 @@ const feature = async (name, port) => {
   )
     return runNode(ROOT, path.join(__dirname, `${name}.js`), [], "inherit");
 
+  if (name === "http-rich")
+    return runNode(
+      __dirname,
+      path.join(__dirname, "PublicHttpRunner.js"),
+      [],
+      "inherit",
+      { NODE_OPTIONS: "", NODE_PATH: "", NESTIA_SDK_TRANSFORM: "1" },
+    );
+
   const cwd = featureDirectory(name);
   const configFile =
     name === "cli-config" || name === "cli-config-project"
@@ -1833,6 +1842,9 @@ const BUILT_PACKAGES = [
   ["core", "lib"],
   ["sdk", "lib"],
   ["e2e", "lib"],
+  ["benchmark", "lib"],
+  ["migrate", "lib"],
+  ["editor", "lib"],
 ];
 
 // With TEST_SDK_SKIP_BUILD=1 the cli runs whatever was built last; a source
