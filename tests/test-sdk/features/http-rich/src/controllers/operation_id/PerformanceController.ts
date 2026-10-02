@@ -1,10 +1,10 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
-import { IPerformance } from "@api/lib/structures/IPerformance";
+import { IPerformance } from "../../structures/operation_id/IPerformance";
 
-@Controller("performance")
-export class PerformanceController {
+@Controller("http_rich/operation_id/performance")
+export class OperationIdPerformanceController {
   @core.TypedRoute.Get()
   public async get(): Promise<IPerformance> {
     return {

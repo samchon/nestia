@@ -153,6 +153,8 @@ async function runPublicHttp() {
       swagger: {
         output: path.join(fixture, "swagger.json"),
         security: { bearer: { type: "apiKey" } },
+        decompose: true,
+        operationId: (props) => `${props.class}.${props.function}`,
       },
     }).all();
     console.log(`Public HTTP generation: ${Date.now() - generation} ms`);
