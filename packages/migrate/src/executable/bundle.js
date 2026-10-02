@@ -274,6 +274,10 @@ const bundle = async ({
         "fetch",
         "--quiet",
         "--depth=1",
+        // This checkout is consumed and removed immediately. Fetch's default
+        // auto-maintenance can detach a writer into .git/objects after fetch
+        // returns, racing the awaited removal below on a cold CI build.
+        "--no-auto-maintenance",
         `https://github.com/samchon/${repository}`,
         revision,
       ],
