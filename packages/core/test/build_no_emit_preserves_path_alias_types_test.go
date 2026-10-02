@@ -99,7 +99,7 @@ export const value = marker;
 				}
 				out, stderr, code := runCoreNative(args)
 				if spelling == "object" {
-					if code != 3 || !strings.Contains(stderr, "nestia.core.TypedParam") || !strings.Contains(stderr, "only atomic or constant types") {
+					if code != 3 || !strings.Contains(stderr, "nestia.core.TypedParam") || !strings.Contains(stderr, "only atomic or constant types") || strings.Contains(stderr, "- any") {
 						t.Fatalf("object parameter not rejected correctly: code=%d\n%s\n%s", code, out, stderr)
 					}
 				} else if code != 0 {
