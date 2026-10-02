@@ -1862,66 +1862,75 @@ const assertFreshBuilds = () => {
     );
 };
 
-const main = async () => measure("\nTotal Elapsed Time")(async () => {
-  const shard = featureShard();
-  if (process.env.TEST_SDK_SKIP_BUILD === "1") assertFreshBuilds();
-  else
-    await run(
-      PNPM,
-      [
-        "--workspace-concurrency=1",
-        ...BUILT_PACKAGES.flatMap(([name]) => [
-          "--filter",
-          `./packages/${name}`,
-        ]),
-        "-r",
-        "run",
-        "build",
-      ],
-      {
-        cwd: ROOT,
-        env: {
-          NODE_OPTIONS: "",
+const main = async () =>
+  measure("\nTotal Elapsed Time")(async () => {
+    const shard = featureShard();
+    if (process.env.TEST_SDK_SKIP_BUILD === "1") assertFreshBuilds();
+    else
+      await run(
+        PNPM,
+        [
+          "--workspace-concurrency=1",
+          ...BUILT_PACKAGES.flatMap(([name]) => [
+            "--filter",
+            `./packages/${name}`,
+          ]),
+          "-r",
+          "run",
+          "build",
+        ],
+        {
+          cwd: ROOT,
+          env: {
+            NODE_OPTIONS: "",
+          },
+          shell: process.platform === "win32",
+          stdio: "inherit",
         },
-        shell: process.platform === "win32",
-        stdio: "inherit",
-      },
-    );
+      );
 
-  await measure("Feature execution")(async () => {
-    const filter = featureFilter();
-    const names = planBatches(
-      (await fs.promises.readdir(featureDirectory()))
-        .sort()
-        .filter((name) => !name.startsWith(".tmp-"))
-        .filter((name) => !AGGREGATED_ERROR_FEATURES.has(name))
-        .filter((name) => !SDK_COHORT_FEATURES.has(name))
-        .filter(filter),
-    );
-    for (const cohort of SDK_ERROR_COHORTS)
-      if (filter(cohort.name) || cohort.members.some(filter))
-        names.push(cohort.name);
-    if (filter("swagger-watch")) names.push("swagger-watch");
-    if (filter("bundle-preserve")) names.push("bundle-preserve");
-    if (filter("cli-argument-diagnostics"))
-      names.push("cli-argument-diagnostics");
-    if (filter("cli-dependencies")) names.push("cli-dependencies");
-    if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
-    if (filter("output-directory-diagnostics"))
-      names.push("output-directory-diagnostics");
-    if (filter("reflection-error-ordering"))
-      names.push("reflection-error-ordering");
-    for (const name of [
-      "swagger-description-nonempty-text",
-      "websocket-header-reflection",
-      "sdk-propagation-exception-wire-type",
-      "http-malformed-path-reflection",
-      "websocket-clone-mixed-imports",
-    ])
-      if (filter(name)) names.push(name);
-    await runFeatures(shard(names));
+    await measure("SDK unit execution")(async () => {
+      await run(NODE, [TTSX_BIN, "--no-plugins", "src/index.ts"], {
+        cwd: __dirname,
+        stdio: "inherit",
+      });
+    });
+
+    await measure("Feature execution")(async () => {
+      const filter = featureFilter();
+      const names = planBatches(
+        (await fs.promises.readdir(featureDirectory()))
+          .sort()
+          .filter((name) => !name.startsWith(".tmp-"))
+          .filter((name) => !AGGREGATED_ERROR_FEATURES.has(name))
+          .filter((name) => !SDK_COHORT_FEATURES.has(name))
+          .filter(filter),
+      );
+      for (const cohort of SDK_ERROR_COHORTS)
+        if (filter(cohort.name) || cohort.members.some(filter))
+          names.push(cohort.name);
+      if (filter("swagger-watch")) names.push("swagger-watch");
+      if (filter("bundle-preserve")) names.push("bundle-preserve");
+      if (filter("cli-argument-diagnostics"))
+        names.push("cli-argument-diagnostics");
+      if (filter("cli-dependencies")) names.push("cli-dependencies");
+      if (filter("distribute-cwd-restore"))
+        names.push("distribute-cwd-restore");
+      if (filter("output-directory-diagnostics"))
+        names.push("output-directory-diagnostics");
+      if (filter("reflection-error-ordering"))
+        names.push("reflection-error-ordering");
+      for (const name of [
+        "swagger-description-nonempty-text",
+        "websocket-header-reflection",
+        "sdk-propagation-exception-wire-type",
+        "http-malformed-path-reflection",
+        "websocket-clone-mixed-imports",
+      ])
+        if (filter(name)) names.push(name);
+      await runFeatures(shard(names));
+    });
   });
-});
 
 main().catch((exp) => {
   console.error(exp);
