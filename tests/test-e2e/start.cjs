@@ -9,6 +9,7 @@ const { prepareMigration, prepareMigrationConsumer, testMigrationConsumer } = re
 const { test_sdk_cli_argument_diagnostics } = require("./internal/boundary/test_sdk_cli_argument_diagnostics.cjs");
 const { test_sdk_cli_dependencies } = require("./internal/boundary/test_sdk_cli_dependencies.cjs");
 const { test_sdk_distribution_cwd_restore } = require("./internal/boundary/test_sdk_distribution_cwd_restore.cjs");
+const { test_sdk_temporary_directory_ownership } = require("./internal/boundary/test_sdk_temporary_directory_ownership.cjs");
 const { test_sdk_bundle_preserves_customized_output } = require("./internal/boundary/test_sdk_bundle_preserves_customized_output.cjs");
 const { test_sdk_generated_imports_extensionless } = require("./internal/boundary/test_sdk_generated_imports_extensionless.cjs");
 const { test_sdk_exact_optional_compiler } = require("./internal/exact_optional/test_sdk_exact_optional_compiler.cjs");
@@ -34,6 +35,19 @@ const { test_core_compiler_wrappers } = require("./internal/core_wrappers/test_c
  * @evidence contracts/e2e.md#shared-execution One ordinary producer and consumer share a single installation under the original false flag. The contradictory exact-optional boundary adds only two public compiler requests and one application-input All invocation (SDK and Swagger generation) with a no-listen app. Nine named diagnostic/noEmit wrapper requests are recorded separately (API two, CLI seven); they reuse the same installation/native cache and create no backend. Primary SDK/Swagger/E2E generation and the necessary incompatible propagated SDK ABI are two explicit generation operations on the same reflected application; both outputs enter that single consumer program. The original customized bundle is prepared by one direct filesystem bundle call; existing All refills its deleted file and the same consumer compile consumes the preserved exports without another generator or compiler. Application-input generation reuses the producer's reflected metadata without ConfigAnalyzer's source-input recompilation.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity A unique sandbox owns immutable input copies and phase outputs. Express closes after all request and benchmark clients settle; Fastify then acquires a fresh application over the same emitted controller classes and compiled consumer, with its own MCP client. Conflicting HTTP parser/adapter configuration requires these two backend lifetimes, while compiler/install/generation inputs remain identical. Explicit route/type namespaces isolate scenarios, an ephemeral port avoids collisions and finally closes the backend before removing the installation and sandbox. An evidence directory keyed by that unique sandbox retains compiler result buffers, emitted sources, raw operation metadata and packed hashes before cleanup; dependencies are not copied and failed compiler buffers are never published as runnable artifacts.
  * @evidence contracts/e2e.md#preserved-coverage The per-assertion campaign ledger identifies request destinations and pending legacy transfers. The rich program does not certify untransferred cases; originals remain until verified ownership exists.
+ * @evidence contracts/common.md#principled-implementation The public installed compiler, generator and actual backend consumers establish package consequences. Private retention callbacks carry actual missing-close observations into this owner's finally so installed modules and sandbox outputs remain available to an unresolved process; retained files represent failed cleanup.
+ * @evidence contracts/common.md#clear-and-simple-design One entry coordinates named independent boundaries and explicit compile/generate/backend phases. One retained-resource list gates both owned tree removals, while normal backend close and artifact capture remain independent of that gate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The entry does not replace a package resolver, compiler host, process API or product registry. A missing close is recorded as failure and never reclassified as successful termination; keeping its native paths does not satisfy resource release.
+ * @evidence contracts/common.md#meaningful-documentation The comment names the ordinary and contradictory optional-property premises, public phase counts, independent authored oracles and missing-close cleanup limitation. Phase and retained-resource artifacts distinguish actual reached behavior from pending coverage.
+ * @evidence contracts/performance.md#efficient-algorithms Authored source and generated case inventories are traversed once at their owning phase, and each required compiler/generation operation is explicit. The small retained-resource list controls only two final removals rather than repeatedly scanning installations or generating per-feature projects.
+ * @evidence contracts/performance.md#reuse-equivalent-work One packed installation, ordinary emitted producer and generated consumer are reused across equivalent cases. Express and Fastify have conflicting adapter state and retain separate lifetimes; the exact-optional program pair and propagated ABI are explicitly incompatible inputs rather than artificial shards.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Normal finally closes the backend, installation and sandbox in order while preserving primary and secondary failures. An actual boundary close deadline failure registers the observed owner before parent references are released; finally retains installation and sandbox, records exact native paths and emits cleanup-incomplete failure rather than deleting live-owner files. That exceptional retention remains unresolved resource cleanup.
+ * @evidence contracts/portability.md#os-neutral-implementation Native path.resolve/join/relative operations and ordinary package mounts retain operating-system paths; ephemeral backend ports avoid fixed-port ownership conflicts. Retained-resource records use the actual sandbox and installation paths supplied to the child, and removal checks its owned parent rather than assuming a platform path separator or shell deletion command.
+ *
+ * A boundary whose owned child does not close after termination records its
+ * exact PID and native paths. Its failure retains both the installation and
+ * sandbox instead of deleting live-owner files; this is incomplete cleanup,
+ * never successful release. Other backend and artifact cleanup remains active.
  */
 const main = async () => {
   process.env.NESTIA_NATIVE_DEBUG_STACK = "1";
@@ -49,6 +63,8 @@ const main = async () => {
   const processFailure = processes.error || processes.signal || processes.status !== 0;
   const processMilliseconds = Date.now() - started;
   const failures = [];
+  const retainedResources = [];
+  const retainResources = (reason) => { retainedResources.push(reason); };
   if (processFailure) failures.push("process boundaries");
   const sandbox = fs.mkdtempSync(path.join(__dirname, ".tmp-rich-"));
   const artifacts = path.resolve(__dirname, "../../.wiki/evidence-lean/1775-rich-artifacts", path.basename(sandbox));
@@ -157,9 +173,10 @@ const main = async () => {
       ["sdk_cli_argument_diagnostics", test_sdk_cli_argument_diagnostics],
       ["sdk_cli_dependencies", test_sdk_cli_dependencies],
       ["sdk_distribution_cwd_restore", test_sdk_distribution_cwd_restore],
+      ["sdk_temporary_directory_ownership", test_sdk_temporary_directory_ownership],
     ]) {
       try {
-        await measure(name, () => operation({ installation, sandbox, record }));
+        await measure(name, () => operation({ installation, sandbox, record, retainResources }));
         console.log(` - ${name}: passed`);
       } catch (error) {
         failures.push(name);
@@ -341,11 +358,16 @@ const main = async () => {
     catch (error) { secondaryErrors.push(error); }
     try { if (backend !== undefined) await backend.close(); }
     catch (error) { secondaryErrors.push(error); }
-    try { if (installation !== undefined) installation.close(); }
+    try { if (installation !== undefined && retainedResources.length === 0) installation.close(); }
     catch (error) { secondaryErrors.push(error); }
     try {
-      if (path.dirname(sandbox) !== __dirname) throw new Error("Rich sandbox escaped its owner.");
-      fs.rmSync(sandbox, { recursive: true, force: true });
+      if (retainedResources.length) {
+        record("retained-resources.json", { sandbox, installation: installation?.directory, owners: retainedResources, cleanupComplete: false });
+        secondaryErrors.push(new Error(`Live boundary resources retained; cleanup incomplete: ${sandbox}; ${installation?.directory}`));
+      } else {
+        if (path.dirname(sandbox) !== __dirname) throw new Error("Rich sandbox escaped its owner.");
+        fs.rmSync(sandbox, { recursive: true, force: true });
+      }
     } catch (error) { secondaryErrors.push(error); }
     if (secondaryErrors.length) {
       try { record("secondary-errors.json", secondaryErrors); }

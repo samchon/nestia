@@ -63,7 +63,6 @@
       "name": "integrated E2E executable and preparation",
       "type": "javascript",
       "files": [
-        "test-e2e/start.cjs",
         "test-e2e/internal/consumer.cjs",
         "test-e2e/internal/benchmark.cjs",
         "test-e2e/internal/test_migrate_cli_archiving.cjs",
@@ -74,7 +73,9 @@
         "test-e2e/internal/test_benchmark_worker_discovery.cjs",
         "test-e2e/internal/test_benchmark_worker_lifetimes.cjs",
         "test-e2e/internal/core_wrappers/test_core_compiler_wrappers.cjs",
-        "test-e2e/internal/exact_optional/test_sdk_exact_optional_compiler.cjs"
+        "test-e2e/internal/exact_optional/test_sdk_exact_optional_compiler.cjs",
+        "!test-e2e/internal/boundary/test_sdk_distribution_cwd_restore.cjs",
+        "!test-e2e/internal/boundary/test_sdk_temporary_directory_ownership.cjs"
       ],
       "symbol": "function",
       "reference": {
@@ -380,6 +381,29 @@
       "type": "javascript",
       "files": [
         "test-e2e/internal/test_sdk_producer_metadata.cjs"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/testing.md",
+          "contracts/e2e.md",
+          "contracts/common.md",
+          "contracts/performance.md",
+          "contracts/portability.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "owned rich process and installation lifetimes",
+      "type": "javascript",
+      "files": [
+        "test-e2e/internal/boundary/test_sdk_distribution_cwd_restore.cjs",
+        "test-e2e/internal/boundary/test_sdk_temporary_directory_ownership.cjs",
+        "test-e2e/start.cjs"
       ],
       "symbol": "function",
       "reference": {
