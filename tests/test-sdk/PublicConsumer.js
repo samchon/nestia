@@ -17,12 +17,12 @@ let preparation;
  * Each invocation of that command repacks and installs current inputs; no
  * persistent success stamp can hide a changed package artifact.
  *
- * @evidence contracts/common.md#principled-implementation Published tarballs supply all eight package dependencies and overrides. Actual resolved caller lock versions and parent/dependency overrides preserve third-party dependency relationships in an ordinary private pnpm installation; public resolution must stay inside that install and select JavaScript artifacts.
+ * @evidence contracts/common.md#principled-implementation Published tarballs supply all eight package dependencies and overrides. Both published importer edges and registry snapshot edges supply exact parent/dependency overrides. The actual installed public-owner edges must match their caller resolutions, every registry version must belong to the frozen graph, and public entries must resolve inside the ordinary private install as JavaScript artifacts.
  * @evidence contracts/common.md#clear-and-simple-design One command-scoped promise owns packing and installation, while callers receive the installed root and its normal require function. Compiler, generators and hosts retain their own lifetimes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Supported pnpm file dependencies and overrides replace no foreign resolver or module export. The installer does not rewrite a lockfile, build source packages or modify emitted JavaScript to resolve public imports.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies caller-built inputs, shared installation scope and the absence of a persistent skip stamp; preparation phases and failures remain visible.
  * @evidence contracts/portability.md#os-neutral-implementation Native filesystem paths identify the repository and private root. File dependency URLs use forward slashes, and the caller's pnpm JavaScript entry is launched through process.execPath with argument arrays instead of platform shell quoting. Inherited NODE_PATH and NODE_OPTIONS are cleared only in owned plain-Node children.
- * @evidence contracts/performance.md#efficient-algorithms Lock parsing and override construction visit each resolved dependency edge once; ordinary pnpm owns installation and content-addressed store reuse.
+ * @evidence contracts/performance.md#efficient-algorithms Override construction visits each published-owner and registry dependency edge once. Installed-result validation visits each public-owner edge and registry package once using map/set membership; ordinary pnpm owns installation and content-addressed store reuse.
  * @evidence contracts/performance.md#reuse-equivalent-work The promise shares one preparation only inside this integration process against its unchanged caller-built snapshot. Every new process repacks and invokes pnpm so changed tarballs and lock inputs are observed.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The process retains one promise, the private installation path and its require function. Each child is awaited and rejected on failure; no listener or worker is retained by installation. Generated consumers live in the ignored assignment root.
  */
@@ -36,7 +36,10 @@ function preparePublicConsumer() {
  *
  * Every published package overrides its transitive workspace references with
  * the same tarball. Parent-specific third-party overrides use resolved caller
- * versions, including npm aliases; conflicting peer-context edges reject. A
+ * versions, including npm aliases; conflicting peer-context edges reject.
+ * Workspace-owned public dependencies come from their package importers because
+ * they have no registry snapshot. The actual installed graph is checked before
+ * any compiler or runtime starts, rather than trusting override construction. A
  * frozen caller installation can populate package contents without registry
  * metadata. Prefer the existing store while allowing missing metadata to
  * resolve normally; an offline-only install would reject an otherwise
@@ -75,6 +78,7 @@ async function installPublicConsumer() {
     dependencies[name] = record.version.split("(")[0];
   }
   const publicNames = [];
+  const publicDependencies = new Map();
   for (const directory of await fs.readdir(path.join(ROOT, "packages"), {
     withFileTypes: true,
   })) {
@@ -94,6 +98,29 @@ async function installPublicConsumer() {
     dependencies[manifest.name] = tarball;
     overrides[manifest.name] = tarball;
     publicNames.push(manifest.name);
+    const owner = lock.importers[`packages/${directory.name}`];
+    assert(owner, `Published dependency owner is absent: ${manifest.name}`);
+    const expected = new Map();
+    for (const name of Object.keys({
+      ...manifest.dependencies,
+      ...manifest.optionalDependencies,
+    })) {
+      const record =
+        owner.dependencies?.[name] ?? owner.optionalDependencies?.[name];
+      assert(
+        record,
+        `Published dependency is absent from caller lock: ${manifest.name}>${name}`,
+      );
+      const version = record.version.split("(")[0];
+      if (version.startsWith("link:") || version.startsWith("file:")) continue;
+      overrides[`${manifest.name}@${manifest.version}>${name}`] = /^\d/.test(
+        version,
+      )
+        ? version
+        : `npm:${version}`;
+      expected.set(name, version);
+    }
+    publicDependencies.set(manifest.name, expected);
   }
   for (const [snapshot, record] of Object.entries(lock.snapshots)) {
     const parent = snapshot.split("(")[0];
@@ -149,6 +176,33 @@ async function installPublicConsumer() {
     ],
     CONSUMER,
   );
+  const installedLock = yaml.parse(
+    await fs.readFile(path.join(CONSUMER, "pnpm-lock.yaml"), "utf8"),
+  );
+  const artifacts = new Set();
+  for (const [name, expected] of publicDependencies) {
+    const version = installedLock.importers["."].dependencies[name].version;
+    artifacts.add(`${name}@${version.split("(")[0]}`);
+    const snapshot = installedLock.snapshots[`${name}@${version}`];
+    assert(snapshot, `Installed published dependency owner is absent: ${name}`);
+    for (const [dependency, resolution] of expected) {
+      const actual =
+        snapshot.dependencies?.[dependency] ??
+        snapshot.optionalDependencies?.[dependency];
+      assert.equal(
+        actual?.split("(")[0],
+        resolution,
+        `Installed published dependency changed: ${name}>${dependency}`,
+      );
+    }
+  }
+  for (const dependency of Object.keys(installedLock.packages)) {
+    if (artifacts.has(dependency)) continue;
+    assert(
+      Object.hasOwn(lock.packages, dependency),
+      `Public installation resolved outside the frozen caller graph: ${dependency}`,
+    );
+  }
   const requirePublic = createRequire(path.join(CONSUMER, "package.json"));
   for (const name of publicNames) {
     const entry = requirePublic.resolve(name);
