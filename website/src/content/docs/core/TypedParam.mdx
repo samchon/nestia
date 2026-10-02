@@ -17,6 +17,8 @@ Drop-in replacement for `@Param("name")` from `@nestjs/common`. Identical behavi
 
 Vanilla `@Param("id")` always gives you a `string`. `@TypedParam("id")` gives you exactly the type you declared.
 
+You can reuse an imported scalar alias such as `type UuidString = string & tags.Format<"uuid">`. Imports resolved through `compilerOptions.paths` retain the alias's validation rules during both normal compilation and `ttsc --noEmit`, including when the paths configuration is inherited.
+
 ---
 
 ## Basic usage
