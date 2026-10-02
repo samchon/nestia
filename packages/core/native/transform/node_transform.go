@@ -159,7 +159,7 @@ func nestiaCoreCollectParameterReplacements(
 		}
 		canonical := nestiaCoreCanonicalSegments(context, segments)
 		kind := nestiaCoreParameterKind(canonical)
-		if kind == "" || IsNestiaCoreCall(state.prog, call.AsNode()) == false {
+		if kind == "" || IsNestiaCoreCall(state.prog, nestiaCoreOriginalNode(state.ec, call.AsNode())) == false {
 			continue
 		}
 		candidates = append(candidates, candidate{call: call, segments: segments, kind: kind})
@@ -210,7 +210,7 @@ func nestiaCoreCollectMethodReplacements(
 			continue
 		}
 		canonical := nestiaCoreCanonicalSegments(context, segments)
-		if IsNestiaCoreCall(state.prog, call.AsNode()) == false {
+		if IsNestiaCoreCall(state.prog, nestiaCoreOriginalNode(state.ec, call.AsNode())) == false {
 			continue
 		}
 		// @WebSocketRoute carries no injected validator (it is not a method kind),
@@ -230,7 +230,7 @@ func nestiaCoreCollectMethodReplacements(
 			if nestiaCoreMcpRouteAlreadyTransformed(call) {
 				continue
 			}
-		} else if nestiaCoreShouldSkipMethodDecorator(state.prog, call) {
+		} else if nestiaCoreShouldSkipMethodDecorator(state.prog, nestiaCoreOriginalNode(state.ec, call.AsNode()).AsCallExpression()) {
 			continue
 		}
 		candidates = append(candidates, candidate{call: call, segments: segments, kind: kind})
@@ -264,13 +264,16 @@ func nestiaCoreCollectMethodReplacements(
 }
 
 // nestiaCoreOriginalNode returns the parse-tree node a (possibly synthetic) node
-// was rebuilt from, so checker queries that need binder symbols or types resolve
-// against the original. core runs after typia in the shared emit pass: when typia
+// was rebuilt from, so checker queries that need binder symbols, signatures or
+// types and source-text decisions resolve against the original. The rewritten
+// call remains the emission target so typia's generated arguments are retained.
+// core runs after typia in the shared emit pass: when typia
 // lowers a `typia.random<T>()` call that sits in a decorator argument or method
 // body, it rebuilds the enclosing method (and its parameters) into synthetic
-// nodes that carry no binder symbol. GetSignatureFromDeclaration /
-// GetTypeAtLocation then nil-panic on them, and GetTextOfNode on a synthetic
-// callee has no source span. ec.MostOriginal walks the original-link chain back
+// nodes that carry no binder symbol or checker parent context.
+// GetResolvedSignature / GetSignatureFromDeclaration / GetTypeAtLocation can
+// nil-panic on them, and source lookup on a synthetic call or callee has no
+// original source span. ec.MostOriginal walks the original-link chain back
 // to the parse node; it is a no-op for nodes core sees before typia touched them.
 func nestiaCoreOriginalNode(ec *shimprinter.EmitContext, node *shimast.Node) *shimast.Node {
 	if ec == nil || node == nil {
