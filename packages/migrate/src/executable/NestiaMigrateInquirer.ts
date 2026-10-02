@@ -1,4 +1,4 @@
-import { program } from "commander";
+import { Command } from "commander";
 import { createPromptModule } from "inquirer";
 
 /**
@@ -34,14 +34,17 @@ export namespace NestiaMigrateInquirer {
    * Parses the flags and asks for the missing options.
    *
    * A boolean flag given without a value is `true`, and one given a value is
-   * true only for the text `true`.
+   * true only for the text `true`. Each invocation owns its parser; explicit
+   * arguments use Node's executable/script/flags layout and default to the
+   * current process arguments.
    *
-   * @evidence contracts/common.md#principled-implementation Commander parses the flags, the action asks a prompt for each undefined option, and boolean flags are normalized by one rule, so the result has every field set.
-   * @evidence contracts/common.md#clear-and-simple-design One function that wires the parser and the prompts around one action.
+   * @evidence contracts/common.md#principled-implementation A fresh Commander parser interprets the supplied Node-style arguments, the action asks a prompt for each undefined option, and boolean flags are normalized by one rule, so the result has every field set without retaining another invocation's options.
+   * @evidence contracts/common.md#clear-and-simple-design One invocation owns the parser and prompt action; the optional argument vector defaults to the ordinary process input.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It asks only for what is missing.
    * @evidence contracts/common.md#meaningful-documentation The comment states the boolean flag rule.
    */
-  export const parse = async (): Promise<IOutput> => {
+  export const parse = async (argv?: string[]): Promise<IOutput> => {
+    const program = new Command();
     // PREPARE ASSETS
     program.option("--mode [nest/sdk]", "migration mode");
     program.option(
@@ -65,7 +68,7 @@ export namespace NestiaMigrateInquirer {
             reject(exp);
           }
         });
-        program.parseAsync().catch(reject);
+        program.parseAsync(argv).catch(reject);
       });
     const select =
       (name: string) =>

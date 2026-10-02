@@ -279,8 +279,8 @@ export const main = async (): Promise<void> => {
     test_migrate_keyword_optional_body();
     test_migrate_additional_properties();
     test_migrate_tuple_rest();
-    test_migrate_cli_boolean_flags();
-    test_migrate_cli_plain_files();
+    await test_migrate_cli_boolean_flags();
+    await test_migrate_cli_plain_files();
     test_migrate_nest_dto_package_import();
     test_migrate_nest_workspace_catalog_stamp();
     test_migrate_nest_keyword_config_path();
