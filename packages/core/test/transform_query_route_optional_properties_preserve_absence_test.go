@@ -22,14 +22,14 @@ import (
 //
 // @evidence contracts/testing.md#behavioral-verification Optional scalar appends and optional or nullable array iterations must be dominated by the corresponding absence branches in the actual URLSearchParams writer. Required scalar and array calls remain present in each enabled mode.
 // @evidence contracts/testing.md#independent-expectations Authored optional properties permit undefined, which represents omission; null is a distinct urlencoded marker, and an empty array supplies no repeated values. The expectations are not obtained from the writer's metadata predicates.
-// @evidence contracts/testing.md#distinguishing-cases Required scalar/list siblings prevent unconditional writer removal from passing. Optional scalar/list and nullable-list receivers have separately bound guards across assert, is, validate, plain stringify and the supported validation-logging mode.
+// @evidence contracts/testing.md#distinguishing-cases Required scalar/list siblings prevent unconditional writer removal from passing. Optional scalar/list and nullable-list receivers have separately bound guards across all five supported modes. An optional nullable list requires both exclusions; a nullable scalar must retain its null marker append instead of adopting the array-only exclusion.
 // @evidence contracts/testing.md#execution-ownership Existing RunWithOutput transforms authored source in-process and the existing parser checks branch dominance. This is an owning emission unit, not generated callback execution or the shared HTTP boundary; no product build, native host or Node process is started.
 func TestTransformQueryRouteOptionalPropertiesPreserveAbsence(t *testing.T) {
 	root := t.TempDir()
 	writeCoreDeclarationPackage(t, root, `export declare namespace TypedQuery { function Get(path?: string): MethodDecorator; }`)
 	writeFile(t, filepath.Join(root, "main.ts"), `import { TypedQuery } from "@nestia/core";
-interface Output { required: string; requiredList: string[]; optional?: string; optionalList?: string[]; nullableList: string[] | null; }
-export class Controller { @TypedQuery.Get() method(): Output { return { required: "yes", requiredList: [], nullableList: null }; } }`)
+interface Output { required: string; requiredList: string[]; optional?: string; optionalList?: string[]; nullableList: string[] | null; optionalNullableList?: string[] | null; nullableScalar: string | null; }
+export class Controller { @TypedQuery.Get() method(): Output { return { required: "yes", requiredList: [], nullableList: null, nullableScalar: null }; } }`)
 	writeFile(t, filepath.Join(root, "tsconfig.json"), `{"compilerOptions":{"target":"ES2022","module":"commonjs","strict":true,"experimentalDecorators":true,"ignoreDeprecations":"6.0"},"files":["main.ts"]}`)
 	for _, mode := range []string{"assert", "is", "validate", "stringify", "validate.log"} {
 		t.Run(mode, func(t *testing.T) {
@@ -53,13 +53,13 @@ export class Controller { @TypedQuery.Get() method(): Output { return { required
 				if node.Kind == shimast.KindCallExpression {
 					call := node.AsCallExpression()
 					name := strings.Join(transform.NestiaCoreExpressionSegments(call.Expression), ".")
-					for _, field := range []string{"requiredList", "optionalList", "nullableList"} {
+					for _, field := range []string{"requiredList", "optionalList", "nullableList", "optionalNullableList"} {
 						if name == "input."+field+".forEach" {
 							seen[field]++
-							if field == "optionalList" && !optionalProtocolDominates(branches, field, "undefined") {
+							if (field == "optionalList" || field == "optionalNullableList") && !optionalProtocolDominates(branches, field, "undefined") {
 								t.Errorf("%s iteration has no dominating undefined exclusion", field)
 							}
-							if field == "nullableList" && !optionalProtocolDominates(branches, field, "null") {
+							if (field == "nullableList" || field == "optionalNullableList") && !optionalProtocolDominates(branches, field, "null") {
 								t.Errorf("%s iteration has no dominating null exclusion", field)
 							}
 						}
@@ -69,6 +69,12 @@ export class Controller { @TypedQuery.Get() method(): Output { return { required
 						value := compactOptionalProtocol(transform.NodeText(call.Arguments.Nodes[1]))
 						if key == "required" && value == "input.required" {
 							seen[key]++
+						}
+						if key == "nullableScalar" && value == "input.nullableScalar" {
+							seen[key]++
+							if optionalProtocolDominates(branches, key, "null") {
+								t.Error("nullable scalar append incorrectly excludes its null marker")
+							}
 						}
 						if key == "optional" && value == "input.optional" {
 							seen[key]++
@@ -81,7 +87,7 @@ export class Controller { @TypedQuery.Get() method(): Output { return { required
 				node.ForEachChild(func(child *shimast.Node) bool { visit(child, branches); return false })
 			}
 			visit(parsed.AsNode(), nil)
-			for _, field := range []string{"required", "requiredList", "optional", "optionalList", "nullableList"} {
+			for _, field := range []string{"required", "requiredList", "optional", "optionalList", "nullableList", "optionalNullableList", "nullableScalar"} {
 				if seen[field] != 1 {
 					t.Errorf("%s writer calls = %d, want one", field, seen[field])
 				}
