@@ -30,15 +30,6 @@ class IsolationModule {}
  * 1. Register baked metadata for one decomposed query route.
  * 2. Compose a document at runtime and edit its parameter schema.
  * 3. Compose again and assert the new document still has the baked schema.
- *
- * @evidence contracts/testing.md#behavioral-verification Mutates a first composed decomposed schema and requires a second composition to retain the authored minimum.
- * @evidence contracts/testing.md#independent-expectations Hand-authored baked number/minimum=1 metadata defines the independent literal expected schema.
- * @evidence contracts/testing.md#distinguishing-cases The first document minimum becomes 999 while a fresh document must remain 1, distinguishing shared-object leakage.
- * @evidence contracts/testing.md#execution-ownership The feature DynamicExecutor entry swagger-parameters/src/test/index.ts discovers this exported test after the SDK harness prepares its generated consumer; this installed producer/consumer population is E2E, not a portable unit.
- * @evidence contracts/e2e.md#necessary-boundary Creates a Nest application and composes actual reflected route metadata; this pins the Nest reflection-to-composer connection rather than a separately installed server.
- * @evidence contracts/e2e.md#shared-execution The swagger-parameters feature entry shares its generated Swagger/SDK artifacts and built consumer among the feature tests. The restored harness still prepares separate feature projects; this case does not perform another installation or compilation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each invocation defines its own metadata inputs, creates one application and closes it in finally. Composition mutation stays confined to returned documents, while literal inputs establish fresh expected state.
- * @evidence contracts/e2e.md#preserved-coverage The surviving assertions in test_swagger_decomposed_isolation retain the first document minimum becomes 999 while a fresh document must remain 1, distinguishing shared-object leakage.
  */
 export const test_swagger_decomposed_isolation = async (): Promise<void> => {
   Reflect.defineMetadata(

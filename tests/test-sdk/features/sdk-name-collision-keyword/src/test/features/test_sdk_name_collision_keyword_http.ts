@@ -16,15 +16,6 @@ import { IShadow } from "@api/lib/structures/IShadow";
  *    controller's parameter names.
  * 2. Assert each response echoes the arguments sent, and that the headers the
  *    `output` route assigns reach the connection.
- *
- * @evidence contracts/testing.md#behavioral-verification The assertions require that keyword shadow routes echo props, honor empty optional props and assign headers.
- * @evidence contracts/testing.md#independent-expectations Expectations come from literal props and controller fallback/header contracts, independently of the generated client's computation.
- * @evidence contracts/testing.md#distinguishing-cases This case owns colliding function/connection/fetcher/local/global keys, encryption and header output.
- * @evidence contracts/testing.md#execution-ownership The sdk-name-collision-keyword fixture DynamicExecutor discovers this authored export after SDK generation/compilation; tests/test-sdk/start.js owns preparation and its test entry owns execution.
- * @evidence contracts/e2e.md#necessary-boundary Generated clients connect their compiled arguments, transport encoding and decoded responses to real controller behavior.
- * @evidence contracts/e2e.md#shared-execution The sdk-name-collision-keyword runner prepares its generated SDK once for this fixture's exports and shares its backend for request cases. Controller/options inputs differ from other fixtures; this export adds no SDK installation or compilation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The fixture entry owns backend shutdown; per-call inputs and observation arrays belong to this export. Connector-owning cases close them in finally. Artifact and process identity belong to the sdk-name-collision-keyword fixture runner.
- * @evidence contracts/e2e.md#preserved-coverage The asserted colliding function/connection/fetcher/local/global keys, encryption and header output distinctions remain in this export; bare health calls removed from this scope added no result assertions beyond the surviving typed-response, HEAD, RPC or upload cases.
  */
 export const test_sdk_name_collision_keyword_http = async (
   connection: api.IConnection,

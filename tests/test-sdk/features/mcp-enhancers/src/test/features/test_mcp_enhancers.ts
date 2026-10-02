@@ -29,15 +29,6 @@ export interface IConnection {
  *    filter's mapped exception is the tool error, and a filter answering the
  *    HTTP request itself is what the client receives, the server still
  *    serving.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls real Express and Fastify MCP tools and checks deny/allow/header/scoped/global guards, validation ordering, interceptors, pipes, mapped errors and response-owning filters.
- * @evidence contracts/testing.md#independent-expectations Authored guard and enhancer fixtures establish literal Forbidden resource, transformed echo, mapped conflict and HTTP 418 results; direct HTTP routes provide guard controls.
- * @evidence contracts/testing.md#distinguishing-cases Covers passing and denying guards, malformed arguments after guard rejection, request scope, both HTTP adapters and continued service after a filter answers the response.
- * @evidence contracts/testing.md#execution-ownership The mcp-enhancers feature harness discovers this matching test export through DynamicExecutor after producing its controller and SDK artifacts; this is an integration case, not a direct pure unit.
- * @evidence contracts/e2e.md#necessary-boundary Exercises the MCP SDK client and live Nest transport; direct arithmetic or schema calls cannot detect broken connection or dispatch assembly.
- * @evidence contracts/e2e.md#shared-execution The mcp-enhancers harness shares one prepared feature program, generated SDK and backend among its discovered cases. Each protocol case opens its own client; the enhancer case additionally starts Fastify to cover its distinct adapter boundary. Other SDK features still have separate preparation lifetimes.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The mcp-enhancers controllers use authored request inputs rather than persisted records. Clients close in finally, including failed connections; the enhancer-owned Fastify application closes in finally and the fixture entry closes its shared backend.
- * @evidence contracts/e2e.md#preserved-coverage This case still calls real express and fastify mcp tools and checks deny/allow/header/scoped/global guards, validation ordering, interceptors, pipes, mapped errors and response-owning filters. No existing assertion is removed or transferred by adding its acknowledgment.
  */
 export const test_mcp_enhancers = async (
   connection: IConnection,

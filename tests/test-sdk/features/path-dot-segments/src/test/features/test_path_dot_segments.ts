@@ -19,15 +19,6 @@ import { Backend } from "../../Backend";
  *    request, for the HTTP function, the WebSocket one, and the simulator.
  * 2. On both adapters, assert dot-bearing values that are no dot segment
  *    round-trip.
- *
- * @evidence contracts/testing.md#behavioral-verification The generated HTTP, simulation and WebSocket functions reject exact dot segments with the parameter error, while non-dot-segment values round-trip through HTTP and WebSocket on both adapters.
- * @evidence contracts/testing.md#independent-expectations URL dot-segment normalization makes . and .. unsuitable parameter segments; authored echo endpoints independently require the other values to be preserved.
- * @evidence contracts/testing.md#distinguishing-cases Both forbidden dot segments and ..., %2e, a/.., ../x and a.b cover adjacent allowed values; the simulator is checked for rejection only.
- * @evidence contracts/testing.md#execution-ownership The feature src/test/index.ts discovers this exported case through DynamicExecutor after start.js generates and compiles its authored consumer; it belongs to the existing SDK integration population.
- * @evidence contracts/e2e.md#necessary-boundary Actual fetch URL handling and Express/Fastify routing must agree with generated HTTP and WebSocket path encoding, which direct string encoding cannot establish.
- * @evidence contracts/e2e.md#shared-execution This case reuses its feature's generated document/client and Backend session with sibling cases. The current harness retains a distinct fixture program and backend lifecycle per feature; generation is not consolidated into one repository-wide producer.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The feature supplies Express, this test owns its Fastify instance, and every successful WebSocket connection closes in finally. Fastify listen occurs before its try block, so startup failure cleanup remains a limitation.
- * @evidence contracts/e2e.md#preserved-coverage These focused assertions remain discoverable. Generic performance/health smoke duplicates removed from non-equals and operationId retain their HTTP/DTO owners in all; operationId now owns actual callback/tag assertions and non-equals gains surplus and invalid-property distinctions.
  */
 export const test_path_dot_segments = async (
   connection: api.IConnection,

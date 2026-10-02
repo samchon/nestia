@@ -10,11 +10,6 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Exercise the authored scenario and its controls.
  * 2. Assert scalar, closure and asynchronous forms exercise both truth values and
  *    verify that all three failures carry the same Error message.
- *
- * @evidence contracts/testing.md#behavioral-verification TestValidator.predicate accepts true and rejects false consistently across task forms.
- * @evidence contracts/testing.md#independent-expectations Boolean truth establishes predicate success and false establishes a labeled Error.
- * @evidence contracts/testing.md#distinguishing-cases Scalar, closure and asynchronous forms exercise both truth values and verify that all three failures carry the same Error message.
- * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
 export async function test_validate_predicate(): Promise<void> {
   // SCALAR

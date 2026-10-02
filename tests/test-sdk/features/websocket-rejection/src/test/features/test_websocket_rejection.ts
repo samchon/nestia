@@ -29,15 +29,6 @@ import { OVERSIZED } from "../../controllers/RejectionController";
  * 2. Assert each settles within the deadline with its code and its reason, cut to
  *    123 bytes at a character boundary.
  * 3. Assert a valid handshake still serves, and the SDK sees the same rejection.
- *
- * @evidence contracts/testing.md#behavioral-verification The assertions require that both adapters settle invalid/no-route/pre/post-accept sockets with required codes/reasons and byte limits.
- * @evidence contracts/testing.md#independent-expectations Expectations come from protocol/application close codes, authored messages and the 123-byte UTF-8 limit, independently of the generated client's computation.
- * @evidence contracts/testing.md#distinguishing-cases This case owns valid/invalid handshake twins, pre/post-accept failures, multibyte truncation and direct/generated clients.
- * @evidence contracts/testing.md#execution-ownership The websocket-rejection fixture DynamicExecutor discovers this authored export after SDK generation/compilation; tests/test-sdk/start.js owns preparation and its test entry owns execution.
- * @evidence contracts/e2e.md#necessary-boundary Generated clients connect their compiled arguments, transport encoding and decoded responses to real controller behavior.
- * @evidence contracts/e2e.md#shared-execution The websocket-rejection runner prepares its generated SDK once for this fixture's exports and shares its backend for request cases. Controller/options inputs differ from other fixtures; this export adds no SDK installation or compilation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The case finally closes its extra Fastify host and normal connectors. Timeout cleanup still reaches tgrid's private socket to abort a stuck handshake, an explicit remaining coupling. Artifact and process identity belong to the websocket-rejection fixture runner.
- * @evidence contracts/e2e.md#preserved-coverage The asserted valid/invalid handshake twins, pre/post-accept failures, multibyte truncation and direct/generated clients distinctions remain in this export; bare health calls removed from this scope added no result assertions beyond the surviving typed-response, HEAD, RPC or upload cases.
  */
 export const test_websocket_rejection = async (
   connection: api.IConnection,

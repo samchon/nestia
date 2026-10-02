@@ -15,11 +15,6 @@ import { CliTestHarness } from "../internal/CliTestHarness";
  * 1. Run the starter's `clone` against a fake context with pnpm available.
  * 2. Assert the executed commands are exactly clone → install → build → test.
  * 3. Assert `.git` and `.github/dependabot.yml` are removed afterwards.
- *
- * @evidence contracts/testing.md#behavioral-verification The starter records clone/install/build/test command order, entry into the destination and removal of two repository-only paths.
- * @evidence contracts/testing.md#independent-expectations The starter contract supplies the public repository URL, pnpm lifecycle verbs and cleanup paths; the expected commands are literal.
- * @evidence contracts/testing.md#distinguishing-cases This case owns the absent destination with direct pnpm and tests enabled; template omission, existing destinations and alternate manager choices have separate units.
- * @evidence contracts/testing.md#execution-ownership The test-cli DynamicExecutor discovers this unit export, which calls the built engine with injected context operations; no CLI process, package manager or network connection runs.
  */
 export const test_cli_start_command_sequence = async (): Promise<void> => {
   const fake: CliTestHarness.IFakeContext = CliTestHarness.createFakeContext();

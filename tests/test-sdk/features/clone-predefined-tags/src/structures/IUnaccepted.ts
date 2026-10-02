@@ -37,6 +37,22 @@ export type PhoneFormat = tags.TagBase<{
   schema: { format: "phone" };
 }>;
 
+/** A tag whose ordinary JSON values share TypeScript expression kind names. */
+export type ExpressionKindData = tags.TagBase<{
+  target: "string";
+  kind: "expression-kind-data";
+  value: "ordinary value";
+  validate: "true";
+  exclusive: false;
+  schema: {
+    examples: [
+      { kind: "Identifier"; label: "ordinary value" },
+      { kind: "CallExpression"; label: "ordinary example" },
+      { kind: "ArrowFunction"; label: "another example" },
+    ];
+  };
+}>;
+
 /**
  * Custom tags each expanding like a predefined tag given an argument that
  * predefined tag does not accept.
@@ -45,4 +61,5 @@ export interface IUnaccepted {
   nested: number[][] & NestedDefault;
   listed: string & ListedExamples;
   phone: string & PhoneFormat;
+  expressionKinds: string & ExpressionKindData;
 }

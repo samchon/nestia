@@ -1,23 +1,23 @@
-const cp = require("child_process");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
 
 /**
  * Verifies a failed distribution setup restores the process working directory.
  *
- * Why:
- * Distribution generation changes the process cwd before copying templates and
- * installing dependencies; an exception must not redirect the next feature.
+ * Why: An actual failed package installation must not redirect the next
+ * feature's working directory. Offline npm with an empty private cache supplies
+ * the failure without replacing any package-manager or process methods.
  *
- * 1. Stub the first distribution install to fail after the composer changes cwd.
+ * 1. Run distribution installation offline with an empty private npm cache.
  * 2. Assert that distribution first creates the requested nested output root.
  * 3. Assert the rejection leaves the caller in its original working directory.
  */
 const main = async () => {
   const root = process.cwd();
+  const cache = path.join(root, "node_modules", ".cache", "test-sdk");
+  await fs.promises.mkdir(cache, { recursive: true });
   const directory = await fs.promises.mkdtemp(
-    path.join(os.tmpdir(), "nestia-distribute-cwd-"),
+    path.join(cache, "nestia-distribute-cwd-"),
   );
   const distribute = path.join(directory, "generated", "packages", "api");
   const composer = require(
@@ -31,11 +31,13 @@ const main = async () => {
       "SdkDistributionComposer.js",
     ),
   ).SdkDistributionComposer;
-  const execute = cp.execSync;
+  const previous = {
+    npm_config_offline: process.env.npm_config_offline,
+    npm_config_cache: process.env.npm_config_cache,
+  };
   try {
-    cp.execSync = () => {
-      throw new Error("intentional distribution install failure");
-    };
+    process.env.npm_config_offline = "true";
+    process.env.npm_config_cache = path.join(directory, "npm-cache");
     await composer.compose({
       config: {
         output: path.join(directory, "output"),
@@ -48,7 +50,8 @@ const main = async () => {
   } catch (error) {
     if (
       error instanceof Error &&
-      error.message === "intentional distribution install failure"
+      Number.isInteger(error.status) &&
+      error.status !== 0
     ) {
       if (fs.existsSync(distribute) === false)
         throw new Error(
@@ -62,7 +65,10 @@ const main = async () => {
     }
     throw error;
   } finally {
-    cp.execSync = execute;
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
     if (process.cwd() !== root) process.chdir(root);
     await fs.promises.rm(directory, { force: true, recursive: true });
   }

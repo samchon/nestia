@@ -17,11 +17,6 @@ import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
  *    request carries `multipart/form-data` with a boundary.
  * 2. Assert a JSON and a body-less request carry their own content type, or none,
  *    as before.
- *
- * @evidence contracts/testing.md#behavioral-verification PlainFetcher and EncryptedFetcher preserve multipart boundary generation and route content types.
- * @evidence contracts/testing.md#independent-expectations The Request API must compute the multipart boundary while JSON and absent bodies have their own declared header behavior.
- * @evidence contracts/testing.md#distinguishing-cases Two header casings and both fetchers cover multipart, JSON and bodyless requests.
- * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
 
 export async function test_fetcher_multipart_content_type(): Promise<void> {

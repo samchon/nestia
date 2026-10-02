@@ -11,11 +11,6 @@ import { PlainFetcher } from "@nestia/fetcher";
  * 1. Return two `Set-Cookie` headers from a custom fetch implementation.
  * 2. Propagate the response through `PlainFetcher`.
  * 3. Assert each cookie remains a full string including its attributes.
- *
- * @evidence contracts/testing.md#behavioral-verification PlainFetcher.propagate preserves two full Set-Cookie header values.
- * @evidence contracts/testing.md#independent-expectations Cookie attributes belong to their complete cookie strings and may not be split at semicolons.
- * @evidence contracts/testing.md#distinguishing-cases Two distinct cookies containing flags and an Expires comma must remain separate full strings.
- * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
 
 export async function test_fetcher_set_cookie_response_headers(): Promise<void> {

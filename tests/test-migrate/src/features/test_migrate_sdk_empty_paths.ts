@@ -14,11 +14,6 @@ import { OpenApiV3_1 } from "@typia/interface";
  *
  * 1. Migrate a minimal OpenAPI 3.1 document whose paths object is empty.
  * 2. Assert its retained starter contains no route-specific imports or calls.
- *
- * @evidence contracts/testing.md#behavioral-verification SDK generation for no operations must retain a starter and functional module while omitting connection imports and route calls from that starter.
- * @evidence contracts/testing.md#independent-expectations An empty OpenAPI Paths Object has no callable operation, so any route-specific starter reference is invalid regardless of template spelling.
- * @evidence contracts/testing.md#distinguishing-cases The empty route boundary exercises generation without a first route; populated starters are covered by normal SDK generation and compilation.
- * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_sdk_empty_paths as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_sdk_empty_paths = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

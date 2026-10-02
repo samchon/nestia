@@ -13,15 +13,6 @@ import api from "@api";
  *
  * 1. Upload a title, one file, and two files through the SDK.
  * 2. Assert the route read every field and file.
- *
- * @evidence contracts/testing.md#behavioral-verification The assertions require that Fastify upload echoes title and names/text of singleton and repeated files.
- * @evidence contracts/testing.md#independent-expectations Expectations come from literal authored file names and text, independently of the generated client's computation.
- * @evidence contracts/testing.md#distinguishing-cases This case owns scalar fields and one/two files on Fastify.
- * @evidence contracts/testing.md#execution-ownership The multipart-form-data-fastify fixture DynamicExecutor discovers this authored export after SDK generation/compilation; tests/test-sdk/start.js owns preparation and its test entry owns execution.
- * @evidence contracts/e2e.md#necessary-boundary Generated clients connect their compiled arguments, transport encoding and decoded responses to real controller behavior.
- * @evidence contracts/e2e.md#shared-execution The multipart-form-data-fastify runner prepares its generated SDK once for this fixture's exports and shares its backend for request cases. Controller/options inputs differ from other fixtures; this export adds no SDK installation or compilation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The fixture entry owns backend shutdown; per-call inputs and observation arrays belong to this export. Connector-owning cases close them in finally. Artifact and process identity belong to the multipart-form-data-fastify fixture runner.
- * @evidence contracts/e2e.md#preserved-coverage The asserted scalar fields and one/two files on Fastify distinctions remain in this export; bare health calls removed from this scope added no result assertions beyond the surviving typed-response, HEAD, RPC or upload cases.
  */
 export const test_multipart_form_data_fastify = async (
   connection: api.IConnection,

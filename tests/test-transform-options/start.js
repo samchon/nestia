@@ -2,6 +2,7 @@ const cp = require("child_process");
 const fs = require("fs");
 const Module = require("module");
 const path = require("path");
+const vm = require("node:vm");
 const { TtscCompiler } = require("ttsc");
 
 const ROOT = path.resolve(__dirname, "../..");
@@ -457,8 +458,8 @@ const compile = (props) => {
 // one its Go plugin links, naming both versions, because the transform is
 // built from nestia's pinned typia source while the emitted code calls the
 // installed runtime (#1663). The descriptor is checked directly for a matching,
-// a missing, and a mismatched typia, and a whole ttsc build of a project
-// resolving another typia must fail with the same message.
+// an unresolvable manifest, and a mismatched typia. A whole ttsc build of a
+// project resolving another typia must fail with the same message.
 const typiaVersionGuard = () => {
   const descriptor = require(
     path.join(ROOT, "packages/core/native/transform.cjs"),
@@ -492,11 +493,37 @@ const typiaVersionGuard = () => {
     plugin.hostInputs.some((file) => file.startsWith(matching)),
     "typia guard: the project's typia manifest is not watched",
   );
-  descriptor({
-    projectRoot: fs.mkdtempSync(
-      path.join(require("os").tmpdir(), "nestia-typia-"),
-    ),
-  });
+  const scratch = path.join(ROOT, "node_modules", ".cache", "ttsc");
+  fs.mkdirSync(scratch, { recursive: true });
+  const missing = fs.mkdtempSync(path.join(scratch, "nestia-typia-"));
+  try {
+    // Block the ancestor workspace's typia manifest through Node's package
+    // exports boundary, so this project genuinely cannot resolve a manifest.
+    const typia = path.join(missing, "node_modules", "typia");
+    fs.mkdirSync(typia, { recursive: true });
+    fs.writeFileSync(
+      path.join(typia, "package.json"),
+      JSON.stringify({ name: "typia", exports: {} }),
+      "utf8",
+    );
+    let resolutionCode;
+    try {
+      require.resolve("typia/package.json", { paths: [missing] });
+    } catch (error) {
+      resolutionCode = error.code;
+    }
+    assert(
+      resolutionCode === "ERR_PACKAGE_PATH_NOT_EXPORTED",
+      "typia guard: the missing manifest resolved through the workspace",
+    );
+    const unresolved = descriptor({ projectRoot: missing });
+    assert(
+      unresolved.hostInputs.every((file) => !file.startsWith(missing)),
+      "typia guard: an unresolvable manifest became a watched input",
+    );
+  } finally {
+    fs.rmSync(missing, { recursive: true, force: true });
+  }
   const mismatched = project("typia-mismatch", other);
   let message = "";
   try {
@@ -674,15 +701,23 @@ const load = (file) => {
       OperationMetadata: () => () => undefined,
     },
   };
-  const original = Module._load;
-  Module._load = (request, parent, isMain) =>
-    modules[request] ?? original.call(Module, request, parent, isMain);
-  try {
-    delete require.cache[file];
-    require(file);
-  } finally {
-    Module._load = original;
-  }
+  // Evaluate this emitted CommonJS module with explicit decorator doubles.
+  // Its typia imports still resolve beside the fixture and execute normally;
+  // neither the process loader nor foreign module exports are replaced.
+  const requireFromFile = Module.createRequire(file);
+  const fixtureModule = { exports: {} };
+  vm.compileFunction(
+    fs.readFileSync(file, "utf8"),
+    ["exports", "require", "module", "__filename", "__dirname"],
+    { filename: file },
+  ).call(
+    fixtureModule.exports,
+    fixtureModule.exports,
+    (request) => modules[request] ?? requireFromFile(request),
+    fixtureModule,
+    file,
+    path.dirname(file),
+  );
   return captured;
 };
 

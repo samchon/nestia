@@ -16,15 +16,6 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  * 1. Read the generated Swagger document.
  * 2. Assert the query parameters split the default and named examples by key.
  * 3. Assert the header object's default example is split the same way.
- *
- * @evidence contracts/testing.md#behavioral-verification Checks decomposed default and named examples are projected onto the correct query/header properties and absent members gain no example.
- * @evidence contracts/testing.md#independent-expectations Authored object examples supply the exact member values; named OpenAPI examples wrap each projected member in value.
- * @evidence contracts/testing.md#distinguishing-cases Keyword and page positives are paired with missing size and missing locale controls, detecting invented examples.
- * @evidence contracts/testing.md#execution-ownership The feature DynamicExecutor entry swagger-parameters/src/test/index.ts discovers this exported test after the SDK harness prepares its generated consumer; this installed producer/consumer population is E2E, not a portable unit.
- * @evidence contracts/e2e.md#necessary-boundary Consumes artifacts emitted from the authored swagger-parameters controller program by the native metadata and SDK generation pipeline; the assertions detect loss across that producer/consumer connection.
- * @evidence contracts/e2e.md#shared-execution The swagger-parameters feature entry shares its generated Swagger/SDK artifacts and built consumer among the feature tests. The restored harness still prepares separate feature projects; this case does not perform another installation or compilation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The swagger-parameters test reads its current feature artifacts and does not edit them. The feature harness owns preparation and consumer lifetime; this declaration starts no background producer or persistent cache.
- * @evidence contracts/e2e.md#preserved-coverage The surviving assertions in test_swagger_decomposed_examples retain keyword and page positives are paired with missing size and missing locale controls, detecting invented examples.
  */
 export const test_swagger_decomposed_examples = async (): Promise<void> => {
   const document: OpenApi.IDocument = await SwaggerParameterReader.document();

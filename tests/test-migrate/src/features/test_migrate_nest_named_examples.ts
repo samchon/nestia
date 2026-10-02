@@ -23,11 +23,6 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 3. Assert every generated `SwaggerExample` call carries the value, never the
  *    Example Object around it, and none is written for the linked or the
  *    serialized one.
- *
- * @evidence contracts/testing.md#behavioral-verification Nest controller generation must emit named values rather than Example Object wrappers and omit linked or serialized examples that supply no decorator value.
- * @evidence contracts/testing.md#independent-expectations OpenAPI Example Objects expose value/dataValue; fixture literal names and values establish expected decorator arguments independently of the generator.
- * @evidence contracts/testing.md#distinguishing-cases Generated request/response examples, legacy raw values, resolved references, dataValue and value-less external/serialized forms distinguish the supported representations.
- * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_nest_named_examples as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_nest_named_examples = (document: unknown): void => {
   const fixture: string = controller(

@@ -17,15 +17,6 @@ const EDITOR_LIB = path.resolve(process.cwd(), "../../packages/editor/lib");
  * 2. Start serving "/api-json", then request the editor's document.
  * 3. Assert it is the application's document, and that a failing location answers
  *    an error instead of crashing.
- *
- * @evidence contracts/testing.md#behavioral-verification NestiaEditorModule setup defers a relative Swagger fetch until its application is listening.
- * @evidence contracts/testing.md#independent-expectations The local HTTP server serves an authored literal OpenAPI document and independently returns 404 for missing locations.
- * @evidence contracts/testing.md#distinguishing-cases Setup before listen must succeed, served Swagger must match the literal document and missing Swagger must answer a failure status.
- * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this real CLI or HTTP boundary by its test-prefixed export.
- * @evidence contracts/e2e.md#necessary-boundary A relative Swagger location must connect deferred editor setup to the listening application over real HTTP; direct URL calculations cannot prove the fetch boundary.
- * @evidence contracts/e2e.md#shared-execution One local HTTP server supplies both successful and missing-document requests after setup; no server or package installation is repeated per assertion.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The server binds an ephemeral loopback port and closes in finally; handler maps are cleared between the success and missing-document registrations.
- * @evidence contracts/e2e.md#preserved-coverage The relocated case retains setup-before-listen, exact authored document serving and missing-document failure assertions; other editor archive and composition assertions remain in their original units.
  */
 
 export const test_editor_module_same_application_swagger =

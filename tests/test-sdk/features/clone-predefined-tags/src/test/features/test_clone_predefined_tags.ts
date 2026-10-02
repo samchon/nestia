@@ -30,21 +30,14 @@ type Same<T, U> = {
  * `@format uri`, keeps printing as the tag it names. A custom tag expanding
  * like a predefined tag given an argument that tag does not accept, such as
  * `tags.Format<"phone">`, keeps the `TagBase` form too, as the predefined form
- * would not compile.
+ * would not compile. Ordinary tag values and schema examples whose `kind`
+ * fields name TypeScript expressions remain JSON objects rather than being
+ * treated as syntax nodes.
  *
  * 1. Assert at compile time that every property of the clones is the source's
  *    type.
  * 2. Read the cloned DTOs and assert each predefined tag is written as in the
  *    source, and the custom tags in the `TagBase` form.
- *
- * @evidence contracts/testing.md#behavioral-verification Checks cloned/source property type equality and freshly emitted predefined or generic tag spellings.
- * @evidence contracts/testing.md#independent-expectations Authored tags and custom TagBase definitions establish both semantic type equality and accepted predefined arguments.
- * @evidence contracts/testing.md#distinguishing-cases Numeric, bigint, nonfinite, string and array tags contrast with custom validation and unsupported predefined argument controls.
- * @evidence contracts/testing.md#execution-ownership The exported case is discovered by the feature src/test/index.ts after start.js compiles the generated consumer; compiler and host preparation make this an E2E population.
- * @evidence contracts/e2e.md#necessary-boundary Checks cloned/source property type equality and freshly emitted predefined or generic tag spellings. The assertion observes generated output or its connected consumer, rather than a committed repository arrangement.
- * @evidence contracts/e2e.md#shared-execution The feature runner shares generation and prepared artifacts with its sibling cases. Compatible programs are batched by start.js; distinct feature programs still incur separate consumer/host preparation, which is an unresolved suite consolidation limitation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity This case consumes the feature-specific generated artifacts and connection; local connector, application or temporary consumer cleanup is owned by its try/finally where created. Outer backend lifecycle belongs to the feature entry and exceptional startup cleanup remains a harness limitation.
- * @evidence contracts/e2e.md#preserved-coverage Numeric, bigint, nonfinite, string and array tags contrast with custom validation and unsupported predefined argument controls. Existing assertions remain at this executable owner; no branch is removed or claimed to be transferred to units.
  */
 export const test_clone_predefined_tags = async (): Promise<void> => {
   const same: Same<Source, Cloned> = {
@@ -82,6 +75,7 @@ export const test_clone_predefined_tags = async (): Promise<void> => {
     nested: true,
     listed: true,
     phone: true,
+    expressionKinds: true,
   };
   unaccepted;
 
@@ -129,6 +123,7 @@ export const test_clone_predefined_tags = async (): Promise<void> => {
     'nested: number[][] & tags.TagBase<{ target: "array"; kind: "default"; value: [[1]];',
     'listed: string & tags.TagBase<{ target: "string"; kind: "examples"; value: ["x"];',
     'phone: string & tags.TagBase<{ target: "string"; kind: "format"; value: "phone";',
+    'examples: [{ kind: "Identifier"; label: "ordinary value"; }, { kind: "CallExpression"; label: "ordinary example"; }, { kind: "ArrowFunction"; label: "another example"; }];',
   ])
     TestValidator.equals(needle, unacceptedContent.includes(needle), true);
 };

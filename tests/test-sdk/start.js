@@ -38,7 +38,8 @@ process.env.NODE_OPTIONS = [
 // such process would build the plugins from cold. It is resolved here, once.
 process.env.TTSC_CACHE_DIR = path.resolve(
   __dirname,
-  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".cache", "ttsc"),
+  process.env.TTSC_CACHE_DIR ??
+    path.join(ROOT, "node_modules", ".cache", "ttsc"),
 );
 process.env.NODE_PATH = [
   path.join(ROOT, "node_modules"),
@@ -109,17 +110,11 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
   ],
   [
     "method-error-get-body",
-    [
-      "MethodController.body():",
-      "@Body() is not allowed in the GET method.",
-    ],
+    ["MethodController.body():", "@Body() is not allowed in the GET method."],
   ],
   [
     "method-error-head-body",
-    [
-      "MethodController.body():",
-      "@Body() is not allowed in the HEAD method.",
-    ],
+    ["MethodController.body():", "@Body() is not allowed in the HEAD method."],
   ],
   [
     "method-error-head-non-void",
@@ -186,7 +181,7 @@ const EXPECTED_ERROR_DIAGNOSTICS = new Map([
       "PlainHeadersController.nullable()",
       "nullable type is not allowed.",
       "PlainHeadersController.native()",
-      "(INativeHeaders[\"x-tags\"])",
+      '(INativeHeaders["x-tags"])',
       "PlainHeadersController.field()",
       "only atomic or array of atomic types are allowed.",
     ],
@@ -434,9 +429,7 @@ const runNestiaForError = (cwd, args) =>
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
 const feature = async (name, port) => {
-  const cohort = SDK_ERROR_COHORTS.find(
-    (candidate) => candidate.name === name,
-  );
+  const cohort = SDK_ERROR_COHORTS.find((candidate) => candidate.name === name);
   if (cohort !== undefined) return runSdkErrorCohort(cohort);
   if (BATCHES.has(name)) return runBatch(name, port);
   if (name === "swagger-watch") return runSwaggerWatchFeature();
@@ -458,6 +451,21 @@ const feature = async (name, port) => {
       [],
       "inherit",
     );
+  if (name === "reflection-error-ordering")
+    return runNode(
+      ROOT,
+      path.join(__dirname, "reflection-error-ordering.js"),
+      [],
+      "inherit",
+    );
+  if (
+    name === "swagger-description-nonempty-text" ||
+    name === "websocket-header-reflection" ||
+    name === "sdk-propagation-exception-wire-type" ||
+    name === "http-malformed-path-reflection" ||
+    name === "websocket-clone-mixed-imports"
+  )
+    return runNode(ROOT, path.join(__dirname, `${name}.js`), [], "inherit");
 
   const cwd = featureDirectory(name);
   const configFile =
@@ -529,10 +537,8 @@ const generatedPaths = (name) => [
 
 // The checks a feature's generated files must pass before its e2e run.
 const assertFeatureOutputs = (name, cwd) => {
-  if (name === "nested-output-directories")
-    assertNestedOutputDirectories(cwd);
-  if (name === "native-namespace-methods")
-    assertNativeNamespaceMethods(cwd);
+  if (name === "nested-output-directories") assertNestedOutputDirectories(cwd);
+  if (name === "native-namespace-methods") assertNativeNamespaceMethods(cwd);
   if (name === "native-import-alias") assertNativeImportAlias(cwd);
   if (name === "native-typeguard-provenance")
     assertNativeTypeGuardProvenance(cwd);
@@ -566,14 +572,19 @@ const planBatches = (names) => {
       name.includes("error") ||
       name.includes("distribute") ||
       BATCH_EXCLUDED.has(name) ||
-      fs.existsSync(path.join(featureDirectory(name), "nestia.config.ts")) === false ||
+      fs.existsSync(path.join(featureDirectory(name), "nestia.config.ts")) ===
+        false ||
       // the Swagger document's info defaults to the working directory's
       // package.json, which a batch, run from features/, would not read
       fs.existsSync(path.join(featureDirectory(name), "package.json")) ||
-      fs.existsSync(path.join(featureDirectory(name), "tsconfig.json")) === false
+      fs.existsSync(path.join(featureDirectory(name), "tsconfig.json")) ===
+        false
     )
       continue;
-    const key = fs.readFileSync(path.join(featureDirectory(name), "tsconfig.json"), "utf8");
+    const key = fs.readFileSync(
+      path.join(featureDirectory(name), "tsconfig.json"),
+      "utf8",
+    );
     groups.set(key, [...(groups.get(key) ?? []), name]);
   }
   const batched = new Set();
@@ -666,7 +677,8 @@ const runBatch = async (name, port) => {
         "",
         "export default [",
         ...members.map(
-          (member, i) => `  ...pick(C${i}).map(rebase(${JSON.stringify(member)})),`,
+          (member, i) =>
+            `  ...pick(C${i}).map(rebase(${JSON.stringify(member)})),`,
         ),
         "];",
         "",
@@ -895,8 +907,10 @@ const assertNativeTypeGuardProvenance = (cwd) => {
   const swagger = JSON.parse(
     fs.readFileSync(path.join(cwd, "swagger.json"), "utf8"),
   );
-  const schema = swagger.paths?.["/provenance/local"]?.get?.responses?.[409]
-    ?.content?.["application/json"]?.schema;
+  const schema =
+    swagger.paths?.["/provenance/local"]?.get?.responses?.[409]?.content?.[
+      "application/json"
+    ]?.schema;
   if (schema?.$ref !== "#/components/schemas/TypeGuardError")
     throw new Error(
       "native-typeguard-provenance did not preserve the local TypeGuardError schema.",
@@ -906,8 +920,10 @@ const assertNativeTypeGuardProvenance = (cwd) => {
     throw new Error(
       "native-typeguard-provenance omitted the local TypeGuardError.reason property.",
     );
-  const typia = swagger.paths?.["/provenance/typia"]?.get?.responses?.[400]
-    ?.content?.["application/json"]?.schema;
+  const typia =
+    swagger.paths?.["/provenance/typia"]?.get?.responses?.[400]?.content?.[
+      "application/json"
+    ]?.schema;
   if (typia?.$ref !== "#/components/schemas/TypeGuardErrorany")
     throw new Error(
       "native-typeguard-provenance did not retain typia's synthetic TypeGuardError schema.",
@@ -1198,12 +1214,7 @@ const runCliDependenciesFeature = async () => {
     );
     await run(
       NODE,
-      [
-        ...CLI,
-        "dependencies",
-        "--manager",
-        `node ${JSON.stringify(manager)}`,
-      ],
+      [...CLI, "dependencies", "--manager", `node ${JSON.stringify(manager)}`],
       { cwd, stdio: "ignore" },
     );
 
@@ -1859,7 +1870,10 @@ const main = async () => {
       PNPM,
       [
         "--workspace-concurrency=1",
-        ...BUILT_PACKAGES.flatMap(([name]) => ["--filter", `./packages/${name}`]),
+        ...BUILT_PACKAGES.flatMap(([name]) => [
+          "--filter",
+          `./packages/${name}`,
+        ]),
         "-r",
         "run",
         "build",
@@ -1894,6 +1908,16 @@ const main = async () => {
     if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
     if (filter("output-directory-diagnostics"))
       names.push("output-directory-diagnostics");
+    if (filter("reflection-error-ordering"))
+      names.push("reflection-error-ordering");
+    for (const name of [
+      "swagger-description-nonempty-text",
+      "websocket-header-reflection",
+      "sdk-propagation-exception-wire-type",
+      "http-malformed-path-reflection",
+      "websocket-clone-mixed-imports",
+    ])
+      if (filter(name)) names.push(name);
     await runFeatures(shard(names));
   });
 };

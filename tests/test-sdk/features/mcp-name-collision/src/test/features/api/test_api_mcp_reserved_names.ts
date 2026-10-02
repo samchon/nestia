@@ -23,15 +23,6 @@ export interface IConnection {
  *
  * 1. Connect an MCP SDK client to the test transport.
  * 2. Call each wrapper and assert the tool it reached echoes the message.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls six generated wrappers whose names collide with parameters, locals or JSON and asserts distinct echoed name prefixes.
- * @evidence contracts/testing.md#independent-expectations Each authored reserved-name tool returns its own name followed by the input message; six literal prefixes distinguish wrong dispatch and shadowed identifiers.
- * @evidence contracts/testing.md#distinguishing-cases Covers client, args, raw, result, first and JSON collisions; the ordinary MCP fixture covers names without wrapper-identifier collisions.
- * @evidence contracts/testing.md#execution-ownership The mcp-name-collision feature harness discovers this matching test export through DynamicExecutor after producing its controller and SDK artifacts; this is an integration case, not a direct pure unit.
- * @evidence contracts/e2e.md#necessary-boundary Exercises the generated SDK wrapper, MCP SDK client and live Nest transport; direct arithmetic or schema calls cannot detect broken connection or dispatch assembly.
- * @evidence contracts/e2e.md#shared-execution The mcp-name-collision harness shares one prepared feature program, generated SDK and backend among its discovered cases. Protocol cases open and close their own clients. Other SDK features still have separate preparation lifetimes.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The mcp-name-collision controllers use authored request inputs rather than persisted records. Clients close in finally, including failed connections; the fixture entry closes its shared backend.
- * @evidence contracts/e2e.md#preserved-coverage This case still calls six generated wrappers whose names collide with parameters, locals or json and asserts distinct echoed name prefixes. No existing assertion is removed or transferred by adding its acknowledgment.
  */
 export const test_api_mcp_reserved_names = async (
   connection: IConnection,

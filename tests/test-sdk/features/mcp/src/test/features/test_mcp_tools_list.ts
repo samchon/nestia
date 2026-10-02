@@ -19,15 +19,6 @@ export interface IConnection {
  * 1. Connect an MCP SDK client to the test transport.
  * 2. List available tools through the MCP protocol.
  * 3. Assert tool names, weather description, and generated object schema.
- *
- * @evidence contracts/testing.md#behavioral-verification Lists live MCP tools and compares the exact eight names, weather description presence and object input schema.
- * @evidence contracts/testing.md#independent-expectations The authored controller decorators declare eight visible tools, with hidden and base_override replaced by derived methods; weather accepts an object.
- * @evidence contracts/testing.md#distinguishing-cases Exact name equality rejects missing, duplicate and leaked base tools; schema and description checks cover weather metadata presence only, not full schema fidelity.
- * @evidence contracts/testing.md#execution-ownership The mcp feature harness discovers this matching test export through DynamicExecutor after producing its controller and SDK artifacts; this is an integration case, not a direct pure unit.
- * @evidence contracts/e2e.md#necessary-boundary Exercises the MCP SDK client and live Nest transport; direct arithmetic or schema calls cannot detect broken connection or dispatch assembly.
- * @evidence contracts/e2e.md#shared-execution The mcp harness shares one prepared feature program, generated SDK and backend among its discovered cases. Protocol cases open and close their own clients. Other SDK features still have separate preparation lifetimes.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The mcp controllers use authored request inputs rather than persisted records. Clients close in finally, including failed connections; the fixture entry closes its shared backend.
- * @evidence contracts/e2e.md#preserved-coverage This case still lists live mcp tools and compares the exact eight names, weather description presence and object input schema. No existing assertion is removed or transferred by adding its acknowledgment.
  */
 export const test_mcp_tools_list = async (
   connection: IConnection,

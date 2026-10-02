@@ -13,11 +13,6 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
  * 2. Assert monorepo markers exist: pnpm-workspace.yaml and
  *    packages/backend/nestia.config.ts.
  * 3. Assert no legacy `src/api/...` keys remain.
- *
- * @evidence contracts/testing.md#behavioral-verification The nest composer converts an authored document and must emit backend configuration and API source paths while omitting legacy layout.
- * @evidence contracts/testing.md#independent-expectations The supported pnpm project layout requires packages/api and packages/backend with a root workspace manifest; literal paths follow that independent contract.
- * @evidence contracts/testing.md#distinguishing-cases A convertible GET operation must yield API sources; forbidden legacy src/api keys must be absent. Skipped operations have their own companion unit.
- * @evidence contracts/testing.md#execution-ownership The test-editor DynamicExecutor discovers this exported unit and calls built owning operations in-process without an installed consumer or live host. SSR module initialization stays separate from the browser population.
  */
 export const test_editor_composer_nest_monorepo_files =
   async (): Promise<void> => {

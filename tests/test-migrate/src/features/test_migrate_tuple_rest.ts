@@ -4,11 +4,6 @@ import { OpenApi } from "@typia/interface";
 /**
  * Verifies tuple tails repeat the additional-item type instead of emitting a
  * scalar TypeScript rest element.
- *
- * @evidence contracts/testing.md#behavioral-verification SDK generation emits DTO aliases for tuple schemas, and exact alias assertions distinguish an invalid scalar rest element from a repeating item type while retaining the fixed prefix.
- * @evidence contracts/testing.md#independent-expectations TypeScript represents a repeated tuple tail as a rest array; literals describe number followed by strings, arrays of strings, unconstrained items, or no tail independently of the schema writer.
- * @evidence contracts/testing.md#distinguishing-cases Typed string and array-valued tails, an unconstrained tail, a closed tuple and an empty fixed prefix exercise both branches and prevent flattening array-valued additional items.
- * @evidence contracts/testing.md#execution-ownership This portable unit constructs NestiaMigrateApplication with an emended document and calls sdk directly through the test-migrate entry; it installs no consumer and starts no compiler or host.
  */
 export const test_migrate_tuple_rest = (): void => {
   const files: Record<string, string> = new NestiaMigrateApplication({

@@ -13,11 +13,6 @@ import { generate_random_articles } from "./internal/generate_random_articles";
  * 2. Assert descending strings and numbers pass, changed identifiers and reversed
  *    order fail, prefixes and two empty arrays pass, and unilateral empty
  *    arrays fail.
- *
- * @evidence contracts/testing.md#behavioral-verification TestValidator.index validates matching identifier order and meaningful prefixes.
- * @evidence contracts/testing.md#independent-expectations The authored identifier lists define literal order and prefix expectations independently.
- * @evidence contracts/testing.md#distinguishing-cases Descending strings and numbers pass, changed identifiers and reversed order fail, prefixes and two empty arrays pass, and unilateral empty arrays fail.
- * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
 export async function test_validate_index(): Promise<void> {
   const { data } = generate_random_articles();

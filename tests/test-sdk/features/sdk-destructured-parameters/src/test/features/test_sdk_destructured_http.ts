@@ -19,15 +19,6 @@ import api from "@api";
  * 2. Read the generated SDK and assert the parameter names: `body`, `query`,
  *    `pageSize` for the `page-size` query key, and `_body` beside the user's
  *    own `body` path parameter.
- *
- * @evidence contracts/testing.md#behavioral-verification The assertions require that destructured HTTP inputs echo and fresh SDK signatures expose body/query/pageSize/_body.
- * @evidence contracts/testing.md#independent-expectations Expectations come from authored inputs and the public synthesized-parameter naming contract, independently of the generated client's computation.
- * @evidence contracts/testing.md#distinguishing-cases This case owns body/query/header/path destructuring, keyed fields, collision and traced non-controller calls.
- * @evidence contracts/testing.md#execution-ownership The sdk-destructured-parameters fixture DynamicExecutor discovers this authored export after SDK generation/compilation; tests/test-sdk/start.js owns preparation and its test entry owns execution.
- * @evidence contracts/e2e.md#necessary-boundary Generated clients connect their compiled arguments, transport encoding and decoded responses to real controller behavior.
- * @evidence contracts/e2e.md#shared-execution The sdk-destructured-parameters runner prepares its generated SDK once for this fixture's exports and shares its backend for request cases. Controller/options inputs differ from other fixtures; this export adds no SDK installation or compilation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The fixture entry owns backend shutdown; per-call inputs and observation arrays belong to this export. Connector-owning cases close them in finally. Artifact and process identity belong to the sdk-destructured-parameters fixture runner.
- * @evidence contracts/e2e.md#preserved-coverage The asserted body/query/header/path destructuring, keyed fields, collision and traced non-controller calls distinctions remain in this export; bare health calls removed from this scope added no result assertions beyond the surviving typed-response, HEAD, RPC or upload cases.
  */
 export const test_sdk_destructured_http = async (
   connection: api.IConnection,

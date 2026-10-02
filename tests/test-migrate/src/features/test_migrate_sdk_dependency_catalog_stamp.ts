@@ -24,11 +24,6 @@ import path from "path";
  * 1. Generate an SDK project from a minimal OpenAPI document.
  * 2. Assert every toolchain dependency the `typescript` catalog pins carries that
  *    pin.
- *
- * @evidence contracts/testing.md#behavioral-verification SDK generation must stamp direct ttsc/unplugin dependency specifiers from the repository TypeScript catalog.
- * @evidence contracts/testing.md#independent-expectations The independently declared workspace catalog supplies expected dependency ranges, rather than the bundler-read lockfile.
- * @evidence contracts/testing.md#distinguishing-cases Two direct toolchain dependencies exercise plain-specifier stamping; this case does not verify preservation of uncataloged versions.
- * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_sdk_dependency_catalog_stamp as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_sdk_dependency_catalog_stamp = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

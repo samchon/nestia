@@ -21,15 +21,6 @@ import fs from "fs";
  *    the query object as `props._query`.
  * 5. Assert the `provider` function continues its wrapped `@param props.query`
  *    under its description.
- *
- * @evidence contracts/testing.md#behavioral-verification The assertions require that fresh SDK JSDoc documents _props.props/props.query/props._query and continuation indentation.
- * @evidence contracts/testing.md#independent-expectations Expectations come from public keyword signatures and authored controller prose, independently of the generated client's computation.
- * @evidence contracts/testing.md#distinguishing-cases This case owns renamed props parameter and displaced query/path keys.
- * @evidence contracts/testing.md#execution-ownership The sdk-name-collision-keyword fixture DynamicExecutor discovers this authored export after SDK generation/compilation; tests/test-sdk/start.js owns preparation and its test entry owns execution.
- * @evidence contracts/e2e.md#necessary-boundary The public generated source/document is fresh generator output; a backend request cannot establish its required spelling.
- * @evidence contracts/e2e.md#shared-execution The sdk-name-collision-keyword runner prepares its generated SDK once for this fixture's exports and shares its backend for request cases. Controller/options inputs differ from other fixtures; this export adds no SDK installation or compilation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The fixture entry owns backend shutdown; per-call inputs and observation arrays belong to this export. Connector-owning cases close them in finally. Artifact and process identity belong to the sdk-name-collision-keyword fixture runner.
- * @evidence contracts/e2e.md#preserved-coverage The asserted renamed props parameter and displaced query/path keys distinctions remain in this export; bare health calls removed from this scope added no result assertions beyond the surviving typed-response, HEAD, RPC or upload cases.
  */
 export const test_sdk_name_collision_keyword_jsdoc =
   async (): Promise<void> => {

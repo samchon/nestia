@@ -16,11 +16,6 @@ import path from "path";
  * 1. Write sibling fixtures that differ only in extension into a temp directory.
  * 2. Discover with each extension in turn.
  * 3. Assert each run finds exactly its own file and none of the others.
- *
- * @evidence contracts/testing.md#behavioral-verification DynamicExecutor.validate selects only the whole requested extension.
- * @evidence contracts/testing.md#independent-expectations Authored fixtures export distinct names for js, cjs and j so expected names do not depend on the discovery algorithm.
- * @evidence contracts/testing.md#distinguishing-cases One-, two- and three-character extensions select one fixture each; an unmatched mjs extension selects none.
- * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
 
 export async function test_dynamic_executor_extension_width(): Promise<void> {

@@ -14,11 +14,6 @@ import { CliTestHarness } from "../internal/CliTestHarness";
  * 1. Run `nestia start` with a fake context where every probe fails.
  * 2. Assert the command halts and the message names pnpm and corepack.
  * 3. Assert no package manager command was ever executed.
- *
- * @evidence contracts/testing.md#behavioral-verification When both availability probes fail, the starter reports installation guidance and stops after cloning, without a lifecycle command.
- * @evidence contracts/testing.md#independent-expectations A pnpm-only template needs guidance naming pnpm and its corepack alternative when neither exists; the literal single git command establishes the permitted pre-halt effect.
- * @evidence contracts/testing.md#distinguishing-cases This case owns both tools unavailable; direct pnpm and corepack fallback provide complementary successful choices.
- * @evidence contracts/testing.md#execution-ownership The test-cli DynamicExecutor discovers this unit export, which calls the built engine with injected context operations; no CLI process, package manager or network connection runs.
  */
 export const test_cli_package_manager_missing_halt =
   async (): Promise<void> => {

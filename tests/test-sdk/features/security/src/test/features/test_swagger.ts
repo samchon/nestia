@@ -19,15 +19,6 @@ import typia from "typia";
  * 1. Read the generated `swagger.json` from the SDK output.
  * 2. Assert each `security` member matches the expected literal shape.
  * 3. Assert `/security` emits `undefined` (the absence test).
- *
- * @evidence contracts/testing.md#behavioral-verification Reads generated operation security, validates decorator/comment shapes, compares exact OAuth2 scopes and checks absent security on the unmarked route.
- * @evidence contracts/testing.md#independent-expectations Authored Basic, Bearer and OAuth2 decorators and security comments establish the requirement names and scope lists. Omitted security inherits document defaults; empty alternatives allow anonymous access.
- * @evidence contracts/testing.md#distinguishing-cases Decorator and comment twins, exact two-scope OAuth2 requirements, anonymous-plus-bearer alternatives and the absent field distinguish declaration sources and security-state semantics.
- * @evidence contracts/testing.md#execution-ownership The restored test-sdk installed-consumer harness discovers this exported test under security/src/test/features after generating and compiling that fixture.
- * @evidence contracts/e2e.md#necessary-boundary The assertion consumes generated SDK or Swagger artifacts from the real fixture producer; HTTP cases connect those artifacts to a live Nest application, while simulation cases connect generated validators to the installed fetcher runtime.
- * @evidence contracts/e2e.md#shared-execution The security fixture producer prepares its SDK, Swagger and consumer once for its discovered cases. This case performs no installation or compiler launch; distinct fixture inputs still have separate producer phases in the restored harness.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The fixture owns its generated directory and backend process; this case reads its artifacts and uses invocation-local assertions. Requests do not mutate persistent fixture data.
- * @evidence contracts/e2e.md#preserved-coverage The named assertions remain in this executable case; removed generic health/performance copies own no additional feature distinction. Decorator and comment twins, exact two-scope OAuth2 requirements, anonymous-plus-bearer alternatives and the absent field distinguish declaration sources and security-state semantics.
  */
 export const test_swagger = async () => {
   const swagger = JSON.parse(

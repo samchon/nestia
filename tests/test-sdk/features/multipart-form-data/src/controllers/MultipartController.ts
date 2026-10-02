@@ -1,10 +1,17 @@
 import core from "@nestia/core";
 import { ArrayUtil, TestValidator } from "@nestia/e2e";
 import { Controller } from "@nestjs/common";
+import fs from "fs";
 import Multer from "multer";
-import os from "os";
+import path from "path";
 
 import { IMultipart } from "@api/lib/structures/IMultipart";
+
+const UPLOAD_DIRECTORY: string = path.resolve(
+  process.cwd(),
+  "node_modules/.cache/multipart-form-data",
+);
+fs.mkdirSync(UPLOAD_DIRECTORY, { recursive: true });
 
 @Controller("multipart")
 export class MultipartController {
@@ -30,7 +37,9 @@ export class MultipartController {
   @core.TypedRoute.Post("disk")
   public async disk(
     @core.TypedFormData.Body(() =>
-      Multer({ storage: Multer.diskStorage({ destination: os.tmpdir() }) }),
+      Multer({
+        storage: Multer.diskStorage({ destination: UPLOAD_DIRECTORY }),
+      }),
     )
     body: IMultipart.IDisk,
   ): Promise<IMultipart.IDiskContent> {

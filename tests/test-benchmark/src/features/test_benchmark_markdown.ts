@@ -12,11 +12,6 @@ import path from "node:path";
  * 1. Render a report with positive, negative and absent duration measures.
  * 2. Assert literal table values, host fallback and preservation of endpoint
  *    order.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls the built DynamicBenchmarkReporter.markdown operation and checks the visible report sections, decimal values and untouched caller endpoint order.
- * @evidence contracts/testing.md#independent-expectations Literal comma separators and truncation toward zero follow the documented en-US and two-decimal contract; absent measurements display N/A and missing CPU data displays unknown.
- * @evidence contracts/testing.md#distinguishing-cases Covers a missing CPU model, positive and negative fractional durations, null measures, failing endpoint and an endpoint array whose display sort must not mutate the input.
- * @evidence contracts/testing.md#execution-ownership A direct unit calls the already-built renderer without installing consumers, compiling product fixtures or opening hosts; the benchmark suite entry calls this case.
  */
 export const test_benchmark_markdown = (): void => {
   const { DynamicBenchmarkReporter } = require(

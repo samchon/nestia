@@ -9,8 +9,16 @@ import { tags } from "typia";
 
 import { SelectorParam } from "../decorators/SelectorParam";
 
+export interface ReadonlyArrayObject {
+  value: string;
+}
+
+export type readonlyMutableAlias = string[];
+
 export interface IReadonlyArrayDto {
   mutable: string[];
+  misleadingObject: ReadonlyArrayObject;
+  misleadingAlias: readonlyMutableAlias;
   readonlyArray: readonly string[];
   readonlyGeneric: ReadonlyArray<string>;
   readonly readonlyProperty: string[];
@@ -19,6 +27,8 @@ export interface IReadonlyArrayDto {
 
 export type IReadonlyArrayAliasDto = {
   mutable: string[];
+  misleadingObject: ReadonlyArrayObject;
+  misleadingAlias: readonlyMutableAlias;
   readonlyArray: readonly string[];
   readonlyGeneric: ReadonlyArray<string>;
   readonly readonlyProperty: string[];
@@ -88,6 +98,8 @@ export class CustomController {
   public readonlyArray(): IReadonlyArrayDto {
     return {
       mutable: [],
+      misleadingObject: { value: "ordinary object" },
+      misleadingAlias: [],
       readonlyArray: [],
       readonlyGeneric: [],
       readonlyProperty: [],
@@ -99,6 +111,8 @@ export class CustomController {
   public readonlyArrayAlias(): IReadonlyArrayAliasDto {
     return {
       mutable: [],
+      misleadingObject: { value: "ordinary object" },
+      misleadingAlias: [],
       readonlyArray: [],
       readonlyGeneric: [],
       readonlyProperty: [],

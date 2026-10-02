@@ -10,11 +10,6 @@ import { ArrayUtil } from "@nestia/e2e";
  * 1. Exercise the authored scenario and its controls.
  * 2. Assert the nonempty six-element case checks count and uniqueness; empty and
  *    singleton cases are added as boundary controls.
- *
- * @evidence contracts/testing.md#behavioral-verification ArrayUtil.subsets enumerates the complete powerset without duplicates.
- * @evidence contracts/testing.md#independent-expectations Six distinct inputs have exactly 2^6 subsets by independent subset cardinality.
- * @evidence contracts/testing.md#distinguishing-cases The nonempty six-element case checks count and uniqueness; empty and singleton cases are added as boundary controls.
- * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
 export function test_array_subsets(): void {
   const array: number[] = new Array(6).fill(0).map((_, i) => i);

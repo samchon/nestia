@@ -16,11 +16,6 @@ import { OpenApiV3_1 } from "@typia/interface";
  *    `simulate` and `e2e` on, in SDK and NestJS modes.
  * 2. Assert the simulate function asserts `connection.headers` by a type.
  * 3. Assert the e2e test spreads random headers into the connection.
- *
- * @evidence contracts/testing.md#behavioral-verification SDK and Nest generation must give simulator header validation an explicit type and generate random required headers in e2e connection arguments.
- * @evidence contracts/testing.md#independent-expectations The fixture declares a required UUID header, so optional connection.headers inference cannot establish that request contract.
- * @evidence contracts/testing.md#distinguishing-cases Both output modes exercise simulation and generated test consumers; runtime invalid/valid header behavior belongs to simulate_throws.
- * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_simulate_headers as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_simulate_headers = (): void => {
   for (const mode of ["sdk", "nest"] as const) {

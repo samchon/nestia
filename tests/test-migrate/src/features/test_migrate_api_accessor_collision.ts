@@ -29,11 +29,6 @@ type SwaggerDocument =
  * 2. Force two route accessors into a prefix collision.
  * 3. Assert the generated SDK keeps the shorter function and escapes the child
  *    namespace in functional files and e2e calls.
- *
- * @evidence contracts/testing.md#behavioral-verification SDK generation with two deliberately colliding public accessor arrays must retain the shorter function and escape the child namespace in exports, file paths and generated e2e calls.
- * @evidence contracts/testing.md#independent-expectations A function and an exported namespace cannot occupy the same binding; the literal _item escape follows the documented migration naming policy.
- * @evidence contracts/testing.md#distinguishing-cases The strict prefix collision exercises both the shorter binding and longer route; unrelated fixture routes survive generation but are not individually asserted.
- * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_api_accessor_collision as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_api_accessor_collision = (
   document: SwaggerDocument,

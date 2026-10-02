@@ -17,11 +17,6 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 2. Assert each SDK path function fills its parameters in where they stand.
  * 3. Assert each NestJS route, controller and method paths joined, reads each
  *    parameter under the key its `@TypedParam()` uses.
- *
- * @evidence contracts/testing.md#behavioral-verification SDK and Nest generation must place parameters at their brace-delimited positions beside literal suffixes and align generated handler routes with normalized parameter keys.
- * @evidence contracts/testing.md#independent-expectations The input templates independently define slash boundaries, literal .json/hyphen text and parameter identities; expected URI encoder calls retain that placement.
- * @evidence contracts/testing.md#distinguishing-cases Single suffix, two placeholders in one segment and a hyphenated parameter exercise delimiter ambiguity in both modes.
- * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_path_segments as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_path_segments = (): void => {
   const expected: string[] = [

@@ -43,15 +43,6 @@ class FallbackModule {}
  * 3. Assert the baked route uses the baked schema, and the unbaked route falls
  *    back to the atomic schema, both omitting the `@internal`, `@hidden`, and
  *    `@ignore` members.
- *
- * @evidence contracts/testing.md#behavioral-verification Composes hand-authored metadata for baked and unbaked routes and checks schema precedence plus omission of internal/hidden/ignored members.
- * @evidence contracts/testing.md#independent-expectations The authored baked minimum=1 must survive; the unbaked atomic number has no minimum, and visibility annotations exclude those members.
- * @evidence contracts/testing.md#distinguishing-cases Baked and unbaked adjacent metadata differ only in property schemas; both retain visible and omit three visibility-marked members.
- * @evidence contracts/testing.md#execution-ownership The feature DynamicExecutor entry swagger-parameters/src/test/index.ts discovers this exported test after the SDK harness prepares its generated consumer; this installed producer/consumer population is E2E, not a portable unit.
- * @evidence contracts/e2e.md#necessary-boundary Creates a Nest application and composes actual reflected route metadata; this pins the Nest reflection-to-composer connection rather than a separately installed server.
- * @evidence contracts/e2e.md#shared-execution The swagger-parameters feature entry shares its generated Swagger/SDK artifacts and built consumer among the feature tests. The restored harness still prepares separate feature projects; this case does not perform another installation or compilation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each invocation defines its own metadata inputs, creates one application and closes it in finally. Composition mutation stays confined to returned documents, while literal inputs establish fresh expected state.
- * @evidence contracts/e2e.md#preserved-coverage The surviving assertions in test_swagger_decomposed_fallback retain baked and unbaked adjacent metadata differ only in property schemas; both retain visible and omit three visibility-marked members.
  */
 export const test_swagger_decomposed_fallback = async (): Promise<void> => {
   for (const [method, baked] of [

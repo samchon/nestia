@@ -11,11 +11,6 @@ import path from "node:path";
  * 1. Summarize empty, singleton, mixed and constant event populations.
  * 2. Compare every count and elapsed measure with literal mathematical
  *    expectations.
- *
- * @evidence contracts/testing.md#behavioral-verification Calls the built DynamicBenchmarkStatistics.of operation and asserts all six returned measures rather than merely successful execution.
- * @evidence contracts/testing.md#independent-expectations Durations one and three have arithmetic mean two and population deviation one; one duration has zero deviation and an empty population has no defined elapsed measures.
- * @evidence contracts/testing.md#distinguishing-cases Covers empty, singleton, mixed successes and three identical long durations whose deviation must remain zero without floating-point cancellation.
- * @evidence contracts/testing.md#execution-ownership This direct unit executes the already-built statistics operation; src/unit.ts and the existing suite entry call it without creating a host or worker for this case.
  */
 export const test_benchmark_statistics = (): void => {
   const { DynamicBenchmarkStatistics } = require(

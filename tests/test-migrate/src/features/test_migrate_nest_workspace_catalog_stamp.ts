@@ -24,11 +24,6 @@ import path from "path";
  * 3. Assert the TypeScript catalog entries keep caret versions, and the typia
  *    entry pins exactly the release @nestia/migrate resolves.
  * 4. Assert package.json dependencies keep their `catalog:` indirections.
- *
- * @evidence contracts/testing.md#behavioral-verification Nest generation must emit current Nestia versions and resolved typia release in the workspace catalog while preserving catalog and workspace dependency indirections.
- * @evidence contracts/testing.md#independent-expectations Published package metadata supplies Nestia version and migrate-resolved typia version; generated project dependencies must stay aligned with those artifacts.
- * @evidence contracts/testing.md#distinguishing-cases Nestia entries, exact typia, compiler caret ranges and backend catalog/workspace references exercise different stamping policies.
- * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_nest_workspace_catalog_stamp as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_nest_workspace_catalog_stamp = (): void => {
   const app: NestiaMigrateApplication =

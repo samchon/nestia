@@ -21,11 +21,6 @@ import path from "path";
  * 1. Write a fixture into a fresh directory under the ignored workspace cache.
  * 2. Discover it through `DynamicExecutor` by absolute path.
  * 3. Assert the function was found and actually executed.
- *
- * @evidence contracts/testing.md#behavioral-verification DynamicExecutor.validate discovers and runs a function outside the workspace.
- * @evidence contracts/testing.md#independent-expectations The authored fixture exports one function returning the literal remote value.
- * @evidence contracts/testing.md#distinguishing-cases One remote JavaScript function must be found without errors and return remote; ordinary suite discovery supplies the nearby-location control.
- * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
 
 export async function test_dynamic_executor_absolute_location(): Promise<void> {

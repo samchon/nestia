@@ -13,11 +13,6 @@ import { IPage } from "./structures/IPage";
  * 1. Exercise the authored scenario and its controls.
  * 2. Assert created and updated timestamps, title, writer and compound
  *    writer/title are checked in both directions.
- *
- * @evidence contracts/testing.md#behavioral-verification TestValidator.sort checks ascending and descending article ordering.
- * @evidence contracts/testing.md#independent-expectations The fixture endpoint sorts date timestamps numerically and text through localeCompare independently of the supplied comparator closures.
- * @evidence contracts/testing.md#distinguishing-cases Created and updated timestamps, title, writer and compound writer/title are checked in both directions.
- * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
 export async function test_validate_sort(): Promise<void> {
   const validator = TestValidator.sort<

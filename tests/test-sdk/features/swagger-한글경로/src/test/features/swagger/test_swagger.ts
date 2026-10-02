@@ -3,18 +3,7 @@ import fs from "fs";
 import path from "path";
 import { pathToFileURL } from "url";
 
-/**
- * Checks generated info and servers from a fixture in a non-ASCII directory.
- *
- * @evidence contracts/testing.md#behavioral-verification Reads CLI-generated version, title, servers and the default description and compares them to authored configuration and manifest inputs.
- * @evidence contracts/testing.md#independent-expectations The fixture configuration and package version establish expected fields; the generator description is an independent documented literal.
- * @evidence contracts/testing.md#distinguishing-cases A non-ASCII directory exercises URL module import and native artifact paths alongside configured title/servers and default description.
- * @evidence contracts/testing.md#execution-ownership The fixture test DynamicExecutor discovers this exported E2E after native metadata generation and consumer preparation in the restored SDK harness.
- * @evidence contracts/e2e.md#necessary-boundary This consumes generated metadata from a real authored controller program in a non-ASCII filesystem location, detecting loader or artifact path loss across the producer boundary.
- * @evidence contracts/e2e.md#shared-execution The feature entry shares generated SDK/Swagger artifacts among its cases; the restored SDK harness still prepares distinct feature projects, and this declaration adds no installation or compilation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity This reads current feature artifacts without editing them; feature preparation owns their identity and the test opens no persistent handles.
- * @evidence contracts/e2e.md#preserved-coverage Version, configured title/servers and default description assertions all remain with this non-ASCII fixture case.
- */
+/** Checks generated info and servers from a fixture in a non-ASCII directory. */
 export async function test_swagger(): Promise<void> {
   // `import()` takes a URL specifier, not a filesystem path. On POSIX the two
   // coincide for an absolute path; on Windows one starts with a drive letter,

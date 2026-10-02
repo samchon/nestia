@@ -21,15 +21,6 @@ class ApplicationModule {}
  * 1. Boot the same controller with Express and Fastify on ephemeral ports.
  * 2. Call the generated SDK with omitted and populated optional properties.
  * 3. Send one-axis invalid bodies and require HTTP 400 from both adapters.
- *
- * @evidence contracts/testing.md#behavioral-verification Round-trips omitted and populated cloned inputs on Express and Fastify and rejects missing required or mistyped optional values.
- * @evidence contracts/testing.md#independent-expectations The authored IOptional DTO permits omission but retains required neighbors and optional value types.
- * @evidence contracts/testing.md#distinguishing-cases Both HTTP adapters, omitted and present optionals, missing required values, invalid strings and null preserve the full existing matrix.
- * @evidence contracts/testing.md#execution-ownership The exported case is discovered by the feature src/test/index.ts after start.js compiles the generated consumer; compiler and host preparation make this an E2E population.
- * @evidence contracts/e2e.md#necessary-boundary Round-trips omitted and populated cloned inputs on Express and Fastify and rejects missing required or mistyped optional values. The assertion observes generated output or its connected consumer, rather than a committed repository arrangement.
- * @evidence contracts/e2e.md#shared-execution The feature runner shares generation and prepared artifacts with its sibling cases. Compatible programs are batched by start.js; distinct feature programs still incur separate consumer/host preparation, which is an unresolved suite consolidation limitation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity This case consumes the feature-specific generated artifacts and connection; local connector, application or temporary consumer cleanup is owned by its try/finally where created. Outer backend lifecycle belongs to the feature entry and exceptional startup cleanup remains a harness limitation.
- * @evidence contracts/e2e.md#preserved-coverage Both HTTP adapters, omitted and present optionals, missing required values, invalid strings and null preserve the full existing matrix. Existing assertions remain at this executable owner; no branch is removed or claimed to be transferred to units.
  */
 export const test_clone_optional_runtime = async (): Promise<void> => {
   const input: IOptional = {

@@ -19,15 +19,6 @@ import path from "path";
  * 3. Assert every import from the `structures` directory is type-only, all three
  *    type-only binding forms actually appear, and the runtime fetcher import
  *    remains a value import.
- *
- * @evidence contracts/testing.md#behavioral-verification Scans freshly generated SDK/e2e output for named, default and namespace type-only DTO imports and a value fetcher import.
- * @evidence contracts/testing.md#independent-expectations Type-only DTOs require import type under verbatimModuleSyntax while the called runtime fetcher requires a value binding.
- * @evidence contracts/testing.md#distinguishing-cases All three DTO binding forms and the opposite runtime-import control detect overbroad or incomplete type-only printing.
- * @evidence contracts/testing.md#execution-ownership The exported case is discovered by the feature src/test/index.ts after start.js compiles the generated consumer; compiler and host preparation make this an E2E population.
- * @evidence contracts/e2e.md#necessary-boundary Scans freshly generated SDK/e2e output for named, default and namespace type-only DTO imports and a value fetcher import. The assertion observes generated output or its connected consumer, rather than a committed repository arrangement.
- * @evidence contracts/e2e.md#shared-execution The feature runner shares generation and prepared artifacts with its sibling cases. Compatible programs are batched by start.js; distinct feature programs still incur separate consumer/host preparation, which is an unresolved suite consolidation limitation.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity This case consumes the feature-specific generated artifacts and connection; local connector, application or temporary consumer cleanup is owned by its try/finally where created. Outer backend lifecycle belongs to the feature entry and exceptional startup cleanup remains a harness limitation.
- * @evidence contracts/e2e.md#preserved-coverage All three DTO binding forms and the opposite runtime-import control detect overbroad or incomplete type-only printing. Existing assertions remain at this executable owner; no branch is removed or claimed to be transferred to units.
  */
 export const test_sdk_dto_import_type = (): void => {
   const roots: string[] = [
