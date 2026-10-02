@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/test-editor",
-  "version": "14.0.1",
+  "version": "14.0.2",
   "scripts": {
     "dev": "ttsc --watch",
     "start": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx src/index.ts && cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx src/browser/index.ts"
