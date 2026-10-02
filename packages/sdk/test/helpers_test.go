@@ -1,14 +1,10 @@
 package test
 
 import (
-	"bytes"
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/samchon/nestia/packages/core/native/transform"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimprinter "github.com/microsoft/typescript-go/shim/printer"
@@ -24,39 +20,20 @@ import (
 	nativesdk "github.com/samchon/nestia/packages/sdk/native/sdk"
 )
 
-// runSDKNative executes the shared native dispatcher with the SDK contributor
-// already registered by this module's import. Each invocation loads its own
-// program and writes only to its caller's temporary output root. Sequential
-// tests keep the scoped output capture and environment changes isolated.
-func runSDKNative(t *testing.T, args []string) {
-	t.Helper()
-	var out, errOut bytes.Buffer
-	if code := transform.RunWithOutput(args, &out, &errOut); code != 0 {
-		t.Fatalf("native build exited %d\nstdout=%s\nstderr=%s", code, out.String(), errOut.String())
-	}
-}
-
-// corePlusSDKPlugins is the plugin plan a real nestia build feeds the host when
-// a project depends on both @nestia/core and @nestia/sdk: the SDK entry makes
-// plugin.ParsePlan mark plan.SDK. It is kept for the env/plan tests that pass a
-// plugin-json string to the build subcommand.
-const corePlusSDKPlugins = `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`
-
 // coreOnlyPlugins drops the @nestia/sdk plugin entry, so the SDK contributor
 // only runs when NESTIA_SDK_TRANSFORM activates it from the runtime env — the
 // shape the nestia CLI emits, where the SDK is a statically linked core
 // contributor rather than a top-level plugin.
 const coreOnlyPlugins = `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}}]`
 
-// writeFeatureTsconfig writes a tsconfig that extends the feature's own config
+// writeFeatureTsconfig writes a tsconfig over owned authored native input
 // and pins @nestia/core, @nestia/sdk, @api and @types/node to the repository
-// sources, so an in-process load resolves the same way a real test-sdk-e2e build
-// does without needing the feature's node_modules symlinks. Returns the temp
+// declarations. No E2E runner or fixture installation is needed. Returns the temp
 // dir holding the tsconfig.
 func writeFeatureTsconfig(t *testing.T, root, feature string, files []string) string {
 	t.Helper()
 	temp := t.TempDir()
-	featureRoot := filepath.Join(root, "tests/test-sdk-e2e/features", feature)
+	featureRoot := filepath.Join(root, "packages/sdk/test/fixtures", feature)
 	sourceRoot := filepath.Join(featureRoot, "src")
 	typeRoots := nodeTypeRoots(t, root)
 
@@ -89,7 +66,7 @@ func writeFeatureTsconfig(t *testing.T, root, feature string, files []string) st
 	return temp
 }
 
-// loadFeatureProgram loads a *driver.Program over the given test-sdk-e2e feature
+// loadFeatureProgram loads a *driver.Program over owned source fixture input
 // without ForceEmit/outDir, so nothing is ever written to disk. The caller then
 // drives the SDK contributor's exported entry points in-process. The single
 // blank import in this file keeps coverage attributed to the SDK package.
@@ -199,65 +176,30 @@ func operationMetadataDecoratorLiteral(dec *shimast.Node) string {
 	return arg.Text()
 }
 
-// operationImportElements decodes every OperationMetadata literal of an emitted
-// controller and returns the names listed in the `imports` of each operation's
-// parameters and success response, so an assertion can tell an import entry from
-// the same word appearing elsewhere in the metadata (a schema name, a property
-// or a tag).
-func operationImportElements(t *testing.T, js []byte) []string {
+func repoRoot(t *testing.T) string {
 	t.Helper()
-	literals, err := extractAllOperationMetadataLiterals(js)
+	root, err := filepath.Abs("../../..")
 	if err != nil {
-		t.Fatalf("could not locate __OperationMetadata literal: %v", err)
+		t.Fatal(err)
 	}
-	var names []string
-	for _, literal := range literals {
-		type importList []struct {
-			Elements []string `json:"elements"`
-		}
-		var metadata struct {
-			Parameters []struct {
-				Imports importList `json:"imports"`
-			} `json:"parameters"`
-			Success struct {
-				Imports importList `json:"imports"`
-			} `json:"success"`
-		}
-		if err := json.Unmarshal(literal, &metadata); err != nil {
-			t.Fatalf("operation metadata is not decodable: %v\n%s", err, literal)
-		}
-		for _, item := range metadata.Success.Imports {
-			names = append(names, item.Elements...)
-		}
-		for _, parameter := range metadata.Parameters {
-			for _, item := range parameter.Imports {
-				names = append(names, item.Elements...)
-			}
-		}
-	}
-	return names
+	return root
 }
 
-// operationExceptionsJSON decodes every OperationMetadata literal of an emitted
-// controller and returns the re-encoded `exceptions` entries of all operations
-// joined by newlines, so an assertion about an exception type cannot be
-// satisfied by the same name appearing in a parameter, a success response or a
-// JSDoc tag.
-func operationExceptionsJSON(t *testing.T, js []byte) string {
+func nodeTypeRoots(t *testing.T, root string) string {
 	t.Helper()
-	literals, err := extractAllOperationMetadataLiterals(js)
+	candidates := []string{
+		filepath.Join(root, "node_modules/@types"),
+	}
+	matches, err := filepath.Glob(filepath.Join(root, "node_modules/.pnpm/@types+node@*/node_modules/@types"))
 	if err != nil {
-		t.Fatalf("could not locate __OperationMetadata literal: %v", err)
+		t.Fatal(err)
 	}
-	var parts []string
-	for _, literal := range literals {
-		var metadata struct {
-			Exceptions json.RawMessage `json:"exceptions"`
+	candidates = append(candidates, matches...)
+	for _, candidate := range candidates {
+		if _, err := os.Stat(filepath.Join(candidate, "node")); err == nil {
+			return filepath.ToSlash(candidate)
 		}
-		if err := json.Unmarshal(literal, &metadata); err != nil {
-			t.Fatalf("operation metadata is not decodable: %v\n%s", err, literal)
-		}
-		parts = append(parts, string(metadata.Exceptions))
 	}
-	return strings.Join(parts, "\n")
+	t.Fatal("unable to locate @types/node")
+	return ""
 }

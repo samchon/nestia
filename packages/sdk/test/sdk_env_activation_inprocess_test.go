@@ -20,7 +20,8 @@ import (
 // top-level @nestia/sdk plugin entry. The `transform` subcommand prints rewritten
 // TypeScript to --out (it never emits .js to the @nestia/* workspace sources), so
 // it drives that env-gated branch -> collectContributorEmitTransforms ->
-// collectSDKEmitTransform -> EmitTransform IN-PROCESS with zero disk pollution.
+// collectSDKEmitTransform -> EmitTransform in-process. The printer writes only
+// the test-owned temporary TypeScript output; no JavaScript product is emitted.
 //
 //  1. Run `transform --out <ts>` over TypedBodyController with only @nestia/core
 //     in --plugins-json and NESTIA_SDK_TRANSFORM=1.
@@ -31,14 +32,14 @@ import (
 // @evidence contracts/testing.md#behavioral-verification With only the core manifest and NESTIA_SDK_TRANSFORM=1, native transformation must inject the SDK import and OperationMetadata call.
 // @evidence contracts/testing.md#independent-expectations The CLI runtime opt-in requests the linked SDK contributor without a separate plugin descriptor; its operation metadata is part of that activation contract.
 // @evidence contracts/testing.md#distinguishing-cases This owns enabled TypeScript transformation. The gate-off twin forbids SDK references on the same body fixture, and the emitted-JavaScript environment case owns build dispatch.
-// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this composed-native source-operation Test. It loads authored TypeScript, runs typia/core and the env-gated SDK collector in one EmitContext, and prints a test-owned temporary TS file. The program closes in runTransform and t.TempDir releases the artifact; no native binary build, JavaScript product emit, installed consumer or host occurs. The private env registration cannot be proved by bypassing it with direct EmitTransform.
 func TestSDKEnvFlagActivatesContributorInProcess(t *testing.T) {
 	root := repoRoot(t)
 	temp := writeFeatureTsconfig(t, root, "body", []string{
 		"controllers/TypedBodyController.ts",
 		"api/structures/IBbsArticle.ts",
 	})
-	file := filepath.Join(root, "tests/test-sdk-e2e/features/body/src/controllers/TypedBodyController.ts")
+	file := filepath.Join(root, "packages/sdk/test/fixtures/body/src/controllers/TypedBodyController.ts")
 	outFile := filepath.Join(temp, "out.ts")
 	t.Setenv("NESTIA_SDK_TRANSFORM", "1")
 	code := transform.Run([]string{
