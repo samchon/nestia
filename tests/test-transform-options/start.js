@@ -15,8 +15,8 @@ const NODE = process.execPath;
 // mistake for the compiler rejecting their input.
 const TTSC = packageBin("ttsc", "ttsc");
 const CACHE = path.resolve(
-  ROOT,
-  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
+  __dirname,
+  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".cache", "ttsc"),
 );
 
 const VALIDATE_CASES = [

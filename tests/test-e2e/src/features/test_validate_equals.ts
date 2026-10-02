@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
-import typia from "typia";
 
+import { generate_random_articles } from "./internal/generate_random_articles";
 import { IBbsArticle } from "./structures/IBbsArticle";
 import { IPage } from "./structures/IPage";
 
@@ -16,12 +16,7 @@ import { IPage } from "./structures/IPage";
  *    and null distinctions have separate cases.
  */
 export function test_validate_equals(): void {
-  const original: IPage<IBbsArticle.ISummary> = (() => {
-    while (true) {
-      const page = typia.random<IPage<IBbsArticle.ISummary>>();
-      if (page.data.length) return page;
-    }
-  })();
+  const original: IPage<IBbsArticle.ISummary> = generate_random_articles(10);
   const replica: IPage<IBbsArticle.ISummary> = JSON.parse(
     JSON.stringify(original),
   );

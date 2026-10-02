@@ -1862,7 +1862,7 @@ const assertFreshBuilds = () => {
     );
 };
 
-const main = async () => {
+const main = async () => measure("\nTotal Elapsed Time")(async () => {
   const shard = featureShard();
   if (process.env.TEST_SDK_SKIP_BUILD === "1") assertFreshBuilds();
   else
@@ -1884,10 +1884,11 @@ const main = async () => {
           NODE_OPTIONS: "",
         },
         shell: process.platform === "win32",
+        stdio: "inherit",
       },
     );
 
-  await measure("\nTotal Elapsed Time")(async () => {
+  await measure("Feature execution")(async () => {
     const filter = featureFilter();
     const names = planBatches(
       (await fs.promises.readdir(featureDirectory()))
@@ -1920,7 +1921,7 @@ const main = async () => {
       if (filter(name)) names.push(name);
     await runFeatures(shard(names));
   });
-};
+});
 
 main().catch((exp) => {
   console.error(exp);

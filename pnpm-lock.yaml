@@ -640,9 +640,6 @@ importers:
       '@nestia/e2e':
         specifier: workspace:^
         version: link:../../packages/e2e
-      typia:
-        specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.28.1)
     devDependencies:
       '@types/node':
         specifier: catalog:utils
