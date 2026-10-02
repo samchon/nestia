@@ -31,11 +31,16 @@ function preparePublicConsumer() {
 }
 
 /**
- * Resolves current package inputs before one offline public installation.
+ * Resolves current package inputs before one cache-preferring public
+ * installation.
  *
  * Every published package overrides its transitive workspace references with
  * the same tarball. Parent-specific third-party overrides use resolved caller
- * versions, including npm aliases; conflicting peer-context edges reject.
+ * versions, including npm aliases; conflicting peer-context edges reject. A
+ * frozen caller installation can populate package contents without registry
+ * metadata. Prefer the existing store while allowing missing metadata to
+ * resolve normally; an offline-only install would reject an otherwise
+ * provisioned CI.
  *
  * Principled implementation: Exact importer versions and snapshot dependency
  * edges derive from the frozen caller lock; file dependencies point at freshly
@@ -139,7 +144,7 @@ async function installPublicConsumer() {
       pnpm,
       "install",
       "--ignore-workspace",
-      "--offline",
+      "--prefer-offline",
       "--no-frozen-lockfile",
     ],
     CONSUMER,

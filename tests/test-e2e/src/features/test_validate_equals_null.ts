@@ -14,8 +14,7 @@ import { TestValidator } from "../../../../packages/e2e/lib";
  * already behaved correctly and must keep doing so.
  *
  * 1. Compare an object against `null`, at the top level and nested under a key.
- * 2. Assert each rejects equality, and that `notEquals`
- *    accepts the same pair.
+ * 2. Assert each rejects equality, and that `notEquals` accepts the same pair.
  * 3. Re-assert the neighboring spellings that were already correct.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls equals and notEquals on null, undefined, primitive and object values, including nesting and excluded keys.
