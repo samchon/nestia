@@ -1,4 +1,4 @@
-import { GaffComparator, TestValidator } from "@nestia/e2e";
+import { GaffComparator, TestValidator } from "../../../../packages/e2e/lib";
 
 /**
  * Verifies each comparator orders a proper prefix of key lists before its
@@ -8,6 +8,14 @@ import { GaffComparator, TestValidator } from "@nestia/e2e";
  * compared a key against `undefined`: `strings` answered -1 both ways, and
  * `numbers` and `dates` answered NaN, which `TestValidator.sort` read as sorted
  * (#1681).
+ *
+ * 1. Compare a proper prefix and its extension for strings, dates and numbers.
+ * 2. Reverse the arguments and assert the opposite sign and antisymmetry.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls string, date and numeric comparators in both argument orders and checks the sign and antisymmetry for proper prefixes.
+ * @evidence contracts/testing.md#independent-expectations Lexicographic ordering places a proper prefix before its extension regardless of the additional key value.
+ * @evidence contracts/testing.md#distinguishing-cases Each comparator sees the shorter and longer key list in both orders; equal and empty lists are not this case's contribution.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e unit entry discovers this direct built-package utility case; it installs no consumer and starts no native compiler, product host or worker.
  */
 
 export async function test_gaff_comparator_prefix_keys(): Promise<void> {

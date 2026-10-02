@@ -1,4 +1,4 @@
-import { TestValidator } from "@nestia/e2e";
+import { TestValidator } from "../../../../packages/e2e/lib";
 
 /**
  * Verifies testValidator.httpError matches synchronous and asynchronous errors
@@ -10,6 +10,11 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Exercise the authored scenario and its controls.
  * 2. Assert 400 errors pass; 500 errors and plain Errors fail in both synchronous
  *    and asynchronous task forms.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls TestValidator.httpError with locally authored status-bearing errors and checks acceptance or rejection in both task forms.
+ * @evidence contracts/testing.md#independent-expectations The requested status is 400 and the fixture independently supplies status 400, status 500 or no HTTP status.
+ * @evidence contracts/testing.md#distinguishing-cases Matching errors pass; mismatched status and plain Error fail for synchronous and asynchronous tasks. No HTTP host is involved.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e unit entry discovers this direct built-package utility case; it installs no consumer and starts no native compiler, product host or worker.
  */
 export async function test_validate_http_error(): Promise<void> {
   // ASYNCHRONOUS

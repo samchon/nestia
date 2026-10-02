@@ -1,4 +1,4 @@
-import { ArrayUtil } from "@nestia/e2e";
+import { ArrayUtil } from "../../../../packages/e2e/lib";
 
 /**
  * Verifies arrayUtil.subsets enumerates the complete powerset without
@@ -10,6 +10,11 @@ import { ArrayUtil } from "@nestia/e2e";
  * 1. Exercise the authored scenario and its controls.
  * 2. Assert the nonempty six-element case checks count and uniqueness; empty and
  *    singleton cases are added as boundary controls.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls ArrayUtil.subsets and checks membership, cardinality and uniqueness of the powerset.
+ * @evidence contracts/testing.md#independent-expectations Independent bit masks enumerate subsets of six distinct values, and the powerset cardinality is two to the input length.
+ * @evidence contracts/testing.md#distinguishing-cases Six-element membership and uniqueness are checked alongside empty and singleton powersets; subset ordering is not asserted.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e unit entry discovers this direct built-package utility case; it installs no consumer and starts no native compiler, product host or worker.
  */
 export function test_array_subsets(): void {
   const array: number[] = new Array(6).fill(0).map((_, i) => i);

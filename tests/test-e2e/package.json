@@ -4,7 +4,8 @@
   "version": "14.0.2",
   "scripts": {
     "dev": "ttsc --watch",
-    "start": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsc --noEmit && cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx src/index.ts"
+    "test:unit": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts",
+    "start": "pnpm test:unit"
   },
   "dependencies": {
     "@nestia/e2e": "workspace:^"
