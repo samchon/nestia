@@ -6,6 +6,7 @@ const { preparePublicConsumer } = require("./PublicConsumer");
 const {
   test_public_typia_version_guard,
 } = require("./test_public_typia_version_guard");
+const { test_public_legacy_plugins } = require("./test_public_legacy_plugins");
 
 /**
  * Runs authored and freshly generated HTTP cases through one installed program.
@@ -14,11 +15,13 @@ const {
  * generation without another input compiler and then serves every consumer
  * request. One consumer compilation prepares the authored and generated cases;
  * plain JavaScript execution starts no TypeScript loader or native host. The
- * installed compiler's version-rejection boundary is reported separately; its
- * assertion failure does not suppress otherwise executable HTTP cases.
+ * installed compiler's version-rejection and legacy-plugin boundaries are
+ * reported separately; their assertion failures do not suppress executable HTTP
+ * cases. The producer uses the explicit legacy SDK entry with its environment
+ * activation off; the consumer uses modern entries and activation.
  *
  * @evidence contracts/common.md#principled-implementation Public installed TtscCompiler emits the actual authored controller and consumer programs with their shared strict language configuration. Public Nest and SDK application-input APIs use one real application for generation and requests, and DynamicExecutor reports all authored and newly generated assertions.
- * @evidence contracts/common.md#clear-and-simple-design Installation, the independent compiler rejection case, producer, generation, consumer compilation and request execution have visible results. A rejection-case failure is retained while positive HTTP cases continue; their final result aggregates both populations. One finally block owns application release, including initialization, generation and consumer failures.
+ * @evidence contracts/common.md#clear-and-simple-design Installation, independent compiler boundary cases, producer, generation, consumer compilation and request execution have visible results. Boundary failures are retained with their names while positive HTTP cases continue; their final result aggregates both populations. Explicit legacy SDK registration activates the producer, while environment activation serves the modern consumer; they do not activate the same program twice. One finally block owns application release, including initialization, generation and consumer failures.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts All product operations resolve through the ordinary packed installation. The runner patches neither generated JavaScript nor foreign resolvers and copies no previously generated clients or automated cases as input.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies each necessary boundary and its shared lifetime; phase timings, individual failures and discovered counts remain visible.
  * @evidence contracts/portability.md#os-neutral-implementation Native paths locate the assignment-owned fixture. Temporary removal verifies containment before recursive deletion, and the listener uses an OS-assigned loopback port. Public package imports use the consumer's normal Node resolution.
@@ -66,8 +69,13 @@ async function runPublicHttp() {
       outDir: "producer",
       noEmit: false,
       plugins: [
-        { transform: "typia/lib/transform", enabled: false },
-        { transform: "@nestia/core/native/transform.cjs" },
+        { transform: "typia/lib/transform" },
+        {
+          transform: "@nestia/core/lib/transform",
+          validate: "assert",
+          stringify: "assert",
+        },
+        { transform: "@nestia/sdk/lib/transform" },
       ],
     },
     include: ["src/controllers"],
@@ -89,7 +97,7 @@ async function runPublicHttp() {
       `Public compiler boundary: test_public_typia_version_guard passed; ${Date.now() - boundaryStarted} ms`,
     );
   } catch (error) {
-    boundaryFailures.push(error);
+    boundaryFailures.push({ name: "test_public_typia_version_guard", error });
     console.error(
       "Public compiler boundary: test_public_typia_version_guard failed",
       error,
@@ -101,7 +109,18 @@ async function runPublicHttp() {
     "tsconfig.json",
     cache,
     "producer",
+    { NESTIA_SDK_TRANSFORM: "" },
   );
+  try {
+    test_public_legacy_plugins(fixture);
+    console.log("Public compiler boundary: test_public_legacy_plugins passed");
+  } catch (error) {
+    boundaryFailures.push({ name: "test_public_legacy_plugins", error });
+    console.error(
+      "Public compiler boundary: test_public_legacy_plugins failed",
+      error,
+    );
+  }
   const core = consumer.requirePublic("@nestia/core");
   const { NestFactory } = consumer.requirePublic("@nestjs/core");
   const { NestiaSdkApplication } = consumer.requirePublic("@nestia/sdk");
@@ -138,7 +157,14 @@ async function runPublicHttp() {
     console.log(`Public HTTP generation: ${Date.now() - generation} ms`);
     const runtimeConfig = {
       ...config,
-      compilerOptions: { ...config.compilerOptions, outDir: "consumer" },
+      compilerOptions: {
+        ...config.compilerOptions,
+        outDir: "consumer",
+        plugins: [
+          { transform: "typia/lib/transform", enabled: false },
+          { transform: "@nestia/core/native/transform.cjs" },
+        ],
+      },
       include: ["src/test/features", "src/benchmark"],
     };
     await fs.writeFile(
@@ -178,11 +204,12 @@ async function runPublicHttp() {
     const failures = report.executions.filter((execution) => execution.error);
     if (failures.length || boundaryFailures.length)
       throw new AggregateError(
-        [...boundaryFailures, ...failures.map((execution) => execution.error)],
+        [
+          ...boundaryFailures.map((failure) => failure.error),
+          ...failures.map((execution) => execution.error),
+        ],
         `Public HTTP failed: ${[
-          ...(boundaryFailures.length
-            ? ["test_public_typia_version_guard"]
-            : []),
+          ...boundaryFailures.map((failure) => failure.name),
           ...failures.map((execution) => execution.name),
         ].join(", ")}`,
       );
@@ -218,12 +245,14 @@ async function compilePublicProgram(
   tsconfig,
   cache,
   phase,
+  env,
 ) {
   const started = Date.now();
   const result = new TtscCompiler({
     cwd: fixture,
     tsconfig,
     cacheDir: cache,
+    env,
   }).compile();
   if (result.type === "exception") throw result.error;
   if (result.type !== "success")

@@ -210,44 +210,9 @@ const main = () => {
     );
   });
 
-  // The three plugin entries nestia v11 documented. `@nestia/core/lib/transform`
-  // resolves to the native descriptor, so ttsc deduplicates it with the entry
-  // the package manifest registers and composes typia into one host; with a
-  // descriptor of its own it built a second native host and ttsc refused the
-  // emit (#1690). The options still apply, and the SDK entry still attaches its
-  // metadata once per route, as v11 did.
-  measure("v11 plugin list", () => {
-    const file = compile({
-      name: "v11-plugins",
-      source: "validate",
-      plugins: [
-        { transform: "typia/lib/transform" },
-        {
-          transform: "@nestia/core/lib/transform",
-          validate: "assert",
-          stringify: "assert",
-        },
-        { transform: "@nestia/sdk/lib/transform" },
-      ],
-    });
-    const captured = load(file);
-    assert(
-      first(captured.TypedBody)?.[0]?.type === "assert",
-      "the v11 plugin list lost its validate option",
-    );
-    assert(
-      first(captured["TypedRoute.Post"])?.[1]?.type === "assert",
-      "the v11 plugin list lost its stringify option",
-    );
-    const metadata =
-      fs.readFileSync(file, "utf8").match(/\.OperationMetadata\(/g)?.length ??
-      0;
-    assert(
-      metadata ===
-        captured["TypedRoute.Post"].length + captured["TypedRoute.Get"].length,
-      `the v11 plugin list attached ${metadata} SDK metadata decorators`,
-    );
-  });
+  // The shared installed producer uses the three v11 plugin entries.
+  // test_public_legacy_plugins preserves its explicit assert arguments and
+  // exactly one SDK metadata application on each of eight authored routes.
 };
 
 // Envelope keys are project-relative slash paths, and `projectRoot` below
