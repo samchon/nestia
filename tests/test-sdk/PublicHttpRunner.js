@@ -148,6 +148,7 @@ async function runPublicHttp() {
     await new NestiaSdkApplication({
       input: () => app,
       output: path.join(fixture, "src/api"),
+      simulate: true,
       e2e: path.join(fixture, "src/test"),
       swagger: {
         output: path.join(fixture, "swagger.json"),
