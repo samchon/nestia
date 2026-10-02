@@ -2,6 +2,7 @@
 locale = 'en-us'
 extend-ignore-re = [
   "(?Rm)^.*(<!--|#|//)\\s*spellchecker:disable-line(-->|\n)?$",
+  "v\\d+\\.\\d+\\.\\d+-(?:[0-9A-Za-z.]+\\.)?\\d{14}-[0-9a-f]{12}",
   "(?s)(<!--|#|//)\\s*spellchecker:off\\s*(-->|\n).*?(<!--|#|//)\\s*spellchecker:on",
 ]
 
