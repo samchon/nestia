@@ -17,11 +17,6 @@ import path from "path";
  * 1. Write sibling fixtures that differ only in extension into a temp directory.
  * 2. Discover with each extension in turn.
  * 3. Assert each run finds exactly its own file and none of the others.
- *
- * @evidence contracts/testing.md#behavioral-verification It discovers with each extension in turn and asserts the files found, so a gate that compares a fixed-width suffix returns nothing for `mjs`, `cjs`, and `tsx`, and a gate loosened to any suffix returns extra files.
- * @evidence contracts/testing.md#independent-expectations Each run must find exactly the fixture with its own extension; that is the meaning of an extension filter and is asserted as a literal list.
- * @evidence contracts/testing.md#distinguishing-cases Sibling fixtures differ only in extension, so the positive row for each extension is paired with negative rows for the others, including the cross-exclusion of `cjs` and `mjs`.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-e2e` process that `DynamicExecutor` discovers by the `test` prefix under `src/features`, and calls the `@nestia/e2e` operation directly in-process; it installs no consumer, builds no native artifact, and starts no server.
  */
 export async function test_dynamic_executor_extension_width(): Promise<void> {
   const directory: string = fs.mkdtempSync(

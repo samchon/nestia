@@ -17,11 +17,6 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Assert each reports a difference rather than throwing, and that `notEquals`
  *    accepts the same pair.
  * 3. Re-assert the neighboring spellings that were already correct.
- *
- * @evidence contracts/testing.md#behavioral-verification It compares an object against `null`, at the top level and nested, and asserts a reported difference instead of a raw `TypeError`, and that `notEquals` accepts the pair.
- * @evidence contracts/testing.md#independent-expectations An object is not `null` is the contract, and each row states the expected verdict literally.
- * @evidence contracts/testing.md#distinguishing-cases The top-level and nested rows are the failing cases; `undefined`, array, and swapped-operand rows are the controls that behaved correctly and must keep doing so.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-e2e` process that `DynamicExecutor` discovers by the `test` prefix under `src/features`, and calls the `@nestia/e2e` operation directly in-process; it installs no consumer, builds no native artifact, and starts no server.
  */
 export function test_validate_equals_null(): void {
   // A difference must be REPORTED, not thrown.

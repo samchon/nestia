@@ -1,0 +1,14 @@
+{
+  "extends": "../../../config/tsconfig.json",
+  "compilerOptions": {
+    "exactOptionalPropertyTypes": true,
+    "paths": {
+      "@nestia/core": ["../../../../packages/core/lib/index.d.ts"],
+      "@nestia/sdk": ["../../../../packages/sdk/lib/index.d.ts"],
+      "@nestia/e2e": ["../../../../packages/e2e/lib/index.d.ts"],
+      "@nestia/fetcher": ["../../../../packages/fetcher/lib/index.d.ts"],
+      "@nestia/fetcher/*": ["../../../../packages/fetcher/lib/*"]
+    }
+  },
+  "include": ["src"]
+}

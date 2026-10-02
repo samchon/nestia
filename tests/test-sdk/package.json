@@ -3,23 +3,41 @@
   "name": "@nestia/test-sdk",
   "version": "14.0.1",
   "scripts": {
-    "dev": "ttsc --watch",
-    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node ../../scripts/run-unit.cjs --workspace test-sdk"
+    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node start.js"
   },
   "dependencies": {
-    "@nestia/e2e": "workspace:^",
-    "@nestia/sdk": "workspace:^",
+    "@fastify/multipart": "^8.1.0",
+    "@modelcontextprotocol/sdk": "catalog:modelcontextprotocol",
     "@nestia/core": "workspace:^",
+    "@nestia/e2e": "workspace:^",
+    "@nestia/fetcher": "workspace:^",
     "@nestjs/common": "catalog:nestjs",
-    "@nestjs/swagger": "catalog:nestjs",
+    "@nestjs/core": "catalog:nestjs",
+    "@nestjs/platform-express": "catalog:nestjs",
+    "@nestjs/platform-fastify": "catalog:nestjs",
+    "@nestjs/swagger": "^11.2.6",
+    "@typia/interface": "catalog:samchon",
+    "@typia/utils": "catalog:samchon",
+    "express": "^4.21.1",
+    "fastify": "^4.0.0",
+    "fastify-multer": "^2.0.3",
+    "multer": "^2.0.2",
+    "rxjs": "catalog:nestjs",
+    "tgrid": "catalog:samchon",
+    "tstl": "catalog:samchon",
     "typia": "catalog:samchon",
-    "@nestia/fetcher": "workspace:^"
+    "uuid": "catalog:utils"
   },
   "devDependencies": {
+    "@nestia/sdk": "workspace:^",
+    "@types/express": "^4.17.17",
+    "@types/multer": "^1.4.12",
     "@types/node": "catalog:utils",
+    "@types/uuid": "catalog:utils",
+    "chalk": "4.1.2",
     "cross-env": "catalog:utils",
-    "ttsc": "catalog:typescript",
-    "@ttsc/factory": "catalog:typescript"
+    "nestia": "workspace:^",
+    "ttsc": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"
 }

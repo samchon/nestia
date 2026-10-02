@@ -4,15 +4,15 @@
   "version": "14.0.1",
   "scripts": {
     "dev": "ttsc --watch",
-    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node ../../scripts/run-unit.cjs --workspace test-cli"
+    "start": "pnpm --filter nestia build && cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx src/index.ts"
   },
   "dependencies": {
-    "@nestia/e2e": "workspace:^",
-    "nestia": "workspace:^"
+    "@nestia/e2e": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:utils",
     "cross-env": "catalog:utils",
+    "nestia": "workspace:^",
     "ttsc": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"

@@ -1,17 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
 
-/**
- * Verifies `TestValidator.httpError()` passes only a thrown HTTP error of the
- * expected status, synchronously and asynchronously.
- *
- * 1. Throw an HTTP error of status 400 and expect 400.
- * 2. Throw one of status 500, and a plain error, and expect failures.
- *
- * @evidence contracts/testing.md#behavioral-verification It calls `TestValidator.httpError()` with tasks throwing an error of the expected status, another status, and a non-HTTP error, and asserts acceptance or failure.
- * @evidence contracts/testing.md#independent-expectations The expected verdicts follow from the contract that the status must match an `HttpError`, and the errors are built in the test with a local class of the same name.
- * @evidence contracts/testing.md#distinguishing-cases Matching, mismatching, and non-HTTP errors are each tried synchronously and asynchronously; primitive and malformed-object throws are owned by test_validate_http_error_rejection_values.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-e2e` process that `DynamicExecutor` discovers by the `test` prefix under `src/features`, and calls the `@nestia/e2e` operation directly in-process; it installs no consumer, builds no native artifact, and starts no server.
- */
 export async function test_validate_http_error(): Promise<void> {
   // ASYNCHRONOUS
   await TestValidator.httpError("async-400-error", 400, async () => {

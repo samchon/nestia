@@ -13,11 +13,6 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A throwing and a rejecting task pass.
  * 2. A returning task throws the validator's message, synchronously.
  * 3. A resolving task rejects with the validator's message.
- *
- * @evidence contracts/testing.md#behavioral-verification It calls `TestValidator.error()` with throwing, rejecting, returning, and resolving tasks and observes the outcome with a plain `try`/`catch`, which detects a `no exception` failure swallowed by its own `catch`.
- * @evidence contracts/testing.md#independent-expectations The verdict must not come from `error()` itself, so a plain `try`/`catch` observes it, which is independent of the code under test.
- * @evidence contracts/testing.md#distinguishing-cases Throwing and rejecting tasks pass; returning and resolving tasks fail with the validator's message, synchronously and asynchronously, so each of the four combinations is separate.
- * @evidence contracts/testing.md#execution-ownership Unit: it runs in the shared `test-e2e` process that `DynamicExecutor` discovers by the `test` prefix under `src/features`, and calls the `@nestia/e2e` operation directly in-process; it installs no consumer, builds no native artifact, and starts no server.
  */
 export async function test_validate_error(): Promise<void> {
   // SYNCHRONOUS
