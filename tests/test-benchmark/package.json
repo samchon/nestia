@@ -5,25 +5,16 @@
   "scripts": {
     "test:unit": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins -P tsconfig.unit.json src/unit.ts",
     "dev": "ttsc --watch",
-    "start": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx -r @nestjs/platform-express src/index.ts"
+    "start": "pnpm test:unit"
   },
   "dependencies": {
     "@nestia/benchmark": "workspace:^",
-    "@nestia/core": "workspace:^",
     "@nestia/e2e": "workspace:^",
-    "@nestia/fetcher": "workspace:^",
-    "@nestjs/common": "catalog:nestjs",
-    "@nestjs/core": "catalog:nestjs",
-    "@nestjs/platform-express": "catalog:nestjs",
-    "typia": "catalog:samchon",
-    "uuid": "catalog:utils"
+    "@nestia/fetcher": "workspace:^"
   },
   "devDependencies": {
-    "@nestia/sdk": "workspace:^",
     "@types/node": "catalog:utils",
-    "@types/uuid": "catalog:utils",
     "cross-env": "catalog:utils",
-    "nestia": "workspace:^",
     "ttsc": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"

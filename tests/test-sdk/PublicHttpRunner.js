@@ -47,6 +47,13 @@ async function runPublicHttp() {
         .every((component) => component !== "automated"),
   });
   const root = path.resolve(__dirname, "../..");
+  await fs.cp(
+    path.join(source, "benchmark"),
+    path.join(fixture, "src/benchmark"),
+    {
+      recursive: true,
+    },
+  );
   const config = {
     extends: path.join(root, "tests/config/tsconfig.json"),
     compilerOptions: {
@@ -90,7 +97,14 @@ async function runPublicHttp() {
     ),
     { logger: false },
   );
+  const traffic = { active: false, inFlight: 0, peak: 0 };
   try {
+    app.use((_request, response, next) => {
+      if (!traffic.active) return next();
+      traffic.peak = Math.max(traffic.peak, ++traffic.inFlight);
+      response.once("close", () => --traffic.inFlight);
+      setTimeout(next, 20);
+    });
     await app.init();
     const generation = Date.now();
     await new NestiaSdkApplication({
@@ -106,7 +120,7 @@ async function runPublicHttp() {
     const runtimeConfig = {
       ...config,
       compilerOptions: { ...config.compilerOptions, outDir: "consumer" },
-      include: ["src/test/features"],
+      include: ["src/test/features", "src/benchmark"],
     };
     await fs.writeFile(
       path.join(fixture, "tsconfig.consumer.json"),
@@ -128,6 +142,7 @@ async function runPublicHttp() {
       simultaneous: 1,
       parameters: () => [
         { host, encryption: { key: "A".repeat(32), iv: "B".repeat(16) } },
+        traffic,
       ],
       onComplete: (execution) => {
         console.log(

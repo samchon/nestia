@@ -575,46 +575,19 @@ importers:
       '@nestia/benchmark':
         specifier: workspace:^
         version: link:../../packages/benchmark
-      '@nestia/core':
-        specifier: workspace:^
-        version: link:../../packages/core
       '@nestia/e2e':
         specifier: workspace:^
         version: link:../../packages/e2e
       '@nestia/fetcher':
         specifier: workspace:^
         version: link:../../packages/fetcher
-      '@nestjs/common':
-        specifier: catalog:nestjs
-        version: 11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/core':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/platform-express':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
-      typia:
-        specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.28.1)
-      uuid:
-        specifier: catalog:utils
-        version: 13.0.2
     devDependencies:
-      '@nestia/sdk':
-        specifier: workspace:^
-        version: link:../../packages/sdk
       '@types/node':
         specifier: catalog:utils
         version: 25.9.0
-      '@types/uuid':
-        specifier: catalog:utils
-        version: 11.0.0
       cross-env:
         specifier: catalog:utils
         version: 10.1.0
-      nestia:
-        specifier: workspace:^
-        version: link:../../packages/cli
       ttsc:
         specifier: catalog:typescript
         version: 0.28.1
@@ -790,6 +763,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: catalog:modelcontextprotocol
         version: 1.29.0(zod@4.4.3)
+      '@nestia/benchmark':
+        specifier: workspace:^
+        version: link:../../packages/benchmark
       '@nestia/core':
         specifier: workspace:^
         version: link:../../packages/core

@@ -9,6 +9,7 @@
   "dependencies": {
     "@fastify/multipart": "^8.1.0",
     "@modelcontextprotocol/sdk": "catalog:modelcontextprotocol",
+    "@nestia/benchmark": "workspace:^",
     "@nestia/core": "workspace:^",
     "@nestia/e2e": "workspace:^",
     "@nestia/fetcher": "workspace:^",
