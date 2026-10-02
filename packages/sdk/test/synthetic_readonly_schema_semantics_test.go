@@ -33,6 +33,10 @@ export interface ICase {
  generic: Box<readonly number[]>;
  nested: Array<{ values: readonly boolean[] }>;
  nullable: readonly string[] | null;
+ optionalNullable?: readonly string[] | null;
+ voidNullable: readonly number[] | null | void;
+ neverNullable: readonly boolean[] | null | never;
+ functionNullable: readonly number[] | null | (() => void);
  readonly property: string[];
  tree: Tree;
  choice: IUnionReadonly | IUnionMutable;
@@ -90,7 +94,8 @@ export class SyntheticController {
 		marker("generic.items", syntheticField(t, generic, "properties").(map[string]any)["items"], true)
 		nested := resolve(syntheticField(t, properties["nested"], "items"))
 		marker("nested.items.values", syntheticField(t, nested, "properties").(map[string]any)["values"], true)
-		nullable := syntheticField(t, properties["nullable"], "oneOf").([]any)
+		for _, nullableKey := range []string{"nullable", "optionalNullable", "voidNullable", "neverNullable", "functionNullable"} {
+ nullable := syntheticField(t, properties[nullableKey], "oneOf").([]any)
 		arrays := 0
 		for _, branch := range nullable {
 			if branch.(map[string]any)["type"] == "array" {
@@ -103,7 +108,8 @@ export class SyntheticController {
 		if arrays != 1 {
 			t.Errorf("nullable array branches = %d, want one", arrays)
 		}
-		for _, branch := range syntheticField(t, properties["arrays"], "oneOf").([]any) {
+		}
+ for _, branch := range syntheticField(t, properties["arrays"], "oneOf").([]any) {
  marker("array union branch", branch, syntheticField(t, branch, "items").(map[string]any)["type"] == "string")
  }
  marker("merged mutable/readonly array", properties["mergedArrays"], false)

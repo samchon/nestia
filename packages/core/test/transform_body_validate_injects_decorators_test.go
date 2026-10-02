@@ -7,11 +7,11 @@ import "testing"
 // transform and writes the rewritten TypeScript carrying the injected
 // @core.TypedRoute / @core.TypedBody validator arguments to the --out file.
 //
-// This exercises the engine seam end-to-end without spawning a subprocess:
-// runTransform loads a real program, builds the typia / core / contributor
-// transforms, and prints the target file. A regression in argument injection
-// or the node-path printer would drop the generated validator arguments, so the
-// presence of those literals pins the whole pipeline.
+// This checks transformation input and output in the Go test process:
+// runTransform loads the authored program, composes the typia / core /
+// contributor transforms, and prints the target file. The assertions inspect
+// rewritten TypeScript for argument injection and printer regressions; they do
+// not execute generated JavaScript, an installed CLI, or a consumer runtime.
 //
 //  1. Point the body feature's own tsconfig at TypedBodyController.
 //  2. Call transform.Run with a @nestia/core validate/assert plugin and --out.

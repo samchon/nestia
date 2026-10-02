@@ -204,7 +204,7 @@ func nestiaSDKMetadataLiteralText(metadata map[string]any) (string, error) {
 // nestiaSDKFiniteLiteral copies a metadata value for encoding/json, writing
 // every non-finite number as null, the way JavaScript's `JSON.stringify` does.
 //
-// typia hands over NaN and 筌욏댍nfinity wherever a type or a comment spells one: a
+// typia hands over NaN and positive or negative Infinity wherever a type or a comment spells one: a
 // numeric literal type such as `1e999`, a type tag argument such as
 // `tags.Minimum<1e999>`, and a JSDoc `@x-` extension whose text parses as
 // a float, which `NaN`, `Infinity`, and `inf` all do. encoding/json
@@ -913,7 +913,7 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 	// JSON-schema representation (e.g. a `void` route return or a parameter
 	// whose only members are functions). The legacy reader on the JS side
 	// already treats a missing `jsonSchema` as "skip", so swallow the panic
-	// and omit the field ??the sdk generator falls back to its own derived
+	// and omit the field; the SDK generator falls back to its own derived
 	// schema path. This must never mask a real bug, so re-raise anything we
 	// don't recognize as a transformer error from the typia runtime.
 	if baked := nestiaSDKTryBakeJsonSchema(prog, typ, context.collection, result.Data, properties, escape); baked != nil {
@@ -938,7 +938,7 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 // nestiaSDKTryBakeJsonSchema runs `JsonSchemasProgrammer.WriteSchemas` for a
 // single metadata and returns the OpenAPI 3.1 schema literal. Returns nil
 // when typia signals the metadata has no JSON-schema representation (e.g.
-// `void` returns, function-only types) ??the JS-side reader handles missing
+// `void` returns, function-only types); the JS-side reader handles missing
 // `jsonSchema` fields. Any other panic is re-raised so real bugs surface.
 //
 // With `properties`, the literal also carries the schema of each property of
@@ -1270,8 +1270,15 @@ func nestiaSDKMarkReadonlySchemaType(prog *driver.Program, typ *shimchecker.Type
        Components: registry.Clone(), Type: child,
       })
       if analyzed.Success {
-       written := nativejson.JsonSchemasProgrammer.WriteSchemas(struct { Version string; Metadatas []*schemametadata.MetadataSchema }{Version: "3.1", Metadatas: []*schemametadata.MetadataSchema{schemaprojection.Project(analyzed.Data)}})
-       for _, produced := range written.Schemas {
+       // A union constituent can have no JSON value (undefined, void, never,
+       // or function-only). Unlike the top-level writer, this branch probe
+       // must return nil for those omissions without rejecting the parent.
+       produced := nativeiterate.Json_schema_station(nativeiterate.Json_schema_station_props{
+        BlockNever: false,
+        Components: &nativeiterate.OpenApi_IComponents{Schemas: map[string]nativeiterate.JsonSchema{}},
+        Attribute: nativeiterate.JsonSchema{}, Metadata: schemaprojection.Project(analyzed.Data),
+       })
+       if produced != nil {
         expected := nestiaSDKJsonSchemaLiteral(produced)
         for _, branch := range branches {
          if nestiaSDKReadonlySchemaEquivalent(expected, branch) {
@@ -1576,7 +1583,7 @@ func nestiaSDKIsTypiaSourceFile(prog *driver.Program, source *shimast.SourceFile
 }
 
 func nestiaSDKTypeGuardErrorSchemaPipe() any {
-	// Synthetic metadata for `TypeGuardError` exception responses ??does not
+	// Synthetic metadata for `TypeGuardError` exception responses; it does not
 	// flow through `nestiaSDKSchemaPipe`, so the pre-baked fields legacy.ts
 	// reads (size/name/empty/jsonSchema) have to be filled by hand.
 	metadata := nestiaSDKObjectReferenceSchema("TypeGuardErrorany")
