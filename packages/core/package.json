@@ -18,6 +18,7 @@
     "build": "rimraf lib && ttsc",
     "dev": "ttsc --watch",
     "test:go": "cd test && go test -count=1 ./...",
+    "test:unit": "node --test test/unit/test_typia_version_guard.cjs",
     "evidence": "evidence"
   },
   "ttsc": {

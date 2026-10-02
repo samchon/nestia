@@ -3,6 +3,9 @@ const fs = require("node:fs/promises");
 const path = require("node:path");
 
 const { preparePublicConsumer } = require("./PublicConsumer");
+const {
+  test_public_typia_version_guard,
+} = require("./test_public_typia_version_guard");
 
 /**
  * Runs authored and freshly generated HTTP cases through one installed program.
@@ -10,10 +13,12 @@ const { preparePublicConsumer } = require("./PublicConsumer");
  * One producer compiles the authored controllers. The actual application feeds
  * generation without another input compiler and then serves every consumer
  * request. One consumer compilation prepares the authored and generated cases;
- * plain JavaScript execution starts no TypeScript loader or native host.
+ * plain JavaScript execution starts no TypeScript loader or native host. The
+ * installed compiler's version-rejection boundary is reported separately; its
+ * assertion failure does not suppress otherwise executable HTTP cases.
  *
  * @evidence contracts/common.md#principled-implementation Public installed TtscCompiler emits the actual authored controller and consumer programs with their shared strict language configuration. Public Nest and SDK application-input APIs use one real application for generation and requests, and DynamicExecutor reports all authored and newly generated assertions.
- * @evidence contracts/common.md#clear-and-simple-design Installation, producer, generation, consumer compilation and request execution are distinct measured phases. One finally block owns application release, including initialization, generation and consumer failures.
+ * @evidence contracts/common.md#clear-and-simple-design Installation, the independent compiler rejection case, producer, generation, consumer compilation and request execution have visible results. A rejection-case failure is retained while positive HTTP cases continue; their final result aggregates both populations. One finally block owns application release, including initialization, generation and consumer failures.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts All product operations resolve through the ordinary packed installation. The runner patches neither generated JavaScript nor foreign resolvers and copies no previously generated clients or automated cases as input.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies each necessary boundary and its shared lifetime; phase timings, individual failures and discovered counts remain visible.
  * @evidence contracts/portability.md#os-neutral-implementation Native paths locate the assignment-owned fixture. Temporary removal verifies containment before recursive deletion, and the listener uses an OS-assigned loopback port. Public package imports use the consumer's normal Node resolution.
@@ -76,6 +81,20 @@ async function runPublicHttp() {
     __dirname,
     process.env.TTSC_CACHE_DIR ?? path.join(root, "node_modules/.cache/ttsc"),
   );
+  const boundaryFailures = [];
+  const boundaryStarted = Date.now();
+  try {
+    test_public_typia_version_guard(consumer, cache);
+    console.log(
+      `Public compiler boundary: test_public_typia_version_guard passed; ${Date.now() - boundaryStarted} ms`,
+    );
+  } catch (error) {
+    boundaryFailures.push(error);
+    console.error(
+      "Public compiler boundary: test_public_typia_version_guard failed",
+      error,
+    );
+  }
   await compilePublicProgram(
     TtscCompiler,
     fixture,
@@ -157,10 +176,15 @@ async function runPublicHttp() {
       `Public HTTP runtime: ${report.executions.length} cases; ${report.time} ms`,
     );
     const failures = report.executions.filter((execution) => execution.error);
-    if (failures.length)
+    if (failures.length || boundaryFailures.length)
       throw new AggregateError(
-        failures.map((execution) => execution.error),
-        `Public HTTP failed: ${failures.map((execution) => execution.name).join(", ")}`,
+        [...boundaryFailures, ...failures.map((execution) => execution.error)],
+        `Public HTTP failed: ${[
+          ...(boundaryFailures.length
+            ? ["test_public_typia_version_guard"]
+            : []),
+          ...failures.map((execution) => execution.name),
+        ].join(", ")}`,
       );
   } finally {
     await app.close();
