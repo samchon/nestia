@@ -8,7 +8,7 @@
     "evidence": "pnpm --filter=./packages/* --fail-if-no-match -r --no-bail --workspace-concurrency=1 run evidence",
     "format": "prettier --write \"packages/**/*.ts\" \"tests/**/*.ts\"",
     "format:check": "prettier --check \"packages/**/*.ts\" \"tests/**/*.ts\"",
-    "test": "pnpm build && pnpm --filter=./packages/* -r --no-bail --if-present run test:go && pnpm --filter=./packages/* -r --no-bail --if-present run test:unit && cross-env TEST_SDK_SKIP_BUILD=1 pnpm --filter=./tests/* -r --no-bail run start",
+    "test": "node scripts/run-tests.cjs",
     "package:prepare": "pnpm build && node deploy/copy-readme.cjs",
     "package:latest": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --tag latest",
     "package:next": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --tag next",
