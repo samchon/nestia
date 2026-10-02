@@ -9,9 +9,10 @@ const path = require("node:path");
  * restoring globals after a browser case does not restore that module state,
  * so the editor environments have independent lifetimes and share prepared
  * packages and the native compiler cache. Each population runs after an
- * earlier failure, and every nonzero child result contributes to failure.
+ * earlier failure, including unavailable compiler manifests, and every setup
+ * or nonzero child result contributes to failure.
  *
- * @evidence contracts/common.md#principled-implementation Each package-owned source entry runs once; editor browser initialization stays in a different process from server rendering. Discovery and zero-test guards remain with the entries, and any failed child fails the aggregate.
+ * @evidence contracts/common.md#principled-implementation Each available package-owned source entry runs once; editor browser initialization stays in a different process from server rendering. Manifest resolution, parsing and launcher preparation failures mark their workspace failed while later independent populations continue. Discovery and zero-test guards remain with the entries, and any failed child fails the aggregate.
  * @evidence contracts/common.md#clear-and-simple-design A fixed package list and the editor's second entry express execution ownership and the required browser isolation. Each installed ttsx launcher is resolved through its workspace manifest.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The runner invokes each actual source entry once without retries, global loader changes or mocked results. Independent environments address verified DOM-initialization leakage instead of resetting foreign module caches.
  * @evidence contracts/common.md#meaningful-documentation The comment explains why restoring globals is insufficient, what work is shared and how failures affect later populations.
@@ -36,9 +37,16 @@ function runUnit(root = path.resolve(__dirname, ".."), selected) {
   const failed = [];
   for (const suite of selected === undefined ? suites : [selected]) {
     const workspace = path.join(root, "tests", suite);
-    const manifestFile = require.resolve("ttsc/package.json", { paths: [workspace] });
-    const manifest = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
-    const launcher = path.resolve(path.dirname(manifestFile), manifest.bin.ttsx);
+    let launcher;
+    try {
+      const manifestFile = require.resolve("ttsc/package.json", { paths: [workspace] });
+      const manifest = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
+      launcher = path.resolve(path.dirname(manifestFile), manifest.bin.ttsx);
+    } catch (error) {
+      console.error(`Unable to prepare unit population: ${suite}`, error);
+      failed.push(suite);
+      continue;
+    }
     const entries = suite === "test-editor"
       ? ["src/index.ts", "src/browser/index.ts"]
       : ["src/index.ts"];
