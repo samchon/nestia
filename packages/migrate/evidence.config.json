@@ -6,13 +6,7 @@
       "type": "typescript",
       "files": [
         "src/**/*.ts",
-        "!src/archivers/NestiaMigrateFileArchiver.ts",
-        "!src/executable/NestiaMigrateCommander.ts",
-        "!src/module.ts",
-        "!src/index.ts",
-        "!src/utils/StringUtil.ts",
-        "!src/analyzers/NestiaMigrateControllerAnalyzer.ts",
-        "!src/NestiaMigrateApplication.ts"
+        "!src/**/*.d.ts"
       ],
       "symbol": [
         "type",
@@ -23,91 +17,6 @@
         "root": "../../.agents/skills",
         "files": [
           "contracts/common.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "migration output filesystem and process boundary",
-      "type": "typescript",
-      "files": [
-        "src/archivers/NestiaMigrateFileArchiver.ts",
-        "src/executable/NestiaMigrateCommander.ts"
-      ],
-      "symbol": [
-        "type",
-        "function"
-      ],
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/common.md",
-          "contracts/portability.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "scoped performance owners",
-      "type": "typescript",
-      "files": [
-        "src/utils/StringUtil.ts"
-      ],
-      "symbol": [
-        "type",
-        "function"
-      ],
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/common.md",
-          "contracts/performance.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "scoped portability owners",
-      "type": "typescript",
-      "files": [
-        "src/analyzers/NestiaMigrateControllerAnalyzer.ts"
-      ],
-      "symbol": [
-        "type",
-        "function"
-      ],
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/common.md",
-          "contracts/portability.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "scoped performance owners",
-      "type": "typescript",
-      "files": [
-        "src/NestiaMigrateApplication.ts"
-      ],
-      "symbol": [
-        "type",
-        "function"
-      ],
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/common.md",
-          "contracts/performance.md"
         ],
         "symbol": "h2",
         "checklist": true

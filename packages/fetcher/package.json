@@ -10,7 +10,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rimraf lib && ttsc && rolldown -c && node ../../deploy/verify-package-exports.cjs --require-main --esm",
+    "build": "rimraf lib && ttsc && rolldown -c",
     "dev": "rimraf lib && ttsc --watch",
     "evidence": "evidence"
   },

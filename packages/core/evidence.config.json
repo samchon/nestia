@@ -6,131 +6,7 @@
       "type": "typescript",
       "files": [
         "src/**/*.ts",
-        "!src/**/*.d.ts",
-        "!src/utils/SourceFinder.ts"
-      ],
-      "symbol": [
-        "type",
-        "function"
-      ],
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/common.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "maintained native Go production declarations",
-      "type": "go",
-      "files": [
-        "native/**/*.go",
-        "!native/**/*_test.go",
-        "!native/transform/package.go",
-        "!native/transform/buildoutput/output.go",
-        "!native/transform/schemaprojection/project.go"
-      ],
-      "symbol": [
-        "type",
-        "function"
-      ],
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/common.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "isolated schema writer graph projection",
-      "type": "go",
-      "files": [
-        "native/transform/schemaprojection/project.go"
-      ],
-      "symbol": [
-        "type",
-        "function"
-      ],
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/common.md",
-          "contracts/performance.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "native in-process test declarations",
-      "type": "go",
-      "files": [
-        "test/**/*_test.go"
-      ],
-      "symbol": "function",
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/testing.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "resolved declaration package ownership",
-      "type": "go",
-      "files": [
-        "native/transform/package.go"
-      ],
-      "symbol": "function",
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/common.md",
-          "contracts/portability.md",
-          "contracts/performance.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "buffered build publication and reporting",
-      "type": "go",
-      "files": [
-        "native/transform/buildoutput/output.go"
-      ],
-      "symbol": [
-        "type",
-        "function"
-      ],
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/common.md",
-          "contracts/portability.md",
-          "contracts/performance.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "native source discovery filesystem boundary",
-      "type": "typescript",
-      "files": [
-        "src/utils/SourceFinder.ts"
+        "!src/**/*.d.ts"
       ],
       "symbol": [
         "type",
@@ -142,6 +18,47 @@
         "files": [
           "contracts/common.md",
           "contracts/portability.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "maintained native Go production declarations",
+      "type": "go",
+      "files": [
+        "native/**/*.go",
+        "!native/**/*_test.go"
+      ],
+      "symbol": [
+        "type",
+        "function"
+      ],
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/performance.md",
+          "contracts/portability.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "native test declarations",
+      "type": "go",
+      "files": [
+        "test/**/*_test.go",
+        "native/**/*_test.go"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/testing.md"
         ],
         "symbol": "h2",
         "checklist": true

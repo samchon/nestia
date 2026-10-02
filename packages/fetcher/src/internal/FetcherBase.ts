@@ -55,7 +55,20 @@ export namespace FetcherBase {
     ): Promise<IPropagation<any, any>> =>
       _Propagate("propagate")(props)(connection, route, input, stringify);
 
-  /** @internal */
+  /**
+   * Executes one request and transfers binary stream ownership to its caller.
+   *
+   * A null successful binary body has no producer or bytes, so its replacement
+   * stream must start closed. Actual response streams retain their identity;
+   * reading and cancellation remain the caller's responsibility.
+   *
+   * @internal
+   * @evidence contracts/common.md#principled-implementation Status failure parsing precedes successful HEAD and media decoding. Only a null binary-success body gets a new stream, synchronously closed by its start controller so its first read reports EOF under Streams semantics; nonnull response bodies are returned unchanged.
+   * @evidence contracts/common.md#clear-and-simple-design The binary fallback stays in the existing response branch shared by both public fetchers and both operations; no second transport or decoding policy is introduced.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty stream closure follows a missing response body for every supported binary media type, without fixture paths, foreign mutations or artificial payload data.
+   * @evidence contracts/common.md#meaningful-documentation The prose explains why a null body must be closed and who owns consumption and cancellation of real response streams.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The fallback has no producer task or queued bytes and closes synchronously during construction. Nonnull streams transfer unchanged to the caller; logger completion remains in finally for successful and failed requests.
+   */
   const _Propagate =
     (method: string) =>
     (props: IProps) =>
@@ -176,7 +189,11 @@ export namespace FetcherBase {
             );
             result.data = route.parseQuery ? route.parseQuery(query) : query;
           } else if (is_binary_response_content_type(route.response?.type))
-            result.data = response.body ?? new ReadableStream<Uint8Array>();
+            result.data =
+              response.body ??
+              new ReadableStream<Uint8Array>({
+                start: (controller) => controller.close(),
+              });
           else
             result.data = props.decode(await response.text(), result.headers);
         }

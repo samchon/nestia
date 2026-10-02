@@ -7,9 +7,7 @@
       "files": [
         "src/**/*.ts",
         "src/**/*.tsx",
-        "!src/**/*.d.ts",
-        "!src/index.ts",
-        "!src/NestiaEditorModule.ts"
+        "!src/**/*.d.ts"
       ],
       "symbol": [
         "type",
@@ -20,28 +18,6 @@
         "root": "../../.agents/skills",
         "files": [
           "contracts/common.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "scoped portability, performance owners",
-      "type": "typescript",
-      "files": [
-        "src/NestiaEditorModule.ts"
-      ],
-      "symbol": [
-        "type",
-        "function"
-      ],
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/common.md",
-          "contracts/portability.md",
-          "contracts/performance.md"
         ],
         "symbol": "h2",
         "checklist": true

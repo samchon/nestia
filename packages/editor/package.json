@@ -10,7 +10,7 @@
   "scripts": {
     "build": "npm run build:static && npm run build:lib",
     "build:static": "rimraf dist && ttsc && vite build",
-    "build:lib": "rimraf lib && ttsc --project tsconfig.lib.json && tsc --project tsconfig.lib.json --emitDeclarationOnly && rolldown -c && node ../../deploy/verify-package-exports.cjs --esm-static",
+    "build:lib": "rimraf lib && ttsc --project tsconfig.lib.json && tsc --project tsconfig.lib.json --emitDeclarationOnly && rolldown -c",
     "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview",

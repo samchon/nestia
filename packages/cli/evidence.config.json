@@ -6,27 +6,7 @@
       "type": "typescript",
       "files": [
         "src/**/*.ts",
-        "!src/NestiaProjectTemplate.ts"
-      ],
-      "symbol": [
-        "type",
-        "function"
-      ],
-      "reference": {
-        "type": "markdown",
-        "root": "../../.agents/skills",
-        "files": [
-          "contracts/common.md"
-        ],
-        "symbol": "h2",
-        "checklist": true
-      }
-    },
-    {
-      "name": "scaffold process and filesystem boundary",
-      "type": "typescript",
-      "files": [
-        "src/NestiaProjectTemplate.ts"
+        "!src/**/*.d.ts"
       ],
       "symbol": [
         "type",

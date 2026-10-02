@@ -55,7 +55,7 @@ All populated TypeScript units and the integrated E2E entry share the repository
 - `config/`: `@nestia/config`, the private workspace holding the shared rolldown and tsconfig build configuration.
 - `benchmark/`: `@samchon/nestia-benchmark`, the private measurement workspace, with committed per-CPU results under `benchmark/results/**`. See `.agents/skills/benchmark/SKILL.md`.
 - `website/`: the Nextra site published at https://nestia.io, with guides under `website/src/content/docs/**`. See `.agents/skills/documentation/SKILL.md`.
-- `deploy/`: release scripts — `tarballs/index.js` (topologically ordered `pnpm pack`), `copy-readme.cjs` (copies the root README into every `packages/*` directory; root `package:prepare` runs it after the full build), `release-guard.cjs` (release context and version uniformity), and `verify-package-exports.cjs` (proves every `main`, `types`, `bin`, and `exports` leaf resolves).
+- `deploy/`: release scripts — `tarballs/index.js` (topologically ordered `pnpm pack`) and `copy-readme.cjs` (copies the root README into every `packages/*` directory; root `package:prepare` runs it after the full build).
 
 ## Commands
 

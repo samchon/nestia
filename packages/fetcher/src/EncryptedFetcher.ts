@@ -85,25 +85,50 @@ export namespace EncryptedFetcher {
    *
    * An HTTP failure status is returned as a failed branch instead of being
    * thrown. A missing encryption password and a transport failure still throw.
+   * The output must describe numeric status branches with boolean success and
+   * string or string-array headers; its data type remains caller-owned.
    *
-   * @evidence contracts/common.md#principled-implementation It builds the same codec as `fetch` and delegates to `FetcherBase.propagate`, whose result keeps the status, the headers, and the parsed body of every status, with a failed JSON body parsed when possible.
+   * @evidence contracts/common.md#principled-implementation It builds the same codec as `fetch` and delegates to `FetcherBase.propagate`. Its structural branch constraint accepts numeric literal successes, numeric range failures and unknown-status fallback without instantiating a status map with any, while requiring boolean success and actual numeric status/header shapes.
    * @evidence contracts/common.md#clear-and-simple-design The implementation is one delegation to the shared pipeline, and the overloads only split the argument types by method.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The function adds no status-specific branch: the success flag comes from the status rules in `FetcherBase`.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the returned union carries and which failures still throw.
    */
-  export function propagate<Output extends IPropagation<any, any>>(
+  export function propagate<
+    Output extends {
+      success: boolean;
+      status: number;
+      headers: Record<string, string | string[]>;
+      data: unknown;
+    },
+  >(
     connection: IConnection,
     route: IFetchRoute<"GET" | "HEAD">,
   ): Promise<Output>;
 
-  export function propagate<Input, Output extends IPropagation<any, any>>(
+  export function propagate<
+    Input,
+    Output extends {
+      success: boolean;
+      status: number;
+      headers: Record<string, string | string[]>;
+      data: unknown;
+    },
+  >(
     connection: IConnection,
     route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
     input?: Input,
     stringify?: (input: Input) => string,
   ): Promise<Output>;
 
-  export async function propagate<Input, Output extends IPropagation<any, any>>(
+  export async function propagate<
+    Input,
+    Output extends {
+      success: boolean;
+      status: number;
+      headers: Record<string, string | string[]>;
+      data: unknown;
+    },
+  >(
     connection: IConnection,
     route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
     input?: Input,

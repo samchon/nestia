@@ -88,6 +88,10 @@ When a route declares a binary response `Content-Type` with Nest's
 SDK functions return `ReadableStream<Uint8Array<ArrayBufferLike>>` instead of
 trying to parse the body as JSON or text.
 
+A successful binary response with a null body returns an empty, closed stream. Consume the stream through its reader, cancel the reader if consumption stops early, and release its lock when finished.
+
+With simulation enabled, a binary endpoint's `random()` and simulated calls return empty, closed streams with the same stream type as real responses.
+
 ```ts copy
 import { Controller, Get, Header, StreamableFile } from "@nestjs/common";
 

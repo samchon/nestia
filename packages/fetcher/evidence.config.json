@@ -6,9 +6,7 @@
       "type": "typescript",
       "files": [
         "src/**/*.ts",
-        "!src/**/*.d.ts",
-        "!src/index.ts",
-        "!src/HttpError.ts"
+        "!src/**/*.d.ts"
       ],
       "symbol": [
         "type",

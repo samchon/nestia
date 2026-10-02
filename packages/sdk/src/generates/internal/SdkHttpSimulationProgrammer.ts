@@ -33,13 +33,14 @@ import { SdkImportWizard } from "./SdkImportWizard";
  */
 export namespace SdkHttpSimulationProgrammer {
   /**
-   * Returns `random`: it makes a value of the response, an empty stream for a
-   * binary one.
+   * Returns `random`: it makes a value of the response, a closed empty stream
+   * for a binary one. Binary readers receive EOF without waiting for payload.
    *
-   * @evidence contracts/common.md#principled-implementation The value is `typia.random` of the output type.
-   * @evidence contracts/common.md#clear-and-simple-design One function.
+   * @evidence contracts/common.md#principled-implementation Ordinary responses call typia.random of the output type. Binary responses construct a stream with the existing binary chunk type and a start callback that closes its own controller synchronously; no bytes are enqueued, so the first read reports EOF under Streams semantics.
+   * @evidence contracts/common.md#clear-and-simple-design The existing binary versus ordinary expression branch owns response generation. Its inline stream source supplies closure without another runtime helper, import or transport.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The binary case has no random content.
-   * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/common.md#meaningful-documentation The prose states that binary random output is closed and readers receive EOF without waiting for payload.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The emitted binary source queues no bytes or producer task and closes each empty stream during construction. The writer returns its AST without retaining stream handles; runtime readers belong to the generated SDK caller.
    */
   export const random =
     (project: INestiaProject) =>
@@ -64,7 +65,34 @@ export namespace SdkHttpSimulationProgrammer {
             ? factory.createNewExpression(
                 factory.createIdentifier("ReadableStream"),
                 [SdkAliasCollection.binaryChunk() as TypeNode],
-                [],
+                [
+                  factory.createObjectLiteralExpression([
+                    factory.createPropertyAssignment(
+                      "start",
+                      factory.createArrowFunction(
+                        undefined,
+                        undefined,
+                        [
+                          factory.createParameterDeclaration(
+                            undefined,
+                            undefined,
+                            "controller",
+                          ),
+                        ],
+                        undefined,
+                        undefined,
+                        factory.createCallExpression(
+                          IdentifierFactory.access(
+                            factory.createIdentifier("controller"),
+                            "close",
+                          ),
+                          undefined,
+                          [],
+                        ),
+                      ),
+                    ),
+                  ]),
+                ],
               )
             : factory.createCallExpression(
                 IdentifierFactory.access(

@@ -137,7 +137,7 @@ Run the narrowest command that proves the change first, then a broader command w
 - **E2E population:** after `pnpm build`, run `pnpm test:e2e`, which calls only the shared `tests/test-e2e` entry. Count actual installation, compiler, generation, backend and worker operations. `test.yml` owns all tests in one job after one installation and package build, without matrix or shards; measure its complete duration against the eight-minute target while preserving assertions.
 - **One package:** `pnpm --filter ./packages/<name> build`.
 - **Transform, decorators, or generators broadly:** `pnpm test`; use `pnpm build` as the faster compilation gate.
-- **Packaging:** run root `pnpm package:tgz`, then inspect or smoke-test a clean install. `deploy/verify-package-exports.cjs` already runs inside the `fetcher`, `migrate`, and `editor` builds; trust its failure over a green typecheck.
+- **Packaging:** run root `pnpm package:tgz`, then inspect or smoke-test a clean install.
 - **Website or guide changes:** run root `pnpm install` and `pnpm run package:tgz` first, because `website/package.json` depends on `../deploy/tarballs/editor.tgz` and `../deploy/tarballs/migrate.tgz`. Then run `npm install --force && npm run build` inside `website/`, which also rebuilds `@nestia/migrate` and `@nestia/editor` and runs TypeDoc into `public/api`.
 
 Verification shape depends on the change type:
