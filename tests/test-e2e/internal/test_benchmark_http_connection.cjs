@@ -33,7 +33,7 @@ const test_benchmark_http_connection = async ({ sandbox, host, installation }) =
   try {
     const progress = [];
     const report = await DynamicBenchmarker.master({
-      servant: path.join(sandbox, ".consumer/benchmark/servant.js"),
+      servant: path.join(sandbox, ".consumer/consumer/src/benchmark/servant.js"),
       count: 30,
       threads: 3,
       simultaneous: 4,

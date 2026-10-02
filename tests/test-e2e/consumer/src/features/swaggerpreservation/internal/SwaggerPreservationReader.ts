@@ -55,7 +55,10 @@ export namespace SwaggerParameterReader {
    */
   export const document = (): Promise<OpenApi.IDocument> =>
     (documentPromise ??= fs
-      .readFile(path.resolve(__dirname, "../../../../swagger.json"), "utf8")
+      .readFile(
+        path.resolve(__dirname, "../../../../../../swagger.json"),
+        "utf8",
+      )
       .then((text) => JSON.parse(text) as OpenApi.IDocument));
 
   /**
@@ -216,7 +219,7 @@ export namespace SwaggerParameterReader {
    * @evidence contracts/performance.md#bound-retention-and-release-resources readFile closes its own file handle; only the caller's returned string remains and no process or server is acquired.
    */
   export const sdkSource = async (relative: string): Promise<string> => {
-    const root = path.resolve(__dirname, "../../../../consumer/src/api");
+    const root = path.resolve(__dirname, "../../../../../../consumer/src/api");
     const file = path.resolve(root, relative);
     const contained = path.relative(root, file);
     if (

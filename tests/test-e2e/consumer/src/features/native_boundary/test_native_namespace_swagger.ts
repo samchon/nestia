@@ -22,7 +22,10 @@ import path from "node:path";
  */
 export const test_native_namespace_swagger = async (): Promise<void> => {
   const document = JSON.parse(
-    await fs.readFile(path.resolve(__dirname, "../../../swagger.json"), "utf8"),
+    await fs.readFile(
+      path.resolve(__dirname, "../../../../../swagger.json"),
+      "utf8",
+    ),
   );
   for (const route of [
     "/native_boundary/north/duplicate",

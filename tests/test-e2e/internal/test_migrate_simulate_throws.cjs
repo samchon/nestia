@@ -20,7 +20,7 @@ const path = require("node:path");
  * @evidence contracts/e2e.md#preserved-coverage Original invalid-header class/status and valid-header resolution remain. Randomized output is never substituted for request validation.
  */
 const test_migrate_simulate_throws = async ({ sandbox }) => {
-  const api = require(path.join(sandbox, ".consumer/migration/sdk-positional/src/index.js"));
+  const api = require(path.join(sandbox, ".consumer/consumer/src/migration/sdk-positional/src/index.js"));
   const call = (headers) => api.functional.articles.index({
     host: "http://127.0.0.1:1", simulate: true, headers,
   }, {});

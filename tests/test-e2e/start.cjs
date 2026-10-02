@@ -3,6 +3,7 @@ const path = require("node:path");
 const cp = require("node:child_process");
 const crypto = require("node:crypto");
 const { prepare } = require("./internal/consumer.cjs");
+const { test_sdk_keyword_source_artifacts } = require("./internal/boundary/test_sdk_keyword_source_artifacts.cjs");
 const { test_sdk_producer_metadata } = require("./internal/test_sdk_producer_metadata.cjs");
 const { run: runBenchmark } = require("./internal/benchmark.cjs");
 const { prepareMigration, prepareMigrationConsumer, testMigrationConsumer } = require("./internal/migration.cjs");
@@ -32,10 +33,10 @@ const { test_core_compiler_wrappers } = require("./internal/core_wrappers/test_c
  * @evidence contracts/testing.md#distinguishing-cases The combined input retains separate scenario routes, types and request failures; incompatible diagnostic/noEmit and worker cases remain explicit pending transfers in the ledger.
  * @evidence contracts/testing.md#execution-ownership The sole test-e2e workspace entry invokes this exported operation. It uses installed public compiler and SDK APIs, and never calls legacy workspace starts or compiles projects per feature.
  * @evidence contracts/e2e.md#necessary-boundary One actual packed installation connects published exports, the composed native producer, generator, generated client and HTTP/WebSocket/MCP runtime. Pure operation calls cannot prove that connection.
- * @evidence contracts/e2e.md#shared-execution One ordinary producer and consumer share a single installation under the original false flag. The contradictory exact-optional boundary adds only two public compiler requests and one application-input All invocation (SDK and Swagger generation) with a no-listen app. Nine named diagnostic/noEmit wrapper requests are recorded separately (API two, CLI seven); they reuse the same installation/native cache and create no backend. Primary SDK/Swagger/E2E generation and the necessary incompatible propagated SDK ABI are two explicit generation operations on the same reflected application; both outputs enter that single consumer program. The original customized bundle is prepared by one direct filesystem bundle call; existing All refills its deleted file and the same consumer compile consumes the preserved exports without another generator or compiler. Application-input generation reuses the producer's reflected metadata without ConfigAnalyzer's source-input recompilation.
+ * @evidence contracts/e2e.md#shared-execution One ordinary producer and consumer share a single installation under the original false flag. The contradictory exact-optional boundary adds only two public compiler requests and one application-input All invocation (SDK and Swagger generation) with a no-listen app. Nine named diagnostic/noEmit wrapper requests are recorded separately (API two, CLI seven); they reuse the same installation/native cache and create no backend. Primary SDK/Swagger/E2E generation and the necessary incompatible propagated SDK ABI are two explicit generation operations on the same reflected application; both outputs enter that single consumer program. The original customized bundle is prepared by one direct filesystem bundle call; existing All refills its deleted file and the same consumer compile consumes the preserved exports without another generator or compiler. Application-input generation reuses the producer's reflected metadata without ConfigAnalyzer's source-input recompilation. Four incompatible keyword/source SDK profiles use four public method calls: three sdk calls and one e2e call that generates the positional source SDK and its automatic E2E together, giving four actual SDK generations and one E2E generation. One additional real no-listen subset app serves both nonclone profiles. The same consumer request includes their original DTO source closure under the sandbox root, with its additional analysis/emit recorded separately.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity A unique sandbox owns immutable input copies and phase outputs. Express closes after all request and benchmark clients settle; Fastify then acquires a fresh application over the same emitted controller classes and compiled consumer, with its own MCP client. Conflicting HTTP parser/adapter configuration requires these two backend lifetimes, while compiler/install/generation inputs remain identical. Explicit route/type namespaces isolate scenarios, an ephemeral port avoids collisions and finally closes the backend before removing the installation and sandbox. An evidence directory keyed by that unique sandbox retains compiler result buffers, emitted sources, raw operation metadata and packed hashes before cleanup; dependencies are not copied and failed compiler buffers are never published as runnable artifacts.
  * @evidence contracts/e2e.md#preserved-coverage The per-assertion campaign ledger identifies request destinations and pending legacy transfers. The rich program does not certify untransferred cases; originals remain until verified ownership exists.
- * @evidence contracts/common.md#principled-implementation The public installed compiler, generator and actual backend consumers establish package consequences. Private retention callbacks carry actual missing-close observations into this owner's finally so installed modules and sandbox outputs remain available to an unresolved process; retained files represent failed cleanup.
+ * @evidence contracts/common.md#principled-implementation The public installed compiler, generator and actual backend consumers establish package consequences. The consumer's common sandbox root preserves original source imports and emits their actual dependency closure under its output root; generated type-only imports do not redirect backend class identity to duplicate consumer emission. Private retention callbacks carry actual missing-close observations into this owner's finally so installed modules and sandbox outputs remain available to an unresolved process; retained files represent failed cleanup.
  * @evidence contracts/common.md#clear-and-simple-design One entry coordinates named independent boundaries and explicit compile/generate/backend phases. One retained-resource list gates both owned tree removals, while normal backend close and artifact capture remain independent of that gate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The entry does not replace a package resolver, compiler host, process API or product registry. A missing close is recorded as failure and never reclassified as successful termination; keeping its native paths does not satisfy resource release.
  * @evidence contracts/common.md#meaningful-documentation The comment names the ordinary and contradictory optional-property premises, public phase counts, independent authored oracles and missing-close cleanup limitation. Phase and retained-resource artifacts distinguish actual reached behavior from pending coverage.
@@ -224,7 +225,7 @@ const main = async () => {
       const project = `tsconfig.${phase}.json`;
       fs.writeFileSync(path.join(sandbox, project), JSON.stringify({
         ...common,
-        compilerOptions: { ...common.compilerOptions, ...options, rootDir: `${source}/src`, outDir: `.${phase}` },
+        compilerOptions: { ...common.compilerOptions, ...options, rootDir: phase === "consumer" ? "." : `${source}/src`, outDir: `.${phase}` },
         include: [`${source}/src/**/*.ts`],
       }));
       const begin = Date.now();
@@ -234,6 +235,19 @@ const main = async () => {
       if (result.type === "exception") throw result.error;
       if (result.type !== "success") throw new Error(JSON.stringify(result.diagnostics));
       if (Object.keys(result.output).length === 0) throw new Error(`${phase} emitted no artifacts.`);
+      if (phase === "consumer") {
+        const emitted = Object.entries(result.output).map(([file, text]) => ({
+          file: path.relative(outputRoot, path.resolve(sandbox, file)),
+          bytes: Buffer.byteLength(text, "utf8"),
+        }));
+        const producerDerived = emitted.filter(({ file }) => file.split(path.sep)[0] === "fixture");
+        record("consumer-common-root-emitted-closure.json", {
+          rootDir: ".", include: ["consumer/src/**/*.ts"],
+          emitted, producerDerived, producerDerivedCount: producerDerived.length,
+          producerDerivedBytes: producerDerived.reduce((total, item) => total + item.bytes, 0),
+          premise: "Actual emitted producer-source dependency closure in the single consumer request; declaration-only inputs are not counted by emission.",
+        });
+      }
       for (const [file, text] of Object.entries(result.output)) {
         const destination = path.resolve(sandbox, file);
         const relative = path.relative(outputRoot, destination);
@@ -299,6 +313,40 @@ const main = async () => {
       propagate: true,
       output: path.join(sandbox, "consumer/src/api_propagate"),
     }).sdk());
+    for (const [name, propagate] of [["api_keyword_clone", false], ["api_keyword_clone_propagate", true]]) {
+      await measure(`generation SDK ${name}`, () => new NestiaSdkApplication({
+        input: async () => application, clone: true, keyword: true,
+        simulate: true, propagate, output: path.join(sandbox, "consumer/src", name),
+      }).sdk());
+    }
+    const sourceApplication = await measure("source SDK subset application (no listener)", () => backend.openSourceSdk());
+    let sourceGenerationError;
+    try {
+      await measure("generation SDK keyword source ABI", () => new NestiaSdkApplication({
+        input: async () => sourceApplication, clone: false, keyword: true,
+        simulate: true, assert: true, json: true,
+        output: path.join(sandbox, "consumer/src/api_keyword_source"),
+      }).sdk());
+      const sourceGeneration = new NestiaSdkApplication({
+        input: async () => sourceApplication, clone: false,
+        output: path.join(sandbox, "consumer/src/api_source"),
+        e2e: path.join(sandbox, "consumer/src/features/generated_source"),
+      });
+      await measure("generation positional source ABI (SDK and automatic E2E)", () => sourceGeneration.e2e());
+    } catch (error) {
+      sourceGenerationError = error;
+      throw error;
+    } finally {
+      try {
+        await backend.closeSourceSdk();
+      } catch (closeError) {
+        retainResources({ owner: "source SDK subset application", sandbox, error: closeError });
+        if (sourceGenerationError !== undefined)
+          throw new AggregateError([sourceGenerationError, closeError], "Source SDK generation and subset close failed.", { cause: sourceGenerationError });
+        throw closeError;
+      }
+    }
+    test_sdk_keyword_source_artifacts({ sandbox, record });
     try {
       await measure("generated SDK extensionless imports", () => test_sdk_generated_imports_extensionless({ sandbox, record }));
     } catch (error) {
@@ -318,7 +366,7 @@ const main = async () => {
     if (address === null || typeof address === "string")
       throw new Error("Common application has no TCP address.");
     const host = `http://127.0.0.1:${address.port}`;
-    const { main: consume } = require(path.join(sandbox, ".consumer/index.js"));
+    const { main: consume } = require(path.join(sandbox, ".consumer/consumer/src/index.js"));
     try {
       await measure("consumer express", () => consume(host, authoredCases, "express", backend.richContext()));
     } catch (error) {

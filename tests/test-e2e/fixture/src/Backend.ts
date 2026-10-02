@@ -25,16 +25,17 @@ import { Global as SimulationOriginalGlobal } from "./scenarios/simulation_origi
  * 3. Close that same application after every consumer has settled.
  *
  * @evidence contracts/common.md#principled-implementation One Nest application loads the emitted scenario controllers, authored migration inputs and benchmark controller through EncryptedModule, then attaches the supported WebSocket and MCP adaptors. Route and DTO namespaces preserve dispatch identity within that application.
- * @evidence contracts/common.md#clear-and-simple-design This helper owns only application acquisition and closure; generation and request discovery remain in the entry and consumer. Its optional application field distinguishes not-yet-acquired from acquired resources.
+ * @evidence contracts/common.md#clear-and-simple-design This helper owns only application acquisition and closure; generation and request discovery remain in the entry and consumer. Its separate optional backend and no-listen source-generation fields distinguish independent not-yet-acquired and acquired resources.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Public Nest and nestia composition APIs configure the actual server. Middleware observes benchmark responses and scopes the Express parser to its explicit preconsumed-stream fixture route rather than replacing foreign methods.
  * @evidence contracts/common.md#meaningful-documentation The comment describes shared transports, input namespaces and the lifetime ending after consumer settlement. Open and close document failure cleanup and the one-session constraint.
- * @evidence contracts/performance.md#efficient-algorithms Controller discovery traverses the combined emitted input once and Nest creates one container; work grows with the controller population, with no per-case application creation.
+ * @evidence contracts/performance.md#efficient-algorithms Controller discovery traverses the combined emitted input once and Nest creates the listening container; one additional explicitly counted subset container serves source-ABI generation. Work grows with each necessary controller population, with no per-case application creation.
  * @evidence contracts/performance.md#reuse-equivalent-work Sequential Express and Fastify applications share the same immutable emitted controller program and stateless handlers; their conflicting adapter configuration requires two actual application lifetimes. The explicit Express parser route prefix preserves preconsumed and raw-stream premises; Fastify installs the public multipart stream-preserving and urlencoded parsers required by its adapter; benchmark counters reset between the ordinary requests and its workload.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The helper retains at most one application, assigned before adaptor/listen operations so the entry's finally can close it on startup failure. The entry awaits all clients/workers before calling close and removes outputs only afterward.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The helper retains at most one listening application and one transient no-listen source-generation application in separate fields. Each is recorded before later operations so its owning finally can close it after failure; a failed subset close causes the entry to retain its sandbox/installation and report cleanup incomplete. The entry awaits all clients/workers before calling close and removes outputs only afterward.
  * @evidence contracts/portability.md#os-neutral-implementation Emitted paths use Node's native __dirname and the public controller loader. An ephemeral loopback TCP port prevents fixed-port collisions; HTTP route prefixes remain protocol strings rather than filesystem paths.
  */
 export class Backend {
   public application?: INestApplication;
+  private sourceSdkApplication?: INestApplication;
   private requestCount = 0;
   private readonly observeRequest = (): void => {
     ++this.requestCount;
@@ -105,6 +106,58 @@ export class Backend {
     await core.McpAdaptor.upgrade(application, { path: "/mcp" });
     await application.listen(0, "127.0.0.1");
     return application;
+  }
+
+  /**
+   * Acquires one no-listen application over existing producer controller values
+   * for nonclone ABI generation; anonymous rich routes remain in cloned
+   * output.
+   *
+   * @evidence contracts/common.md#principled-implementation Public EncryptedModule discovery supplies the already emitted controller classes from five explicit source-ABI scopes; Nest's actual module container is read by the public application-input generator, without a route-array facade.
+   * @evidence contracts/common.md#clear-and-simple-design One separate field owns the subset application so the listening adapter and generation lifetimes cannot overwrite each other.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No source recompilation, metadata replacement, custom compiler host or generated-source rewrite selects the subset.
+   * @evidence contracts/common.md#meaningful-documentation Documents that this actual Nest acquisition adds one application but no listener and that private/anonymous routes still need clone semantics.
+   * @evidence contracts/performance.md#efficient-algorithms Controller discovery and container construction occur once for the shared Kn/N0 profiles, proportional to that source subset.
+   * @evidence contracts/performance.md#reuse-equivalent-work Both nonclone profiles use the same immutable producer classes and container; their different generator options retain separate outputs.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources One subset app is retained immediately after creation; the generation caller's finally awaits closeSourceSdk before proceeding or propagating a generation failure.
+   * @evidence contracts/portability.md#os-neutral-implementation Discovery uses native __dirname paths supplied to the public loader and creates no network address or process command.
+   */
+  public async openSourceSdk(): Promise<INestApplication> {
+    if (this.sourceSdkApplication !== undefined)
+      throw new Error("Source SDK application is already acquired.");
+    const application = await NestFactory.create<INestApplication>(
+      await core.EncryptedModule.dynamic(
+        [
+          "keyword_collision",
+          "keyword_destructured",
+          "nonclone_alias",
+          "nonclone_import_type",
+          "nonclone_namespace",
+        ].map((name) => __dirname + "/scenarios/" + name),
+        { key: "A".repeat(32), iv: "B".repeat(16) },
+      ),
+      { logger: false },
+    );
+    this.sourceSdkApplication = application;
+    return application;
+  }
+
+  /**
+   * Releases the no-listen generation app independently of the HTTP adapter.
+   *
+   * @evidence contracts/common.md#principled-implementation Public Nest close ends the acquired subset container; its owner field is cleared only after successful closure.
+   * @evidence contracts/common.md#clear-and-simple-design One guarded close delegates framework resource release.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed close stays observable; no loader or framework lifecycle method is replaced.
+   * @evidence contracts/common.md#meaningful-documentation States which independently owned generation lifetime is released.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The operation delegates one framework close and chooses no growing algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Closing ends the lifetime rather than producing reusable computation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The field retains ownership on rejection and becomes empty after awaited close.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This public lifecycle delegation chooses no path, executable or native protocol representation.
+   */
+  public async closeSourceSdk(): Promise<void> {
+    if (this.sourceSdkApplication === undefined) return;
+    await this.sourceSdkApplication.close();
+    this.sourceSdkApplication = undefined;
   }
 
   /**

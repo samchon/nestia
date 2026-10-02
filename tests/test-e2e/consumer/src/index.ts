@@ -24,7 +24,7 @@ import { test_simulation_original_population } from "./simulation_original/test_
  * @evidence contracts/e2e.md#necessary-boundary Generated client imports and transported requests must connect to emitted controllers and installed runtime helpers. Direct writer and transform units cannot detect an incorrect actual wire request.
  * @evidence contracts/e2e.md#shared-execution The initial simulation population and both adapter runs reuse one installation, producer compilation, generated consumer compilation and generated artifacts; each run consumes its separately acquired backend with a fresh MCP client, and this operation launches no compiler or server.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Route and DTO namespaces prevent cross-scenario dispatch. Cases own request specimens and WebSocket connectors; this entry owns one lazy official MCP client and closes it after the complete report, including failure. The start entry then closes the backend.
- * @evidence contracts/e2e.md#preserved-coverage The request assertions are mapped individually in the campaign transfer ledger. This entry does not claim coverage of untransferred legacy cases or rule-only assertions.
+ * @evidence contracts/e2e.md#preserved-coverage The request assertions are mapped individually in the campaign transfer ledger. The newly generated nonclone-source caller population is counted separately and must execute nonzero actual callbacks on each adapter; cloned callers do not substitute for its source import ABI. This entry does not claim coverage of untransferred legacy cases or rule-only assertions.
  */
 export const main = async (
   host: string,
@@ -68,6 +68,7 @@ export const main = async (
       throw new Error("The rich consumer discovered no request cases.");
     const identities = new Map<string, number>();
     let generated = 0;
+    let sourceGenerated = 0;
     for (const execution of report.executions) {
       const file = path
         .relative(__dirname + "/features", execution.location)
@@ -76,6 +77,7 @@ export const main = async (
       const identity = `${file}#${execution.name}`;
       identities.set(identity, (identities.get(identity) ?? 0) + 1);
       if (file.startsWith("generated/")) ++generated;
+      if (file.startsWith("generated_source/")) ++sourceGenerated;
     }
     for (const authored of authoredCases)
       if (identities.get(`${authored.file}#${authored.name}`) !== 1)
@@ -84,8 +86,10 @@ export const main = async (
         );
     if (generated === 0)
       throw new Error("Fresh generated E2E artifacts executed no cases.");
+    if (sourceGenerated === 0)
+      throw new Error("Fresh nonclone source E2E artifacts executed no cases.");
     console.log(
-      `Consumer executions [${adapter}]: ${authoredCases.length} authored exactly once, ${generated} fresh generated, ${report.executions.length} total.`,
+      `Consumer executions [${adapter}]: ${authoredCases.length} authored exactly once, ${generated} fresh generated clone, ${sourceGenerated} fresh generated source, ${report.executions.length} total.`,
     );
     const failures = report.executions.filter(
       (execution) => execution.error !== null,

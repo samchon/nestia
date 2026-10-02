@@ -26,7 +26,7 @@ export const test_native_exception_provenance_swagger =
   async (): Promise<void> => {
     const document = JSON.parse(
       await fs.readFile(
-        path.resolve(__dirname, "../../../swagger.json"),
+        path.resolve(__dirname, "../../../../../swagger.json"),
         "utf8",
       ),
     );

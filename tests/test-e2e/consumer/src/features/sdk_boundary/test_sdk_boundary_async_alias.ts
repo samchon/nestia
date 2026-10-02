@@ -37,7 +37,7 @@ export const test_sdk_boundary_async_alias = async (
   const route = api.functional.sdk_boundary.alias;
   const producer = path.resolve(
     __dirname,
-    "../../../.producer/scenarios/sdk_boundary/controllers/SdkBoundaryAliasController.js",
+    "../../../../../.producer/scenarios/sdk_boundary/controllers/SdkBoundaryAliasController.js",
   );
   const { SdkBoundaryAliasController } = require(producer);
   for (const name of ["direct", "chained", "defaulted", "readonlyPayload"]) {

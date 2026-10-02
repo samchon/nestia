@@ -42,7 +42,7 @@ export const test_sdk_boundary_profile_status = async (
   assert.equal(route.METADATA.status, 202);
   assert.equal(output.status, 202);
   assert.equal(output.success, true);
-  const sandbox = path.resolve(__dirname, "../../..");
+  const sandbox = path.resolve(__dirname, "../../../../..");
   const swagger = JSON.parse(
     await fs.readFile(path.join(sandbox, "swagger.json"), "utf8"),
   );

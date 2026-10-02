@@ -62,7 +62,7 @@ export const test_sdk_boundary_stream = async (
       }
     }
   }
-  const sandbox = path.resolve(__dirname, "../../..");
+  const sandbox = path.resolve(__dirname, "../../../../..");
   const swagger = JSON.parse(
     await fs.readFile(path.join(sandbox, "swagger.json"), "utf8"),
   );

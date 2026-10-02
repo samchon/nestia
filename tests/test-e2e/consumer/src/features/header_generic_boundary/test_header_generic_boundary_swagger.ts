@@ -23,7 +23,10 @@ import path from "node:path";
  */
 export const test_header_generic_boundary_swagger = async (): Promise<void> => {
   const swagger = JSON.parse(
-    await fs.readFile(path.resolve(__dirname, "../../../swagger.json"), "utf8"),
+    await fs.readFile(
+      path.resolve(__dirname, "../../../../../swagger.json"),
+      "utf8",
+    ),
   );
   const headers = swagger.paths[
     "/header_generic_boundary/decompose/headers/{section}"

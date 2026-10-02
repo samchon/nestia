@@ -23,3 +23,6 @@ package-lock.json
 
 # TypeScript incremental build caches
 *.tsbuildinfo
+
+# Local Go build cache
+/.cache/go-build/
