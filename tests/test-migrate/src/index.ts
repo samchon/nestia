@@ -18,6 +18,7 @@ import { test_migrate_api_accessor_collision } from "./features/test_migrate_api
 import { test_migrate_nest_named_examples } from "./features/test_migrate_nest_named_examples";
 import { EMPTY_PATHS_DOCUMENT } from "./features/test_migrate_sdk_empty_paths";
 import { compileMigrationPrograms } from "./internal/compileMigrationPrograms";
+import { test_migrate_generated_project_inputs } from "./internal/test_migrate_generated_project_inputs";
 import { test_migrate_simulate_throws } from "./internal/test_migrate_simulate_throws";
 import { main as runUnits } from "./unit";
 
@@ -142,11 +143,11 @@ const execute = async (
       mode === "nest"
         ? app.nest({
             ...config,
-            package: scenario.name,
+            package: title,
           })
         : app.sdk({
             ...config,
-            package: scenario.name,
+            package: title,
           });
     const invalidPaths: string[] = Object.keys(files).filter(
       (key) =>
@@ -241,9 +242,12 @@ export const main = async (): Promise<void> => {
         ),
       );
     let compiled: string = "";
-    await measure("combined-generated-program")(() => {
-      compiled = compileMigrationPrograms(programs, TTSC_CACHE_DIR);
-      return Promise.resolve();
+    await test_migrate_generated_project_inputs(
+      path.join(OUTPUT, `${scenario.name}-sdk-positional`),
+      TTSC_CACHE_DIR,
+    );
+    await measure("combined-generated-program")(async () => {
+      compiled = await compileMigrationPrograms(programs, TTSC_CACHE_DIR);
     });
     await test_migrate_simulate_throws(
       path.join(compiled, `${scenario.name}-sdk-positional`, "src"),
