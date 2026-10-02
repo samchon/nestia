@@ -220,9 +220,7 @@ const isReadonlyArrayLike = (
 ): boolean => {
   if (visited.has(metadata)) return false;
   visited.add(metadata);
-  const name: unknown = (metadata as { name?: unknown }).name;
   return (
-    (typeof name === "string" && isReadonlyArrayName(name)) ||
     metadata.arrays.some((array) => isReadonlyArrayName(array.name)) ||
     metadata.tuples.some((tuple) => isReadonlyArrayName(tuple.name)) ||
     metadata.aliases.some((alias) => {

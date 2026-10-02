@@ -21,7 +21,7 @@ export namespace SwaggerOperationResponseComposer {
    * Returns the responses of a route, by status: the declared exceptions, the
    * `@throws` comments, and the success.
    *
-   * @evidence contracts/common.md#principled-implementation A later source does not override an earlier one, and a 2.0 document has one example and one media type per operation.
+   * @evidence contracts/common.md#principled-implementation Decorated exceptions retain their schemas and gain a missing description from comments. The success response replaces any entry at its own status. A 2.0 document omits named examples and shares the success body's media type where present.
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The sources are ordered.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.

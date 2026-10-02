@@ -116,7 +116,14 @@ export class SyntheticController {
 		{"either", "param", []string{": do not allow union type"}},
 		{"ids", "param", []string{": only atomic or constant types are allowed"}},
 	} {
-		actual := verdicts[expected.parameter][expected.category]
+		categories, exists := verdicts[expected.parameter]
+		if !exists {
+			t.Fatalf("missing parameter %q", expected.parameter)
+		}
+		actual, exists := categories[expected.category]
+		if !exists {
+			t.Fatalf("missing %s rules for %s", expected.category, expected.parameter)
+		}
 		if strings.Join(actual, "\n") != strings.Join(expected.lines, "\n") {
 			t.Fatalf(
 				"%s under the %s rules: got %q, expected %q",

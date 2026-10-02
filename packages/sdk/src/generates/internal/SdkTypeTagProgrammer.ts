@@ -8,7 +8,7 @@ import { ImportDictionary } from "./ImportDictionary";
 /**
  * Writes the type tags of a cloned DTO.
  *
- * @evidence contracts/common.md#principled-implementation The namespace prints a tag as the predefined typia tag when it expands to the same type, and as `tags.TagBase` otherwise.
+ * @evidence contracts/common.md#principled-implementation Supported predefined tags require matching arguments and encoded validation, exclusivity and schema expansions; other tags are emitted from the metadata fields as tags.TagBase.
  * @evidence contracts/common.md#clear-and-simple-design Two public functions over a table of predefined tags.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The choice is decided by the expansion.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
@@ -38,8 +38,9 @@ export namespace SdkTypeTagProgrammer {
    * A tag prints as the predefined typia tag it matches, `tags.Minimum<3>`,
    * only when that tag accepts the argument and, given it, expands to exactly
    * the tag the metadata carries; then the two are the same type. Anything else
-   * prints in the generic `tags.TagBase<{ ... }>` form, which is always the
-   * same type.
+   * prints in the generic `tags.TagBase<{ ... }>` form using the native
+   * metadata's reported fields. This cannot recover source details absent from
+   * that metadata or composite values changed by JSON encoding.
    *
    * The tag's name cannot decide it. The SDK names a tag after its object type
    * with the brackets and quotes a component name drops, `Minimum3` or
@@ -50,7 +51,7 @@ export namespace SdkTypeTagProgrammer {
    *
    * @evidence contracts/common.md#principled-implementation A tag prints as the predefined tag it matches only when that tag expands to exactly the tag the metadata carries.
    * @evidence contracts/common.md#clear-and-simple-design One function.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The generic form is always the same type.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Generic tags retain the reported value, validation, exclusivity and schema fields; NaN has no literal type and is represented as null. Source details absent from native metadata are not claimed to be reconstructed.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
    * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeTagProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
@@ -321,10 +322,7 @@ const serialize = (value: string): string =>
       })[char]!,
   );
 
-/**
- * Every predefined typia tag, keyed by its kind, as `@typia/interface` declares
- * it.
- */
+/** Supported predefined typia tag expansions, keyed by their metadata kind. */
 const DEFINITIONS: Record<string, IDefinition> = {
   minimum: {
     name: "Minimum",

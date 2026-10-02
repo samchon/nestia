@@ -161,6 +161,7 @@ export namespace E2eFileProgrammer {
                       ),
                     ]),
                   ),
+                  true,
                 ),
               ]
             : entries.map((e) =>

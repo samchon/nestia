@@ -12,7 +12,7 @@ import { ITypedApplication } from "../../structures/ITypedApplication";
  * @evidence contracts/common.md#clear-and-simple-design One public function with syntax-tree helpers for declarations and imports.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The TypeScript syntax parser determines declaration and import boundaries, including automatic semicolon insertion; a package file or a name declared differently in two files is never copied.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
- * @evidence contracts/portability.md#os-neutral-implementation Source candidates use Node path.resolve/join and fs.stat/readFile; outputs use recursive mkdir and UTF-8 writes. Native separators are recognized only when rejecting node_modules paths; authored import specifiers remain language text, and supported source candidates currently include .ts/.tsx/.d.ts rather than .mts/.cts.
+ * @evidence contracts/portability.md#os-neutral-implementation Source candidates use Node path.resolve/join and fs.stat/readFile; outputs use recursive mkdir and UTF-8 writes. Retained relative imports are rebased with native path.relative and rendered with module separators; cross-volume absolute paths remain absolute. Supported source candidates currently include .ts/.tsx/.d.ts rather than .mts/.cts.
  */
 export namespace SdkWebSocketCloneProgrammer {
   /**
@@ -102,11 +102,12 @@ export namespace SdkWebSocketCloneProgrammer {
 
       for (const imp of getImports(props.source, props.location)) {
         const relative: boolean = imp.specifier.startsWith(".");
+        const retained: Set<string> = new Set();
         for (const elem of imp.elements) {
           if (uses(props.body, elem.local, props.location) === false) continue;
 
           if (relative === false) {
-            add(imp.text);
+            retained.add(elem.local);
             continue;
           }
 
@@ -115,7 +116,7 @@ export namespace SdkWebSocketCloneProgrammer {
             imp.specifier,
           );
           if ((await clone(ctx)(sourceFile, elem.imported)) === false) {
-            add(imp.text);
+            retained.add(elem.local);
             continue;
           }
           add(
@@ -124,7 +125,16 @@ export namespace SdkWebSocketCloneProgrammer {
         }
         for (const name of [imp.default, imp.namespace])
           if (name !== null && uses(props.body, name, props.location))
-            add(imp.text);
+            retained.add(name);
+        if (retained.size !== 0) {
+          const specifier: string = relative
+            ? relativeImport(
+                ctx.output,
+                path.resolve(path.dirname(props.location), imp.specifier),
+              )
+            : imp.specifier;
+          add(retainedImport(imp, retained, specifier));
+        }
       }
 
       for (const name of getExportedNames(props.source, props.location)) {
@@ -220,6 +230,7 @@ export namespace SdkWebSocketCloneProgrammer {
     syntax(source, filename)
       .body.filter((statement) => statement.type === "ImportDeclaration")
       .map((statement) => ({
+        node: statement,
         text: source.slice(statement.start!, statement.end!),
         specifier: statement.source.value,
         default:
@@ -240,6 +251,44 @@ export namespace SdkWebSocketCloneProgrammer {
             local: specifier.local.name,
           })),
       }));
+
+  /** Rebuilds only retained bindings, preserving their authored type modifiers. */
+  const retainedImport = (
+    imp: IImport,
+    retained: Set<string>,
+    specifier: string,
+  ): string => {
+    const clauses: string[] = [];
+    const named: string[] = [];
+    for (const binding of imp.node.specifiers) {
+      if (!retained.has(binding.local.name)) continue;
+      if (binding.type === "ImportDefaultSpecifier")
+        clauses.push(binding.local.name);
+      else if (binding.type === "ImportNamespaceSpecifier")
+        clauses.push(`* as ${binding.local.name}`);
+      else
+        named.push(
+          imp.text.slice(
+            binding.start! - imp.node.start!,
+            binding.end! - imp.node.start!,
+          ),
+        );
+    }
+    if (named.length) clauses.push(`{ ${named.join(", ")} }`);
+    const suffix: string = imp.text.slice(
+      imp.node.source.end! - imp.node.start!,
+    );
+    return `import${imp.node.importKind === "type" ? " type" : ""} ${clauses.join(", ")} from ${JSON.stringify(specifier)}${suffix}`;
+  };
+
+  /** Module spelling from a copied declaration to its original source import. */
+  const relativeImport = (output: string, source: string): string => {
+    const native: string = path.relative(output, source);
+    const relative: string = native.split(path.sep).join("/");
+    return path.isAbsolute(native) || relative.startsWith(".")
+      ? relative
+      : `./${relative}`;
+  };
 
   const uses = (body: string, name: string, filename: string): boolean => {
     const visit = (value: unknown): boolean => {
@@ -297,6 +346,10 @@ interface IContext {
 type CloneStatus = "pending" | "written" | "missing";
 
 interface IImport {
+  node: Extract<
+    ReturnType<typeof parse>["program"]["body"][number],
+    { type: "ImportDeclaration" }
+  >;
   text: string;
   specifier: string;
   default: string | null;

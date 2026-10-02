@@ -211,10 +211,10 @@ export namespace SdkAliasCollection {
     };
 
   /**
-   * Returns the type of a route's query: its reflected name, or the metadata's
-   * type under `clone`.
+   * Returns the type of a route's query: its metadata under `clone`, otherwise
+   * its reflected type wrapped in Resolved unless primitive conversion is off.
    *
-   * @evidence contracts/common.md#principled-implementation A form-urlencoded query keeps its type as it is.
+   * @evidence contracts/common.md#principled-implementation Clone mode uses the resolved metadata graph; source mode uses the declared type with the configured Resolved conversion.
    * @evidence contracts/common.md#clear-and-simple-design One conditional.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The choice is made on one flag.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
@@ -282,7 +282,7 @@ export namespace SdkAliasCollection {
    * union of `IPropagation` members, or the success body alone when propagation
    * is off.
    *
-   * @evidence contracts/common.md#principled-implementation Each declared status is a literal member, and a status range such as `4XX` is left a number, since it is no literal.
+   * @evidence contracts/common.md#principled-implementation Status keys retain their declared numeric or range spelling for IPropagation to expand. Source success types follow their content type, while declared exceptions use JSON Primitive conversion independently of the success media type; primitive:false preserves declared source types.
    * @evidence contracts/common.md#clear-and-simple-design One function of two branches.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The exceptions are the declared ones.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
@@ -292,10 +292,13 @@ export namespace SdkAliasCollection {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): TypeNode => {
-      const schema = (p: {
-        metadata: MetadataSchema;
-        type: IReflectType;
-      }): TypeNode =>
+      const schema = (
+        p: {
+          metadata: MetadataSchema;
+          type: IReflectType;
+        },
+        json: boolean,
+      ): TypeNode =>
         sizeOf(p.metadata) === 0
           ? TypeFactory.keyword("void")
           : project.config.clone === true
@@ -306,11 +309,7 @@ export namespace SdkAliasCollection {
                     file: "typia",
                     declaration: true,
                     type: "element",
-                    name:
-                      route.success.contentType === "application/json" ||
-                      route.success.encrypted === true
-                        ? "Primitive"
-                        : "Resolved",
+                    name: json ? "Primitive" : "Resolved",
                   }),
                   [name(p)],
                 )
@@ -318,7 +317,11 @@ export namespace SdkAliasCollection {
       const success: TypeNode =
         route.success.binary === true
           ? binaryResponse()
-          : schema(route.success);
+          : schema(
+              route.success,
+              route.success.contentType === "application/json" ||
+                route.success.encrypted === true,
+            );
       if (project.config.propagate !== true) return success;
 
       const branches: IBranch[] = [
@@ -330,7 +333,7 @@ export namespace SdkAliasCollection {
         },
         ...Object.entries(route.exceptions).map(([status, value]) => ({
           status,
-          type: schema(value),
+          type: schema(value, true),
         })),
       ];
       return factory.createTypeReferenceNode(

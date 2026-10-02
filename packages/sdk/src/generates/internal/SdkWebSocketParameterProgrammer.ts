@@ -22,11 +22,10 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
  */
 export namespace SdkWebSocketParameterProgrammer {
   /**
-   * One parameter of a WebSocket route: its key, whether it is required, and
-   * its type.
+   * One parameter of a WebSocket route: its key and its type.
    *
    * @evidence contracts/common.md#principled-implementation The record is what a declaration needs.
-   * @evidence contracts/common.md#clear-and-simple-design A three-member record.
+   * @evidence contracts/common.md#clear-and-simple-design A two-member record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
    * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.IEntry composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
@@ -187,7 +186,7 @@ export namespace SdkWebSocketParameterProgrammer {
    * Returns the entries of a WebSocket route: its path parameters, its query,
    * and its provider.
    *
-   * @evidence contracts/common.md#principled-implementation The query exists only when the route has one, and the provider always.
+   * @evidence contracts/common.md#principled-implementation The query exists only when the route has one, and the provider is included only when the caller requests it.
    * @evidence contracts/common.md#clear-and-simple-design One list.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The order is the call order.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.

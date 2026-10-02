@@ -54,11 +54,16 @@ export interface INestiaConfig {
    */
   distribute?: string;
 
-  /** @default false */
+  /**
+   * Groups HTTP and WebSocket SDK call arguments in one props object after the
+   * connection. MCP wrappers retain their client and arguments parameters.
+   *
+   * @default false
+   */
   keyword?: boolean;
 
   /**
-   * Allow simulation mode.
+   * Allow simulation mode for HTTP SDK calls.
    *
    * If you configure this property to be `true`, the SDK library would be
    * contain simulation mode. In the simulation mode, the SDK library would not
@@ -77,7 +82,8 @@ export interface INestiaConfig {
    *
    * If you configure this property and runs `npx nestia e2e` command,
    * `@nestia/sdk` will analyze your NestJS backend server code, and generates
-   * e2e test functions for every API endpoints.
+   * e2e test functions for the analyzed HTTP endpoints. WebSocket and MCP
+   * operations have no generated HTTP test function.
    *
    * If not configured, you can't run `npx nestia e2e` command.
    */
@@ -87,10 +93,10 @@ export interface INestiaConfig {
    * Whether to use propagation mode or not.
    *
    * If being configured, interaction functions of the SDK library would perform
-   * the propagation mode. The propagation mode means that never throwing
-   * exception even when status code is not 200 (or 201), but just returning the
+   * propagation mode. HTTP failure statuses are returned through the
    * {@link IPropagation} typed instance, which can specify its body type through
-   * discriminated union determined by status code.
+   * discriminated union determined by status code. Transport, decoding and
+   * configured assertion failures can still throw.
    *
    * @default false
    */
@@ -99,9 +105,10 @@ export interface INestiaConfig {
   /**
    * Whether to clone DTO structures or not.
    *
-   * If being configured, all of DTOs used in the backend server would be cloned
-   * into the `structures` directory, and the SDK library would be refer to the
-   * cloned DTOs instead of the original.
+   * If enabled, named DTOs reachable from analyzed routes are emitted into
+   * `structures`, with anonymous forms written inline. HTTP and MCP DTOs use
+   * their wire metadata; supported WebSocket declarations are copied from local
+   * sources, while external or unsupported imports retain source links.
    *
    * @default false
    */
@@ -110,8 +117,10 @@ export interface INestiaConfig {
   /**
    * Whether to wrap DTO by primitive type.
    *
-   * If you don't configure this property as `false`, all of DTOs in the SDK
-   * library would be automatically wrapped by {@link Primitive} type.
+   * Unless false, source DTO aliases use Primitive for JSON bodies and
+   * responses, and Resolved for query, headers and other resolved wire forms.
+   * Clone mode writes the analyzed metadata directly; multipart bodies use
+   * FormDataInput and binary responses use ReadableStream.
    *
    * For refenrece, if a DTO type be capsuled by the {@link Primitive} type, all
    * of methods in the DTO type would be automatically erased. Also, if the DTO
@@ -125,9 +134,10 @@ export interface INestiaConfig {
   /**
    * Whether to assert parameter types or not.
    *
-   * If you configure this property to be `true`, all of the function parameters
-   * of SDK library would be checked through [`typia.assert<T>()`
-   * function](https://typia.io/docs/validators/assert/).
+   * If true, HTTP path, query and body arguments are checked through
+   * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
+   * The connection, connection headers, WebSocket and MCP arguments are outside
+   * this option.
    *
    * This option would make your SDK library compilation time a little bit
    * slower, but would enahcne the type safety even in the runtime level.
@@ -281,7 +291,7 @@ export namespace INestiaConfig {
      *
      * @param props Properties of the API endpoint.
      * @returns Operation ID.
-     * @evidence contracts/common.md#principled-implementation The callback is invoked once per composed operation with the four facts that identify it, so the identifier can follow any naming convention; an `@operationId` tag of the function takes precedence when present.
+     * @evidence contracts/common.md#principled-implementation An explicit @operationId tag takes precedence; otherwise this callback receives the four identifying facts once for the composed operation and supplies its identifier.
      * @evidence contracts/common.md#clear-and-simple-design One optional callback with a single argument object.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a caller-supplied function and nothing about a particular naming scheme is built in.
      * @evidence contracts/common.md#meaningful-documentation The comment documents the arguments and the result.

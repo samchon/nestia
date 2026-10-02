@@ -31,8 +31,8 @@ export namespace FileRetriever {
     };
 
   /**
-   * Returns the path of the nearest file with the name, from the given
-   * directory up to three parents, or `null`.
+   * Returns the path of the nearest existing entry with the name, from the
+   * given directory up to three parents, or `null`.
    *
    * @evidence contracts/common.md#principled-implementation The recursion is bounded by the depth counter.
    * @evidence contracts/common.md#clear-and-simple-design One function.

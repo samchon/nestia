@@ -33,7 +33,7 @@ export namespace TypeFactory {
    * @evidence contracts/common.md#clear-and-simple-design One derived type.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the set.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation TypeFactory.Keyword constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation TypeFactory.Keyword is the key union of the syntax-kind table and defines no native path conversion or process boundary.
    */
   export type Keyword = keyof typeof KEYWORDS;
 

@@ -2,27 +2,19 @@ package test
 
 import "testing"
 
-// Verifies the metadata JSON writer serializes the rich typia schema shapes —
-// Set, Map, tuple, Date (escaped), and a template-literal property — that none of
-// the tests/test-sdk-e2e controllers return.
+// Verifies native metadata retains five distinct collection categories.
 //
-// nestiaSDKMetadataSchemaLiteral fans out to nestiaSDKMetadataSets,
-// nestiaSDKMetadataMaps, nestiaSDKMetadataTupleTypes, nestiaSDKMetadataEscaped and
-// nestiaSDKMetadataTemplates only when typia's MetadataFactory reflects those
-// members; the fixtures exercise objects, arrays and atomics but never a Set, Map,
-// tuple, Date or template literal, leaving those writer arms — and the matching
-// nestiaSDKVisitMetadataSchema set/map/tuple/escaped branches — dark. A synthetic
-// controller returning an object that carries one of each is the only in-process
-// driver, run through the exported EmitTransform with no disk emit.
+// Each authored property owns one of the inspected Set, Map, tuple, escaped
+// Date and template families. Nested category contents are not asserted.
 //
 //  1. Author a controller returning an object with Set, Map, tuple, Date and a
 //     template-literal property.
 //  2. Run the SDK metadata pass over it in-process.
 //  3. Assert each property carries exactly its own schema kind.
 //
-// @evidence contracts/testing.md#behavioral-verification Reflection must attach to each authored property exactly its own schema category, Set, Map, tuple, escaped Date or template, rather than silently dropping a member or assigning it another category.
+// @evidence contracts/testing.md#behavioral-verification Reflection must attach to each authored property exactly its own category among the inspected Set, Map, tuple, escaped Date and template families, rather than silently dropping a member or assigning it another category.
 // @evidence contracts/testing.md#independent-expectations The IRich fixture authors each distinct non-atomic category; Date uses its JSON string escape representation and the id property is a template literal.
-// @evidence contracts/testing.md#distinguishing-cases Five properties each own one category and no other, so a category written under the wrong property or shared by two is detected; property-schema and absent-field cases own exact constraints and omission. Nested elements of each category are not inspected.
+// @evidence contracts/testing.md#distinguishing-cases Five properties each own one of the five inspected categories and none of the other four, so a category written under the wrong property or shared by two is detected; property-schema and absent-field cases own exact constraints and omission. Nested elements of each category are not inspected.
 // @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticRichSchemaMetadataSerializesSetMapTupleDateTemplate(t *testing.T) {
 	const controller = `import core from "@nestia/core";

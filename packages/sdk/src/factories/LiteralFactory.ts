@@ -15,9 +15,9 @@ const isNode = (value: unknown): value is Expression =>
   typeof (value as { kind?: unknown }).kind === "string";
 
 /**
- * Recursive value-to-AST-literal builder. Hands back already-AST inputs
- * unchanged (so callers can mix factory output with raw JS values inside the
- * same object/array), and emits the appropriate literal node otherwise.
+ * Recursive value-to-AST-literal builder. Arrow-function, call-expression and
+ * identifier nodes pass through only when the caller explicitly requests
+ * expression preservation. Ordinary values may contain the same `kind` names.
  *
  * @evidence contracts/common.md#principled-implementation The namespace maps values to literal nodes by type.
  * @evidence contracts/common.md#clear-and-simple-design One function and two helpers.
@@ -28,7 +28,9 @@ const isNode = (value: unknown): value is Expression =>
 export namespace LiteralFactory {
   /**
    * Builds the expression of a value; arrow function, call, and identifier
-   * nodes pass through, and unsupported types throw.
+   * nodes pass through when `preserveExpressions` is true. Functions become
+   * `undefined`; other unsupported types throw, and object properties whose
+   * values are undefined are omitted.
    *
    * @evidence contracts/common.md#principled-implementation The value is dispatched by type in a fixed order and containers are written element by element.
    * @evidence contracts/common.md#clear-and-simple-design One function.
@@ -36,11 +38,20 @@ export namespace LiteralFactory {
    * @evidence contracts/common.md#meaningful-documentation The comment states the mapping.
    * @evidenceExclude contracts/portability.md#os-neutral-implementation LiteralFactory.write constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
-  export const write = (input: any): Expression => {
+  export const write = (
+    input: any,
+    preserveExpressions = false,
+  ): Expression => {
     if (input === null) return factory.createNull();
-    if (isNode(input) && PASSTHROUGH_KINDS.has(input.kind)) return input;
-    if (Array.isArray(input)) return writeArray(input);
-    if (typeof input === "object") return writeObject(input as object);
+    if (
+      preserveExpressions &&
+      isNode(input) &&
+      PASSTHROUGH_KINDS.has(input.kind)
+    )
+      return input;
+    if (Array.isArray(input)) return writeArray(input, preserveExpressions);
+    if (typeof input === "object")
+      return writeObject(input as object, preserveExpressions);
     if (typeof input === "boolean")
       return input ? factory.createTrue() : factory.createFalse();
     if (typeof input === "number") return ExpressionFactory.number(input);
@@ -57,19 +68,25 @@ export namespace LiteralFactory {
     throw new TypeError("LiteralFactory.write: unsupported input type.");
   };
 
-  const writeObject = (obj: object): Expression =>
+  const writeObject = (obj: object, preserveExpressions: boolean): Expression =>
     factory.createObjectLiteralExpression(
       Object.entries(obj)
         .filter(([, value]) => value !== undefined)
         .map(([key, value]) =>
           factory.createPropertyAssignment(
             IdentifierFactory.identifier(key),
-            write(value),
+            write(value, preserveExpressions),
           ),
         ),
       true,
     );
 
-  const writeArray = (array: readonly any[]): Expression =>
-    factory.createArrayLiteralExpression(array.map(write), true);
+  const writeArray = (
+    array: readonly any[],
+    preserveExpressions: boolean,
+  ): Expression =>
+    factory.createArrayLiteralExpression(
+      array.map((value) => write(value, preserveExpressions)),
+      true,
+    );
 }

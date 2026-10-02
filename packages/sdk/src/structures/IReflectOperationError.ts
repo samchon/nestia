@@ -46,8 +46,9 @@ export namespace IReflectOperationError {
         return this.error.file < obj.error.file;
       else if (this.error.class !== obj.error.class)
         return this.error.class < obj.error.class;
-      else if (this.error.function !== obj.error.function)
-        return (this.error.function ?? "") < (obj.error.function ?? "");
+      const leftFunction = this.error.function ?? "";
+      const rightFunction = obj.error.function ?? "";
+      if (leftFunction !== rightFunction) return leftFunction < rightFunction;
       return (this.error.from ?? "") < (obj.error.from ?? "");
     }
   }

@@ -135,6 +135,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
         if (
           p.category === "acceptor" ||
           p.category === "driver" ||
+          p.category === "header" ||
           p.category === "query"
         )
           return {
@@ -155,10 +156,9 @@ export namespace ReflectWebSocketOperationAnalyzer {
           } satisfies IReflectWebSocketOperationParameter.IParam;
         // UNKNOWN TYPE, MAYBE NEW FEATURE
         else {
-          if (p.category !== "header")
-            reject(
-              `@WebSocketRoute.${StringUtil.capitalize(p.category)}() has not been supported yet. How about upgrading the nestia packages?`,
-            );
+          reject(
+            `@WebSocketRoute.${StringUtil.capitalize(p.category)}() has not been supported yet. How about upgrading the nestia packages?`,
+          );
           return null;
         }
       })

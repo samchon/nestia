@@ -5,18 +5,10 @@ import (
 	"testing"
 )
 
-// Verifies the reflect-type fallbacks in sdk_transform.go: a `typeof` return
-// annotation (KindTypeQuery) and a `Promise<T>` return both name the operation's
-// success type correctly in the injected OperationMetadata.
+// Verifies typeof and Promise annotations retain their response meaning.
 //
-// nestiaSDKReflectTypeNode returns ok=false for KindTypeQuery, so nestiaSDKReflectType
-// must fall through to its nestiaSDKTypeNodeText / checker name-resolution arm
-// (lines 1091-1101) — the branch that stays dark whenever every controller
-// returns a plain type reference. A `Promise<T>` return drives the Promise unwrap
-// arm of nestiaSDKReflectTypeNode (it recurses into the single type argument). No
-// tests/test-sdk-e2e controller writes either annotation, so a synthetic controller
-// is the only in-process driver; it runs through the exported EmitTransform with
-// no disk emit.
+// The typeof response preserves its authored text and checker-derived numeric
+// property schema. The Promise response exposes its IPoint payload.
 //
 //  1. Author a controller with a `typeof`-typed method and a `Promise<IPoint>`
 //     method.

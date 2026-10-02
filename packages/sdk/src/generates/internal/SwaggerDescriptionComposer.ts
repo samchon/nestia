@@ -51,10 +51,11 @@ export namespace SwaggerDescriptionComposer {
   };
 
   /**
-   * Returns the text of the first JSDoc tag with the name, and with the
-   * parameter name when one is given.
+   * Returns the first text part of the first JSDoc tag with the name and a text
+   * array, matching the parameter name when one is given. Returns undefined
+   * when that selected tag has no text part.
    *
-   * @evidence contracts/common.md#principled-implementation The text part of the tag is returned and a tag without one is not found.
+   * @evidence contracts/common.md#principled-implementation A matching tag with a text array is selected, then its first text part is returned if present.
    * @evidence contracts/common.md#clear-and-simple-design One search.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the tags.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
@@ -101,5 +102,9 @@ export namespace SwaggerDescriptionComposer {
           tag.text.find((elem) => elem.kind === "text" && elem.text.length) !==
             undefined,
       )
-      .map((tag) => tag.text!.find((elem) => elem.kind === "text")!.text);
+      .map(
+        (tag) =>
+          tag.text!.find((elem) => elem.kind === "text" && elem.text.length)!
+            .text,
+      );
 }

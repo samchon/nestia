@@ -12,7 +12,7 @@ import (
 // Some sibling tests only substring-match key fragments, so a Go-side field
 // rename or removal would still pass them. This one parses the native
 // literal as JSON and asserts every required top-level and parameter key
-// is present — the only guard against silent SDK metadata drift.
+// is present. Separate tests own associated type and schema values.
 //
 //  1. Analyze TypedBodyController with the SDK operation in-process.
 //  2. Decode the store metadata through independent JSON unmarshalling.

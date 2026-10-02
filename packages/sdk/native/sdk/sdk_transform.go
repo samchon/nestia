@@ -189,16 +189,16 @@ func nestiaSDKMetadataText(context *nestiaSDKContext, file *shimast.SourceFile, 
 	return nestiaSDKMetadataLiteralText(metadata)
 }
 
-const nestiaSDKLiteralNull = "__NESTIA_LITERAL_NULL__"
+// An explicit JSON null must have a distinct Go representation from authored
+// strings, including strings that happen to resemble an internal marker.
+var nestiaSDKLiteralNull = nativefactories.LiteralFactory_Null{}
 
 func nestiaSDKMetadataLiteralText(metadata map[string]any) (string, error) {
 	data, err := json.Marshal(nestiaSDKFiniteLiteral(metadata))
 	if err != nil {
 		return "", err
 	}
-	text := string(data)
-	text = strings.ReplaceAll(text, `"`+nestiaSDKLiteralNull+`"`, "null")
-	return text, nil
+	return string(data), nil
 }
 
 // nestiaSDKFiniteLiteral copies a metadata value for encoding/json, writing
@@ -1275,7 +1275,7 @@ func nestiaSDKMarkReadonlyArraySchemaNode(
 	case shimast.KindTypeOperator:
 		operator := typeNode.AsTypeOperatorNode()
 		if nestiaSDKTypeOperatorPrefix(typeNode, operator.Type) == "readonly" &&
-			nestiaSDKReadonlyArrayOperand(operator.Type) {
+			nestiaSDKReadonlyArrayOperand(prog, operator.Type) {
 			schema["x-readonly-array"] = true
 		}
 		nestiaSDKMarkReadonlyArraySchemaNode(
@@ -1313,10 +1313,11 @@ func nestiaSDKMarkReadonlyArrayTypeReference(
 ) {
 	ref := typeNode.AsTypeReferenceNode()
 	name := nestiaSDKEntityNameText(ref.TypeName)
-	if name == "ReadonlyArray" {
+	libraryArray := nestiaSDKLibraryArrayName(prog, ref.TypeName)
+	if libraryArray == "ReadonlyArray" {
 		schema["x-readonly-array"] = true
 	}
-	if (name == "Array" || name == "ReadonlyArray") && ref.TypeArguments != nil &&
+	if libraryArray != "" && ref.TypeArguments != nil &&
 		len(ref.TypeArguments.Nodes) != 0 {
 		child := nestiaSDKSchemaMap(schema["items"])
 		nestiaSDKMarkReadonlyArraySchemaNode(
@@ -1396,7 +1397,32 @@ func nestiaSDKTypeReferenceDeclarations(prog *driver.Program, node *shimast.Node
 	if symbol == nil {
 		return nil
 	}
+	if symbol.Flags&shimast.SymbolFlagsAlias != 0 {
+		if aliased := shimchecker.Checker_getAliasedSymbol(prog.Checker, symbol); aliased != nil {
+			symbol = aliased
+		}
+	}
 	return symbol.Declarations
+}
+
+// nestiaSDKLibraryArrayName recognizes array declarations through their checker
+// symbol and the actual program's default-library identity. Module-local types
+// may use either array name without acquiring library array semantics.
+func nestiaSDKLibraryArrayName(prog *driver.Program, node *shimast.Node) string {
+	if prog == nil || prog.TSProgram == nil {
+		return ""
+	}
+	for _, declaration := range nestiaSDKTypeReferenceDeclarations(prog, node) {
+		name := declaration.Name()
+		source := shimast.GetSourceFileOfNode(declaration)
+		if name == nil || source == nil || !prog.TSProgram.IsLibFile(source) {
+			continue
+		}
+		if name.Text() == "Array" || name.Text() == "ReadonlyArray" {
+			return name.Text()
+		}
+	}
+	return ""
 }
 
 func nestiaSDKReferencedSchema(schema map[string]any, components map[string]any, name string) map[string]any {
@@ -1441,7 +1467,7 @@ func nestiaSDKSchemaList(input any) []any {
 	}
 }
 
-func nestiaSDKReadonlyArrayOperand(node *shimast.Node) bool {
+func nestiaSDKReadonlyArrayOperand(prog *driver.Program, node *shimast.Node) bool {
 	if node == nil {
 		return false
 	}
@@ -1449,9 +1475,9 @@ func nestiaSDKReadonlyArrayOperand(node *shimast.Node) bool {
 	case shimast.KindArrayType, shimast.KindTupleType:
 		return true
 	case shimast.KindTypeReference:
-		return nestiaSDKEntityNameText(node.AsTypeReferenceNode().TypeName) == "Array"
+		return nestiaSDKLibraryArrayName(prog, node.AsTypeReferenceNode().TypeName) == "Array"
 	case shimast.KindParenthesizedType:
-		return nestiaSDKReadonlyArrayOperand(node.AsParenthesizedTypeNode().Type)
+		return nestiaSDKReadonlyArrayOperand(prog, node.AsParenthesizedTypeNode().Type)
 	default:
 		return false
 	}

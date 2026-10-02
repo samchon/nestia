@@ -10,8 +10,8 @@ import {
  * `MinusToken` prefix unary, matching how the TypeScript factory itself emits
  * negative numeric literals.
  *
- * Infinity is written `1e999`, the literal that evaluates to it and the only
- * spelling that is also a literal type; `Infinity` names a value, not a type.
+ * Infinity is written `1e999`, a numeric literal that evaluates to it and can
+ * also appear in a literal type; `Infinity` names a value, not a type.
  *
  * @evidence contracts/common.md#principled-implementation The namespace holds the number literal builder.
  * @evidence contracts/common.md#clear-and-simple-design One function.

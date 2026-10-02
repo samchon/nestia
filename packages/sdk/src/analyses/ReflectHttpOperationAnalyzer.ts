@@ -157,7 +157,7 @@ export namespace ReflectHttpOperationAnalyzer {
         // LIST UP PARAMETERS
         const binded: string[] | null = PathAnalyzer.parameters(location);
         if (binded === null) {
-          props.project.errors.push({
+          errors.push({
             file: props.controller.file,
             class: props.controller.class.name,
             function: props.name,

@@ -67,7 +67,8 @@ export class SyntheticController {
 	if !strings.Contains(literals[0], "SyntheticController") || !strings.Contains(literals[0], `"elements":["ILocal"]`) {
 		t.Errorf("a declaration under a folder named typescript/lib was taken for a default library:\n%s", literals[0])
 	}
-	if strings.Contains(literals[1], `"elements":["Date"]`) {
-		t.Errorf("a default library declaration was reflected as an import:\n%s", literals[1])
+	date := syntheticField(t, decodeSyntheticMetadata(t, literals[1]), "success")
+	if actual := canonicalJSON(t, syntheticField(t, date, "imports")); actual != `[]` {
+		t.Errorf("a default library return gained imports: %s", actual)
 	}
 }

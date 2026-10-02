@@ -5,18 +5,10 @@ import (
 	"testing"
 )
 
-// Verifies the nested reflect-type arms in nestiaSDKReflectTypeNode: a
-// parenthesized type, an array whose element is itself reflectable, and a type
-// reference carrying type arguments all thread their inner reflection through
-// correctly.
+// Verifies nested type annotations retain their reflected type trees.
 //
-// nestiaSDKReflectTypeNode recurses for KindParenthesizedType, KindArrayType and
-// the KindTypeReference type-argument arm, each merging the child's import
-// literals back up. The earlier reflect tests only hit the flat Record/keyof/
-// readonly/intersection cases; a parenthesized union element, an array of a
-// reflectable element, and a generic Record threaded through these recursive arms
-// stay otherwise dark. A synthetic controller is the only in-process driver, run
-// through the exported EmitTransform with no disk emit.
+// A parenthesized union array, a keyof array and a nested Record argument
+// exercise distinct recursive syntax branches through native EmitTransform.
 //
 //  1. Author methods returning a parenthesized union array, an array of keyof,
 //     and a Record carrying a nested type argument.

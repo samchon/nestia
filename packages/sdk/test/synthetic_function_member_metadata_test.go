@@ -2,18 +2,11 @@ package test
 
 import "testing"
 
-// Verifies a return type carrying a function-typed property serializes its
-// function signature (the async flag and the output schema) through the metadata
-// JSON writer.
+// Verifies native metadata retains a synchronous callable property.
 //
-// nestiaSDKMetadataSchemaLiteral emits a "functions" array via
-// nestiaSDKMetadataFunctions whenever typia's MetadataFactory reflects a function
-// member on an object. None of the tests/test-sdk-e2e controllers return such a type,
-// so the function-serialization arm stays dark; a synthetic controller returning
-// an interface with a callable member is the only in-process driver for it. (The
-// current typia reflection leaves the function's parameter list empty for an
-// object-property function type, so nestiaSDKMetadataParameters' loop body is not
-// reachable through this path — it mirrors the IParameter shape defensively.)
+// The authored invoke property exercises the function metadata collection.
+// This test checks its presence and async flag; argument and output schemas
+// are outside its assertions.
 //
 //  1. Author a controller returning an object whose property is a function type.
 //  2. Run the SDK metadata pass over it in-process (no disk emit).

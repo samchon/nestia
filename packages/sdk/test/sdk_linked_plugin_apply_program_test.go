@@ -101,7 +101,13 @@ func hasInjectedNamespaceImport(file *shimast.SourceFile) bool {
 			continue
 		}
 		if decl.ModuleSpecifier.Kind == shimast.KindStringLiteral && decl.ModuleSpecifier.Text() == "@nestia/sdk" {
-			return true
+			if decl.ImportClause == nil {
+				continue
+			}
+			clause := decl.ImportClause.AsImportClause()
+			if clause != nil && clause.NamedBindings != nil && clause.NamedBindings.Kind == shimast.KindNamespaceImport {
+				return true
+			}
 		}
 	}
 	return false

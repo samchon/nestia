@@ -14,9 +14,9 @@ import (
 
 // Verifies actual SDK metadata analysis preserves recursive collection identity.
 //
-// EmitTransform's JSON schema bake currently overflows for a recursive tuple.
-// This direct owning Analyze observation retains the raw producer graph before
-// that separate downstream operation, without replacing its failing regression.
+// This direct Analyze observation checks pointer identity before EmitTransform
+// serializes the graph. The companion collection metadata case covers that
+// serialization boundary; the two observations distinguish analysis from emit.
 //
 //  1. Load one authored program with direct recursive and finite array/tuple
 //     returns plus an object-mediated array cycle.
@@ -26,7 +26,7 @@ import (
 // @evidence contracts/testing.md#behavioral-verification Actual MetadataFactory Analyze uses the SDK's Absorb:true/Constant:true and MetadataCollection_replace for primitive/resolved escape modes. Complete raw serialized collections and pointer rows distinguish direct self-referencing X/T from finite and object-mediated array neighbors.
 // @evidence contracts/testing.md#independent-expectations Authored X=X[] and T=[T?] require self references, while ICategory.children crosses an object property. Names come from the declaration and the pinned collection naming contract; no handcrafted metadata supplies the observed rows.
 // @evidence contracts/testing.md#distinguishing-cases Recursive array and optional recursive tuple contrast finite number array/tuple and an object-mediated array cycle in both escape modes; exact pointer identity prevents equal-looking copied graphs from concealing loss of a cycle. This observation does not certify JSON schema bake or the downstream SDK writer.
-// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this one Test and loads one temporary language program using the existing synthetic tsconfig helper. Public MetadataFactory/Collection operations run in-process, program/temp lifetime is closed, and no JavaScript emit, product fixture compiler, native host or installation is created. The separate EmitTransform regression remains failing until its schema owner is repaired.
+// @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this one Test and loads one temporary language program using the existing synthetic tsconfig helper. Public MetadataFactory/Collection operations run in-process, program/temp lifetime is closed, and no JavaScript emit, product fixture compiler, native host or installation is created. TestSyntheticRecursiveCollectionMetadata owns the complementary EmitTransform boundary.
 func TestSyntheticRecursiveCollectionAnalysis(t *testing.T) {
 	const source = `export type X = X[];
 export type T = [T?];

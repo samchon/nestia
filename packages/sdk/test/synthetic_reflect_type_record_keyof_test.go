@@ -5,17 +5,11 @@ import (
 	"testing"
 )
 
-// Verifies the reflect-type switch in sdk_transform.go names Record, keyof,
-// readonly and bare-intersection return annotations correctly in the injected
-// OperationMetadata.
+// Verifies reflected metadata retains six authored type forms.
 //
-// nestiaSDKReflectTypeNode has a branch per AST node kind, and the type name it
-// emits (the `type.name` field the SDK generator reads) is built differently for
-// each: KindTypeReference threads type arguments through nestiaSDKReflectTypeText
-// ("Record<string, number>"), KindTypeOperator prefixes the operand
-// ("keyof ...", "readonly ..."), and KindIntersectionType joins members with
-// " & ". No tests/test-sdk-e2e fixture writes these annotations, so without a
-// synthetic controller the keyof/readonly/Record/intersection arms stay dark.
+// Record, keyof, readonly array, parenthesized generic, generic keyof and
+// intersection spellings exercise distinct syntax branches in EmitTransform.
+// This test checks name presence across the collected metadata.
 //
 //  1. Author a controller whose methods return Record<...>, keyof, readonly[]
 //     and a bare intersection.

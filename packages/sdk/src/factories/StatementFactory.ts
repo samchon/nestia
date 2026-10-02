@@ -12,7 +12,7 @@ import { TypeFactory } from "./TypeFactory";
  * Variable-statement helpers. `constant` emits `const`, `mut` emits `let`.
  *
  * @evidence contracts/common.md#principled-implementation The namespace builds `let` and `const` statements.
- * @evidence contracts/common.md#clear-and-simple-design Three functions.
+ * @evidence contracts/common.md#clear-and-simple-design Two functions, one for let and one for const.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It only builds nodes.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
  * @evidenceExclude contracts/portability.md#os-neutral-implementation StatementFactory constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.

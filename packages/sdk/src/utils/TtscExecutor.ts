@@ -13,7 +13,8 @@ import path from "path";
  */
 export namespace TtscExecutor {
   /**
-   * Compiles a project with `ttsc` and returns its output.
+   * Compiles a project with `ttsc` and returns captured output, or null when
+   * the selected stdio does not pipe standard output.
    *
    * The cache directory of the environment is passed on, and a non-zero exit
    * throws.
@@ -22,14 +23,14 @@ export namespace TtscExecutor {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The environment is extended, not replaced.
    * @evidence contracts/common.md#meaningful-documentation The comment states the arguments and the failure.
-   * @evidence contracts/portability.md#os-neutral-implementation The working directory and the environment are explicit, standard output is piped with a 64 MiB buffer so the platform's pipe size does not truncate the result, and a non-zero exit surfaces as Node's process error carrying `status` and `stderr`.
+   * @evidence contracts/portability.md#os-neutral-implementation The working directory and the environment are explicit. Standard output is piped by default with a 64 MiB buffer; callers may select another stdio mode. A non-zero exit surfaces as Node's process error carrying `status` and available captured output.
    */
   export const run = (props: {
     cwd: string;
     env?: NodeJS.ProcessEnv;
     project: string;
     stdio?: cp.StdioOptions;
-  }): Buffer => {
+  }): Buffer | null => {
     const args: string[] = [bin(props.cwd), "-p", props.project];
     if (process.env.TTSC_CACHE_DIR !== undefined)
       args.push("--cache-dir", process.env.TTSC_CACHE_DIR);

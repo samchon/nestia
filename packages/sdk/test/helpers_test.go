@@ -10,13 +10,11 @@ import (
 	shimprinter "github.com/microsoft/typescript-go/shim/printer"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 
-	// Blank-import the SDK contributor so its init() registers the linked plugin
+	// Import the SDK contributor so its init() registers the linked plugin
 	// and the build/transform/source-rewrite/emit collectors with the shared
-	// @nestia/core transform host. The no-emit tests here call the SDK package's
-	// exported EmitTransform / linkedPlugin.ApplyProgram directly, but importing
-	// the package this way also runs its init(), so the register.go init body and
-	// the contributor wiring are attributed to packages/sdk/native/sdk under
-	// -coverpkg even though no disk emit ever happens.
+	// @nestia/core transform host. The tests exercise exported EmitTransform and
+	// the driver's linked plugin dispatch in-process. Import initialization
+	// installs those entry points before either operation is called.
 	nativesdk "github.com/samchon/nestia/packages/sdk/native/sdk"
 )
 
@@ -69,7 +67,7 @@ func writeFeatureTsconfig(t *testing.T, root, feature string, files []string) st
 // loadFeatureProgram loads a *driver.Program over owned source fixture input
 // without ForceEmit/outDir, so nothing is ever written to disk. The caller then
 // drives the SDK contributor's exported entry points in-process. The single
-// blank import in this file keeps coverage attributed to the SDK package.
+// SDK import in this file initializes contributor registration.
 func loadFeatureProgram(t *testing.T, feature string, files []string) (root string, prog *driver.Program) {
 	t.Helper()
 	root = repoRoot(t)
