@@ -1,5 +1,6 @@
-import { NestiaMigrateApplication } from "@nestia/migrate";
 import { OpenApiV3_1 } from "@typia/interface";
+
+import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
 
 /**
  * Verifies migrated controllers write each named example back as the value it
@@ -16,15 +17,22 @@ import { OpenApiV3_1 } from "@typia/interface";
  * nothing a decorator can hold, and is left out rather than written as the
  * object.
  *
- * 1. Migrate the fixture document nestia generated, whose create route declares
- *    named request-body and response examples.
+ * 1. Migrate an authored modern document whose create route declares named
+ *    request-body and response examples.
  * 2. Migrate a document holding raw named values, `$ref` Example Objects, and
  *    `dataValue`, `externalValue`, and `serializedValue` Example Objects.
  * 3. Assert every generated `SwaggerExample` call carries the value, never the
  *    Example Object around it, and none is written for the linked or the
  *    serialized one.
+ *
+ * @evidence contracts/testing.md#behavioral-verification nest emits controller decorators for modern value objects, raw legacy values, reusable references and dataValue; assertions require the unwrapped values and reject wrapper, externalValue and serializedValue emission.
+ * @evidence contracts/testing.md#independent-expectations Authored literal examples establish each expected name and value. OpenAPI Example Objects hold their data in value or dataValue; externalValue and serializedValue supply no runtime decorator value.
+ * @evidence contracts/testing.md#distinguishing-cases Modern request/response examples, raw values, referenced values and dataValue are accepted controls; wrapper preservation and linked/serialized examples must be absent. Actual Swagger round-trip is separately retained by the integration entry supplying its generated document.
+ * @evidence contracts/testing.md#execution-ownership The unit entry discovers this matching export and calls built migrate with authored defaults and legacy inputs. No compiler, CLI or Nest host is prepared; the integration entry retains the real generated-document connection.
  */
-export const test_migrate_nest_named_examples = (document: unknown): void => {
+export const test_migrate_nest_named_examples = (
+  document: unknown = MODERN_DOCUMENT,
+): void => {
   const fixture: string = controller(
     NestiaMigrateApplication.assert(document as OpenApiV3_1.IDocument),
     "packages/backend/src/controllers/articles/ArticlesController.ts",
@@ -69,6 +77,50 @@ const expect = (content: string, needles: string[]): void => {
   for (const needle of needles)
     if (content.includes(needle) === false)
       throw new Error(`Generated controller lacks ${JSON.stringify(needle)}.`);
+};
+
+/** Modern named request/response examples independent of the Swagger writer. */
+const MODERN_DOCUMENT = {
+  openapi: "3.1.0",
+  info: { title: "Modern named examples", version: "1.0.0" },
+  paths: {
+    "/articles": {
+      post: {
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: { title: { type: "string" } },
+                required: ["title"],
+              },
+              examples: { minimal: { value: { title: "minimal" } } },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "published",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: { id: { type: "string" } },
+                  required: ["id"],
+                },
+                examples: {
+                  published: {
+                    value: { id: "00000000-0000-0000-0000-000000000001" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 /**

@@ -1,13 +1,14 @@
 import {
-  INestiaMigrateConfig,
-  NestiaMigrateApplication,
-} from "@nestia/migrate";
-import {
   OpenApiV3,
   OpenApiV3_1,
   OpenApiV3_2,
   SwaggerV2,
 } from "@typia/interface";
+
+import {
+  INestiaMigrateConfig,
+  NestiaMigrateApplication,
+} from "../../../../packages/migrate/lib";
 
 type SwaggerDocument =
   | SwaggerV2.IDocument
@@ -25,13 +26,25 @@ type SwaggerDocument =
  * whose function name matches a longer route's child namespace. Emitting both
  * in the same index file creates duplicate exported bindings.
  *
- * 1. Build a migrate application from the fixture Swagger document.
+ * 1. Build a migrate application from two independently authored routes.
  * 2. Force two route accessors into a prefix collision.
  * 3. Assert the generated SDK keeps the shorter function and escapes the child
  *    namespace in functional files and e2e calls.
+ *
+ * @evidence contracts/testing.md#behavioral-verification sdk writes a shorter function and nested namespace from deliberately colliding route accessors; assertions require the public item function, escaped _item namespace and matching generated e2e call, and reject the unescaped namespace.
+ * @evidence contracts/testing.md#independent-expectations JavaScript cannot export both a function and a namespace under item. The shorter accessor remains public while its child must escape; the authored two-route document supplies both independently of Swagger generation.
+ * @evidence contracts/testing.md#distinguishing-cases The prefix collision is the positive escape case and the unchanged shorter function is its negative control; the generated e2e call must follow the changed namespace rather than the former spelling.
+ * @evidence contracts/testing.md#execution-ownership The unit entry discovers this matching export and uses its authored default document against built migrate operations. The retained integration entry also supplies the real fixture document without adding any preparation to this unit.
  */
 export const test_migrate_api_accessor_collision = (
-  document: SwaggerDocument,
+  document: SwaggerDocument = {
+    openapi: "3.1.0",
+    info: { title: "Accessor collision", version: "1.0.0" },
+    paths: {
+      "/first": { get: { responses: { "204": { description: "empty" } } } },
+      "/second": { get: { responses: { "204": { description: "empty" } } } },
+    },
+  },
 ): void => {
   const app: NestiaMigrateApplication =
     NestiaMigrateApplication.assert(document);

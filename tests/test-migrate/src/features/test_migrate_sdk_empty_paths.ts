@@ -1,8 +1,9 @@
+import { OpenApiV3_1 } from "@typia/interface";
+
 import {
   INestiaMigrateConfig,
   NestiaMigrateApplication,
-} from "@nestia/migrate";
-import { OpenApiV3_1 } from "@typia/interface";
+} from "../../../../packages/migrate/lib";
 
 /**
  * Verifies SDK migration emits a runnable starter for a valid empty Paths

@@ -1,5 +1,6 @@
-import { NestiaMigrateApplication } from "@nestia/migrate";
 import { OpenApi } from "@typia/interface";
+
+import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
 
 /**
  * Verifies tuple tails repeat the additional-item type instead of emitting a

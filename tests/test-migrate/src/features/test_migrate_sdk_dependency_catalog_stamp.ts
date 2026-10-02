@@ -1,7 +1,8 @@
-import { NestiaMigrateApplication } from "@nestia/migrate";
 import { OpenApiV3_1 } from "@typia/interface";
 import fs from "fs";
 import path from "path";
+
+import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
 
 /**
  * Verifies SDK-mode migration stamps this repository's catalog versions into

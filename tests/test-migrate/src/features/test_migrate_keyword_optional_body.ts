@@ -1,5 +1,6 @@
-import { NestiaMigrateApplication } from "@nestia/migrate";
 import { OpenApiV3_1 } from "@typia/interface";
+
+import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
 
 /**
  * Verifies keyword mode makes a request body optional exactly where positional

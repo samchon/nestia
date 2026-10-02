@@ -1,9 +1,4 @@
 import {
-  INestiaMigrateConfig,
-  NestiaMigrateApplication,
-  NestiaMigrateFileArchiver,
-} from "@nestia/migrate";
-import {
   OpenApiV3,
   OpenApiV3_1,
   OpenApiV3_2,
@@ -14,33 +9,17 @@ import fs from "fs";
 import path from "path";
 import type { IValidation } from "typia";
 
-import { test_migrate_additional_properties } from "./features/test_migrate_additional_properties";
-import { test_migrate_api_accessor_collision } from "./features/test_migrate_api_accessor_collision";
-import { test_migrate_api_response_header_tags } from "./features/test_migrate_api_response_header_tags";
-import { test_migrate_cli_boolean_flags } from "./features/test_migrate_cli_boolean_flags";
-import { test_migrate_cli_plain_files } from "./features/test_migrate_cli_plain_files";
-import { test_migrate_dto_import_type } from "./features/test_migrate_dto_import_type";
-import { test_migrate_keyword_optional_body } from "./features/test_migrate_keyword_optional_body";
-import { test_migrate_nest_dto_package_import } from "./features/test_migrate_nest_dto_package_import";
-import { test_migrate_nest_keyword_config_path } from "./features/test_migrate_nest_keyword_config_path";
-import { test_migrate_nest_monorepo_layout } from "./features/test_migrate_nest_monorepo_layout";
-import { test_migrate_nest_named_examples } from "./features/test_migrate_nest_named_examples";
-import { test_migrate_nest_route_paths } from "./features/test_migrate_nest_route_paths";
-import { test_migrate_nest_workspace_catalog_stamp } from "./features/test_migrate_nest_workspace_catalog_stamp";
-import { test_migrate_numeric_bounds } from "./features/test_migrate_numeric_bounds";
-import { test_migrate_path_segments } from "./features/test_migrate_path_segments";
-import { test_migrate_route_reserved } from "./features/test_migrate_route_reserved";
-import { test_migrate_sdk_dependency_catalog_stamp } from "./features/test_migrate_sdk_dependency_catalog_stamp";
 import {
-  EMPTY_PATHS_DOCUMENT,
-  test_migrate_sdk_empty_paths,
-} from "./features/test_migrate_sdk_empty_paths";
-import { test_migrate_sdk_pnpm_template } from "./features/test_migrate_sdk_pnpm_template";
-import { test_migrate_simulate_headers } from "./features/test_migrate_simulate_headers";
-import { test_migrate_simulate_throws } from "./features/test_migrate_simulate_throws";
-import { test_migrate_success_status } from "./features/test_migrate_success_status";
-import { test_migrate_template_bundle_cache } from "./features/test_migrate_template_bundle_cache";
-import { test_migrate_tuple_rest } from "./features/test_migrate_tuple_rest";
+  INestiaMigrateConfig,
+  NestiaMigrateApplication,
+  NestiaMigrateFileArchiver,
+} from "../../../packages/migrate/lib";
+import { test_migrate_api_accessor_collision } from "./features/test_migrate_api_accessor_collision";
+import { test_migrate_nest_named_examples } from "./features/test_migrate_nest_named_examples";
+import { EMPTY_PATHS_DOCUMENT } from "./features/test_migrate_sdk_empty_paths";
+import { compileMigrationPrograms } from "./internal/compileMigrationPrograms";
+import { test_migrate_simulate_throws } from "./internal/test_migrate_simulate_throws";
+import { main as runUnits } from "./unit";
 
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
@@ -49,18 +28,6 @@ const GENERATED: string = path.join(TEST_ROOT, ".generated");
 const SWAGGER: string = path.join(GENERATED, "swagger.json");
 const OUTPUT: string = path.join(GENERATED, "output");
 const NODE: string = process.execPath;
-// Launch the ttsc compiler through its JS entrypoint instead of `pnpm ttsc`:
-// spawning the `pnpm.cmd` shim without a shell raises EINVAL on Windows
-// (Node's CVE-2024-27980 mitigation), while the node launcher runs the same
-// pinned ttsc everywhere.
-const TTSC_BIN: string = path.join(
-  TEST_ROOT,
-  "node_modules",
-  "ttsc",
-  "lib",
-  "launcher",
-  "ttsc.js",
-);
 const TTSC_CACHE_DIR: string = path.resolve(
   TEST_ROOT,
   process.env.TTSC_CACHE_DIR ??
@@ -152,17 +119,17 @@ const assertFixtureSwagger = (document: SwaggerDocument): void => {
     throw new Error(`Invalid fixture swagger:\n${errors.join("\n")}`);
 };
 
-const execute = (
+const execute = async (
   mode: "nest" | "sdk",
   config: INestiaMigrateConfig,
   scenario: IScenario,
   document: SwaggerDocument,
-): Promise<number> => {
+): Promise<string> => {
   const title: string = `${scenario.name}-${mode}-${
     config.keyword ? "keyword" : "positional"
   }`;
-  return measure(title)(async () => {
-    const directory = path.join(OUTPUT, title);
+  const directory = path.join(OUTPUT, title);
+  await measure(title)(async () => {
     const result: IValidation<NestiaMigrateApplication> =
       await NestiaMigrateApplication.validate(document);
     if (result.success === false)
@@ -203,38 +170,8 @@ const execute = (
       root: directory,
       files,
     });
-
-    const ttsc = (project?: string): void => {
-      spawn(directory, [
-        NODE,
-        TTSC_BIN,
-        "--cache-dir",
-        TTSC_CACHE_DIR,
-        ...(project !== undefined ? ["-p", project] : []),
-      ]);
-    };
-    if (mode === "nest") {
-      // The monorepo template's backend consumes the api workspace package
-      // by name (`<slug>-api`). The generated archive is compiled without a
-      // `pnpm install`, so emulate the workspace link with a junction/symlink
-      // that node module resolution can walk into.
-      const nodeModules: string = path.join(directory, "node_modules");
-      await fs.promises.mkdir(nodeModules, { recursive: true });
-      try {
-        fs.symlinkSync(
-          path.join(directory, "packages", "api"),
-          path.join(nodeModules, `${scenario.name}-api`),
-          "junction",
-        );
-      } catch {}
-      ttsc(path.join("packages", "api", "tsconfig.json"));
-      ttsc(path.join("packages", "backend", "tsconfig.json"));
-      ttsc(path.join("packages", "backend", "test", "tsconfig.json"));
-    } else {
-      ttsc();
-      ttsc("test/tsconfig.json");
-    }
   });
+  return directory;
 };
 
 /**
@@ -247,6 +184,7 @@ export const main = async (): Promise<void> => {
     await fs.promises.rm(GENERATED, { recursive: true });
   await fs.promises.mkdir(OUTPUT, { recursive: true });
 
+  await runUnits();
   await generateSwagger();
 
   const scenarios: IScenario[] = [
@@ -267,40 +205,22 @@ export const main = async (): Promise<void> => {
     const document: SwaggerDocument = await readDocument(scenario.file);
     assertFixtureSwagger(document);
     test_migrate_api_accessor_collision(document);
-    test_migrate_api_response_header_tags();
-    test_migrate_dto_import_type();
-    test_migrate_nest_monorepo_layout();
     test_migrate_nest_named_examples(document);
-    test_migrate_nest_route_paths();
-    test_migrate_numeric_bounds();
-    test_migrate_path_segments();
-    test_migrate_route_reserved();
-    test_migrate_simulate_headers();
-    test_migrate_success_status();
-    test_migrate_keyword_optional_body();
-    test_migrate_additional_properties();
-    test_migrate_tuple_rest();
-    await test_migrate_cli_boolean_flags();
-    await test_migrate_cli_plain_files();
-    await test_migrate_template_bundle_cache();
-    test_migrate_nest_dto_package_import();
-    test_migrate_nest_workspace_catalog_stamp();
-    test_migrate_nest_keyword_config_path();
-    test_migrate_sdk_empty_paths();
-    test_migrate_sdk_pnpm_template();
-    test_migrate_sdk_dependency_catalog_stamp();
-    await execute(
-      "sdk",
-      {
-        keyword: true,
-        simulate: true,
-        e2e: true,
-      },
-      {
-        name: "empty-paths",
-        file: "",
-      },
-      EMPTY_PATHS_DOCUMENT,
+    const programs: string[] = [];
+    programs.push(
+      await execute(
+        "sdk",
+        {
+          keyword: true,
+          simulate: true,
+          e2e: true,
+        },
+        {
+          name: "empty-paths",
+          file: "",
+        },
+        EMPTY_PATHS_DOCUMENT,
+      ),
     );
     for (const [mode, keyword] of [
       ["nest", true],
@@ -308,18 +228,25 @@ export const main = async (): Promise<void> => {
       ["sdk", true],
       ["sdk", false],
     ] as const)
-      await execute(
-        mode,
-        {
-          keyword,
-          simulate: true,
-          e2e: true,
-        },
-        scenario,
-        document,
+      programs.push(
+        await execute(
+          mode,
+          {
+            keyword,
+            simulate: true,
+            e2e: true,
+          },
+          scenario,
+          document,
+        ),
       );
+    let compiled: string = "";
+    await measure("combined-generated-program")(() => {
+      compiled = compileMigrationPrograms(programs, TTSC_CACHE_DIR);
+      return Promise.resolve();
+    });
     await test_migrate_simulate_throws(
-      path.join(OUTPUT, `${scenario.name}-sdk-positional`),
+      path.join(compiled, `${scenario.name}-sdk-positional`, "src"),
     );
   }
 };

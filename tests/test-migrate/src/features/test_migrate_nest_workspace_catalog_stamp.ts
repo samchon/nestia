@@ -1,10 +1,11 @@
-import {
-  INestiaMigrateConfig,
-  NestiaMigrateApplication,
-} from "@nestia/migrate";
 import { OpenApiV3_1 } from "@typia/interface";
 import { createRequire } from "node:module";
 import path from "path";
+
+import {
+  INestiaMigrateConfig,
+  NestiaMigrateApplication,
+} from "../../../../packages/migrate/lib";
 
 /**
  * Verifies nest projects stamp nestia versions into the workspace catalogs.
