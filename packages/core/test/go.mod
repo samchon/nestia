@@ -25,7 +25,7 @@ require (
 	github.com/microsoft/typescript-go/shim/vfs v0.0.0 // indirect
 	github.com/microsoft/typescript-go/shim/vfs/cachedvfs v0.0.0 // indirect
 	github.com/microsoft/typescript-go/shim/vfs/osvfs v0.0.0 // indirect
-	github.com/samchon/typia/packages/typia/native v0.0.0-20260922081121-78124b0523b4 // indirect
+	github.com/samchon/typia/packages/typia/native v0.0.0-20260926142025-755176823ba3 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
