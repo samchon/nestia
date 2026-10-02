@@ -713,9 +713,9 @@ export namespace JsonSchemasProgrammer {
    *
    * The schemas and components are copies. The bake belongs to the route
    * metadata, which every composition in the process reads, while the composer
-   * may edit what it is given in place, and so can a
-   * `SwaggerCustomizer`; handing the bake out by reference let each document
-   * inherit the previous one's edits.
+   * may edit what it is given in place, and so can a `SwaggerCustomizer`;
+   * handing the bake out by reference let each document inherit the previous
+   * one's edits.
    *
    * @evidence contracts/common.md#principled-implementation The bake belongs to route metadata that every composition reads while the composer edits its input in place, so copies are returned, and the components are copied once after the last bake of each name wins.
    * @evidence contracts/common.md#clear-and-simple-design One function.
