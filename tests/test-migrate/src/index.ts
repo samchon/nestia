@@ -39,6 +39,7 @@ import { test_migrate_sdk_pnpm_template } from "./features/test_migrate_sdk_pnpm
 import { test_migrate_simulate_headers } from "./features/test_migrate_simulate_headers";
 import { test_migrate_simulate_throws } from "./features/test_migrate_simulate_throws";
 import { test_migrate_success_status } from "./features/test_migrate_success_status";
+import { test_migrate_template_bundle_cache } from "./features/test_migrate_template_bundle_cache";
 import { test_migrate_tuple_rest } from "./features/test_migrate_tuple_rest";
 
 const TEST_ROOT: string = process.cwd();
@@ -281,6 +282,7 @@ export const main = async (): Promise<void> => {
     test_migrate_tuple_rest();
     await test_migrate_cli_boolean_flags();
     await test_migrate_cli_plain_files();
+    await test_migrate_template_bundle_cache();
     test_migrate_nest_dto_package_import();
     test_migrate_nest_workspace_catalog_stamp();
     test_migrate_nest_keyword_config_path();

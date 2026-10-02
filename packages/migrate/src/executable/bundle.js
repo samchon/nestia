@@ -1,5 +1,6 @@
 const { version } = require("../../../../package.json");
 const cp = require("child_process");
+const { run: runCached } = require("./TemplateBundleCache.js");
 const fs = require("fs");
 
 const ROOT = `${__dirname}/../..`;
@@ -262,19 +263,37 @@ const bundle = async ({
     // on every platform: with core.autocrlf=true (the common Windows default)
     // the checkout would rewrite LF to CRLF and break the line-targeted
     // transforms below.
-    cp.execSync(
-      `git clone --config core.autocrlf=false https://github.com/samchon/${repository} ${mode}`,
-      {
-        cwd: ASSETS,
-      },
-    );
+    await fs.promises.mkdir(template, { recursive: true });
+    cp.execFileSync("git", ["init", "--quiet"], { cwd: template });
     // The template repositories are live projects; an unpinned clone lets any
     // upstream push break this build (samchon/nestia-start#632 did exactly
     // that), so every bundle checks out a reviewed revision.
-    cp.execSync(`git checkout ${revision}`, {
-      cwd: template,
-      stdio: "pipe",
-    });
+    cp.execFileSync(
+      "git",
+      [
+        "fetch",
+        "--quiet",
+        "--depth=1",
+        `https://github.com/samchon/${repository}`,
+        revision,
+      ],
+      { cwd: template },
+    );
+    cp.execFileSync(
+      "git",
+      [
+        "-c",
+        "core.autocrlf=false",
+        "checkout",
+        "--quiet",
+        "--detach",
+        revision,
+      ],
+      {
+        cwd: template,
+        stdio: "pipe",
+      },
+    );
 
     // REMOVE VULNERABLE FILES
     for (const location of exceptions ?? [])
@@ -332,7 +351,13 @@ const writeTransformedAsset = async (template, key, value) => {
   return value;
 };
 
-const main = async () => {
+/**
+ * Generates both pinned templates using the current release and catalog stamps.
+ *
+ * The complete script is a cache input because it contains the revisions,
+ * exclusions and every transformation rule. A hit still verifies output bytes.
+ */
+const generate = async () => {
   await bundle({
     mode: "nest",
     repository: "nestia-start",
@@ -398,6 +423,17 @@ const main = async () => {
       return value;
     },
   });
+};
+const main = async () => {
+  const reused = await runCached({
+    inputs: [version, CATALOGS, fs.readFileSync(__filename, "utf8")],
+    outputs: ["NEST_TEMPLATE", "SDK_TEMPLATE"].map(
+      (name) => `${ROOT}/src/bundles/${name}.ts`,
+    ),
+    stampFile: `${ASSETS}/.bundle-cache.json`,
+    generate,
+  });
+  if (reused) console.log("Reuse verified migration template bundles.");
 };
 main().catch((exp) => {
   console.error(exp);

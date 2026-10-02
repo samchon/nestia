@@ -11,7 +11,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "pnpm run bundle && rimraf lib && ttsc && tsc --emitDeclarationOnly && rolldown -c",
+    "build": "pnpm run bundle && rimraf lib && ttsc && rolldown -c",
     "bundle": "node src/executable/bundle.js",
     "dev": "rimraf lib && ttsc --watch",
     "test": "node lib/test",

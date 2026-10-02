@@ -26,15 +26,17 @@ jobs:
       - uses: pnpm/action-setup@v4
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
-      - name: Restore ttsc Plugin Cache
+      - name: Restore Build And Test Cache
         uses: actions/cache@v4
         with:
           path: |
             node_modules/.cache/ttsc
             ~/go/pkg/mod
-          key: ttsc-v2-test-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*') }}
+            packages/migrate/assets/.bundle-cache.json
+            packages/migrate/src/bundles
+          key: ttsc-v2-test-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*', 'packages/migrate/src/executable/*.js', 'package.json') }}
           restore-keys: |
-            ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*') }}
+            ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*', 'packages/migrate/src/executable/*.js', 'package.json') }}
             ttsc-v2-test-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
             ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
       - name: Run Tests
