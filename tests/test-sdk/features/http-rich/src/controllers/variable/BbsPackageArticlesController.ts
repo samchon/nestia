@@ -1,4 +1,9 @@
-import core from "@nestia/core";
+import core, {
+  TypedBody as Body,
+  TypedParam as Param,
+  TypedQuery as Query,
+  TypedRoute as Route,
+} from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import typia, { tags } from "typia";
 import { v4 } from "uuid";
@@ -35,7 +40,7 @@ export class VariableBbsPackageArticlesController {
   @core.TypedRoute.Get()
   public async catch(
     @core.TypedParam("section") section: string | null,
-    @core.TypedQuery() input: IPage.IRequest,
+    @Query() input: IPage.IRequest,
   ): Promise<IPage<IBbsArticle.ISummary>> {
     section;
     input;
@@ -52,7 +57,7 @@ export class VariableBbsPackageArticlesController {
   @core.TypedRoute.Get(":id")
   public async at(
     @core.TypedParam("section") section: string,
-    @core.TypedParam("id")
+    @Param("id")
     id: (string & tags.Format<"uuid">) | null,
   ): Promise<IBbsArticle> {
     return {
@@ -86,10 +91,10 @@ export class VariableBbsPackageArticlesController {
    * @param input Content to store
    * @returns Newly archived article
    */
-  @core.TypedRoute.Post()
+  @Route.Post()
   public async store(
     @core.TypedParam("section") section: string,
-    @core.TypedBody() input: IBbsArticle.IStore,
+    @Body() input: IBbsArticle.IStore,
   ): Promise<IBbsArticle> {
     return {
       ...typia.random<IBbsArticle>(),
