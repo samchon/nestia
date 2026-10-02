@@ -73,7 +73,7 @@ export const test_simulation_original_population = async (
     };
     inventory(location);
     if (required !== undefined)
-      TestValidator.equals(
+      TestValidator.equals<number>(
         `${label} original case census`,
         required,
         expected.length,

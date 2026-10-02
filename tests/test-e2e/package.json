@@ -34,7 +34,8 @@
     "swagger-ui-express": "catalog:utils",
     "chalk": "catalog:utils",
     "cli-progress": "catalog:utils",
-    "serialize-error": "catalog:utils"
+    "serialize-error": "catalog:utils",
+    "@typia/utils": "catalog:samchon"
   },
   "devDependencies": {
     "@types/node": "catalog:utils",

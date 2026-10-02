@@ -33,6 +33,8 @@ export const test_clone_complex_private_native = async (
     assert.equal(new Date(value).toISOString(), value);
   }
   const route = api.functional.clone_complex.multipart.post;
+  const file = new File(["file"], "file.txt");
+  const files = [new File(["files"], "files.txt")];
   const body = typia.assert<Parameters<typeof route>[1]>({
     id: "d3f4c1c2-6b7e-4f3a-9a3e-2b1c0d9e8f7a",
     strings: ["one", "two"],
@@ -40,8 +42,8 @@ export const test_clone_complex_private_native = async (
     integers: [-2147483648, 2147483647],
     blob: new Blob(["blob"]),
     blobs: [new Blob(["blobs"])],
-    file: new File(["file"], "file.txt"),
-    files: [new File(["files"], "files.txt")],
+    file,
+    files,
   });
   assert.equal(await route(connection, body), undefined);
   for (const [id, integers] of [
@@ -56,8 +58,8 @@ export const test_clone_complex_private_native = async (
     for (const value of integers) form.append("integers", String(value));
     form.append("blob", body.blob);
     for (const value of body.blobs) form.append("blobs", value);
-    form.append("file", body.file);
-    for (const value of body.files) form.append("files", value);
+    form.append("file", file);
+    for (const value of files) form.append("files", value);
     const response = await fetch(`${connection.host}/clone_complex/multipart`, {
       method: "POST",
       body: form,

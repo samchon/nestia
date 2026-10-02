@@ -805,6 +805,9 @@ importers:
       '@nestjs/swagger':
         specifier: catalog:nestjs
         version: 11.4.3(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)
+      '@typia/utils':
+        specifier: catalog:samchon
+        version: 15.0.0
       chalk:
         specifier: catalog:utils
         version: 4.1.2

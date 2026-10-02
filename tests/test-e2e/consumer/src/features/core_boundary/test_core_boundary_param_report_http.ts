@@ -51,8 +51,13 @@ export const test_core_boundary_param_report_http = async (
       }>(parsed);
       assert.equal(report.message, 'Invalid URL parameter value on "value".');
       assert.equal(report.errors.length, 1);
-      assert.equal(typeof report.errors[0].path, "string");
-      assert.equal(typeof report.errors[0].expected, "string");
+      const trace = report.errors[0];
+      assert.ok(
+        trace !== undefined,
+        "singleton error report must contain its entry",
+      );
+      assert.equal(typeof trace.path, "string");
+      assert.equal(typeof trace.expected, "string");
     } else {
       const report = typia.assertEquals<{
         message: string;
