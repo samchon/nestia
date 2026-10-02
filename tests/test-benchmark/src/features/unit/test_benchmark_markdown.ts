@@ -1,6 +1,7 @@
-import type { DynamicBenchmarker } from "@nestia/benchmark";
 import assert from "node:assert/strict";
 import path from "node:path";
+
+import type { DynamicBenchmarker } from "../../../../../packages/benchmark/lib";
 
 /**
  * Verifies report formatting with authored measurements and supplied host
@@ -12,14 +13,19 @@ import path from "node:path";
  * 1. Render a report with positive, negative and absent duration measures.
  * 2. Assert literal table values, host fallback and preservation of endpoint
  *    order.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The built reporter renders actual authored statistics with supplied host facts. Literal CPU/RAM and decimal table values, absence of unconfigured backend information and unchanged report data distinguish formatting and mutation defects.
+ * @evidence contracts/testing.md#independent-expectations Count separators, decimal truncation, N/A for absent duration and unknown for absent CPU are independent report-display contracts. Authored measurements and host facts provide the oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Positive and negative decimals contrast absent duration; absent CPU contrasts present memory/Node facts. The input clone detects report mutation and original endpoint order is retained.
+ * @evidence contracts/testing.md#execution-ownership The benchmark unit entry discovers this matching function and calls the caller-built reporter directly. It creates no server, worker, installation or native compiler context.
  */
 export const test_benchmark_markdown = (): void => {
   const { DynamicBenchmarkReporter } = require(
     path.resolve(
       __dirname,
-      "../../../../packages/benchmark/lib/internal/DynamicBenchmarkReporter.js",
+      "../../../../../packages/benchmark/lib/internal/DynamicBenchmarkReporter.js",
     ),
-  ) as typeof import("../../../../packages/benchmark/src/internal/DynamicBenchmarkReporter");
+  ) as typeof import("../../../../../packages/benchmark/lib/internal/DynamicBenchmarkReporter");
   const report: DynamicBenchmarker.IReport = {
     count: 12_345,
     threads: 4,

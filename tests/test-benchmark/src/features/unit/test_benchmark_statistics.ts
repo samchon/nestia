@@ -1,6 +1,7 @@
-import type { IBenchmarkEvent } from "@nestia/benchmark";
 import assert from "node:assert/strict";
 import path from "node:path";
+
+import type { IBenchmarkEvent } from "../../../../../packages/benchmark/lib";
 
 /**
  * Verifies population statistics over independently authored event durations.
@@ -11,14 +12,19 @@ import path from "node:path";
  * 1. Summarize empty, singleton, mixed and constant event populations.
  * 2. Compare every count and elapsed measure with literal mathematical
  *    expectations.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The built statistics operation computes count, success, mean, population deviation and extrema from authored events. Empty and constant populations must distinguish absent values from measured zero deviation.
+ * @evidence contracts/testing.md#independent-expectations Literal results follow elementary population arithmetic: durations1/3 have mean2 and deviation1; singleton/constant populations have deviation0. Timestamp-derived event durations are independently authored.
+ * @evidence contracts/testing.md#distinguishing-cases Empty, singleton, mixed-success and large constant populations retain every original count and elapsed-measure assertion, including null extrema and successful-event counts independent of duration membership.
+ * @evidence contracts/testing.md#execution-ownership The benchmark unit entry discovers this matching function and calls the caller-built statistics operation directly. No application, HTTP request, worker, consumer installation or native artifact is prepared.
  */
 export const test_benchmark_statistics = (): void => {
   const { DynamicBenchmarkStatistics } = require(
     path.resolve(
       __dirname,
-      "../../../../packages/benchmark/lib/internal/DynamicBenchmarkStatistics.js",
+      "../../../../../packages/benchmark/lib/internal/DynamicBenchmarkStatistics.js",
     ),
-  ) as typeof import("../../../../packages/benchmark/src/internal/DynamicBenchmarkStatistics");
+  ) as typeof import("../../../../../packages/benchmark/lib/internal/DynamicBenchmarkStatistics");
   const event = (duration: number, success = true): IBenchmarkEvent => ({
     metadata: {
       method: "GET",

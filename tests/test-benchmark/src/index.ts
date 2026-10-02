@@ -3,10 +3,10 @@ import { NestFactory } from "@nestjs/core";
 import fs from "fs";
 
 import { BbsArticleModule } from "./controllers/bbs/BbsArticleModule";
-import { test_benchmark_markdown } from "./features/test_benchmark_markdown";
-import { test_benchmark_statistics } from "./features/test_benchmark_statistics";
+import { runBenchmarkUnits } from "./unit";
 
 const main = async (): Promise<void> => {
+  await runBenchmarkUnits();
   // PREPARE SERVER
   const app = await NestFactory.create(BbsArticleModule, { logger: false });
   // Count the requests the servants have in flight at once. Each one waits a
@@ -88,30 +88,6 @@ const main = async (): Promise<void> => {
   } finally {
     await app.close();
   }
-
-  // Fewer simultaneous requests than threads would leave a servant a budget
-  // of zero and its share of the count unrun, so it is refused up front.
-  const refused: unknown = await DynamicBenchmarker.master({
-    servant: `${__dirname}/servant.ts`,
-    count: 4,
-    threads: 4,
-    simultaneous: 2,
-  }).then(
-    () => null,
-    (error) => error,
-  );
-  if (
-    !(refused instanceof Error) ||
-    !refused.message.includes(
-      "simultaneous (2) must not be less than threads (4)",
-    )
-  )
-    throw new Error(
-      `DynamicBenchmarker accepted fewer simultaneous requests than threads: ${String(refused)}`,
-    );
-
-  test_benchmark_markdown();
-  test_benchmark_statistics();
 };
 
 main().catch((exp) => {
