@@ -10,6 +10,7 @@ const { test_sdk_cli_argument_diagnostics } = require("./internal/boundary/test_
 const { test_sdk_cli_dependencies } = require("./internal/boundary/test_sdk_cli_dependencies.cjs");
 const { test_sdk_distribution_cwd_restore } = require("./internal/boundary/test_sdk_distribution_cwd_restore.cjs");
 const { test_sdk_bundle_preserves_customized_output } = require("./internal/boundary/test_sdk_bundle_preserves_customized_output.cjs");
+const { test_sdk_generated_imports_extensionless } = require("./internal/boundary/test_sdk_generated_imports_extensionless.cjs");
 const { test_sdk_exact_optional_compiler } = require("./internal/exact_optional/test_sdk_exact_optional_compiler.cjs");
 const { test_core_compiler_wrappers } = require("./internal/core_wrappers/test_core_compiler_wrappers.cjs");
 
@@ -281,6 +282,12 @@ const main = async () => {
       propagate: true,
       output: path.join(sandbox, "consumer/src/api_propagate"),
     }).sdk());
+    try {
+      await measure("generated SDK extensionless imports", () => test_sdk_generated_imports_extensionless({ sandbox, record }));
+    } catch (error) {
+      failures.push("generated SDK extensionless imports");
+      console.error(error);
+    }
     const migrationCompilerOptions = await measure("migration generated source", () => prepareMigrationConsumer({
       installation,
       sandbox,

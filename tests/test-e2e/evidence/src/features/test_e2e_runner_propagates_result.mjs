@@ -23,7 +23,7 @@ import { runE2E } from "../../../../../scripts/run-e2e.cjs";
  * @evidence contracts/e2e.md#necessary-boundary Real Node argv, environment, exit and signal delivery establish behavior that a pure status reducer cannot prove.
  * @evidence contracts/e2e.md#shared-execution One fixture launcher and temporary root serve all outcomes; each child lifetime is the process boundary being tested, with no product compilation or installation.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each permutation truncates its observation log and children settle synchronously before finally removes the uniquely owned root.
- * @evidence contracts/e2e.md#preserved-coverage Single-child failure and cache propagation replace the obsolete independent-suite scheduling assertions. The old parallel dispatcher contract belongs to pnpm and is no longer a connection the repository uses.
+ * @evidence contracts/e2e.md#preserved-coverage Single-child failure and cache propagation replace the obsolete outer E2E suite scheduling assertions. Root test:go still uses parallel/no-bail dispatch, whose peer completion and aggregate status remain with the separate real pnpm process case.
  */
 export const test_e2e_runner_propagates_result = () => {
   const base = fs.realpathSync(os.tmpdir());

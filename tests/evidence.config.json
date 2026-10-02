@@ -65,7 +65,6 @@
       "files": [
         "test-e2e/start.cjs",
         "test-e2e/internal/consumer.cjs",
-        "test-e2e/internal/test_sdk_producer_metadata.cjs",
         "test-e2e/internal/benchmark.cjs",
         "test-e2e/internal/test_migrate_cli_archiving.cjs",
         "test-e2e/internal/test_migrate_generated_consumer.cjs",
@@ -279,7 +278,8 @@
         "test-e2e/exact-optional/producer/src/structures/IOptional.ts",
         "test-e2e/fixture/src/scenarios/native_boundary/controllers/ImplicitController.ts",
         "test-e2e/fixture/src/scenarios/native_boundary/controllers/NamespaceController.ts",
-        "test-e2e/fixture/src/scenarios/native_boundary/controllers/ProvenanceController.ts"
+        "test-e2e/fixture/src/scenarios/native_boundary/controllers/ProvenanceController.ts",
+        "test-e2e/fixture/src/scenarios/clone_complex/controllers/MultipartController.ts"
       ],
       "symbol": [
         "type",
@@ -370,6 +370,27 @@
         "root": "../.agents/skills",
         "files": [
           "contracts/common.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "owned composed producer emission analysis",
+      "type": "javascript",
+      "files": [
+        "test-e2e/internal/test_sdk_producer_metadata.cjs"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/testing.md",
+          "contracts/e2e.md",
+          "contracts/common.md",
+          "contracts/performance.md",
+          "contracts/portability.md"
         ],
         "symbol": "h2",
         "checklist": true
