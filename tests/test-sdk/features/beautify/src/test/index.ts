@@ -37,6 +37,8 @@ export async function main(): Promise<void> {
   });
   await server.close();
 
+  console.log("Executed tests", report.executions.length);
+
   const exceptions: Error[] = report.executions
     .filter((exec) => exec.error !== null)
     .map((exec) => exec.error!);
@@ -50,7 +52,8 @@ export async function main(): Promise<void> {
     throw new Error("Failed");
   }
 }
-if (require.main === module)
+// ttsx loads the entry through its bootstrap, which remains require.main.
+if (require.main === module || process.argv[1] === __filename)
   main().catch((exp) => {
     console.log(exp);
     process.exit(-1);
