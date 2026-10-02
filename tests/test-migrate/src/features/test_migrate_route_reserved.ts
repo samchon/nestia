@@ -19,6 +19,11 @@ import { createRequire } from "module";
  *    parameters it names, and a neighbor does not.
  * 3. Assert no controller directory holds `:`, `*`, `?`, or a backslash.
  * 4. Assert the SDK's path functions write the URL unescaped.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generated Nest route strings are interpreted by the actual path-to-regexp matcher; intended URLs must match with exact parameter values and adjacent URLs must fail.
+ * @evidence contracts/testing.md#independent-expectations The fixture literal URLs and named parameter values define matching independently of route escaping; filesystem-invalid directory characters and SDK raw URL text have separate literal checks.
+ * @evidence contracts/testing.md#distinguishing-cases Literal colon, embedded colon after a parameter, parenthesis and wildcard punctuation distinguish router syntax from URL text; each has a negative neighbor.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_route_reserved as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_route_reserved = (): void => {
   const { match } = createRequire(require.resolve("@nestjs/core"))(

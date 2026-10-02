@@ -13,6 +13,11 @@ import { CliTestHarness } from "../internal/CliTestHarness";
  * 1. Run the template's `clone` against a fake context with pnpm available.
  * 2. Assert the clone targets `https://github.com/samchon/backend`.
  * 3. Assert no `pnpm run test` command is executed.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The template must clone the backend repository, install and build with pnpm, omit the test command and remove repository metadata.
+ * @evidence contracts/testing.md#independent-expectations The template command's public repository and no-test lifecycle determine the literal three-command vector and cleanup paths.
+ * @evidence contracts/testing.md#distinguishing-cases This case owns the template flag disabling tests; the starter sequence provides the test-enabled twin.
+ * @evidence contracts/testing.md#execution-ownership The test-cli DynamicExecutor discovers this unit export, which calls the built engine with injected context operations; no CLI process, package manager or network connection runs.
  */
 export const test_cli_template_command_sequence = async (): Promise<void> => {
   const fake: CliTestHarness.IFakeContext = CliTestHarness.createFakeContext();

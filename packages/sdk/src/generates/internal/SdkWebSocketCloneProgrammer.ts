@@ -12,16 +12,20 @@ import { ITypedApplication } from "../../structures/ITypedApplication";
  * @evidence contracts/common.md#clear-and-simple-design One public function with syntax-tree helpers for declarations and imports.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The TypeScript syntax parser determines declaration and import boundaries, including automatic semicolon insertion; a package file or a name declared differently in two files is never copied.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidence contracts/portability.md#os-neutral-implementation Source candidates use Node path.resolve/join and fs.stat/readFile; outputs use recursive mkdir and UTF-8 writes. Native separators are recognized only when rejecting node_modules paths; authored import specifiers remain language text, and supported source candidates currently include .ts/.tsx/.d.ts rather than .mts/.cts.
  */
 export namespace SdkWebSocketCloneProgrammer {
   /**
-   * Copies every project-local declaration imported by a WebSocket route, and
-   * returns the set of the imports that were cloned.
+   * Copies named project-local declarations imported by WebSocket routes, and
+   * returns the identities successfully cloned. Default and namespace imports
+   * remain source imports; a missing source or conflicting output name is not
+   * reported as cloned.
    *
-   * @evidence contracts/common.md#principled-implementation Each import is cloned once, and its own imports are followed, so a copy stands alone.
+   * @evidence contracts/common.md#principled-implementation Named imports are followed by resolved source/name identity; pending entries break recursive dependency cycles, written entries reuse completed copies, and missing or conflicting declarations return false. External, default and namespace bindings remain imports rather than reconstructed declarations.
    * @evidence contracts/common.md#clear-and-simple-design One loop over the routes' imports.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the imports that resolved to a source file are reported.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation Source lookup uses native fs.stat and path operations and rejects dependency paths by a node_modules component. The output uses the configured native directory; cache keys retain resolved pathname spelling rather than claiming canonical case or symlink identity.
    */
   export const write = async (app: ITypedApplication): Promise<Set<string>> => {
     const ctx: IContext = {
@@ -263,6 +267,7 @@ export namespace SdkWebSocketCloneProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One template.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The key is the same wherever it is built.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation importKey combines the supplied source identity and declaration name without opening a path or resolving filesystem identity; its caller owns source resolution.
    */
   export const importKey = (file: string, name: string): string =>
     `${file}#${name}`;
@@ -274,6 +279,7 @@ export namespace SdkWebSocketCloneProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One expression.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A package's declaration is never copied.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation path.resolve produces a native absolute spelling and splitting accepts both native separator forms. The literal node_modules component classifies installation layout; it does not inspect symlink targets or assert a volume's case equivalence.
    */
   export const isNodeModulesPath = (file: string): boolean =>
     path

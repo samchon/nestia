@@ -49,6 +49,7 @@ import { validate_request_query } from "./internal/validate_request_query";
  * @evidence contracts/common.md#clear-and-simple-design One parameter decorator on top of the shared query validator runner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The decoder is generated from the type by the transform; without it the grouped raw query is returned only when the configuration guard is off.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the supported property types and the validation modes.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Query decoding and response encoding operate on URLSearchParams and HTTP route metadata rather than native filesystem paths.
  */
 export function TypedQuery<T extends object>(
   validator?: IRequestQueryValidator<T>,
@@ -77,6 +78,7 @@ export function TypedQuery<T extends object>(
  * @evidence contracts/common.md#clear-and-simple-design One body decorator and one generator that creates the five route decorators, with a small adapter class for parsed bodies.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The route decorators copy typia's marker properties onto themselves exactly as `TypedRoute` does, which mutates only these exported functions.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the body decorator and the route decorators.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Query decoding and response encoding operate on URLSearchParams and HTTP route metadata rather than native filesystem paths.
  */
 export namespace TypedQuery {
   /**

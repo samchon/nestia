@@ -42,6 +42,7 @@ import { load_controllers } from "./internal/load_controller";
  * @evidence contracts/common.md#clear-and-simple-design One decorator whose traversal is a private function; the dynamic-module helper is in the merged namespace.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The traversal uses the public metadata keys of Nest modules; no module name is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The comment states which module shapes are followed.
+ * @evidence contracts/portability.md#os-neutral-implementation The decorator traverses Nest module metadata in memory; its dynamic helper delegates native paths and file-URL imports to load_controllers instead of composing platform-specific import strings.
  */
 export function EncryptedModule(
   metadata: Parameters<typeof Module>[0],
@@ -61,6 +62,7 @@ export function EncryptedModule(
  * @evidence contracts/common.md#clear-and-simple-design One function that reuses the loader and the decorator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Paths and password are caller input.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the path forms and the password argument.
+ * @evidence contracts/portability.md#os-neutral-implementation The decorator traverses Nest module metadata in memory; its dynamic helper delegates native paths and file-URL imports to load_controllers instead of composing platform-specific import strings.
  */
 export namespace EncryptedModule {
   /**

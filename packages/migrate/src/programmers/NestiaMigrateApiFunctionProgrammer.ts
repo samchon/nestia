@@ -31,9 +31,16 @@ export namespace NestiaMigrateApiFunctionProgrammer {
    * @evidence contracts/common.md#meaningful-documentation The comment lists the fields.
    */
   export interface IContext {
+    /** Calling convention and optional generated features for this operation. */
     config: INestiaMigrateConfig;
+
+    /** Component schemas used to resolve DTO references. */
     components: OpenApi.IComponents;
+
+    /** File-local import collector shared with the surrounding file writer. */
     importer: NestiaMigrateImportProgrammer;
+
+    /** Analyzed operation, with the accessor chosen for this generation. */
     route: IHttpMigrateRoute;
   }
 

@@ -24,6 +24,7 @@ import metadata "github.com/samchon/typia/packages/typia/native/core/schemas/met
 // @evidence contracts/performance.md#efficient-algorithms Pointer maps visit each metadata and component once, and copy each outgoing edge once, for O(V+E+annotation payload) work and space. The projection adds no checker analysis, compiler or host operation.
 // @evidence contracts/performance.md#reuse-equivalent-work Pointer memoization reuses each original metadata and component's projection when several edges reach the same identity within this invocation. The immutable supplied graph establishes equivalence, and the caller reuses that one returned graph for root and property schema writes against shared components. Each different invocation owns fresh maps and does not reuse a projection across changed inputs.
 // @evidence contracts/performance.md#bound-retention-and-release-resources Memo maps and copied nodes belong to one bake invocation and become reclaimable with its result; no global cache, handle or background work is retained.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The projection visits an in-memory typia metadata graph with no native file identity or subprocess boundary.
 func Project(input *metadata.MetadataSchema) *metadata.MetadataSchema {
 	projection := &projection{
 		metadatas:    map[*metadata.MetadataSchema]*metadata.MetadataSchema{},

@@ -23,6 +23,10 @@
  * @evidence contracts/common.md#clear-and-simple-design One function, without options or state.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses only the public Map methods.
  * @evidence contracts/common.md#meaningful-documentation The comment states the lazy initialization pattern with an example.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Native Map key identity is JavaScript value identity, with no filesystem or process boundary.
+ * @evidence contracts/performance.md#efficient-algorithms The get-or-create operation uses native Map membership and lookup, and calls the factory only for an absent key; its dominant extra cost is the caller factory.
+ * @evidence contracts/performance.md#reuse-equivalent-work Stored values, including promises and undefined, are reused while the supplied Map retains the key. The caller must key every relevant dependency and remove stale or rejected entries; this helper cannot establish external-data freshness or prevent reentrant factory calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources New values are transferred into the caller-owned Map, whose growth and eviction remain the caller responsibility; the helper acquires no external handle or background task.
  */
 export namespace MapUtil {
   /**
@@ -80,6 +84,10 @@ export namespace MapUtil {
    * @evidence contracts/common.md#clear-and-simple-design A single check, one factory call, and one store.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The factory result is stored as returned, with no copying or expiry.
    * @evidence contracts/common.md#meaningful-documentation The comment states when the factory runs and documents the parameters with several examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Native Map key identity is JavaScript value identity, with no filesystem or process boundary.
+   * @evidence contracts/performance.md#efficient-algorithms One membership test and lookup, or one factory invocation and insertion, avoid a map scan; native Map access is sublinear on average and factory cost belongs to the supplied computation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Stored values, including promises and undefined, are reused while the supplied Map retains the key. The caller must key every relevant dependency and remove stale or rejected entries; this helper cannot establish external-data freshness or prevent reentrant factory calls.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources New values are transferred into the caller-owned Map, whose growth and eviction remain the caller responsibility; the helper acquires no external handle or background task.
    */
   export function take<K, V>(map: Map<K, V>, key: K, value: () => V): V {
     if (map.has(key)) {

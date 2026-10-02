@@ -9,6 +9,7 @@ import type { OpenApi } from "typia";
  * @evidence contracts/common.md#clear-and-simple-design A flat record whose nested types describe the input and the Swagger options.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation Every property documents its meaning and default, which are the public contract of the configuration file.
+ * @evidence contracts/portability.md#os-neutral-implementation Source inputs and output/distribution/e2e destinations carry native pathname strings interpreted by their owning Node filesystem operations; the application callback bypasses source compilation. Swagger route paths are distinct protocol values, not native file identities.
  */
 export interface INestiaConfig {
   /**
@@ -136,16 +137,13 @@ export interface INestiaConfig {
   assert?: boolean;
 
   /**
-   * Whether to optimize JSON string conversion 10x faster or not.
+   * Generates specialized JSON serialization for JSON and encrypted request
+   * bodies.
    *
-   * If you configure this property to be `true`, the SDK library would utilize
-   * the [`typia.assertStringify<T>()
-   * function`](https://github.com/samchon/typia#enhanced-json) to boost up JSON
-   * serialization speed and ensure type safety.
-   *
-   * This option would make your SDK library compilation time a little bit
-   * slower, but would enhance JSON serialization speed 10x faster. Also, it can
-   * ensure type safety even in the runtime level.
+   * When enabled, the SDK emits a `typia.json.assertStringify` function for the
+   * body type. With `assert` enabled, argument validation runs separately and
+   * serialization uses `typia.json.stringify` without repeating the assertion.
+   * Compilation and runtime costs depend on the body type and workload.
    *
    * @default false
    */
@@ -160,6 +158,7 @@ export namespace INestiaConfig {
    * @evidence contracts/common.md#clear-and-simple-design A two-member record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidence contracts/portability.md#os-neutral-implementation Include and exclude strings represent native files, directories or glob patterns. SourceFinder owns resolving them against the current working directory and distinguishing literal existing paths from wildcard suffixes.
    */
   export interface IInput {
     /** List of files or directories containing the NestJS controller classes. */
@@ -176,6 +175,7 @@ export namespace INestiaConfig {
    * @evidence contracts/common.md#clear-and-simple-design A flat record of options with one callback.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidence contracts/portability.md#os-neutral-implementation output is a native destination interpreted by path.parse/resolve in SwaggerGenerator; a nonempty extension denotes a file and otherwise the destination is a directory. Server URLs and operation paths retain protocol spelling independently of that filesystem boundary.
    */
   export interface ISwaggerConfig {
     /**
@@ -285,6 +285,7 @@ export namespace INestiaConfig {
      * @evidence contracts/common.md#clear-and-simple-design One optional callback with a single argument object.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a caller-supplied function and nothing about a particular naming scheme is built in.
      * @evidence contracts/common.md#meaningful-documentation The comment documents the arguments and the result.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation This callback receives HTTP endpoint identity and returns an OpenAPI identifier; it owns no native pathname or process boundary.
      */
     operationId?(props: {
       class: string;

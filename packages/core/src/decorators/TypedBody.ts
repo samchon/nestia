@@ -16,8 +16,8 @@ import { validate_request_body } from "./internal/validate_request_body";
  *
  * `TypedBody` is a decorator function getting `application/json` typed data
  * from request body. Also, it validates the request body data type through
- * [typia](https://github.com/samchon/typia) and the validation speed is maximum
- * 20,000x times faster than `class-validator`.
+ * [typia](https://github.com/samchon/typia) using the declared TypeScript
+ * type.
  *
  * For reference, when the request body data is not following the promised type
  * `T`, `BadRequestException` error (status code: 400) would be thrown.
@@ -30,6 +30,7 @@ import { validate_request_body } from "./internal/validate_request_body";
  * @evidence contracts/common.md#clear-and-simple-design One parameter decorator composes shared media/absence checks and tagged resolution. The shared internal runner owns descriptor selection and error translation; PlainBody uses the same successful-value protocol for its optional transformed text assertion, preserving raw text when no assertion exists and preserving its absent-input/media error priority.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The validator is generated from the type by the transform; without it the decorator throws the configuration error unless the guard is turned off.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the decorator, the media type rule, and the validation modes.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Parsed HTTP bodies and validation callbacks are independent of native filesystem and process representation.
  */
 export function TypedBody<T>(
   validator?: IRequestBodyValidator<T>,

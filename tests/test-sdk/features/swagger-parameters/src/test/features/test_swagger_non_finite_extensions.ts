@@ -19,6 +19,15 @@ import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
  *    one as 2.
  * 3. Assert every decomposed query parameter carries the component's schema of its
  *    property, extension included.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Checks non-finite vendor extensions become null while finite 2 remains numeric, then checks decomposed parameter schemas retain the component values.
+ * @evidence contracts/testing.md#independent-expectations JSON serialization represents non-finite numbers as null; the authored finite and non-finite tag literals establish independent expected values.
+ * @evidence contracts/testing.md#distinguishing-cases NaN, Infinity, negative infinity and inf positives are paired with finite=2, detecting both encoder rejection and over-nulling.
+ * @evidence contracts/testing.md#execution-ownership The feature DynamicExecutor entry swagger-parameters/src/test/index.ts discovers this exported test after the SDK harness prepares its generated consumer; this installed producer/consumer population is E2E, not a portable unit.
+ * @evidence contracts/e2e.md#necessary-boundary Consumes artifacts emitted from the authored swagger-parameters controller program by the native metadata and SDK generation pipeline; the assertions detect loss across that producer/consumer connection.
+ * @evidence contracts/e2e.md#shared-execution The swagger-parameters feature entry shares its generated Swagger/SDK artifacts and built consumer among the feature tests. The restored harness still prepares separate feature projects; this case does not perform another installation or compilation.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The swagger-parameters test reads its current feature artifacts and does not edit them. The feature harness owns preparation and consumer lifetime; this declaration starts no background producer or persistent cache.
+ * @evidence contracts/e2e.md#preserved-coverage The surviving assertions in test_swagger_non_finite_extensions retain naN, Infinity, negative infinity and inf positives are paired with finite=2, detecting both encoder rejection and over-nulling.
  */
 export const test_swagger_non_finite_extensions = async (): Promise<void> => {
   const document: OpenApi.IDocument = await SwaggerParameterReader.document();

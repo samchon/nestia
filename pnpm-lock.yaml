@@ -22,15 +22,9 @@ catalogs:
     '@nestjs/platform-fastify':
       specifier: ^11.1.6
       version: 11.1.21
-    '@nestjs/swagger':
-      specifier: ^11.2.6
-      version: 11.4.3
     path-to-regexp:
       specifier: ^8.4.2
       version: 8.4.2
-    reflect-metadata:
-      specifier: ^0.2.2
-      version: 0.2.2
     rxjs:
       specifier: ^7.1.0
       version: 7.8.2
@@ -83,66 +77,24 @@ catalogs:
       specifier: ^7.0.2
       version: 7.0.2
   utils:
-    '@types/cli-progress':
-      specifier: ^3.11.6
-      version: 3.11.6
-    '@types/express':
-      specifier: ^4.17.21
-      version: 4.17.25
-    '@types/multer':
-      specifier: ^1.4.12
-      version: 1.4.13
     '@types/node':
       specifier: ^25.3.3
       version: 25.9.0
-    '@types/swagger-ui-express':
-      specifier: ^4.1.8
-      version: 4.1.8
     '@types/uuid':
       specifier: ^11.0.0
       version: 11.0.0
-    chalk:
-      specifier: 4.1.2
-      version: 4.1.2
-    cli-progress:
-      specifier: ^3.12.0
-      version: 3.12.0
     cross-env:
       specifier: ^10.1.0
       version: 10.1.0
-    dotenv:
-      specifier: ^16.3.1
-      version: 16.6.1
-    dotenv-expand:
-      specifier: ^10.0.0
-      version: 10.0.0
-    express:
-      specifier: ^4.21.1
-      version: 4.22.2
-    fastify-multer:
-      specifier: ^2.0.3
-      version: 2.0.3
     jsdom:
       specifier: ^22.0.0
       version: 22.1.0
-    multer:
-      specifier: ^2.0.2
-      version: 2.1.1
     react:
-      specifier: ^18.3.1
-      version: 18.3.1
-    react-test-renderer:
       specifier: ^18.3.1
       version: 18.3.1
     rimraf:
       specifier: ^6.1.3
       version: 6.1.3
-    serialize-error:
-      specifier: ^4.1.0
-      version: 4.1.0
-    swagger-ui-express:
-      specifier: ^5.0.1
-      version: 5.0.1
     uuid:
       specifier: ^13.0.0
       version: 13.0.2
@@ -620,25 +572,6 @@ importers:
       '@nestia/benchmark':
         specifier: workspace:^
         version: link:../../packages/benchmark
-      '@nestia/e2e':
-        specifier: workspace:^
-        version: link:../../packages/e2e
-    devDependencies:
-      '@types/node':
-        specifier: catalog:utils
-        version: 25.9.0
-      cross-env:
-        specifier: catalog:utils
-        version: 10.1.0
-      ttsc:
-        specifier: catalog:typescript
-        version: 0.28.1
-
-  tests/test-benchmark-e2e:
-    dependencies:
-      '@nestia/benchmark':
-        specifier: workspace:^
-        version: link:../../packages/benchmark
       '@nestia/core':
         specifier: workspace:^
         version: link:../../packages/core
@@ -683,198 +616,40 @@ importers:
         specifier: catalog:typescript
         version: 0.28.1
 
-  tests/test-boundaries:
-    dependencies:
-      '@nestia/e2e':
-        specifier: workspace:^
-        version: link:../../packages/e2e
-    devDependencies:
-      '@types/node':
-        specifier: catalog:utils
-        version: 25.9.0
-      cross-env:
-        specifier: catalog:utils
-        version: 10.1.0
-      nestia:
-        specifier: workspace:^
-        version: link:../../packages/cli
-      ttsc:
-        specifier: catalog:typescript
-        version: 0.28.1
-
   tests/test-cli:
     dependencies:
       '@nestia/e2e':
         specifier: workspace:^
         version: link:../../packages/e2e
+    devDependencies:
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
+      cross-env:
+        specifier: catalog:utils
+        version: 10.1.0
       nestia:
         specifier: workspace:^
         version: link:../../packages/cli
-    devDependencies:
-      '@types/node':
-        specifier: catalog:utils
-        version: 25.9.0
-      cross-env:
-        specifier: catalog:utils
-        version: 10.1.0
-      ttsc:
-        specifier: catalog:typescript
-        version: 0.28.1
-
-  tests/test-core-e2e:
-    dependencies:
-      '@nestia/core':
-        specifier: workspace:^
-        version: link:../../packages/core
-      '@nestia/sdk':
-        specifier: workspace:^
-        version: link:../../packages/sdk
-      '@nestjs/common':
-        specifier: catalog:nestjs
-        version: 11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/core':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/platform-express':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
-      multer:
-        specifier: ^2.0.2
-        version: 2.1.1
-      rxjs:
-        specifier: catalog:nestjs
-        version: 7.8.2
-      typia:
-        specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.28.1)
-    devDependencies:
-      '@types/multer':
-        specifier: ^1.4.12
-        version: 1.4.13
-      '@types/node':
-        specifier: catalog:utils
-        version: 25.9.0
-      cross-env:
-        specifier: catalog:utils
-        version: 10.1.0
-      rimraf:
-        specifier: catalog:utils
-        version: 6.1.3
       ttsc:
         specifier: catalog:typescript
         version: 0.28.1
 
   tests/test-e2e:
     dependencies:
-      '@modelcontextprotocol/sdk':
-        specifier: catalog:modelcontextprotocol
-        version: 1.29.0(zod@4.4.3)
-      '@nestia/benchmark':
-        specifier: workspace:^
-        version: link:../../packages/benchmark
-      '@nestia/core':
-        specifier: workspace:^
-        version: link:../../packages/core
       '@nestia/e2e':
         specifier: workspace:^
         version: link:../../packages/e2e
-      '@nestia/editor':
-        specifier: workspace:^
-        version: link:../../packages/editor
       '@nestia/fetcher':
         specifier: workspace:^
         version: link:../../packages/fetcher
-      '@nestia/migrate':
-        specifier: workspace:^
-        version: link:../../packages/migrate
-      '@nestia/sdk':
-        specifier: workspace:^
-        version: link:../../packages/sdk
-      '@nestjs/common':
-        specifier: catalog:nestjs
-        version: 11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/core':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/platform-express':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
-      '@nestjs/platform-fastify':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
-      '@nestjs/swagger':
-        specifier: catalog:nestjs
-        version: 11.4.3(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)
-      '@typia/utils':
-        specifier: catalog:samchon
-        version: 15.0.0
-      chalk:
-        specifier: catalog:utils
-        version: 4.1.2
-      cli-progress:
-        specifier: catalog:utils
-        version: 3.12.0
-      dotenv:
-        specifier: catalog:utils
-        version: 16.6.1
-      dotenv-expand:
-        specifier: catalog:utils
-        version: 10.0.0
-      express:
-        specifier: catalog:utils
-        version: 4.22.2
-      fastify-multer:
-        specifier: catalog:utils
-        version: 2.0.3
-      multer:
-        specifier: catalog:utils
-        version: 2.1.1
-      nestia:
-        specifier: workspace:^
-        version: link:../../packages/cli
-      reflect-metadata:
-        specifier: catalog:nestjs
-        version: 0.2.2
-      rxjs:
-        specifier: catalog:nestjs
-        version: 7.8.2
-      serialize-error:
-        specifier: catalog:utils
-        version: 4.1.0
-      swagger-ui-express:
-        specifier: catalog:utils
-        version: 5.0.1(express@4.22.2)
-      tgrid:
-        specifier: catalog:samchon
-        version: 1.2.1
-      tstl:
-        specifier: catalog:samchon
-        version: 3.0.0
       typia:
         specifier: catalog:samchon
         version: 15.0.0(ttsc@0.28.1)
-      uuid:
-        specifier: catalog:utils
-        version: 13.0.2
     devDependencies:
-      '@types/cli-progress':
-        specifier: catalog:utils
-        version: 3.11.6
-      '@types/express':
-        specifier: catalog:utils
-        version: 4.17.25
-      '@types/multer':
-        specifier: catalog:utils
-        version: 1.4.13
       '@types/node':
         specifier: catalog:utils
         version: 25.9.0
-      '@types/swagger-ui-express':
-        specifier: catalog:utils
-        version: 4.1.8
-      '@wrtnlabs/evidence':
-        specifier: catalog:samchon
-        version: 0.2.0(ttsc@0.28.1)(typescript@7.0.2)
       cross-env:
         specifier: catalog:utils
         version: 10.1.0
@@ -887,70 +662,30 @@ importers:
       '@nestia/e2e':
         specifier: workspace:^
         version: link:../../packages/e2e
+    devDependencies:
       '@nestia/editor':
         specifier: workspace:^
         version: link:../../packages/editor
-      '@nestia/migrate':
-        specifier: workspace:^
-        version: link:../../packages/migrate
-      '@nestia/sdk':
-        specifier: workspace:^
-        version: link:../../packages/sdk
-      fflate:
-        specifier: ^0.8.2
-        version: 0.8.3
-    devDependencies:
       '@types/node':
         specifier: catalog:utils
         version: 25.9.0
       cross-env:
         specifier: catalog:utils
         version: 10.1.0
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.3
       jsdom:
         specifier: catalog:utils
         version: 22.1.0
       react:
         specifier: catalog:utils
         version: 18.3.1
-      react-test-renderer:
-        specifier: catalog:utils
-        version: 18.3.1(react@18.3.1)
       ttsc:
         specifier: catalog:typescript
         version: 0.28.1
-
-  tests/test-evidence:
-    devDependencies:
-      '@wrtnlabs/evidence':
-        specifier: catalog:samchon
-        version: 0.2.0(ttsc@0.28.1)(typescript@7.0.2)
 
   tests/test-migrate:
-    dependencies:
-      '@nestia/e2e':
-        specifier: workspace:^
-        version: link:../../packages/e2e
-      '@nestia/migrate':
-        specifier: workspace:^
-        version: link:../../packages/migrate
-      '@typia/interface':
-        specifier: catalog:samchon
-        version: 15.0.0
-    devDependencies:
-      '@nestjs/core':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@types/node':
-        specifier: catalog:utils
-        version: 25.9.0
-      cross-env:
-        specifier: catalog:utils
-        version: 10.1.0
-      ttsc:
-        specifier: catalog:typescript
-        version: 0.28.1
-
-  tests/test-migrate-e2e:
     dependencies:
       '@nestia/benchmark':
         specifier: workspace:^
@@ -1052,43 +787,6 @@ importers:
 
   tests/test-sdk:
     dependencies:
-      '@nestia/core':
-        specifier: workspace:^
-        version: link:../../packages/core
-      '@nestia/e2e':
-        specifier: workspace:^
-        version: link:../../packages/e2e
-      '@nestia/fetcher':
-        specifier: workspace:^
-        version: link:../../packages/fetcher
-      '@nestia/sdk':
-        specifier: workspace:^
-        version: link:../../packages/sdk
-      '@nestjs/common':
-        specifier: catalog:nestjs
-        version: 11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/swagger':
-        specifier: catalog:nestjs
-        version: 11.4.3(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)
-      typia:
-        specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.28.1)
-    devDependencies:
-      '@ttsc/factory':
-        specifier: catalog:typescript
-        version: 0.28.1
-      '@types/node':
-        specifier: catalog:utils
-        version: 25.9.0
-      cross-env:
-        specifier: catalog:utils
-        version: 10.1.0
-      ttsc:
-        specifier: catalog:typescript
-        version: 0.28.1
-
-  tests/test-sdk-e2e:
-    dependencies:
       '@fastify/multipart':
         specifier: ^8.1.0
         version: 8.3.1
@@ -1186,19 +884,40 @@ importers:
       '@nestia/core':
         specifier: workspace:^
         version: link:../../packages/core
-      '@nestia/e2e':
+      '@nestia/sdk':
         specifier: workspace:^
-        version: link:../../packages/e2e
-      '@nestia/fetcher':
-        specifier: workspace:^
-        version: link:../../packages/fetcher
+        version: link:../../packages/sdk
+      '@nestjs/common':
+        specifier: catalog:nestjs
+        version: 11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/core':
+        specifier: catalog:nestjs
+        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/platform-express':
+        specifier: catalog:nestjs
+        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
+      multer:
+        specifier: ^2.0.2
+        version: 2.1.1
+      rxjs:
+        specifier: catalog:nestjs
+        version: 7.8.2
+      typia:
+        specifier: catalog:samchon
+        version: 15.0.0(ttsc@0.28.1)
     devDependencies:
+      '@types/multer':
+        specifier: ^1.4.12
+        version: 1.4.13
       '@types/node':
         specifier: catalog:utils
         version: 25.9.0
       cross-env:
         specifier: catalog:utils
         version: 10.1.0
+      rimraf:
+        specifier: catalog:utils
+        version: 6.1.3
       ttsc:
         specifier: catalog:typescript
         version: 0.28.1
@@ -4145,9 +3864,6 @@ packages:
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
-  react-is@18.3.1:
-    resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
-
   react-is@19.2.6:
     resolution: {integrity: sha512-XjBR15BhXuylgWGuslhDKqlSayuqvqBX91BP8pauG8kd1zY8kotkNWbXksTCNRarse4kuGbe2kIY05ARtwNIvw==}
 
@@ -4167,16 +3883,6 @@ packages:
   react-refresh@0.17.0:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
-
-  react-shallow-renderer@16.15.0:
-    resolution: {integrity: sha512-oScf2FqQ9LFVQgA73vr86xl2NaOIX73rh+YFqcOp68CWj56tSfgtGKrEbyhCj0rSijyG9M1CYprTh39fBi5hzA==}
-    peerDependencies:
-      react: ^16.0.0 || ^17.0.0 || ^18.0.0
-
-  react-test-renderer@18.3.1:
-    resolution: {integrity: sha512-KkAgygexHUkQqtvvx/otwxtuFu5cVjfzTCtjXLH9boS19/Nbtg84zS7wIQn39G8IlrhThBpQsMKkq5ZHZIYFXA==}
-    peerDependencies:
-      react: ^18.3.1
 
   react-transition-group@4.4.5:
     resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
@@ -7930,8 +7636,6 @@ snapshots:
 
   react-is@16.13.1: {}
 
-  react-is@18.3.1: {}
-
   react-is@19.2.6: {}
 
   react-mui-fileuploader@0.5.2(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/icons-material@5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(prop-types@15.8.1):
@@ -7945,19 +7649,6 @@ snapshots:
       '@types/react': 18.3.28
 
   react-refresh@0.17.0: {}
-
-  react-shallow-renderer@16.15.0(react@18.3.1):
-    dependencies:
-      object-assign: 4.1.1
-      react: 18.3.1
-      react-is: 18.3.1
-
-  react-test-renderer@18.3.1(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-      react-is: 18.3.1
-      react-shallow-renderer: 16.15.0(react@18.3.1)
-      scheduler: 0.23.2
 
   react-transition-group@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

@@ -27,8 +27,13 @@ export namespace NestiaMigrateNestControllerProgrammer {
    * @evidence contracts/common.md#meaningful-documentation The comment lists the fields.
    */
   export interface IProps {
+    /** Generation options and an optional controller-method writer. */
     config: INestiaMigrateConfig;
+
+    /** Schemas needed by generated controller method types. */
     components: OpenApi.IComponents;
+
+    /** Controller name, router prefix and grouped operations. */
     controller: INestiaMigrateController;
   }
 

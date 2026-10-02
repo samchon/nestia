@@ -51,6 +51,7 @@ import { validate_request_headers } from "./internal/validate_request_headers";
  * @evidence contracts/common.md#clear-and-simple-design One parameter decorator built from the shared header validator runner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The decoder is generated from the type by the transform; without it the request headers are passed through only when the configuration guard is off.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the decoding, the supported property types, and the validation modes.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Header names and decoded values belong to the HTTP protocol and are not native filesystem identities.
  */
 export function TypedHeaders<T extends object>(
   validator?: IRequestHeadersValidator<T>,

@@ -34,6 +34,10 @@ import { json_equal_to } from "./internal/json_equal_to";
  * @evidence contracts/common.md#clear-and-simple-design One function per assertion kind, sharing the JSON comparison (`json_equal_to`) and two small module helpers (`is_promise` and `is_sorted`), with the curried forms only where a request must be prepared once and run twice.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Assertions compare the values they are given; none consults a fixture, an entity name, or an environment.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose lists the assertion families and the error message convention, with examples.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+ * @evidence contracts/performance.md#efficient-algorithms Scalar assertions use constant bookkeeping; JSON assertions traverse the expected structure, index compares the shared page prefix, search scans the dataset once per sample and sort checks adjacent results. External callbacks own their computation costs.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each comparison depends on current supplied values and possibly effectful getters; this operation coordinates no reusable computation across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only invocation-local comparison state is held and the returned comparator captures its getter; external resources and comparator retention belong to the caller.
  */
 export namespace TestValidator {
   /**
@@ -69,6 +73,10 @@ export namespace TestValidator {
    * @evidence contracts/common.md#clear-and-simple-design One function whose three branches differ only in when the value is available.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The check is on the value the caller gives, with no truthiness coercion.
    * @evidence contracts/common.md#meaningful-documentation The comment documents the three forms, the parameters, the return type rule, and the thrown error, with examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+   * @evidence contracts/performance.md#efficient-algorithms The condition is evaluated once and asynchronous settlement adds constant bookkeeping without polling or repeating the condition.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each invocation must evaluate its supplied task or request to observe current behavior; prior results cannot replace these effectful checks.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned promise follows the supplied task to settlement and retains invocation-local state until then; sequential search keeps one request in flight. The callback owns its external resources, and this validator provides no cancellation or timeout.
    */
   export function predicate<
     T extends boolean | (() => boolean) | (() => Promise<boolean>),
@@ -151,6 +159,10 @@ export namespace TestValidator {
    * @evidence contracts/common.md#clear-and-simple-design A thin wrapper over the shared comparison that adds the message.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The exception filter is the caller's; the function contains no key name of its own.
    * @evidence contracts/common.md#meaningful-documentation The comment states the JSON form, the key-walking rule with its consequence for extra keys, the array length rule, and the exception filter, with examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+   * @evidence contracts/performance.md#efficient-algorithms The shared JSON walker traverses the first value and its corresponding second-value positions once, with recursion and accessor output proportional to visited structure; serialization occurs only on failure.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each comparison depends on current supplied values and possibly effectful getters; this operation coordinates no reusable computation across calls.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only invocation-local comparison state is held and the returned comparator captures its getter; external resources and comparator retention belong to the caller.
    */
   export function equals<X, Y extends X = X>(
     title: string,
@@ -217,6 +229,10 @@ export namespace TestValidator {
    * @evidence contracts/common.md#clear-and-simple-design A thin wrapper over the shared comparison with the opposite outcome.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The exception filter is the caller's; the function contains no key name of its own.
    * @evidence contracts/common.md#meaningful-documentation The comment states that the rules are those of `equals`, and gives examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+   * @evidence contracts/performance.md#efficient-algorithms The shared JSON walker visits the first value and corresponding positions once; a failure additionally serializes both values for diagnostics. Space follows visited structure and reported differences.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each comparison depends on current supplied values and possibly effectful getters; this operation coordinates no reusable computation across calls.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only invocation-local comparison state is held and the returned comparator captures its getter; external resources and comparator retention belong to the caller.
    */
   export function notEquals<X, Y extends X = X>(
     title: string,
@@ -268,6 +284,10 @@ export namespace TestValidator {
    * @evidence contracts/common.md#clear-and-simple-design One function with a synchronous and an asynchronous path selected by the returned value.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Any error satisfies it, as documented, and no error type is special-cased.
    * @evidence contracts/common.md#meaningful-documentation The comment states that an exception is required, the return type rule, and the thrown error, with examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+   * @evidence contracts/performance.md#efficient-algorithms The task is invoked once and its settlement is classified with constant bookkeeping; no retry or repeated execution occurs.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each invocation must evaluate its supplied task or request to observe current behavior; prior results cannot replace these effectful checks.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned promise follows the supplied task to settlement and retains invocation-local state until then; sequential search keeps one request in flight. The callback owns its external resources, and this validator provides no cancellation or timeout.
    */
   export function error<T>(
     title: string,
@@ -328,6 +348,10 @@ export namespace TestValidator {
    * @evidence contracts/common.md#clear-and-simple-design One predicate reads the thrown value once and is shared by the synchronous and asynchronous paths; asynchronous settlement uses the task's own promise chain.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The check follows the documented error shape, not a specific SDK or status list.
    * @evidence contracts/common.md#meaningful-documentation The comment documents the status argument, the two task kinds, and the thrown error, with examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+   * @evidence contracts/performance.md#efficient-algorithms The task is invoked once. Classification reads the thrown shape once and scans the expected status list until a match, using O(S) worst-case status comparisons and constant auxiliary state.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each invocation must evaluate its supplied task or request to observe current behavior; prior results cannot replace these effectful checks.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned promise follows the supplied task to settlement and retains invocation-local state until then; sequential search keeps one request in flight. The callback owns its external resources, and this validator provides no cancellation or timeout.
    */
   export function httpError<T>(
     title: string,
@@ -435,6 +459,10 @@ export namespace TestValidator {
    * @evidence contracts/common.md#clear-and-simple-design One function over the id lists produced by a private helper, with an optional trace flag.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Only ids are compared, with no entity type or field named in the function.
    * @evidence contracts/common.md#meaningful-documentation The comment states the prefix rule, the empty rule, the trace flag, and the thrown error, with examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+   * @evidence contracts/performance.md#efficient-algorithms Only the common prefix of P entities is sliced, converted to id strings and compared, giving O(P) entries and temporary storage; string conversion and comparison add their text costs.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each comparison depends on current supplied values and possibly effectful getters; this operation coordinates no reusable computation across calls.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only invocation-local comparison state is held and the returned comparator captures its getter; external resources and comparator retention belong to the caller.
    */
   export const index = <X extends IEntity<any>, Y extends X = X>(
     title: string,
@@ -455,11 +483,8 @@ export namespace TestValidator {
       );
     }
     const length: number = Math.min(expected.length, gotten.length);
-    expected = expected.slice(0, length);
-    gotten = gotten.slice(0, length);
-
-    const xIds: string[] = get_ids(expected).slice(0, length);
-    const yIds: string[] = get_ids(gotten).slice(0, length);
+    const xIds: string[] = get_ids(expected.slice(0, length));
+    const yIds: string[] = get_ids(gotten.slice(0, length));
 
     const equals: boolean = xIds.every((x, i) => x === yIds[i]);
     if (equals === true) return;
@@ -527,6 +552,10 @@ export namespace TestValidator {
    * @evidence contracts/common.md#clear-and-simple-design The function is curried so the dataset and the API are given once and each search configuration is run against them, and the comparison is delegated to `index`.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The sample, values, filter, and request all come from the caller's configuration.
    * @evidence contracts/common.md#meaningful-documentation The comment documents the steps, the parameters, and the thrown error, with examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+   * @evidence contracts/performance.md#efficient-algorithms For K sampled entities from N entries, sparse sampling costs O(K), each reference filter scans N entries and each returned page prefix is compared once. Calls are sequential and one sample result is live at a time.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each invocation must evaluate its supplied task or request to observe current behavior; prior results cannot replace these effectful checks.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned promise follows the supplied task to settlement and retains invocation-local state until then; sequential search keeps one request in flight. The callback owns its external resources, and this validator provides no cancellation or timeout.
    */
   export const search =
     <Entity extends IEntity<any>, Request>(
@@ -568,6 +597,10 @@ export namespace TestValidator {
    * @evidence contracts/common.md#clear-and-simple-design A four-member record with the functions as methods.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the role of the record and each member documents itself.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
    */
   export interface ISearchProps<
     Entity extends IEntity<any>,
@@ -586,6 +619,10 @@ export namespace TestValidator {
      * @evidence contracts/common.md#clear-and-simple-design One method with one entity argument.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is caller code.
      * @evidence contracts/common.md#meaningful-documentation The comment documents the parameter and the return value.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+     * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
+     * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
+     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
      */
     values(entity: Entity): Values;
 
@@ -599,6 +636,10 @@ export namespace TestValidator {
      * @evidence contracts/common.md#clear-and-simple-design One predicate over an entity and the values.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is caller code.
      * @evidence contracts/common.md#meaningful-documentation The comment documents the parameters and the return value.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+     * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
+     * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
+     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
      */
     filter(entity: Entity, values: Values): boolean;
 
@@ -611,6 +652,10 @@ export namespace TestValidator {
      * @evidence contracts/common.md#clear-and-simple-design One method from values to the request.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is caller code.
      * @evidence contracts/common.md#meaningful-documentation The comment documents the parameter and the return value.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+     * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
+     * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
+     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
      */
     request(values: Values): Request;
   }
@@ -665,6 +710,10 @@ export namespace TestValidator {
    * @evidence contracts/common.md#clear-and-simple-design The function is curried in three steps so the request, the comparator, and the direction can be given at the moments each is known.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The order is judged by the caller's comparator, with no field or direction special-cased.
    * @evidence contracts/common.md#meaningful-documentation The comment documents each stage, the parameters, and the thrown error, with examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+   * @evidence contracts/performance.md#efficient-algorithms After one getter call, an optional filter scans N results and sortedness checks at most N minus one adjacent pairs. Signed field construction costs O(F); filter output costs O(N) space when requested.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each invocation must evaluate its supplied task or request to observe current behavior; prior results cannot replace these effectful checks.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned promise follows the supplied task to settlement and retains invocation-local state until then; sequential search keeps one request in flight. The callback owns its external resources, and this validator provides no cancellation or timeout.
    */
   export const sort =
     <
@@ -722,6 +771,10 @@ export namespace TestValidator {
    * @evidence contracts/common.md#clear-and-simple-design A single template-literal type.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states the notation.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator operates on supplied values and callbacks; it does not launch a process or interpret a native path.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
    */
   export type Sortable<Literal extends string> = Array<
     `-${Literal}` | `+${Literal}`

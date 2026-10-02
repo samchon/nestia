@@ -30,7 +30,11 @@ export namespace NestiaMigrateDtoProgrammer {
    */
   export interface IModule {
     name: string;
+
+    /** Child segments of qualified schema names, preserving insertion order. */
     children: Map<string, IModule>;
+
+    /** Alias writer for a schema at this node, or null for a namespace alone. */
     programmer:
       | null
       | ((importer: NestiaMigrateImportProgrammer) => ts.TypeAliasDeclaration);
@@ -46,7 +50,10 @@ export namespace NestiaMigrateDtoProgrammer {
    * @evidence contracts/common.md#meaningful-documentation The comment states the result.
    */
   export const compose = (props: {
+    /** Calling convention and optional generated features for this operation. */
     config: INestiaMigrateConfig;
+
+    /** Component schemas used to resolve DTO references. */
     components: OpenApi.IComponents;
   }): Map<string, IModule> => {
     const dict: Map<string, IModule> = new Map();

@@ -19,6 +19,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  *    `fixture-api` clause and keeps no relative structure imports.
  * 3. Assert the e2e feature imports the api default export and its DTO types from
  *    `fixture-api` without deep `lib/structures` paths.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Nest generation must merge controller DTOs into one type-only API package clause and emit backend test imports without unavailable deep paths.
+ * @evidence contracts/testing.md#independent-expectations The API and backend are separate workspace packages; package exports and type-only DTO use establish the fixture-api specifier and import kind.
+ * @evidence contracts/testing.md#distinguishing-cases Multiple DTOs test merging; generated controller and e2e feature test both consumers, and forbidden relative/deep specifiers are rejected.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_nest_dto_package_import as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_nest_dto_package_import = (): void => {
   const app: NestiaMigrateApplication =

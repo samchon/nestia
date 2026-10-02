@@ -4,7 +4,7 @@ import type { IBenchmarkEvent } from "../IBenchmarkEvent";
 /**
  * Statistics of benchmarked events.
  *
- * @evidence contracts/common.md#principled-implementation The success count uses one filter, while mean, population standard deviation, minimum and maximum share one pass over event start/completion durations. Both operations are linear in the event population.
+ * @evidence contracts/common.md#principled-implementation The success count uses one reduction without retaining a filtered event array, while mean, population standard deviation, minimum and maximum share one pass over event start/completion durations. Both operations are linear in the event population.
  * @evidence contracts/common.md#clear-and-simple-design One namespace with one exported function; the elapsed-time measures are a private helper of it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The formulas are standard statistics without tuning to any benchmark result.
  * @evidence contracts/common.md#meaningful-documentation The comment states its single job.
@@ -18,7 +18,7 @@ export namespace DynamicBenchmarkStatistics {
    * update.
    *
    * @evidence contracts/common.md#principled-implementation Welford's update accumulates deviations from a running mean, avoiding the subtraction of nearly equal large squared averages that caused cancellation in constant durations. The variance divisor is the population count; floating-point arithmetic remains approximate rather than a claim of exact arithmetic for every possible input.
-   * @evidence contracts/common.md#clear-and-simple-design One shared pass computes the elapsed measures, a separate filter counts successes, and the empty elapsed population is answered before the loop.
+   * @evidence contracts/common.md#clear-and-simple-design One shared pass computes the elapsed measures, a separate reduction counts successes, and the empty elapsed population is answered before the loop.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The method is the recognized single-pass algorithm rather than a compensating clamp.
    * @evidence contracts/common.md#meaningful-documentation The comment states the unit, the empty-set convention, and the algorithm.
    */
@@ -26,7 +26,7 @@ export namespace DynamicBenchmarkStatistics {
     events: IBenchmarkEvent[],
   ): DynamicBenchmarker.IReport.IStatistics => ({
     count: events.length,
-    success: events.filter((event) => event.success).length,
+    success: events.reduce((count, event) => count + Number(event.success), 0),
     ...elapsed(events),
   });
 

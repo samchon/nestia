@@ -16,6 +16,15 @@ import api from "@api";
  * 1. Assert the server answers the unversioned and overriding paths only.
  * 2. Assert the Swagger document lists exactly those paths.
  * 3. Call every HTTP and WebSocket route through the SDK.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Checks unversioned, overridden and inherited route statuses, Swagger paths and HTTP/WebSocket versions.
+ * @evidence contracts/testing.md#independent-expectations Nest method version overrides controller version; absent versions retain an unversioned route.
+ * @evidence contracts/testing.md#distinguishing-cases Plain, override, rejected old controller version and inherited method paths distinguish precedence.
+ * @evidence contracts/testing.md#execution-ownership The exported case is discovered by the feature src/test/index.ts after start.js compiles the generated consumer; compiler and host preparation make this an E2E population.
+ * @evidence contracts/e2e.md#necessary-boundary Checks unversioned, overridden and inherited route statuses, Swagger paths and HTTP/WebSocket versions. The assertion observes generated output or its connected consumer, rather than a committed repository arrangement.
+ * @evidence contracts/e2e.md#shared-execution The feature runner shares generation and prepared artifacts with its sibling cases. Compatible programs are batched by start.js; distinct feature programs still incur separate consumer/host preparation, which is an unresolved suite consolidation limitation.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity This case consumes the feature-specific generated artifacts and connection; local connector, application or temporary consumer cleanup is owned by its try/finally where created. Outer backend lifecycle belongs to the feature entry and exceptional startup cleanup remains a harness limitation.
+ * @evidence contracts/e2e.md#preserved-coverage Plain, override, rejected old controller version and inherited method paths distinguish precedence. Existing assertions remain at this executable owner; no branch is removed or claimed to be transferred to units.
  */
 export const test_versioning_resolution = async (
   connection: api.IConnection,

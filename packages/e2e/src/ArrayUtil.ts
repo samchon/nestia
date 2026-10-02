@@ -16,13 +16,14 @@
  *   );
  *   console.log(evenNumbers); // [2, 4]
  *
- * @evidence contracts/common.md#principled-implementation Every asynchronous operation reduces to `asyncRepeat`, which awaits one call per index in ascending order, so filtering, mapping, and iteration are sequential and order-preserving by construction; the synchronous helpers use loops and native methods, and `subsets` is a depth-first enumeration of the include or exclude choice per element.
- * @evidence contracts/common.md#clear-and-simple-design One small function per operation, derived from one primitive for the asynchronous family, with no shared state and one private count validator.
+ * @evidence contracts/common.md#principled-implementation Asynchronous filtering and mapping share sequential `asyncForEach`; repetition awaits each index and collects its results. Synchronous helpers use loops and native methods, and `subsets` enumerates the include or exclude choice per position.
+ * @evidence contracts/common.md#clear-and-simple-design Filtering and mapping share iteration without allocating unused results; repetition separately collects its results, with one private count validator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No function special-cases a value, a fixture, or a caller; ordering and short-circuiting follow from the loop and the native `some`.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose states the sequential, functional style, and each function documents its parameters, its result, and an example.
  * @evidence contracts/performance.md#efficient-algorithms Sequential array operations visit each required position once; has short-circuits, and subsets materializes the exponential power-set output. Async helpers await one user callback per position and preserve its ordering rather than assuming callbacks are independent.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Async helpers await one callback at a time and keep their input and partial output until settlement; results transfer to the caller. Synchronous helpers retain only their local arrays and recursion state. Callback resources and cancellation belong to the caller.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Array indices, callbacks and result arrays are in-memory values; no native path or process is accessed.
  */
 export namespace ArrayUtil {
   /**
@@ -61,6 +62,7 @@ export namespace ArrayUtil {
    * @evidence contracts/performance.md#efficient-algorithms Each of N elements invokes its predicate once in sequence; array bookkeeping is O(N), with O(M) output for M accepted elements.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The invocation awaits one callback at a time and retains only its partial output and current call; success transfers the output to the caller and rejection releases local state. Callback-owned external resources remain the callback owner’s responsibility.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Array indices, callbacks and result arrays are in-memory values; no native path or process is accessed.
    */
   export const asyncFilter = async <Input>(
     elements: readonly Input[],
@@ -102,13 +104,14 @@ export namespace ArrayUtil {
    * @param elements - The readonly array to process
    * @param closure - The asynchronous function to execute for each element
    * @returns A Promise<void> that resolves when all operations complete
-   * @evidence contracts/common.md#principled-implementation It maps each index of the array to a closure call through `asyncRepeat`, passing the element, the index, and the array, and discards the results; because the calls are awaited one after another, a rejection ends the iteration and propagates.
-   * @evidence contracts/common.md#clear-and-simple-design A single delegation to the primitive.
+   * @evidence contracts/common.md#principled-implementation The initial array length determines the visited indices, and each callback receives the current element, index and original array. Each call is awaited before advancing, so rejection ends iteration and propagates.
+   * @evidence contracts/common.md#clear-and-simple-design One sequential loop discards callback results without collecting an unused array.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The closure receives every element exactly once and no error is swallowed.
    * @evidence contracts/common.md#meaningful-documentation The comment contrasts it with the native forEach, states the sequential semantics, and gives an example.
    * @evidence contracts/performance.md#efficient-algorithms Each of N elements invokes its callback once in sequence: O(N) bookkeeping with no result array.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The invocation awaits one callback at a time and retains only its partial output and current call; success transfers the output to the caller and rejection releases local state. Callback-owned external resources remain the callback owner’s responsibility.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Array indices, callbacks and result arrays are in-memory values; no native path or process is accessed.
    */
   export const asyncForEach = async <Input>(
     elements: readonly Input[],
@@ -118,9 +121,9 @@ export namespace ArrayUtil {
       array: readonly Input[],
     ) => Promise<any>,
   ): Promise<void> => {
-    await asyncRepeat(elements.length, (index) =>
-      closure(elements[index]!, index, elements),
-    );
+    const length: number = elements.length;
+    for (let index: number = 0; index < length; ++index)
+      await closure(elements[index]!, index, elements);
   };
 
   /**
@@ -158,6 +161,7 @@ export namespace ArrayUtil {
    * @evidence contracts/performance.md#efficient-algorithms Each of N elements invokes its mapper once in sequence and stores one result: O(N) bookkeeping and output space.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The invocation awaits one callback at a time and retains only its partial output and current call; success transfers the output to the caller and rejection releases local state. Callback-owned external resources remain the callback owner’s responsibility.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Array indices, callbacks and result arrays are in-memory values; no native path or process is accessed.
    */
   export const asyncMap = async <Input, Output>(
     elements: readonly Input[],
@@ -205,6 +209,7 @@ export namespace ArrayUtil {
    * @evidence contracts/performance.md#efficient-algorithms The callback runs once for each of N indices, in sequence, with O(N) result storage.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The invocation awaits one callback at a time and retains only its partial output and current call; success transfers the output to the caller and rejection releases local state. Callback-owned external resources remain the callback owner’s responsibility.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Array indices, callbacks and result arrays are in-memory values; no native path or process is accessed.
    */
   export const asyncRepeat = async <T>(
     count: number,
@@ -257,6 +262,7 @@ export namespace ArrayUtil {
    * @evidence contracts/performance.md#efficient-algorithms Native some stops at the first matching element: worst-case N predicate calls and constant auxiliary storage.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Array indices, callbacks and result arrays are in-memory values; no native path or process is accessed.
    */
   export const has = <T>(
     elements: readonly T[],
@@ -299,6 +305,7 @@ export namespace ArrayUtil {
    * @evidence contracts/performance.md#efficient-algorithms The callback runs once for each of N indices, with O(N) output storage.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Array indices, callbacks and result arrays are in-memory values; no native path or process is accessed.
    */
   export const repeat = <T>(
     count: number,
@@ -358,6 +365,7 @@ export namespace ArrayUtil {
    * @evidence contracts/performance.md#efficient-algorithms The DFS visits the include/exclude tree and filters N input positions at each of 2^N leaves. This is O(N 2^N) time and materialized output space, the scale required by returning every subset, with O(N) recursion/mask state.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Array indices, callbacks and result arrays are in-memory values; no native path or process is accessed.
    */
   export const subsets = <T>(array: T[]): T[][] => {
     const check: boolean[] = new Array(array.length).fill(false);

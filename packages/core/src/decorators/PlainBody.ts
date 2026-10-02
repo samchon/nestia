@@ -33,13 +33,17 @@ import { validate_request_body } from "./internal/validate_request_body";
  *
  * @author Jeongho Nam - https://github.com/samchon
  * @returns Parameter decorator
+ * @evidence contracts/common.md#principled-implementation The decorator reads text only for text/plain requests; an installed assertion resolves the argument value through the shared body checker, while no assertion retains raw text. Absent input is accepted when its assertion accepts undefined and otherwise continues through the media-type error path.
+ * @evidence contracts/common.md#clear-and-simple-design One parameter decorator shares body absence, media recognition, text reading and successful-value resolution with the other request decorators.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Text comes from the request parser or shared raw-body reader, not a fabricated value; no runtime controller or body identity is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The comment distinguishes full body text from JSON parsing and states that the transformed assertion supplies the argument.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation HTTP text bodies and decoded string values carry no native filesystem or subprocess boundary.
  */
 export function PlainBody(): ParameterDecorator;
 
 /**
- * Registers the transformed text assertion and binds its successful value.
- *
- * @internal
+ * Registers the transformed text assertion and binds its successful value. The
+ * public overload accepts no runtime assertion; the transform supplies it.
  */
 export function PlainBody(
   assert?: (input: unknown) => string,

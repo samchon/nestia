@@ -24,6 +24,15 @@ import { UPLOAD_DISK } from "../../UploadDisk";
  * 3. Upload through disk storage, and a disk upload whose fields fail validation;
  *    assert the handler read the file and the directory is empty.
  * 4. Assert a valid memory upload still succeeds through the SDK.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The assertions require that Express/Fastify map upload faults to client errors and release successful/invalid disk files.
+ * @evidence contracts/testing.md#independent-expectations Expectations come from NestJS/multer status/message contracts and literal uploaded text, independently of the generated client's computation.
+ * @evidence contracts/testing.md#distinguishing-cases This case owns size limits, repeated/unexpected fields, malformed boundaries, filter exceptions and valid memory/disk uploads.
+ * @evidence contracts/testing.md#execution-ownership The multipart-form-data-faults fixture DynamicExecutor discovers this authored export after SDK generation/compilation; tests/test-sdk/start.js owns preparation and its test entry owns execution.
+ * @evidence contracts/e2e.md#necessary-boundary Generated clients connect their compiled arguments, transport encoding and decoded responses to real controller behavior.
+ * @evidence contracts/e2e.md#shared-execution The multipart-form-data-faults runner prepares its generated SDK once for this fixture's exports and shares its backend for request cases. Controller/options inputs differ from other fixtures; this export adds no SDK installation or compilation.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The case finally closes its extra Fastify host and asserts both adapter upload directories empty after success and validation failure. Artifact and process identity belong to the multipart-form-data-faults fixture runner.
+ * @evidence contracts/e2e.md#preserved-coverage The asserted size limits, repeated/unexpected fields, malformed boundaries, filter exceptions and valid memory/disk uploads distinctions remain in this export; bare health calls removed from this scope added no result assertions beyond the surviving typed-response, HEAD, RPC or upload cases.
  */
 export const test_multipart_form_data_faults = async (
   connection: api.IConnection,

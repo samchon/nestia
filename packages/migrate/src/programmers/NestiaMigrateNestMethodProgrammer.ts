@@ -36,10 +36,19 @@ export namespace NestiaMigrateNestMethodProgrammer {
    * @evidence contracts/common.md#meaningful-documentation The comment lists the fields.
    */
   export interface IContext {
+    /** Generation options, including the author tag used on the handler. */
     config: INestiaMigrateConfig;
+
+    /** Component schemas referenced by request and response types. */
     components: OpenApi.IComponents;
+
+    /** Controller-file import collector shared by all its methods. */
     importer: NestiaMigrateImportProgrammer;
+
+    /** Controller prefix removed from this operation's router path. */
     controller: INestiaMigrateController;
+
+    /** Analyzed operation supplying method, schemas and examples. */
     route: IHttpMigrateRoute;
   }
 

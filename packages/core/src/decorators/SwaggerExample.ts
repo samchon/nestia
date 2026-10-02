@@ -45,6 +45,7 @@
  * @evidence contracts/common.md#clear-and-simple-design Two decorators over three private metadata helpers that find or create the record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The examples are caller data, and nothing is generated here.
  * @evidence contracts/common.md#meaningful-documentation The comment documents both decorators and the two call forms.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Example metadata contains caller values and parameter indices without a native path or process boundary.
  */
 export namespace SwaggerExample {
   /**
@@ -67,6 +68,7 @@ export namespace SwaggerExample {
    * @evidence contracts/common.md#clear-and-simple-design One decorator with two overloads.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The value is stored as given.
    * @evidence contracts/common.md#meaningful-documentation The comment documents the overloads with an example.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Example metadata contains caller values and parameter indices without a native path or process boundary.
    */
   export function Response<T>(value: T): MethodDecorator;
   export function Response<T>(key: string, value: T): MethodDecorator;
@@ -101,6 +103,7 @@ export namespace SwaggerExample {
    * @evidence contracts/common.md#clear-and-simple-design One decorator with two overloads.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The value is stored as given.
    * @evidence contracts/common.md#meaningful-documentation The comment documents the overloads with an example.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Example metadata contains caller values and parameter indices without a native path or process boundary.
    */
   export function Parameter<T>(value: T): ParameterDecorator;
   export function Parameter<T>(key: string, value: T): ParameterDecorator;
@@ -125,6 +128,7 @@ export namespace SwaggerExample {
    * @evidence contracts/common.md#clear-and-simple-design A flat record whose members are all optional.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states the meaning of the members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Example metadata contains caller values and parameter indices without a native path or process boundary.
    */
   export interface IData<T> {
     examples?: Record<string, T>;

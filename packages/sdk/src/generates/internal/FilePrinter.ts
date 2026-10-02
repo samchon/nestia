@@ -16,6 +16,7 @@ import { format } from "prettier";
  * @evidence contracts/common.md#clear-and-simple-design Four functions and one private formatter.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Formatting failure keeps the unformatted script.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidence contracts/portability.md#os-neutral-implementation Only write crosses the native filesystem boundary, through fs.promises.writeFile with the caller's location and UTF-8. The other helpers construct language comments and syntax independently of native path identity or separators.
  */
 export namespace FilePrinter {
   /**
@@ -26,6 +27,7 @@ export namespace FilePrinter {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The closing marker is escaped rather than dropped.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation description attaches language-level comment text to an AST and performs no native filesystem or process operation.
    */
   export const description = <T extends Node>(node: T, comment: string): T => {
     if (comment.length === 0) return node;
@@ -64,6 +66,7 @@ export namespace FilePrinter {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every line keeps the indentation it has beyond the margin.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation jsDocTag formats TypeScript comment text; indentation and line feeds express language syntax rather than native paths or handles.
    */
   export const jsDocTag = (head: string, text: string): string => {
     const lines: string[] = text.split("\n").map((line) => line.trimEnd());
@@ -87,6 +90,7 @@ export namespace FilePrinter {
    * @evidence contracts/common.md#clear-and-simple-design One expression.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The printer places the break where it is used.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation enter returns a language AST node and owns no filesystem or process boundary.
    */
   export const enter = () =>
     factory.createExpressionStatement(factory.createIdentifier("\n"));
@@ -99,6 +103,7 @@ export namespace FilePrinter {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The write is awaited and its failure is thrown.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation writeFile receives the native pathname as a separate argument and writes UTF-8 after formatting. Its caller owns parent-directory creation; write failures propagate on every platform without shell quoting or separator rewriting.
    */
   export const write = async (props: {
     location: string;

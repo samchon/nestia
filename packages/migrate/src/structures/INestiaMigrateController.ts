@@ -10,8 +10,15 @@ import { IHttpMigrateRoute } from "@typia/interface";
  * @evidence contracts/common.md#meaningful-documentation The comment lists the members.
  */
 export interface INestiaMigrateController {
+  /** Class identifier shared by its declaration, filename and module import. */
   name: string;
+
+  /** Shared router path prefix, including router escapes for literal characters. */
   path: string;
+
+  /** Slash-separated source directory relative to the backend package. */
   location: string;
+
+  /** Operations grouped into this controller, in document order. */
   routes: IHttpMigrateRoute[];
 }

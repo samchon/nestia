@@ -19,6 +19,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 2. Generate both the SDK and the NestJS projects from it.
  * 3. Assert every DTO import in every generated module is type-only, while runtime
  *    library imports such as `typia` stay value imports.
+ *
+ * @evidence contracts/testing.md#behavioral-verification SDK and Nest generation must emit type-only DTO imports and preserve typia runtime imports across generated structures and functions.
+ * @evidence contracts/testing.md#independent-expectations DTO declarations exist only in type positions, while typia.assert/random execute at runtime; those language distinctions establish the expected import kinds.
+ * @evidence contracts/testing.md#distinguishing-cases Both modes and a DTO referencing another DTO exercise relative structure imports; package-level backend DTO clauses are also checked by nest_dto_package_import.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_dto_import_type as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_dto_import_type = (): void => {
   const app: NestiaMigrateApplication =

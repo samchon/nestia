@@ -8,7 +8,13 @@ import { GaffComparator, TestValidator } from "@nestia/e2e";
  * compared a key against `undefined`: `strings` answered -1 both ways, and
  * `numbers` and `dates` answered NaN, which `TestValidator.sort` read as sorted
  * (#1681).
+ *
+ * @evidence contracts/testing.md#behavioral-verification GaffComparator strings, dates and numbers consistently order key-list prefixes.
+ * @evidence contracts/testing.md#independent-expectations Lexicographic ordering puts a proper prefix before its extension and reversing arguments negates the sign.
+ * @evidence contracts/testing.md#distinguishing-cases All three comparators exercise both prefix operand orders and antisymmetry.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
+
 export async function test_gaff_comparator_prefix_keys(): Promise<void> {
   const strings = GaffComparator.strings<{ value: string[] }>((x) => x.value);
   const dates = GaffComparator.dates<{ value: string[] }>((x) => x.value);

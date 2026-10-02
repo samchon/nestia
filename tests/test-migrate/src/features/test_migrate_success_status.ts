@@ -15,19 +15,35 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 2. Assert each SDK function passes its status, and `null` for the range.
  * 3. Assert the controller writes `@HttpCode()` exactly where the status is not
  *    NestJS's default.
+ *
+ * @evidence contracts/testing.md#behavioral-verification SDK generation must pass explicit success statuses and Nest generation must emit HttpCode only where a declared status differs from the framework default.
+ * @evidence contracts/testing.md#independent-expectations Document response keys supply 204/200/202 and a range has no fixed code; Nest defaults are POST 201 and other methods 200.
+ * @evidence contracts/testing.md#distinguishing-cases Bodiless DELETE 204, POST 200, PUT 202, GET 200 and PATCH 2XX distinguish explicit, default and ranged success handling.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_success_status as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_success_status = (): void => {
   const app: NestiaMigrateApplication =
     NestiaMigrateApplication.assert(DOCUMENT);
-  const sdk: string = Object.entries(
-    app.sdk({ simulate: false, e2e: false, package: "fixture" }),
-  )
-    .filter(([key]) => key.startsWith("src/functional/"))
-    .map(([, value]) => value)
-    .join("\n");
-  for (const status of ["204", "200", "202", "null"])
-    if (sdk.includes(`status: ${status},`) === false)
-      throw new Error(`The SDK passes no status ${status}:\n${sdk}`);
+  const files = app.sdk({ simulate: false, e2e: false, package: "fixture" });
+  const expected: Record<string, string> = {
+    delete: "204",
+    post: "200",
+    put: "202",
+    get: "200",
+    patch: "null",
+  };
+  for (const route of app.getData().routes) {
+    const name: string = route.accessor.at(-1)!;
+    const file: string = `src/functional/${[...route.accessor.slice(0, -1), "index.ts"].join("/")}`;
+    const source: string | undefined = files[file];
+    const body: string | undefined = source
+      ?.split("export async function ")
+      .find((part) => part.startsWith(`${name}(`));
+    if (body?.includes(`status: ${expected[route.method]},`) !== true)
+      throw new Error(
+        `The ${route.method} SDK function passes an incorrect status:\n${body}`,
+      );
+  }
 
   const nest: string = Object.entries(
     app.nest({ simulate: false, e2e: false, package: "fixture" }),

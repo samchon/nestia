@@ -70,10 +70,11 @@ export class McpAdaptor {
    *
    * @param app Running Nest application instance.
    * @param options Transport and identity overrides.
-   * @evidence contracts/common.md#principled-implementation Tools are collected once from the prototype chain of every controller instance by the `nestia/McpRoute` metadata, with the first definition of a method name winning, duplicates by tool name refused before serving, and each call runs through NestJS's `ExternalContextCreator` so guards, interceptors, pipes, and exception filters apply as for an HTTP route; every request gets a fresh MCP server and Streamable HTTP transport, which stateless mode requires, and both are closed in a `finally`.
+   * @evidence contracts/common.md#principled-implementation Tools are collected once from the prototype chain of every controller instance by the `nestia/McpRoute` metadata, with the first definition of a property name winning and accessors skipped without execution, duplicates by tool name refused before serving, and each call runs through NestJS's `ExternalContextCreator` so guards, interceptors, pipes, and exception filters apply as for an HTTP route; every request gets a fresh MCP server and Streamable HTTP transport, which stateless mode requires, and both are closed in a `finally`.
    * @evidence contracts/common.md#clear-and-simple-design One entry point does discovery and registration; the per-tool call (`createHandler`), the duplicate check, the SDK loader, and the per-request response facade are separate module-private functions.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Reading the module graph goes through the internal `app.container`, because `INestApplication` exposes no public accessor for it, `create_external_context_creator` constructs an owned subclass through the Nest constructor and overrides module selection on that type, because the default looks for provider classes while controllers belong to the controller collection, and `get_request_context_id` registers the request provider on the request object as NestJS's router does for an HTTP route, and a per-request response facade forwards native state, events and method receivers without replacing raw methods. After a tool or its exception filter has sent headers, only the facade suppresses subsequent transport writes and preserves callbacks and chaining. Native transport writes do not themselves activate takeover. The remaining foreign-internal reads are the application container and Nest request context registration; the MCP SDK uses its public Node response injection boundary.
    * @evidence contracts/common.md#meaningful-documentation The comment states the stateless mode, what is discovered, and that the SDK is an optional dependency; the options documentation states the path and server information.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation MCP tool discovery and HTTP transport callbacks carry protocol values; optional SDK imports use Node module resolution and no native file identity or child process is defined here.
    */
   public static async upgrade(
     app: INestApplication,
@@ -104,7 +105,8 @@ export class McpAdaptor {
           for (const key of Object.getOwnPropertyNames(proto)) {
             if (key === "constructor" || visited.has(key)) continue;
             visited.add(key);
-            const method = proto[key];
+            // Route discovery inspects data descriptors without invoking accessors.
+            const method = Object.getOwnPropertyDescriptor(proto, key)?.value;
             if (typeof method !== "function") continue;
 
             const meta: IMcpRouteReflect | undefined = Reflect.getMetadata(
@@ -422,6 +424,7 @@ const loadMcpSdk = async () => {
  * @evidence contracts/common.md#clear-and-simple-design One static method and two nested types.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It has no fixture or tool name, and the MCP SDK is loaded lazily so an application that never enables MCP does not need it.
  * @evidence contracts/common.md#meaningful-documentation The class comment explains what an MCP route is and how to enable it.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation MCP tool discovery and HTTP transport callbacks carry protocol values; optional SDK imports use Node module resolution and no native file identity or child process is defined here.
  */
 export namespace McpAdaptor {
   /**
@@ -431,6 +434,7 @@ export namespace McpAdaptor {
    * @evidence contracts/common.md#clear-and-simple-design A flat record of two optional values.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type; the defaults are stated in the code that reads them.
    * @evidence contracts/common.md#meaningful-documentation Each option documents its meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation MCP tool discovery and HTTP transport callbacks carry protocol values; optional SDK imports use Node module resolution and no native file identity or child process is defined here.
    */
   export interface IOptions {
     /**

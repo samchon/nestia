@@ -5,6 +5,7 @@
  * @evidence contracts/common.md#clear-and-simple-design One function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a plain helper with no special cases.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Array membership uses JavaScript SameValueZero comparisons with no native filesystem or process access.
  */
 export namespace ArrayUtil {
   /**
@@ -17,6 +18,7 @@ export namespace ArrayUtil {
    * @evidence contracts/common.md#clear-and-simple-design One `every` over `includes`.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No item is special-cased.
    * @evidence contracts/common.md#meaningful-documentation The comment states the conjunction and the comparison rule.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Array membership uses JavaScript SameValueZero comparisons with no native filesystem or process access.
    */
   export function has<T>(array: T[], ...items: T[]): boolean {
     return items.every((item) => array.includes(item));

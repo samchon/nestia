@@ -87,6 +87,7 @@ export function McpRoute(input: string | McpRoute.IConfig): MethodDecorator {
  * @evidence contracts/common.md#clear-and-simple-design Two decorators and one config type in one namespace, sharing one `emplace` helper for parameter metadata.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the reflect metadata API and no NestJS internals; the input schema is filled by the generator, not hardcoded here.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the two call forms, the configuration fields, and the parameter decorator.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Tool schemas and parameter metadata are protocol data held on controller methods, without native filesystem access.
  */
 export namespace McpRoute {
   /**

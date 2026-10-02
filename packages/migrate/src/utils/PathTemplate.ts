@@ -27,7 +27,8 @@ export namespace PathTemplate {
    * parameter name. The emended path (`/files/:id.json`) cannot be split back:
    * its `:id.json` could name `id` or `id.json`, and a name such as `item-id`
    * would read as `item` followed by `-id`. It always starts with `/`, as the
-   * emended path does.
+   * emended path does. A placeholder without a matching route parameter remains
+   * literal text; adjacent literals are merged.
    *
    * @evidence contracts/common.md#principled-implementation The scan uses a regular expression over the placeholders and joins the text between them, and merging adjacent literals keeps the segment list minimal.
    * @evidence contracts/common.md#clear-and-simple-design One function with one helper for merging.

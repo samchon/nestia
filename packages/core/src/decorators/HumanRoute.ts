@@ -17,6 +17,7 @@ import { SwaggerCustomizer } from "./SwaggerCustomizer";
  * @evidence contracts/common.md#clear-and-simple-design One call to the customizer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The extension name is the documented contract of the generated document.
  * @evidence contracts/common.md#meaningful-documentation The comment states that a marked API is left out of the LLM function calling schema.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The OpenAPI extension is an in-memory document property and has no native path or process representation.
  */
 export function HumanRoute(): MethodDecorator {
   return SwaggerCustomizer((props) => {

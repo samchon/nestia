@@ -20,6 +20,10 @@ const (
 // @evidence contracts/common.md#clear-and-simple-design A plain record with no behavior; the two methods answer questions about it.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts It carries the payload as given, and no plugin name or option is special-cased here.
 // @evidence contracts/common.md#meaningful-documentation The comment names the fields and where the value comes from.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation Plugin specifiers are module identifiers and configuration is decoded data, not native file identity.
+// @evidenceExclude contracts/performance.md#efficient-algorithms This record defines data rather than choosing a processing algorithm.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This record does not coordinate computations across consumers.
+// @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The parsed entry stores configuration but does not own its consumers lifetimes.
 type Entry struct {
 	Name      string
 	Stage     string
@@ -33,6 +37,10 @@ type Entry struct {
 // @evidence contracts/common.md#clear-and-simple-design A record of three flags and the ordered entries, with one derived accessor.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts It holds parsed data only, and the flags follow from the entries.
 // @evidence contracts/common.md#meaningful-documentation The comment states what each part of the plan means.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The ordered plugin list and family flags contain no native paths or process handles.
+// @evidenceExclude contracts/performance.md#efficient-algorithms This record defines data rather than choosing a processing algorithm.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This record does not coordinate computations across consumers.
+// @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The plan stores parsed entries; the command owns their lifetime.
 type Plan struct {
 	Core    bool
 	SDK     bool
@@ -46,6 +54,10 @@ type Plan struct {
 // @evidence contracts/common.md#clear-and-simple-design A one-line accessor over two fields, so the condition has one definition.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the flags and nothing else.
 // @evidence contracts/common.md#meaningful-documentation The comment states the condition.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The family-flag predicate reads only booleans.
+// @evidence contracts/performance.md#efficient-algorithms Reading two family flags takes constant work and allocates no collection.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources No state survives the boolean result.
 func (p Plan) UsesNestia() bool {
 	return p.Core || p.SDK
 }
@@ -57,6 +69,10 @@ func (p Plan) UsesNestia() bool {
 // @evidence contracts/common.md#clear-and-simple-design A one-line method over the private classifier, so one function owns the naming rules.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The names are the published package specifiers, which are contract constants, and no consumer or path is special-cased.
 // @evidence contracts/common.md#meaningful-documentation The comment lists the four possible results.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation Classification compares published module specifiers, not native paths.
+// @evidence contracts/performance.md#efficient-algorithms Classification trims and compares the name and transform strings, linear in their bytes.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources Only temporary trimmed strings are used; no registry entry is retained.
 func (e Entry) Kind() string {
 	return classify(e)
 }
@@ -69,6 +85,10 @@ func (e Entry) Kind() string {
 // @evidence contracts/common.md#clear-and-simple-design One map lookup and one type assertion.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts It reads only the configuration of the entry it is called on.
 // @evidence contracts/common.md#meaningful-documentation The comment states why the second result exists.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The lookup reads an in-memory JSON option map.
+// @evidence contracts/performance.md#efficient-algorithms One map lookup and type assertion use expected constant work.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The lookup retains no state or handle.
 func (e Entry) BoolConfig(key string) (bool, bool) {
 	if e.Config == nil {
 		return false, false
@@ -85,6 +105,10 @@ func (e Entry) BoolConfig(key string) (bool, bool) {
 // @evidence contracts/common.md#clear-and-simple-design One function that decodes, normalizes, and classifies; the string reading and the classification are private helpers.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The defaults are the ttsc protocol's, and the function trusts the payload only as far as decoding it.
 // @evidence contracts/common.md#meaningful-documentation The comment states the accepted payloads, the error, and the stage default.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The command payload is a JSON string; plugin transform specifiers remain module identifiers rather than native paths.
+// @evidence contracts/performance.md#efficient-algorithms Decoding is linear in payload bytes and one classification is performed per entry; the output holds one entry per plugin.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources Decoded maps and the result list belong to the returned plan and become reclaimable with its caller.
 func ParsePlan(payload string) (Plan, error) {
 	payload = strings.TrimSpace(payload)
 	if payload == "" {

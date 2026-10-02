@@ -78,6 +78,7 @@ import { validate_request_form_data } from "./internal/validate_request_form_dat
  * @evidence contracts/common.md#clear-and-simple-design One decorator with the multipart decoding, the error mapping, and the file conversion as separate module-private functions, and the multer instance created once by a `Singleton`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Errors are mapped by multer's documented codes and by exact busboy messages, and no file name is special-cased; a runtime without `File` is refused up front.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the factory, the memory and disk storage requirement, and the validation.
+ * @evidence contracts/portability.md#os-neutral-implementation Uploaded disk paths come from the storage engine and are consumed directly by Node fs readFile and rm; filename is File metadata rather than a reconstructed native path. Structural multer method signatures specify middleware rather than native path spelling.
  * @todo Change to ReadableStream through configuring storage engine of multer
  */
 export namespace TypedFormData {
@@ -145,6 +146,7 @@ export namespace TypedFormData {
    * @evidence contracts/common.md#clear-and-simple-design Five method members with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states its purpose as the structural stand-in for multer.
+   * @evidence contracts/portability.md#os-neutral-implementation Uploaded disk paths come from the storage engine and are consumed directly by Node fs readFile and rm; filename is File metadata rather than a reconstructed native path. Structural multer method signatures specify middleware rather than native path spelling.
    */
   export interface IMulterBase {
     /**
@@ -154,6 +156,7 @@ export namespace TypedFormData {
      * @evidence contracts/common.md#clear-and-simple-design One method signature.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
      * @evidence contracts/common.md#meaningful-documentation The member is named after the multer method it mirrors.
+     * @evidence contracts/portability.md#os-neutral-implementation Uploaded disk paths come from the storage engine and are consumed directly by Node fs readFile and rm; filename is File metadata rather than a reconstructed native path. Structural multer method signatures specify middleware rather than native path spelling.
      */
     single(fieldName: string): any;
     /**
@@ -163,6 +166,7 @@ export namespace TypedFormData {
      * @evidence contracts/common.md#clear-and-simple-design One method signature.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
      * @evidence contracts/common.md#meaningful-documentation The member is named after the multer method it mirrors.
+     * @evidence contracts/portability.md#os-neutral-implementation Uploaded disk paths come from the storage engine and are consumed directly by Node fs readFile and rm; filename is File metadata rather than a reconstructed native path. Structural multer method signatures specify middleware rather than native path spelling.
      */
     array(fieldName: string, maxCount?: number): any;
     /**
@@ -172,6 +176,7 @@ export namespace TypedFormData {
      * @evidence contracts/common.md#clear-and-simple-design One method signature.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
      * @evidence contracts/common.md#meaningful-documentation The member is named after the multer method it mirrors.
+     * @evidence contracts/portability.md#os-neutral-implementation Uploaded disk paths come from the storage engine and are consumed directly by Node fs readFile and rm; filename is File metadata rather than a reconstructed native path. Structural multer method signatures specify middleware rather than native path spelling.
      */
     fields(fields: readonly object[]): any;
     /**
@@ -181,6 +186,7 @@ export namespace TypedFormData {
      * @evidence contracts/common.md#clear-and-simple-design One method signature.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
      * @evidence contracts/common.md#meaningful-documentation The member is named after the multer method it mirrors.
+     * @evidence contracts/portability.md#os-neutral-implementation Uploaded disk paths come from the storage engine and are consumed directly by Node fs readFile and rm; filename is File metadata rather than a reconstructed native path. Structural multer method signatures specify middleware rather than native path spelling.
      */
     any(): any;
     /**
@@ -190,6 +196,7 @@ export namespace TypedFormData {
      * @evidence contracts/common.md#clear-and-simple-design One method signature.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
      * @evidence contracts/common.md#meaningful-documentation The member is named after the multer method it mirrors.
+     * @evidence contracts/portability.md#os-neutral-implementation Uploaded disk paths come from the storage engine and are consumed directly by Node fs readFile and rm; filename is File metadata rather than a reconstructed native path. Structural multer method signatures specify middleware rather than native path spelling.
      */
     none(): any;
   }

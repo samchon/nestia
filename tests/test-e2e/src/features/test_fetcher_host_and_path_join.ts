@@ -18,7 +18,13 @@ import { PlainFetcher } from "@nestia/fetcher";
  *    separators on the path, including a base-path host and repeated
  *    separators.
  * 3. Assert each captured URL equals the host and path joined by one separator.
+ *
+ * @evidence contracts/testing.md#behavioral-verification PlainFetcher.fetch composes a request URL with one boundary slash.
+ * @evidence contracts/testing.md#independent-expectations Literal URL expectations follow the host base path and route path without altering interior separators.
+ * @evidence contracts/testing.md#distinguishing-cases Both slash spellings, repeated boundary slashes, base paths and interior doubled separators have separate literal controls.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
+
 export async function test_fetcher_host_and_path_join(): Promise<void> {
   const capture = async (host: string, path: string): Promise<string> => {
     let captured: string = "";

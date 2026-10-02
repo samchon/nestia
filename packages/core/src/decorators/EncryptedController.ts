@@ -32,6 +32,7 @@ import { ENCRYPTION_CONTROLLER_METADATA_KEY } from "./internal/EncryptedConstant
  * @evidence contracts/common.md#clear-and-simple-design One decorator that composes a metadata write with the standard decorator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses Nest's public `Controller` decorator and the reflect metadata API.
  * @evidence contracts/common.md#meaningful-documentation The comment states the password forms and the encrypted decorators it enables.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Controller paths are HTTP routing metadata and passwords are in-memory values; neither is a native filesystem path.
  */
 export function EncryptedController(
   path: string,

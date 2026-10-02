@@ -7,7 +7,12 @@
  * @evidence contracts/common.md#meaningful-documentation The comment lists the members.
  */
 export interface INestiaMigrateFile {
+  /** Slash-separated output directory relative to the generated project root. */
   location: string;
+
+  /** Filename within location. */
   file: string;
+
+  /** Complete source text written without another generation step. */
   content: string;
 }

@@ -18,6 +18,7 @@ export interface IRequestFormDataProps<T> {
  * @evidence contracts/common.md#clear-and-simple-design A two-member record whose nested types describe the variants and the file entries.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment names the two members and the decorator that receives them.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation FormData validators and file-field names describe multipart protocol data; no member is a native storage path or handle.
  */
 export namespace IRequestFormDataProps {
   /**
@@ -27,6 +28,7 @@ export namespace IRequestFormDataProps {
    * @evidence contracts/common.md#clear-and-simple-design A two-member record, the tag and the function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the typia function the variant comes from.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation FormData validators and file-field names describe multipart protocol data; no member is a native storage path or handle.
    */
   export interface IAssert<T> {
     type: "assert";
@@ -37,6 +39,7 @@ export namespace IRequestFormDataProps {
      * @evidence contracts/common.md#clear-and-simple-design One function member.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The function is generated from the type, and the runtime never edits its result.
      * @evidence contracts/common.md#meaningful-documentation The comment states that the function is generated for the requested type.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation FormData validators and file-field names describe multipart protocol data; no member is a native storage path or handle.
      */
     assert: (input: FormData) => T;
   }
@@ -47,6 +50,7 @@ export namespace IRequestFormDataProps {
    * @evidence contracts/common.md#clear-and-simple-design A two-member record, the tag and the function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the typia function the variant comes from.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation FormData validators and file-field names describe multipart protocol data; no member is a native storage path or handle.
    */
   export interface IIs<T> {
     type: "is";
@@ -57,6 +61,7 @@ export namespace IRequestFormDataProps {
      * @evidence contracts/common.md#clear-and-simple-design One function member.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The function is generated from the type, and the runtime never edits its result.
      * @evidence contracts/common.md#meaningful-documentation The comment states that the function is generated for the requested type.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation FormData validators and file-field names describe multipart protocol data; no member is a native storage path or handle.
      */
     is: (input: FormData) => T | null;
   }
@@ -67,6 +72,7 @@ export namespace IRequestFormDataProps {
    * @evidence contracts/common.md#clear-and-simple-design A two-member record, the tag and the function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the typia function the variant comes from.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation FormData validators and file-field names describe multipart protocol data; no member is a native storage path or handle.
    */
   export interface IValidate<T> {
     type: "validate";
@@ -77,6 +83,7 @@ export namespace IRequestFormDataProps {
      * @evidence contracts/common.md#clear-and-simple-design One function member.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The function is generated from the type, and the runtime never edits its result.
      * @evidence contracts/common.md#meaningful-documentation The comment states that the function is generated for the requested type.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation FormData validators and file-field names describe multipart protocol data; no member is a native storage path or handle.
      */
     validate: (input: FormData) => IValidation<T>;
   }
@@ -91,6 +98,7 @@ export namespace IRequestFormDataProps {
    * @evidence contracts/common.md#clear-and-simple-design A two-field record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The values come from the type through the transform, not from a fixture.
    * @evidence contracts/common.md#meaningful-documentation The comment states the meaning of the name and of the limit.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation FormData validators and file-field names describe multipart protocol data; no member is a native storage path or handle.
    */
   export interface IFile {
     name: string;

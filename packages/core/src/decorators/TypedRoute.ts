@@ -23,21 +23,21 @@ import { route_error } from "./internal/route_error";
 /**
  * Type safe router decorator functions.
  *
- * `TypedRoute` is a module containing router decorator functions which can
- * boost up JSON string conversion speed about 200x times faster than
- * `class-transformer`. Furthermore, such JSON string conversion is even type
- * safe through [typia](https://github.com/samchon/typia).
+ * `TypedRoute` provides router decorators that serialize response values with
+ * [typia](https://github.com/samchon/typia) functions generated from the
+ * declared return type.
  *
- * For reference, if you try to invalid data that is not following the promised
- * type `T`, 500 internal server error would be thrown. Also, as `TypedRoute`
- * composes JSON string through `typia.assertStringify<T>()` function, it is not
- * possible to modify response data through interceptors.
+ * The default assert serializer rejects a response outside the declared type
+ * with a 500 error. The configured stringify mode can choose a different
+ * validation policy; `validate.log` logs failures and returns JSON text.
+ * Interceptors that run after this serializer receive the serialized string.
  *
  * @author Jeongho Nam - https://github.com/samchon
  * @evidence contracts/common.md#principled-implementation Each method decorator combines Nest's router decorator, a JSON content type, and an interceptor that stringifies the returned value with the function the transform selected, so the JSON text is produced by generated code; an error thrown by the handler is routed to the registered exception converters.
  * @evidence contracts/common.md#clear-and-simple-design One generator function creates the five HTTP-method decorators, and the interceptor and the router table are module-private.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The loop after the namespace copies the marker properties of typia's stringify functions onto the decorators for the transform, which mutates only these exported functions; the logger is a module variable, not a patched global.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the decorator family, the path and stringify arguments, and the validation modes.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Routing paths and serialized response values are HTTP protocol data; the interceptor and logger do not define a native file or subprocess boundary.
  */
 export namespace TypedRoute {
   /**
@@ -57,7 +57,7 @@ export namespace TypedRoute {
   export const Post = Generator("Post");
 
   /**
-   * Router decorator function for the PATH method.
+   * Router decorator function for the PATCH method.
    *
    * @param path Path of the HTTP request
    * @returns Method decorator
@@ -86,7 +86,7 @@ export namespace TypedRoute {
    * If you've configured the transformation option to `validate.log` in the
    * `tsconfig.json` file, then the error log information of the response
    * validation failure would be logged through this function instead of
-   * throwing the 400 bad request error.
+   * throwing the 500 internal server error.
    *
    * By the way, be careful. If you've configured the response transformation
    * option to be `validate.log`, client may get wrong response data. Therefore,
@@ -98,6 +98,7 @@ export namespace TypedRoute {
    * @evidence contracts/common.md#clear-and-simple-design One assignment.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It changes only the logger variable.
    * @evidence contracts/common.md#meaningful-documentation The comment states which mode uses the logger.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Routing paths and serialized response values are HTTP protocol data; the interceptor and logger do not define a native file or subprocess boundary.
    */
   export function setValidateErrorLogger(
     func: (log: IValidateErrorLog) => void,
@@ -122,6 +123,7 @@ export namespace TypedRoute {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation Each member documents its meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Routing paths and serialized response values are HTTP protocol data; the interceptor and logger do not define a native file or subprocess boundary.
    */
   export interface IValidateErrorLog {
     /** HTTP method of the request. */

@@ -30,6 +30,10 @@ var (
 // @evidence contracts/common.md#clear-and-simple-design One deferred handler around the private dispatcher.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The recovery reports the failure; it does not retry or hide it, and the exit code stays non-zero.
 // @evidence contracts/common.md#meaningful-documentation The comment explains the recovery envelope, the diagnostic shape, and the debug variable.
+// @evidence contracts/portability.md#os-neutral-implementation Argument vectors are passed as strings to Go flag parsing without shell composition. Native working directories and file outputs are handled by os/filepath and the loaded program filesystem in the dispatched commands.
+// @evidence contracts/performance.md#efficient-algorithms Dispatch itself is constant work; build/transform cost is owned by their program load, diagnostics and per-file emit passes, not by the recovery wrapper.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources Commands defer program and publication cleanup; linked collectors remain process-owned. The debug stack is allocated only after a panic.
 func Run(args []string) (code int) {
 	defer func() {
 		if exp := recover(); exp != nil {
@@ -67,6 +71,10 @@ func Run(args []string) (code int) {
 // @evidence contracts/common.md#clear-and-simple-design One function that swaps the writers, calls `Run`, and restores them.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts This is a test seam kept as an exported function because the external test module cannot reach the private writers; it changes no behavior of the command, but it mutates package state and is therefore not safe for concurrent calls, as its comment says, and it is used only by the Go test modules.
 // @evidence contracts/common.md#meaningful-documentation The comment explains why the seam exists, its restore behavior, and the concurrency limit.
+// @evidence contracts/portability.md#os-neutral-implementation Streams use caller supplied io.Writer values, with native file and process boundaries handled by Run and its dispatcher.
+// @evidence contracts/performance.md#efficient-algorithms Swapping two stream references is constant work; the dispatched command determines compilation cost.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The call borrows writers and restores previous references on return or panic; it neither closes caller writers nor supports concurrent calls.
 func RunWithOutput(args []string, out io.Writer, errOut io.Writer) int {
 	previousOut, previousErr := stdout, stderr
 	defer func() {

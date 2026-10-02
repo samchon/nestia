@@ -3,6 +3,22 @@ import { TestValidator } from "@nestia/e2e";
 import { generate_random_articles } from "./internal/generate_random_articles";
 import { IBbsArticle } from "./structures/IBbsArticle";
 
+/**
+ * Verifies testValidator.search checks returned article identifier sets for
+ * writer and title filters.
+ *
+ * The local fixture callback implements substring lookup while the supplied
+ * expectation filters exact authored field values.
+ *
+ * 1. Exercise the authored scenario and its controls.
+ * 2. Assert single writer, single title and combined writer/title requests
+ *    exercise independent field combinations; no network boundary is claimed.
+ *
+ * @evidence contracts/testing.md#behavioral-verification TestValidator.search checks returned article identifier sets for writer and title filters.
+ * @evidence contracts/testing.md#independent-expectations The local fixture callback implements substring lookup while the supplied expectation filters exact authored field values.
+ * @evidence contracts/testing.md#distinguishing-cases Single writer, single title and combined writer/title requests exercise independent field combinations; no network boundary is claimed.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
+ */
 export async function test_validate_search(): Promise<void> {
   const { data } = generate_random_articles();
 

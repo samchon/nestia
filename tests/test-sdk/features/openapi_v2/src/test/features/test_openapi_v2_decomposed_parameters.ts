@@ -15,6 +15,15 @@ import fs from "fs";
  *    has a tagged and a deprecated property.
  * 2. Assert each parameter carries its constraints inline.
  * 3. Assert no parameter carries `deprecated`.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The generated /search parameters must retain keyword string/minLength 1 and page integer/minimum 0 while omitting deprecated on every parameter.
+ * @evidence contracts/testing.md#independent-expectations ISearchQuery authors the constraints; Swagger 2.0 parameter fields do not include deprecated.
+ * @evidence contracts/testing.md#distinguishing-cases String and numeric tagged properties, plus absence of a deprecated parameter field, distinguish decomposition constraints from invalid version-specific fields.
+ * @evidence contracts/testing.md#execution-ownership The feature src/test/index.ts discovers this exported case through DynamicExecutor after start.js generates and compiles its authored consumer; it belongs to the existing SDK integration population.
+ * @evidence contracts/e2e.md#necessary-boundary Compiled typia property metadata must survive decomposition and document downgrade into the emitted Swagger parameter fields.
+ * @evidence contracts/e2e.md#shared-execution This case reuses its feature's generated document/client and Backend session with sibling cases. The current harness retains a distinct fixture program and backend lifecycle per feature; generation is not consolidated into one repository-wide producer.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The feature's artifact is read without mutation, or its authored echo endpoint returns invocation-local input. Backend cleanup belongs to the feature entry, which currently closes after discovery and lacks a finally around exceptional discovery.
+ * @evidence contracts/e2e.md#preserved-coverage These focused assertions remain discoverable. Generic performance/health smoke duplicates removed from non-equals and operationId retain their HTTP/DTO owners in all; operationId now owns actual callback/tag assertions and non-equals gains surplus and invalid-property distinctions.
  */
 export const test_openapi_v2_decomposed_parameters =
   async (): Promise<void> => {

@@ -6,20 +6,41 @@ import { IPropagation } from "../IPropagation";
 import { is_binary_response_content_type } from "./is_binary_response_content_type";
 import { join_host_and_path, normalize_route_path } from "./join_host_and_path";
 
-/** @internal */
+/**
+ * Shared transport pipeline with injected body codecs.
+ *
+ * @internal
+ */
 export namespace FetcherBase {
+  /**
+   * Body transformations supplied by the plain or encrypted fetcher.
+   *
+   * The encode input has already undergone the route's body transformation.
+   * Header records describe the corresponding request or response.
+   */
   export interface IProps {
+    /** Fetcher name used in request configuration errors. */
     className: string;
+
+    /** Convert a transformed request body into its wire representation. */
     encode: (
       input: any,
       headers: Record<string, IConnection.HeaderValue | undefined>,
     ) => string;
+
+    /** Decode a textual response not handled by a structured media branch. */
     decode: (
       input: string,
       headers: Record<string, IConnection.HeaderValue | undefined>,
     ) => any;
   }
 
+  /**
+   * Return successful response data and throw HttpError for a failed status.
+   *
+   * Binary response streams transfer to the caller for reading or cancellation;
+   * an absent binary body is represented by a closed empty stream.
+   */
   export const request =
     (props: IProps) =>
     async <Input, Output>(
@@ -45,6 +66,13 @@ export namespace FetcherBase {
       return result.data as Output;
     };
 
+  /**
+   * Return the classified HTTP response, including failed status payloads.
+   *
+   * Failed JSON responses are parsed when readable; malformed JSON remains
+   * text. Transport and successful-body decoding errors still reject. Binary
+   * response streams transfer to the caller for consumption or cancellation.
+   */
   export const propagate =
     (props: IProps) =>
     async <Input>(
@@ -63,11 +91,6 @@ export namespace FetcherBase {
    * reading and cancellation remain the caller's responsibility.
    *
    * @internal
-   * @evidence contracts/common.md#principled-implementation Status failure parsing precedes successful HEAD and media decoding. Only a null binary-success body gets a new stream, synchronously closed by its start controller so its first read reports EOF under Streams semantics; nonnull response bodies are returned unchanged.
-   * @evidence contracts/common.md#clear-and-simple-design The binary fallback stays in the existing response branch shared by both public fetchers and both operations; no second transport or decoding policy is introduced.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty stream closure follows a missing response body for every supported binary media type, without fixture paths, foreign mutations or artificial payload data.
-   * @evidence contracts/common.md#meaningful-documentation The prose explains why a null body must be closed and who owns consumption and cancellation of real response streams.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The fallback has no producer task or queued bytes and closes synchronously during construction. Nonnull streams transfer unchanged to the caller; logger completion remains in finally for successful and failed requests.
    */
   const _Propagate =
     (method: string) =>
@@ -230,7 +253,7 @@ const request_form_data_body = (input: Record<string, any>): FormData => {
     else encoded.append(key, value);
   };
   for (const [key, value] of Object.entries(input))
-    if (Array.isArray(value)) value.map(append(key));
+    if (Array.isArray(value)) value.forEach(append(key));
     else append(key)(value);
   return encoded;
 };

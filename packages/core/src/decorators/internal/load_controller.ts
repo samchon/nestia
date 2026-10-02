@@ -15,6 +15,7 @@ import { SourceFinder } from "../../utils/SourceFinder";
  * @evidence contracts/common.md#clear-and-simple-design One function with the fallback for the source-run case inside it and the filters and the mount loop as private helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Discovery follows the metadata Nest itself writes; the `ttsx` fallback is decided by the runtime's own environment variable, not by a project name.
  * @evidence contracts/common.md#meaningful-documentation The comment states the path forms, the recognition rule, and the source-run fallback.
+ * @evidence contracts/portability.md#os-neutral-implementation SourceFinder returns native absolute file paths and pathToFileURL converts them to escaped file URLs before dynamic import, including drive letters, spaces and URL punctuation. Extension matching selects source formats rather than defining filesystem identity.
  */
 export const load_controllers = async (
   path: string | string[] | { include: string[]; exclude?: string[] },

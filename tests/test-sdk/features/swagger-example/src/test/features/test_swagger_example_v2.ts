@@ -28,6 +28,15 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
  *    array of file unions as one optional file each, keeping its description,
  *    and a file array requiring an item as one required file.
  * 6. Assert the exception with named examples lists none.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Reads the generated Swagger 2.0 artifact and checks body example omission, MIME-keyed response examples, encryption warnings and decomposed form fields.
+ * @evidence contracts/testing.md#independent-expectations Swagger 2.0 cannot represent named body examples or encryption flags and represents files as formData parameters; authored DTOs and diagnostics define retained content.
+ * @evidence contracts/testing.md#distinguishing-cases JSON bodies, encrypted bodies, file arrays/unions/nullable fields and exceptions distinguish version-specific omissions from retained examples and descriptions.
+ * @evidence contracts/testing.md#execution-ownership The feature DynamicExecutor entry swagger-example/src/test/index.ts discovers this exported test after the SDK harness prepares its generated consumer; this installed producer/consumer population is E2E, not a portable unit.
+ * @evidence contracts/e2e.md#necessary-boundary Consumes artifacts emitted from the authored swagger-example controller program by the native metadata and SDK generation pipeline; the assertions detect loss across that producer/consumer connection.
+ * @evidence contracts/e2e.md#shared-execution The swagger-example feature entry shares its generated Swagger/SDK artifacts and built consumer among the feature tests. The restored harness still prepares separate feature projects; this case does not perform another installation or compilation.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The swagger-example test reads its current feature artifacts and does not edit them. The feature harness owns preparation and consumer lifetime; this declaration starts no background producer or persistent cache.
+ * @evidence contracts/e2e.md#preserved-coverage The surviving assertions in test_swagger_example_v2 retain jSON bodies, encrypted bodies, file arrays/unions/nullable fields and exceptions distinguish version-specific omissions from retained examples and descriptions.
  */
 export const test_swagger_example_v2 = async (): Promise<void> => {
   const swagger: any = JSON.parse(

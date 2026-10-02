@@ -239,6 +239,10 @@ func runCheck(args []string) int {
 // @evidence contracts/common.md#clear-and-simple-design A five-field record with one formatting method.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The values come from the transforms that report them.
 // @evidence contracts/common.md#meaningful-documentation The comment names the fields and the meaning of an absent position.
+// @evidence contracts/portability.md#os-neutral-implementation File holds the compiler supplied native source path; formatting delegates native relative-path conversion to filepath.Rel instead of treating it as a URL.
+// @evidenceExclude contracts/performance.md#efficient-algorithms This record defines data rather than choosing a processing algorithm.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This record does not coordinate computations across consumers.
+// @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A diagnostic record stores a path and message; the reporting command owns the collection lifetime.
 type Diagnostic struct {
 	File    string
 	Line    int
@@ -253,6 +257,10 @@ type Diagnostic struct {
 // @evidence contracts/common.md#clear-and-simple-design One function with two format strings.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The shape is the protocol that ttsc reads from stderr, not a test-specific format.
 // @evidence contracts/common.md#meaningful-documentation The comment states the two formats and the relative path rule.
+// @evidence contracts/portability.md#os-neutral-implementation filepath.Rel represents native path differences, including cross-volume failure which keeps the original path. The position format is diagnostic protocol text.
+// @evidence contracts/performance.md#efficient-algorithms Relative path calculation and formatting are linear in path and message bytes.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources Only the formatted string is returned; no file or writer is opened.
 func (d Diagnostic) String(cwd string) string {
 	file := d.File
 	if rel, err := filepath.Rel(cwd, file); err == nil {
@@ -270,6 +278,10 @@ func (d Diagnostic) String(cwd string) string {
 // @evidence contracts/common.md#clear-and-simple-design One loop over one formatter.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts It writes what it is given, without filtering or reordering.
 // @evidence contracts/common.md#meaningful-documentation The comment states the format and the ordering.
+// @evidence contracts/portability.md#os-neutral-implementation Each diagnostic uses filepath.Rel for native paths and writes through io.Writer; no shell or executable spelling is assembled.
+// @evidence contracts/performance.md#efficient-algorithms Each diagnostic is formatted and written once; work is linear in diagnostic count and total text bytes.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The writer is caller-owned and remains open; the function retains no diagnostic collection after returning.
 func WriteTypiaTransformDiagnostics(out io.Writer, diagnostics []Diagnostic, cwd string) {
 	for _, diag := range diagnostics {
 		fmt.Fprintln(out, diag.String(cwd))

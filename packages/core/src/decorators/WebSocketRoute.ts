@@ -42,6 +42,7 @@ import { validate_request_query } from "./internal/validate_request_query";
  * @evidence contracts/common.md#clear-and-simple-design One decorator function that writes one metadata object.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the reflect metadata API and does not touch the server.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the path forms and the required parameters.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The route and parameter metadata describe WebSocket handshakes and HTTP URL fields; native files and processes are not represented.
  */
 export function WebSocketRoute(
   path?: undefined | string | string[],
@@ -69,6 +70,7 @@ export function WebSocketRoute(
  * @evidence contracts/common.md#clear-and-simple-design Five decorators sharing one `emplace` helper for the metadata list.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The validators are generated from the types; without the transform the raw values are passed only when the configuration guard is off.
  * @evidence contracts/common.md#meaningful-documentation Each decorator documents its meaning.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The route and parameter metadata describe WebSocket handshakes and HTTP URL fields; native files and processes are not represented.
  */
 export namespace WebSocketRoute {
   /**

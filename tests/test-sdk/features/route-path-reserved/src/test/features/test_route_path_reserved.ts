@@ -21,6 +21,15 @@ import { Backend } from "../../Backend";
  *    simulator.
  * 2. Connect to the WebSocket route of each.
  * 3. Assert the Swagger paths hold the unescaped literal.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls Express escaped literal paths, their Fastify batchGet twin and both WebSockets; checks echo results, simulator shape and generated Swagger paths.
+ * @evidence contracts/testing.md#independent-expectations Literal router escape spellings must reach the authored controller responses and become unescaped protocol paths in Swagger.
+ * @evidence contracts/testing.md#distinguishing-cases Escaped colon, parentheses, parameter-adjacent literals, simulation and both HTTP adapters distinguish route text from native filesystem parsing; WebSocket connections add their own matching boundary.
+ * @evidence contracts/testing.md#execution-ownership The restored test-sdk installed-consumer harness discovers this exported test under route-path-reserved/src/test/features after generating and compiling that fixture.
+ * @evidence contracts/e2e.md#necessary-boundary The assertion consumes generated SDK or Swagger artifacts from the real fixture producer; HTTP cases connect those artifacts to a live Nest application, while simulation cases connect generated validators to the installed fetcher runtime.
+ * @evidence contracts/e2e.md#shared-execution The route-path-reserved fixture producer prepares its SDK, Swagger and consumer once for its discovered cases. This case performs no installation or compiler launch; distinct fixture inputs still have separate producer phases in the restored harness.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The fixture owns its generated directory and backend process; this case reads its artifacts and uses invocation-local assertions. Requests do not mutate persistent fixture data. The additional Fastify application closes in finally and each WebSocket connector closes after echo.
+ * @evidence contracts/e2e.md#preserved-coverage The named assertions remain in this executable case; removed generic health/performance copies own no additional feature distinction. Escaped colon, parentheses, parameter-adjacent literals, simulation and both HTTP adapters distinguish route text from native filesystem parsing; WebSocket connections add their own matching boundary.
  */
 export const test_route_path_reserved = async (
   connection: api.IConnection,

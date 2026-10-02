@@ -18,6 +18,15 @@ import fs from "fs";
  *    so a composer that dropped every exception body would not pass.
  * 4. Assert a route returning a real payload still declares one, so the same twin
  *    holds for the success response.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Void success and void exception remain declared without schema, while the typed string exception and real-payload success retain schemas.
+ * @evidence contracts/testing.md#independent-expectations HealthController authors void/string exception types and the articles controller authors a payload; Swagger 2.0 response bodies use schema.
+ * @evidence contracts/testing.md#distinguishing-cases Void and shaped cases cover success and exception independently, distinguishing omission from blanket body removal.
+ * @evidence contracts/testing.md#execution-ownership The feature src/test/index.ts discovers this exported case through DynamicExecutor after start.js generates and compiles its authored consumer; it belongs to the existing SDK integration population.
+ * @evidence contracts/e2e.md#necessary-boundary Compiled route/exception metadata must survive response composition and target-version downgrade into the emitted response entries.
+ * @evidence contracts/e2e.md#shared-execution This case reuses its feature's generated document/client and Backend session with sibling cases. The current harness retains a distinct fixture program and backend lifecycle per feature; generation is not consolidated into one repository-wide producer.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The feature's artifact is read without mutation, or its authored echo endpoint returns invocation-local input. Backend cleanup belongs to the feature entry, which currently closes after discovery and lacks a finally around exceptional discovery.
+ * @evidence contracts/e2e.md#preserved-coverage These focused assertions remain discoverable. Generic performance/health smoke duplicates removed from non-equals and operationId retain their HTTP/DTO owners in all; operationId now owns actual callback/tag assertions and non-equals gains surplus and invalid-property distinctions.
  */
 export const test_openapi_v2_response_body_presence =
   async (): Promise<void> => {

@@ -30,11 +30,16 @@ import { NoTransformConfigurationError } from "./NoTransformConfigurationError";
  *
  * @author Jeongho Nam - https://github.com/samchon
  * @param name URL Parameter name
+ * @param assert Conversion and assertion supplied by the compile-time transform
+ * @param validate Emit an errors array on validation failure when true;
+ *   otherwise expose the first failure as flat path, reason, expected and value
+ *   fields.
  * @returns Parameter decorator
  * @evidence contracts/common.md#principled-implementation The path parameter arrives as a string and is converted by the assertion function the transform generated for the declared type, so a value of the wrong type produces a 400 that names the parameter; the `validate` flag only changes the error body from the flat form to an `errors` array.
  * @evidence contracts/common.md#clear-and-simple-design One decorator with one conversion function and one error-shaping branch.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The conversion is generated from the declared type; without the transform the raw string is returned only when the configuration guard is off.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the supported types and the two error shapes.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The named path segment is an HTTP route parameter whose text is decoded by the generated validator; no native path is resolved.
  */
 export function TypedParam<T extends boolean | bigint | number | string | null>(
   name: string,

@@ -73,6 +73,10 @@ func validateNestiaCoreWebSocketRoute(
 // @evidence contracts/common.md#clear-and-simple-design An exported wrapper over the private classifier so that the SDK contributor and the core transform share one definition.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The rule is structural, and no parameter name is special-cased.
 // @evidence contracts/common.md#meaningful-documentation The comment gives examples of the categories and the empty result.
+// @evidence contracts/portability.md#os-neutral-implementation Resolved decorator ownership delegates native package paths to SourceFilePackageName; returned category names are protocol metadata.
+// @evidence contracts/performance.md#efficient-algorithms Exactly-one-decorator checks are constant; classification also builds a file import context and resolves declaration ownership.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources Context maps are local and returned category text refers to compiler data; no cross-program storage is created.
 func NestiaCoreWebSocketParameterCategory(prog *driver.Program, param *shimast.Node) string {
 	return nestiaCoreWebSocketParameterCategory(prog, param)
 }
@@ -111,6 +115,10 @@ func nestiaCoreWebSocketParameterTypeNode(param *shimast.Node) *shimast.Node {
 // @evidence contracts/common.md#clear-and-simple-design One loop with a depth guard, built on private helpers for the reference name and the tgrid declaration test.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The type is identified by its resolved declaration, not by its spelling, which is the point of the function.
 // @evidence contracts/common.md#meaningful-documentation The comment states the spellings followed, what the chain contains, and the nil result.
+// @evidence contracts/portability.md#os-neutral-implementation tgrid provenance delegates nearest-manifest reads to SourceFilePackageName and the program filesystem instead of deriving package identity from directory spelling.
+// @evidence contracts/performance.md#efficient-algorithms The alias walk is capped at 32 steps; each step resolves a symbol and scans declarations, including package ancestor walks for ownership.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The chain holds at most 32 node references and is returned to the caller; no global alias graph is retained.
 func NestiaCoreWebSocketTypeReference(prog *driver.Program, node *shimast.Node) ([]*shimast.Node, string) {
 	chain := []*shimast.Node{}
 	for depth := 0; node != nil && depth < 32; depth++ {

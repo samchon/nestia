@@ -32,10 +32,11 @@ import { VersioningStrategy } from "./utils/VersioningStrategy";
  * controllers and the TypeScript metadata, reports every error at once, and
  * then generates.
  *
- * @evidence contracts/common.md#principled-implementation The analysis is shared by all methods: controllers are reflected, routes are typed from the metadata of the transform, accessors are assigned, the generator-specific validation runs, and the outputs are written only when no error was collected.
+ * @evidence contracts/common.md#principled-implementation The shared pipeline reflects controllers, types routes from transform metadata, assigns accessors and rejects collected analysis errors before writing. SDK-specific representability checks are attached by sdk and SDK-producing all; e2e currently invokes the SDK writer without that additional validation callback.
  * @evidence contracts/common.md#clear-and-simple-design One class with four public generators over one private pipeline; directory assertion, title, and error report are module-private helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No controller or route name is special-cased; the same pipeline serves the CLI and programmatic callers.
  * @evidence contracts/common.md#meaningful-documentation The comment states the four generators and that the errors of an analysis are reported together.
+ * @evidence contracts/portability.md#os-neutral-implementation Output checks and diagnostic locations use Node fs.stat and path operations; controller compilation and output writes remain owned by ConfigAnalyzer and the generators. Filesystem errors distinguish missing/non-directory locations from other native failures.
  */
 export class NestiaSdkApplication {
   public constructor(private readonly config: INestiaConfig) {}
@@ -50,6 +51,7 @@ export class NestiaSdkApplication {
    * @evidence contracts/common.md#clear-and-simple-design One method that composes the generators inside the shared pipeline.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The error names the properties a caller can configure; none is stale.
    * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the failure.
+   * @evidence contracts/portability.md#os-neutral-implementation all delegates configured output creation to the native writers and does not apply the explicit parent-directory checks used by sdk/e2e/swagger. Diagnostic source paths are rendered relative to the current native working directory.
    */
   public async all(): Promise<void> {
     if (!this.config.output && !this.config.swagger?.output)
@@ -84,6 +86,7 @@ export class NestiaSdkApplication {
    * @evidence contracts/common.md#clear-and-simple-design One method over the shared pipeline.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The directory check follows the configuration and no path is special-cased.
    * @evidence contracts/common.md#meaningful-documentation The comment states the requirements and the failures.
+   * @evidence contracts/portability.md#os-neutral-implementation path.resolve obtains each native parent and fs.stat follows symlinks to verify a directory before analysis. ENOENT/ENOTDIR become configuration diagnostics; permission and other filesystem errors propagate without a platform-specific shell fallback.
    */
   public async e2e(): Promise<void> {
     if (!this.config.output)
@@ -126,6 +129,7 @@ export class NestiaSdkApplication {
    * @evidence contracts/common.md#clear-and-simple-design One method over the shared pipeline.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The directory check follows the configuration.
    * @evidence contracts/common.md#meaningful-documentation The comment states the requirement and the failures.
+   * @evidence contracts/portability.md#os-neutral-implementation The configured output parent is resolved through Node path and verified by fs.stat, including linked directories. Generator writes use their own native boundaries; this entry does not infer case identity from an OS name.
    */
   public async sdk(): Promise<void> {
     if (!this.config.output)
@@ -157,6 +161,7 @@ export class NestiaSdkApplication {
    * @evidence contracts/common.md#clear-and-simple-design One method over the shared pipeline.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule is the generator's own output rule.
    * @evidence contracts/common.md#meaningful-documentation The comment states the requirement and the two output forms.
+   * @evidence contracts/portability.md#os-neutral-implementation path.parse/resolve decide the native containing directory from whether the output has an extension, matching SwaggerGenerator's destination rule. The common directory check distinguishes missing paths from non-directory entries and propagates other filesystem errors.
    */
   public async swagger(): Promise<void> {
     if (!this.config.swagger?.output)

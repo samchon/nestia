@@ -24,9 +24,9 @@ export namespace NestiaMigrateSchemaProgrammer {
   /**
    * Returns the type node of a schema.
    *
-   * @evidence contracts/common.md#principled-implementation An unknown schema is `any`, a `oneOf` is a union of its members, an integer format outside the four supported ones is `int64`, a binary string is `File`, and string formats are tagged only when they have a known validation expression.
+   * @evidence contracts/common.md#principled-implementation An unknown schema is `any`, a `oneOf` becomes a TypeScript union, integer formats outside the supported four use the migration default `int64`, a binary string becomes `File`, and known string formats become typia tags. TypeScript unions do not encode oneOf exclusivity, and unsupported formats impose no generated constraint.
    * @evidence contracts/common.md#clear-and-simple-design One function with an ordered chain of schema kind tests.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules follow the OpenAPI specification.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Schema-kind dispatch applies uniformly; the int64 fallback and supported-format table are generator policies rather than constraints supplied by the document.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result.
    */
   export const write = (props: {
@@ -282,11 +282,13 @@ export namespace NestiaMigrateSchemaProgrammer {
       props.schema.additionalItems !== null
         ? [
             factory.createRestTypeNode(
-              write({
-                components: props.components,
-                importer: props.importer,
-                schema: props.schema.additionalItems,
-              }),
+              factory.createArrayTypeNode(
+                write({
+                  components: props.components,
+                  importer: props.importer,
+                  schema: props.schema.additionalItems,
+                }),
+              ),
             ),
           ]
         : props.schema.additionalItems === true

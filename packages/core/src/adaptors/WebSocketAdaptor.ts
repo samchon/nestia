@@ -42,6 +42,7 @@ import { RoutePathMatcher } from "./internal/RoutePathMatcher";
  * @evidence contracts/common.md#clear-and-simple-design A class with one static factory, one `close` property, and the private handler; discovery, method checks, termination, and close reasons are module-private functions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The global prefix, versioning options, and module graph are read from `app.config` and `app.container`, which NestJS keeps internal because `INestApplication` has no public accessor for them; this is the limitation of the adapter, not a fixture-specific branch.
  * @evidence contracts/common.md#meaningful-documentation The comment states when to call it and what happens to an unmatched handshake.
+ * @evidence contracts/portability.md#os-neutral-implementation Diagnostic source URLs are converted by fileURLToPath before path.relative uses native paths; route matching uses HTTP path segments separately from filesystem paths. No filesystem case policy is inferred from the OS.
  */
 export class WebSocketAdaptor {
   /**
@@ -51,10 +52,11 @@ export class WebSocketAdaptor {
    * All route errors of the application are collected and thrown together, with
    * the controller, method, source location, and reasons of each.
    *
-   * @evidence contracts/common.md#principled-implementation Every controller method is checked before any handshake is served, and all defects are reported in one error, so a misconfigured route fails at start and not at the first client; source locations come from `get-function-location`, converted with `fileURLToPath` so a `file:` URL becomes the path on every platform.
+   * @evidence contracts/common.md#principled-implementation Controller data-method descriptors are checked before any handshake is served, with child properties shadowing inherited methods and accessors never executed, and all defects are reported in one error, so a misconfigured route fails at start and not at the first client; source locations come from `get-function-location`, converted with `fileURLToPath` so a `file:` URL becomes the path on every platform.
    * @evidence contracts/common.md#clear-and-simple-design One asynchronous factory that awaits the visitor and hands the operator list to the private constructor.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The visitor reports through the same error path for every controller; no controller or route name is special-cased.
    * @evidence contracts/common.md#meaningful-documentation The comment states the collected error report and the effect on the server.
+   * @evidence contracts/portability.md#os-neutral-implementation Diagnostic source URLs are converted by fileURLToPath before path.relative uses native paths; route matching uses HTTP path segments separately from filesystem paths. No filesystem case policy is inferred from the OS.
    */
   public static async upgrade(
     app: INestApplication,
@@ -70,6 +72,7 @@ export class WebSocketAdaptor {
    * @evidence contracts/common.md#clear-and-simple-design An arrow property so the same function value can be registered and unregistered as the HTTP server's close listener.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It releases exactly what the adapter registered.
    * @evidence contracts/common.md#meaningful-documentation The comment states what is released.
+   * @evidence contracts/portability.md#os-neutral-implementation Diagnostic source URLs are converted by fileURLToPath before path.relative uses native paths; route matching uses HTTP path segments separately from filesystem paths. No filesystem case policy is inferred from the OS.
    */
   public readonly close = async (): Promise<void> =>
     new Promise((resolve) => {
@@ -243,8 +246,7 @@ const visitController = async (props: {
     modulePrefix: props.modulePrefix,
   };
   for (const mk of getOwnPropertyNames(controller.prototype).filter(
-    (key) =>
-      key !== "constructor" && typeof controller.prototype[key] === "function",
+    (key) => key !== "constructor",
   )) {
     const errorMessages: string[] = [];
     visitMethod({
@@ -516,14 +518,23 @@ const MAX_CLOSE_REASON_BYTES: number = 123;
 
 const wrapPaths = (value: string[]) => (value.length === 0 ? [""] : value);
 const getOwnPropertyNames = (prototype: any): string[] => {
-  const result: Set<string> = new Set();
-  const iterate = (m: any) => {
-    if (m === null) return;
-    for (const k of Object.getOwnPropertyNames(m)) result.add(k);
-    iterate(Object.getPrototypeOf(m));
-  };
-  iterate(prototype);
-  return Array.from(result);
+  const visited: Set<string> = new Set();
+  const result: string[] = [];
+  for (
+    let current = prototype;
+    current !== null;
+    current = Object.getPrototypeOf(current)
+  )
+    for (const key of Object.getOwnPropertyNames(current)) {
+      if (visited.has(key)) continue;
+      visited.add(key);
+      if (
+        typeof Object.getOwnPropertyDescriptor(current, key)?.value ===
+        "function"
+      )
+        result.push(key);
+    }
+  return result;
 };
 
 interface Entry<T> {

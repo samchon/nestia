@@ -1,9 +1,10 @@
 import { DynamicBenchmarker } from "@nestia/benchmark";
 import { NestFactory } from "@nestjs/core";
 import fs from "fs";
-import os from "os";
 
 import { BbsArticleModule } from "./controllers/bbs/BbsArticleModule";
+import { test_benchmark_markdown } from "./features/test_benchmark_markdown";
+import { test_benchmark_statistics } from "./features/test_benchmark_statistics";
 
 const main = async (): Promise<void> => {
   // PREPARE SERVER
@@ -50,6 +51,35 @@ const main = async (): Promise<void> => {
       throw new Error(
         `DynamicBenchmarker ran ${peak} requests at once for simultaneous 4.`,
       );
+    const multipleProgresses: number[] = [];
+    const multiple = await DynamicBenchmarker.master({
+      servant: `${__dirname}/servant.ts`,
+      count: 6,
+      threads: 2,
+      simultaneous: 2,
+      stdio: "ignore",
+      filter: (file) => file === "test_api_multiple_events.ts",
+      progress: (current) => multipleProgresses.push(current),
+    });
+    if (
+      multiple.statistics.count !== 12 ||
+      multiple.endpoints.reduce((sum, endpoint) => sum + endpoint.count, 0) !==
+        12
+    )
+      throw new Error(
+        "Two requests per invocation must produce twelve events.",
+      );
+    if (
+      multipleProgresses.some(
+        (current, index) =>
+          current > 6 ||
+          (index !== 0 && current < multipleProgresses[index - 1]!),
+      ) ||
+      multipleProgresses.at(-1) !== 6
+    )
+      throw new Error(
+        "Progress must count invocations, independently of event count.",
+      );
     await fs.promises.writeFile(
       "BENCHMARK.md",
       DynamicBenchmarker.markdown(report),
@@ -80,56 +110,8 @@ const main = async (): Promise<void> => {
       `DynamicBenchmarker accepted fewer simultaneous requests than threads: ${String(refused)}`,
     );
 
-  validateMarkdown();
-};
-
-/**
- * The report states only what the benchmark knows, renders where the platform
- * exposes no CPU information, and reads the same under any default locale
- * (#1683).
- */
-const validateMarkdown = (): void => {
-  const report: DynamicBenchmarker.IReport = {
-    count: 12_345,
-    threads: 4,
-    simultaneous: 16,
-    statistics: {
-      count: 12_345,
-      success: 12_000,
-      mean: 1_234.567,
-      stdev: 12.5,
-      minimum: 1,
-      maximum: 98_765.4321,
-    },
-    endpoints: [],
-    started_at: new Date(0).toISOString(),
-    completed_at: new Date(1_234_567).toISOString(),
-    memories: [],
-  };
-  const cpus = os.cpus;
-  const toLocaleString = Number.prototype.toLocaleString;
-  try {
-    (os as { cpus: () => os.CpuInfo[] }).cpus = () => [];
-    const markdown: string = DynamicBenchmarker.markdown(report);
-    if (markdown.includes("Backend Server"))
-      throw new Error("The benchmark report states an unmeasured server spec.");
-    if (markdown.includes("CPU: unknown") === false)
-      throw new Error("The benchmark report hides the missing CPU model.");
-
-    // a machine whose default locale writes 12.345 for 12,345
-    Number.prototype.toLocaleString = function (
-      this: number,
-      locales?: string | string[],
-      options?: Intl.NumberFormatOptions,
-    ): string {
-      return toLocaleString.call(this, locales ?? "de-DE", options);
-    };
-    if (DynamicBenchmarker.markdown(report) !== markdown)
-      throw new Error("The benchmark report depends on the default locale.");
-  } finally {
-    (os as { cpus: () => os.CpuInfo[] }).cpus = cpus;
-    Number.prototype.toLocaleString = toLocaleString;
-  }
+  test_benchmark_markdown();
+  test_benchmark_statistics();
 };
 
 main().catch((exp) => {

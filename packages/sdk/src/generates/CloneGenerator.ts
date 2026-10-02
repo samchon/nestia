@@ -23,6 +23,7 @@ import { SdkWebSocketCloneProgrammer } from "./internal/SdkWebSocketCloneProgram
  * @evidence contracts/common.md#clear-and-simple-design One public function with two private helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every declaration goes through the shared printer, and no type is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidence contracts/portability.md#os-neutral-implementation The writer passes native output locations to Node fs and FilePrinter; module specifiers are produced separately by ImportDictionary. The structures suffix uses forward slashes, which Node accepts on Windows and POSIX, without treating spelling as canonical file identity.
  */
 export namespace CloneGenerator {
   /**
@@ -35,6 +36,7 @@ export namespace CloneGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One function over the two programmers, the referencer, and the file writer.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The directory is created recursively and its failure is not swallowed.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation Node mkdir creates the output structures directory and FilePrinter writes generated declarations; WebSocket source lookup and copying remain delegated to its source-cloning owner. Filesystem errors propagate rather than being translated into platform-specific shell commands.
    */
   export const write = async (app: ITypedApplication): Promise<void> => {
     const dict: Map<string, SdkHttpCloneProgrammer.IModule> =

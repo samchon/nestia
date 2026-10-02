@@ -92,8 +92,12 @@ async function getAsset(): Promise<IAsset | null> {
 }
 
 async function findSwagger(file: string): Promise<string | null> {
-  const response: Response = await fetch(file);
-  return response.status === 200 ? file : null;
+  try {
+    const response: Response = await fetch(file);
+    return response.status === 200 ? file : null;
+  } catch {
+    return null;
+  }
 }
 
 interface IAsset {

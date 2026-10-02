@@ -71,6 +71,7 @@ export function NestiaEditorFileUploader(
  */
 export namespace NestiaEditorFileUploader {
   export interface IProps {
+    /** Receives parsed file content, parse failures, or null/null when cleared. */
     onChange: (
       swagger:
         | SwaggerV2.IDocument

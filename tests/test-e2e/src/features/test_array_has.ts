@@ -9,7 +9,13 @@ import { ArrayUtil } from "@nestia/e2e";
  *
  * 1. Assert a satisfying `undefined`, `null`, `0`, and `false` are found.
  * 2. Assert no satisfying element, and an empty array, report `false`.
+ *
+ * @evidence contracts/testing.md#behavioral-verification ArrayUtil.has finds satisfying falsy values and rejects empty or nonmatching arrays.
+ * @evidence contracts/testing.md#independent-expectations The existence contract requires true for undefined, null, zero and false when the predicate matches them.
+ * @evidence contracts/testing.md#distinguishing-cases Undefined/null/zero/false controls distinguish find-result confusion; unmatched and empty inputs must return false.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
+
 export function test_array_has(): void {
   const cases: Array<[string, boolean, boolean]> = [
     ["undefined", ArrayUtil.has([undefined], (e) => e === undefined), true],

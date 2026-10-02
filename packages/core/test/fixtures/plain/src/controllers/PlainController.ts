@@ -11,6 +11,7 @@ export class PlainController {
   }
 
   @ApiProduces("text/plain")
+  @Header("Content-Type", "text/plain")
   @Post("template")
   public async template(
     @core.PlainBody()

@@ -12,6 +12,11 @@ import { CliTestHarness } from "../internal/CliTestHarness";
  * 1. Run `nestia start` with a fake context whose `exists` reports true.
  * 2. Assert it halts with "The target directory already exists.".
  * 3. Assert no command was executed at all.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The starter receives an existing destination and must halt with the collision message before any recorded command.
+ * @evidence contracts/testing.md#independent-expectations The destination-protection contract forbids cloning into an existing path; literal guidance and an empty command list express that result.
+ * @evidence contracts/testing.md#distinguishing-cases This case owns existing-path rejection; command-sequence cases supply the absent-path twin.
+ * @evidence contracts/testing.md#execution-ownership The test-cli DynamicExecutor discovers this unit export, which calls the built engine with injected context operations; no CLI process, package manager or network connection runs.
  */
 export const test_cli_existing_directory_halt = async (): Promise<void> => {
   const fake: CliTestHarness.IFakeContext = CliTestHarness.createFakeContext({

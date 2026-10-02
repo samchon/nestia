@@ -17,6 +17,7 @@ import { OpenApi } from "@typia/interface";
  * @evidence contracts/common.md#clear-and-simple-design One decorator function with one metadata list per method.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the reflect metadata API; the closure is the caller's.
  * @evidence contracts/common.md#meaningful-documentation The comment documents that the closure receives the document, the operation, and lookup helpers.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The callback and endpoint accessors edit an OpenAPI document; their path fields are HTTP routes rather than native file identities.
  */
 export function SwaggerCustomizer(
   closure: (props: SwaggerCustomizer.IProps) => unknown,
@@ -56,6 +57,7 @@ export function SwaggerCustomizer(
  * @evidence contracts/common.md#clear-and-simple-design Three types with no runtime members.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It contains types only.
  * @evidence contracts/common.md#meaningful-documentation Each type and member documents its meaning.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The callback and endpoint accessors edit an OpenAPI document; their path fields are HTTP routes rather than native file identities.
  */
 export namespace SwaggerCustomizer {
   /**

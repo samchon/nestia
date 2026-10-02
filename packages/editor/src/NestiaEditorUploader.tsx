@@ -169,6 +169,7 @@ export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
  */
 export namespace NestiaEditorUploader {
   export interface IProps {
+    /** Receives conversion errors and skipped-operation warnings; absent uses alert. */
     onError?: (error: string) => void;
   }
 }

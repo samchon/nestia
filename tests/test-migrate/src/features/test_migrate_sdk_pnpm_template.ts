@@ -12,6 +12,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 1. Generate an SDK project from a minimal OpenAPI document.
  * 2. Assert its package metadata and user-facing commands select pnpm.
  * 3. Assert pnpm's lockfile is neither pre-bundled nor ignored.
+ *
+ * @evidence contracts/testing.md#behavioral-verification SDK generation must emit a coherent pnpm project with pnpm scripts/help and no stale bundled or ignored pnpm lockfile.
+ * @evidence contracts/testing.md#independent-expectations The pnpm-native generated-project contract supplies script and packageManager expectations; changing stamped versions requires a freshly resolved lockfile.
+ * @evidence contracts/testing.md#distinguishing-cases Package metadata, scripts, README/help, absent bundled lockfile and trackable future lockfile cover the distinct project setup outputs.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_sdk_pnpm_template as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_sdk_pnpm_template = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

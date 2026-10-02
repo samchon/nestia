@@ -27,6 +27,7 @@ import { VersioningStrategy } from "./utils/VersioningStrategy";
  * @evidence contracts/common.md#clear-and-simple-design One public function with a private analysis pipeline.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the same analyzers and composer as the CLI, so both produce one document.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidence contracts/portability.md#os-neutral-implementation Controller source lookup is delegated to ConfigAnalyzer.application; diagnostic filenames use Node path.relative from process.cwd. Route paths and versions remain protocol text rather than native filesystem identity.
  */
 export namespace NestiaSwaggerComposer {
   /**
@@ -39,6 +40,7 @@ export namespace NestiaSwaggerComposer {
    * @evidence contracts/common.md#clear-and-simple-design One function over the shared analyzers and the Swagger generator.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No route is special-cased; the module graph is read through `ConfigAnalyzer.application`.
    * @evidence contracts/common.md#meaningful-documentation The comment states the returned versions and the error behavior.
+   * @evidence contracts/portability.md#os-neutral-implementation The composer receives an existing application and writes no output file. Its delegated controller discovery obtains native source locations, and its report renders those locations through path.relative; initialize may read package metadata for default info.
    */
   export const document = async (
     app: INestApplication,

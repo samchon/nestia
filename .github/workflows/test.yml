@@ -1,33 +1,11 @@
 name: test
-# All test populations share one installation, package build and native cache.
-# Keep independent results visible even when an earlier test step fails.
 on:
   pull_request:
-    paths:
-      - '.github/workflows/test.yml'
-      - '.github/actions/**'
-      - '.agents/skills/**'
-      - 'AGENTS.md'
-      - '**/evidence.config.json'
-      - 'config/**'
-      - 'benchmark/**'
-      # every file a package build or a test reads: sources, bundler and
-      # TypeScript configs, and the deploy scripts the build scripts run
-      - 'packages/**'
-      - 'deploy/**'
-      - 'scripts/**'
-      - 'tests/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'package.json'
-
 permissions:
   contents: read
-
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -38,45 +16,13 @@ jobs:
           go-version-file: packages/core/native/go.mod
           cache-dependency-path: packages/core/native/go.sum
       - uses: pnpm/action-setup@v4
-
       - name: Install Dependencies
-        id: install
         run: pnpm install
-
-      - uses: ./.github/actions/ttsc-cache
+      - name: Restore ttsc Plugin Cache
+        uses: actions/cache@v4
         with:
-          scope: test
-          save: true
-
-      - name: Use System Go For Source Plugin Build
-        run: echo "TTSC_GO_BINARY=$(go env GOROOT)/bin/go" >> "$GITHUB_ENV"
-
-      - name: Build Packages
-        id: build
-        env:
-          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
-        run: pnpm build
-
-      - name: Check Implementation Contracts
-        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: pnpm evidence
-
-      # Reuse the Go object store populated by build.yml.
-      - name: Run Go Tests
-        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        env:
-          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
-        run: GOCACHE="$GITHUB_WORKSPACE/node_modules/.cache/ttsc/go-build" pnpm test:go
-
-      - name: Run Unit Tests
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        env:
-          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
-        run: pnpm test:unit
-
-      # The single integrated entry owns all actual consumer connections.
-      - name: Run E2E Tests
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        env:
-          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
-        run: pnpm test:e2e
+          path: node_modules/.cache/ttsc
+          key: ttsc-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'packages/typia/native/**') }}
+          restore-keys: ttsc-cache-${{ runner.os }}-
+      - name: Run Tests
+        run: pnpm test

@@ -22,7 +22,7 @@ export namespace PathParameter {
    * @param value Value of the parameter
    * @returns The URI-encoded segment
    * @throws Error when the value is `.` or `..`
-   * @evidence contracts/common.md#principled-implementation `encodeURIComponent` produces a valid single segment for any text, and a nullish value becomes the text `null`, as documented; the encoded text `.` or `..` is refused because the WHATWG URL parser treats it, and its percent-encoded spelling, as a dot segment.
+   * @evidence contracts/common.md#principled-implementation encodeURIComponent produces a single segment for well-formed Unicode text and throws URIError for unpaired surrogates; nullish input becomes the text null. The encoded text . or .. is refused because the WHATWG URL parser treats it and its percent-encoded spelling as a dot segment.
    * @evidence contracts/common.md#clear-and-simple-design One conversion and one guard, with the reason for the guard stated in the comment.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The guard prevents a request from silently reaching a different route, so it is a correctness check rather than a workaround for a test.
    * @evidence contracts/common.md#meaningful-documentation The comment states the encoding, the nullish rule, the refused segments, their reason, and the thrown error.

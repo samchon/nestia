@@ -32,6 +32,7 @@ import { Creator } from "../typings/Creator";
  * @evidence contracts/common.md#clear-and-simple-design One namespace with the two collections and four operations; the listener set and the tuple list are the only state.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The registration is public and explicit; no error class is special-cased except the default `HttpError` conversion.
  * @evidence contracts/common.md#meaningful-documentation The comment documents the converter and listener concepts with an example.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Converter ordering and listener registration operate on JavaScript class and function identity, not native path or process identity.
  */
 export namespace ExceptionManager {
   /**
@@ -46,6 +47,7 @@ export namespace ExceptionManager {
    * @evidence contracts/common.md#clear-and-simple-design One function over one list.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The order rule is derived from the prototype chain, not from a list of known classes.
    * @evidence contracts/common.md#meaningful-documentation The comment states the replacement and ordering rules.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Converter ordering and listener registration operate on JavaScript class and function identity, not native path or process identity.
    */
   export function insert<T extends Error>(
     creator: Creator<T>,
@@ -72,6 +74,7 @@ export namespace ExceptionManager {
    * @evidence contracts/common.md#clear-and-simple-design One search and one removal.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It removes only the named class's entry.
    * @evidence contracts/common.md#meaningful-documentation The comment states the parameter and the boolean result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Converter ordering and listener registration operate on JavaScript class and function identity, not native path or process identity.
    */
   export function erase<T extends Error>(creator: Creator<T>): boolean {
     const index: number = tuples.findIndex((tuple) => tuple[0] === creator);
@@ -89,6 +92,7 @@ export namespace ExceptionManager {
    * @evidence contracts/common.md#clear-and-simple-design One set insertion.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The listener only observes; the route notifies it after the current turn and ignores its errors.
    * @evidence contracts/common.md#meaningful-documentation The comment states when listeners are called.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Converter ordering and listener registration operate on JavaScript class and function identity, not native path or process identity.
    */
   export function on(closure: (error: any) => any): void {
     listeners.add(closure);
@@ -101,6 +105,7 @@ export namespace ExceptionManager {
    * @evidence contracts/common.md#clear-and-simple-design One set deletion.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It removes only the named listener.
    * @evidence contracts/common.md#meaningful-documentation The comment names the counterpart operation.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Converter ordering and listener registration operate on JavaScript class and function identity, not native path or process identity.
    */
   export function off(closure: (error: any) => any): void {
     listeners.delete(closure);
@@ -119,6 +124,7 @@ export namespace ExceptionManager {
    * @evidence contracts/common.md#clear-and-simple-design One call signature.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment documents the parameter and the return value.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Converter ordering and listener registration operate on JavaScript class and function identity, not native path or process identity.
    */
   export interface Closure<T extends Error> {
     /**

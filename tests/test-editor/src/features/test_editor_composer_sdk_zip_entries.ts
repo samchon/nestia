@@ -13,6 +13,11 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
  * 1. Compose an sdk-mode project from a minimal OpenAPI 3.1 document.
  * 2. Pack the composed files and unzip the archive.
  * 3. Assert the project manifest and swagger document survive with content.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Actual sdk composition is archived and decoded, checking nonempty project manifest and source Swagger entries.
+ * @evidence contracts/testing.md#independent-expectations An SDK project requires its package manifest and original Swagger document; literal entry identities follow the generated project contract.
+ * @evidence contracts/testing.md#distinguishing-cases SDK mode with explicit package options exercises composed archive delivery; nested and Unicode archive entries are owned by the roundtrip unit.
+ * @evidence contracts/testing.md#execution-ownership The test-editor DynamicExecutor discovers this exported unit and calls built owning operations in-process without an installed consumer or live host. SSR module initialization stays separate from the browser population.
  */
 export const test_editor_composer_sdk_zip_entries = async (): Promise<void> => {
   const composer = EditorTestHarness.composer();

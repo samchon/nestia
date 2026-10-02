@@ -58,13 +58,12 @@ export namespace NestiaEditorModule {
     simulate?: boolean;
     e2e?: boolean;
   }): Promise<void> => {
-    const prefix: string =
-      "/" +
-      [getGlobalPrefix(props.application), props.path]
-        .join("/")
-        .split("/")
-        .filter((str) => str.length !== 0)
-        .join("/");
+    const prefix: string = [getGlobalPrefix(props.application), props.path]
+      .join("/")
+      .split("/")
+      .filter((str) => str.length !== 0)
+      .map((str) => "/" + str)
+      .join("");
     const adaptor: INestHttpAdaptor = props.application.getHttpAdapter();
     const index: string = await getIndex(props);
     const staticFiles: IStaticFile[] = [
@@ -117,7 +116,7 @@ export namespace NestiaEditorModule {
       res.type("application/json");
       return res.send(document);
     });
-    for (const p of ["", "/"])
+    for (const p of prefix.length === 0 ? ["/"] : ["", "/"])
       adaptor.get(prefix + p, (_: any, res: any) => {
         return res.redirect(prefix + "/index.html");
       });

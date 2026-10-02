@@ -17,6 +17,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  *    `@assignHeaders` operation descriptions.
  * 2. Generate a keyword SDK from the migrate application.
  * 3. Assert the generated functions write the expected connection headers.
+ *
+ * @evidence contracts/testing.md#behavioral-verification SDK generation must capture and return output while initializing connection.headers and applying the requested response-field assignment.
+ * @evidence contracts/testing.md#independent-expectations setHeader/setHeaders mean assigning the named field and assignHeaders means merging the named object; literal generated statements express those independent tag meanings.
+ * @evidence contracts/testing.md#distinguishing-cases Both singular and plural set tags plus object assignment distinguish the three supported directives; untagged operations are outside this case.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_api_response_header_tags as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_api_response_header_tags = (): void => {
   const app: NestiaMigrateApplication =

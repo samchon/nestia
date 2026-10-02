@@ -239,6 +239,10 @@ func nestiaCoreDecoratorCall(prog *driver.Program, decorator *shimast.Node) (*sh
 // @evidence contracts/common.md#clear-and-simple-design A thin exported wrapper that builds the file's import context and delegates the mapping to a private function.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The names come from the import declarations of the file, and no alias or file name is special-cased.
 // @evidence contracts/common.md#meaningful-documentation The comment gives the aliasing example and the nil result.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation The import mapping reads TypeScript AST module specifiers and names rather than native paths.
+// @evidence contracts/performance.md#efficient-algorithms The helper scans file statements and named imports to build its mapping on each call, then walks the callee segments. Repeated decorator calls in one file rebuild that mapping.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The file context map and returned segment slice are call-local; no program is retained globally by this helper.
 func NestiaCoreCanonicalDecoratorSegments(decorator *shimast.Node) []string {
 	_, segments, ok := nestiaCoreRawDecoratorCall(decorator)
 	if !ok {
@@ -325,6 +329,10 @@ func nestiaCoreCanonicalSegments(context nestiaCoreFileContext, segments []strin
 // @evidence contracts/common.md#clear-and-simple-design Signature/source nil guards precede one shared package-ownership operation and an exact name comparison.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts Foreign workspace lookalikes and nested packages cannot inherit core identity from their path, while a relocated or transparently re-exported core declaration keeps its actual manifest owner.
 // @evidence contracts/common.md#meaningful-documentation The comment defines resolved declaration ownership and describes relocation, re-export and nested-package behavior.
+// @evidence contracts/portability.md#os-neutral-implementation Declaration package ownership delegates to SourceFilePackageName, which walks native ancestors through filepath and the loaded program filesystem rather than source-path substrings.
+// @evidence contracts/performance.md#efficient-algorithms Resolved signature lookup is followed by one nearest-manifest ancestor walk, proportional to directory depth and manifest bytes.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources No separate cache is retained by this predicate; the compiler program owns resolved signatures and filesystem observations.
 func IsNestiaCoreCall(prog *driver.Program, node *shimast.Node) bool {
 	if prog == nil || prog.Checker == nil || node == nil {
 		return false
@@ -1089,6 +1097,10 @@ var nestiaCoreSingleParameterArrowPattern = regexp.MustCompile(`(^|[\s(=,:?])([A
 // @evidence contracts/common.md#clear-and-simple-design One function with two unwrapping paths, sharing the private wrapper predicates.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The wrappers are the two types NestJS handlers return; no method or controller name is special-cased.
 // @evidence contracts/common.md#meaningful-documentation The comment states the unwrapped wrappers and the nil result.
+// @evidence contracts/portability.md#os-neutral-implementation Promise provenance comes from compiler library identity; Observable package ownership uses SourceFilePackageName and the program filesystem with native filepath ancestors.
+// @evidence contracts/performance.md#efficient-algorithms The function inspects one annotation/signature and its wrapper declarations; Observable ownership may perform one native ancestor walk per candidate declaration.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources Returned types are owned by the caller program; this helper retains no type or program cache.
 func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimchecker.Type {
 	if typ := nestiaCoreExplicitAsyncReturnType(prog, node); typ != nil {
 		return typ
@@ -1142,6 +1154,10 @@ func nestiaCoreExplicitAsyncReturnType(prog *driver.Program, node *shimast.Node)
 // @evidence contracts/common.md#clear-and-simple-design One function that resolves the symbol and delegates the name and ownership test to the shared symbol predicate, so the syntactic annotation path and the checker path of the return type use one rule; the SDK reads the same function rather than keeping a second copy.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts No source spelling, fixture identity, filename fragment or folder name substitutes for declaration provenance. The TypeScript program identifies its actual library files and the program filesystem supplies nearest package ownership.
 // @evidence contracts/common.md#meaningful-documentation The comment identifies both supported wrappers and their declaration provenance requirements, including preservation of user lookalikes.
+// @evidence contracts/portability.md#os-neutral-implementation Library identity uses the compiler; rxjs ownership uses program filesystem reads and filepath ancestor traversal through SourceFilePackageName.
+// @evidence contracts/performance.md#efficient-algorithms Symbol/alias resolution is followed by a declaration scan and at most one ancestor walk per Observable declaration.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources No result cache or handle is owned here; returned truth is independent of any retained storage.
 func NestiaCoreIsAsyncReturnWrapperReference(
 	prog *driver.Program,
 	node *shimast.Node,
@@ -1303,6 +1319,10 @@ func matchClosingParen(text string, pos int) (int, bool) {
 // @evidence contracts/common.md#clear-and-simple-design One recursive function over two node kinds.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the syntax only.
 // @evidence contracts/common.md#meaningful-documentation The comment gives the example and the nil result.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation Identifier segments describe source syntax rather than native file paths.
+// @evidence contracts/performance.md#efficient-algorithms The recursion visits each property access once; append amortizes slice growth, with space proportional to chain depth.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The returned slice is caller-owned and recursion state ends at return.
 func NestiaCoreExpressionSegments(node *shimast.Node) []string {
 	if node == nil {
 		return nil

@@ -14,6 +14,11 @@ import { OpenApiV3, OpenApiV3_1 } from "@typia/interface";
  * 1. Migrate a 3.1 and a 3.0 document holding exclusive bounds and integer
  *    formats.
  * 2. Assert each property's generated type.
+ *
+ * @evidence contracts/testing.md#behavioral-verification SDK DTO generation must preserve exclusive bounds and each supported integer format instead of narrowing all integers to int32.
+ * @evidence contracts/testing.md#independent-expectations Literal numeric constraints in the input establish Minimum/ExclusiveMinimum/ExclusiveMaximum tags, and unformatted integer generation uses the documented int64 migration default.
+ * @evidence contracts/testing.md#distinguishing-cases OpenAPI 3.0 boolean exclusivity and 3.1 numeric exclusivity, zero bounds, explicit int32/int64 and unformatted integers expose version and width differences.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_numeric_bounds as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_numeric_bounds = (): void => {
   expect(structure(DOCUMENT_3_1), [

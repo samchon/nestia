@@ -12,6 +12,10 @@
  * @evidence contracts/common.md#clear-and-simple-design One curried function with three inner walkers (value, array, object) that append to one accessor list.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The exception predicate is the caller's, and no key or type name is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The comment states the comparison rules and what the result means.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation JSON accessors identify object properties and array positions, not native paths.
+ * @evidence contracts/performance.md#efficient-algorithms The walker traverses the first value and matching second-value positions, recording differing accessors. Object keys and recursion require space proportional to visited structure and depth; toJSON and exception callback costs belong to their implementations. Cyclic inputs are unsupported.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each comparison depends on current supplied values and possibly effectful getters; this operation coordinates no reusable computation across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only invocation-local comparison state is held and the returned comparator captures its getter; external resources and comparator retention belong to the caller.
  */
 export const json_equal_to =
   (exception: (key: string) => boolean) =>

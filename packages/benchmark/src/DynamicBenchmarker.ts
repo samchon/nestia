@@ -47,9 +47,9 @@ import { IBenchmarkServant } from "./internal/IBenchmarkServant";
  * @evidence contracts/common.md#clear-and-simple-design One namespace is the public surface (master, servant, markdown, props, report); execution, discovery, and cleanup helpers stay private, and statistics and rendering live in their own internal namespaces.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing names a server, feature, or file: the feature extension, prefix, and filter are caller inputs, and the servant path is a property rather than an assumed location.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose explains the two-program model, what each program does, and how to obtain markdown, with links to the member documentation and to example repositories.
- * @evidence contracts/performance.md#efficient-algorithms Totals are split across T servants once; E events are aggregated with hash-based endpoint grouping. Progress notification currently sums T counters per notification. Event statistics and rendering traverse their input populations; discovery visits each real directory once.
+ * @evidence contracts/performance.md#efficient-algorithms Totals are split across T servants once; E events are aggregated with hash-based endpoint grouping. Progress notifications update the aggregate from one servant counter delta in constant time. Event statistics and rendering traverse their input populations; discovery visits each real directory once.
  * @evidence contracts/performance.md#reuse-equivalent-work A master distributes distinct request budgets rather than replaying one effectful request. Endpoint grouping shares one event population across whole-run and endpoint statistics. Results are not cached across benchmark runs because server state and timing change.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Each master owns at most threads connectors and simultaneous request workers; connectors are closed on connection/execution success or failure. Events retained by servants/master scale with logged events, and memory samples with run duration. The independent sampler detaches its report target on stop or rejection and clears/wakes its owned timer. A pending caller memory getter has no cancellation hook, but its task retains only the sampler state/getter and cannot keep the master’s report arrays, connectors or event collections through that state. Its eventual result is discarded after deactivation. Returned reports transfer their arrays to callers.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Each master owns at most threads connectors and simultaneous function workers; connector closure is attempted on connection/execution success or failure; a rejected close is suppressed and may leave an unreleased child process. Events retained by servants/master scale with logged events, and memory samples with run duration. The independent sampler detaches its report target on stop or rejection and clears/wakes its owned timer. A pending caller memory getter has no cancellation hook, but its task retains only the sampler state/getter and cannot keep the master report arrays, connectors or event collections through that state. Its eventual result is discarded after deactivation. Returned reports transfer their arrays to callers.
  * @evidence contracts/portability.md#os-neutral-implementation WorkerConnector process mode owns Node child-process launch/IPC and its explicit stdio modes. Feature discovery resolves the caller location with native path and fs realpath/stat, follows directory links with realpath cycle detection and imports discovered native absolute paths. It does not infer filesystem case policy from OS names.
  */
 export namespace DynamicBenchmarker {
@@ -66,7 +66,10 @@ export namespace DynamicBenchmarker {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds caller-visible data; the execution that acquires tasks and handles owns their release.
    */
   export interface IMasterProps {
-    /** Total count of the requests. */
+    /**
+     * Total number of benchmark function invocations, each of which may log
+     * several HTTP requests.
+     */
     count: number;
 
     /**
@@ -258,13 +261,31 @@ export namespace DynamicBenchmarker {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds caller-visible data; the execution that acquires tasks and handles owns their release.
    */
   export interface IReport {
+    /** Requested number of benchmark function invocations. */
     count: number;
+
+    /** Number of servant processes requested. */
     threads: number;
+
+    /** Aggregate limit on concurrent benchmark function invocations. */
     simultaneous: number;
+
+    /** ISO 8601 time when connected servants started executing. */
     started_at: string;
+
+    /** ISO 8601 time when every servant finished executing. */
     completed_at: string;
+
+    /** Statistics over all HTTP events logged by the benchmark functions. */
     statistics: IReport.IStatistics;
+
+    /** The same events grouped by HTTP method and route path template. */
     endpoints: Array<IReport.IEndpoint & IReport.IStatistics>;
+
+    /**
+     * Memory samples obtained during execution; failed or pending readings are
+     * omitted.
+     */
     memories: IReport.IMemory[];
   }
   export namespace IReport {
@@ -282,7 +303,10 @@ export namespace DynamicBenchmarker {
      * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds caller-visible data; the execution that acquires tasks and handles owns their release.
      */
     export interface IEndpoint {
+      /** HTTP method of the grouped requests. */
       method: string;
+
+      /** Route template, falling back to the concrete route path. */
       path: string;
     }
     /**
@@ -303,11 +327,22 @@ export namespace DynamicBenchmarker {
      * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds caller-visible data; the execution that acquires tasks and handles owns their release.
      */
     export interface IStatistics {
+      /** Number of logged HTTP events. */
       count: number;
+
+      /** Events whose enclosing benchmark function completed without throwing. */
       success: number;
+
+      /** Mean duration in milliseconds, or null for no events. */
       mean: number | null;
+
+      /** Population standard deviation in milliseconds, or null for no events. */
       stdev: number | null;
+
+      /** Shortest duration in milliseconds, or null for no events. */
       minimum: number | null;
+
+      /** Longest duration in milliseconds, or null for no events. */
       maximum: number | null;
     }
     /**
@@ -324,7 +359,10 @@ export namespace DynamicBenchmarker {
      * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds caller-visible data; the execution that acquires tasks and handles owns their release.
      */
     export interface IMemory {
+      /** ISO 8601 time when the memory getter completed. */
       time: string;
+
+      /** Node memory usage fields in bytes, supplied by the selected getter. */
       usage: NodeJS.MemoryUsage;
     }
   }
@@ -338,17 +376,18 @@ export namespace DynamicBenchmarker {
    * servant program executing the {@link servant} function.
    *
    * The servants are child processes. When a servant fails to connect or to
-   * execute, every servant is closed before the returned promise rejects.
+   * execute, every servant receives a close attempt before the returned promise
+   * rejects.
    *
    * @param props Properties of the master program
    * @returns Benchmark report
-   * @evidence contracts/common.md#principled-implementation Inputs are validated as safe integers before any process starts; totals are distributed by floor plus remainder; servants execute concurrently and every event is grouped by method and path template in a hash map; every spawned servant is closed on success and on failure, and the memory sampler is deactivated when the run ends, detaching its report array and clearing/waking its owned timer immediately; a pending caller getter may settle later but cannot append.
+   * @evidence contracts/common.md#principled-implementation Inputs are validated as safe integers before any process starts; totals are distributed by floor plus remainder; servants execute concurrently and every event is grouped by method and path template in a hash map; closing is attempted for every spawned servant on success and on failure, and the memory sampler is deactivated when the run ends, detaching its report array and clearing/waking its owned timer immediately; a pending caller getter may settle later but cannot append.
    * @evidence contracts/common.md#clear-and-simple-design One function owns the run and keeps the sequence readable: validate, spawn, sample, execute, close, aggregate; statistics come from `DynamicBenchmarkStatistics` and the closing helper is shared by the failure and success paths.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A servant that fails to close cannot alter a finished report and is not allowed to hide the run's own error, so closing failures are dropped on purpose; no other error is swallowed except a rejecting memory getter, which ends sampling as documented.
-   * @evidence contracts/common.md#meaningful-documentation The comment states what the master does, that the servant property must name the servant program, that servants are child processes, and that every servant is closed before a failure rejects.
-   * @evidence contracts/performance.md#efficient-algorithms Totals are split across T servants once; E events are aggregated with hash-based endpoint grouping. Progress notification currently sums T counters per notification. Event statistics and rendering traverse their input populations; discovery visits each real directory once.
+   * @evidence contracts/common.md#meaningful-documentation The comment states what the master does, that the servant property must name the servant program, that servants are child processes, and that every servant receives a close attempt before a failure rejects.
+   * @evidence contracts/performance.md#efficient-algorithms Totals are split across T servants once; E events are aggregated with hash-based endpoint grouping. Progress notifications update the aggregate from one servant counter delta in constant time. Event statistics and rendering traverse their input populations; discovery visits each real directory once.
    * @evidence contracts/performance.md#reuse-equivalent-work A master distributes distinct request budgets rather than replaying one effectful request. Endpoint grouping shares one event population across whole-run and endpoint statistics. Results are not cached across benchmark runs because server state and timing change.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Each master owns at most threads connectors and simultaneous request workers; connectors are closed on connection/execution success or failure. Events retained by servants/master scale with logged events, and memory samples with run duration. The independent sampler detaches its report target on stop or rejection and clears/wakes its owned timer. A pending caller memory getter has no cancellation hook, but its task retains only the sampler state/getter and cannot keep the master’s report arrays, connectors or event collections through that state. Its eventual result is discarded after deactivation. Returned reports transfer their arrays to callers.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Each master owns at most threads connectors and simultaneous function workers; connector closure is attempted on connection/execution success or failure; a rejected close is suppressed and may leave an unreleased child process. Events retained by servants/master scale with logged events, and memory samples with run duration. The independent sampler detaches its report target on stop or rejection and clears/wakes its owned timer. A pending caller memory getter has no cancellation hook, but its task retains only the sampler state/getter and cannot keep the master report arrays, connectors or event collections through that state. Its eventual result is discarded after deactivation. Returned reports transfer their arrays to callers.
    * @evidence contracts/portability.md#os-neutral-implementation WorkerConnector process mode owns Node child-process launch/IPC and its explicit stdio modes. Feature discovery resolves the caller location with native path and fs realpath/stat, follows directory links with realpath cycle detection and imports discovered native absolute paths. It does not infer filesystem case policy from OS names.
    */
   export const master = async (props: IMasterProps): Promise<IReport> => {
@@ -369,6 +408,7 @@ export namespace DynamicBenchmarker {
         `DynamicBenchmarker.master(): simultaneous (${props.simultaneous}) must not be less than threads (${props.threads}), as each servant runs at least one request at a time.`,
       );
     const completes: number[] = new Array(props.threads).fill(0);
+    let completed: number = 0;
     // the first `total % threads` servants take one more than the rest, so the
     // shares sum to the total
     const distribute = (total: number): number[] =>
@@ -392,9 +432,9 @@ export namespace DynamicBenchmarker {
           {
             filter: props.filter ?? (() => true),
             progress: (current) => {
+              completed += current - completes[i]!;
               completes[i] = current;
-              if (props.progress)
-                props.progress(completes.reduce((a, b) => a + b, 0));
+              if (props.progress) props.progress(completed);
             },
           },
           "process",
@@ -483,7 +523,7 @@ export namespace DynamicBenchmarker {
    * @evidence contracts/common.md#meaningful-documentation The comment states that it creates the servant program and returns it as a worker server.
    * @evidence contracts/performance.md#efficient-algorithms Each execute request discovers matching modules once, then runs at most simultaneous loop workers and count invocations. Event storage grows with actual logger calls rather than an assumed one event per invocation.
    * @evidence contracts/performance.md#reuse-equivalent-work Discovery is refreshed for each execute request because the supplied filter and filesystem can change; requests themselves are effectful and cannot reuse earlier observations.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned WorkerServer transfers connection lifecycle to its caller. Each execute owns its discovery collections, workers and event arrays until it completes; the master closes its servant process. No discovered-module cache is retained by this namespace beyond Node’s own loader.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned WorkerServer transfers connection lifecycle to its caller. Each execute owns its discovery collections, workers and event arrays until it completes; the master closes its servant process. No discovered-module cache is retained by this namespace beyond Node own loader.
    * @evidence contracts/portability.md#os-neutral-implementation WorkerConnector process mode owns Node child-process launch/IPC and its explicit stdio modes. Feature discovery resolves the caller location with native path and fs realpath/stat, follows directory links with realpath cycle detection and imports discovered native absolute paths. It does not infer filesystem case policy from OS names.
    */
   export const servant = async <Parameters extends any[]>(
@@ -539,6 +579,7 @@ export namespace DynamicBenchmarker {
 
       const entireEvents: IBenchmarkEvent[] = [];
       let scheduled: number = 0;
+      let completed: number = 0;
       await Promise.all(
         new Array(mass.simultaneous)
           .fill(null)
@@ -569,12 +610,11 @@ export namespace DynamicBenchmarker {
               } catch (exp) {
                 for (const e of localEvents) e.success = false;
               }
-              if (localEvents.length !== 0)
-                ctx.driver.progress(entireEvents.length).catch(() => {});
+              ctx.driver.progress(++completed).catch(() => {});
             }
           }),
       );
-      await ctx.driver.progress(entireEvents.length);
+      await ctx.driver.progress(completed);
       return entireEvents;
     };
 }

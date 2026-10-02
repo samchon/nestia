@@ -1,6 +1,15 @@
 import { DynamicExecutor } from "@nestia/e2e";
 
-async function main(): Promise<void> {
+/**
+ * Discovers direct validator tests and the relocated CLI and editor boundaries.
+ *
+ * @evidence contracts/common.md#principled-implementation DynamicExecutor.assert executes every test-prefixed source export serially and its report must contain at least one execution before this entry can succeed.
+ * @evidence contracts/common.md#clear-and-simple-design One discovery operation owns selection, execution reporting and the empty-population guard; each case owns its actual behavioral assertions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The entry invokes actual exports without retrying or substituting a passing result for failed discovery or execution.
+ * @evidence contracts/common.md#meaningful-documentation The comment distinguishes direct validator cases from CLI and editor boundaries and identifies the entry's discovery responsibility.
+ * @evidence contracts/portability.md#os-neutral-implementation DynamicExecutor receives the native compiled entry directory and its actual extension; filesystem module loading differences belong to DynamicExecutor.
+ */
+export async function main(): Promise<void> {
   const report: DynamicExecutor.IReport = await DynamicExecutor.assert({
     parameters: () => [],
     location: __dirname + "/features",

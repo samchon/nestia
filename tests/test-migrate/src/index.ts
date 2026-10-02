@@ -35,11 +35,11 @@ import {
   EMPTY_PATHS_DOCUMENT,
   test_migrate_sdk_empty_paths,
 } from "./features/test_migrate_sdk_empty_paths";
-import { test_migrate_sdk_key_snapshot } from "./features/test_migrate_sdk_key_snapshot";
 import { test_migrate_sdk_pnpm_template } from "./features/test_migrate_sdk_pnpm_template";
 import { test_migrate_simulate_headers } from "./features/test_migrate_simulate_headers";
 import { test_migrate_simulate_throws } from "./features/test_migrate_simulate_throws";
 import { test_migrate_success_status } from "./features/test_migrate_success_status";
+import { test_migrate_tuple_rest } from "./features/test_migrate_tuple_rest";
 
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
@@ -62,7 +62,8 @@ const TTSC_BIN: string = path.join(
 );
 const TTSC_CACHE_DIR: string = path.resolve(
   TEST_ROOT,
-  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
+  process.env.TTSC_CACHE_DIR ??
+    path.join(ROOT, "node_modules", ".cache", "ttsc"),
 );
 
 type SwaggerDocument =
@@ -235,7 +236,25 @@ const execute = (
   });
 };
 
-const main = async (): Promise<void> => {
+/**
+ * Generates the controller fixture's Swagger document, exercises migration
+ * assertions, and compiles the generated NestJS and SDK projects in both
+ * calling conventions. The generated files remain available for diagnosis.
+ *
+ * @evidence contracts/common.md#principled-implementation Swagger comes from the maintained controller fixture; the generated projects are archived and compiled before their compiled simulator is called, so schema generation and emitted consumer validity have separate observable failures.
+ * @evidence contracts/common.md#clear-and-simple-design One entry owns fixture preparation and scenario sequencing; execute owns archive and compiler invocation, and named feature functions own their individual assertions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Generated API workspace symlinks represent the workspace package boundary without another installation. Compilation removes only the obsolete typescript-transform-paths descriptor already removed by the bundle transformation; no generated validator or assertion is substituted.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies the actual Swagger producer, generation modes, compiler consumers and retained diagnostic artifacts.
+ * @evidence contracts/testing.md#behavioral-verification Fixture Swagger must contain the declared schema/media/security richness, each named feature checks its documented output, generated projects must compile, and the compiled SDK must reject invalid simulated headers.
+ * @evidence contracts/testing.md#independent-expectations Named feature literals derive from their input documents and language/framework contracts; compilation independently checks generated TypeScript, while fixture cardinality guards ensure the connection has a rich input.
+ * @evidence contracts/testing.md#distinguishing-cases Nest and SDK output, keyword and positional parameters, empty-path SDK compilation, required-header simulation failure/success and the registered schema/path/template cases form this entry's population. A preparation failure stops its dependent scenario.
+ * @evidence contracts/testing.md#execution-ownership This exported main is the test-migrate source entry invoked by the workspace start script; it owns real Swagger and compiler boundaries and calls the individually documented direct generator and process cases.
+ * @evidence contracts/e2e.md#necessary-boundary The native Swagger producer must connect to decorators and migration output must compile as consumer projects; compiled simulator execution checks validator/runtime composition beyond emitted-text assertions.
+ * @evidence contracts/e2e.md#shared-execution One fixture Swagger producer feeds all modes. Generated projects reuse installed workspace dependencies and the shared native cache; each distinct mode/parameter configuration still has its own consumer compilation, and that work is not represented as a single consolidated consumer.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The entry resets its owned .generated tree once, scenarios use distinct directories, compiler children finish synchronously, and compiled runtime state is used only after successful compilation. Outputs are retained until the next run for diagnosis rather than deleted on completion.
+ * @evidence contracts/e2e.md#preserved-coverage Individual feature calls retain their assertions, both output modes and parameter conventions compile, and empty-path and runtime error cases remain connected. The old arbitrary SDK key snapshot was removed because its expected list came from prior generator output; specific generated layout and import assertions remain in their named tests.
+ */
+export const main = async (): Promise<void> => {
   if (fs.existsSync(GENERATED))
     await fs.promises.rm(GENERATED, { recursive: true });
   await fs.promises.mkdir(OUTPUT, { recursive: true });
@@ -272,13 +291,13 @@ const main = async (): Promise<void> => {
     test_migrate_success_status();
     test_migrate_keyword_optional_body();
     test_migrate_additional_properties();
+    test_migrate_tuple_rest();
     test_migrate_cli_boolean_flags();
     test_migrate_cli_plain_files();
     test_migrate_nest_dto_package_import();
     test_migrate_nest_workspace_catalog_stamp();
     test_migrate_nest_keyword_config_path();
     test_migrate_sdk_empty_paths();
-    test_migrate_sdk_key_snapshot();
     test_migrate_sdk_pnpm_template();
     test_migrate_sdk_dependency_catalog_stamp();
     await execute(

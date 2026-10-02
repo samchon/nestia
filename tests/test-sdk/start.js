@@ -467,11 +467,7 @@ const feature = async (name, port) => {
   const generate = async (type, mustBeError = false) => {
     const args = [type, ...generationTail(name)];
     if (mustBeError) return runNestia(cwd, args);
-    try {
-      await runNestia(cwd, args);
-    } catch {
-      await runNestia(cwd, args, "inherit");
-    }
+    await runNestia(cwd, args, "inherit");
   };
 
   if (name.includes("error")) {
@@ -512,13 +508,9 @@ const feature = async (name, port) => {
 
   assertFeatureOutputs(name, cwd);
   if (name === "cli-project" || name === "cli-config-project") return;
-  else if (hasTtsxTestFiles(cwd)) await runTtsxTestWithRetries(name, cwd, port);
+  else if (hasTtsxTestFiles(cwd)) await runTtsxTestOnce(name, cwd, port);
   else {
-    try {
-      await runTsc(cwd);
-    } catch {
-      await runTsc(cwd, "inherit");
-    }
+    await runTsc(cwd, "inherit");
   }
 };
 
@@ -548,25 +540,9 @@ const assertFeatureOutputs = (name, cwd) => {
   assertGeneratedImportsAreExtensionless(cwd);
 };
 
-// A pass that needed a retry is reported, never passed off as clean: an
-// intermittent failure is a finding.
-// `explain` names what failed inside a quiet attempt, whose output is gone.
-const runTtsxTestWithRetries = async (name, cwd, port, options) => {
-  const failures = [];
-  for (let i = 0; i < 3; ++i)
-    try {
-      await runTtsxTest(cwd, "ignore", port, options);
-      if (failures.length !== 0) reportRetries(name, failures);
-      return;
-    } catch (error) {
-      const reason = options?.explain?.();
-      failures.push(
-        reason ? new Error(`${reason} (${error.message.split("\n")[0]})`) : error,
-      );
-    }
-  reportRetries(name, failures);
-  await runTtsxTest(cwd, "inherit", port, options);
-};
+// Preserve the first runtime failure and its diagnostic output.
+const runTtsxTestOnce = async (_name, cwd, port, options) =>
+  runTtsxTest(cwd, "inherit", port, options);
 
 // Success features sharing a tsconfig run in batches: one `nestia all` over
 // every member's configuration, each rebased onto the member's directory, and
@@ -697,11 +673,7 @@ const runBatch = async (name, port) => {
       ].join("\n"),
       "utf8",
     );
-    try {
-      await runNestia(cwd, ["all"]);
-    } catch {
-      await runNestia(cwd, ["all"], "inherit");
-    }
+    await runNestia(cwd, ["all"], "inherit");
     for (const member of members)
       assertFeatureOutputs(member, path.join(cwd, member));
 
@@ -759,7 +731,7 @@ const runBatch = async (name, port) => {
       "utf8",
     );
     const report = path.join(cwd, "failures.txt");
-    await runTtsxTestWithRetries(name, cwd, port, {
+    await runTtsxTestOnce(name, cwd, port, {
       plugins: path.join(cwd, members[0]),
       explain: () => {
         if (fs.existsSync(report) === false) return null;
@@ -1057,18 +1029,12 @@ const runDistributeFeature = async (cwd, name) => {
     throw new Error(`${name} configures no distribute location.`);
   const stage = path.join(cwd, distribute);
   await fs.promises.rm(stage, { force: true, recursive: true });
-  // quiet like every other feature, and repeated with the output on failure
-  const quietly = async (task) => {
-    try {
-      await task("ignore");
-    } catch {
-      await task("inherit");
-    }
-  };
-  await quietly((stdio) =>
+  // Each command exposes its first outcome without rerunning side effects.
+  const visibly = async (task) => task("inherit");
+  await visibly((stdio) =>
     runNestia(cwd, ["sdk", ...generationTail(name)], stdio),
   );
-  await quietly((stdio) =>
+  await visibly((stdio) =>
     run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "compile"], {
       cwd: stage,
       stdio,
@@ -1371,13 +1337,7 @@ const runBundlePreserveFeature = async () => {
     const assert = (condition, message) => {
       if (!condition) throw new Error(`bundle-preserve: ${message}`);
     };
-    const generate = async () => {
-      try {
-        await runNestia(cwd, ["sdk"]);
-      } catch {
-        await runNestia(cwd, ["sdk"], "inherit");
-      }
-    };
+    const generate = async () => runNestia(cwd, ["sdk"], "inherit");
 
     // 1. FIRST GENERATION FILLS AN EMPTY DIRECTORY FROM THE BUNDLE
     await generate();
@@ -1434,11 +1394,7 @@ const runBundlePreserveFeature = async () => {
       );
 
     // 4. THE PRESERVED OUTPUT MUST COMPILE
-    try {
-      await runTsc(cwd);
-    } catch {
-      await runTsc(cwd, "inherit");
-    }
+    await runTsc(cwd, "inherit");
   } finally {
     await fs.promises.rm(cwd, { force: true, recursive: true });
   }
@@ -1828,19 +1784,6 @@ const measure = (title) => async (task) => {
 const EXCLUSIVE_FEATURES = new Set(["swagger-watch"]);
 
 // Features whose e2e run failed before one passed, with each failure's reason.
-const RETRIED_FEATURES = [];
-const reportRetries = (name, failures) => {
-  const reasons = failures.map((error) =>
-    String(error instanceof Error ? error.message : error)
-      .split("\n")[0]
-      .slice(0, 200),
-  );
-  RETRIED_FEATURES.push({ name, reasons });
-  console.log(
-    `  - ${name}: e2e failed ${failures.length} time(s) before the attempt that decides it: ${reasons.join("; ")}`,
-  );
-};
-
 const runFeatures = async (names) => {
   const pooled = names.filter((name) => !EXCLUSIVE_FEATURES.has(name));
   const exclusive = names.filter((name) => EXCLUSIVE_FEATURES.has(name));
@@ -1868,15 +1811,6 @@ const runFeatures = async (names) => {
   await Promise.all(Array.from({ length: parallel }, worker));
   for (const [index, name] of exclusive.entries())
     await runFeature(name, BASE_PORT + pooled.length + index);
-  for (const { name, reasons } of RETRIED_FEATURES)
-    if (process.env.GITHUB_ACTIONS === "true")
-      console.log(
-        `::warning title=test-sdk retry::${name} passed its e2e run only after ${reasons.length} failure(s): ${reasons.join("; ")}`,
-      );
-  if (RETRIED_FEATURES.length !== 0)
-    console.log(
-      `\nFeatures whose e2e run needed a retry: ${RETRIED_FEATURES.map((f) => f.name).join(", ")}`,
-    );
   if (failures.length !== 0)
     throw new Error(
       `Failed test-sdk features: ${failures.map((f) => f.name).join(", ")}`,

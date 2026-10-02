@@ -1,0 +1,80 @@
+import type { IBenchmarkEvent } from "@nestia/benchmark";
+import assert from "node:assert/strict";
+import path from "node:path";
+
+/**
+ * Verifies population statistics over independently authored event durations.
+ *
+ * Empty and constant populations distinguish absent measurements from zero
+ * deviation; mixed success flags must not change the duration population.
+ *
+ * 1. Summarize empty, singleton, mixed and constant event populations.
+ * 2. Compare every count and elapsed measure with literal mathematical
+ *    expectations.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the built DynamicBenchmarkStatistics.of operation and asserts all six returned measures rather than merely successful execution.
+ * @evidence contracts/testing.md#independent-expectations Durations one and three have arithmetic mean two and population deviation one; one duration has zero deviation and an empty population has no defined elapsed measures.
+ * @evidence contracts/testing.md#distinguishing-cases Covers empty, singleton, mixed successes and three identical long durations whose deviation must remain zero without floating-point cancellation.
+ * @evidence contracts/testing.md#execution-ownership This direct unit executes the already-built statistics operation; src/unit.ts and the existing suite entry call it without creating a host or worker for this case.
+ */
+export const test_benchmark_statistics = (): void => {
+  const { DynamicBenchmarkStatistics } = require(
+    path.resolve(
+      __dirname,
+      "../../../../packages/benchmark/lib/internal/DynamicBenchmarkStatistics.js",
+    ),
+  ) as typeof import("../../../../packages/benchmark/src/internal/DynamicBenchmarkStatistics");
+  const event = (duration: number, success = true): IBenchmarkEvent => ({
+    metadata: {
+      method: "GET",
+      path: "/sample",
+      request: null,
+      response: { type: "application/json" },
+      status: 200,
+    },
+    status: 200,
+    started_at: new Date(0).toISOString(),
+    respond_at: null,
+    completed_at: new Date(duration).toISOString(),
+    success,
+  });
+  assert.deepEqual(DynamicBenchmarkStatistics.of([]), {
+    count: 0,
+    success: 0,
+    mean: null,
+    stdev: null,
+    minimum: null,
+    maximum: null,
+  });
+  assert.deepEqual(DynamicBenchmarkStatistics.of([event(3)]), {
+    count: 1,
+    success: 1,
+    mean: 3,
+    stdev: 0,
+    minimum: 3,
+    maximum: 3,
+  });
+  assert.deepEqual(DynamicBenchmarkStatistics.of([event(1), event(3, false)]), {
+    count: 2,
+    success: 1,
+    mean: 2,
+    stdev: 1,
+    minimum: 1,
+    maximum: 3,
+  });
+  assert.deepEqual(
+    DynamicBenchmarkStatistics.of([
+      event(100_000_001),
+      event(100_000_001),
+      event(100_000_001),
+    ]),
+    {
+      count: 3,
+      success: 3,
+      mean: 100_000_001,
+      stdev: 0,
+      minimum: 100_000_001,
+      maximum: 100_000_001,
+    },
+  );
+};

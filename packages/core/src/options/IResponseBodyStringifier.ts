@@ -20,15 +20,17 @@ export type IResponseBodyStringifier<T> =
  * @evidence contracts/common.md#clear-and-simple-design Five variants, one per typia function family, with no shared base because each function has a different shape.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior; the runtime rejects an unknown `type` with an error instead of accepting it.
  * @evidence contracts/common.md#meaningful-documentation The comment names the decorators that receive the serializer and the response each variant produces on a failed validation.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The variants describe JSON serialization and validation callbacks without native file or process representations.
  */
 export namespace IResponseBodyStringifier {
   /**
    * Serializer generated from `typia.json.stringify`, without validation.
    *
-   * @evidence contracts/common.md#principled-implementation The variant tags a function that serializes the data as it is, so a value of the wrong type is serialized as far as its shape allows and never rejected.
+   * @evidence contracts/common.md#principled-implementation The variant tags a function that serializes the data as it is, so a value of the wrong type is serialized as far as its shape allows without this variant performing validation.
    * @evidence contracts/common.md#clear-and-simple-design A two-member record, the tag and the function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the typia function the variant comes from.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The variants describe JSON serialization and validation callbacks without native file or process representations.
    */
   export interface IStringify<T> {
     type: "stringify";
@@ -39,6 +41,7 @@ export namespace IResponseBodyStringifier {
      * @evidence contracts/common.md#clear-and-simple-design One function member.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The function is generated from the type, and the runtime never edits its result.
      * @evidence contracts/common.md#meaningful-documentation The comment states that the function is generated for the return type; its result is in the signature.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation The variants describe JSON serialization and validation callbacks without native file or process representations.
      */
     stringify: (input: T) => string;
   }
@@ -49,6 +52,7 @@ export namespace IResponseBodyStringifier {
    * @evidence contracts/common.md#clear-and-simple-design A two-member record, the tag and the function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the typia function the variant comes from.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The variants describe JSON serialization and validation callbacks without native file or process representations.
    */
   export interface IIs<T> {
     type: "is";
@@ -59,6 +63,7 @@ export namespace IResponseBodyStringifier {
      * @evidence contracts/common.md#clear-and-simple-design One function member.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The function is generated from the type, and the runtime never edits its result.
      * @evidence contracts/common.md#meaningful-documentation The comment states that the function is generated for the return type; its result is in the signature.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation The variants describe JSON serialization and validation callbacks without native file or process representations.
      */
     is: (input: T) => string | null;
   }
@@ -69,6 +74,7 @@ export namespace IResponseBodyStringifier {
    * @evidence contracts/common.md#clear-and-simple-design A two-member record, the tag and the function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the typia function the variant comes from.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The variants describe JSON serialization and validation callbacks without native file or process representations.
    */
   export interface IAssert<T> {
     type: "assert";
@@ -79,6 +85,7 @@ export namespace IResponseBodyStringifier {
      * @evidence contracts/common.md#clear-and-simple-design One function member.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The function is generated from the type, and the runtime never edits its result.
      * @evidence contracts/common.md#meaningful-documentation The comment states that the function is generated for the return type; its result is in the signature.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation The variants describe JSON serialization and validation callbacks without native file or process representations.
      */
     assert: (input: T) => string;
   }
@@ -89,6 +96,7 @@ export namespace IResponseBodyStringifier {
    * @evidence contracts/common.md#clear-and-simple-design A two-member record, the tag and the function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the typia function the variant comes from.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The variants describe JSON serialization and validation callbacks without native file or process representations.
    */
   export interface IValidate<T> {
     type: "validate";
@@ -99,6 +107,7 @@ export namespace IResponseBodyStringifier {
      * @evidence contracts/common.md#clear-and-simple-design One function member.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The function is generated from the type, and the runtime never edits its result.
      * @evidence contracts/common.md#meaningful-documentation The comment states that the function is generated for the return type; its result is in the signature.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation The variants describe JSON serialization and validation callbacks without native file or process representations.
      */
     validate: (input: T) => IValidation<string>;
   }
@@ -110,6 +119,7 @@ export namespace IResponseBodyStringifier {
    * @evidence contracts/common.md#clear-and-simple-design A two-member record, the tag and the function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the typia function the variant comes from.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The variants describe JSON serialization and validation callbacks without native file or process representations.
    */
   export interface IValidateLog<T> {
     type: "validate.log";
@@ -120,6 +130,7 @@ export namespace IResponseBodyStringifier {
      * @evidence contracts/common.md#clear-and-simple-design One function member.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The function is generated from the type, and the runtime never edits its result.
      * @evidence contracts/common.md#meaningful-documentation The comment states that the function is generated for the return type; its result is in the signature.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation The variants describe JSON serialization and validation callbacks without native file or process representations.
      */
     validate: (input: T) => IValidation<string>;
   }

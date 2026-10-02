@@ -16,6 +16,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 2. For every handler, join the controller path and the method decorator's path
  *    as NestJS's router does, and assert it is the document's path with each
  *    parameter under the key its `@TypedParam()` reads.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Nest generation must join controller and method paths into the intended route and align TypedParam with the normalized parameter key.
+ * @evidence contracts/testing.md#independent-expectations Literal input paths and parameter names establish the expected joined routes; Nest controller/method composition is represented independently by the collector.
+ * @evidence contracts/testing.md#distinguishing-cases Text GET, JSON POST, HEAD and a hyphenated parameter distinguish paths previously handled differently.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_nest_route_paths as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_nest_route_paths = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

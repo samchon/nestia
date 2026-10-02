@@ -8,6 +8,7 @@ import { NestiaProjectTemplate } from "./NestiaProjectTemplate.js";
  * @evidence contracts/common.md#clear-and-simple-design A one-member namespace whose only job is naming the bound command that `index.ts` imports lazily.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The values are contract constants (the published template repository URL), not special cases of any consumer.
  * @evidence contracts/common.md#meaningful-documentation The comment names the command and its difference from the starter; the shared flow documents the details.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This namespace supplies a title, repository URL and test flag to the shared scaffolder; it does not launch processes or interpret native paths.
  */
 export namespace NestiaTemplate {
   export const clone = NestiaProjectTemplate.clone({

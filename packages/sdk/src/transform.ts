@@ -16,6 +16,7 @@ import type { ITtscPlugin, ITtscPluginFactoryContext } from "ttsc";
  * @evidence contracts/common.md#clear-and-simple-design One function returning two properties; the transform itself is native.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The resolution goes through the package manifest, as the development rules require, and nothing is patched.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the descriptor returns.
+ * @evidence contracts/portability.md#os-neutral-implementation createRequire anchors package resolution to the consumer project's package.json; Node resolution yields the installed manifest's native pathname and path.dirname/path.resolve derive the contributor source without a workspace-specific separator or shell lookup.
  */
 export default function createTtscPlugin(
   context: ITtscPluginFactoryContext,

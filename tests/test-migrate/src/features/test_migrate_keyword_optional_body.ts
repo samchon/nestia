@@ -12,6 +12,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 1. Migrate a document with an optional and a required JSON body.
  * 2. Assert keyword `Props` marks only the optional body `?`.
  * 3. Assert positional mode marks the same body `?`.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generated keyword Props and positional signatures must mark the optional JSON body optional and keep the required body required.
+ * @evidence contracts/testing.md#independent-expectations The two input requestBody.required booleans independently determine whether callers may omit the body.
+ * @evidence contracts/testing.md#distinguishing-cases Required versus optional bodies in both calling conventions expose a keyword-only mismatch.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_keyword_optional_body as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_keyword_optional_body = (): void => {
   const app: NestiaMigrateApplication =

@@ -46,7 +46,7 @@ export namespace DynamicBenchmarkReporter {
    * machine. Decimals are truncated, not rounded, to two places. The CPU model
    * is `unknown` when the platform exposes no CPU information.
    *
-   * @evidence contracts/common.md#principled-implementation Each table row is built from the same statistics record; `Math.floor` on the value scaled by 100 truncates to two decimals and `en-US` fixes separators, so output does not depend on the default locale; a missing CPU model degrades to a stated `unknown`.
+   * @evidence contracts/common.md#principled-implementation Each table row is built from the same statistics record; `Math.trunc` on the value scaled by 100 truncates toward zero to two decimals, including negative elapsed values after a wall-clock adjustment. `en-US` fixes separators, and an absent CPU model is displayed as `unknown`.
    * @evidence contracts/common.md#clear-and-simple-design Small local helpers (`integer`, `format`, `row`, `line`) share the formatting rules inside one function, so one place decides how a number reads.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The report states only the report's measurements and supplied host facts; nothing describes an unmeasured backend server or changes foreign runtime methods.
    * @evidence contracts/common.md#meaningful-documentation The comment states the locale, the truncation, and the CPU fallback.
@@ -64,7 +64,7 @@ export namespace DynamicBenchmarkReporter {
     const format = (value: number | null) =>
       value === null
         ? "N/A"
-        : (Math.floor(value * 100) / 100).toLocaleString("en-US");
+        : (Math.trunc(value * 100) / 100).toLocaleString("en-US");
     const head = () =>
       [
         "Type",

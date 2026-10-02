@@ -51,6 +51,10 @@
  * @evidence contracts/common.md#clear-and-simple-design Three comparators share scalar-to-array wrapping. Strings compare each key by collation; dates and numbers use a shared strict mismatch search over their numeric keys.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The ordering rule is generic in the getter, with no field, entity, or locale special case.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose lists the features and the sort contract with an example.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Keys use JavaScript arithmetic, Date parsing or runtime string collation, with no native filesystem or process boundary.
+ * @evidence contracts/performance.md#efficient-algorithms Each comparison extracts both key lists and visits their common prefix until the first difference; date keys additionally parse all supplied strings once per comparison. No sort or repeated scan is performed inside a comparison.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each comparison depends on current supplied values and possibly effectful getters; this operation coordinates no reusable computation across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only invocation-local comparison state is held and the returned comparator captures its getter; external resources and comparator retention belong to the caller.
  */
 export namespace GaffComparator {
   /**
@@ -143,6 +147,10 @@ export namespace GaffComparator {
    * @evidence contracts/common.md#clear-and-simple-design Shared wrapping accepts scalar or array keys; one bounded loop returns the first nonzero collation result or the length difference.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The comparison is the platform's locale collation, not a hand-written ordering.
    * @evidence contracts/common.md#meaningful-documentation The comment states the locale sensitivity, the multi-value rule, and the arguments, with examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Keys use JavaScript arithmetic, Date parsing or runtime string collation, with no native filesystem or process boundary.
+   * @evidence contracts/performance.md#efficient-algorithms Both getters run once and a bounded loop visits only common keys until the first collation difference. Work depends on examined keys and string comparison cost; scalar wrapping adds constant space.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each comparison depends on current supplied values and possibly effectful getters; this operation coordinates no reusable computation across calls.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only invocation-local comparison state is held and the returned comparator captures its getter; external resources and comparator retention belong to the caller.
    */
   export const strings =
     <T>(getter: (input: T) => string | string[]) =>
@@ -236,6 +244,10 @@ export namespace GaffComparator {
    * @evidence contracts/common.md#clear-and-simple-design It uses the shared `wrap` and `mismatch`, and adds only the parsing.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Parsing is the standard constructor with no format special cases.
    * @evidence contracts/common.md#meaningful-documentation The comment states the accepted formats and the millisecond comparison, with examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Keys use JavaScript arithmetic, Date parsing or runtime string collation, with no native filesystem or process boundary.
+   * @evidence contracts/performance.md#efficient-algorithms Both getters run once, each returned string is parsed once, and the bounded mismatch search visits at most the common key count. Numeric key arrays require space proportional to the two lists.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each comparison depends on current supplied values and possibly effectful getters; this operation coordinates no reusable computation across calls.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only invocation-local comparison state is held and the returned comparator captures its getter; external resources and comparator retention belong to the caller.
    */
   export const dates =
     <T>(getter: (input: T) => string | string[]) =>
@@ -359,6 +371,10 @@ export namespace GaffComparator {
    * @evidence contracts/common.md#clear-and-simple-design It uses the shared `wrap` and `mismatch`, and adds only the subtraction.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The comparison is the arithmetic difference, with no rounding or thresholds.
    * @evidence contracts/common.md#meaningful-documentation The comment states the multi-value rule and the arguments, with examples.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Keys use JavaScript arithmetic, Date parsing or runtime string collation, with no native filesystem or process boundary.
+   * @evidence contracts/performance.md#efficient-algorithms Both getters run once and mismatch visits only the common prefix until the first unequal key. Existing key arrays are reused, and scalar wrapping takes constant auxiliary space.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each comparison depends on current supplied values and possibly effectful getters; this operation coordinates no reusable computation across calls.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only invocation-local comparison state is held and the returned comparator captures its getter; external resources and comparator retention belong to the caller.
    */
   export const numbers =
     <T>(closure: (input: T) => number | number[]) =>
@@ -377,8 +393,12 @@ export namespace GaffComparator {
    * or -1; beyond it a proper prefix orders before its extension, in both
    * argument orders.
    */
-  const mismatch = <K>(a: K[], b: K[]): number =>
-    a.findIndex((v, i) => i < b.length && v !== b[i]);
+  const mismatch = <K>(a: K[], b: K[]): number => {
+    const length: number = Math.min(a.length, b.length);
+    for (let index: number = 0; index < length; ++index)
+      if (a[index] !== b[index]) return index;
+    return -1;
+  };
 
   const wrap = <T>(elem: T | T[]): T[] => (Array.isArray(elem) ? elem : [elem]);
 }

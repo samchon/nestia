@@ -20,6 +20,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 3. Assert the DTO barrel re-exports every generated structure file.
  * 4. Assert no generated key uses the legacy single-package `src/` or `test/`
  *    roots.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Nest generation must place controllers, DTOs, functional files and generated tests under their owning workspace packages and re-export DTOs through the generated barrel.
+ * @evidence contracts/testing.md#independent-expectations The backend/API workspace contract establishes output roots and public DTO barrel exports; expected names derive from the explicit fixture routes and schemas.
+ * @evidence contracts/testing.md#distinguishing-cases A nested resource, multiple DTOs and generated e2e files exercise workspace separation; legacy src/test roots are rejected.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_nest_monorepo_layout as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_nest_monorepo_layout = (): void => {
   const app: NestiaMigrateApplication =

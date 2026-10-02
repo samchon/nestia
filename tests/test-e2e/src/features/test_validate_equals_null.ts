@@ -17,7 +17,13 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Assert each reports a difference rather than throwing, and that `notEquals`
  *    accepts the same pair.
  * 3. Re-assert the neighboring spellings that were already correct.
+ *
+ * @evidence contracts/testing.md#behavioral-verification TestValidator equals and notEquals handle nullable nested values and excluded keys.
+ * @evidence contracts/testing.md#independent-expectations Null has its own value identity and differs from objects, arrays, undefined and numbers.
+ * @evidence contracts/testing.md#distinguishing-cases Top-level, nested, array, operand-swapped and filtered-key comparisons cover null equality and mismatch behavior.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e source entry discovers this test-prefixed export; it directly invokes the operation with local fixtures or supported transport injection and performs no product installation or real network session.
  */
+
 export function test_validate_equals_null(): void {
   // A difference must be REPORTED, not thrown.
   TestValidator.error("object vs null", () =>

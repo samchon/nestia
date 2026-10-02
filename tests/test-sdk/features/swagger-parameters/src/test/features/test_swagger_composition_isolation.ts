@@ -61,6 +61,15 @@ class CustomizedModule {}
  * 2. Assert the three documents are equal, and each carries every edit once.
  * 3. Assert the config is unchanged.
  * 4. Edit a composed document directly and assert the next one is unaffected.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Composes repeatedly with non-idempotent customizers, checks each edit occurs once, verifies unchanged config and rejects caller-edit leakage into a later document.
+ * @evidence contracts/testing.md#independent-expectations Authored append/increment operations define literal once-only results; configuration ownership requires its pre-call snapshot to remain unchanged.
+ * @evidence contracts/testing.md#distinguishing-cases Repeated composition, customizer edits and direct caller mutation distinguish shared-reference leaks across components, parameters and document-level options.
+ * @evidence contracts/testing.md#execution-ownership The feature DynamicExecutor entry swagger-parameters/src/test/index.ts discovers this exported test after the SDK harness prepares its generated consumer; this installed producer/consumer population is E2E, not a portable unit.
+ * @evidence contracts/e2e.md#necessary-boundary Creates a Nest application and composes actual reflected route metadata; this pins the Nest reflection-to-composer connection rather than a separately installed server.
+ * @evidence contracts/e2e.md#shared-execution The swagger-parameters feature entry shares its generated Swagger/SDK artifacts and built consumer among the feature tests. The restored harness still prepares separate feature projects; this case does not perform another installation or compilation.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Each invocation defines its own metadata inputs, creates one application and closes it in finally. Composition mutation stays confined to returned documents, while literal inputs establish fresh expected state.
+ * @evidence contracts/e2e.md#preserved-coverage The surviving assertions in test_swagger_composition_isolation retain repeated composition, customizer edits and direct caller mutation distinguish shared-reference leaks across components, parameters and document-level options.
  */
 export const test_swagger_composition_isolation = async (): Promise<void> => {
   Reflect.defineMetadata(

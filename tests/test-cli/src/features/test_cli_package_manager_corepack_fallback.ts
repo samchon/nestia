@@ -6,16 +6,20 @@ import { CliTestHarness } from "../internal/CliTestHarness";
  * Verifies the scaffolder falls back to `corepack pnpm` when pnpm is not
  * directly installed.
  *
- * Node.js bundles corepack, so most machines without a global pnpm can still
- * resolve the `catalog:` protocol through it — but only if the CLI both
- * prefixes every lifecycle command with `corepack pnpm` and suppresses the
- * interactive download prompt that would otherwise hang a non-interactive
- * scaffold.
+ * When corepack is installed, machines without a global pnpm can still resolve
+ * the `catalog:` protocol through it — but only if the CLI both prefixes every
+ * lifecycle command with `corepack pnpm` and suppresses the interactive
+ * download prompt that would otherwise hang a non-interactive scaffold.
  *
  * 1. Run `nestia start` with a fake context where only `corepack --version` probes
  *    successfully.
  * 2. Assert install/build/test commands are prefixed with `corepack pnpm`.
  * 3. Assert `COREPACK_ENABLE_DOWNLOAD_PROMPT` is set to `"0"`.
+ *
+ * @evidence contracts/testing.md#behavioral-verification With only corepack available, the starter probes pnpm before corepack, prefixes install/build/test with corepack pnpm and suppresses the download prompt.
+ * @evidence contracts/testing.md#independent-expectations Corepack's pnpm command requires pnpm as its first argument; literal lifecycle vectors and prompt value follow that command contract.
+ * @evidence contracts/testing.md#distinguishing-cases This case owns pnpm unavailable/corepack available. Direct pnpm and neither available are tested separately; finally restores the prompt flag after success or failure.
+ * @evidence contracts/testing.md#execution-ownership The test-cli DynamicExecutor discovers this unit export, which calls the built engine with injected context operations; no CLI process, package manager or network connection runs.
  */
 export const test_cli_package_manager_corepack_fallback =
   async (): Promise<void> => {

@@ -11,6 +11,11 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
  * 1. Compose a document with a convertible and an unconvertible operation.
  * 2. Assert the output names the skipped one with migrate's message.
  * 3. Assert a document without such operations reports none.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Both public composition modes must report the unsupported binary operation and diagnostics, while a clean JSON operation reports no omissions.
+ * @evidence contracts/testing.md#independent-expectations The editor exposes converter omissions rather than silently handing out incomplete projects; literal method/path expectations identify the authored binary response.
+ * @evidence contracts/testing.md#distinguishing-cases SDK and Nest each compare mixed convertible and unsupported operations against a clean document lacking the binary operation.
+ * @evidence contracts/testing.md#execution-ownership The test-editor DynamicExecutor discovers this exported unit and calls built owning operations in-process without an installed consumer or live host. SSR module initialization stays separate from the browser population.
  */
 export const test_editor_composer_skipped_operations =
   async (): Promise<void> => {

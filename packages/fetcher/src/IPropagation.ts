@@ -7,20 +7,21 @@
  *
  * ```typescript
  * type Output = IPropagation<{
- *    200: ISeller.IAuthorized;
- *    400: TypeGuardError.IProps;
- * >};
+ *   200: ISeller.IAuthorized;
+ *   400: TypeGuardError.IProps;
+ * }>;
  *
  * const output: Output = await sdk.sellers.authenticate.join(input);
  * if (output.success) {
- *     // automatically casted to "ISeller.IAuthorized" type
- *     const authorized: ISeller.IAuthorized = output.data;
+ *   // automatically casted to "ISeller.IAuthorized" type
+ *   const authorized: ISeller.IAuthorized = output.data;
  * } else if (output.status === 400) {
- *     // automatically casted to "TypeGuardError.IProps" type
- *     const error: TypeGuardError.IProps = output.data;
+ *   // The unknown-status fallback overlaps numeric statuses. Validate the
+ *   // body before treating it as TypeGuardError.IProps.
+ *   const error: unknown = output.data;
  * } else {
- *     // unknown type when out of pre-defined status codes
- *     const result: unknown = output.data;
+ *   // unknown type when out of pre-defined status codes
+ *   const result: unknown = output.data;
  * }
  * ```
  *
@@ -33,7 +34,7 @@
  * @author Jeongho Nam - https://github.com/samchon
  * @template StatusMap Map of status code and its body data type.
  * @template Success Default success status code.
- * @evidence contracts/common.md#principled-implementation The union is built from a status map: each configured status becomes a branch whose success flag is true exactly for the configured success statuses (200 and 201 by default), and one extra branch of failure with unknown data covers statuses outside the map, so narrowing on `success` and `status` leaves no case unhandled.
+ * @evidence contracts/common.md#principled-implementation Each configured status becomes a branch whose success flag is true for configured success statuses, 200 and 201 by default. A false-success fallback with numeric status and unknown data represents unconfigured responses; TypeScript cannot subtract numeric literals from number, so this fallback also overlaps configured failure statuses and status-only narrowing cannot prove their payload shape.
  * @evidence contracts/common.md#clear-and-simple-design One mapped type indexed into a union, plus the fallback branch.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment gives an example of narrowing and says which generated SDK option uses the type.

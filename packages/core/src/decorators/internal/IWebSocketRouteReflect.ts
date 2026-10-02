@@ -7,6 +7,7 @@ import { IRequestBodyValidation } from "./IRequestBodyValidation";
  * @evidence contracts/common.md#clear-and-simple-design A one-member record and a namespace of the parameter record types.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states which metadata the type describes.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Handshake paths, parameter positions and callback signatures describe protocol metadata without native filesystem identities.
  */
 export interface IWebSocketRouteReflect {
   paths: string[];
@@ -19,6 +20,7 @@ export namespace IWebSocketRouteReflect {
    * @evidence contracts/common.md#clear-and-simple-design A union of five records.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment lists the categories.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Handshake paths, parameter positions and callback signatures describe protocol metadata without native filesystem identities.
    */
   export type IArgument = IAcceptor | IDriver | IHeader | IParam | IQuery;
   /**
@@ -28,6 +30,7 @@ export namespace IWebSocketRouteReflect {
    * @evidence contracts/common.md#clear-and-simple-design It extends the shared base and adds nothing.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states which argument it stands for.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Handshake paths, parameter positions and callback signatures describe protocol metadata without native filesystem identities.
    */
   export interface IAcceptor extends IBase<"acceptor"> {}
   /**
@@ -38,6 +41,7 @@ export namespace IWebSocketRouteReflect {
    * @evidence contracts/common.md#clear-and-simple-design It extends the shared base and adds nothing.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states which argument it stands for.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Handshake paths, parameter positions and callback signatures describe protocol metadata without native filesystem identities.
    */
   export interface IDriver extends IBase<"driver"> {}
   /**
@@ -48,6 +52,7 @@ export namespace IWebSocketRouteReflect {
    * @evidence contracts/common.md#clear-and-simple-design It extends the shared base with one function member.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states which argument it stands for and what the validator returns.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Handshake paths, parameter positions and callback signatures describe protocol metadata without native filesystem identities.
    */
   export interface IHeader extends IBase<"header"> {
     /**
@@ -66,6 +71,7 @@ export namespace IWebSocketRouteReflect {
    * @evidence contracts/common.md#clear-and-simple-design It extends the shared base with two members.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states which argument it stands for.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Handshake paths, parameter positions and callback signatures describe protocol metadata without native filesystem identities.
    */
   export interface IParam extends IBase<"param"> {
     field: string;
@@ -76,6 +82,7 @@ export namespace IWebSocketRouteReflect {
      * @evidence contracts/common.md#clear-and-simple-design One function member.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
      * @evidence contracts/common.md#meaningful-documentation The comment states the conversion and the failure.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation Handshake paths, parameter positions and callback signatures describe protocol metadata without native filesystem identities.
      */
     assert: (value: string) => any;
   }
@@ -87,6 +94,7 @@ export namespace IWebSocketRouteReflect {
    * @evidence contracts/common.md#clear-and-simple-design It extends the shared base with one function member.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states which argument it stands for.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation Handshake paths, parameter positions and callback signatures describe protocol metadata without native filesystem identities.
    */
   export interface IQuery extends IBase<"query"> {
     /**
@@ -97,6 +105,7 @@ export namespace IWebSocketRouteReflect {
      * @evidence contracts/common.md#clear-and-simple-design One function member.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
      * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation Handshake paths, parameter positions and callback signatures describe protocol metadata without native filesystem identities.
      */
     validate: (input: URLSearchParams) => any | Error;
   }

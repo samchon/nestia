@@ -17,7 +17,7 @@ import { FetcherBase } from "./internal/FetcherBase";
  * decorator, then {@link EncryptedFetcher} class would be used instead.
  *
  * @author Jeongho Nam - https://github.com/samchon
- * @evidence contracts/common.md#principled-implementation Bodies pass through unchanged, and a route that declares an encrypted body is refused before any request, because silently sending plain text for an encrypted route would break the security contract; everything else is `FetcherBase`.
+ * @evidence contracts/common.md#principled-implementation The codecs preserve transformed bodies, while FetcherBase owns JSON, form and binary handling. Encrypted metadata is refused before transport. The shared pipeline removes caller Content-Type case-insensitively so multipart boundaries remain fetch-owned, normalizes only host/path separator boundaries, and classifies 200, 201 and the route's configured success status.
  * @evidence contracts/common.md#clear-and-simple-design Two public operations that mirror `EncryptedFetcher`, with the encryption guard as their only own logic.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The refusal is the contract with the generated SDK, which chooses `EncryptedFetcher` for encrypted routes; no route or header is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose says when the generated SDK uses this fetcher and that it does no encryption.
@@ -29,7 +29,7 @@ export namespace PlainFetcher {
    * @param connection Connection information for the remote HTTP server
    * @param route Route information about the target API
    * @returns Nothing because of `HEAD` method
-   * @evidence contracts/common.md#principled-implementation The overloads narrow the argument list by method; the implementation refuses an encrypted route and delegates to `FetcherBase.request`, which returns the body on success and throws `HttpError` otherwise.
+   * @evidence contracts/common.md#principled-implementation The overloads narrow arguments by method; the implementation refuses encryption metadata and delegates to FetcherBase.request. Failed statuses become HttpError with their original text, successful HEAD has no data, and binary successes transfer response.body unchanged or create a synchronously closed empty stream if absent. Stream consumption and cancellation belong to the caller.
    * @evidence contracts/common.md#clear-and-simple-design One guard and one delegation, with the overloads only splitting the types.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The guard follows the route metadata, not a path or a connection.
    * @evidence contracts/common.md#meaningful-documentation Each overload documents its parameters and return value.

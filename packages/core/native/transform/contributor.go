@@ -19,6 +19,10 @@ var emitTransformCollectors []emitTransformCollector
 // @evidence contracts/common.md#clear-and-simple-design One append to a package-level list, read by one private function.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts It is the documented registration point for linked contributors, not a hook into foreign code; the list is written only during initialization, which is single-threaded.
 // @evidence contracts/common.md#meaningful-documentation The comment states who calls it, when the collectors run, and why.
+// @evidenceExclude contracts/portability.md#os-neutral-implementation A collector is an in-process function registered by linked Go packages, with no native path or subprocess representation.
+// @evidence contracts/performance.md#efficient-algorithms A non-nil registration appends once with amortized constant work; executing all registered collectors later is linear in their count plus their own work.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The process owns the collector slice for its lifetime. Registration is intended for package initialization; repeated later registrations would grow it without a bound.
 func RegisterEmitTransformCollector(collector emitTransformCollector) {
 	if collector != nil {
 		emitTransformCollectors = append(emitTransformCollectors, collector)

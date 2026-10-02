@@ -11,6 +11,7 @@ import { E2eFileProgrammer } from "./internal/E2eFileProgrammer";
  * @evidence contracts/common.md#clear-and-simple-design One public function and one directory helper.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Only HTTP routes have a test, and no route is skipped by name.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidence contracts/portability.md#os-neutral-implementation The output root is resolved with Node path.resolve, descendants use path.join and recursive fs.mkdir creates them. SDK import paths are passed to E2eFileProgrammer independently from native directory paths.
  */
 export namespace E2eGenerator {
   /**
@@ -21,6 +22,7 @@ export namespace E2eGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One loop over the routes.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts WebSocket and MCP routes are not tests of the HTTP SDK and are left out by protocol.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation Native output and SDK roots use path.resolve and path.join before mkdir or file generation. No shell or filesystem case assumption participates; the generated HTTP route names have already passed accessor analysis.
    */
   export const generate = async (app: ITypedApplication): Promise<void> => {
     console.log("Generating E2E Test Functions");

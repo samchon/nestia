@@ -11,14 +11,31 @@ import { NestiaMigrateNestMethodProgrammer } from "../programmers/NestiaMigrateN
  * @evidence contracts/common.md#meaningful-documentation The comment lists the options.
  */
 export interface INestiaMigrateConfig {
+  /** Include runtime request validation and random-response simulator members. */
   simulate: boolean;
+
+  /** Emit a generated test feature for each migrated operation. */
   e2e: boolean;
+
+  /** Replace the template package placeholder; omission retains the placeholder. */
   package?: string;
+
+  /**
+   * Use a props object when true; false or omission selects positional
+   * parameters.
+   */
   keyword?: boolean;
+
+  /** Override the generated declaration attribution tag and its text. */
   author?: {
     tag: string;
     value: string;
   };
+
+  /**
+   * Replace controller method emission while retaining the surrounding
+   * controller.
+   */
   programmer?: {
     controllerMethod?: (
       ctx: NestiaMigrateNestMethodProgrammer.IContext,

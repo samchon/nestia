@@ -28,10 +28,19 @@ export namespace NestiaMigrateApiFileProgrammer {
    * @evidence contracts/common.md#meaningful-documentation The comment lists the fields.
    */
   export interface IProps {
+    /** Calling convention and optional generated features for this operation. */
     config: INestiaMigrateConfig;
+
+    /** Component schemas used to resolve DTO references. */
     components: OpenApi.IComponents;
+
+    /** Accessor prefix locating this functional API index. */
     namespace: string[];
+
+    /** Operations whose functions belong directly to this index. */
     routes: IHttpMigrateRoute[];
+
+    /** Immediate child namespace names re-exported by this index. */
     children: Set<string>;
   }
 

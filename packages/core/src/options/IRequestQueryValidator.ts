@@ -16,6 +16,7 @@ export type IRequestQueryValidator<T> =
  * @evidence contracts/common.md#clear-and-simple-design Three variants, one per typia function family, with no shared base because each function has a different shape.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior; the runtime rejects an unknown `type` with an error instead of accepting it.
  * @evidence contracts/common.md#meaningful-documentation The comment names the decorators that receive the validator, the meaning of the discriminant, and the response a failure becomes.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator consumes URLSearchParams and describes query data rather than native paths or process arguments.
  */
 export namespace IRequestQueryValidator {
   /**
@@ -25,6 +26,7 @@ export namespace IRequestQueryValidator {
    * @evidence contracts/common.md#clear-and-simple-design A two-member record, the tag and the function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the typia function the variant comes from; the failure response is stated on the union.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator consumes URLSearchParams and describes query data rather than native paths or process arguments.
    */
   export interface IAssert<T> {
     type: "assert";
@@ -35,6 +37,7 @@ export namespace IRequestQueryValidator {
      * @evidence contracts/common.md#clear-and-simple-design One function member with the input the decorator has.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The function is generated from the type, and the runtime never edits its result.
      * @evidence contracts/common.md#meaningful-documentation The comment states that the function is generated for the requested type; its input is in the signature.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator consumes URLSearchParams and describes query data rather than native paths or process arguments.
      */
     assert: (input: URLSearchParams) => T;
   }
@@ -45,6 +48,7 @@ export namespace IRequestQueryValidator {
    * @evidence contracts/common.md#clear-and-simple-design A two-member record, the tag and the function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the typia function the variant comes from.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator consumes URLSearchParams and describes query data rather than native paths or process arguments.
    */
   export interface IIs<T> {
     type: "is";
@@ -55,6 +59,7 @@ export namespace IRequestQueryValidator {
      * @evidence contracts/common.md#clear-and-simple-design One function member with the input the decorator has.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The function is generated from the type, and the runtime never edits its result.
      * @evidence contracts/common.md#meaningful-documentation The comment states that the function is generated for the requested type; its result is in the signature.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator consumes URLSearchParams and describes query data rather than native paths or process arguments.
      */
     is: (input: URLSearchParams) => T | null;
   }
@@ -65,6 +70,7 @@ export namespace IRequestQueryValidator {
    * @evidence contracts/common.md#clear-and-simple-design A two-member record, the tag and the function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the typia function the variant comes from.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator consumes URLSearchParams and describes query data rather than native paths or process arguments.
    */
   export interface IValidate<T> {
     type: "validate";
@@ -75,6 +81,7 @@ export namespace IRequestQueryValidator {
      * @evidence contracts/common.md#clear-and-simple-design One function member with the input the decorator has.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The function is generated from the type, and the runtime never edits its result.
      * @evidence contracts/common.md#meaningful-documentation The comment states that the function is generated for the requested type; its result is in the signature.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation The validator consumes URLSearchParams and describes query data rather than native paths or process arguments.
      */
     validate: (input: URLSearchParams) => IValidation<T>;
   }

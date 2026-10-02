@@ -3,6 +3,19 @@ import fs from "fs";
 import path from "path";
 import { pathToFileURL } from "url";
 
+/**
+ * Reads CLI-generated info and servers, comparing package version, configured
+ * title/servers and the default generator description.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Reads CLI-generated info and servers, comparing package version, configured title/servers and the default generator description.
+ * @evidence contracts/testing.md#independent-expectations The configured info/server fields and package version are generator inputs; the default description is the documented literal.
+ * @evidence contracts/testing.md#distinguishing-cases Configured fields and an omitted description distinguish explicit settings from the default.
+ * @evidence contracts/testing.md#execution-ownership The feature DynamicExecutor entry swagger/src/test/index.ts discovers this exported test after the SDK harness prepares its generated consumer; this installed producer/consumer population is E2E, not a portable unit.
+ * @evidence contracts/e2e.md#necessary-boundary Consumes artifacts emitted from the authored swagger controller program by the native metadata and SDK generation pipeline; the assertions detect loss across that producer/consumer connection.
+ * @evidence contracts/e2e.md#shared-execution The swagger feature entry shares its generated Swagger/SDK artifacts and built consumer among the feature tests. The restored harness still prepares separate feature projects; this case does not perform another installation or compilation.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The swagger test reads its current feature artifacts and does not edit them. The feature harness owns preparation and consumer lifetime; this declaration starts no background producer or persistent cache.
+ * @evidence contracts/e2e.md#preserved-coverage The surviving assertions in test_swagger retain configured fields and an omitted description distinguish explicit settings from the default.
+ */
 export async function test_swagger(): Promise<void> {
   // `import()` takes a URL specifier, not a filesystem path. On POSIX the two
   // coincide for an absolute path; on Windows one starts with a drive letter,

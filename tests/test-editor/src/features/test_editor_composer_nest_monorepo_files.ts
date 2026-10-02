@@ -5,16 +5,19 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
  * the new nestia-start template.
  *
  * The editor feeds its zip download from @nestia/migrate, whose nest mode moved
- * from the single-package `src/api` layout to the pnpm monorepo
- * (`packages/api`
- *
- * - `packages/backend`). A regression back to legacy keys would hand users a
- *   project whose build scripts point at nothing.
+ * from the single-package `src/api` layout to the pnpm monorepo (`packages/api`
+ * and `packages/backend`). A regression back to legacy keys would hand users a
+ * project whose build scripts point at nothing.
  *
  * 1. Compose a nest-mode project from a minimal OpenAPI 3.1 document.
  * 2. Assert monorepo markers exist: pnpm-workspace.yaml and
  *    packages/backend/nestia.config.ts.
  * 3. Assert no legacy `src/api/...` keys remain.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The nest composer converts an authored document and must emit backend configuration and API source paths while omitting legacy layout.
+ * @evidence contracts/testing.md#independent-expectations The supported pnpm project layout requires packages/api and packages/backend with a root workspace manifest; literal paths follow that independent contract.
+ * @evidence contracts/testing.md#distinguishing-cases A convertible GET operation must yield API sources; forbidden legacy src/api keys must be absent. Skipped operations have their own companion unit.
+ * @evidence contracts/testing.md#execution-ownership The test-editor DynamicExecutor discovers this exported unit and calls built owning operations in-process without an installed consumer or live host. SSR module initialization stays separate from the browser population.
  */
 export const test_editor_composer_nest_monorepo_files =
   async (): Promise<void> => {

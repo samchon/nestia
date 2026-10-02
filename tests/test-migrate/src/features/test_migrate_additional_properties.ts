@@ -13,6 +13,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  *    additional properties.
  * 2. Assert its DTO keeps the required `id`, the optional `name`, and the index
  *    signature.
+ *
+ * @evidence contracts/testing.md#behavioral-verification SDK generation must retain id/name beside the additionalProperties index signature; flattening emitted DTO text detects replacement of declared properties by only the index signature.
+ * @evidence contracts/testing.md#independent-expectations Declared required id, optional name and boolean additionalProperties establish literal expectations independently of the writer.
+ * @evidence contracts/testing.md#distinguishing-cases The mixed object exercises coexistence of fixed and dynamic properties; it does not own empty or fixed-only objects.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_additional_properties as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_additional_properties = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

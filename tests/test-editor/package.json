@@ -14,7 +14,9 @@
     "@types/node": "catalog:utils",
     "cross-env": "catalog:utils",
     "fflate": "^0.8.2",
-    "ttsc": "catalog:typescript"
+    "ttsc": "catalog:typescript",
+    "jsdom": "catalog:utils",
+    "react": "catalog:utils"
   },
   "packageManager": "pnpm@10.6.4"
 }

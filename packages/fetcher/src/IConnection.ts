@@ -40,7 +40,7 @@ export interface IConnection<
    * By the way, to utilize this simulation mode, SDK library must be generated
    * with {@link INestiaConfig.simulate} option, too. Open `nestia.config.ts`
    * file, and configure {@link INestiaConfig.simulate} property to be `true`.
-   * Them, newly generated SDK library would have a built-in mock-up data
+   * Then, newly generated SDK library would have a built-in mock-up data
    * generator.
    *
    * @default false
@@ -50,15 +50,17 @@ export interface IConnection<
   /**
    * Logger function.
    *
-   * This function is called and awaited when the fetch event is completed,
-   * whether the request succeeded or failed. An error the function throws is
-   * ignored, so a logger can neither fail nor change the request.
+   * This function is called and awaited after transport and response
+   * processing, whether they succeeded or failed. Configuration, body encoding
+   * and URL errors that occur before transport do not produce an event. Logger
+   * errors are ignored; event input and output share the caller's payload
+   * references, so a logger should treat them as read-only.
    *
    * @param event Event information of the fetch event.
-   * @evidence contracts/common.md#principled-implementation The logger receives the completed event and is awaited in the `finally` block of the request, so the event carries every timestamp and the output; an error it throws is ignored, so logging cannot change the outcome of a request.
+   * @evidence contracts/common.md#principled-implementation The callback receives the event from the transport finally block after completed_at is set. respond_at and status stay null without a response, and output stays undefined if body processing throws. Its rejection is ignored, but its argument includes mutable payload references and its awaiting can delay completion.
    * @evidence contracts/common.md#clear-and-simple-design One optional callback with a single event argument.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The callback observes only; the pipeline never conditions its behavior on its presence beyond calling it.
-   * @evidence contracts/common.md#meaningful-documentation The comment states when it is called, that it is awaited, and that its errors are ignored.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The optional callback uses the connection's supported logging boundary; the pipeline catches its errors without replacing a transport or decoding failure.
+   * @evidence contracts/common.md#meaningful-documentation The comment states when the callback runs, which pretransport errors create no event, that it is awaited, and why shared payload references should be treated as read-only.
    */
   logger?: (event: IFetchEvent) => Promise<void>;
 
@@ -102,14 +104,14 @@ export namespace IConnection {
    * Almost same with {@link RequestInit} type of the {@link fetch} function, but
    * `body`, `headers` and `method` properties are omitted.
    *
-   * The reason why defining duplicated definition of {@link RequestInit} is for
-   * legacy NodeJS environments, which does not have the {@link fetch} function
-   * type.
+   * The explicit option record exposes the supported subset independently of
+   * changes to {@link RequestInit}. DOM types are still required by the
+   * connection's custom fetch and abort signal members.
    *
-   * @evidence contracts/common.md#principled-implementation The members repeat the `RequestInit` fields that are neither `body`, `headers`, nor `method` (those three are owned by the route), so the type compiles without DOM typings and cannot override what the route decides.
+   * @evidence contracts/common.md#principled-implementation The record exposes a subset of RequestInit options while omitting body, headers and method, whose construction belongs to the route pipeline; AbortSignal and the connection's fetch member still depend on DOM declarations.
    * @evidence contracts/common.md#clear-and-simple-design A flat option record, with each member mirroring one field of the standard request options.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type; the fetcher spreads the options into the request and then sets the method and headers itself.
-   * @evidence contracts/common.md#meaningful-documentation The comment explains why the type is duplicated, and each member repeats the standard field's meaning.
+   * @evidence contracts/common.md#meaningful-documentation The comment explains the supported subset and remaining DOM type dependency, and each member documents the standard field's meaning.
    */
   export interface IOptions {
     /**
@@ -208,7 +210,7 @@ export namespace IConnection {
    *
    * Below are list of prohibited in HTTP headers.
    *
-   * 1. Value type one of {@link HeaderValue}
+   * 1. Value type is neither {@link HeaderValue} nor omitted `undefined`
    * 2. Key is "set-cookie", but value is not an Array type
    * 3. Key is one of them, but value is Array type
    *

@@ -12,7 +12,15 @@ import { INestiaMigrateConfig } from "./INestiaMigrateConfig";
  * @evidence contracts/common.md#meaningful-documentation The comment lists the members.
  */
 export interface INestiaMigrateContext {
+  /** Select backend/API workspace output or a standalone SDK project. */
   mode: "nest" | "sdk";
+
+  /**
+   * Generation-local route/accessor copies backed by the shared analyzed
+   * document.
+   */
   application: IHttpMigrateApplication;
+
+  /** Options used consistently by each programmer in this generation. */
   config: INestiaMigrateConfig;
 }

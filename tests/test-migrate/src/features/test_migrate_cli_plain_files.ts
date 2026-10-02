@@ -15,6 +15,15 @@ import path from "path";
  * 1. Run the built CLI in NestJS mode on an empty document.
  * 2. Assert the api `.gitignore` and the backend `.env.local` are the template's
  *    lines, and a TypeScript file is still written.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The built migrate CLI must preserve the gitignore first line and environment assignment while emitting its TypeScript module.
+ * @evidence contracts/testing.md#independent-expectations The template text lib/ and API_PORT=37001 are configuration literals that must retain their file-format meaning independently of TypeScript formatting.
+ * @evidence contracts/testing.md#distinguishing-cases Plain dotfile and environment content expose accidental TypeScript formatting; the module assertion guards continued TypeScript output.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_cli_plain_files; it executes the built CLI in isolated subprocesses and temporary directories.
+ * @evidence contracts/e2e.md#necessary-boundary The actual built CLI connects Commander options, input reading, template generation, formatting and filesystem archiving; direct generator calls cannot detect this process-level wiring.
+ * @evidence contracts/e2e.md#shared-execution Each invocation reuses the one built migrate artifact. Boolean variants require separate CLI lifetimes because Commander consumes process arguments; the plain-files case owns a separate archive for its file-format assertions.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity A fresh OS temporary directory isolates each test, distinct output directories isolate CLI variants, synchronous children terminate before inspection, and finally removes the owned tree on success or assertion failure.
+ * @evidence contracts/e2e.md#preserved-coverage The boolean flag variants and plain-text archiving assertions remain in their named CLI tests; portable schema and calling-convention generation is asserted by the neighboring direct generator tests.
  */
 export const test_migrate_cli_plain_files = (): void => {
   const root: string = fs.mkdtempSync(

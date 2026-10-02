@@ -249,14 +249,23 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
  */
 export namespace NestiaEditorIframe {
   export interface IProps {
+    /** Source document or URL loaded once when this component mounts. */
     swagger:
       | string
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument
       | OpenApiV3_1.IDocument;
+
+    /** Generated package identity; defaults to @ORGANIZATION/PROJECT. */
     package?: string;
+
+    /** Enable keyword parameter objects; enabled when omitted. */
     keyword?: boolean;
+
+    /** Include SDK simulators; enabled when omitted. */
     simulate?: boolean;
+
+    /** Include generated E2E functions; enabled when omitted. */
     e2e?: boolean;
 
     /** @internal */

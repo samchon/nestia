@@ -23,11 +23,20 @@ import { SourceFinder } from "../../../../../../../packages/sdk/src/utils/Source
  *    glob, and assert one controller each time; an `exclude` naming the file
  *    mounts none.
  * 3. Assert `@nestia/sdk`'s finder expands the same inputs.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Loads an authored controller by literal directory, native and slash glob; exclusion yields no controllers and SourceFinder expands the same inputs.
+ * @evidence contracts/testing.md#independent-expectations The temporary controller exports exactly one class; native path separators and bracket characters are literal filesystem data unless an explicit glob is supplied.
+ * @evidence contracts/testing.md#distinguishing-cases Literal, two glob spellings and explicit exclusion distinguish path interpretation on the active filesystem.
+ * @evidence contracts/testing.md#execution-ownership The exported case is discovered by the feature src/test/index.ts after start.js compiles the generated consumer; compiler and host preparation make this an E2E population.
+ * @evidence contracts/e2e.md#necessary-boundary Loads an authored controller by literal directory, native and slash glob; exclusion yields no controllers and SourceFinder expands the same inputs. The assertion observes generated output or its connected consumer, rather than a committed repository arrangement.
+ * @evidence contracts/e2e.md#shared-execution The feature runner shares generation and prepared artifacts with its sibling cases. Compatible programs are batched by start.js; distinct feature programs still incur separate consumer/host preparation, which is an unresolved suite consolidation limitation.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity This case consumes the feature-specific generated artifacts and connection; local connector, application or temporary consumer cleanup is owned by its try/finally where created. Outer backend lifecycle belongs to the feature entry and exceptional startup cleanup remains a harness limitation.
+ * @evidence contracts/e2e.md#preserved-coverage Literal, two glob spellings and explicit exclusion distinguish path interpretation on the active filesystem. Existing assertions remain at this executable owner; no branch is removed or claimed to be transferred to units.
  */
 export const test_dynamic_module_paths = async (): Promise<void> => {
   const root: string = path.resolve(
     __dirname,
-    "../../../.tmp-dynamic-module-paths",
+    "../../../node_modules/.tmp-dynamic-module-paths",
   );
   const directory: string = path.join(root, "app [v2]", "controllers");
   const file: string = path.join(directory, "ProbeController.js");

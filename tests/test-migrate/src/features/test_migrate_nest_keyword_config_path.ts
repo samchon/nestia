@@ -17,6 +17,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 2. Assert `packages/backend/nestia.config.ts` carries `keyword: false`.
  * 3. Assert no root-level nestia.config.ts key exists.
  * 4. Generate with `keyword: true` and assert the config keeps its default.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Nest generation must change the backend keyword option for false, preserve true for true and avoid creating an unused root configuration.
+ * @evidence contracts/testing.md#independent-expectations The monorepo backend owns nestia.config.ts; the two requested keyword values determine its expected setting.
+ * @evidence contracts/testing.md#distinguishing-cases False and true use one application instance, exercising fresh mode-dependent output and absence of the obsolete root key.
+ * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_nest_keyword_config_path as a portable generator unit; provided fixture documents are inputs and this function starts no compiler, consumer installation or host.
  */
 export const test_migrate_nest_keyword_config_path = (): void => {
   const app: NestiaMigrateApplication =
