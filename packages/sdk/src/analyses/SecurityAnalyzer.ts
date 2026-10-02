@@ -5,6 +5,7 @@
  * @evidence contracts/common.md#clear-and-simple-design One function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a plain helper.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SecurityAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SecurityAnalyzer {
   /**
@@ -21,6 +22,7 @@ export namespace SecurityAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function with one key computation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Equality is defined by content.
    * @evidence contracts/common.md#meaningful-documentation The comment states the equality and the order.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SecurityAnalyzer.merge analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const merge = (
     ...entire: Record<string, string[]>[]

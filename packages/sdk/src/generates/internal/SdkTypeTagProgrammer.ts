@@ -12,6 +12,7 @@ import { ImportDictionary } from "./ImportDictionary";
  * @evidence contracts/common.md#clear-and-simple-design Two public functions over a table of predefined tags.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The choice is decided by the expansion.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeTagProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkTypeTagProgrammer {
   /**
@@ -21,6 +22,7 @@ export namespace SdkTypeTagProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One union.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeTagProgrammer.Target composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export type Target =
     | "object"
@@ -50,6 +52,7 @@ export namespace SdkTypeTagProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The generic form is always the same type.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeTagProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write = (
     importer: ImportDictionary,
@@ -88,6 +91,7 @@ export namespace SdkTypeTagProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One node.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The argument is written as a literal.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeTagProgrammer.writePredefined composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const writePredefined = (
     importer: ImportDictionary,

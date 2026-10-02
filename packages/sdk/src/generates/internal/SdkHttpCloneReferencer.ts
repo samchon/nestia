@@ -19,6 +19,7 @@ import { SdkWebSocketCloneProgrammer } from "./SdkWebSocketCloneProgrammer";
  * @evidence contracts/common.md#clear-and-simple-design One public function and three visitors.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The routes are rewritten in place, once.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpCloneReferencer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkHttpCloneReferencer {
   /**
@@ -29,6 +30,7 @@ export namespace SdkHttpCloneReferencer {
    * @evidence contracts/common.md#clear-and-simple-design One loop.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The routes are edited in place, as the generation owns them.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpCloneReferencer.replace composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const replace = (
     app: ITypedApplication,

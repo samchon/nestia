@@ -34,6 +34,7 @@ import { SdkTypeTagProgrammer } from "./SdkTypeTagProgrammer";
  * @evidence contracts/common.md#clear-and-simple-design The schema facade and object writer use one writer per form; collection-body operations distinguish a named recursive definition from its nested references.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A name that cannot be referenced is written inline.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkTypeProgrammer {
   /* -----------------------------------------------------------
@@ -48,6 +49,7 @@ export namespace SdkTypeProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function of ordered cases.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The member order is fixed, supported resolved natives retain their type references, and empty unions use the TypeScript bottom type rather than an empty printed node.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write =
     (project: INestiaProject) =>
@@ -120,6 +122,7 @@ export namespace SdkTypeProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The cases are exhaustive over the keys.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeProgrammer.write_object composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write_object =
     (project: INestiaProject) =>
@@ -286,6 +289,7 @@ export namespace SdkTypeProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One array node delegates its element to write.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The declaration operation is distinct from reference emission and adds no test-only flags or names.
    * @evidence contracts/common.md#meaningful-documentation The comment distinguishes a definition body from nested references.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeProgrammer.write_array_type composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write_array_type =
     (project: INestiaProject) =>
@@ -301,6 +305,7 @@ export namespace SdkTypeProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One element map creates the tuple body.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The same body operation serves ordinary inline tuples and recursive declarations without special-cased source names.
    * @evidence contracts/common.md#meaningful-documentation The comment states the definition body and modifier responsibilities.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkTypeProgrammer.write_tuple_type composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write_tuple_type =
     (project: INestiaProject) =>

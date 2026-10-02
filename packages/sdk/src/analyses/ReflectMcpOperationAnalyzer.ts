@@ -16,6 +16,7 @@ import { ParameterNameAnalyzer } from "./ParameterNameAnalyzer";
  * @evidence contracts/common.md#clear-and-simple-design One public function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules follow the decorator contract.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectMcpOperationAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace ReflectMcpOperationAnalyzer {
   /**
@@ -26,6 +27,7 @@ export namespace ReflectMcpOperationAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectMcpOperationAnalyzer.IProps analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface IProps {
     project: Omit<INestiaProject, "config">;
@@ -43,6 +45,7 @@ export namespace ReflectMcpOperationAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function that collects errors once and reports them together.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules follow the decorator contract.
    * @evidence contracts/common.md#meaningful-documentation The comment states the null result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectMcpOperationAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const analyze = (ctx: IProps): IReflectMcpOperation | null => {
     const route:

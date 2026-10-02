@@ -29,6 +29,7 @@ import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
  * @evidence contracts/common.md#clear-and-simple-design One public function and the writers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The function's identifiers yield to the tool's own name.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkMcpRouteProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkMcpRouteProgrammer {
   /**
@@ -38,6 +39,7 @@ export namespace SdkMcpRouteProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The shape follows the tool metadata.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkMcpRouteProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write =
     (project: INestiaProject) =>

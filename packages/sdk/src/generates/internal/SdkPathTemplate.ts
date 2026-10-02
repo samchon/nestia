@@ -11,6 +11,7 @@ import { ImportDictionary } from "./ImportDictionary";
  * @evidence contracts/common.md#clear-and-simple-design One function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The segments are those the router reads.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkPathTemplate composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkPathTemplate {
   /**
@@ -29,6 +30,7 @@ export namespace SdkPathTemplate {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The literal text follows the router's reading.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkPathTemplate.compose composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const compose = (props: {
     importer: ImportDictionary;

@@ -24,6 +24,7 @@ const isVariableName = (str: string): boolean => VARIABLE_REGEX.test(str);
  * @evidence contracts/common.md#clear-and-simple-design Three functions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The identifier test is inlined and conservative.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation IdentifierFactory constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace IdentifierFactory {
   /**
@@ -34,6 +35,7 @@ export namespace IdentifierFactory {
    * @evidence contracts/common.md#clear-and-simple-design One conditional.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The test applies to every name.
    * @evidence contracts/common.md#meaningful-documentation The comment states the two results.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IdentifierFactory.identifier constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const identifier = (name: string): Identifier | StringLiteral =>
     isVariableName(name)
@@ -48,6 +50,7 @@ export namespace IdentifierFactory {
    * @evidence contracts/common.md#clear-and-simple-design One function delegating the naming rule.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It never concatenates source text.
    * @evidence contracts/common.md#meaningful-documentation The comment states the forms.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IdentifierFactory.access constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const access = (
     input: Expression,
@@ -80,6 +83,7 @@ export namespace IdentifierFactory {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It follows the declaration grammar.
    * @evidence contracts/common.md#meaningful-documentation The comment states the optional marker.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IdentifierFactory.parameter constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const parameter = (
     name: string | Identifier,

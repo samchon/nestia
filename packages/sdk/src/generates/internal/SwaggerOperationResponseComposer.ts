@@ -14,6 +14,7 @@ import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
  * @evidence contracts/common.md#clear-and-simple-design One public function and helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every response goes through one content writer.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationResponseComposer composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SwaggerOperationResponseComposer {
   /**
@@ -24,6 +25,7 @@ export namespace SwaggerOperationResponseComposer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The sources are ordered.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationResponseComposer.compose composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const compose = (props: {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;

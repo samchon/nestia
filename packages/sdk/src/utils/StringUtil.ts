@@ -5,9 +5,10 @@
  * @evidence contracts/common.md#clear-and-simple-design Five small functions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The markers are the spellings typia uses for anonymous types.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The namespace groups string operations; each function owns its scan or duplicate lookup.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The namespace coordinates no shared computation.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The namespace owns no input-dependent retained state or handles.
+ * efficient algorithms: The namespace groups string operations; each function owns its scan or duplicate lookup.
+ * reuse equivalent work: The namespace coordinates no shared computation.
+ * bound retention and release resources: The namespace owns no input-dependent retained state or handles.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
  */
 export namespace StringUtil {
   /**
@@ -17,9 +18,10 @@ export namespace StringUtil {
    * @evidence contracts/common.md#clear-and-simple-design One expression.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It applies to every input.
    * @evidence contracts/common.md#meaningful-documentation The comment states the rule.
-   * @evidence contracts/performance.md#efficient-algorithms Case conversion and copying process the input characters once with proportional returned string storage.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Case conversion coordinates no shared requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned string belongs to the caller; this operation retains no state or handles.
+   * efficient algorithms: Case conversion and copying process the input characters once with proportional returned string storage.
+   * reuse equivalent work: Case conversion coordinates no shared requests.
+   * bound retention and release resources: The returned string belongs to the caller; this operation retains no state or handles.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil.capitalize transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
    */
   export const capitalize = (text: string): string =>
     text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
@@ -32,9 +34,10 @@ export namespace StringUtil {
    * @evidence contracts/common.md#clear-and-simple-design One curried function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule is generic.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result.
-   * @evidence contracts/performance.md#efficient-algorithms Each occupied candidate scans the supplied keep list and adds one underscore; the number of recursive candidates is bounded by distinct occupied spellings in that list, with string comparison and copying costs proportional to candidate lengths.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller supplies the current keep list; this operation coordinates no shared computation between calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The closure retains only the caller's keep list for its own lifetime and owns no history, handles or tasks.
+   * efficient algorithms: Each occupied candidate scans the supplied keep list and adds one underscore; the number of recursive candidates is bounded by distinct occupied spellings in that list, with string comparison and copying costs proportional to candidate lengths.
+   * reuse equivalent work: The caller supplies the current keep list; this operation coordinates no shared computation between calls.
+   * bound retention and release resources: The closure retains only the caller's keep list for its own lifetime and owns no history, handles or tasks.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil.escapeDuplicate transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
    */
   export const escapeDuplicate =
     (keep: string[]) =>
@@ -57,9 +60,10 @@ export namespace StringUtil {
    * @evidence contracts/common.md#clear-and-simple-design One expression.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The list is the shared definition that the generators use.
    * @evidence contracts/common.md#meaningful-documentation The comment states the markers.
-   * @evidence contracts/performance.md#efficient-algorithms A fixed number of equalities and constant-length prefix checks inspect each name without graph traversal or input-dependent state.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This predicate coordinates no shared computation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This predicate retains no input or handles.
+   * efficient algorithms: A fixed number of equalities and constant-length prefix checks inspect each name without graph traversal or input-dependent state.
+   * reuse equivalent work: This predicate coordinates no shared computation.
+   * bound retention and release resources: This predicate retains no input or handles.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil.isAnonymous transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
    */
   export const isAnonymous = (str: string): boolean =>
     str === "__type" ||
@@ -77,9 +81,10 @@ export namespace StringUtil {
    * @evidence contracts/common.md#clear-and-simple-design One expression over `isAnonymous`.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It shares the anonymous list.
    * @evidence contracts/common.md#meaningful-documentation The comment states the cases.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed name checks and one substring search take at most linear time in the name's length, without allocating a graph or cache.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This predicate coordinates no shared computation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This predicate retains no input or handles.
+   * efficient algorithms: Fixed name checks and one substring search take at most linear time in the name's length, without allocating a graph or cache.
+   * reuse equivalent work: This predicate coordinates no shared computation.
+   * bound retention and release resources: This predicate retains no input or handles.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil.isImplicit transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
    */
   export const isImplicit = (str: string) =>
     str === "object" || isAnonymous(str) || str.includes("readonly [");
@@ -113,9 +118,10 @@ export namespace StringUtil {
    * @evidence contracts/common.md#clear-and-simple-design One accessor operation delegates segment encoding to a private helper with language-defined reserved names.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Encoding depends on identifier grammar, not a DTO or consumer name; the existing semantic collision partition separates unequal definitions whose accessors coincide.
    * @evidence contracts/common.md#meaningful-documentation The comment distinguishes raw component keys from TypeScript accessors and explains Unicode encoding, reserved bindings and duplicate compatibility.
-   * @evidence contracts/performance.md#efficient-algorithms Each name and its code points are scanned once, with output space proportional to the encoded spelling; reserved-name lookup uses a fixed set.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure conversion coordinates no completed or in-flight work across consumers; its callers own graph and dictionary reuse.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The fixed grammar set has no input-dependent history; temporary accessor strings belong to the caller and no handles or tasks are retained.
+   * efficient algorithms: Each name and its code points are scanned once, with output space proportional to the encoded spelling; reserved-name lookup uses a fixed set.
+   * reuse equivalent work: This pure conversion coordinates no completed or in-flight work across consumers; its callers own graph and dictionary reuse.
+   * bound retention and release resources: The fixed grammar set has no input-dependent history; temporary accessor strings belong to the caller and no handles or tasks are retained.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StringUtil.accessorsOf transforms declaration names and textual content; separators in accessor names are language syntax rather than native filesystem separators.
    */
   export const accessorsOf = (name: string): string[] => {
     const duplicated: RegExpMatchArray | null = name.match(/^(.+)-o(\d+)$/);

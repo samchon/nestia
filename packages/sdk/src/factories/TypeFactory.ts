@@ -11,6 +11,7 @@ import { type KeywordTypeNode, SyntaxKind, factory } from "@ttsc/factory";
  * @evidence contracts/common.md#clear-and-simple-design One table, one type, and one function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It only builds nodes.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation TypeFactory constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace TypeFactory {
   const KEYWORDS = {
@@ -32,6 +33,7 @@ export namespace TypeFactory {
    * @evidence contracts/common.md#clear-and-simple-design One derived type.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the set.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation TypeFactory.Keyword constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export type Keyword = keyof typeof KEYWORDS;
 
@@ -42,6 +44,7 @@ export namespace TypeFactory {
    * @evidence contracts/common.md#clear-and-simple-design One lookup.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It follows the grammar.
    * @evidence contracts/common.md#meaningful-documentation The comment states its input.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation TypeFactory.keyword constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const keyword = (type: Keyword): KeywordTypeNode =>
     factory.createKeywordTypeNode(KEYWORDS[type]);

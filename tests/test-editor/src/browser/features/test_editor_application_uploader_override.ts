@@ -3,6 +3,12 @@ import path from "path";
 /**
  * Verifies that the uploader query flag overrides an explicit document URL.
  *
+ * The uploader flag gives the user a way to replace a configured document.
+ * Presence of an explicit URL must not bypass that choice during mounting.
+ *
+ * 1. Mount the application with both uploader and explicit URL query keys.
+ * 2. Assert the uploader input appears without the iframe loading stage.
+ *
  * @evidence contracts/testing.md#behavioral-verification Mounts the built application with both uploader and url query keys, requiring the actual uploader input and excluding the iframe document-loading stage.
  * @evidence contracts/testing.md#independent-expectations The application query contract gives presence of uploader priority over document discovery; the package input and absence of iframe loading text observe that independent choice.
  * @evidence contracts/testing.md#distinguishing-cases The explicit URL is the adjacent competing branch that must lose when uploader is present. SSR default input propagation remains in its separate test population.

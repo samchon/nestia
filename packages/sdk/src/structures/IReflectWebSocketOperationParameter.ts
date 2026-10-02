@@ -11,6 +11,7 @@ import { IReflectType } from "./IReflectType";
  * @evidence contracts/common.md#clear-and-simple-design A union of five records plus the preconfigured form.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation IReflectWebSocketOperationParameter describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
  */
 export type IReflectWebSocketOperationParameter =
   | IReflectWebSocketOperationParameter.IAcceptor
@@ -26,6 +27,7 @@ export namespace IReflectWebSocketOperationParameter {
    * @evidence contracts/common.md#clear-and-simple-design One alias.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the category.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IReflectWebSocketOperationParameter.IAcceptor describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export type IAcceptor = IBase<"acceptor">;
   /**
@@ -35,6 +37,7 @@ export namespace IReflectWebSocketOperationParameter {
    * @evidence contracts/common.md#clear-and-simple-design One alias.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the category.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IReflectWebSocketOperationParameter.IDriver describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export type IDriver = IBase<"driver">;
   /**
@@ -44,6 +47,7 @@ export namespace IReflectWebSocketOperationParameter {
    * @evidence contracts/common.md#clear-and-simple-design One alias.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the category.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IReflectWebSocketOperationParameter.IHeader describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export type IHeader = IBase<"header">;
   /**
@@ -53,6 +57,7 @@ export namespace IReflectWebSocketOperationParameter {
    * @evidence contracts/common.md#clear-and-simple-design One alias.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the category.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IReflectWebSocketOperationParameter.IQuery describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export type IQuery = IBase<"query">;
   /**
@@ -62,6 +67,7 @@ export namespace IReflectWebSocketOperationParameter {
    * @evidence contracts/common.md#clear-and-simple-design A record extending the shared base.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IReflectWebSocketOperationParameter.IParam describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export interface IParam extends IBase<"param"> {
     field: string;

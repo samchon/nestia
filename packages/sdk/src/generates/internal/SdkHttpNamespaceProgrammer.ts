@@ -33,6 +33,7 @@ import { SdkPathTemplate } from "./SdkPathTemplate";
  * @evidence contracts/common.md#clear-and-simple-design One public function and four writers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The parts follow the configuration.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpNamespaceProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkHttpNamespaceProgrammer {
   /**
@@ -43,6 +44,7 @@ export namespace SdkHttpNamespaceProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One declaration composed of the writers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The optional members follow the flags.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpNamespaceProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write =
     (project: INestiaProject) =>

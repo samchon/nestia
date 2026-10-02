@@ -25,6 +25,7 @@ import { ReflectWebSocketOperationAnalyzer } from "./ReflectWebSocketOperationAn
  * @evidence contracts/common.md#clear-and-simple-design One public function and one prototype walker.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The recognition uses the metadata Nest writes, and no class name is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectControllerAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace ReflectControllerAnalyzer {
   /**
@@ -35,6 +36,7 @@ export namespace ReflectControllerAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectControllerAnalyzer.IProps analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface IProps {
     project: Omit<INestiaProject, "config">;
@@ -55,6 +57,7 @@ export namespace ReflectControllerAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The order of the analyzers is fixed by the mutual exclusion of the decorators.
    * @evidence contracts/common.md#meaningful-documentation The comment states the null result, the warning, and the ignore tag.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectControllerAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const analyze = (props: IProps): IReflectController | null => {
     // MUST BE TYPE OF A CREATOR WHO HAS THE CONSTRUCTOR

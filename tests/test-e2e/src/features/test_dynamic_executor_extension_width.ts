@@ -1,6 +1,5 @@
 import { DynamicExecutor, TestValidator } from "@nestia/e2e";
 import fs from "fs";
-import os from "os";
 import path from "path";
 
 /**
@@ -25,8 +24,13 @@ import path from "path";
  */
 
 export async function test_dynamic_executor_extension_width(): Promise<void> {
+  const cache: string = path.resolve(
+    __dirname,
+    "../../../../node_modules/.cache/test-e2e",
+  );
+  fs.mkdirSync(cache, { recursive: true });
   const directory: string = fs.mkdtempSync(
-    path.join(os.tmpdir(), "nestia-e2e-extension-"),
+    path.join(cache, "nestia-e2e-extension-"),
   );
   try {
     const fixtures: [string, string][] = [

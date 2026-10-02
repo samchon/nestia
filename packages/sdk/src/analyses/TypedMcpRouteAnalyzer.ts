@@ -19,9 +19,10 @@ import { ITypedMcpRoute } from "../structures/ITypedMcpRoute";
  * @evidence contracts/common.md#clear-and-simple-design One function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The accessor rule is generic.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The namespace groups declarations; analyze owns graph conversion.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The namespace coordinates no computation.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The namespace owns no retained state or handles.
+ * efficient algorithms: The namespace groups declarations; analyze owns graph conversion.
+ * reuse equivalent work: The namespace coordinates no computation.
+ * bound retention and release resources: The namespace owns no retained state or handles.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation TypedMcpRouteAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace TypedMcpRouteAnalyzer {
   /**
@@ -33,9 +34,10 @@ export namespace TypedMcpRouteAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One conversion resolves the input and output against their own components and reports clone metadata failures at the route.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Native JSON pipes are resolved through the shared metadata adapter; source binding names never select a clone exception and native records remain unchanged.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result.
-   * @evidence contracts/performance.md#efficient-algorithms Clone mode copies each supplied graph payload once, indexes its components and visits each schema and component target once to check reference closure. Work scales with graph vertices, edges and annotation payload; no compiler or type analysis is repeated.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Input and output pipes have independent native component identities, and this operation retains no completed or in-flight request to share across analyses.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Resolution copies and visited sets belong to one synchronous conversion; the returned route retains its reachable graphs, and no global cache, process or handle is created.
+   * efficient algorithms: Clone mode copies each supplied graph payload once, indexes its components and visits each schema and component target once to check reference closure. Work scales with graph vertices, edges and annotation payload; no compiler or type analysis is repeated.
+   * reuse equivalent work: Input and output pipes have independent native component identities, and this operation retains no completed or in-flight request to share across analyses.
+   * bound retention and release resources: Resolution copies and visited sets belong to one synchronous conversion; the returned route retains its reachable graphs, and no global cache, process or handle is created.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation TypedMcpRouteAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const analyze = (props: {
     controller: IReflectController;

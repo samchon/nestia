@@ -36,6 +36,35 @@ import { IBenchmarkServant } from "./internal/IBenchmarkServant";
  * Additionally, if you hope to see some utilization cases, see the below
  * example tagged links.
  *
+ * Processing cost: Totals are split across T servants once; E events are
+ * aggregated with hash-based endpoint grouping. Progress notifications update
+ * the aggregate from one servant counter delta in constant time. Event
+ * statistics and rendering traverse their input populations; discovery visits
+ * each real directory once.
+ *
+ * Computation reuse: A master distributes distinct request budgets rather than
+ * replaying one effectful request. Endpoint grouping shares one event
+ * population across whole-run and endpoint statistics. Results are not cached
+ * across benchmark runs because server state and timing change.
+ *
+ * Resource ownership: Each master owns at most threads connectors and
+ * simultaneous function workers; connector closure is attempted on
+ * connection/execution success or failure; a rejected close is suppressed and
+ * may leave an unreleased child process. Events retained by servants/master
+ * scale with logged events, and memory samples with run duration. The
+ * independent sampler detaches its report target on stop or rejection and
+ * clears/wakes its owned timer. A pending caller memory getter has no
+ * cancellation hook, but its task retains only the sampler state/getter and
+ * cannot keep the master report arrays, connectors or event collections through
+ * that state. Its eventual result is discarded after deactivation. Returned
+ * reports transfer their arrays to callers.
+ *
+ * Platform boundary: WorkerConnector process mode owns Node child-process
+ * launch/IPC and its explicit stdio modes. Feature discovery resolves the
+ * caller location with native path and fs realpath/stat, follows directory
+ * links with realpath cycle detection and imports discovered native absolute
+ * paths. It does not infer filesystem case policy from OS names.
+ *
  * @author Jeongho Nam - https://github.com/samchon
  * @example
  *   https://github.com/samchon/nestia-start/blob/master/test/benchmaark/index.ts
@@ -47,23 +76,19 @@ import { IBenchmarkServant } from "./internal/IBenchmarkServant";
  * @evidence contracts/common.md#clear-and-simple-design One namespace is the public surface (master, servant, markdown, props, report); execution, discovery, and cleanup helpers stay private, and statistics and rendering live in their own internal namespaces.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing names a server, feature, or file: the feature extension, prefix, and filter are caller inputs, and the servant path is a property rather than an assumed location.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose explains the two-program model, what each program does, and how to obtain markdown, with links to the member documentation and to example repositories.
- * @evidence contracts/performance.md#efficient-algorithms Totals are split across T servants once; E events are aggregated with hash-based endpoint grouping. Progress notifications update the aggregate from one servant counter delta in constant time. Event statistics and rendering traverse their input populations; discovery visits each real directory once.
- * @evidence contracts/performance.md#reuse-equivalent-work A master distributes distinct request budgets rather than replaying one effectful request. Endpoint grouping shares one event population across whole-run and endpoint statistics. Results are not cached across benchmark runs because server state and timing change.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Each master owns at most threads connectors and simultaneous function workers; connector closure is attempted on connection/execution success or failure; a rejected close is suppressed and may leave an unreleased child process. Events retained by servants/master scale with logged events, and memory samples with run duration. The independent sampler detaches its report target on stop or rejection and clears/wakes its owned timer. A pending caller memory getter has no cancellation hook, but its task retains only the sampler state/getter and cannot keep the master report arrays, connectors or event collections through that state. Its eventual result is discarded after deactivation. Returned reports transfer their arrays to callers.
- * @evidence contracts/portability.md#os-neutral-implementation WorkerConnector process mode owns Node child-process launch/IPC and its explicit stdio modes. Feature discovery resolves the caller location with native path and fs realpath/stat, follows directory links with realpath cycle detection and imports discovered native absolute paths. It does not infer filesystem case policy from OS names.
  */
 export namespace DynamicBenchmarker {
   /**
    * Properties of the master program.
    *
+   * Platform boundary: The servant path uses native filesystem spelling, and
+   * stdio exposes Node child-process modes without imposing separator or case
+   * policy.
+   *
    * @evidence contracts/common.md#principled-implementation The fields are exactly what the master needs to plan a run: totals, parallelism, how to reach the servant program, and optional hooks; the count, threads, and simultaneous constraints are enforced by `master`, which the field prose states.
    * @evidence contracts/common.md#clear-and-simple-design A flat property record; optional members carry the only extension points (filter, progress, memory, stdio).
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every value is caller-supplied; no default names a target application or fixture.
    * @evidence contracts/common.md#meaningful-documentation Each property documents its meaning and constraints, including how simultaneous is distributed among threads and that the filter receives a file basename.
-   * @evidence contracts/portability.md#os-neutral-implementation The record distinguishes a native servant/feature location from protocol connection data and exposes Node process stdio/module-extension choices without imposing separator or case policy.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This property/report record represents values; the master or servant operation owns its processing strategy.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record does not coordinate requests or establish cache validity.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds caller-visible data; the execution that acquires tasks and handles owns their release.
    */
   export interface IMasterProps {
     /**
@@ -112,25 +137,20 @@ export namespace DynamicBenchmarker {
      * @evidence contracts/common.md#clear-and-simple-design A single predicate on the file basename, with a default that accepts everything.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection is by the caller's predicate, not by known file names.
      * @evidence contracts/common.md#meaningful-documentation The comment states the argument (basename, not function name) and that a `false` result prevents the import.
-     * @evidenceExclude contracts/portability.md#os-neutral-implementation The callback signature carries a basename, progress count, memory reading or connection arguments and performs no native resolution or process launch itself.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms This callback signature leaves computation to the caller; the owning master/servant determines invocation frequency.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work This signature neither caches results nor coordinates requests.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This signature provides a caller hook; the master/servant owns its task lifetime and external resources remain caller-owned.
      */
     filter?: (file: string) => boolean;
 
     /**
      * Progress callback function.
      *
-     * @param complete The number of completed requests.
-     * @evidence contracts/common.md#principled-implementation The callback receives the sum of the completed counts of every servant, so its argument is monotone toward the total and is called once more with the exact count at the end.
+     * Progress counts completed benchmark function invocations, regardless of
+     * how many HTTP events each invocation logs.
+     *
+     * @param complete The number of completed benchmark function invocations.
+     * @evidence contracts/common.md#principled-implementation The callback receives the sum of completed invocation counts from every servant and is called once more with the requested count at the end, including when no matching functions were discovered.
      * @evidence contracts/common.md#clear-and-simple-design One optional notification with a single number argument.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The callback does not configure request counts or concurrency; a throw from the final callback propagates after servants have been closed rather than being hidden.
-     * @evidence contracts/common.md#meaningful-documentation The comment names the argument as the number of completed requests.
-     * @evidenceExclude contracts/portability.md#os-neutral-implementation The callback signature carries a basename, progress count, memory reading or connection arguments and performs no native resolution or process launch itself.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms This callback signature leaves computation to the caller; the owning master/servant determines invocation frequency.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work This signature neither caches results nor coordinates requests.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This signature provides a caller hook; the master/servant owns its task lifetime and external resources remain caller-owned.
+     * @evidence contracts/common.md#meaningful-documentation The comment distinguishes completed benchmark function invocations from logged HTTP events.
      */
     progress?: (complete: number) => void;
 
@@ -152,10 +172,6 @@ export namespace DynamicBenchmarker {
      * @evidence contracts/common.md#clear-and-simple-design One optional async getter that replaces the default sampler and nothing else.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The default measures the master process itself; a caller getter is used as given, and a getter that rejects ends sampling rather than being retried or replaced.
      * @evidence contracts/common.md#meaningful-documentation The comment states when to set it, the sampling cadence, and that a rejection stops the sampling and keeps earlier samples.
-     * @evidenceExclude contracts/portability.md#os-neutral-implementation The callback signature carries a basename, progress count, memory reading or connection arguments and performs no native resolution or process launch itself.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms This callback signature leaves computation to the caller; the owning master/servant determines invocation frequency.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work This signature neither caches results nor coordinates requests.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This signature provides a caller hook; the master/servant owns its task lifetime and external resources remain caller-owned.
      */
     memory?: () => Promise<NodeJS.MemoryUsage>;
 
@@ -170,14 +186,14 @@ export namespace DynamicBenchmarker {
   /**
    * Properties of the servant program.
    *
+   * Platform boundary: The feature location and extension describe native files
+   * separately from the connection's protocol address; relative paths use the
+   * servant's working directory.
+   *
    * @evidence contracts/common.md#principled-implementation The fields define how a servant finds benchmark functions (location, extension, prefix) and how it builds their arguments (connection and parameters), which is everything discovery and invocation need.
    * @evidence contracts/common.md#clear-and-simple-design A generic property record parameterized by the tuple of function arguments, with the optional extension defaulting to the built JavaScript.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The extension is declared rather than inferred from the servant's own module, which once loaded no feature at all when the library was built and the features ran from TypeScript source.
    * @evidence contracts/common.md#meaningful-documentation Each property documents its role, the default extension, the file-name and function-name prefix rules, and what happens when nothing matches.
-   * @evidence contracts/portability.md#os-neutral-implementation The record distinguishes a native servant/feature location from protocol connection data and exposes Node process stdio/module-extension choices without imposing separator or case policy.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This property/report record represents values; the master or servant operation owns its processing strategy.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record does not coordinate requests or establish cache validity.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds caller-visible data; the execution that acquires tasks and handles owns their release.
    */
   export interface IServantProps<Parameters extends any[]> {
     /**
@@ -236,10 +252,6 @@ export namespace DynamicBenchmarker {
      * @evidence contracts/common.md#clear-and-simple-design One callback, called per execution, with the two inputs a caller needs to build arguments.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Arguments come only from the caller's function; the connection it receives is the servant's logging copy.
      * @evidence contracts/common.md#meaningful-documentation The comment warns that the logger of the received connection must be carried into the returned parameters, the fact that decides whether events are recorded.
-     * @evidenceExclude contracts/portability.md#os-neutral-implementation The callback signature carries a basename, progress count, memory reading or connection arguments and performs no native resolution or process launch itself.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms This callback signature leaves computation to the caller; the owning master/servant determines invocation frequency.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work This signature neither caches results nor coordinates requests.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This signature provides a caller hook; the master/servant owns its task lifetime and external resources remain caller-owned.
      */
     parameters: (connection: IConnection, name: string) => Parameters;
   }
@@ -255,10 +267,6 @@ export namespace DynamicBenchmarker {
    * @evidence contracts/common.md#clear-and-simple-design A flat record whose nested types (`IEndpoint`, `IStatistics`, `IMemory`) name the parts, with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every field is measured or copied from the request; none is a fixture value.
    * @evidence contracts/common.md#meaningful-documentation The prose states the time format, the duration unit, and how statistics and endpoints relate.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation This report record represents observations and protocol endpoint/time metadata; it does not resolve native paths or launch processes.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This property/report record represents values; the master or servant operation owns its processing strategy.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record does not coordinate requests or establish cache validity.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds caller-visible data; the execution that acquires tasks and handles owns their release.
    */
   export interface IReport {
     /** Requested number of benchmark function invocations. */
@@ -297,10 +305,6 @@ export namespace DynamicBenchmarker {
      * @evidence contracts/common.md#clear-and-simple-design Two string fields with no behavior.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Grouping uses the route metadata carried by each event, without a list of known endpoints.
      * @evidence contracts/common.md#meaningful-documentation The comment states which path form is used for grouping.
-     * @evidenceExclude contracts/portability.md#os-neutral-implementation This report record represents observations and protocol endpoint/time metadata; it does not resolve native paths or launch processes.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms This property/report record represents values; the master or servant operation owns its processing strategy.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record does not coordinate requests or establish cache validity.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds caller-visible data; the execution that acquires tasks and handles owns their release.
      */
     export interface IEndpoint {
       /** HTTP method of the grouped requests. */
@@ -321,10 +325,6 @@ export namespace DynamicBenchmarker {
      * @evidence contracts/common.md#clear-and-simple-design A flat record of six measures reused for the whole run and for each endpoint.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The values are computed from the events; no measure is defaulted to a plausible number.
      * @evidence contracts/common.md#meaningful-documentation The comment states the unit, the empty-set convention, the deviation kind, and what success counts.
-     * @evidenceExclude contracts/portability.md#os-neutral-implementation This report record represents observations and protocol endpoint/time metadata; it does not resolve native paths or launch processes.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms This property/report record represents values; the master or servant operation owns its processing strategy.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record does not coordinate requests or establish cache validity.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds caller-visible data; the execution that acquires tasks and handles owns their release.
      */
     export interface IStatistics {
       /** Number of logged HTTP events. */
@@ -353,10 +353,6 @@ export namespace DynamicBenchmarker {
      * @evidence contracts/common.md#clear-and-simple-design Two fields with no behavior.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The usage is the getter's return value, not a synthesized reading.
      * @evidence contracts/common.md#meaningful-documentation The comment states the time format and the source of the usage.
-     * @evidenceExclude contracts/portability.md#os-neutral-implementation This report record represents observations and protocol endpoint/time metadata; it does not resolve native paths or launch processes.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms This property/report record represents values; the master or servant operation owns its processing strategy.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record does not coordinate requests or establish cache validity.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds caller-visible data; the execution that acquires tasks and handles owns their release.
      */
     export interface IMemory {
       /** ISO 8601 time when the memory getter completed. */
@@ -379,16 +375,41 @@ export namespace DynamicBenchmarker {
    * execute, every servant receives a close attempt before the returned promise
    * rejects.
    *
+   * Processing cost: Totals are split across T servants once; E events are
+   * aggregated with hash-based endpoint grouping. Progress notifications update
+   * the aggregate from one servant counter delta in constant time. Event
+   * statistics and rendering traverse their input populations; discovery visits
+   * each real directory once.
+   *
+   * Computation reuse: A master distributes distinct request budgets rather
+   * than replaying one effectful request. Endpoint grouping shares one event
+   * population across whole-run and endpoint statistics. Results are not cached
+   * across benchmark runs because server state and timing change.
+   *
+   * Resource ownership: Each master owns at most threads connectors and
+   * simultaneous function workers; connector closure is attempted on
+   * connection/execution success or failure; a rejected close is suppressed and
+   * may leave an unreleased child process. Events retained by servants/master
+   * scale with logged events, and memory samples with run duration. The
+   * independent sampler detaches its report target on stop or rejection and
+   * clears/wakes its owned timer. A pending caller memory getter has no
+   * cancellation hook, but its task retains only the sampler state/getter and
+   * cannot keep the master report arrays, connectors or event collections
+   * through that state. Its eventual result is discarded after deactivation.
+   * Returned reports transfer their arrays to callers.
+   *
+   * Platform boundary: WorkerConnector process mode owns Node child-process
+   * launch/IPC and its explicit stdio modes. Feature discovery resolves the
+   * caller location with native path and fs realpath/stat, follows directory
+   * links with realpath cycle detection and imports discovered native absolute
+   * paths. It does not infer filesystem case policy from OS names.
+   *
    * @param props Properties of the master program
    * @returns Benchmark report
    * @evidence contracts/common.md#principled-implementation Inputs are validated as safe integers before any process starts; totals are distributed by floor plus remainder; servants execute concurrently and every event is grouped by method and path template in a hash map; closing is attempted for every spawned servant on success and on failure, and the memory sampler is deactivated when the run ends, detaching its report array and clearing/waking its owned timer immediately; a pending caller getter may settle later but cannot append.
    * @evidence contracts/common.md#clear-and-simple-design One function owns the run and keeps the sequence readable: validate, spawn, sample, execute, close, aggregate; statistics come from `DynamicBenchmarkStatistics` and the closing helper is shared by the failure and success paths.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A servant that fails to close cannot alter a finished report and is not allowed to hide the run's own error, so closing failures are dropped on purpose; no other error is swallowed except a rejecting memory getter, which ends sampling as documented.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the master does, that the servant property must name the servant program, that servants are child processes, and that every servant receives a close attempt before a failure rejects.
-   * @evidence contracts/performance.md#efficient-algorithms Totals are split across T servants once; E events are aggregated with hash-based endpoint grouping. Progress notifications update the aggregate from one servant counter delta in constant time. Event statistics and rendering traverse their input populations; discovery visits each real directory once.
-   * @evidence contracts/performance.md#reuse-equivalent-work A master distributes distinct request budgets rather than replaying one effectful request. Endpoint grouping shares one event population across whole-run and endpoint statistics. Results are not cached across benchmark runs because server state and timing change.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Each master owns at most threads connectors and simultaneous function workers; connector closure is attempted on connection/execution success or failure; a rejected close is suppressed and may leave an unreleased child process. Events retained by servants/master scale with logged events, and memory samples with run duration. The independent sampler detaches its report target on stop or rejection and clears/wakes its owned timer. A pending caller memory getter has no cancellation hook, but its task retains only the sampler state/getter and cannot keep the master report arrays, connectors or event collections through that state. Its eventual result is discarded after deactivation. Returned reports transfer their arrays to callers.
-   * @evidence contracts/portability.md#os-neutral-implementation WorkerConnector process mode owns Node child-process launch/IPC and its explicit stdio modes. Feature discovery resolves the caller location with native path and fs realpath/stat, follows directory links with realpath cycle detection and imports discovered native absolute paths. It does not infer filesystem case policy from OS names.
    */
   export const master = async (props: IMasterProps): Promise<IReport> => {
     if (!Number.isSafeInteger(props.count) || props.count < 0)
@@ -515,16 +536,33 @@ export namespace DynamicBenchmarker {
    *
    * Creates a servant program executing the prefixed functions in parallel.
    *
+   * Processing cost: Each execute request discovers matching modules once, then
+   * runs at most simultaneous loop workers and count invocations. Event storage
+   * grows with actual logger calls rather than an assumed one event per
+   * invocation.
+   *
+   * Computation reuse: Discovery is refreshed for each execute request because
+   * the supplied filter and filesystem can change; requests themselves are
+   * effectful and cannot reuse earlier observations.
+   *
+   * Resource ownership: The returned WorkerServer transfers connection
+   * lifecycle to its caller. Each execute owns its discovery collections,
+   * workers and event arrays until it completes; the master closes its servant
+   * process. No discovered-module cache is retained by this namespace beyond
+   * Node own loader.
+   *
+   * Platform boundary: WorkerConnector process mode owns Node child-process
+   * launch/IPC and its explicit stdio modes. Feature discovery resolves the
+   * caller location with native path and fs realpath/stat, follows directory
+   * links with realpath cycle detection and imports discovered native absolute
+   * paths. It does not infer filesystem case policy from OS names.
+   *
    * @param props Properties of the servant program
    * @returns Servant program as a worker server
    * @evidence contracts/common.md#principled-implementation A servant opens a `WorkerServer` that exposes one `execute` operation; the master decides counts and budgets, so the servant only needs the location and naming rules to find functions.
    * @evidence contracts/common.md#clear-and-simple-design A thin adapter over the worker server whose behavior lives in the private `execute` and `iterate` helpers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Discovery is driven by the caller's location, extension, and prefix, and by the master's filter; no file or function name is assumed.
    * @evidence contracts/common.md#meaningful-documentation The comment states that it creates the servant program and returns it as a worker server.
-   * @evidence contracts/performance.md#efficient-algorithms Each execute request discovers matching modules once, then runs at most simultaneous loop workers and count invocations. Event storage grows with actual logger calls rather than an assumed one event per invocation.
-   * @evidence contracts/performance.md#reuse-equivalent-work Discovery is refreshed for each execute request because the supplied filter and filesystem can change; requests themselves are effectful and cannot reuse earlier observations.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned WorkerServer transfers connection lifecycle to its caller. Each execute owns its discovery collections, workers and event arrays until it completes; the master closes its servant process. No discovered-module cache is retained by this namespace beyond Node own loader.
-   * @evidence contracts/portability.md#os-neutral-implementation WorkerConnector process mode owns Node child-process launch/IPC and its explicit stdio modes. Feature discovery resolves the caller location with native path and fs realpath/stat, follows directory links with realpath cycle detection and imports discovered native absolute paths. It does not infer filesystem case policy from OS names.
    */
   export const servant = async <Parameters extends any[]>(
     props: IServantProps<Parameters>,
@@ -543,16 +581,20 @@ export namespace DynamicBenchmarker {
   /**
    * Convert the benchmark report to markdown content.
    *
+   * Processing cost: Rendering delegates to the reporter and scales with report
+   * endpoints, samples and output bytes; host metadata is obtained through Node
+   * os APIs.
+   *
+   * Platform boundary: The wrapper obtains host information through Node os
+   * APIs and passes those facts to the pure renderer without constructing
+   * native file paths or shell commands.
+   *
    * @param report Benchmark report
    * @returns Markdown content
    * @evidence contracts/common.md#principled-implementation Rendering is a pure function of the report and a few host facts, delegated to the reporter so the report type and its presentation stay separate.
    * @evidence contracts/common.md#clear-and-simple-design The wrapper captures three native host facts and delegates rendering, giving users one entry point without exposing the internal reporter.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The function observes native host facts and formats the report without altering its measurements.
    * @evidence contracts/common.md#meaningful-documentation The comment states input and output: a report in, markdown content out.
-   * @evidence contracts/performance.md#efficient-algorithms Rendering delegates to the reporter and scales with report endpoints, samples and output bytes; host metadata is obtained through Node os APIs.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidence contracts/portability.md#os-neutral-implementation The wrapper obtains host information through Node os APIs and passes those facts to the pure renderer without constructing native file paths or shell commands.
    */
   export const markdown = (report: DynamicBenchmarker.IReport): string =>
     DynamicBenchmarkReporter.markdown(report, {

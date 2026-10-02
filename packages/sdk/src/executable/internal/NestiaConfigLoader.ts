@@ -16,9 +16,9 @@ import { TtscExecutor } from "../../utils/TtscExecutor";
  * @evidence contracts/common.md#clear-and-simple-design Two public functions with private helpers for the temporary roots, the plugin list, and the validation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Only this process's unique materializations are removed on exit and handled termination signals; shared cache parents and other processes' children remain, and a compile error is reported with the compiler output.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
- * @evidence contracts/performance.md#efficient-algorithms Project inheritance delegates one per-read traversal to TsConfigReader; configuration loading compiles one wrapper project, patches emitted JavaScript once and validates each returned config.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Wrapper project directories are removed in finally after compilation. Emitted output remains owned by the temporary registry until generation cleanup or process termination; imported module loader entries live in that process. A CLI watch child ends after each generation, whereas direct callers retain loaded exports and have no module-unload guarantee.
+ * efficient algorithms: Project inheritance delegates one per-read traversal to TsConfigReader; configuration loading compiles one wrapper project, patches emitted JavaScript once and validates each returned config.
+ * reuse equivalent work: This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+ * bound retention and release resources: Wrapper project directories are removed in finally after compilation. Emitted output remains owned by the temporary registry until generation cleanup or process termination; imported module loader entries live in that process. A CLI watch child ends after each generation, whereas direct callers retain loaded exports and have no module-unload guarantee.
  * @evidence contracts/portability.md#os-neutral-implementation Native project and materialization paths use path resolution/joining and Node fs/module resolution. The ttsc executor represents platform-specific executables at its process boundary; emitted ESM imports use pathToFileURL, and filename extensions preserve .mts/.cts module format.
  */
 export namespace NestiaConfigLoader {
@@ -30,9 +30,9 @@ export namespace NestiaConfigLoader {
    * @evidence contracts/common.md#clear-and-simple-design A one-member record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The compiler-options record represents parsed values and selects no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This record coordinates no configuration loads or shared producers.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This record owns neither materialization cleanup nor compiler tasks.
+   * efficient algorithms: The compiler-options record represents parsed values and selects no algorithm.
+   * reuse equivalent work: This record coordinates no configuration loads or shared producers.
+   * bound retention and release resources: This record owns neither materialization cleanup nor compiler tasks.
    * @evidenceExclude contracts/portability.md#os-neutral-implementation The raw compiler option record performs no native path resolution or process launch; its loader owns those boundaries.
    */
   export interface ICompilerOptions {
@@ -51,9 +51,9 @@ export namespace NestiaConfigLoader {
    * @evidence contracts/common.md#clear-and-simple-design One function delegating the reading.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads what the compiler reads.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result and the error.
-   * @evidence contracts/performance.md#efficient-algorithms Upward project search visits each ancestor directory once, and TsConfigReader shares repeated ancestors inside one read.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
+   * efficient algorithms: Upward project search visits each ancestor directory once, and TsConfigReader shares repeated ancestors inside one read.
+   * reuse equivalent work: This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * bound retention and release resources: This operation owns only invocation-local values, with no retained cache, handle or background task.
    * @evidence contracts/portability.md#os-neutral-implementation Native project and materialization paths use path resolution/joining and Node fs/module resolution. The ttsc executor represents platform-specific executables at its process boundary; emitted ESM imports use pathToFileURL, and filename extensions preserve .mts/.cts module format.
    */
   export const compilerOptions = async (
@@ -83,9 +83,9 @@ export namespace NestiaConfigLoader {
    * @evidence contracts/common.md#clear-and-simple-design One function over private helpers for compilation, extraction, and validation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The shared registry removes only owned children on exit and handled termination signals, and the checks follow the `INestiaConfig` contract.
    * @evidence contracts/common.md#meaningful-documentation The comment states the compile step and the errors.
-   * @evidence contracts/performance.md#efficient-algorithms Each invocation compiles one wrapper project, traverses its emitted JavaScript once and validates each returned config and option field.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Wrapper project directories are removed in finally after compilation. Emitted output remains owned by the temporary registry until generation cleanup or process termination; imported module loader entries live in that process. A CLI watch child ends after each generation, whereas direct callers retain loaded exports and have no module-unload guarantee.
+   * efficient algorithms: Each invocation compiles one wrapper project, traverses its emitted JavaScript once and validates each returned config and option field.
+   * reuse equivalent work: This invocation computes its own result and coordinates no completed or in-flight computation across requests.
+   * bound retention and release resources: Wrapper project directories are removed in finally after compilation. Emitted output remains owned by the temporary registry until generation cleanup or process termination; imported module loader entries live in that process. A CLI watch child ends after each generation, whereas direct callers retain loaded exports and have no module-unload guarantee.
    * @evidence contracts/portability.md#os-neutral-implementation Native project and materialization paths use path resolution/joining and Node fs/module resolution. The ttsc executor represents platform-specific executables at its process boundary; emitted ESM imports use pathToFileURL, and filename extensions preserve .mts/.cts module format.
    */
   export const configurations = async (

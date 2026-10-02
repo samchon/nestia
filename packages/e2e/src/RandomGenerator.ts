@@ -13,6 +13,11 @@
  * - Date ranges and time-based data
  * - Array sampling and element selection
  *
+ * Processing cost: Text construction scales with generated characters, sparse
+ * sampling with selected positions, and fixed-size draws use constant work. The
+ * namespace retains only fixed character tables; each generator owns its
+ * invocation-local result.
+ *
  * @author Jeongho Nam - https://github.com/samchon
  * @example
  *   // Generate test user data
@@ -35,10 +40,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Small generators build on each other (`name` on `paragraph`, `content` on `paragraph`, both on `alphabets`), so one integer helper decides the randomness.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The data are drawn, not taken from a fixed list of test values.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose says the functions are not seeded and lists the kinds of data, with an example.
- * @evidence contracts/performance.md#efficient-algorithms Text construction scales with generated characters, sparse sampling with selected positions, and fixed-size draws use constant work. The namespace retains only fixed character tables; each generator owns its invocation-local result.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
- * @evidenceExclude contracts/portability.md#os-neutral-implementation Random text, array positions and Date timestamps are in-memory values; no native path or process is accessed.
  */
 export namespace RandomGenerator {
   /** Character set containing lowercase alphabetical characters a-z */
@@ -59,6 +60,9 @@ export namespace RandomGenerator {
    * appear multiple times. Useful for generating random identifiers, test
    * names, or placeholder text.
    *
+   * Processing cost: Constructing L characters costs O(L) time and
+   * intermediate/result space.
+   *
    * @example
    *   RandomGenerator.alphabets(5); // e.g. "kxqpw"
    *   RandomGenerator.alphabets(3); // e.g. "mzr"
@@ -72,14 +76,10 @@ export namespace RandomGenerator {
    *
    * @param length - The desired length of the generated alphabetic string
    * @returns A string containing only lowercase letters of the specified length
-   * @evidence contracts/common.md#principled-implementation Each of the requested number of characters is an independent uniform draw from the 26 lowercase letters, so repeats are possible.
+   * @evidence contracts/common.md#principled-implementation Each requested character maps a Math.random draw to one of 26 lowercase letters. Repeats are possible, and distribution inherits Math.random rather than guaranteeing exact uniformity.
    * @evidence contracts/common.md#clear-and-simple-design One expression over the shared integer helper.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The characters are drawn, not enumerated from a list of known values.
    * @evidence contracts/common.md#meaningful-documentation The comment states the character set, the independence of the draws, and examples.
-   * @evidence contracts/performance.md#efficient-algorithms Constructing L characters costs O(L) time and intermediate/result space.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation Random text, array positions and Date timestamps are in-memory values; no native path or process is accessed.
    */
   export const alphabets = (length: number): string =>
     new Array(length)
@@ -95,6 +95,9 @@ export namespace RandomGenerator {
    * Each position is independently randomly selected from the combined
    * character set. Ideal for generating random IDs, tokens, passwords, or
    * unique identifiers that need both numeric and alphabetic characters.
+   *
+   * Processing cost: Constructing L characters costs O(L) time and
+   * intermediate/result space.
    *
    * @example
    *   RandomGenerator.alphaNumeric(8); // e.g. "a1b2c3d4"
@@ -112,14 +115,10 @@ export namespace RandomGenerator {
    * @param length - The desired length of the generated alphanumeric string
    * @returns A string containing digits and lowercase letters of the specified
    *   length
-   * @evidence contracts/common.md#principled-implementation Each character is an independent uniform draw from the ten digits and 26 lowercase letters.
+   * @evidence contracts/common.md#principled-implementation Each character maps a Math.random draw to one of ten digits and 26 lowercase letters. Repeated characters are allowed and exact uniformity is not guaranteed.
    * @evidence contracts/common.md#clear-and-simple-design One expression over the shared integer helper.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The characters are drawn, not enumerated from a list of known values.
    * @evidence contracts/common.md#meaningful-documentation The comment states the character set and gives examples.
-   * @evidence contracts/performance.md#efficient-algorithms Constructing L characters costs O(L) time and intermediate/result space.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation Random text, array positions and Date timestamps are in-memory values; no native path or process is accessed.
    */
   export const alphaNumeric = (length: number): string =>
     new Array(length)
@@ -134,6 +133,9 @@ export namespace RandomGenerator {
    * The resulting string resembles typical human names in structure and length.
    * Each word is between 3-7 characters by default, creating realistic-looking
    * names.
+   *
+   * Processing cost: The delegated paragraph work scales with the requested
+   * word count and total generated characters.
    *
    * @example
    *   RandomGenerator.name(); // e.g. "lorem ipsum" (2-3 words)
@@ -157,10 +159,6 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design A one-line delegation to `paragraph` with the sentence count as the word count.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The words are drawn letters, not a fixed list of names.
    * @evidence contracts/common.md#meaningful-documentation The comment states the default length and gives examples.
-   * @evidence contracts/performance.md#efficient-algorithms The delegated paragraph work scales with the requested word count and total generated characters.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation Random text, array positions and Date timestamps are in-memory values; no native path or process is accessed.
    */
   export const name = (length: number = randint(2, 3)): string =>
     paragraph({
@@ -174,6 +172,10 @@ export namespace RandomGenerator {
    * (words). Each sentence is a random alphabetic string, and sentences are
    * joined with spaces. Accepts an optional configuration object for fine-tuned
    * control over the paragraph structure.
+   *
+   * Processing cost: Each requested word is generated once; time and temporary
+   * space scale with the total generated character count and the number of
+   * words.
    *
    * @example
    *   // Generate with defaults (random 2-5 words, 3-7 characters each)
@@ -207,10 +209,6 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One expression over `alphabets`, with three optional numbers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The words are drawn letters, not a fixed text.
    * @evidence contracts/common.md#meaningful-documentation The comment states the parameters and their defaults, with examples.
-   * @evidence contracts/performance.md#efficient-algorithms Each requested word is generated once; time and temporary space scale with the total generated character count and the number of words.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation Random text, array positions and Date timestamps are in-memory values; no native path or process is accessed.
    */
   export const paragraph = (
     props?: Partial<{
@@ -232,6 +230,9 @@ export namespace RandomGenerator {
    * structure including paragraph count, sentences per paragraph, and word
    * character lengths. Ideal for generating realistic-looking text content for
    * testing.
+   *
+   * Processing cost: Every paragraph is generated once; time and temporary
+   * space scale with the total output characters and paragraph/word counts.
    *
    * @example
    *   // Generate with all defaults
@@ -285,10 +286,6 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One expression over `paragraph`, with five optional numbers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The text is drawn, not a fixed corpus.
    * @evidence contracts/common.md#meaningful-documentation The comment states the parameters and their defaults, with examples.
-   * @evidence contracts/performance.md#efficient-algorithms Every paragraph is generated once; time and temporary space scale with the total output characters and paragraph/word counts.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation Random text, array positions and Date timestamps are in-memory values; no native path or process is accessed.
    */
   export const content = (
     props?: Partial<{
@@ -321,6 +318,9 @@ export namespace RandomGenerator {
    * Automatically trims whitespace from the beginning and end of the result.
    * Useful for creating excerpts, search terms, or partial content samples.
    *
+   * Processing cost: Two draws choose the slice bounds; substring and trimming
+   * cost at most O(N) in the input length.
+   *
    * @example
    *   const text = "The quick brown fox jumps over the lazy dog";
    *
@@ -346,10 +346,6 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design Two draws and one slice.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The slice bounds are drawn, not fixed.
    * @evidence contracts/common.md#meaningful-documentation The comment states that the slice is random and trimmed, with examples.
-   * @evidence contracts/performance.md#efficient-algorithms Two draws choose the slice bounds; substring and trimming cost at most O(N) in the input length.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation Random text, array positions and Date timestamps are in-memory values; no native path or process is accessed.
    */
   export const substring = (content: string): string => {
     const first: number = randint(0, content.length - 1);
@@ -366,6 +362,10 @@ export namespace RandomGenerator {
    * 1000, otherwise 4 digits. The last section is always 4 digits, zero-padded
    * if necessary. Commonly used for generating Korean mobile phone numbers or
    * similar formats.
+   *
+   * Processing cost: Two bounded integer draws and fixed-width decimal
+   * formatting use constant work; joining the caller prefix costs O(P) output
+   * time and space for P prefix characters.
    *
    * @example
    *   RandomGenerator.mobile(); // e.g. "0103341234" or "01012345678"
@@ -396,10 +396,6 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One expression with two draws.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The prefix is a parameter whose default is the documented Korean one, and the digits are drawn.
    * @evidence contracts/common.md#meaningful-documentation The comment states the format, the default prefix, and examples.
-   * @evidence contracts/performance.md#efficient-algorithms Two bounded integer draws and fixed-width decimal formatting use constant work; joining the caller prefix costs O(P) output time and space for P prefix characters.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation Random text, array positions and Date timestamps are in-memory values; no native path or process is accessed.
    */
   export const mobile = (prefix: string = "010"): string =>
     [
@@ -418,6 +414,9 @@ export namespace RandomGenerator {
    * range represents the maximum number of milliseconds to add to the starting
    * date. Useful for generating timestamps, creation dates, or scheduling test
    * data.
+   *
+   * Processing cost: One integer draw and one Date construction use constant
+   * work.
    *
    * @example
    *   const now = new Date();
@@ -455,10 +454,6 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One expression over the shared integer helper.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The offset is drawn, not fixed.
    * @evidence contracts/common.md#meaningful-documentation The comment states the interval and the unit of the range, with examples.
-   * @evidence contracts/performance.md#efficient-algorithms One integer draw and one Date construction use constant work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation Random text, array positions and Date timestamps are in-memory values; no native path or process is accessed.
    */
   export const date = (from: Date, range: number): Date =>
     new Date(from.getTime() + randint(0, range));
@@ -473,6 +468,10 @@ export namespace RandomGenerator {
    * is final and the cost grows with the sample size, not with the array
    * length. Ideal for creating test datasets or selecting random subsets for
    * validation.
+   *
+   * Processing cost: For K selected positions, sparse partial Fisher-Yates uses
+   * K map lookups/updates and K output entries: expected O(K) time and O(K)
+   * space, without copying the N-element input.
    *
    * @example
    *   const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -503,10 +502,6 @@ export namespace RandomGenerator {
    * @evidence contracts/common.md#clear-and-simple-design One loop with one map, and no rejection of repeated draws.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The array is not mutated or copied, and no element is favored or excluded.
    * @evidence contracts/common.md#meaningful-documentation The comment states without-replacement sampling, the cap, and the algorithm, with examples.
-   * @evidence contracts/performance.md#efficient-algorithms For K selected positions, sparse partial Fisher-Yates uses K map lookups/updates and K output entries: expected O(K) time and O(K) space, without copying the N-element input.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation Random text, array positions and Date timestamps are in-memory values; no native path or process is accessed.
    */
   export const sample = <T>(array: T[], count: number): T[] => {
     count = Math.min(count, array.length);
@@ -525,10 +520,12 @@ export namespace RandomGenerator {
   /**
    * Randomly selects a single element from an array.
    *
-   * Chooses one element at random from the provided array using uniform
-   * distribution. Each element has an equal probability of being selected. This
-   * is a convenience function equivalent to sampling with a count of 1, but
-   * returns the element directly rather than an array containing one element.
+   * Chooses one element at random from the provided array using approximately
+   * uniform distribution inherited from Math.random. This is a convenience
+   * function equivalent to sampling with a count of 1, but returns the element
+   * directly rather than an array containing one element.
+   *
+   * Processing cost: One bounded draw and one indexed lookup use constant work.
    *
    * @example
    *   const colors = ["red", "blue", "green", "yellow", "purple"];
@@ -559,14 +556,10 @@ export namespace RandomGenerator {
    * @param array - The source array to pick an element from
    * @returns A randomly selected element from the array
    * @throws RangeError when the array is empty
-   * @evidence contracts/common.md#principled-implementation One index is drawn uniformly from the valid positions, so each element has the same probability; an empty array has no element to return, so it raises a `RangeError` instead of returning `undefined` under the element type.
+   * @evidence contracts/common.md#principled-implementation One index maps a Math.random draw to a valid position, giving approximately uniform selection; an empty array has no element to return, so it raises a `RangeError` instead of returning `undefined` under the element type.
    * @evidence contracts/common.md#clear-and-simple-design One guard and one draw.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The guard states the contract for the empty array and no default element is invented.
-   * @evidence contracts/common.md#meaningful-documentation The comment states the uniform selection, the relation to sampling one element, and the `RangeError` for an empty array, with examples.
-   * @evidence contracts/performance.md#efficient-algorithms One bounded draw and one indexed lookup use constant work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This invocation computes its own result and coordinates no completed or in-flight computation across requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This operation owns only invocation-local values, with no retained cache, handle or background task.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation Random text, array positions and Date timestamps are in-memory values; no native path or process is accessed.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the approximately uniform selection, the relation to sampling one element, and the `RangeError` for an empty array, with examples.
    */
   export const pick = <T>(array: readonly T[]): T => {
     if (array.length === 0)

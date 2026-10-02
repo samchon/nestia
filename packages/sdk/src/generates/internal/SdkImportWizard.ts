@@ -7,6 +7,7 @@ import { ImportDictionary } from "./ImportDictionary";
  * @evidence contracts/common.md#clear-and-simple-design Six one-call helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Each helper registers one fixed import.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkImportWizard composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkImportWizard {
   /**
@@ -16,6 +17,7 @@ export namespace SdkImportWizard {
    * @evidence contracts/common.md#clear-and-simple-design One conditional.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It returns the registering function.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkImportWizard.Fetcher composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const Fetcher = (encrypted: boolean) =>
     encrypted ? EncryptedFetcher : PlainFetcher;
@@ -27,6 +29,7 @@ export namespace SdkImportWizard {
    * @evidence contracts/common.md#clear-and-simple-design One call.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The import is fixed.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkImportWizard.HttpError composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const HttpError = (importer: ImportDictionary) =>
     importer.external({
@@ -43,6 +46,7 @@ export namespace SdkImportWizard {
    * @evidence contracts/common.md#clear-and-simple-design One call.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The import is fixed.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkImportWizard.IConnection composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const IConnection = (importer: ImportDictionary) =>
     importer.external({
@@ -59,6 +63,7 @@ export namespace SdkImportWizard {
    * @evidence contracts/common.md#clear-and-simple-design One call.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The import is fixed.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkImportWizard.Primitive composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const Primitive = (importer: ImportDictionary) =>
     importer.external({
@@ -75,6 +80,7 @@ export namespace SdkImportWizard {
    * @evidence contracts/common.md#clear-and-simple-design One call.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The import is fixed.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkImportWizard.Resolved composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const Resolved = (importer: ImportDictionary) =>
     importer.external({
@@ -91,6 +97,7 @@ export namespace SdkImportWizard {
    * @evidence contracts/common.md#clear-and-simple-design One call.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The import is fixed.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkImportWizard.typia composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const typia = (importer: ImportDictionary) =>
     importer.external({

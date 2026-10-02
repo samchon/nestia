@@ -5,6 +5,7 @@
  * @evidence contracts/common.md#clear-and-simple-design One function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a plain helper.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation MapUtil reads or initializes caller-supplied map entries; it neither interprets keys as native path identities nor owns a process boundary.
  */
 export namespace MapUtil {
   /**
@@ -18,6 +19,7 @@ export namespace MapUtil {
    * @evidence contracts/common.md#clear-and-simple-design One check, one call, and one store.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The stored value is returned unchanged.
    * @evidence contracts/common.md#meaningful-documentation The comment states the presence rule.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation MapUtil.take reads or initializes caller-supplied map entries; it neither interprets keys as native path identities nor owns a process boundary.
    */
   export function take<Key, T>(
     dict: IDictionary<Key, T>,
@@ -38,6 +40,7 @@ export namespace MapUtil {
    * @evidence contracts/common.md#clear-and-simple-design A structural type of three members, so no wrapper or second helper is needed for a weakly keyed cache.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the two dictionaries it admits and the operations it needs.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation MapUtil.IDictionary reads or initializes caller-supplied map entries; it neither interprets keys as native path identities nor owns a process boundary.
    */
   export interface IDictionary<Key, T> {
     /**
@@ -47,6 +50,7 @@ export namespace MapUtil {
      * @evidence contracts/common.md#clear-and-simple-design One member with the signature that `Map` and `WeakMap` share.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a signature and adds no runtime behavior.
      * @evidence contracts/common.md#meaningful-documentation The comment states what the member answers or does for {@link take}.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation MapUtil.IDictionary.has reads or initializes caller-supplied map entries; it neither interprets keys as native path identities nor owns a process boundary.
      */
     has(key: Key): boolean;
 
@@ -57,6 +61,7 @@ export namespace MapUtil {
      * @evidence contracts/common.md#clear-and-simple-design One member with the signature that `Map` and `WeakMap` share.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a signature and adds no runtime behavior.
      * @evidence contracts/common.md#meaningful-documentation The comment states what the member answers or does for {@link take}.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation MapUtil.IDictionary.get reads or initializes caller-supplied map entries; it neither interprets keys as native path identities nor owns a process boundary.
      */
     get(key: Key): T | undefined;
 
@@ -67,6 +72,7 @@ export namespace MapUtil {
      * @evidence contracts/common.md#clear-and-simple-design One member with the signature that `Map` and `WeakMap` share.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a signature and adds no runtime behavior.
      * @evidence contracts/common.md#meaningful-documentation The comment states what the member answers or does for {@link take}.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation MapUtil.IDictionary.set reads or initializes caller-supplied map entries; it neither interprets keys as native path identities nor owns a process boundary.
      */
     set(key: Key, value: T): unknown;
   }

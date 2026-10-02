@@ -19,10 +19,6 @@ import { NESTIA_EDITOR_DEFAULT_PACKAGE } from "./internal/NestiaEditorDefaultPac
  * @evidence contracts/common.md#clear-and-simple-design One namespace with one entry point; asset reading and location resolution stay in module-private helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The routes use the adapter's public `get` method, and the one read of NestJS internals is the global prefix, described at `setup`.
  * @evidence contracts/common.md#meaningful-documentation The comment states the entry point and that it must run before `listen()`.
- * @evidence contracts/performance.md#efficient-algorithms Setup reads each page-referenced JavaScript asset once and stores strings in registered route closures. Work scales with page and referenced asset bytes plus serialized document size, rather than HTTP request count.
- * @evidence contracts/performance.md#reuse-equivalent-work Every registered static route shares its setup-read string. One application route shares the successfully fetched serialized Swagger document and its in-flight producer; a failure clears the pending promise so a later request may retry. The location and document are fixed for that setup registration.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The application adapter owns registered closures and their asset/document strings for its route lifetime. Only one document producer is retained at a time and settles before pending is cleared; setup creates no process-global history. Fetch cancellation is not supplied by this API, so an unresolved producer remains pending until its transport settles.
- * @evidence contracts/portability.md#os-neutral-implementation Built assets are read through Node fs and path from the installed module directory; page asset URL spelling is validated independently from native paths. Swagger locations use URL resolution and application.getUrl rather than native path joining.
  */
 export namespace NestiaEditorModule {
   /**
@@ -36,14 +32,29 @@ export namespace NestiaEditorModule {
    * is resolved against the address the application listens on, and the fetched
    * document is cached; a failed fetch answers 502 and is not cached.
    *
+   * Setup reads each page-referenced JavaScript asset once. Static setup work
+   * scales with page and asset bytes; later requests reuse the registered
+   * strings. A location-based document is fetched and serialized on demand.
+   *
+   * Each Swagger route shares one successful serialized document and one
+   * in-flight fetch. A failed fetch clears the pending promise so later
+   * requests can try again. The location and document remain fixed for that
+   * registration.
+   *
+   * The application adapter owns the registered closures and their strings for
+   * the route lifetime. Setup creates no process-global history. This API
+   * supplies no fetch cancellation or timeout, so an unresolved request remains
+   * pending until its transport settles.
+   *
+   * Built assets use Node filesystem APIs and native path joining from the
+   * installed module directory. Page script URLs are validated independently
+   * from filesystem paths. Swagger locations use URL resolution against
+   * application.getUrl.
+   *
    * @evidence contracts/common.md#principled-implementation The prefix is built by joining the global prefix and the path and dropping empty segments, so slashes never double; the static files are read once at setup, and the swagger route is lazy for a location because the listening address, which relative locations need, does not exist before `listen()`.
    * @evidence contracts/common.md#clear-and-simple-design One function performs the registration; reading the built page and bundle, reading the global prefix, and resolving a location are separate module-private helpers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts NestJS exposes no public getter for the global prefix, so `getGlobalPrefix` reads the internal `config.globalPrefix` and falls back to an empty prefix when it is absent; this is the single foreign-internal read, kept as a stated limitation rather than replaced by a shadow copy of the prefix.
-   * @evidence contracts/common.md#meaningful-documentation The comment lists the routes, the prefix rule, and when a location is fetched and cached.
-   * @evidence contracts/performance.md#efficient-algorithms Setup reads each page-referenced JavaScript asset once and stores strings in registered route closures. Work scales with page and referenced asset bytes plus serialized document size, rather than HTTP request count.
-   * @evidence contracts/performance.md#reuse-equivalent-work Every registered static route shares its setup-read string. One application route shares the successfully fetched serialized Swagger document and its in-flight producer; a failure clears the pending promise so a later request may retry. The location and document are fixed for that setup registration.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The application adapter owns registered closures and their asset/document strings for its route lifetime. Only one document producer is retained at a time and settles before pending is cleared; setup creates no process-global history. Fetch cancellation is not supplied by this API, so an unresolved producer remains pending until its transport settles.
-   * @evidence contracts/portability.md#os-neutral-implementation Built assets are read through Node fs and path from the installed module directory; page asset URL spelling is validated independently from native paths. Swagger locations use URL resolution and application.getUrl rather than native path joining.
+   * @evidence contracts/common.md#meaningful-documentation The comment lists the routes and prefix rule, explains setup versus request-time work and cached-document ownership, and states the absent timeout/cancellation limitation.
    */
   export const setup = async (props: {
     path: string;

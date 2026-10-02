@@ -12,9 +12,9 @@ import path from "path";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the files the compiler reads.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
  * @evidence contracts/portability.md#os-neutral-implementation Files are read as UTF-8 through `fs`, a leading byte order mark is dropped, relative bases and `typeRoots` are resolved with `path.resolve` against the directory of the file that names them, and package bases go through Node module resolution from that directory. Resolved native path spellings key the per-read cache and active-ancestor set. Relative bases and option paths retain the directory of the requested config rather than being rebased onto a symlink target.
- * @evidence contracts/performance.md#efficient-algorithms Each distinct resolved configuration is parsed and merged once per read. Every extends edge contributes its already-merged options in declared order; work scales with input bytes, edges and the option records being combined rather than repeated traversal of shared ancestry.
- * @evidence contracts/performance.md#reuse-equivalent-work A read owns a cache of completed results keyed by resolved config pathname. It shares the same base across branches only within that read, and a later read observes edits rather than retaining stale configuration state.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The active-ancestor set and completed-config map belong to one read. Active entries leave in finally, and the map is released when the returned read promise settles; no process-wide cache or open file handle survives.
+ * efficient algorithms: Each distinct resolved configuration is parsed and merged once per read. Every extends edge contributes its already-merged options in declared order; work scales with input bytes, edges and the option records being combined rather than repeated traversal of shared ancestry.
+ * reuse equivalent work: A read owns a cache of completed results keyed by resolved config pathname. It shares the same base across branches only within that read, and a later read observes edits rather than retaining stale configuration state.
+ * bound retention and release resources: The active-ancestor set and completed-config map belong to one read. Active entries leave in finally, and the map is released when the returned read promise settles; no process-wide cache or open file handle survives.
  */
 export namespace TsConfigReader {
   /**
@@ -25,9 +25,9 @@ export namespace TsConfigReader {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the members.
    * @evidenceExclude contracts/portability.md#os-neutral-implementation The record holds parsed option values and opens no path or process of its own.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record represents config options and chooses no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no reads or reuse.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record owns no cache, task or filesystem handle.
+   * efficient algorithms: The record represents config options and chooses no computation.
+   * reuse equivalent work: The record coordinates no reads or reuse.
+   * bound retention and release resources: The record owns no cache, task or filesystem handle.
    */
   export interface ITsConfig {
     extends?: string | string[];
@@ -45,9 +45,9 @@ export namespace TsConfigReader {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The comment stripper and the trailing-comma remover are one-pass scanners that track strings, so a slash or a comma inside a string value is kept; the files are read as the compiler reads them, apart from the stated limit that only `typeRoots` is rebased and the other path-valued options keep their written form.
    * @evidence contracts/common.md#meaningful-documentation The comment states the merge order.
    * @evidence contracts/portability.md#os-neutral-implementation The `typeRoots` of the result are absolute native paths, but every other path-valued option keeps its written form relative to the directory of the file that wrote it, so a caller must not read such an option as relative to its own directory.
-   * @evidence contracts/performance.md#efficient-algorithms One per-read completed map avoids re-reading and recursively merging shared ancestors, while each direct base's option record is combined in order to preserve last-base precedence.
-   * @evidence contracts/performance.md#reuse-equivalent-work Completed ancestors share their parsed and merged values within this request. Each call starts fresh state because files can change between generations.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The call allocates its own ancestor set and result map and retains neither globally. Each recursive active entry is removed in finally, including parse and resolution failures.
+   * efficient algorithms: One per-read completed map avoids re-reading and recursively merging shared ancestors, while each direct base's option record is combined in order to preserve last-base precedence.
+   * reuse equivalent work: Completed ancestors share their parsed and merged values within this request. Each call starts fresh state because files can change between generations.
+   * bound retention and release resources: The call allocates its own ancestor set and result map and retains neither globally. Each recursive active entry is removed in finally, including parse and resolution failures.
    */
   export const read = async (file: string): Promise<ITsConfig> =>
     merge(file, new Set(), new Map());

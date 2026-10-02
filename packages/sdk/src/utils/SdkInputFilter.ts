@@ -15,9 +15,9 @@ import { SourceFinder } from "./SourceFinder";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Exclusions come from the actual installed bundle and the generated functional directory, without fixture names or a cached caller output.
  * @evidence contracts/common.md#meaningful-documentation The comment states filter ownership and the cache's output-independent content.
  * @evidence contracts/portability.md#os-neutral-implementation Native real paths resolve existing ancestors and path.relative judges directory containment; neither OS names nor lowercasing assume a volume's case or link policy.
- * @evidence contracts/performance.md#efficient-algorithms Successful installed bundle entries are scanned once and each filter builds its exclusion roots once; a candidate resolves one identity and compares at most the bundle entry count plus functional root, with no recursive source scan here.
- * @evidence contracts/performance.md#reuse-equivalent-work Concurrent filters share installed bundle names and kinds; a failed metadata read clears the promise so a later request can retry. Output-specific resolved roots belong to each factory call, so another output cannot reuse the first caller's paths.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The one metadata promise retains only the fixed installed bundle population. Output roots live in the returned filter closure and are released with its source-discovery call; there is no growing per-output registry.
+ * efficient algorithms: Successful installed bundle entries are scanned once and each filter builds its exclusion roots once; a candidate resolves one identity and compares at most the bundle entry count plus functional root, with no recursive source scan here.
+ * reuse equivalent work: Concurrent filters share installed bundle names and kinds; a failed metadata read clears the promise so a later request can retry. Output-specific resolved roots belong to each factory call, so another output cannot reuse the first caller's paths.
+ * bound retention and release resources: The one metadata promise retains only the fixed installed bundle population. Output roots live in the returned filter closure and are released with its source-discovery call; there is no growing per-output registry.
  */
 export namespace SdkInputFilter {
   /**
@@ -29,9 +29,9 @@ export namespace SdkInputFilter {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every configuration resolves its own output; no first-call output, substring containment or operating-system case guess substitutes for filesystem identity.
    * @evidence contracts/common.md#meaningful-documentation The comment documents both output-bound and extension-only modes.
    * @evidence contracts/portability.md#os-neutral-implementation The nearest existing ancestor carries actual case/link identity and nonexistent suffixes retain their native spelling; path.relative rejects sibling and cross-root locations without protocol-path comparisons.
-   * @evidence contracts/performance.md#efficient-algorithms Factory preparation is linear in installed bundle entries and each predicate call scans those prepared roots after one candidate identity resolution. It reuses the discovery traversal rather than walking inputs again.
-   * @evidence contracts/performance.md#reuse-equivalent-work Output-independent metadata comes from one shared in-flight or successful promise; rejection clears it for retry, while each output-specific root array is computed for its own factory call and is not shared across incompatible configurations.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The predicate retains only this configuration's fixed exclusion roots and no candidate history; once SourceFinder finishes, that closure has no persistent owner.
+   * efficient algorithms: Factory preparation is linear in installed bundle entries and each predicate call scans those prepared roots after one candidate identity resolution. It reuses the discovery traversal rather than walking inputs again.
+   * reuse equivalent work: Output-independent metadata comes from one shared in-flight or successful promise; rejection clears it for retry, while each output-specific root array is computed for its own factory call and is not shared across incompatible configurations.
+   * bound retention and release resources: The predicate retains only this configuration's fixed exclusion roots and no candidate history; once SourceFinder finishes, that closure has no persistent owner.
    */
   export const create = async (
     output: string | undefined,

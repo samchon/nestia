@@ -18,6 +18,7 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
  * @evidence contracts/common.md#clear-and-simple-design Several small functions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The identifiers are decided once.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkWebSocketParameterProgrammer {
   /**
@@ -28,6 +29,7 @@ export namespace SdkWebSocketParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design A three-member record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.IEntry composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface IEntry {
     key: string;
@@ -49,6 +51,7 @@ export namespace SdkWebSocketParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design A record of names and two lookups.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.INames composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface INames {
     connection: string;
@@ -71,6 +74,7 @@ export namespace SdkWebSocketParameterProgrammer {
      * @evidence contracts/common.md#clear-and-simple-design One lookup.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the decision.
      * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.INames.parameter composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
      */
     parameter: (p: ITypedWebSocketRouteParameter.IParam) => string;
 
@@ -81,6 +85,7 @@ export namespace SdkWebSocketParameterProgrammer {
      * @evidence contracts/common.md#clear-and-simple-design One lookup.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the decision.
      * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.INames.access composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
      */
     access: (key: string) => Expression;
   }
@@ -92,6 +97,7 @@ export namespace SdkWebSocketParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function over the scope sets.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Only shadowed names are renamed.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.getNames composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const getNames = (props: {
     project: INestiaProject;
@@ -185,6 +191,7 @@ export namespace SdkWebSocketParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One list.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The order is the call order.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.getEntries composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const getEntries = (props: {
     project: INestiaProject;
@@ -226,6 +233,7 @@ export namespace SdkWebSocketParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function of two modes.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The two modes share the entries.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.getParameterDeclarations composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const getParameterDeclarations = (props: {
     project: INestiaProject;
@@ -277,6 +285,7 @@ export namespace SdkWebSocketParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One expression.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the route.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketParameterProgrammer.isPathEmpty composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const isPathEmpty = (route: ITypedWebSocketRoute): boolean =>
     route.pathParameters.length === 0 && route.query === null;

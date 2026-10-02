@@ -1,3 +1,4 @@
+/// <reference path="../../src/internal/legacy-augmentation.d.ts" preserve="true" />
 // Internal utilities for the plain metadata emitted by the SDK's Go
 // contributor in `packages/sdk/native/sdk/sdk_transform.go`. These adapters
 // preserve the names formerly provided by `@typia/core` without rebuilding
@@ -13,8 +14,6 @@ import type {
   IMetadataTypeTag,
   OpenApi,
 } from "@typia/interface";
-
-import "./legacy-augmentation";
 
 /**
  * Plain `IMetadataSchema` augmented with the fields the nestia transform
@@ -33,6 +32,7 @@ import "./legacy-augmentation";
  * @evidence contracts/common.md#clear-and-simple-design One extending interface.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states the baked fields.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export interface IReflectMetadata extends IMetadataSchema {
   size?: number;
@@ -49,6 +49,7 @@ export interface IReflectMetadata extends IMetadataSchema {
  * @evidence contracts/common.md#clear-and-simple-design A record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment and its members state what each part is.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export interface IReflectJsonSchema {
   version: "3.0" | "3.1";
@@ -78,6 +79,7 @@ export interface IReflectJsonSchema {
  * @evidence contracts/common.md#clear-and-simple-design A four-member record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states the four kinds.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export interface IMetadataDictionary {
   objects: Map<string, IMetadataSchema.IObjectType>;
@@ -117,6 +119,7 @@ export type MetadataComponents = IMetadataComponents & {
  * @evidence contracts/common.md#clear-and-simple-design One alias.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataAliasType = IMetadataSchema.IAliasType;
 /**
@@ -126,6 +129,7 @@ export type MetadataAliasType = IMetadataSchema.IAliasType;
  * @evidence contracts/common.md#clear-and-simple-design One alias.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataArrayType = IMetadataSchema.IArrayType;
 /**
@@ -135,6 +139,7 @@ export type MetadataArrayType = IMetadataSchema.IArrayType;
  * @evidence contracts/common.md#clear-and-simple-design One alias.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataTupleType = IMetadataSchema.ITupleType;
 /**
@@ -144,6 +149,7 @@ export type MetadataTupleType = IMetadataSchema.ITupleType;
  * @evidence contracts/common.md#clear-and-simple-design One alias.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataObjectType = IMetadataSchema.IObjectType;
 /**
@@ -153,6 +159,7 @@ export type MetadataObjectType = IMetadataSchema.IObjectType;
  * @evidence contracts/common.md#clear-and-simple-design One alias.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataAtomic = IMetadataSchema.IAtomic;
 /**
@@ -164,6 +171,7 @@ export type MetadataAtomic = IMetadataSchema.IAtomic;
  * @evidence contracts/common.md#clear-and-simple-design A two-member record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states the flattening.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export interface MetadataConstantValue {
   value: string | number | bigint | boolean;
@@ -176,6 +184,7 @@ export interface MetadataConstantValue {
  * @evidence contracts/common.md#clear-and-simple-design One alias.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataEscaped = IMetadataSchema.IEscaped;
 /**
@@ -185,6 +194,7 @@ export type MetadataEscaped = IMetadataSchema.IEscaped;
  * @evidence contracts/common.md#clear-and-simple-design One alias.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the alias stands for.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataProperty = IMetadataSchema.IProperty;
 
@@ -200,6 +210,7 @@ export type MetadataProperty = IMetadataSchema.IProperty;
  * @evidence contracts/common.md#clear-and-simple-design One intersection type.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states the resolved member.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataArray = IMetadataSchema.IReference & {
   type: MetadataArrayType;
@@ -211,6 +222,7 @@ export type MetadataArray = IMetadataSchema.IReference & {
  * @evidence contracts/common.md#clear-and-simple-design One intersection type.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states the resolved member.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataTuple = IMetadataSchema.IReference & {
   type: MetadataTupleType;
@@ -222,6 +234,7 @@ export type MetadataTuple = IMetadataSchema.IReference & {
  * @evidence contracts/common.md#clear-and-simple-design One intersection type.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states the resolved member.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataObject = IMetadataSchema.IReference & {
   type: MetadataObjectType;
@@ -233,6 +246,7 @@ export type MetadataObject = IMetadataSchema.IReference & {
  * @evidence contracts/common.md#clear-and-simple-design One intersection type.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states the resolved member.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export type MetadataAlias = IMetadataSchema.IReference & {
   type: MetadataAliasType;
@@ -249,6 +263,7 @@ export type MetadataAlias = IMetadataSchema.IReference & {
  * @evidence contracts/common.md#clear-and-simple-design One read.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the baked field.
  * @evidence contracts/common.md#meaningful-documentation The comment states the fallback.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export const sizeOf = (m: IMetadataSchema): number =>
   (m as IReflectMetadata).size ?? 0;
@@ -260,6 +275,7 @@ export const sizeOf = (m: IMetadataSchema): number =>
  * @evidence contracts/common.md#clear-and-simple-design One read.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the baked field.
  * @evidence contracts/common.md#meaningful-documentation The comment states the fallback.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export const nameOf = (m: IMetadataSchema): string =>
   (m as IReflectMetadata).name ?? "";
@@ -271,6 +287,7 @@ export const nameOf = (m: IMetadataSchema): string =>
  * @evidence contracts/common.md#clear-and-simple-design One expression.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads two flags.
  * @evidence contracts/common.md#meaningful-documentation The comment states the definition.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export const isRequiredOf = (m: IMetadataSchema): boolean =>
   m.required && !m.optional;
@@ -288,6 +305,7 @@ export const isRequiredOf = (m: IMetadataSchema): boolean =>
  * @evidence contracts/common.md#clear-and-simple-design One conditional.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The conversion follows the documented encoding.
  * @evidence contracts/common.md#meaningful-documentation The comment states the encoding.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export const decodeMetadataValue = (type: string, value: unknown): unknown =>
   typeof value !== "string"
@@ -310,6 +328,7 @@ export const decodeMetadataValue = (type: string, value: unknown): unknown =>
  * @evidence contracts/common.md#clear-and-simple-design One conditional over `decodeMetadataValue`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It follows the documented encoding.
  * @evidence contracts/common.md#meaningful-documentation The comment states why the encoding exists.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export const decodeTagValue = (
   tag: IMetadataTypeTag & { encoding?: "bigint" | "number" },
@@ -328,6 +347,7 @@ export const decodeTagValue = (
  * @evidence contracts/common.md#clear-and-simple-design One function of guards.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The list of forms is exhaustive over the metadata's members.
  * @evidence contracts/common.md#meaningful-documentation The comment states the meaning.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export const isSoleLiteralOf = (m: IMetadataSchema): boolean => {
   if (m.any) return false;
@@ -352,6 +372,12 @@ export const isSoleLiteralOf = (m: IMetadataSchema): boolean => {
 //  `MetadataComponents.from(plain)` — namespace utility, not a class.
 // ---------------------------------------------------------------------
 
+/**
+ * Indexes metadata component names in memory; component names are symbolic type
+ * identities rather than native pathnames.
+ *
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Indexes metadata component names in memory; component names are symbolic type identities rather than native pathnames.
+ */
 export namespace MetadataComponents {
   /**
    * Builds the components with a dictionary indexing each kind by name.
@@ -360,6 +386,7 @@ export namespace MetadataComponents {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It only indexes.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export const from = (plain: IMetadataComponents): MetadataComponents => {
     const dictionary: IMetadataDictionary = {
@@ -376,6 +403,12 @@ export namespace MetadataComponents {
 //  `MetadataSchema.from(plain, dictionary)` — reference resolution.
 // ---------------------------------------------------------------------
 
+/**
+ * Resolves symbolic type references in a metadata graph; dictionary lookup owns
+ * no native file or process boundary.
+ *
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation Resolves symbolic type references in a metadata graph; dictionary lookup owns no native file or process boundary.
+ */
 export namespace MetadataSchema {
   /**
    * Walks the metadata tree and attaches the resolved `.type` field to every
@@ -388,6 +421,7 @@ export namespace MetadataSchema {
    * @evidence contracts/common.md#clear-and-simple-design One function over two private walkers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The in-place mutation is documented and is confined to the metadata the analysis owns.
    * @evidence contracts/common.md#meaningful-documentation The comment states the mutation, the idempotence, and the cycle rule.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export const from = (
     plain: IMetadataSchema,
@@ -476,6 +510,7 @@ const attachReferences = <Target extends { name: string }>(
  * @evidence contracts/common.md#clear-and-simple-design One function and three types.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The policies are the callers'.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export namespace MetadataFactory {
   /**
@@ -486,6 +521,7 @@ export namespace MetadataFactory {
    * @evidence contracts/common.md#clear-and-simple-design A four-member record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states the members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export interface IExplore {
     object: IMetadataSchema.IObjectType | null;
@@ -500,6 +536,7 @@ export namespace MetadataFactory {
    * @evidence contracts/common.md#clear-and-simple-design A three-member record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states the members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export interface IError {
     name: string;
@@ -514,6 +551,7 @@ export namespace MetadataFactory {
    * @evidence contracts/common.md#clear-and-simple-design One function type.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states the arguments and the result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export type Validator = (props: {
     metadata: IMetadataSchema;
@@ -533,6 +571,7 @@ export namespace MetadataFactory {
    * @evidence contracts/common.md#clear-and-simple-design One function with one recursive visitor.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It calls only the caller's policy.
    * @evidence contracts/common.md#meaningful-documentation The comment states the walk and the termination.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export const validate = (props: {
     functor: Validator;
@@ -619,6 +658,7 @@ export namespace MetadataFactory {
  * @evidence contracts/common.md#clear-and-simple-design One function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule is JSON's.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export namespace JsonMetadataFactory {
   /**
@@ -632,6 +672,7 @@ export namespace JsonMetadataFactory {
    * @evidence contracts/common.md#clear-and-simple-design One function of four checks.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The list is the JSON limitation.
    * @evidence contracts/common.md#meaningful-documentation The comment states the four bans.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export const validate: MetadataFactory.Validator = (props) => {
     const messages: string[] = [];
@@ -659,6 +700,7 @@ export namespace JsonMetadataFactory {
  * @evidence contracts/common.md#clear-and-simple-design Two functions with a private converter.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The copies keep one composition from editing another's data.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
  */
 export namespace JsonSchemasProgrammer {
   /**
@@ -679,6 +721,7 @@ export namespace JsonSchemasProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The fallback is stated as weaker than the bake.
    * @evidence contracts/common.md#meaningful-documentation The comment states the copies and the fallback.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export const writeSchemas = (props: {
     version: "3.0" | "3.1";
@@ -724,6 +767,7 @@ export namespace JsonSchemasProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Only metadata without a bake falls back.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result and the null case.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation This metadata adapter represents schema values, named type references and validation results in memory. It neither interprets native pathname identity nor opens files or launches processes.
    */
   export const writeProperty = (props: {
     version: "3.0" | "3.1";

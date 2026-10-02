@@ -1,6 +1,5 @@
 import cp from "child_process";
 import fs from "fs";
-import os from "os";
 import path from "path";
 
 /**
@@ -22,13 +21,13 @@ import path from "path";
  * @evidence contracts/testing.md#execution-ownership The test-migrate entry calls test_migrate_cli_boolean_flags; it executes the built CLI in isolated subprocesses and temporary directories.
  * @evidence contracts/e2e.md#necessary-boundary The actual built CLI connects Commander options, input reading, template generation, formatting and filesystem archiving; direct generator calls cannot detect this process-level wiring.
  * @evidence contracts/e2e.md#shared-execution Each invocation reuses the one built migrate artifact. Boolean variants require separate CLI lifetimes because Commander consumes process arguments; the plain-files case owns a separate archive for its file-format assertions.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity A fresh OS temporary directory isolates each test, distinct output directories isolate CLI variants, synchronous children terminate before inspection, and finally removes the owned tree on success or assertion failure.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity A fresh directory under the ignored generated tree isolates each test, distinct output directories isolate CLI variants, synchronous children terminate before inspection, and finally removes the owned tree on success or assertion failure.
  * @evidence contracts/e2e.md#preserved-coverage The boolean flag variants and plain-text archiving assertions remain in their named CLI tests; portable schema and calling-convention generation is asserted by the neighboring direct generator tests.
  */
 export const test_migrate_cli_boolean_flags = (): void => {
-  const root: string = fs.mkdtempSync(
-    path.join(os.tmpdir(), "nestia-migrate-"),
-  );
+  const generated: string = path.join(__dirname, "../../.generated");
+  fs.mkdirSync(generated, { recursive: true });
+  const root: string = fs.mkdtempSync(path.join(generated, "nestia-migrate-"));
   try {
     const input: string = path.join(root, "swagger.json");
     fs.writeFileSync(

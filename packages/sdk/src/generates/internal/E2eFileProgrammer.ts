@@ -24,6 +24,7 @@ import { SdkImportWizard } from "./SdkImportWizard";
  * @evidence contracts/common.md#clear-and-simple-design One public function and private helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The generated file uses the SDK the same way a user does.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidence contracts/portability.md#os-neutral-implementation The caller supplies native api/current locations; ImportDictionary converts relative imports to slash-separated language specifiers, and FilePrinter writes the computed test pathname through Node fs with UTF-8. No filename case policy is inferred.
  */
 export namespace E2eFileProgrammer {
   /**
@@ -34,6 +35,7 @@ export namespace E2eFileProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The file name is derived from the route accessor.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidence contracts/portability.md#os-neutral-implementation The caller supplies native api/current locations; ImportDictionary converts relative imports to slash-separated language specifiers, and FilePrinter writes the computed test pathname through Node fs with UTF-8. No filename case policy is inferred.
    */
   export const generate =
     (project: INestiaProject) =>

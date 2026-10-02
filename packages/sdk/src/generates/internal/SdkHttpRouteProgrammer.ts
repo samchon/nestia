@@ -16,6 +16,7 @@ import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
  * @evidence contracts/common.md#clear-and-simple-design One public function and one description helper.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The description is from the route's own comment.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpRouteProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkHttpRouteProgrammer {
   /**
@@ -27,6 +28,7 @@ export namespace SdkHttpRouteProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The description keeps the names the function declares.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpRouteProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write =
     (project: INestiaProject) =>

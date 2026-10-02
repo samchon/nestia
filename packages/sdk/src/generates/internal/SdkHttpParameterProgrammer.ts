@@ -20,6 +20,7 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
  * @evidence contracts/common.md#clear-and-simple-design Several small functions over one entry type.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The three consumers share one decision.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpParameterProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkHttpParameterProgrammer {
   /**
@@ -30,6 +31,7 @@ export namespace SdkHttpParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design A four-member record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpParameterProgrammer.IEntry composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface IEntry {
     key: string;
@@ -62,6 +64,7 @@ export namespace SdkHttpParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design A record of names and two lookups.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpParameterProgrammer.INames composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface INames {
     connection: string;
@@ -81,6 +84,7 @@ export namespace SdkHttpParameterProgrammer {
      * @evidence contracts/common.md#clear-and-simple-design One lookup.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the decision.
      * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpParameterProgrammer.INames.parameter composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
      */
     parameter: (p: ITypedHttpRouteParameter) => string;
 
@@ -91,6 +95,7 @@ export namespace SdkHttpParameterProgrammer {
      * @evidence contracts/common.md#clear-and-simple-design One lookup.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the decision.
      * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+     * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpParameterProgrammer.INames.access composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
      */
     access: (p: ITypedHttpRouteParameter) => Expression;
   }
@@ -103,6 +108,7 @@ export namespace SdkHttpParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function over the scope sets.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Only shadowed names are renamed.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpParameterProgrammer.getNames composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const getNames = (props: {
     project: INestiaProject;
@@ -225,6 +231,7 @@ export namespace SdkHttpParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One list.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It adds no parameter.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpParameterProgrammer.getAll composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const getAll = (
     route: ITypedHttpRoute,
@@ -245,6 +252,7 @@ export namespace SdkHttpParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One list.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The body is included by the caller's choice.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpParameterProgrammer.getSignificant composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const getSignificant = (route: ITypedHttpRoute, body: boolean) => [
     ...route.pathParameters,
@@ -262,6 +270,7 @@ export namespace SdkHttpParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One list of three groups.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty route has no entries.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpParameterProgrammer.getEntries composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const getEntries = (props: {
     project: INestiaProject;
@@ -343,6 +352,7 @@ export namespace SdkHttpParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function of two modes.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The names come from `getNames`.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpParameterProgrammer.getParameterDeclarations composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const getParameterDeclarations = (props: {
     project: INestiaProject;
@@ -418,6 +428,7 @@ export namespace SdkHttpParameterProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function of two modes.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No argument is invented for an empty route.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpParameterProgrammer.getArguments composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const getArguments = (props: {
     project: INestiaProject;

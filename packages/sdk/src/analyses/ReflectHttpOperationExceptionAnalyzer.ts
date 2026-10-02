@@ -13,6 +13,7 @@ import { IReflectOperationError } from "../structures/IReflectOperationError";
  * @evidence contracts/common.md#clear-and-simple-design One public function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The matching is by position because both lists are produced in declaration order.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationExceptionAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace ReflectHttpOperationExceptionAnalyzer {
   /**
@@ -23,6 +24,7 @@ export namespace ReflectHttpOperationExceptionAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationExceptionAnalyzer.IContext analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface IContext {
     controller: IReflectController;
@@ -42,6 +44,7 @@ export namespace ReflectHttpOperationExceptionAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The pairing follows the documented order, and every mismatch is reported.
    * @evidence contracts/common.md#meaningful-documentation The comment states the matching and the errors.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationExceptionAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const analyze = (
     ctx: IContext,

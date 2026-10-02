@@ -8,6 +8,8 @@ import FileUpload, { type ExtendedFileProps } from "react-mui-fileuploader";
  *
  * The last chosen file is read and parsed by its extension, and the result is passed to `onChange` with the parsed document, or with an error message when the content does not parse. Clearing the selection reports `null` for both.
  *
+ * A file-reading failure rejects the uploader callback before parsing; it is not reported through `onChange`. Parsing reports content without validating its OpenAPI shape; the composer performs that validation.
+ *
  * @evidence contracts/common.md#principled-implementation The file is decoded as UTF-8 text and parsed with `JSON.parse` for a `json` extension and with `js-yaml` otherwise; a parse failure is reported with the message for the format, and only the last chosen file is kept, matching the single-file picker.
  * @evidence contracts/common.md#clear-and-simple-design One component wraps the third-party uploader and owns only reading and parsing; the form around it belongs to `NestiaEditorUploader`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The parser is chosen by the file extension alone; no document name or content is special-cased.

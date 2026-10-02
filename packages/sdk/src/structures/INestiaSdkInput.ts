@@ -9,6 +9,7 @@ import { VersionValue } from "@nestjs/common/interfaces";
  * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+ * @evidence contracts/portability.md#os-neutral-implementation Controller location is a native source pathname supplied by ConfigAnalyzer; prefixes, exclusions and versions are router protocol strings, not filesystem paths.
  */
 export interface INestiaSdkInput {
   controllers: INestiaSdkInput.IController[];
@@ -30,6 +31,7 @@ export namespace INestiaSdkInput {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidence contracts/portability.md#os-neutral-implementation location carries the native source pathname resolved by ConfigAnalyzer, while prefixes are HTTP mount paths; the two representations are not normalized together.
    */
   export interface IController {
     class: Function;
@@ -44,6 +46,7 @@ export namespace INestiaSdkInput {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation INestiaSdkInput.IGlobalPrefixExclude describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export interface IGlobalPrefixExclude {
     path: string;

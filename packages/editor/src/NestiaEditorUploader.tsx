@@ -21,7 +21,7 @@ import { NestiaEditorFileUploader } from "./internal/NestiaEditorFileUploader";
  *
  * The user picks a document, a package name, the mode (SDK or NestJS project), and the options. The project is generated in the browser and downloaded as a zip file. Operations the converter could not handle are reported, so an incomplete project is never presented as complete.
  *
- * @evidence contracts/common.md#principled-implementation The form keeps its inputs in component state, composes on request with `NestiaEditorComposer`, and hands the files to `NestiaEditorArchiver`; every failure and every skipped operation reaches the error handler.
+ * @evidence contracts/common.md#principled-implementation The form keeps its inputs in component state, composes on request with `NestiaEditorComposer`, and hands the files to `NestiaEditorArchiver`. Composition and archive failures, file-parser errors reported by the picker, and skipped operations reach the error handler. File-reading rejection belongs to the picker callback and is not caught by this form.
  * @evidence contracts/common.md#clear-and-simple-design One component owns the form state and delegates parsing the file, composing, and archiving to internal modules.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The defaults are the same product defaults as the iframe flow and the package name comes from the shared constant; an error goes to `onError` when given and to `alert` otherwise, with no fixture-specific path.
  * @evidence contracts/common.md#meaningful-documentation The comment states the inputs, the output, and how skipped operations are reported.

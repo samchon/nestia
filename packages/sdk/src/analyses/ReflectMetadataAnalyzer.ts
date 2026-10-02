@@ -11,6 +11,7 @@ import { SecurityAnalyzer } from "./SecurityAnalyzer";
  * @evidence contracts/common.md#clear-and-simple-design Four small readers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts They read only public metadata keys.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectMetadataAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace ReflectMetadataAnalyzer {
   /**
@@ -21,6 +22,7 @@ export namespace ReflectMetadataAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One conditional.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It normalizes without changing paths.
    * @evidence contracts/common.md#meaningful-documentation The comment states the normalization.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectMetadataAnalyzer.paths analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const paths = (target: Function): string[] => {
     const value: string | string[] = Reflect.getMetadata(PATH_METADATA, target);
@@ -36,6 +38,7 @@ export namespace ReflectMetadataAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One read.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the Swagger metadata key.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectMetadataAnalyzer.extensions analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const extensions = (value: any): Record<string, any> => {
     const entire: Record<string, any>[] | undefined = Reflect.getMetadata(
@@ -52,6 +55,7 @@ export namespace ReflectMetadataAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One read and one merge.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the Swagger metadata key.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectMetadataAnalyzer.securities analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const securities = (value: any): Record<string, string[]>[] => {
     const entire: Record<string, string[]>[] | undefined = Reflect.getMetadata(
@@ -69,6 +73,7 @@ export namespace ReflectMetadataAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One conditional.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads Nest's version metadata.
    * @evidence contracts/common.md#meaningful-documentation The comment states the three cases.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectMetadataAnalyzer.versions analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const versions = (
     target: any,

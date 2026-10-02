@@ -8,6 +8,7 @@ import { IJsDocTagInfo } from "typia";
  * @evidence contracts/common.md#clear-and-simple-design Three functions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The tag has priority over the derived text.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerDescriptionComposer composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SwaggerDescriptionComposer {
   /**
@@ -20,6 +21,7 @@ export namespace SwaggerDescriptionComposer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The kind is the caller's choice.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerDescriptionComposer.compose composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const compose = <Kind extends "summary" | "title">(props: {
     description: string | null;
@@ -56,6 +58,7 @@ export namespace SwaggerDescriptionComposer {
    * @evidence contracts/common.md#clear-and-simple-design One search.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It reads the tags.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerDescriptionComposer.descriptionFromJsDocTag composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const descriptionFromJsDocTag = (props: {
     jsDocTags: IJsDocTagInfo[];
@@ -84,6 +87,7 @@ export namespace SwaggerDescriptionComposer {
    * @evidence contracts/common.md#clear-and-simple-design One filter and one map.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty text is not returned.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerDescriptionComposer.getJsDocTexts composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const getJsDocTexts = (props: {
     jsDocTags: IJsDocTagInfo[];

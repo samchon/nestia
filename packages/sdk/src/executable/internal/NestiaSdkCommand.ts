@@ -12,6 +12,7 @@ import { NestiaSwaggerWatch } from "./NestiaSwaggerWatch";
  * @evidence contracts/common.md#clear-and-simple-design Four commands over one private runner and two argument readers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The commands differ only by title, validation, and generator.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidence contracts/portability.md#os-neutral-implementation Project and config arguments remain native pathname strings supplied to NestiaConfigLoader and NestiaSdkWatcher. Those owners resolve files and launch compiler processes; dispatch does not rewrite path case or separators.
  */
 export namespace NestiaSdkCommand {
   /**
@@ -24,6 +25,7 @@ export namespace NestiaSdkCommand {
    * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
    * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   * @evidence contracts/portability.md#os-neutral-implementation Project and config arguments remain native pathname strings supplied to NestiaConfigLoader and NestiaSdkWatcher. Those owners resolve files and launch compiler processes; dispatch does not rewrite path case or separators.
    */
   export const sdk = () =>
     main({
@@ -44,6 +46,7 @@ export namespace NestiaSdkCommand {
    * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
    * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   * @evidence contracts/portability.md#os-neutral-implementation Project and config arguments remain native pathname strings supplied to NestiaConfigLoader and NestiaSdkWatcher. Those owners resolve files and launch compiler processes; dispatch does not rewrite path case or separators.
    */
   export const swagger = () =>
     main({
@@ -64,6 +67,7 @@ export namespace NestiaSdkCommand {
    * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
    * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   * @evidence contracts/portability.md#os-neutral-implementation Project and config arguments remain native pathname strings supplied to NestiaConfigLoader and NestiaSdkWatcher. Those owners resolve files and launch compiler processes; dispatch does not rewrite path case or separators.
    */
   export const e2e = () =>
     main({
@@ -89,6 +93,7 @@ export namespace NestiaSdkCommand {
    * @evidence contracts/common.md#clear-and-simple-design One binding of the shared runner.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The behavior follows the flags and the configuration.
    * @evidence contracts/common.md#meaningful-documentation The comment states what is generated and the skipping rule.
+   * @evidence contracts/portability.md#os-neutral-implementation Project and config arguments remain native pathname strings supplied to NestiaConfigLoader and NestiaSdkWatcher. Those owners resolve files and launch compiler processes; dispatch does not rewrite path case or separators.
    */
   export const all = () =>
     main({

@@ -9,6 +9,7 @@ import { Token, parse } from "path-to-regexp";
  * @evidence contracts/common.md#clear-and-simple-design Several small functions over one tokenizer and one parser.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The router's own grammar decides, and no path is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation PathAnalyzer interprets router protocol paths; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace PathAnalyzer {
   /**
@@ -20,6 +21,7 @@ export namespace PathAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One expression.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It applies to every input.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result form.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation PathAnalyzer.join interprets router protocol paths; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const join = (...args: string[]) =>
     "/" +
@@ -37,6 +39,7 @@ export namespace PathAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function delegating the exclusion test to a private helper.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The exclusion rule is NestJS's.
    * @evidence contracts/common.md#meaningful-documentation The comment states the exclusion.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation PathAnalyzer.joinWithGlobalPrefix interprets router protocol paths; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const joinWithGlobalPrefix = (props: {
     globalPrefix: string;
@@ -64,6 +67,7 @@ export namespace PathAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One regular expression.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It follows the router's escaping rule.
    * @evidence contracts/common.md#meaningful-documentation The comment states the escaped case.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation PathAnalyzer.wildcard interprets router protocol paths; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const wildcard = (str: string): boolean => /(^|[^\\])\*/.test(str);
 
@@ -78,6 +82,7 @@ export namespace PathAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function over the tokenizer.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The grammar is the router's.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result and why generators use it.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation PathAnalyzer.segments interprets router protocol paths; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const segments = (str: string): ISegment[] | null => {
     const tokens: Token[] | null = _Tokenize(str);
@@ -108,6 +113,7 @@ export namespace PathAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One expression over `segments`.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It uses the same segmenter as the SDK generator.
    * @evidence contracts/common.md#meaningful-documentation The comment states the fallback.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation PathAnalyzer.toOpenApi interprets router protocol paths; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const toOpenApi = (str: string): string => {
     const list: ISegment[] | null = segments(str);
@@ -125,6 +131,7 @@ export namespace PathAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design A two-member union.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the two cases.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation PathAnalyzer.ISegment interprets router protocol paths; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export type ISegment =
     | { type: "literal"; value: string }
@@ -138,6 +145,7 @@ export namespace PathAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One filter over the private parser.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The grammar is the router's.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation PathAnalyzer.parameters interprets router protocol paths; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const parameters = (str: string): string[] | null => {
     const args = _Parse(str);

@@ -5,6 +5,7 @@
  * @evidence contracts/common.md#clear-and-simple-design One function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a plain parser.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation CommandParser parses supplied argument strings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace CommandParser {
   /**
@@ -15,6 +16,7 @@ export namespace CommandParser {
    * @evidence contracts/common.md#clear-and-simple-design One loop.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It applies to every argument.
    * @evidence contracts/common.md#meaningful-documentation The comment states the omitted flags.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation CommandParser.parse parses supplied argument strings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export function parse(argList: string[]): Record<string, string> {
     const output: Record<string, string> = {};

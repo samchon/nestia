@@ -23,6 +23,7 @@ const isNode = (value: unknown): value is Expression =>
  * @evidence contracts/common.md#clear-and-simple-design One function and two helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The mapping is by type.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation LiteralFactory constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace LiteralFactory {
   /**
@@ -33,6 +34,7 @@ export namespace LiteralFactory {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The dispatch is general.
    * @evidence contracts/common.md#meaningful-documentation The comment states the mapping.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation LiteralFactory.write constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write = (input: any): Expression => {
     if (input === null) return factory.createNull();

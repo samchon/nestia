@@ -8,6 +8,7 @@ import { MapUtil } from "../utils/MapUtil";
  * @evidence contracts/common.md#clear-and-simple-design Two functions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The merge is generic.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ImportAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace ImportAnalyzer {
   /**
@@ -22,6 +23,7 @@ export namespace ImportAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One statement.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It reports the removal instead of failing later with a missing function.
    * @evidence contracts/common.md#meaningful-documentation The comment names the replacement.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ImportAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const analyze = (): never => {
     throw new Error(
@@ -40,6 +42,7 @@ export namespace ImportAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function over one group merger.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The merge follows the import records, with no file special-cased.
    * @evidence contracts/common.md#meaningful-documentation The comment states the grouping and the merging.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ImportAnalyzer.merge analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const merge = (imports: IReflectImport[]): IReflectImport[] => {
     // group by files

@@ -17,6 +17,7 @@ import {
  * @evidence contracts/common.md#clear-and-simple-design One function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It only builds nodes.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ExpressionFactory constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace ExpressionFactory {
   /**
@@ -26,6 +27,7 @@ export namespace ExpressionFactory {
    * @evidence contracts/common.md#clear-and-simple-design One conditional.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It follows the grammar.
    * @evidence contracts/common.md#meaningful-documentation The comment states the negative case.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ExpressionFactory.number constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const number = (
     value: number,

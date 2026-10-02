@@ -26,6 +26,7 @@ import type { SdkWebSocketParameterProgrammer } from "./SdkWebSocketParameterPro
  * @evidence contracts/common.md#clear-and-simple-design Several small builders.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The builders depend on the project configuration for the choice of source.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkAliasCollection {
   /**
@@ -35,6 +36,7 @@ export namespace SdkAliasCollection {
    * @evidence contracts/common.md#clear-and-simple-design One recursion.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It writes the name as reflected.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection.name composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const name = ({ type }: { type: IReflectType }): TypeNode =>
     factory.createTypeReferenceNode(
@@ -52,6 +54,7 @@ export namespace SdkAliasCollection {
    * @evidence contracts/common.md#clear-and-simple-design One node.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The type is fixed.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection.binaryChunk composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const binaryChunk = (): TypeNode =>
     factory.createTypeReferenceNode("Uint8Array", [
@@ -65,6 +68,7 @@ export namespace SdkAliasCollection {
    * @evidence contracts/common.md#clear-and-simple-design One node.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The chunk type is shared.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection.binaryResponse composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const binaryResponse = (): TypeNode =>
     factory.createTypeReferenceNode("ReadableStream", [binaryChunk()]);
@@ -76,6 +80,7 @@ export namespace SdkAliasCollection {
    * @evidence contracts/common.md#clear-and-simple-design One delegation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It shares the type writer.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection.from composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const from =
     (project: INestiaProject) =>
@@ -91,6 +96,7 @@ export namespace SdkAliasCollection {
    * @evidence contracts/common.md#clear-and-simple-design One map over the entries.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A parameter with a description carries it as a comment.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection.httpProps composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const httpProps =
     (project: INestiaProject) =>
@@ -142,6 +148,7 @@ export namespace SdkAliasCollection {
    * @evidence contracts/common.md#clear-and-simple-design One literal.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The names are shared.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection.websocketProps composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const websocketProps = (
     route: ITypedWebSocketRoute,
@@ -182,6 +189,7 @@ export namespace SdkAliasCollection {
    * @evidence contracts/common.md#clear-and-simple-design One conditional.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The choice is made on one flag.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection.headers composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const headers =
     (project: INestiaProject) =>
@@ -210,6 +218,7 @@ export namespace SdkAliasCollection {
    * @evidence contracts/common.md#clear-and-simple-design One conditional.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The choice is made on one flag.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection.query composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const query =
     (project: INestiaProject) =>
@@ -238,6 +247,7 @@ export namespace SdkAliasCollection {
    * @evidence contracts/common.md#clear-and-simple-design One conditional.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The cases are the content types.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection.body composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const body =
     (project: INestiaProject) =>
@@ -276,6 +286,7 @@ export namespace SdkAliasCollection {
    * @evidence contracts/common.md#clear-and-simple-design One function of two branches.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The exceptions are the declared ones.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection.response composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const response =
     (project: INestiaProject) =>
@@ -363,6 +374,7 @@ export namespace SdkAliasCollection {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The branches are the response kinds.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkAliasCollection.responseBody composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const responseBody =
     (project: INestiaProject) =>

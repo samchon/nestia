@@ -7,6 +7,7 @@ import { MetadataSchema, sizeOf } from "../internal/legacy";
  * @evidence contracts/common.md#clear-and-simple-design One function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule follows the content type.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation TextPlainValidator checks the metadata union accepted for a text/plain payload; it owns no native filesystem or executable representation.
  */
 export namespace TextPlainValidator {
   /**
@@ -17,6 +18,7 @@ export namespace TextPlainValidator {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The count is exact and no type is special-cased.
    * @evidence contracts/common.md#meaningful-documentation The comment states the accepted forms.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation TextPlainValidator.validate checks the metadata union accepted for a text/plain payload; it owns no native filesystem or executable representation.
    */
   export const validate = (props: { metadata: MetadataSchema }): string[] => {
     const expected: number =

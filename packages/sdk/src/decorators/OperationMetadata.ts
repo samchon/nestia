@@ -14,6 +14,7 @@ import { IOperationMetadata } from "../structures/IOperationMetadata";
  * @evidence contracts/common.md#clear-and-simple-design One decorator that parses when given text and defines one metadata entry.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It only records what the transform computed and does not alter the method.
  * @evidence contracts/common.md#meaningful-documentation The comment states who emits and who reads the metadata.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation OperationMetadata attaches metadata through Reflect.defineMetadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export function OperationMetadata(
   metadata: IOperationMetadata | string,

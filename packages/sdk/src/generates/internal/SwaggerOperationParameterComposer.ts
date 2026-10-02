@@ -22,6 +22,7 @@ import { SwaggerReadonlyArrayEmender } from "./SwaggerReadonlyArrayEmender";
  * @evidence contracts/common.md#clear-and-simple-design Two public functions over private helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The 2.0 restrictions are applied by dedicated helpers.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationParameterComposer composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SwaggerOperationParameterComposer {
   /**
@@ -32,6 +33,7 @@ export namespace SwaggerOperationParameterComposer {
    * @evidence contracts/common.md#clear-and-simple-design A flat record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationParameterComposer.IProps composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface IProps<Parameter extends ITypedHttpRouteParameter> {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;
@@ -48,6 +50,7 @@ export namespace SwaggerOperationParameterComposer {
    * @evidence contracts/common.md#clear-and-simple-design One dispatch by category.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The category decides the location.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationParameterComposer.compose composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const compose = (
     props: IProps<ITypedHttpRouteParameter>,
@@ -69,6 +72,7 @@ export namespace SwaggerOperationParameterComposer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The 2.0 conversion is separate.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationParameterComposer.body composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const body = (
     props: IProps<ITypedHttpRouteParameter.IBody>,

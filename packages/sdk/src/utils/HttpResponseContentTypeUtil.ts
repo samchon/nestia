@@ -5,6 +5,7 @@
  * @evidence contracts/common.md#clear-and-simple-design One type and two predicates.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The list is media types, not routes.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation HttpResponseContentTypeUtil classifies HTTP response metadata and MIME types, which have protocol semantics independent of the native filesystem.
  */
 export namespace HttpResponseContentTypeUtil {
   /**
@@ -15,6 +16,7 @@ export namespace HttpResponseContentTypeUtil {
    * @evidence contracts/common.md#clear-and-simple-design One union.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the cases.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation HttpResponseContentTypeUtil.Response classifies HTTP response metadata and MIME types, which have protocol semantics independent of the native filesystem.
    */
   export type Response =
     | "application/json"
@@ -31,6 +33,7 @@ export namespace HttpResponseContentTypeUtil {
    * @evidence contracts/common.md#clear-and-simple-design One expression.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The list is the supported set.
    * @evidence contracts/common.md#meaningful-documentation The comment lists the supported types.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation HttpResponseContentTypeUtil.isSupported classifies HTTP response metadata and MIME types, which have protocol semantics independent of the native filesystem.
    */
   export const isSupported = (input: string | null): input is Response =>
     input === null ||
@@ -49,6 +52,7 @@ export namespace HttpResponseContentTypeUtil {
    * @evidence contracts/common.md#clear-and-simple-design One predicate.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule is a list of media types.
    * @evidence contracts/common.md#meaningful-documentation The comment states the binary types and the normalization.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation HttpResponseContentTypeUtil.isBinary classifies HTTP response metadata and MIME types, which have protocol semantics independent of the native filesystem.
    */
   export const isBinary = (
     input: string | null | undefined,

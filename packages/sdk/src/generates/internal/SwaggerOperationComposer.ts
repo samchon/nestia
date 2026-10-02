@@ -15,6 +15,7 @@ import { SwaggerOperationResponseComposer } from "./SwaggerOperationResponseComp
  * @evidence contracts/common.md#clear-and-simple-design One function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The document's own tag list is edited only by adding.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationComposer composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SwaggerOperationComposer {
   /**
@@ -24,6 +25,7 @@ export namespace SwaggerOperationComposer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A tag's description is never overwritten.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerOperationComposer.compose composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const compose = (props: {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;

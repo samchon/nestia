@@ -10,6 +10,7 @@ import { PathUtil } from "../utils/PathUtil";
  * @evidence contracts/common.md#clear-and-simple-design One function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The accessor rule is generic.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation TypedWebSocketRouteAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace TypedWebSocketRouteAnalyzer {
   /**
@@ -20,6 +21,7 @@ export namespace TypedWebSocketRouteAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One mapping.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It only reorganizes reflected data.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation TypedWebSocketRouteAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const analyze = (props: {
     controller: IReflectController;

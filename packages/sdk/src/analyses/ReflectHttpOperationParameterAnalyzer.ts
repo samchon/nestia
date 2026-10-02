@@ -18,6 +18,7 @@ import { SwaggerExampleAnalyzer } from "./SwaggerExampleAnalyzer";
  * @evidence contracts/common.md#clear-and-simple-design One public function with private classification and duplicate checks.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The recognition by factory name couples this package to the function names of `@nestia/core`, a contract between the two packages.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationParameterAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace ReflectHttpOperationParameterAnalyzer {
   /**
@@ -28,6 +29,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationParameterAnalyzer.IContext analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface IContext {
     controller: IReflectController;
@@ -47,6 +49,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function that gathers every error before returning.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every rule follows the HTTP or NestJS contract, and a parameter that cannot be sent is an error, not silently dropped.
    * @evidence contracts/common.md#meaningful-documentation The comment states the errors.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationParameterAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const analyze = (ctx: IContext): IReflectHttpOperationParameter[] => {
     const preconfigured: IReflectHttpOperationParameter.IPreconfigured[] =

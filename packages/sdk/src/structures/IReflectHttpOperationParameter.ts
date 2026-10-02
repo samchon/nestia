@@ -16,6 +16,7 @@ import { IReflectType } from "./IReflectType";
  * @evidence contracts/common.md#clear-and-simple-design A union of four records plus the preconfigured union.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation IReflectHttpOperationParameter describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
  */
 export type IReflectHttpOperationParameter =
   | IReflectHttpOperationParameter.IBody
@@ -31,6 +32,7 @@ export namespace IReflectHttpOperationParameter {
    * @evidence contracts/common.md#clear-and-simple-design A record extending the shared base.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IReflectHttpOperationParameter.IBody describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export interface IBody extends IBase<"body"> {
     contentType:
@@ -47,6 +49,7 @@ export namespace IReflectHttpOperationParameter {
    * @evidence contracts/common.md#clear-and-simple-design A record extending the shared base.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IReflectHttpOperationParameter.IHeaders describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export interface IHeaders extends IBase<"headers"> {
     field: string | null;
@@ -58,6 +61,7 @@ export namespace IReflectHttpOperationParameter {
    * @evidence contracts/common.md#clear-and-simple-design A record extending the shared base.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IReflectHttpOperationParameter.IParam describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export interface IParam extends IBase<"param"> {
     field: string;
@@ -69,6 +73,7 @@ export namespace IReflectHttpOperationParameter {
    * @evidence contracts/common.md#clear-and-simple-design A record extending the shared base.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IReflectHttpOperationParameter.IQuery describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export interface IQuery extends IBase<"query"> {
     field: string | null;

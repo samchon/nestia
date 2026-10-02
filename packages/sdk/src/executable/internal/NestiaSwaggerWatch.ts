@@ -19,9 +19,9 @@ import { NestiaConfigLoader } from "./NestiaConfigLoader";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Arbitrary configuration functions execute normally in the child; none is stringified, cloned or replaced. No foreign module cache or resolver is changed.
  * @evidence contracts/common.md#meaningful-documentation The comment explains the realm boundary and why artifact generation waits for the watcher handshake.
  * @evidence contracts/portability.md#os-neutral-implementation Node launches this emitted module with its own executable, argument arrays, explicit cwd, IPC and windowsHide. Paths remain native filesystem values and no executable shim or shell command is constructed.
- * @evidence contracts/performance.md#efficient-algorithms Each generation creates one child and projects only the configuration paths required by watcher planning; no controller/module graph is copied into the parent.
- * @evidence contracts/performance.md#reuse-equivalent-work Configuration loading and generation share one child and its loaded configuration objects. Changed inputs require a new realm, while the inherited native compiler caches remain reusable outside its disposable outputs.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The parent owns one child per opened generation and awaits its exit on success, failure or close. The child explicitly releases its registered temporary outputs before exit; process exit also releases its module realm.
+ * efficient algorithms: Each generation creates one child and projects only the configuration paths required by watcher planning; no controller/module graph is copied into the parent.
+ * reuse equivalent work: Configuration loading and generation share one child and its loaded configuration objects. Changed inputs require a new realm, while the inherited native compiler caches remain reusable outside its disposable outputs.
+ * bound retention and release resources: The parent owns one child per opened generation and awaits its exit on success, failure or close. The child explicitly releases its registered temporary outputs before exit; process exit also releases its module realm.
  */
 export namespace NestiaSwaggerWatch {
   /**
@@ -32,9 +32,9 @@ export namespace NestiaSwaggerWatch {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The projection is never passed to a generator as a replacement configuration; the child's original objects drive generation.
    * @evidence contracts/common.md#meaningful-documentation Member comments distinguish watcher-only data, phase ordering and release ownership.
    * @evidence contracts/portability.md#os-neutral-implementation The configuration projection carries native input/output paths; the callbacks hide Node's IPC and process representation from the watcher instead of exposing a shell or executable shim.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no computation; open and its callbacks own projection and process coordination.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record carries a prepared generation but makes no reuse decision; open keeps its configuration and generator in the same child.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The record transfers one prepared child's lifetime to its caller, which must invoke generate or close and finalize on errors. close is idempotent and waits for worker resource release.
+   * efficient algorithms: The record performs no computation; open and its callbacks own projection and process coordination.
+   * reuse equivalent work: The record carries a prepared generation but makes no reuse decision; open keeps its configuration and generator in the same child.
+   * bound retention and release resources: The record transfers one prepared child's lifetime to its caller, which must invoke generate or close and finalize on errors. close is idempotent and waits for worker resource release.
    */
   export interface IGeneration {
     /** Paths used only to install watches, never to generate artifacts. */
@@ -48,9 +48,9 @@ export namespace NestiaSwaggerWatch {
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It invokes the actual child generator without substituting projected watcher data for its configuration.
      * @evidence contracts/common.md#meaningful-documentation The comment states the required watcher-installation ordering.
      * @evidenceExclude contracts/portability.md#os-neutral-implementation This callback signature hides the process representation; open owns the Node fork and IPC boundary.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms The signature selects no computation; open and the child generator own it.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work The signature decides no sharing policy; the prepared child retains the actual configuration.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The signature acquires no resource; the record’s owner must invoke this operation or close as documented.
+     * efficient algorithms: The signature selects no computation; open and the child generator own it.
+     * reuse equivalent work: The signature decides no sharing policy; the prepared child retains the actual configuration.
+     * bound retention and release resources: The signature acquires no resource; the record’s owner must invoke this operation or close as documented.
      */
     generate: () => Promise<void>;
 
@@ -64,9 +64,9 @@ export namespace NestiaSwaggerWatch {
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It waits for owned child cleanup rather than changing foreign loader caches.
      * @evidence contracts/common.md#meaningful-documentation The comment states release timing and the limitation imposed by synchronous child work.
      * @evidenceExclude contracts/portability.md#os-neutral-implementation This callback signature hides Node IPC disconnection; open owns its platform boundary.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms The signature performs no cleanup algorithm itself; open defines the implementation.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work The signature coordinates no producer reuse; open makes release idempotent.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The signature acquires no resource itself; the prepared record and open operation define child lifetime transfer and release.
+     * efficient algorithms: The signature performs no cleanup algorithm itself; open defines the implementation.
+     * reuse equivalent work: The signature coordinates no producer reuse; open makes release idempotent.
+     * bound retention and release resources: The signature acquires no resource itself; the prepared record and open operation define child lifetime transfer and release.
      */
     close: () => Promise<void>;
   }
@@ -79,9 +79,9 @@ export namespace NestiaSwaggerWatch {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The emitted child entry executes real loader and generator operations once. Failures retain their cause messages; no retry or cached-success substitution occurs.
    * @evidence contracts/common.md#meaningful-documentation The comment states that preparation does not write generated artifacts and the returned callbacks define the two-phase lifetime.
    * @evidence contracts/portability.md#os-neutral-implementation Node launches the existing emitted __filename with its own executable, inherited runtime arguments, explicit cwd, windowsHide and IPC; cancellation uses channel disconnection and awaits actual close without platform shell commands.
-   * @evidence contracts/performance.md#efficient-algorithms One child is opened for one generation and one path-only projection is delivered; retained parent protocol state is constant apart from that configuration list and bounded error causes.
-   * @evidence contracts/performance.md#reuse-equivalent-work The child's loaded configuration is reused for the second phase after watches are installed, so callbacks and controller dependencies are not reconstructed or recompiled between preparation and generation. A changed-input generation needs a fresh realm; compiler disk caches are inherited separately.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Preparation errors close the child before rejection; generation awaits its result and close, and the explicit close callback joins cleanup on cancellation or failure before the second phase. Watcher finalization releases the record after every run and on stop.
+   * efficient algorithms: One child is opened for one generation and one path-only projection is delivered; retained parent protocol state is constant apart from that configuration list and bounded error causes.
+   * reuse equivalent work: The child's loaded configuration is reused for the second phase after watches are installed, so callbacks and controller dependencies are not reconstructed or recompiled between preparation and generation. A changed-input generation needs a fresh realm; compiler disk caches are inherited separately.
+   * bound retention and release resources: Preparation errors close the child before rejection; generation awaits its result and close, and the explicit close callback joins cleanup on cancellation or failure before the second phase. Watcher finalization releases the record after every run and on stop.
    */
   export const open = async (props: {
     configFile: string;

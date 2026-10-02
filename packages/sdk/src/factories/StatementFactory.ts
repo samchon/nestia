@@ -15,6 +15,7 @@ import { TypeFactory } from "./TypeFactory";
  * @evidence contracts/common.md#clear-and-simple-design Three functions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It only builds nodes.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation StatementFactory constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace StatementFactory {
   /**
@@ -25,6 +26,7 @@ export namespace StatementFactory {
    * @evidence contracts/common.md#clear-and-simple-design One expression.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It follows the grammar.
    * @evidence contracts/common.md#meaningful-documentation The comment states the default type.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StatementFactory.mut constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const mut = (props: {
     name: string;
@@ -57,6 +59,7 @@ export namespace StatementFactory {
    * @evidence contracts/common.md#clear-and-simple-design One expression.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It follows the grammar.
    * @evidence contracts/common.md#meaningful-documentation The comment states its inputs.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation StatementFactory.constant constructs TypeScript syntax nodes; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const constant = (props: {
     name: string;

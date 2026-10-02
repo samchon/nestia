@@ -30,9 +30,10 @@ import { StringUtil } from "../utils/StringUtil";
  * @evidence contracts/common.md#clear-and-simple-design Two public functions and private collectors for the component rename.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The rename mutates only component definitions owned by analysis; consumers emit resolved structural types rather than modifying foreign cache fields or replacing names in strings.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This namespace groups operations; analyze and routeDictionary own the algorithms.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The namespace itself coordinates no completed or in-flight work.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The namespace owns no cache, handle or running task.
+ * efficient algorithms: This namespace groups operations; analyze and routeDictionary own the algorithms.
+ * reuse equivalent work: The namespace itself coordinates no completed or in-flight work.
+ * bound retention and release resources: The namespace owns no cache, handle or running task.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation TypedHttpRouteAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace TypedHttpRouteAnalyzer {
   /**
@@ -43,9 +44,10 @@ export namespace TypedHttpRouteAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The policies come from the validators of the package.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result and the errors.
-   * @evidence contracts/performance.md#efficient-algorithms Each supplied parameter and exception is cast once, policy validation belongs to MetadataFactory, and route splitting maps only the supplied paths.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Independently supplied operation metadata and position-specific validation have no shared completed or in-flight request.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Metadata dictionaries and local diagnostics belong to this synchronous operation and its returned routes; no process, handle or persistent history is retained.
+   * efficient algorithms: Each supplied parameter and exception is cast once, policy validation belongs to MetadataFactory, and route splitting maps only the supplied paths.
+   * reuse equivalent work: Independently supplied operation metadata and position-specific validation have no shared completed or in-flight request.
+   * bound retention and release resources: Metadata dictionaries and local diagnostics belong to this synchronous operation and its returned routes; no process, handle or persistent history is retained.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation TypedHttpRouteAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const analyze = (props: {
     controller: IReflectController;
@@ -188,9 +190,10 @@ export namespace TypedHttpRouteAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function over private collectors.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Finite partition refinement preserves semantic discriminators and user payloads while component edges reference equivalence classes. Only actual component ordinals are omitted; no foreign name cache or generated text is rewritten.
    * @evidence contracts/common.md#meaningful-documentation The comment states the result and the rename.
-   * @evidence contracts/performance.md#efficient-algorithms Each refinement round encodes each distinct component body with constant-sized component edges. The partition only splits and stabilizes within the distinct component count, avoiding exponential expansion of shared DAGs.
-   * @evidence contracts/performance.md#reuse-equivalent-work One local partition compares all routes together, reuses graph node colors for shared children and supplies all collision groups; equivalent same-slot definitions reuse one emitted representative.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Collected nodes, partitions and visited sets are local to this synchronous call and are released with it; the returned dictionary retains only its reachable emitted representatives.
+   * efficient algorithms: Each refinement round encodes each distinct component body with constant-sized component edges. The partition only splits and stabilizes within the distinct component count, avoiding exponential expansion of shared DAGs.
+   * reuse equivalent work: One local partition compares all routes together, reuses graph node colors for shared children and supplies all collision groups; equivalent same-slot definitions reuse one emitted representative.
+   * bound retention and release resources: Collected nodes, partitions and visited sets are local to this synchronous call and are released with it; the returned dictionary retains only its reachable emitted representatives.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation TypedHttpRouteAnalyzer.routeDictionary analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const routeDictionary = (
     routes: Array<ITypedHttpRoute | ITypedMcpRoute>,

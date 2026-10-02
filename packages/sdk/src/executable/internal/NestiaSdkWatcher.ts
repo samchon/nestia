@@ -13,9 +13,9 @@ import { SourceFinder } from "../../utils/SourceFinder";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The watchers are installed before each generation so no change between generation and watching is lost, and every watcher is closed on stop.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
  * @evidence contracts/portability.md#os-neutral-implementation One non-recursive `fs.watch` is installed per directory, which every supported platform provides, in place of the `recursive` option that older Linux releases lack. The event's file name can be missing on some platforms and the directory then stands for the change, and a rename without an extension is read as a possible directory change because platforms report directory creation as a rename. Locations are compared by filesystem identity: every ignored path and every event target is resolved to the real path of its nearest existing ancestor, which carries the case and links the volume keeps, so no operating-system name decides a case policy. Remaining assumptions: `fs.watch` event semantics differ per platform, and only SIGINT and SIGTERM are handled, so an abrupt termination ends the watchers with the process.
- * @evidence contracts/performance.md#efficient-algorithms Each regeneration walks the watched trees once, one `readdir` and one real-path resolution per directory, and does so twice, before the generation so no edit is lost and after it to see what it wrote, so the cost grows with the number of watched directories and their entries and repeats for every debounced regeneration. A watched directory can appear at any time, so an incremental plan would still have to rescan, and the full rebuild is kept because regeneration is itself far costlier than a scan.
- * @evidence contracts/performance.md#reuse-equivalent-work Changes inside the debounce window collapse into one regeneration and a change during a running generation sets one pending reason, so equivalent triggers share a run. Each run reloads the configurations because the configuration file is an input, so no result is reused across runs.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The session owns one watcher per planned directory, one debounce timer and one pending reason; sync, errors and stop release those handles. Its optional finalizer releases caller-owned generation resources on success, failure and stop. CLI regeneration loads configurations/controllers inside one disposable child whose temporary outputs and module realm end after that generation. Arbitrary programmatic callbacks retain their own module caches and resources; the scheduler cannot release caller-owned caches or objects retained outside their callbacks.
+ * efficient algorithms: Each regeneration walks the watched trees once, one `readdir` and one real-path resolution per directory, and does so twice, before the generation so no edit is lost and after it to see what it wrote, so the cost grows with the number of watched directories and their entries and repeats for every debounced regeneration. A watched directory can appear at any time, so an incremental plan would still have to rescan, and the full rebuild is kept because regeneration is itself far costlier than a scan.
+ * reuse equivalent work: Changes inside the debounce window collapse into one regeneration and a change during a running generation sets one pending reason, so equivalent triggers share a run. Each run reloads the configurations because the configuration file is an input, so no result is reused across runs.
+ * bound retention and release resources: The session owns one watcher per planned directory, one debounce timer and one pending reason; sync, errors and stop release those handles. Its optional finalizer releases caller-owned generation resources on success, failure and stop. CLI regeneration loads configurations/controllers inside one disposable child whose temporary outputs and module realm end after that generation. Arbitrary programmatic callbacks retain their own module caches and resources; the scheduler cannot release caller-owned caches or objects retained outside their callbacks.
  */
 export namespace NestiaSdkWatcher {
   /**
@@ -27,9 +27,9 @@ export namespace NestiaSdkWatcher {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
    * @evidence contracts/portability.md#os-neutral-implementation The two file fields are native paths of the project, resolved with `path.resolve` before any comparison.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record has no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record owns no handle or task; the session that holds it owns the resources.
+   * efficient algorithms: The record has no computation.
+   * reuse equivalent work: The record coordinates no work.
+   * bound retention and release resources: The record owns no handle or task; the session that holds it owns the resources.
    */
   export interface IProps {
     configFile: string;
@@ -42,9 +42,9 @@ export namespace NestiaSdkWatcher {
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is caller code.
      * @evidence contracts/common.md#meaningful-documentation The comment states when it is called.
      * @evidenceExclude contracts/portability.md#os-neutral-implementation A caller callback owns no filesystem or process access here; the loader it wraps owns those decisions.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms The signature performs no computation.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work The signature coordinates nothing; the session decides when to call it.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The signature retains nothing; the session drops the returned configurations after each run.
+     * efficient algorithms: The signature performs no computation.
+     * reuse equivalent work: The signature coordinates nothing; the session decides when to call it.
+     * bound retention and release resources: The signature retains nothing; the session drops the returned configurations after each run.
      */
     configurations: () => Promise<INestiaConfig[]>;
     /**
@@ -55,9 +55,9 @@ export namespace NestiaSdkWatcher {
      * @evidence contracts/common.md#prohibited-implementation-shortcuts It is caller code.
      * @evidence contracts/common.md#meaningful-documentation The comment states what it does.
      * @evidenceExclude contracts/portability.md#os-neutral-implementation A caller callback owns no filesystem or process access here; the generator it wraps owns those decisions.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms The signature performs no computation.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work The signature coordinates nothing; the session serializes its calls.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The signature retains nothing.
+     * efficient algorithms: The signature performs no computation.
+     * reuse equivalent work: The signature coordinates nothing; the session serializes its calls.
+     * bound retention and release resources: The signature retains nothing.
      */
     generate: (configurations: INestiaConfig[]) => Promise<void>;
 
@@ -71,9 +71,9 @@ export namespace NestiaSdkWatcher {
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Resource release is delegated to its actual owner rather than changing foreign caches or callbacks.
      * @evidence contracts/common.md#meaningful-documentation The comment states call timing and the idempotency required when stop overlaps work.
      * @evidenceExclude contracts/portability.md#os-neutral-implementation This callback signature exposes no native path or process representation; the caller’s finalizer owns that boundary.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms The signature performs no release computation; its caller supplies the implementation.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work The signature shares no results; the session determines finalization timing.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The signature owns no retained state or handle; the session joins the caller’s release operation and the caller owns external resources.
+     * efficient algorithms: The signature performs no release computation; its caller supplies the implementation.
+     * reuse equivalent work: The signature shares no results; the session determines finalization timing.
+     * bound retention and release resources: The signature owns no retained state or handle; the session joins the caller’s release operation and the caller owns external resources.
      */
     finalize?: () => Promise<void>;
     projectFile: string;
@@ -90,9 +90,9 @@ export namespace NestiaSdkWatcher {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The watchers are released by the signal handlers.
    * @evidence contracts/common.md#meaningful-documentation The comment states the blocking and the signals.
    * @evidence contracts/portability.md#os-neutral-implementation The signal handlers are registered with `process.once` for SIGINT and SIGTERM and exit with status 0 after closing the watchers; SIGINT is delivered on every platform while Windows never delivers SIGTERM, so a termination request there ends the process without the handler.
-   * @evidence contracts/performance.md#efficient-algorithms The function creates one session and awaits one generation; its cost is that of the first regeneration described by the namespace.
-   * @evidence contracts/performance.md#reuse-equivalent-work The first generation is the only work the function itself requests, and later regenerations are coordinated by the session, which collapses equivalent triggers.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned promise never settles by design, so the session lives until the process ends; the handlers release its watchers and timer on SIGINT and SIGTERM, and the process exit releases them otherwise.
+   * efficient algorithms: The function creates one session and awaits one generation; its cost is that of the first regeneration described by the namespace.
+   * reuse equivalent work: The first generation is the only work the function itself requests, and later regenerations are coordinated by the session, which collapses equivalent triggers.
+   * bound retention and release resources: The returned promise never settles by design, so the session lives until the process ends; the handlers release its watchers and timer on SIGINT and SIGTERM, and the process exit releases them otherwise.
    */
   export const watch = async (props: IProps): Promise<void> => {
     const session = new WatchSession(props);

@@ -1,6 +1,5 @@
 import cp from "child_process";
 import fs from "fs";
-import os from "os";
 import path from "path";
 
 /**
@@ -52,12 +51,15 @@ export namespace CliBoundaryHarness {
    * @evidence contracts/common.md#meaningful-documentation The comment explains repository shape and independently observable lifecycle markers.
    */
   export const prepareFixture = (): IFixture => {
-    const repository: string = fs.mkdtempSync(
-      path.join(os.tmpdir(), "nestia-cli-fixture-"),
+    const cache: string = path.resolve(
+      __dirname,
+      "../../../../node_modules/.cache/test-e2e",
     );
+    fs.mkdirSync(cache, { recursive: true });
     const workspace: string = fs.mkdtempSync(
-      path.join(os.tmpdir(), "nestia-cli-scaffold-"),
+      path.join(cache, "nestia-cli-scaffold-"),
     );
+    const repository: string = path.join(workspace, "repository");
     try {
       write(
         repository,

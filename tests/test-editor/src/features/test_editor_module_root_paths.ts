@@ -5,6 +5,12 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
 /**
  * Verifies empty and slash-only prefixes register the editor at the root.
  *
+ * An empty normalized prefix must expose one root redirect. Registering an
+ * empty route or a second slash would depend on the HTTP adapter's behavior.
+ *
+ * 1. Register the editor with empty, slash-only, and nonempty prefixes.
+ * 2. Check page, document, asset, and redirect paths recorded by the adapter.
+ *
  * @evidence contracts/testing.md#behavioral-verification Calls the actual setup operation with a route-recording HTTP adapter and asserts root page/document/asset paths have one leading slash and one root redirect.
  * @evidence contracts/testing.md#independent-expectations HTTP root paths use one leading slash; joining empty prefix segments must not create a distinct double-slash route, and the configured nonempty prefix must remain intact.
  * @evidence contracts/testing.md#distinguishing-cases Empty and slash-only path/global-prefix combinations are paired with api/editor as the adjacent nonroot case.

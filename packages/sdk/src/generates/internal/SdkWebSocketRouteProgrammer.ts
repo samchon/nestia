@@ -23,6 +23,7 @@ import { SdkWebSocketParameterProgrammer } from "./SdkWebSocketParameterProgramm
  * @evidence contracts/common.md#clear-and-simple-design One public function and the writers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The identifiers are decided by the parameter programmer.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketRouteProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkWebSocketRouteProgrammer {
   /**
@@ -32,6 +33,7 @@ export namespace SdkWebSocketRouteProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The shape follows the route.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkWebSocketRouteProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write =
     (project: INestiaProject) =>

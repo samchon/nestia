@@ -27,6 +27,7 @@ import { SdkImportWizard } from "./SdkImportWizard";
  * @evidence contracts/common.md#clear-and-simple-design One public function and the body writers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The names come from the parameter programmer.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpFunctionProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkHttpFunctionProgrammer {
   /**
@@ -37,6 +38,7 @@ export namespace SdkHttpFunctionProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One declaration built from the parameter and body helpers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The function's name is the public accessor.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpFunctionProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write =
     (project: INestiaProject) =>

@@ -17,6 +17,7 @@ type JsonSchemaObject = OpenApi.IJsonSchema & Record<string, any>;
  * @evidence contracts/common.md#clear-and-simple-design One public function and the visitors.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The walk terminates on a recursive type.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerReadonlyArrayEmender composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SwaggerReadonlyArrayEmender {
   /**
@@ -26,6 +27,7 @@ export namespace SwaggerReadonlyArrayEmender {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The edit is confined to the schemas passed in.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SwaggerReadonlyArrayEmender.emend composes OpenAPI data; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const emend = (props: {
     components: OpenApi.IComponents;

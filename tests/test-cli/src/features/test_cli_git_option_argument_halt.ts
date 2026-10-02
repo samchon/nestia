@@ -3,8 +3,15 @@ import { TestValidator } from "@nestia/e2e";
 import { CliTestHarness } from "../internal/CliTestHarness";
 
 /**
- * Rejects destination and repository values that git would interpret as
- * options.
+ * Verifies rejection of destination and repository values git would interpret
+ * as options.
+ *
+ * Argument vectors preserve shell boundaries, but git still interprets a
+ * leading dash as an option. Reject those operands before cloning user input.
+ *
+ * 1. Supply a dash-prefixed destination or repository to both scaffold engines.
+ * 2. Assert the option-specific guidance is returned.
+ * 3. Assert no command, directory change or cleanup has occurred.
  *
  * @evidence contracts/testing.md#behavioral-verification Both scaffold engines reject a dash-prefixed destination or repository before executing a command or entering a directory.
  * @evidence contracts/testing.md#independent-expectations Git interprets dash-prefixed operands as options in this clone invocation, so rejection is required independently of the parser implementation; literal empty effect lists assert the pre-clone guard.

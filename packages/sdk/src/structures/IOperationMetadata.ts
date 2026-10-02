@@ -16,6 +16,7 @@ import { IReflectType } from "./IReflectType";
  * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation IOperationMetadata describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
  */
 export interface IOperationMetadata {
   parameters: IOperationMetadata.IParameter[];
@@ -33,6 +34,7 @@ export namespace IOperationMetadata {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IOperationMetadata.IParameter describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export interface IParameter extends IResponse {
     name: string;
@@ -48,6 +50,7 @@ export namespace IOperationMetadata {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IOperationMetadata.IResponse describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export interface IResponse {
     type: IReflectType | null;
@@ -64,6 +67,7 @@ export namespace IOperationMetadata {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IOperationMetadata.ISchema describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export interface ISchema {
     components: IMetadataComponents;
@@ -85,6 +89,7 @@ export namespace IOperationMetadata {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IOperationMetadata.IHttpRules describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export interface IHttpRules {
     /** A query object: `@TypedQuery()`, `@Query()`, `@TypedQuery.Body()`. */
@@ -109,6 +114,7 @@ export namespace IOperationMetadata {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes; its members are named for their meaning.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation IOperationMetadata.IError describes protocol or type metadata; any embedded import/source record preserves the identity supplied by its owner. This declaration defines no native path conversion or process boundary.
    */
   export interface IError {
     name: string;

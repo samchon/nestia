@@ -21,6 +21,7 @@ import { SwaggerExampleAnalyzer } from "./SwaggerExampleAnalyzer";
  * @evidence contracts/common.md#clear-and-simple-design One public function with small private helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The order follows how NestJS and nestia decorate a route.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationResponseAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace ReflectHttpOperationResponseAnalyzer {
   /**
@@ -31,6 +32,7 @@ export namespace ReflectHttpOperationResponseAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationResponseAnalyzer.IContext analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface IContext {
     controller: IReflectController;
@@ -52,6 +54,7 @@ export namespace ReflectHttpOperationResponseAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The defaults are NestJS's.
    * @evidence contracts/common.md#meaningful-documentation The comment states the null result and the two errors.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationResponseAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const analyze = (
     ctx: IContext,

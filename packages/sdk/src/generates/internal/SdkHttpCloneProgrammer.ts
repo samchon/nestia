@@ -22,6 +22,7 @@ import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
  * @evidence contracts/common.md#clear-and-simple-design One declaration-tree operation dispatches object, alias and recursive collection bodies through their owning writers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Implicit object and alias names are not declared; native-marked recursive collections supply named declarations so recursive references have a definition.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpCloneProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkHttpCloneProgrammer {
   /**
@@ -32,6 +33,7 @@ export namespace SdkHttpCloneProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design A three-member record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpCloneProgrammer.IModule composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface IModule {
     name: string;
@@ -47,6 +49,7 @@ export namespace SdkHttpCloneProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design Four collection loops feed the same declaration tree, so all named forms share namespace and import decisions.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The implicit test is the shared definition.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpCloneProgrammer.write composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const write = (app: ITypedApplication): Map<string, IModule> => {
     // COMPOSE THE DICTIONARY

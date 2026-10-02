@@ -18,11 +18,21 @@ import { NestiaMigrateInquirer } from "./NestiaMigrateInquirer";
 /**
  * The command-line entry of `@nestia/migrate`.
  *
+ * The output path is resolved with `path.resolve` and its parent tested with
+ * `existsSync` and `statSync`, with backslashes converted to `/`, which Windows
+ * accepts. The input is fetched when it parses as an http or https URL, so a
+ * Windows path whose drive letter parses as a scheme is read from disk, and it
+ * is read as UTF-8 otherwise. Only files with a `.ts`, `.cts`, `.mts` or `.tsx`
+ * extension, tested case-sensitively, are formatted, and text is written
+ * without a byte order mark and with the line endings the generator and
+ * Prettier produce, which are not the platform's. A failure ends the process
+ * through `process.exit(-1)`, whose status the platform truncates to a non-zero
+ * value.
+ *
  * @evidence contracts/common.md#principled-implementation The command reads the options, validates the output directory, reads the document from a file or an http(s) URL, converts it, reports the operations that could not be migrated, and writes the files, formatting only TypeScript files.
  * @evidence contracts/common.md#clear-and-simple-design One entry function, with formatting, halting, and URL detection as private helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every failure ends with a message and a non-zero exit, and unformattable content is written unformatted.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
- * @evidence contracts/portability.md#os-neutral-implementation The output path is resolved with `path.resolve` and its parent tested with `existsSync` and `statSync`, with backslashes converted to `/`, which Windows accepts. The input is fetched when it parses as an http or https URL, so a Windows path whose drive letter parses as a scheme is read from disk, and it is read as UTF-8 otherwise. Only files with a `.ts`, `.cts`, `.mts` or `.tsx` extension, tested case-sensitively, are formatted, and text is written without a byte order mark and with the line endings the generator and Prettier produce, which are not the platform's. A failure ends the process through `process.exit(-1)`, whose status the platform truncates to a non-zero value.
  */
 export namespace NestiaMigrateCommander {
   /**
@@ -33,11 +43,14 @@ export namespace NestiaMigrateCommander {
    * does not exist or is not a directory, when the input cannot be read or
    * fetched, or when the document is invalid.
    *
+   * Creation and writing use `fs.promises` through the injected archiver, so
+   * the volume decides case policy and permissions, and the checks that precede
+   * any write are the filesystem's own answers.
+   *
    * @evidence contracts/common.md#principled-implementation The checks run before any file is written, the document is fetched only for an http or https URL, a failed HTTP status stops the command, and only files with a TypeScript extension are formatted, because Prettier's TypeScript parser would rewrite a dotfile line into code.
    * @evidence contracts/common.md#clear-and-simple-design One asynchronous function whose phases are marked in comments, with the option parsing in `NestiaMigrateInquirer`.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The checks apply to every input, and a formatting failure keeps the original text.
    * @evidence contracts/common.md#meaningful-documentation The comment states the conditions under which it stops.
-   * @evidence contracts/portability.md#os-neutral-implementation Creation and writing use `fs.promises` through the injected archiver, so the volume decides case policy and permissions, and the checks that precede any write are the filesystem's own answers.
    */
   export const main = async (): Promise<void> => {
     const resolve = (str: string | undefined) =>

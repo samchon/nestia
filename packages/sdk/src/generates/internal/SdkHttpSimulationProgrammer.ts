@@ -30,9 +30,10 @@ import { SdkImportWizard } from "./SdkImportWizard";
  * @evidence contracts/common.md#clear-and-simple-design Two public functions and their helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Generated validation calls typia.assert through NestiaSimulator's error adapter. It does not reproduce arbitrary server pipes or the server transform's prune and equality modes; simulation rejects structural type violations without contacting a server.
  * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
- * @evidence contracts/performance.md#efficient-algorithms Response construction has a fixed AST skeleton; request assertion emission visits significant parameters once and allocates one validator expression per parameter. Type and parameter projection costs belong to the called programmers.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work These writers construct route-specific mutable AST nodes and coordinate no completed or in-flight generation across requests.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returned ASTs transfer to the file writer. The emitted binary random function closes its empty stream during construction; the programmer itself retains no stream or producer task.
+ * efficient algorithms: Response construction has a fixed AST skeleton; request assertion emission visits significant parameters once and allocates one validator expression per parameter. Type and parameter projection costs belong to the called programmers.
+ * reuse equivalent work: These writers construct route-specific mutable AST nodes and coordinate no completed or in-flight generation across requests.
+ * bound retention and release resources: Returned ASTs transfer to the file writer. The emitted binary random function closes its empty stream during construction; the programmer itself retains no stream or producer task.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpSimulationProgrammer composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace SdkHttpSimulationProgrammer {
   /**
@@ -43,9 +44,10 @@ export namespace SdkHttpSimulationProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design The existing binary versus ordinary expression branch owns response generation. Its inline stream source supplies closure without another runtime helper, import or transport.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The binary case has no random content.
    * @evidence contracts/common.md#meaningful-documentation The prose states that binary random output is closed and readers receive EOF without waiting for payload.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The emitted binary source queues no bytes or producer task and closes each empty stream during construction. The writer returns its AST without retaining stream handles; runtime readers belong to the generated SDK caller.
-   * @evidence contracts/performance.md#efficient-algorithms After response-type projection, either branch allocates a fixed AST skeleton; the binary branch emits one empty stream constructor without traversing or generating payload bytes.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The returned AST belongs to this route and importer. Each generated runtime call needs its own random value or stream, so neither mutable syntax nor runtime response identity is shared.
+   * bound retention and release resources: The emitted binary source queues no bytes or producer task and closes each empty stream during construction. The writer returns its AST without retaining stream handles; runtime readers belong to the generated SDK caller.
+   * efficient algorithms: After response-type projection, either branch allocates a fixed AST skeleton; the binary branch emits one empty stream constructor without traversing or generating payload bytes.
+   * reuse equivalent work: The returned AST belongs to this route and importer. Each generated runtime call needs its own random value or stream, so neither mutable syntax nor runtime response identity is shared.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpSimulationProgrammer.random composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const random =
     (project: INestiaProject) =>
@@ -119,9 +121,10 @@ export namespace SdkHttpSimulationProgrammer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The parameters are validated before a response is made.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the declaration produces and its result.
-   * @evidence contracts/performance.md#efficient-algorithms Parameter declarations and assertion nodes grow linearly with significant route parameters; propagation adds a fixed response wrapper and one catch block. The private assertion writer handles the connection headers separately rather than duplicating every parameter validation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Simulation syntax contains this route's names, arguments, output type and importer aliases; this operation coordinates no reusable result across generation requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This function returns an AST to its caller and owns no retained cache, stream, handle or background task; runtime random response creation is documented by random.
+   * efficient algorithms: Parameter declarations and assertion nodes grow linearly with significant route parameters; propagation adds a fixed response wrapper and one catch block. The private assertion writer handles the connection headers separately rather than duplicating every parameter validation.
+   * reuse equivalent work: Simulation syntax contains this route's names, arguments, output type and importer aliases; this operation coordinates no reusable result across generation requests.
+   * bound retention and release resources: This function returns an AST to its caller and owns no retained cache, stream, handle or background task; runtime random response creation is documented by random.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation SdkHttpSimulationProgrammer.simulate composes SDK syntax, identifiers or import bindings; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const simulate =
     (project: INestiaProject) =>

@@ -23,6 +23,7 @@ import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
  * @evidence contracts/common.md#clear-and-simple-design One public function over the parameter, response, and exception analyzers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The checks follow the decorators and no route is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace ReflectHttpOperationAnalyzer {
   /**
@@ -33,6 +34,7 @@ export namespace ReflectHttpOperationAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationAnalyzer.IProps analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface IProps {
     project: Omit<INestiaProject, "config"> &
@@ -50,6 +52,7 @@ export namespace ReflectHttpOperationAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function that collects errors and returns nothing when there is one.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules follow the HTTP semantics of the decorators.
    * @evidence contracts/common.md#meaningful-documentation The comment states the null result and the collected errors.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ReflectHttpOperationAnalyzer.analyze analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const analyze = (props: IProps): IReflectHttpOperation | null => {
     if (

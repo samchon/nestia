@@ -1,12 +1,14 @@
 import { DynamicExecutor } from "@nestia/e2e";
+import path from "path";
 
 /**
  * Executes discovered scaffold units serially and reports their elapsed time.
  *
  * Serial execution keeps the corepack prompt environment flag isolated while
- * its case restores the original value. A rejected unit fails the entry.
+ * its case restores the original value. A rejected unit or an empty discovery
+ * fails the entry; discovery follows the running module's source extension.
  *
- * @evidence contracts/common.md#principled-implementation DynamicExecutor.assert discovers test-prefixed TypeScript exports in features, invokes them with no parameters and propagates a failed assertion to the entry catch handler.
+ * @evidence contracts/common.md#principled-implementation DynamicExecutor.assert discovers test-prefixed exports with the running module's extension in features, invokes them with no parameters and propagates a failed assertion to the entry catch handler. An empty execution list throws so missing discovery cannot pass.
  * @evidence contracts/common.md#clear-and-simple-design One discoverable unit population and a reporting callback own execution; individual cases retain their authored inputs and assertions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The runner executes actual units without retries or simulated success; simultaneous one protects the ambient prompt flag from overlapping units.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies discovery, serial-state ownership and failure propagation; the entry prints individual and aggregate durations.
@@ -24,8 +26,10 @@ export async function main(): Promise<void> {
       console.log(` - ${exec.name}: ${elapsed.toLocaleString()} ms`);
     },
     simultaneous: 1,
-    extension: "ts",
+    extension: path.extname(__filename).slice(1),
   });
+  if (report.executions.length === 0)
+    throw new Error("No CLI unit tests were discovered.");
   console.log(`Elapsed time: ${report.time.toLocaleString()} ms`);
 }
 main().catch((exp) => {

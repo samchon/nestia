@@ -9,6 +9,7 @@ import { StringUtil } from "../utils/StringUtil";
  * @evidence contracts/common.md#clear-and-simple-design One function, one record type, and one private candidate rule.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule is generic.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation ParameterNameAnalyzer analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
  */
 export namespace ParameterNameAnalyzer {
   /**
@@ -18,6 +19,7 @@ export namespace ParameterNameAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment states what the type describes and the meaning of its members.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ParameterNameAnalyzer.IParameter analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export interface IParameter {
     name: string;
@@ -41,6 +43,7 @@ export namespace ParameterNameAnalyzer {
    * @evidence contracts/common.md#clear-and-simple-design One function.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Existing names are never changed.
    * @evidence contracts/common.md#meaningful-documentation The comment states the rule.
+   * @evidenceExclude contracts/portability.md#os-neutral-implementation ParameterNameAnalyzer.name analyzes reflected route metadata; it does not resolve native file identity or launch a process. Source resolution and file emission belong to their filesystem owners.
    */
   export const name = <T extends IParameter>(parameters: T[]): T[] => {
     const taken: string[] = parameters

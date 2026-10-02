@@ -16,6 +16,34 @@ import { pathToFileURL } from "url";
  *
  * When you want to see some utilization cases, see the below example links.
  *
+ * Native boundary: Discovery lists directories with `readdir` and `stat` and
+ * joins children with `path.resolve`; symbolic links are followed, and each
+ * directory is entered once by its filesystem real path so aliases and ancestor
+ * cycles do not repeat discovery. The extension is matched as a file-name
+ * suffix and the prefix with `startsWith`, both case-sensitively as spelled, so
+ * name case is judged by the caller's spelling and not by the volume. A file is
+ * imported through a specifier: the path relative to this module in `/` form
+ * when `path.relative` can express one, and where it cannot, as on Windows
+ * between drive roots, the absolute path for a CommonJS build, whose `require`
+ * rejects a URL, or a `file:` URL from `pathToFileURL` for native ESM, which
+ * rejects a Windows path.
+ *
+ * Processing cost: Discovery visits each real directory once and performs one
+ * metadata lookup per listed entry. A monotone queue index dispatches each
+ * admitted module once without shifting the remaining queue; execution walks
+ * module exports once. Storage grows with discovered directories, modules and
+ * execution records; concurrency allocates the requested number of workers.
+ *
+ * Reuse: Discovery and module loading are shared by the tests of one run. New
+ * runs rediscover files; Node owns module caching, so editing an already
+ * imported module does not promise reload in the same process.
+ *
+ * Resource ownership: One run owns the discovered module queue, visited
+ * directory set and report. At most the requested number of module tasks are
+ * active, all are awaited before success or strict rejection, and returned
+ * records transfer to the caller. Listener failure also settles workers;
+ * cancellation and unloading Node cached modules are not provided.
+ *
  * @author Jeongho Nam - https://github.com/samchon
  * @example
  *   https://github.com/samchon/nestia-start/blob/master/test/index.ts
@@ -27,10 +55,6 @@ import { pathToFileURL } from "url";
  * @evidence contracts/common.md#clear-and-simple-design Two public entry points share one private pipeline: discovery (`iterate`), the import specifier (`specifier`), and execution (`execute`) are separate helpers, and the two modes differ by one flag.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection is by prefix, extension, and the caller's filter, with no known file names; the import specifier logic distinguishes the module system in use rather than special-casing a platform.
  * @evidence contracts/common.md#meaningful-documentation The namespace prose says what it runs and why, with links to example repositories, and the members document their options.
- * @evidence contracts/portability.md#os-neutral-implementation Discovery lists directories with `readdir` and `stat` and joins children with `path.resolve`; symbolic links are followed, and each directory is entered once by its filesystem real path so aliases and ancestor cycles do not repeat discovery. The extension is matched as a file-name suffix and the prefix with `startsWith`, both case-sensitively as spelled, so name case is judged by the caller's spelling and not by the volume. A file is imported through a specifier: the path relative to this module in `/` form when `path.relative` can express one, and where it cannot, as on Windows between drive roots, the absolute path for a CommonJS build, whose `require` rejects a URL, or a `file:` URL from `pathToFileURL` for native ESM, which rejects a Windows path.
- * @evidence contracts/performance.md#efficient-algorithms Discovery visits each real directory once and performs one metadata lookup per listed entry. A monotone queue index dispatches each admitted module once without shifting the remaining queue; execution walks module exports once. Storage grows with discovered directories, modules and execution records; concurrency allocates the requested number of workers.
- * @evidence contracts/performance.md#reuse-equivalent-work Discovery and module loading are shared by the tests of one run. New runs rediscover files; Node owns module caching, so editing an already imported module does not promise reload in the same process.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One run owns the discovered module queue, visited directory set and report. At most the requested number of module tasks are active, all are awaited before success or strict rejection, and returned records transfer to the caller. Listener failure also settles workers; cancellation and unloading Node cached modules are not provided.
  */
 export namespace DynamicExecutor {
   /**
@@ -42,10 +66,6 @@ export namespace DynamicExecutor {
    * @evidence contracts/common.md#clear-and-simple-design A single call signature.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts It is a type and adds no runtime behavior.
    * @evidence contracts/common.md#meaningful-documentation The comment names the parameter and return type arguments.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation A call signature owns no path or process access.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
    */
   export interface Closure<Arguments extends any[], Ret = any> {
     (...args: Arguments): Promise<Ret>;
@@ -54,14 +74,14 @@ export namespace DynamicExecutor {
   /**
    * Options for dynamic executor.
    *
+   * Native boundary: The location is a native directory path resolved with
+   * `path.resolve`, the extension is a suffix without a dot, and `simultaneous`
+   * bounds in-process runs only, so no process or thread is created.
+   *
    * @evidence contracts/common.md#principled-implementation The fields are what selection and execution need: the prefix, the location, the parameter factory, and optional hooks, concurrency, and extension; `simultaneous` and the extension have documented defaults.
    * @evidence contracts/common.md#clear-and-simple-design A flat option record whose optional members are the extension points (listener, filter, wrapper).
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every value is caller-supplied; the defaults are the documented ones (`js`, one at a time).
    * @evidence contracts/common.md#meaningful-documentation Each option documents its meaning, including that the filter receives a file basename and never a function name.
-   * @evidence contracts/portability.md#os-neutral-implementation The location is a native directory path resolved with `path.resolve`, the extension is a suffix without a dot, and `simultaneous` bounds in-process runs only, so no process or thread is created.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
    */
   export interface IProps<Parameters extends any[], Ret = any> {
     /**
@@ -88,10 +108,6 @@ export namespace DynamicExecutor {
      * @evidence contracts/common.md#clear-and-simple-design One required callback with one input.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Arguments come only from the caller's function.
      * @evidence contracts/common.md#meaningful-documentation The comment documents the parameter and the return value.
-     * @evidenceExclude contracts/portability.md#os-neutral-implementation A caller callback owns no filesystem or process access here.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
      */
     parameters: (name: string) => Parameters;
 
@@ -108,10 +124,6 @@ export namespace DynamicExecutor {
      * @evidence contracts/common.md#clear-and-simple-design One optional callback with one record argument.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The completion hook receives the actual execution record in finally; its own exception is not swallowed and can reject either execution mode.
      * @evidence contracts/common.md#meaningful-documentation The comment states that it listens to the completion of a test function.
-     * @evidenceExclude contracts/portability.md#os-neutral-implementation A caller callback owns no filesystem or process access here.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
      */
     onComplete?: (exec: IExecution) => void;
 
@@ -123,16 +135,16 @@ export namespace DynamicExecutor {
      * `false`, the file would never be imported, so that every function defined
      * in the file would never be executed either.
      *
+     * Native boundary: The predicate receives the entry name exactly as
+     * `readdir` lists it, without case or separator normalization, so a
+     * comparison on a case-insensitive volume is the caller's to make.
+     *
      * @param file File name (basename) of the dynamic functions
      * @returns Whether to run or not
      * @evidence contracts/common.md#principled-implementation The predicate is evaluated on the file basename before the file is imported, so a `false` result prevents both the import and the execution of every function in it.
      * @evidence contracts/common.md#clear-and-simple-design One optional predicate over one string.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection follows the caller's predicate, not fixed names.
      * @evidence contracts/common.md#meaningful-documentation The comment states the argument and the effect of a `false` answer.
-     * @evidence contracts/portability.md#os-neutral-implementation The predicate receives the entry name exactly as `readdir` lists it, without case or separator normalization, so a comparison on a case-insensitive volume is the caller's to make.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
      */
     filter?: (file: string) => boolean;
 
@@ -151,10 +163,6 @@ export namespace DynamicExecutor {
      * @evidence contracts/common.md#clear-and-simple-design One optional callback that replaces the direct call.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts The executor calls the wrapper for every function it runs, without a test-specific bypass.
      * @evidence contracts/common.md#meaningful-documentation The comment documents each parameter and the return value.
-     * @evidenceExclude contracts/portability.md#os-neutral-implementation A caller callback owns no filesystem or process access here.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
-     * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
-     * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
      */
     wrapper?: (
       name: string,
@@ -185,14 +193,14 @@ export namespace DynamicExecutor {
   /**
    * Report, result of dynamic execution.
    *
+   * Native boundary: The report preserves the caller's native directory
+   * spelling, including relative paths; discovered execution locations are
+   * resolved separately with Node path operations.
+   *
    * @evidence contracts/common.md#principled-implementation The report keeps the location, every execution record in start order, and the elapsed time computed as the difference of two clock reads.
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every field is measured by the executor.
    * @evidence contracts/common.md#meaningful-documentation Each field documents its meaning.
-   * @evidence contracts/portability.md#os-neutral-implementation The report preserves the caller's native directory spelling, including relative paths; discovered execution locations are resolved separately with Node path operations.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
    */
   export interface IReport {
     /** Location path of dynamic functions. */
@@ -208,14 +216,13 @@ export namespace DynamicExecutor {
   /**
    * Execution of a test function.
    *
+   * Native boundary: The location field holds the native absolute path of the
+   * file as resolved, so it carries backslashes on Windows.
+   *
    * @evidence contracts/common.md#principled-implementation An execution records the function name, its file, the returned value, the error or `null`, and the start and completion instants, which is what a listener needs to report a test.
    * @evidence contracts/common.md#clear-and-simple-design A flat record with no behavior.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Every field is measured by the executor.
    * @evidence contracts/common.md#meaningful-documentation Each field documents its meaning, and the two time fields state that they hold ISO 8601 strings.
-   * @evidence contracts/portability.md#os-neutral-implementation The location field holds the native absolute path of the file as resolved, so it carries backslashes on Windows.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration describes a record or callback signature; execution strategy belongs to the operation consuming it.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration carries configuration or a signature and coordinates no cached or in-flight computation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration carries values or a callback signature; it does not acquire resources or control their release.
    */
   export interface IExecution {
     /** Name of function. */
@@ -244,16 +251,26 @@ export namespace DynamicExecutor {
    * after active module tasks settle. {@link validate} records test failures and
    * continues instead.
    *
+   * Processing cost: The shared executor discovers modules once, dispatches
+   * each queue index once and walks each admitted export; this entry only
+   * selects the failure policy.
+   *
+   * Reuse: Discovery and module loading are shared by the tests of one run. New
+   * runs rediscover files; Node owns module caching, so editing an already
+   * imported module does not promise reload in the same process.
+   *
+   * Resource ownership: One run owns the discovered module queue, visited
+   * directory set and report. At most the requested number of module tasks are
+   * active, all are awaited before success or strict rejection, and returned
+   * records transfer to the caller. Listener failure also settles workers;
+   * cancellation and unloading Node cached modules are not provided.
+   *
    * @param props Properties of dynamic execution
    * @returns Report of dynamic test functions execution
    * @evidence contracts/common.md#principled-implementation Strict mode rethrows the first error of a function after the execution record and the listener have seen it; no further file is dispatched once a task has failed, and the returned promise rejects with that first failure only after the in-flight tasks have settled, so no test runs after the caller observes the failure.
    * @evidence contracts/common.md#clear-and-simple-design A one-line binding of the shared pipeline with the strict flag.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The mode changes only whether a failure is rethrown; nothing is silenced.
    * @evidence contracts/common.md#meaningful-documentation The comment states the strict behavior, contrasts it with `validate`, and documents the parameter and the report.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation The function binds the shared pipeline to a mode and performs no path or process operation of its own; the namespace answers the boundary.
-   * @evidence contracts/performance.md#efficient-algorithms The shared executor discovers modules once, dispatches each queue index once and walks each admitted export; this entry only selects the failure policy.
-   * @evidence contracts/performance.md#reuse-equivalent-work Discovery and module loading are shared by the tests of one run. New runs rediscover files; Node owns module caching, so editing an already imported module does not promise reload in the same process.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources One run owns the discovered module queue, visited directory set and report. At most the requested number of module tasks are active, all are awaited before success or strict rejection, and returned records transfer to the caller. Listener failure also settles workers; cancellation and unloading Node cached modules are not provided.
    */
   export const assert = <Arguments extends any[]>(
     props: IProps<Arguments>,
@@ -266,16 +283,26 @@ export namespace DynamicExecutor {
    * Discovery, import and completion-listener errors still reject the run.
    * {@link assert} rejects on a test failure after active tasks settle.
    *
+   * Processing cost: The shared executor discovers modules once, dispatches
+   * each queue index once and walks each admitted export; this entry only
+   * selects the failure policy.
+   *
+   * Reuse: Discovery and module loading are shared by the tests of one run. New
+   * runs rediscover files; Node owns module caching, so editing an already
+   * imported module does not promise reload in the same process.
+   *
+   * Resource ownership: One run owns the discovered module queue, visited
+   * directory set and report. At most the requested number of module tasks are
+   * active, all are awaited before success or strict rejection, and returned
+   * records transfer to the caller. Listener failure also settles workers;
+   * cancellation and unloading Node cached modules are not provided.
+   *
    * @param props Properties of dynamic executor
    * @returns Report of dynamic test functions execution
    * @evidence contracts/common.md#principled-implementation Loose mode records test errors and continues, returning them in execution records. Discovery, module import and completion-listener failures are outside that test-error policy and reject the run.
    * @evidence contracts/common.md#clear-and-simple-design A one-line binding of the shared pipeline with the loose flag.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The mode changes only whether a failure is rethrown; the error stays in the report.
    * @evidence contracts/common.md#meaningful-documentation The comment states the loose behavior, contrasts it with `assert`, and documents the parameter and the report.
-   * @evidenceExclude contracts/portability.md#os-neutral-implementation The function binds the shared pipeline to a mode and performs no path or process operation of its own; the namespace answers the boundary.
-   * @evidence contracts/performance.md#efficient-algorithms The shared executor discovers modules once, dispatches each queue index once and walks each admitted export; this entry only selects the failure policy.
-   * @evidence contracts/performance.md#reuse-equivalent-work Discovery and module loading are shared by the tests of one run. New runs rediscover files; Node owns module caching, so editing an already imported module does not promise reload in the same process.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources One run owns the discovered module queue, visited directory set and report. At most the requested number of module tasks are active, all are awaited before success or strict rejection, and returned records transfer to the caller. Listener failure also settles workers; cancellation and unloading Node cached modules are not provided.
    */
   export const validate = <Arguments extends any[]>(
     props: IProps<Arguments>,
