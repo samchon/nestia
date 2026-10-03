@@ -9,6 +9,7 @@
         "scripts/run-tests.cjs",
         "scripts/run-unit.cjs",
         "scripts/run-integration.cjs",
+        "scripts/run-go.cjs",
         "scripts/run-evidence.cjs"
       ],
       "symbol": "function",

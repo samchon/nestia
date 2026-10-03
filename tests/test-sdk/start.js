@@ -31,15 +31,15 @@ process.env.NODE_OPTIONS = [
 ]
   .filter(Boolean)
   .join(" ");
-// One ttsc cache for every process the harness starts. The children run from
-// the repository root (the package build), this directory (the diagnostic
-// cohorts), and each feature directory, so a relative TTSC_CACHE_DIR would
-// name a different directory in each, some outside the repository, and every
-// such process would build the plugins from cold. It is resolved here, once.
-process.env.TTSC_CACHE_DIR = path.resolve(
-  __dirname,
-  process.env.TTSC_CACHE_DIR ??
-    path.join(ROOT, "node_modules", ".cache", "ttsc"),
+// Resolve root-relative compiler and Go caches before any child changes its
+// workspace. Independently invoked integrations use the same defaults as the
+// canonical root populations; explicit caller Go caches remain untouched.
+Object.assign(
+  process.env,
+  require("../../scripts/run-tests.cjs").resolveTestEnvironment(
+    ROOT,
+    process.env,
+  ),
 );
 process.env.NODE_PATH = [
   path.join(ROOT, "node_modules"),

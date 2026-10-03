@@ -17,7 +17,7 @@
     "package:tgz": "pnpm package:prepare && node deploy/tarballs",
     "release": "rimraf packages/migrate/assets && bumpp -r",
     "test:unit": "node scripts/run-unit.cjs",
-    "test:go": "pnpm --filter=@nestia/core --filter=@nestia/sdk -r --no-bail run test:go",
+    "test:go": "node scripts/run-go.cjs",
     "test:e2e": "node scripts/run-integration.cjs"
   },
   "repository": {

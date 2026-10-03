@@ -28,11 +28,14 @@ const GENERATED: string = path.join(TEST_ROOT, ".generated");
 const SWAGGER: string = path.join(GENERATED, "swagger.json");
 const OUTPUT: string = path.join(GENERATED, "output");
 const NODE: string = process.execPath;
-const TTSC_CACHE_DIR: string = path.resolve(
-  TEST_ROOT,
-  process.env.TTSC_CACHE_DIR ??
-    path.join(ROOT, "node_modules", ".cache", "ttsc"),
+Object.assign(
+  process.env,
+  require("../../../scripts/run-tests.cjs").resolveTestEnvironment(
+    ROOT,
+    process.env,
+  ),
 );
+const TTSC_CACHE_DIR: string = process.env.TTSC_CACHE_DIR!;
 
 type SwaggerDocument =
   | SwaggerV2.IDocument

@@ -44,7 +44,7 @@ That manifest target, `packages/core/native/transform.cjs`, is the operative des
 
 Consumers reach the binary through `ttsc` / `ttsx` and the published descriptors. TypeScript test workspace entries use `cross-env` to carry the `NODE_OPTIONS="--no-experimental-strip-types --no-experimental-detect-module"` that Node 24 needs. The Evidence process suite runs plain Node.
 
-All populated TypeScript units and integration entries share the repository-root `node_modules/.cache/ttsc` native cache and its Go object cache through absolute paths. Unit entries consume already-built package artifacts. SDK and migration integration entries own their necessary consumer, compiler and runtime connections; `tests/test-e2e` contains only direct units of `packages/e2e`. Test-language preparation is recorded separately from integration preparation.
+Canonical test commands and independently invoked SDK and migration integrations resolve `TTSC_CACHE_DIR` and `TTSC_GO_CACHE_DIR` against the repository root before changing workspaces. Defaults use `node_modules/.cache/ttsc` and its `go-build` child for native plugins and Go units; explicit `GOCACHE` and toolchain settings retain caller ownership. Go's own toolchain and input keys govern object reuse. Unit entries consume already-built package artifacts. SDK and migration integration entries own their necessary consumer, compiler and runtime connections; `tests/test-e2e` contains only direct units of `packages/e2e`. Test-language preparation is recorded separately from integration preparation.
 
 ## Layout
 

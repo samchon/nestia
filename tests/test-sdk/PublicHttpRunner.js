@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
+const { resolveTestEnvironment } = require("../../scripts/run-tests.cjs");
 
 const { preparePublicConsumer } = require("./PublicConsumer");
 const { compilePublicProgram } = require("./PublicCompiler");
@@ -54,6 +55,8 @@ const { test_public_legacy_plugins } = require("./test_public_legacy_plugins");
  * @evidence contracts/performance.md#bound-retention-and-release-resources One private fixture, two result maps and one listener belong to the run. Emitted files stay in its ignored root; the listener closes in finally and generatePublicHttpProfile closes each non-listening graph immediately after its generation or failure.
  */
 async function runPublicHttp() {
+  const root = path.resolve(__dirname, "../..");
+  Object.assign(process.env, resolveTestEnvironment(root, process.env));
   const consumer = await preparePublicConsumer();
   const fixture = path.join(consumer.root, "projects/http-rich");
   const relative = path.relative(consumer.root, fixture);
@@ -98,7 +101,6 @@ async function runPublicHttp() {
     path.join(fixture, "src/test/postconditions"),
     { recursive: true },
   );
-  const root = path.resolve(__dirname, "../..");
   await fs.cp(
     path.join(source, "benchmark"),
     path.join(fixture, "src/benchmark"),
@@ -129,10 +131,7 @@ async function runPublicHttp() {
     JSON.stringify(config, null, 2),
   );
   const { TtscCompiler } = consumer.requirePublic("ttsc");
-  const cache = path.resolve(
-    __dirname,
-    process.env.TTSC_CACHE_DIR ?? path.join(root, "node_modules/.cache/ttsc"),
-  );
+  const cache = process.env.TTSC_CACHE_DIR;
   const boundaryFailures = [];
   const boundaryStarted = Date.now();
   try {
