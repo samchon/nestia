@@ -1,9 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import typia from "typia";
 
-import { ILiteralValues as Cloned } from "@api/lib/structures/ILiteralValues";
-
-import { ILiteralValues as Source } from "../../structures/ILiteralValues";
+import { CloneShapesLiteralILiteralValues as Source } from "../../../../../../structures/clone_shapes/literal/CloneShapesLiteralILiteralValues";
+import { CloneShapesLiteralILiteralValues as Cloned } from "../../api/structures/CloneShapesLiteralILiteralValues";
 
 type Equal<X, Y> =
   (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2
@@ -30,8 +29,17 @@ type TagValue<T extends { "typia.tag"?: { value: unknown } }> = NonNullable<
  *    a string on a number or bigint carry the source's values.
  * 3. Validate boundary values against the tagged properties of both types, the NaN
  *    bound an enum member spells included, and assert the same verdicts.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Actual cloned SDK generation and consumer compilation feed the original transport or clone/source equality assertions.
+ * @evidence contracts/testing.md#independent-expectations The authored source DTO and literal type, status and boundary expectations establish equivalence independently of emitted clone text.
+ * @evidence contracts/testing.md#distinguishing-cases The original five literal type equalities, three tag-value equalities and six number/bigint boundary verdict comparisons retain bigint precision, infinities and enum NaN bounds.
+ * @evidence contracts/testing.md#execution-ownership The matching exported original case is discovered in the shared installed clone_shapes consumer profile.
+ * @evidence contracts/e2e.md#necessary-boundary The installed native metadata and public clone generator must emit TypeScript that compiles and preserves source meaning; the HTTP case also executes its generated connection.
+ * @evidence contracts/e2e.md#shared-execution Three original fixtures have identical clone-only generation options and combine into one actual SDK generation graph; they share installation, producer, consumer and listener.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Unique route, controller and DTO identities isolate each original source graph; immutable generated clones and stateless handlers remain valid across all three cases.
+ * @evidence contracts/e2e.md#preserved-coverage The complete original assertion body and source graph remain after reversible imports, type identities, routes and discovery names; no additional generated random calls or Swagger outputs are introduced.
  */
-export const test_clone_literal_values = (): void => {
+export const test_clone_shapes_literal_clone_literal_values = (): void => {
   const literals: [
     Equal<Cloned["literal"], Source["literal"]>,
     Equal<Cloned["negative"], Source["negative"]>,

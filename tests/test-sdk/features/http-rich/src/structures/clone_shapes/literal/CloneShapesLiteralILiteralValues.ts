@@ -1,7 +1,7 @@
 import { tags } from "typia";
 
 /** A number no literal type spells, reachable as an enum member. */
-export enum NotANumber {
+export enum CloneShapesLiteralNotANumber {
   Value = NaN,
 }
 
@@ -9,7 +9,7 @@ export enum NotANumber {
  * Values JSON cannot hold, which the SDK metadata carries by name or by digits
  * and the cloned DTO must write back exactly.
  */
-export interface ILiteralValues {
+export interface CloneShapesLiteralILiteralValues {
   literal: 5n;
   negative: -7n;
   huge: 12345678901234567890n;
@@ -26,5 +26,5 @@ export interface ILiteralValues {
   named: number & tags.Example<"Infinity">;
   digits: bigint & tags.Example<"12345678901234567890">;
   /** A bound whose value is NaN. */
-  nanBound: number & tags.Minimum<NotANumber.Value>;
+  nanBound: number & tags.Minimum<CloneShapesLiteralNotANumber.Value>;
 }

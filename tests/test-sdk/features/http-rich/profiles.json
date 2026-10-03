@@ -199,5 +199,14 @@
     },
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 0
+  },
+  {
+    "name": "clone_shapes",
+    "controllers": ["options/clone_shapes"],
+    "clone": true,
+    "generateSwagger": false,
+    "generateE2e": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 3
   }
 ]
