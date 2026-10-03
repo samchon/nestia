@@ -3,5 +3,15 @@
     "source": "validate-log",
     "output": "producer-validate-log",
     "stringify": "validate.log"
+  },
+  {
+    "source": "validate-request",
+    "output": "producer-validate-request",
+    "validate": "validate"
+  },
+  {
+    "source": "validate-response",
+    "output": "producer-validate-response",
+    "stringify": "validate"
   }
 ]

@@ -27,9 +27,9 @@ const {
 /**
  * Runs authored and generated HTTP/WebSocket cases through installed programs.
  *
- * A shared producer compiles controllers with the default native options;
- * controllers requiring validate.log share one additional producer because
- * their malformed responses must log and send rather than assert and reject.
+ * A shared producer compiles controllers with the default native options.
+ * Distinct request-validation or response-stringification modes each retain one
+ * producer because their malformed-request reports and response behavior differ.
  * Non-listening applications
  * select exact controller graphs for ordinary and clone option generation; one
  * actual listener serves every profile's consumer request. The public WebSocket
@@ -60,7 +60,7 @@ const {
  * @evidence contracts/common.md#meaningful-documentation The comment identifies each necessary boundary and its shared lifetime; phase timings, individual failures and discovered counts remain visible.
  * @evidence contracts/portability.md#os-neutral-implementation Native paths locate the assignment-owned fixture. Temporary removal verifies containment before recursive deletion, and the listener uses an OS-assigned loopback port. Public package imports use the consumer's normal Node resolution.
  * @evidence contracts/performance.md#efficient-algorithms Each authored input tree is copied once. Controllers sharing native options compile once per producer program, and all profiles compile in one consumer program. Distinct generation options analyze their exact controller graphs; no individual case repeats installation, native preparation, consumer compilation or listening.
- * @evidence contracts/performance.md#reuse-equivalent-work Controllers have private scenario routes and shared encryption settings. Default assert serialization and validate.log require distinct producer programs because their malformed-response behavior differs. All cases with each setting reuse that program, installed graph, compiled consumer and listener. Simulation state remains the actual unreset producer namespace and is checked after features with a request counter.
+ * @evidence contracts/performance.md#reuse-equivalent-work Controllers have private scenario routes and shared encryption settings. Default assert, validate and validate.log serialization and validate request reports require distinct producer programs because their malformed-input behavior differs. All cases with each setting reuse that program, installed graph, compiled consumer and listener. Simulation state remains the actual unreset producer namespace and is checked after features with a request counter.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One private fixture and one listener belong to the run. Each producer and consumer result map is released after publication. Emitted files stay in the ignored root; the listener closes in finally and generatePublicHttpProfile closes each non-listening graph immediately after its generation or failure.
  */
 async function runPublicHttp() {
@@ -246,11 +246,18 @@ async function runPublicHttp() {
         outDir: producer.output,
         plugins: config.compilerOptions.plugins.map((plugin) =>
           plugin.transform === "@nestia/core/lib/transform"
-            ? { ...plugin, stringify: producer.stringify }
+            ? {
+                ...plugin,
+                validate: producer.validate ?? plugin.validate,
+                stringify: producer.stringify ?? plugin.stringify,
+              }
             : plugin,
         ),
       },
-      include: [`src/${producer.source}/controllers`],
+      include: [
+        `src/${producer.source}/controllers`,
+        `src/${producer.source}/structures`,
+      ],
     };
     const tsconfig = `tsconfig.${producer.output}.json`;
     await fs.writeFile(

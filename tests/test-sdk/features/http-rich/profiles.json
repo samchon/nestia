@@ -379,5 +379,36 @@
     },
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 2
+  },
+  {
+    "name": "all_method",
+    "controllers": ["options/all_method"],
+    "swagger": {
+      "beautify": true
+    },
+    "expectedGeneratedCases": 3,
+    "expectedAuthoredCases": 2
+  },
+  {
+    "name": "request_validate",
+    "producer": "producer-validate-request",
+    "controllers": [""],
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 10
+  },
+  {
+    "name": "response_validate",
+    "producer": "producer-validate-response",
+    "controllers": [""],
+    "generateE2e": false,
+    "swagger": {
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
   }
 ]
