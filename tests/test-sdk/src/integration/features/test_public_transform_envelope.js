@@ -29,7 +29,7 @@ function test_public_transform_envelope(consumer, cache) {
   fs.rmSync(fixture, { recursive: true, force: true });
   try {
     fs.cpSync(
-      path.join(__dirname, "fixtures/transform-envelope"),
+      path.join(__dirname, "../../../fixtures/transform-envelope"),
       path.join(fixture, "src/envelope"),
       { recursive: true },
     );
@@ -37,7 +37,7 @@ function test_public_transform_envelope(consumer, cache) {
     fs.writeFileSync(
       path.join(fixture, "tsconfig.base.json"),
       JSON.stringify({
-        extends: path.resolve(__dirname, "../config/tsconfig.json"),
+        extends: path.resolve(__dirname, "../../../../config/tsconfig.json"),
         compilerOptions: {
           declaration: false,
           noEmit: false,

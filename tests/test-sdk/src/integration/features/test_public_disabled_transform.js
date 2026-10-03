@@ -5,7 +5,7 @@ const { createRequire } = require("node:module");
 const path = require("node:path");
 const vm = require("node:vm");
 
-const { compilePublicProgram } = require("./PublicCompiler");
+const { compilePublicProgram } = require("../internal/PublicCompiler.js");
 
 /**
  * Verifies disabled plugin forwarding and actual no-transform request bindings.
@@ -35,14 +35,14 @@ async function test_public_disabled_transform(consumer, cache) {
   fs.rmSync(fixture, { recursive: true, force: true });
   try {
     fs.cpSync(
-      path.join(__dirname, "fixtures/disabled-transform"),
+      path.join(__dirname, "../../../fixtures/disabled-transform"),
       path.join(fixture, "src"),
       { recursive: true },
     );
     fs.writeFileSync(
       path.join(fixture, "tsconfig.json"),
       JSON.stringify({
-        extends: path.resolve(__dirname, "../config/tsconfig.json"),
+        extends: path.resolve(__dirname, "../../../../config/tsconfig.json"),
         compilerOptions: {
           rootDir: "src",
           outDir: "out",

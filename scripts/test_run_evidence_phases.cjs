@@ -20,7 +20,7 @@ function test_run_evidence_phases() {
   const owners = [
     "root Evidence",
     "package Evidence",
-    "workspace unit Evidence",
+    "test workspace Evidence",
   ];
   const commands = [
     ["exec", "evidence", "--config", "evidence.config.json"],
@@ -33,7 +33,15 @@ function test_run_evidence_phases() {
       "run",
       "evidence",
     ],
-    ["exec", "evidence", "--config", "tests/evidence.config.json"],
+    [
+      "--filter=./tests/*",
+      "--fail-if-no-match",
+      "-r",
+      "--no-bail",
+      "--workspace-concurrency=1",
+      "run",
+      "evidence",
+    ],
   ];
   for (const statuses of [
     [0, 0, 0],

@@ -1,6 +1,8 @@
 const assert = require("node:assert/strict");
 const path = require("node:path");
-const { isAuthoredConfiguredInput } = require("../../PublicConfiguredRunner");
+const {
+  isAuthoredConfiguredInput,
+} = require("../integration/PublicConfiguredRunner.js");
 
 /**
  * Verifies configured SDK inputs exclude generated remnants at every output
@@ -17,9 +19,9 @@ const { isAuthoredConfiguredInput } = require("../../PublicConfiguredRunner");
  * @evidence contracts/testing.md#behavioral-verification The actual copy predicate accepts authored source paths and rejects prior generated clients, documents and automated tests, including both nested output roots that caused the observed producer failure.
  * @evidence contracts/testing.md#independent-expectations The fixture ownership contract assigns src/api/structures to authored DTOs and remaining API roots to generation. Literal authored and generated path pairs establish expected selection without using current generator output.
  * @evidence contracts/testing.md#distinguishing-cases Empty relative root, current and newly authored DTOs, ordinary controllers, two API roots, standard and nested outputs, hidden compiler state, dependency trees and authored-vs-automated test files cover the copy boundary.
- * @evidence contracts/testing.md#execution-ownership The SDK unit entry discovers this matching JavaScript export. It calls the stateless path policy directly and installs, compiles and starts nothing.
+ * @evidence contracts/testing.md#execution-ownership The SDK unit entry discovers this matching TypeScript export. It calls the stateless path policy directly and installs, compiles and starts nothing.
  */
-function test_sdk_configured_authored_inputs() {
+export function test_sdk_configured_authored_inputs(): void {
   const authored = [
     "",
     "nestia.config.ts",
@@ -59,5 +61,3 @@ function test_sdk_configured_authored_inputs() {
       value,
     );
 }
-
-module.exports = { test_sdk_configured_authored_inputs };

@@ -3,7 +3,9 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-const { discoverSdkFixtures } = require("../../SdkFixtureDiscovery");
+const {
+  discoverSdkFixtures,
+} = require("../integration/internal/SdkFixtureDiscovery.js");
 
 /**
  * Verifies fixture discovery requires its current execution configuration.

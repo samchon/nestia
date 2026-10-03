@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 
-const { assertSdkFeaturesSelected } = require("../../SdkFixtureDiscovery");
+const {
+  assertSdkFeaturesSelected,
+} = require("../integration/internal/SdkFixtureDiscovery.js");
 
 /**
  * Verifies an empty SDK execution plan fails without changing valid plans.

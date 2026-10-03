@@ -6,7 +6,7 @@
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
     "evidence": "node scripts/run-evidence.cjs",
-    "evidence:tests": "evidence --config tests/evidence.config.json",
+    "evidence:tests": "pnpm --filter=./tests/* --fail-if-no-match -r --no-bail --workspace-concurrency=1 run evidence",
     "format": "prettier --write \"packages/**/*.ts\" \"tests/**/*.ts\"",
     "format:check": "prettier --check \"packages/**/*.ts\" \"tests/**/*.ts\"",
     "test": "node scripts/run-tests.cjs",

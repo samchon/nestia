@@ -1,3 +1,5 @@
+import type { IReflectOperationError } from "../../../../packages/sdk/lib/structures/IReflectOperationError";
+
 require("@nestjs/common");
 const assert = require("node:assert/strict");
 const { PATH_METADATA, METHOD_METADATA } = require("@nestjs/common/constants");
@@ -19,17 +21,20 @@ const {
  * @evidence contracts/testing.md#behavioral-verification Malformed reflected paths return null and exactly the original parameter diagnostic; valid paths and undecorated methods retain their original outcomes.
  * @evidence contracts/testing.md#independent-expectations Router syntax and authored empty response metadata establish the literal invalid-path diagnostic independently of the analyzer.
  * @evidence contracts/testing.md#distinguishing-cases Malformed, valid and undecorated operations cover rejection, acceptance and absence without changing response metadata.
- * @evidence contracts/testing.md#execution-ownership The SDK unit entry discovers this matching JavaScript file and exported function in the same language-preparation process as TypeScript units. It calls caller-built product operations with authored input, without installation, native compilation, a host or a child process.
+ * @evidence contracts/testing.md#execution-ownership The SDK unit entry discovers this matching TypeScript file and exported function in the canonical unit process. It calls caller-built product operations with authored input, without installation, native compilation, a host or a child process.
  */
-function test_sdk_http_malformed_path() {
+export function test_sdk_http_malformed_path(): void {
   class Controller {
     get() {}
     ordinary() {}
   }
   Reflect.defineMetadata(PATH_METADATA, "", Controller.prototype.get);
   Reflect.defineMetadata(METHOD_METADATA, 0, Controller.prototype.get);
-  const analyze = (location, name = "get") => {
-    const project = { errors: [], warnings: [] };
+  const analyze = (location: string, name: keyof Controller = "get") => {
+    const project: {
+      errors: IReflectOperationError[];
+      warnings: IReflectOperationError[];
+    } = { errors: [], warnings: [] };
     const schema = {
       success: true,
       data: { metadata: { size: 0 }, components: {} },
@@ -57,11 +62,13 @@ function test_sdk_http_malformed_path() {
   const invalid = analyze("/invalid/:");
   assert.equal(invalid.result, null);
   assert.equal(invalid.errors.length, 1);
-  assert.equal(invalid.errors[0].from, "{parameters}");
-  assert.deepEqual(invalid.errors[0].contents, ['invalid path ("/invalid/:")']);
+  const diagnostic = invalid.errors[0];
+  if (diagnostic === undefined)
+    throw new Error("Missing malformed-path diagnostic.");
+  assert.equal(diagnostic.from, "{parameters}");
+  assert.deepEqual(diagnostic.contents, ['invalid path ("/invalid/:")']);
   const valid = analyze("/valid");
   assert.ok(valid.result);
   assert.deepEqual(valid.errors, []);
   assert.deepEqual(analyze("/valid", "ordinary"), { result: null, errors: [] });
 }
-module.exports = { test_sdk_http_malformed_path };

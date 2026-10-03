@@ -11,7 +11,7 @@ const Module = require("module");
 const path = require("path");
 const { pathToFileURL } = require("url");
 
-const root = path.resolve(__dirname, "../..");
+const root = path.resolve(__dirname, "../../../../..");
 const packages = fs
   .readdirSync(path.join(root, "packages"), { withFileTypes: true })
   .filter((entry) => entry.isDirectory())

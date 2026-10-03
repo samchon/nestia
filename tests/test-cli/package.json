@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "ttsc --watch",
     "start": "pnpm test:unit",
-    "test:unit": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts"
+    "test:unit": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts",
+    "evidence": "evidence --config evidence.config.json"
   },
   "dependencies": {
     "@nestia/e2e": "workspace:^"

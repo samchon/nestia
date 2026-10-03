@@ -16,9 +16,9 @@ const {
  * @evidence contracts/testing.md#behavioral-verification The original nonempty matching JSDoc parts retain tag order and explicit-summary precedence over prose; empty matching parts use the original fallback.
  * @evidence contracts/testing.md#independent-expectations Authored empty/nonempty tag text and literal prose establish the expected summaries independently of the composer.
  * @evidence contracts/testing.md#distinguishing-cases Matching and unrelated tags, empty and nonempty parts, explicit summaries and prose fallback retain every original distinction.
- * @evidence contracts/testing.md#execution-ownership The SDK unit entry discovers this matching JavaScript file and exported function in the same language-preparation process as TypeScript units. It calls caller-built product operations with authored input, without installation, native compilation, a host or a child process.
+ * @evidence contracts/testing.md#execution-ownership The SDK unit entry discovers this matching TypeScript file and exported function in the canonical unit process. It calls caller-built product operations with authored input, without installation, native compilation, a host or a child process.
  */
-function test_sdk_swagger_description_nonempty_text() {
+export function test_sdk_swagger_description_nonempty_text(): void {
   const jsDocTags = [
     {
       name: "summary",
@@ -59,4 +59,3 @@ function test_sdk_swagger_description_nonempty_text() {
     { summary: "Fallback sentence", description: "Fallback sentence." },
   );
 }
-module.exports = { test_sdk_swagger_description_nonempty_text };

@@ -22,9 +22,9 @@ const {
  * @evidence contracts/testing.md#behavioral-verification The actual declaration writer retains all original unique import bindings, type modifiers and realpath identities for named, default and namespace imports.
  * @evidence contracts/testing.md#independent-expectations Authored source files and their literal bindings define the independent expected imports; the normal filesystem resolves their identity.
  * @evidence contracts/testing.md#distinguishing-cases Mixed cloneable type and retained value bindings, default and namespace imports retain every original emitted-import comparison.
- * @evidence contracts/testing.md#execution-ownership The SDK unit entry discovers this matching JavaScript file and exported function in the same language-preparation process as TypeScript units. It calls caller-built product operations with authored input, without installation, native compilation, a host or a child process.
+ * @evidence contracts/testing.md#execution-ownership The SDK unit entry discovers this matching TypeScript file and exported function in the canonical unit process. It calls caller-built product operations with authored input, without installation, native compilation, a host or a child process.
  */
-async function test_sdk_websocket_clone_mixed_imports() {
+export async function test_sdk_websocket_clone_mixed_imports(): Promise<void> {
   const directory = await fs.mkdtemp(
     path.join(require("node:os").tmpdir(), "nestia-sdk-clone-imports-"),
   );
@@ -111,4 +111,3 @@ async function test_sdk_websocket_clone_mixed_imports() {
     await fs.rm(directory, { recursive: true, force: true });
   }
 }
-module.exports = { test_sdk_websocket_clone_mixed_imports };

@@ -7,7 +7,8 @@
     "start": "node start.js",
     "test:unit": "node start.js",
     "test:unit:browser": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/browser/index.ts",
-    "test:unit:ssr": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts"
+    "test:unit:ssr": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts",
+    "evidence": "evidence --config evidence.config.json"
   },
   "dependencies": {
     "@nestia/e2e": "workspace:^"

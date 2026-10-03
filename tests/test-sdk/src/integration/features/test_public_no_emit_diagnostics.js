@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const { runPublicCompilerCli } = require("./PublicCompiler");
+const { runPublicCompilerCli } = require("../internal/PublicCompiler.js");
 
 /**
  * Verifies no-emit CLI forwarding preserves both output suppression and
@@ -41,7 +41,7 @@ function test_public_no_emit_diagnostics(consumer, cache) {
         fs.mkdirSync(path.join(fixture, "src"), { recursive: true });
         if (native)
           fs.copyFileSync(
-            path.join(__dirname, "fixtures/llm-no-emit/llm-route.ts"),
+            path.join(__dirname, "../../../fixtures/llm-no-emit/llm-route.ts"),
             path.join(fixture, "src/llm-route.ts"),
           );
         else
@@ -53,7 +53,7 @@ function test_public_no_emit_diagnostics(consumer, cache) {
           path.join(fixture, "tsconfig.json"),
           JSON.stringify(
             {
-              extends: path.resolve(__dirname, "../config/tsconfig.json"),
+              extends: path.resolve(__dirname, "../../../../config/tsconfig.json"),
               compilerOptions: {
                 rootDir: "src",
                 outDir: "out",

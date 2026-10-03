@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const { createRequire } = require("node:module");
 const path = require("node:path");
 
-const { runPublicCompilerCli } = require("./PublicCompiler");
+const { runPublicCompilerCli } = require("../internal/PublicCompiler.js");
 
 /**
  * Verifies the installed public compiler rejects a conflicting typia runtime
@@ -56,7 +56,7 @@ export class Controller {
     fs.writeFileSync(
       path.join(fixture, "tsconfig.json"),
       JSON.stringify({
-        extends: path.resolve(__dirname, "../config/tsconfig.json"),
+        extends: path.resolve(__dirname, "../../../../config/tsconfig.json"),
         compilerOptions: {
           rootDir: "src",
           outDir: "out",

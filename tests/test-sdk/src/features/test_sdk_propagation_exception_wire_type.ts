@@ -26,9 +26,9 @@ const {
  * @evidence contracts/testing.md#behavioral-verification The actual alias writer retains every original response/exception type literal across plain text, JSON, encryption, binary, primitive-off and clone settings.
  * @evidence contracts/testing.md#independent-expectations The public JSON exception wire contract and authored Date exception are independent of the successful response content type; literal printed types define each original expectation.
  * @evidence contracts/testing.md#distinguishing-cases All six original option/content-type cases remain, distinguishing exception wire shape from plain, encrypted and binary successes and primitive-off/clone behavior.
- * @evidence contracts/testing.md#execution-ownership The SDK unit entry discovers this matching JavaScript file and exported function in the same language-preparation process as TypeScript units. It calls caller-built product operations with authored input, without installation, native compilation, a host or a child process.
+ * @evidence contracts/testing.md#execution-ownership The SDK unit entry discovers this matching TypeScript file and exported function in the canonical unit process. It calls caller-built product operations with authored input, without installation, native compilation, a host or a child process.
  */
-function test_sdk_propagation_exception_wire_type() {
+export function test_sdk_propagation_exception_wire_type(): void {
   const metadata = {
     size: 1,
     any: false,
@@ -46,7 +46,7 @@ function test_sdk_propagation_exception_wire_type() {
     maps: [],
   };
   const types = (
-    config,
+    config: { primitive?: boolean; clone?: boolean },
     contentType = "text/plain",
     encrypted = false,
     binary = false,
@@ -67,7 +67,7 @@ function test_sdk_propagation_exception_wire_type() {
       config: { propagate: true, ...config },
     })(new ImportDictionary(path.join(sdk, "lib", "fixture.ts")))(route);
     const printer = new TsPrinter();
-    return result.typeArguments[0].members.map((member) =>
+    return result.typeArguments[0].members.map((member: { type: unknown }) =>
       printer.print(member.type),
     );
   };
@@ -87,4 +87,3 @@ function test_sdk_propagation_exception_wire_type() {
   assert.deepEqual(types({ primitive: false }), ["string", "Date"]);
   assert.deepEqual(types({ clone: true }), ["string", "string"]);
 }
-module.exports = { test_sdk_propagation_exception_wire_type };

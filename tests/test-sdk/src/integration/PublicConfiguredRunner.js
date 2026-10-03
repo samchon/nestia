@@ -4,9 +4,9 @@ const path = require("node:path");
 const { createRequire } = require("node:module");
 const {
   preparePublicConsumer,
-} = require("../../scripts/prepare-public-consumer.cjs");
-const { resolveTestEnvironment } = require("../../scripts/run-tests.cjs");
-const { compilePublicProgram } = require("./PublicCompiler");
+} = require("../../../../scripts/prepare-public-consumer.cjs");
+const { resolveTestEnvironment } = require("../../../../scripts/run-tests.cjs");
+const { compilePublicProgram } = require("./internal/PublicCompiler.js");
 
 /**
  * Compiles equivalent configured SDK inputs and their consumers once each.
@@ -28,7 +28,7 @@ const { compilePublicProgram } = require("./PublicCompiler");
  * @evidence contracts/performance.md#bound-retention-and-release-resources Non-listening generation applications close in finally, working directories restore after every owner, and each original runtime entry owns its server teardown. The contained ignored project remains diagnostic evidence until the next invocation replaces that exact project.
  */
 async function runConfiguredProgram(plan, consumerRoot) {
-  const root = path.resolve(__dirname, "../..");
+  const root = path.resolve(__dirname, "../../../..");
   Object.assign(process.env, resolveTestEnvironment(root, process.env));
   assert(/^configured-program-\d+$/.test(plan.name));
   assert(plan.members.length > 0);
@@ -47,7 +47,7 @@ async function runConfiguredProgram(plan, consumerRoot) {
   fs.rmSync(project, { recursive: true, force: true });
   const inputs = [];
   for (const member of plan.members) {
-    const source = path.join(__dirname, "features", member);
+    const source = path.join(__dirname, "../../features", member);
     const destination = path.join(project, "src", member);
     fs.cpSync(source, destination, {
       recursive: true,

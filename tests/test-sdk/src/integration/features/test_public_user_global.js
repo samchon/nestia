@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const { compilePublicProgram } = require("./PublicCompiler");
+const { compilePublicProgram } = require("../internal/PublicCompiler.js");
 
 /**
  * Verifies a user global in a misleading library filename stays structural.
@@ -33,7 +33,7 @@ async function test_public_user_global(consumer, cache) {
   fs.rmSync(fixture, { recursive: true, force: true });
   try {
     fs.cpSync(
-      path.join(__dirname, "fixtures/native-provenance"),
+      path.join(__dirname, "../../../fixtures/native-provenance"),
       path.join(fixture, "src"),
       { recursive: true },
     );
@@ -41,7 +41,7 @@ async function test_public_user_global(consumer, cache) {
       path.join(fixture, "tsconfig.json"),
       JSON.stringify(
         {
-          extends: path.resolve(__dirname, "../config/tsconfig.json"),
+          extends: path.resolve(__dirname, "../../../../config/tsconfig.json"),
           compilerOptions: {
             rootDir: "src",
             outDir: "out",

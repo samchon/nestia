@@ -6,7 +6,8 @@
     "test:unit": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/unit.ts",
     "dev": "ttsc --watch",
     "fixture": "pnpm start --fixture-only",
-    "start": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts"
+    "start": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts",
+    "evidence": "evidence --config evidence.config.json"
   },
   "dependencies": {
     "@nestia/benchmark": "workspace:^",

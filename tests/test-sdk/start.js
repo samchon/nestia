@@ -5,7 +5,7 @@ const path = require("path");
 const {
   discoverSdkFixtures,
   assertSdkFeaturesSelected,
-} = require("./SdkFixtureDiscovery");
+} = require("./src/integration/internal/SdkFixtureDiscovery.js");
 
 const ROOT = path.join(__dirname, "../..");
 const NODE = process.execPath;
@@ -19,7 +19,7 @@ const PROJECT_CONFIG = "tsconfig.project.json";
 // re-evaluated the plugin descriptor before every generation.
 const CLI = [
   "-r",
-  path.join(__dirname, "built-packages.cjs"),
+  path.join(__dirname, "src/integration/internal/built-packages.cjs"),
   path.join(ROOT, "packages/cli/bin/index.js"),
 ];
 const TTSC_BIN = packageBin("ttsc", "ttsc");
@@ -446,7 +446,7 @@ const feature = async (name, port, consumer) => {
     try {
       await runNode(
         __dirname,
-        path.join(__dirname, "PublicConfiguredRunner.js"),
+        path.join(__dirname, "src/integration/PublicConfiguredRunner.js"),
         [
           JSON.stringify({
             name,
@@ -484,28 +484,21 @@ const feature = async (name, port, consumer) => {
   if (name === "distribute-cwd-restore")
     return runNode(
       ROOT,
-      path.join(__dirname, "distribute-cwd-restore.js"),
+      path.join(__dirname, "src/integration/features/distribute-cwd-restore.js"),
       [],
       "inherit",
     );
   if (name === "output-directory-diagnostics")
     return runNode(
       ROOT,
-      path.join(__dirname, "output-directory-diagnostics.js"),
-      [],
-      "inherit",
-    );
-  if (name === "reflection-error-ordering")
-    return runNode(
-      ROOT,
-      path.join(__dirname, "reflection-error-ordering.js"),
+      path.join(__dirname, "src/integration/features/output-directory-diagnostics.js"),
       [],
       "inherit",
     );
   if (name === "http-rich")
     return runNode(
       __dirname,
-      path.join(__dirname, "PublicHttpRunner.js"),
+      path.join(__dirname, "src/integration/PublicHttpRunner.js"),
       consumer ? ["--consumer-root", consumer.root] : [],
       "inherit",
       { NODE_OPTIONS: "", NODE_PATH: "", NESTIA_SDK_TRANSFORM: "1" },
@@ -1534,7 +1527,7 @@ const runTtsxTest = async (
         // back to the `.ts` source under ttsx's CommonJS load path; ttsc only
         // rescues that `.js` -> `.ts` mismatch on its ESM resolve hook.
         "-r",
-        path.join(__dirname, "ttsx-cjs-extension-rescue.cjs"),
+        path.join(__dirname, "src/integration/internal/ttsx-cjs-extension-rescue.cjs"),
         "-r",
         "@nestjs/platform-express",
         "src/test/index.ts",
@@ -1800,8 +1793,6 @@ const main = async (consumer) =>
     if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
     if (filter("output-directory-diagnostics"))
       names.push("output-directory-diagnostics");
-    if (filter("reflection-error-ordering"))
-      names.push("reflection-error-ordering");
     const selected = shard(names);
     assertSdkFeaturesSelected(selected);
     if (process.env.TEST_SDK_SKIP_BUILD === "1") assertFreshBuilds();

@@ -1,0 +1,23 @@
+{
+  "severity": "error",
+  "claims": [
+    {
+      "name": "Direct TypeScript workspace unit assertions",
+      "type": "typescript",
+      "files": [
+        "src/features/test_*.ts",
+        "src/browser/features/test_*.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/testing.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    }
+  ]
+}

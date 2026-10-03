@@ -2,30 +2,30 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const { createRequire } = require("node:module");
-const { resolveTestEnvironment } = require("../../scripts/run-tests.cjs");
+const { resolveTestEnvironment } = require("../../../../scripts/run-tests.cjs");
 
 const {
   preparePublicConsumer,
-} = require("../../scripts/prepare-public-consumer.cjs");
-const { compilePublicProgram } = require("./PublicCompiler");
-const { validatePublicHttpProfiles } = require("./PublicHttpProfileCoverage");
-const { test_public_user_global } = require("./test_public_user_global");
+} = require("../../../../scripts/prepare-public-consumer.cjs");
+const { compilePublicProgram } = require("./internal/PublicCompiler.js");
+const { validatePublicHttpProfiles } = require("./internal/PublicHttpProfileCoverage.js");
+const { test_public_user_global } = require("./features/test_public_user_global.js");
 const {
   test_public_transform_envelope,
-} = require("./test_public_transform_envelope");
+} = require("./features/test_public_transform_envelope.js");
 const {
   test_public_disabled_transform,
-} = require("./test_public_disabled_transform");
+} = require("./features/test_public_disabled_transform.js");
 const {
   test_public_no_emit_diagnostics,
-} = require("./test_public_no_emit_diagnostics");
+} = require("./features/test_public_no_emit_diagnostics.js");
 const {
   test_public_typia_version_guard,
-} = require("./test_public_typia_version_guard");
-const { test_public_legacy_plugins } = require("./test_public_legacy_plugins");
+} = require("./features/test_public_typia_version_guard.js");
+const { test_public_legacy_plugins } = require("./features/test_public_legacy_plugins.js");
 const {
   test_public_multipart_schema_inputs,
-} = require("./test_public_multipart_schema_inputs");
+} = require("./features/test_public_multipart_schema_inputs.js");
 
 /**
  * Runs authored and generated HTTP/WebSocket cases through installed programs.
@@ -74,7 +74,7 @@ const {
  * @evidence contracts/performance.md#bound-retention-and-release-resources One private fixture and one listener belong to the run. Each producer and consumer result map is released after publication. Emitted files stay in the ignored root; the listener closes in finally and generatePublicHttpProfile closes each non-listening graph immediately after its generation or failure.
  */
 async function runPublicHttp(preparedConsumer) {
-  const root = path.resolve(__dirname, "../..");
+  const root = path.resolve(__dirname, "../../../..");
   Object.assign(process.env, resolveTestEnvironment(root, process.env));
   const consumer =
     preparedConsumer ?? (await preparePublicConsumer("tests/test-sdk"));
@@ -85,7 +85,7 @@ async function runPublicHttp(preparedConsumer) {
     "Fixture must belong to the public consumer.",
   );
   await fs.rm(fixture, { recursive: true, force: true });
-  const source = path.join(__dirname, "features/http-rich/src");
+  const source = path.join(__dirname, "../../features/http-rich/src");
   const execution = JSON.parse(
     await fs.readFile(path.join(source, "../execution.json"), "utf8"),
   );

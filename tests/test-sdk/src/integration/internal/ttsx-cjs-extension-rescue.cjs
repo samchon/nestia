@@ -4,7 +4,7 @@
 // under the original source URLs. tsgo's emit substitutes the fixtures'
 // `@api` path alias (and friends) with a *relative* specifier that carries a
 // `.js` extension (nodenext requires explicit extensions), e.g.
-// `require("../../../api/index.js")`. On disk only `../../../api/index.ts`
+// `require("../../../../../../api/index.js")`. On disk only `../../../api/index.ts`
 // exists, because the SDK is generated as TypeScript and served from source.
 //
 // ttsc's own runtime hooks already rescue that `.js` -> `.ts` mismatch, but
