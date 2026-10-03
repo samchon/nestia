@@ -435,7 +435,47 @@ const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 const feature = async (name, port, consumer) => {
   const cohort = SDK_ERROR_COHORTS.find((candidate) => candidate.name === name);
   if (cohort !== undefined) return runSdkErrorCohort(cohort);
-  if (BATCHES.has(name)) return runBatch(name, port);
+  if (CONFIGURED_PROGRAMS.has(name)) {
+    const prepared =
+      consumer ??
+      (await require("../../scripts/prepare-public-consumer.cjs").preparePublicConsumer(
+        "tests/test-sdk",
+      ));
+    const plan = CONFIGURED_PROGRAMS.get(name);
+    let failure;
+    try {
+      await runNode(
+        __dirname,
+        path.join(__dirname, "PublicConfiguredRunner.js"),
+        [
+          JSON.stringify({
+            name,
+            members: plan.members,
+            compilerOptions: plan.compilerOptions,
+            port,
+          }),
+          prepared.root,
+        ],
+        "inherit",
+        { NODE_OPTIONS: "", NODE_PATH: "", NESTIA_SDK_TRANSFORM: "1" },
+      );
+    } catch (error) {
+      failure = error;
+    }
+    for (const member of plan.members) {
+      try {
+        assertFeatureOutputs(
+          member,
+          path.join(prepared.root, "projects", name, "src", member),
+        );
+      } catch (error) {
+        console.error(error);
+        failure ??= error;
+      }
+    }
+    if (failure) throw failure;
+    return;
+  }
   if (name === "swagger-watch") return runSwaggerWatchFeature();
   if (name === "bundle-preserve") return runBundlePreserveFeature();
   if (name === "cli-argument-diagnostics")
@@ -551,252 +591,101 @@ const assertFeatureOutputs = (name, cwd) => {
 const runTtsxTestOnce = async (_name, cwd, port, options) =>
   runTtsxTest(cwd, "inherit", port, options);
 
-// Legacy batches share a CLI invocation and consumer program, but input
-// analysis still compiles each member configuration and each member opens its
-// own backend. Consolidated rich fixtures instead own one input configuration
-// and application; keep them outside this legacy grouping during transfer.
-const BATCH_SIZE = 12;
-const BATCH_EXCLUDED = new Set([
+// Every equivalent configuration shares one input and consumer program.
+// Generator defaults use each copied owner's own package.json and cwd.
+const CONFIGURED_EXCLUDED = new Set([
   "all",
   "http-rich",
   "cli-config",
   "cli-config-project",
   "cli-project",
 ]);
-const BATCHES = new Map();
+const CONFIGURED_PROGRAMS = new Map();
 const fixtureConfigurationName = (name) =>
   name === "cli-config" || name === "cli-config-project"
     ? "nestia.configuration.ts"
     : "nestia.config.ts";
-const planBatches = (names) => {
+const planConfiguredPrograms = (names) => {
+  CONFIGURED_PROGRAMS.clear();
   const groups = new Map();
   for (const name of names) {
     if (
       name.includes("error") ||
       name.includes("distribute") ||
-      BATCH_EXCLUDED.has(name) ||
-      fs.existsSync(path.join(featureDirectory(name), "nestia.config.ts")) ===
-        false ||
-      // the Swagger document's info defaults to the working directory's
-      // package.json, which a batch, run from features/, would not read
-      fs.existsSync(path.join(featureDirectory(name), "package.json")) ||
-      fs.existsSync(path.join(featureDirectory(name), "tsconfig.json")) ===
-        false
+      CONFIGURED_EXCLUDED.has(name)
     )
       continue;
-    const key = fs.readFileSync(
-      path.join(featureDirectory(name), "tsconfig.json"),
-      "utf8",
+    const file = path.join(featureDirectory(name), "tsconfig.json");
+    if (!fs.existsSync(file)) continue;
+    const config = JSON.parse(
+      stripTrailingCommas(stripJsonComments(fs.readFileSync(file, "utf8"))),
     );
-    groups.set(key, [...(groups.get(key) ?? []), name]);
+    // Only the shared base and owner-local API aliases are transferable here.
+    // Other compiler or source-selection premises retain their original owner.
+    if (
+      config.extends !== "../../../config/tsconfig.json" ||
+      Object.keys(config).some(
+        (key) => !["extends", "compilerOptions", "include"].includes(key),
+      ) ||
+      !Array.isArray(config.include) ||
+      !config.include.includes("src") ||
+      config.include.some((item) => !["src", "nestia.config.ts"].includes(item))
+    )
+      continue;
+    const options = { ...(config.compilerOptions ?? {}) };
+    if (
+      Object.keys(options).some((key) =>
+        [
+          "plugins",
+          "rootDir",
+          "rootDirs",
+          "outDir",
+          "outFile",
+          "noEmit",
+          "baseUrl",
+          "typeRoots",
+          "declarationDir",
+          "tsBuildInfoFile",
+          "incremental",
+          "composite",
+        ].includes(key),
+      )
+    )
+      continue;
+    const aliases = options.paths ?? {};
+    if (
+      Object.entries(aliases).some(
+        ([key, targets]) =>
+          JSON.stringify(targets) !==
+          JSON.stringify(
+            key === "@api"
+              ? ["./src/api"]
+              : key === "@api/lib/*"
+                ? ["./src/api/*"]
+                : null,
+          ),
+      )
+    )
+      continue;
+    delete options.paths;
+    const key = JSON.stringify(
+      Object.entries(options).sort(([a], [b]) => a.localeCompare(b)),
+    );
+    const group = groups.get(key) ?? { members: [], compilerOptions: options };
+    group.members.push(name);
+    groups.set(key, group);
   }
-  const batched = new Set();
-  for (const members of groups.values()) {
-    if (members.length < 2) continue;
-    for (let i = 0; i < members.length; i += BATCH_SIZE) {
-      const name = `batch-${String(BATCHES.size + 1).padStart(2, "0")}`;
-      BATCHES.set(name, members.slice(i, i + BATCH_SIZE));
-    }
-    members.forEach((member) => batched.add(member));
+  const shared = new Set();
+  for (const group of groups.values()) {
+    if (group.members.length < 2) continue;
+    const name = "configured-program-" + (CONFIGURED_PROGRAMS.size + 1);
+    CONFIGURED_PROGRAMS.set(name, group);
+    group.members.forEach((member) => shared.add(member));
   }
   return [
-    ...names.filter((name) => batched.has(name) === false),
-    ...BATCHES.keys(),
+    ...names.filter((name) => !shared.has(name)),
+    ...CONFIGURED_PROGRAMS.keys(),
   ];
-};
-
-// A batch runs copies of its members, in a directory beside features/ so
-// each copy sits as deep as its feature and every relative path out of it
-// holds. One program cannot map one `@api` alias onto many projects, so the
-// copies alone import their SDK and structures by relative path; the features
-// keep the alias. The batch directory is also the project nestia compiles the
-// configuration under, which must hold every member it imports.
-const runBatch = async (name, port) => {
-  const members = BATCHES.get(name);
-  const cwd = path.join(__dirname, `.tmp-${name}`);
-  await fs.promises.rm(cwd, { force: true, recursive: true });
-  await fs.promises.mkdir(path.join(cwd, "src/test"), { recursive: true });
-  console.log(`  - ${name}: ${members.join(", ")}`);
-  try {
-    for (const member of members)
-      copyBatchMember(member, path.join(cwd, member));
-    fs.writeFileSync(
-      path.join(cwd, "tsconfig.json"),
-      JSON.stringify(
-        {
-          extends: `./${members[0]}/tsconfig.json`,
-          compilerOptions: { paths: {} },
-          include: [...members.map((member) => `./${member}/src`), "./src"],
-        },
-        null,
-        2,
-      ),
-      "utf8",
-    );
-    fs.writeFileSync(
-      path.join(cwd, "nestia.config.ts"),
-      [
-        'import { INestiaConfig } from "@nestia/sdk";',
-        'import path from "path";',
-        "",
-        ...members.map(
-          (member, i) => `import * as C${i} from "./${member}/nestia.config";`,
-        ),
-        "",
-        "const pick = (module: any): INestiaConfig[] => {",
-        "  const value: any =",
-        "    module.default ??",
-        '    Object.values(module).find((v) => typeof v === "object" && v !== null);',
-        "  return Array.isArray(value) ? value : [value];",
-        "};",
-        "const rebase =",
-        "  (directory: string) =>",
-        "  (config: any): INestiaConfig => {",
-        "    const move = (location: string): string =>",
-        "      path.join(directory, location);",
-        "    const input: any = config.input;",
-        "    return {",
-        "      ...config,",
-        "      input:",
-        '        typeof input === "function"',
-        "          ? input",
-        '          : typeof input === "string"',
-        "            ? move(input)",
-        "            : Array.isArray(input)",
-        "              ? input.map(move)",
-        "              : {",
-        "                  ...input,",
-        "                  include: input.include.map(move),",
-        "                  exclude: input.exclude?.map(move),",
-        "                },",
-        "      output: config.output && move(config.output),",
-        "      e2e: config.e2e && move(config.e2e),",
-        "      swagger: config.swagger && {",
-        "        ...config.swagger,",
-        "        output: config.swagger.output && move(config.swagger.output),",
-        "      },",
-        "    };",
-        "  };",
-        "",
-        "export default [",
-        ...members.map(
-          (member, i) =>
-            `  ...pick(C${i}).map(rebase(${JSON.stringify(member)})),`,
-        ),
-        "];",
-        "",
-      ].join("\n"),
-      "utf8",
-    );
-    await runNestia(cwd, ["all"], "inherit");
-    for (const member of members)
-      assertFeatureOutputs(member, path.join(cwd, member));
-
-    // each member's test entry runs on a port of its own, 100 apart, so no
-    // member waits on the previous one's socket and no batch meets another
-    const tested = members.filter((member) =>
-      hasTtsxTestFiles(path.join(cwd, member)),
-    );
-    fs.writeFileSync(
-      path.join(cwd, "src/test/index.ts"),
-      [
-        'import fs from "fs";',
-        "",
-        // static imports: a CommonJS program's import() keeps ESM resolution,
-        // which wants file extensions
-        ...tested.map(
-          (member, i) =>
-            `import * as M${i} from "../../${member}/src/test/index";`,
-        ),
-        "",
-        "const MEMBERS: [string, { main(): Promise<void> }][] = [",
-        ...tested.map((member, i) => `  [${JSON.stringify(member)}, M${i}],`),
-        "];",
-        "",
-        "const main = async (): Promise<void> => {",
-        "  const base: number = Number(process.env.TEST_SDK_PORT ?? 37_000);",
-        "  const failures: string[] = [];",
-        "  for (const [index, [name, entry]] of MEMBERS.entries()) {",
-        "    process.env.TEST_SDK_PORT = String(base + 100 * (index + 1));",
-        "    const started: number = Date.now();",
-        "    try {",
-        "      await entry.main();",
-        "      console.log(`# ${name}: ${Date.now() - started} ms`);",
-        "    } catch (error) {",
-        "      console.log(`# ${name}: failed`);",
-        "      console.log(error);",
-        "      const message: string = String(",
-        "        error instanceof Error ? error.message : error,",
-        "      );",
-        '      failures.push(`${name}: ${(message.split("\\n")[0] ?? "").slice(0, 200)}`);',
-        "    }",
-        "  }",
-        "  if (failures.length !== 0) {",
-        '    console.log(`Failed batch members: ${failures.join("; ")}`);',
-        '    fs.writeFileSync(`${__dirname}/../../failures.txt`, failures.join("; "));',
-        "    process.exit(-1);",
-        "  }",
-        "};",
-        "main().catch((error) => {",
-        "  console.log(error);",
-        "  process.exit(-1);",
-        "});",
-        "",
-      ].join("\n"),
-      "utf8",
-    );
-    const report = path.join(cwd, "failures.txt");
-    await runTtsxTestOnce(name, cwd, port, {
-      plugins: path.join(cwd, members[0]),
-      explain: () => {
-        if (fs.existsSync(report) === false) return null;
-        const text = fs.readFileSync(report, "utf8");
-        fs.rmSync(report, { force: true });
-        return text;
-      },
-    });
-  } finally {
-    await fs.promises.rm(cwd, { force: true, recursive: true });
-  }
-};
-
-// A member's copy: its directory without installed packages or generated
-// files, its `@api` and `@api/lib/*` imports spelled as relative paths.
-const copyBatchMember = (member, destination) => {
-  const source = featureDirectory(member);
-  const skipped = new Set(
-    generatedPaths(member).map((location) => path.join(source, location)),
-  );
-  fs.cpSync(source, destination, {
-    recursive: true,
-    filter: (file) =>
-      path.basename(file) !== "node_modules" && skipped.has(file) === false,
-  });
-  const api = path.join(destination, "src/api");
-  const visit = (location) => {
-    for (const entry of fs.readdirSync(location, { withFileTypes: true })) {
-      const next = path.join(location, entry.name);
-      if (entry.isDirectory()) visit(next);
-      else if (/\.[cm]?tsx?$/.test(entry.name)) {
-        const relative = (target) => {
-          const spelled = path
-            .relative(path.dirname(next), target)
-            .split(path.sep)
-            .join("/");
-          return spelled.startsWith(".") ? spelled : `./${spelled}`;
-        };
-        const text = fs.readFileSync(next, "utf8");
-        const replaced = text
-          .replace(/(["'])@api\1/g, (_, quote) => quote + relative(api) + quote)
-          .replace(
-            /(["'])@api\/lib\/([^"']+)\1/g,
-            (_, quote, rest) => quote + relative(path.join(api, rest)) + quote,
-          );
-        if (replaced !== text) fs.writeFileSync(next, replaced, "utf8");
-      }
-    }
-  };
-  visit(destination);
 };
 
 // Regression lock for generators whose configured output path contains more
@@ -1871,18 +1760,19 @@ const assertFreshBuilds = () => {
 /**
  * Selects SDK integrations and runs them against current built artifacts.
  *
- * The shared root supplies its validated public graph to the plain-Node rich
- * runtime child. Standalone invocation lets that child prepare the SDK owner.
+ * The shared root supplies its validated public graph to plain-Node integration
+ * children. Standalone configured programs prepare the same SDK owner graph.
  * Empty selection rejects before preparation, and skip-build checks freshness.
- * Legacy fixture, CLI and watch connections retain their existing boundaries
- * during consolidation and report their first failures independently.
+ * Equivalent configured inputs share two compiler requests. Distinct compiler
+ * premises, CLI and watch connections report their first failures
+ * independently.
  *
  * @evidence contracts/common.md#principled-implementation The final nonempty selection preserves configured inputs and synthetic diagnostics. Skip-build validates package output freshness; selected features execute once, and runFeatures aggregates their original failures. A supplied public graph is transferred only to its ordinary installed runtime child.
  * @evidence contracts/common.md#clear-and-simple-design Selection and build prerequisites precede feature execution. The optional shared context connects the root's installation to the existing plain-Node child; standalone preparation remains with that child.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No feature result or assertion is substituted or replayed. Supplied artifacts are freshly packed and graph-validated by the root before invocation; no persistent stamp is accepted. Existing workspace CLI hooks remain in legacy child connections pending their separate consolidation.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies selection, freshness, supplied-context ownership and remaining legacy boundaries; each feature exposes its elapsed first result.
  * @evidence contracts/portability.md#os-neutral-implementation Existing native path operations identify features and child entries. The public runtime child receives its installation address as an argument array, with loader and search overrides cleared; existing build execution retains its Windows command-shim boundary.
- * @evidence contracts/performance.md#efficient-algorithms One discovery and selection pass feeds bounded feature workers. Legacy batches still perform member analysis and backend work; the rich runtime shares its installed producer and consumer programs.
+ * @evidence contracts/performance.md#efficient-algorithms One discovery and selection pass feeds bounded feature workers. Equivalent configured owners share input and consumer compilation; the rich runtime shares its installed producer and consumer programs.
  * @evidence contracts/performance.md#reuse-equivalent-work The root-supplied validated graph removes another public preparation in the rich child. Standalone commands observe current artifacts independently; source and build freshness remain checked before execution.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Awaited feature workers and the exclusive watch connection settle before this owner returns. Each feature owns its generated state, listeners and child teardown; the shared root retains the supplied installation until both owners settle.
  */
@@ -1890,12 +1780,15 @@ const main = async (consumer) =>
   measure("\nTotal Elapsed Time")(async () => {
     const shard = featureShard();
     const filter = featureFilter();
-    const names = planBatches(
+    const configuredSelection = argumentValue("--only")?.startsWith(
+      "configured-program-",
+    );
+    const names = planConfiguredPrograms(
       discoverSdkFixtures(featureDirectory(), fixtureConfigurationName)
         .filter((name) => !AGGREGATED_ERROR_FEATURES.has(name))
         .filter((name) => !SDK_COHORT_FEATURES.has(name))
-        .filter(filter),
-    );
+        .filter(configuredSelection ? () => true : filter),
+    ).filter(configuredSelection ? filter : () => true);
     for (const cohort of SDK_ERROR_COHORTS)
       if (filter(cohort.name) || cohort.members.some(filter))
         names.push(cohort.name);

@@ -95,6 +95,7 @@
       "type": "javascript",
       "files": [
         "test-sdk/PublicHttpRunner.js",
+        "test-sdk/PublicConfiguredRunner.js",
         "test-sdk/PublicHttpProfileCoverage.js"
       ],
       "symbol": "function",
