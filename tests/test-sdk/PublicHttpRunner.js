@@ -6,6 +6,12 @@ const { preparePublicConsumer } = require("./PublicConsumer");
 const { compilePublicProgram } = require("./PublicCompiler");
 const { test_public_user_global } = require("./test_public_user_global");
 const {
+  test_public_transform_envelope,
+} = require("./test_public_transform_envelope");
+const {
+  test_public_disabled_transform,
+} = require("./test_public_disabled_transform");
+const {
   test_public_no_emit_diagnostics,
 } = require("./test_public_no_emit_diagnostics");
 const {
@@ -117,6 +123,32 @@ async function runPublicHttp() {
     boundaryFailures.push({ name: "test_public_typia_version_guard", error });
     console.error(
       "Public compiler boundary: test_public_typia_version_guard failed",
+      error,
+    );
+  }
+  const disabledStarted = Date.now();
+  try {
+    await test_public_disabled_transform(consumer, cache);
+    console.log(
+      `Public compiler boundary: test_public_disabled_transform passed; ${Date.now() - disabledStarted} ms`,
+    );
+  } catch (error) {
+    boundaryFailures.push({ name: "test_public_disabled_transform", error });
+    console.error(
+      "Public compiler boundary: test_public_disabled_transform failed",
+      error,
+    );
+  }
+  const envelopeStarted = Date.now();
+  try {
+    test_public_transform_envelope(consumer, cache);
+    console.log(
+      `Public compiler boundary: test_public_transform_envelope passed; ${Date.now() - envelopeStarted} ms`,
+    );
+  } catch (error) {
+    boundaryFailures.push({ name: "test_public_transform_envelope", error });
+    console.error(
+      "Public compiler boundary: test_public_transform_envelope failed",
       error,
     );
   }

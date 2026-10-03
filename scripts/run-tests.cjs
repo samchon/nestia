@@ -90,7 +90,6 @@ function runTestPhases(run) {
       [
         "--filter=./tests/test-sdk",
         "--filter=./tests/test-migrate",
-        "--filter=./tests/test-transform-options",
         "-r",
         "--no-bail",
         "run",

@@ -82,7 +82,7 @@ Every `test:go` script passes `-count=1`, and so should a hand-run `go test`. Ca
 
 ### TypeScript suites
 
-The baseline TypeScript workspace names are `test-benchmark`, `test-cli`, `test-e2e`, `test-editor`, `test-migrate`, `test-sdk` and `test-transform-options`. All integration execution belongs to `tests/test-e2e`; every other workspace contains only direct pure-unit logic. Preserve the existing implementation when aligning names with master. Empty legacy entries must not produce a vacuous pass.
+The TypeScript workspaces are `test-benchmark`, `test-cli`, `test-e2e`, `test-editor`, `test-migrate` and `test-sdk`. `tests/test-e2e` contains only direct units of `packages/e2e`; do not place SDK, migration or other integration cases there. SDK and migration workspaces separate their direct unit entries from necessary integration connections. `test-transform-options` is retired: native option semantics belong to the owning Go units and necessary installed-loader/runtime connections share the SDK integration preparation. Empty legacy entries must not produce a vacuous pass.
 
 Classify by the real call path. Consumer installation, separate product compilation, Nest application creation, HTTP hosts, worker sessions and CLI/IPC processes are integration preparation. Running TypeScript test source is language preparation; directly calling a parser, composer or writer with authored input remains unit logic when it does not create those integration boundaries. Loading an already-built internal operation by absolute path does not itself make the direct unit E2E.
 

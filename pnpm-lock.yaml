@@ -852,49 +852,6 @@ importers:
         specifier: catalog:utils
         version: 2.9.0
 
-  tests/test-transform-options:
-    dependencies:
-      '@nestia/core':
-        specifier: workspace:^
-        version: link:../../packages/core
-      '@nestia/sdk':
-        specifier: workspace:^
-        version: link:../../packages/sdk
-      '@nestjs/common':
-        specifier: catalog:nestjs
-        version: 11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/core':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/platform-express':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
-      multer:
-        specifier: ^2.0.2
-        version: 2.1.1
-      rxjs:
-        specifier: catalog:nestjs
-        version: 7.8.2
-      typia:
-        specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.28.1)
-    devDependencies:
-      '@types/multer':
-        specifier: ^1.4.12
-        version: 1.4.13
-      '@types/node':
-        specifier: catalog:utils
-        version: 25.9.0
-      cross-env:
-        specifier: catalog:utils
-        version: 10.1.0
-      rimraf:
-        specifier: catalog:utils
-        version: 6.1.3
-      ttsc:
-        specifier: catalog:typescript
-        version: 0.28.1
-
 packages:
 
   '@assemblyscript/loader@0.19.23':
