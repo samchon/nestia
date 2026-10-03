@@ -276,5 +276,20 @@
     "generateSwagger": false,
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 1
+  },
+  {
+    "name": "validate_log",
+    "producer": "producer-validate-log",
+    "controllers": [""],
+    "generateE2e": false,
+    "swagger": {
+      "security": {
+        "bearer": {
+          "type": "apiKey"
+        }
+      }
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 2
   }
 ]

@@ -1,0 +1,7 @@
+[
+  {
+    "source": "validate-log",
+    "output": "producer-validate-log",
+    "stringify": "validate.log"
+  }
+]

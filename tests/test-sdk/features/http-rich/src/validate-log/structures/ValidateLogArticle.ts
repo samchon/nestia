@@ -1,6 +1,6 @@
 import { tags } from "typia";
 
-export interface IBbsArticle {
+export interface ValidateLogArticle {
   id: string & tags.Format<"uuid">;
   title: string;
   body: string;

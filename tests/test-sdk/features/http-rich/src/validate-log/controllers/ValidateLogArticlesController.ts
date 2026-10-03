@@ -2,14 +2,14 @@ import { TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { tags } from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { ValidateLogArticle } from "../structures/ValidateLogArticle";
 
-@Controller("bbs/articles")
-export class BbsArticlesController {
+@Controller("http_rich/options/validate_log/bbs/articles")
+export class ValidateLogArticlesController {
   @TypedRoute.Get(":id")
   public async at(
     @TypedParam("id") id: string & tags.Format<"uuid">,
-  ): Promise<IBbsArticle> {
+  ): Promise<ValidateLogArticle> {
     return {
       id,
       title: "Hello, world!",

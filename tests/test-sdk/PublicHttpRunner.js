@@ -27,7 +27,10 @@ const {
 /**
  * Runs authored and freshly generated HTTP cases through one installed program.
  *
- * One producer compiles the authored controllers. Non-listening applications
+ * A shared producer compiles controllers with the default native options;
+ * controllers requiring validate.log share one additional producer because
+ * their malformed responses must log and send rather than assert and reject.
+ * Non-listening applications
  * select exact controller graphs for ordinary and clone option generation; one
  * actual listener serves every profile's consumer request. One consumer
  * compilation prepares all authored and generated cases; plain JavaScript
@@ -48,14 +51,14 @@ const {
  * Postcondition failures join the same final aggregate, without resetting state
  * or repeating preparation.
  *
- * @evidence contracts/common.md#principled-implementation Public installed TtscCompiler emits all actual authored controller and consumer inputs in two shared strict programs. Public non-listening Nest graphs select each generation profile while one real listener serves all requests. DynamicExecutor retains authored and originally enabled generated transport assertions; explicit policy preserves original document-only scenarios without dropping their generation or compilation.
+ * @evidence contracts/common.md#principled-implementation Public installed TtscCompiler emits actual authored controllers in shared strict programs for distinct native serialization options, followed by one shared consumer. Public non-listening Nest graphs select each generation profile while one real listener serves all requests. DynamicExecutor retains authored and originally enabled generated transport assertions; explicit policy preserves original document-only scenarios without dropping their generation or compilation.
  * @evidence contracts/common.md#clear-and-simple-design Installation, independent boundary cases, shared producer, distinct public generation profiles, shared consumer and requests have visible results. First boundary failures remain in the final aggregate while positive cases continue. Legacy SDK registration activates the producer and modern environment activation serves the consumer. The listener and each generation graph have explicit finally-owned release.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts All product operations resolve through the ordinary packed installation. The runner patches neither generated JavaScript nor foreign resolvers and copies no previously generated clients or automated cases as input.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies each necessary boundary and its shared lifetime; phase timings, individual failures and discovered counts remain visible.
  * @evidence contracts/portability.md#os-neutral-implementation Native paths locate the assignment-owned fixture. Temporary removal verifies containment before recursive deletion, and the listener uses an OS-assigned loopback port. Public package imports use the consumer's normal Node resolution.
- * @evidence contracts/performance.md#efficient-algorithms Each authored input tree is copied once and the producer and consumer programs are each compiled once. Distinct generation options analyze their exact controller graphs; no profile or case repeats installation, native compilation or consumer compilation.
- * @evidence contracts/performance.md#reuse-equivalent-work Controllers have separate scenario routes and common compiler/encryption settings. All profiles share compiled modules and one listener while distinct generation options retain separate outputs. Simulation state is the actual producer namespace, remains unreset through execution, and is checked after all features together with a dedicated request counter; no other profile uses its routes.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One private fixture, two result maps and one listener belong to the run. Emitted files stay in its ignored root; the listener closes in finally and generatePublicHttpProfile closes each non-listening graph immediately after its generation or failure.
+ * @evidence contracts/performance.md#efficient-algorithms Each authored input tree is copied once. Controllers sharing native options compile once per producer program, and all profiles compile in one consumer program. Distinct generation options analyze their exact controller graphs; no individual case repeats installation, native preparation, consumer compilation or listening.
+ * @evidence contracts/performance.md#reuse-equivalent-work Controllers have private scenario routes and shared encryption settings. Default assert serialization and validate.log require distinct producer programs because their malformed-response behavior differs. All cases with each setting reuse that program, installed graph, compiled consumer and listener. Simulation state remains the actual unreset producer namespace and is checked after features with a request counter.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One private fixture and one listener belong to the run. Each producer and consumer result map is released after publication. Emitted files stay in the ignored root; the listener closes in finally and generatePublicHttpProfile closes each non-listening graph immediately after its generation or failure.
  */
 async function runPublicHttp() {
   const root = path.resolve(__dirname, "../..");
@@ -75,6 +78,9 @@ async function runPublicHttp() {
   const profiles = JSON.parse(
     await fs.readFile(path.join(source, "../profiles.json"), "utf8"),
   );
+  const producers = JSON.parse(
+    await fs.readFile(path.join(source, "../producers.json"), "utf8"),
+  );
   const documentOnlyPrefixes = execution.generatedCases
     .filter((policy) => policy.execute === false)
     .map((policy) => `test_api_${policy.accessorPrefix.join("_")}_`);
@@ -90,6 +96,18 @@ async function runPublicHttp() {
       path.join(fixture, "src", directory),
       { recursive: true },
     );
+  for (const producer of producers) {
+    for (const value of [producer.source, producer.output])
+      assert(
+        typeof value === "string" && /^[a-z][a-z0-9-]*$/.test(value),
+        "A producer must name a contained source and output directory.",
+      );
+    await fs.cp(
+      path.join(source, producer.source),
+      path.join(fixture, "src", producer.source),
+      { recursive: true },
+    );
+  }
   const authoredFeatures = path.join(source, "test/features");
   await fs.cp(authoredFeatures, path.join(fixture, "src/test/features"), {
     recursive: true,
@@ -214,6 +232,37 @@ async function runPublicHttp() {
     "producer",
     { NESTIA_SDK_TRANSFORM: "" },
   );
+  // A genuinely different native option requires a distinct program. Cases
+  // with the same option share this program and every other preparation.
+  for (const producer of producers) {
+    const producerConfig = {
+      ...config,
+      compilerOptions: {
+        ...config.compilerOptions,
+        rootDir: `src/${producer.source}`,
+        outDir: producer.output,
+        plugins: config.compilerOptions.plugins.map((plugin) =>
+          plugin.transform === "@nestia/core/lib/transform"
+            ? { ...plugin, stringify: producer.stringify }
+            : plugin,
+        ),
+      },
+      include: [`src/${producer.source}/controllers`],
+    };
+    const tsconfig = `tsconfig.${producer.output}.json`;
+    await fs.writeFile(
+      path.join(fixture, tsconfig),
+      JSON.stringify(producerConfig, null, 2),
+    );
+    await compilePublicProgram(
+      TtscCompiler,
+      fixture,
+      tsconfig,
+      cache,
+      producer.output,
+      { NESTIA_SDK_TRANSFORM: "" },
+    );
+  }
   try {
     test_public_multipart_schema_inputs(consumer, fixture);
     console.log(
@@ -241,7 +290,12 @@ async function runPublicHttp() {
   const { DynamicExecutor } = consumer.requirePublic("@nestia/e2e");
   const app = await NestFactory.create(
     await core.EncryptedModule.dynamic(
-      path.join(fixture, "producer/controllers"),
+      [
+        path.join(fixture, "producer/controllers"),
+        ...producers.map((producer) =>
+          path.join(fixture, producer.output, "controllers"),
+        ),
+      ],
       {
         key: "A".repeat(32),
         iv: "B".repeat(16),
@@ -332,7 +386,7 @@ async function runPublicHttp() {
       await generatePublicHttpProfile(
         consumer,
         profile.controllers.map((directory) =>
-          path.join(fixture, "producer/controllers", directory),
+          path.join(fixture, profile.producer ?? "producer", "controllers", directory),
         ),
         {
           output:
