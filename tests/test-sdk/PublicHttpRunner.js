@@ -14,13 +14,17 @@ const { test_public_legacy_plugins } = require("./test_public_legacy_plugins");
  * One producer compiles the authored controllers. The actual application feeds
  * generation without another input compiler and then serves every consumer
  * request. One consumer compilation prepares the authored and generated cases;
- * plain JavaScript execution starts no TypeScript loader or native host. The
- * installed compiler's version-rejection and legacy-plugin boundaries are
+ * plain JavaScript execution starts no TypeScript loader or native host.
+ * Scenario execution policy retains document-only inputs without promoting
+ * their generated random calls into transport assertions: those artifacts are
+ * still generated and compiled, while authored cases exercise their required
+ * connections. The installed compiler's version-rejection and legacy-plugin
+ * boundaries are
  * reported separately; their assertion failures do not suppress executable HTTP
  * cases. The producer uses the explicit legacy SDK entry with its environment
  * activation off; the consumer uses modern entries and activation.
  *
- * @evidence contracts/common.md#principled-implementation Public installed TtscCompiler emits the actual authored controller and consumer programs with their shared strict language configuration. Public Nest and SDK application-input APIs use one real application for generation and requests, and DynamicExecutor reports all authored and newly generated assertions.
+ * @evidence contracts/common.md#principled-implementation Public installed TtscCompiler emits the actual authored controller and consumer programs with their shared strict language configuration. Public Nest and SDK application-input APIs use one real application for generation and requests. DynamicExecutor retains all authored assertions and existing rich generated transport assertions; explicit scenario execution policy preserves a transferred input's original absence of automatic E2E execution without dropping its generation or compilation.
  * @evidence contracts/common.md#clear-and-simple-design Installation, independent compiler boundary cases, producer, generation, consumer compilation and request execution have visible results. Boundary failures are retained with their names while positive HTTP cases continue; their final result aggregates both populations. Explicit legacy SDK registration activates the producer, while environment activation serves the modern consumer; they do not activate the same program twice. One finally block owns application release, including initialization, generation and consumer failures.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts All product operations resolve through the ordinary packed installation. The runner patches neither generated JavaScript nor foreign resolvers and copies no previously generated clients or automated cases as input.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies each necessary boundary and its shared lifetime; phase timings, individual failures and discovered counts remain visible.
@@ -39,6 +43,12 @@ async function runPublicHttp() {
   );
   await fs.rm(fixture, { recursive: true, force: true });
   const source = path.join(__dirname, "features/http-rich/src");
+  const execution = JSON.parse(
+    await fs.readFile(path.join(source, "../execution.json"), "utf8"),
+  );
+  const documentOnlyPrefixes = execution.generatedCases
+    .filter((policy) => policy.execute === false)
+    .map((policy) => `test_api_${policy.accessorPrefix.join("_")}_`);
   for (const directory of ["controllers", "structures"])
     await fs.cp(
       path.join(source, directory),
@@ -155,6 +165,20 @@ async function runPublicHttp() {
         security: {
           basic: { type: "http", scheme: "basic" },
           bearer: { type: "http", scheme: "bearer" },
+          custom: { type: "apiKey", in: "header", name: "Authorization" },
+          tagsOAuth2: {
+            type: "oauth2",
+            flows: {
+              implicit: {
+                authorizationUrl: "https://example.com/api/oauth/dialog",
+                refreshUrl: "https://example.com/api/oauth/refresh",
+                scopes: {
+                  read: "read authority",
+                  write: "write authority",
+                },
+              },
+            },
+          },
           oauth2: {
             type: "oauth2",
             flows: {
@@ -214,6 +238,8 @@ async function runPublicHttp() {
       prefix: "test",
       extension: "js",
       simultaneous: 1,
+      filter: (file) =>
+        !documentOnlyPrefixes.some((prefix) => file.startsWith(prefix)),
       parameters: () => [
         { host, encryption: { key: "A".repeat(32), iv: "B".repeat(16) } },
         traffic,

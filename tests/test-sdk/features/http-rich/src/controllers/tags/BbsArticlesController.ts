@@ -3,11 +3,11 @@ import { Controller } from "@nestjs/common";
 import { ApiSecurity, ApiTags } from "@nestjs/swagger";
 import typia, { tags } from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { TagsIBbsArticle } from "../../structures/tags/TagsIBbsArticle";
 
 @ApiTags("bbs")
-@Controller("bbs/articles/:section")
-export class BbsArticlesController {
+@Controller("http_rich/tags/bbs/articles/:section")
+export class TagsBbsArticlesController {
   /**
    * Would be shown without any mark.
    *
@@ -18,15 +18,15 @@ export class BbsArticlesController {
    * @tag write Write accessor
    * @summary Public API
    * @security bearer
-   * @security oauth2 read write
+   * @security tagsOAuth2 read write
    */
   @TypedRoute.Post()
   public async store(
     @TypedParam("section") section: string,
-    @TypedBody() input: IBbsArticle.IStore,
-  ): Promise<IBbsArticle> {
+    @TypedBody() input: TagsIBbsArticle.IStore,
+  ): Promise<TagsIBbsArticle> {
     return {
-      ...typia.random<IBbsArticle>(),
+      ...typia.random<TagsIBbsArticle>(),
       ...input,
       section,
     };
@@ -54,10 +54,10 @@ export class BbsArticlesController {
   public async update(
     @TypedParam("section") section: string,
     @TypedParam("id") id: string & tags.Format<"uuid">,
-    @TypedBody() input: IBbsArticle.IStore,
-  ): Promise<IBbsArticle> {
+    @TypedBody() input: TagsIBbsArticle.IStore,
+  ): Promise<TagsIBbsArticle> {
     return {
-      ...typia.random<IBbsArticle>(),
+      ...typia.random<TagsIBbsArticle>(),
       ...input,
       id,
       section,

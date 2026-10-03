@@ -11,6 +11,20 @@ export const NESTIA_CONFIG: INestiaConfig = {
     security: {
       basic: { type: "http", scheme: "basic" },
       bearer: { type: "http", scheme: "bearer" },
+      custom: { type: "apiKey", in: "header", name: "Authorization" },
+      tagsOAuth2: {
+        type: "oauth2",
+        flows: {
+          implicit: {
+            authorizationUrl: "https://example.com/api/oauth/dialog",
+            refreshUrl: "https://example.com/api/oauth/refresh",
+            scopes: {
+              read: "read authority",
+              write: "write authority",
+            },
+          },
+        },
+      },
       oauth2: {
         type: "oauth2",
         flows: {

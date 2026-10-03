@@ -1,4 +1,4 @@
-export interface IBbsArticle extends IBbsArticle.IStore {
+export interface TagsIBbsArticle extends TagsIBbsArticle.IStore {
   /** @format uuid */
   id: string;
 
@@ -7,7 +7,7 @@ export interface IBbsArticle extends IBbsArticle.IStore {
   /** @format date-time */
   created_at: string;
 }
-export namespace IBbsArticle {
+export namespace TagsIBbsArticle {
   export interface IStore {
     /**
      * @minLength 3
@@ -15,11 +15,11 @@ export namespace IBbsArticle {
      */
     title: string;
     body: string;
-    files: IAttachmentFile[];
+    files: TagsIAttachmentFile[];
   }
 }
 
-export interface IAttachmentFile {
+export interface TagsIAttachmentFile {
   /**
    * @minLength 1
    * @maxLength 255

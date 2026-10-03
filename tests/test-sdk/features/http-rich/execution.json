@@ -1,0 +1,9 @@
+{
+  "generatedCases": [
+    {
+      "accessorPrefix": ["http_rich", "tags"],
+      "execute": false,
+      "reason": "The original tags configuration requests SDK and Swagger only. Custom TagBase predicates provide no random generation rule; authored requests cover their valid and invalid inputs."
+    }
+  ]
+}
