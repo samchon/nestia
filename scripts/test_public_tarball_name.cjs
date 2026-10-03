@@ -27,7 +27,7 @@ function test_public_tarball_name() {
     "sdk-ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad.tgz";
   assert.equal(publicTarballName("sdk", abc), expected);
   assert.equal(publicTarballName("sdk", Buffer.from(abc)), expected);
-  assert.notEqual(publicTarballName("sdk", Buffer.from("abd")), expected);
+  assert.notEqual(publicTarballName("sdk", Buffer.from([97, 98, 100])), expected);
   assert.notEqual(
     publicTarballName("sdk", Buffer.from([97, 98, 99, 0])),
     expected,
