@@ -22,7 +22,7 @@ import path from "node:path";
 export const test_migrate_template_bundle_cache = async (): Promise<void> => {
   const {
     run,
-  } = require("../../../../packages/migrate/src/executable/TemplateBundleCache.js");
+  } = require("../../../../packages/migrate/src/executable/TemplateBundleCache.ts");
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "nestia-template-cache-"));
   try {
     const outputs = [path.join(root, "nest.ts"), path.join(root, "sdk.ts")];

@@ -1,17 +1,25 @@
+import cp from "node:child_process";
+import fs from "node:fs";
+
+import { run as runCached } from "./TemplateBundleCache";
+
 const { version } = require("../../../../package.json");
-const cp = require("child_process");
-const { run: runCached } = require("./TemplateBundleCache.js");
-const fs = require("fs");
 
 const ROOT = `${__dirname}/../..`;
 const ASSETS = `${ROOT}/assets`;
-const CATALOGS = require("js-yaml").load(
+const CATALOGS: Record<
+  string,
+  Record<string, { specifier: string }>
+> = require("js-yaml").load(
   fs.readFileSync(`${__dirname}/../../../../pnpm-lock.yaml`, "utf8"),
 ).catalogs;
-const TYPIA = CATALOGS.samchon;
+const TYPIA = CATALOGS.samchon!;
 const TYPESCRIPT = CATALOGS.typescript ?? {};
 
-const update = (content, options = {}) => {
+const update = (
+  content: string,
+  options: { sdkAggregate?: boolean } = {},
+): string => {
   const parsed = JSON.parse(content);
   for (const record of [
     parsed.dependencies ?? {},
@@ -48,7 +56,11 @@ const update = (content, options = {}) => {
   return JSON.stringify(parsed, null, 2);
 };
 
-const migratePackageJson = (parsed) => {
+const migratePackageJson = (parsed: {
+  scripts?: Record<string, string>;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+}): void => {
   if (parsed.scripts)
     for (const [key, value] of Object.entries(parsed.scripts))
       if (typeof value === "string")
@@ -71,14 +83,14 @@ const migratePackageJson = (parsed) => {
 // current versions. Keep the rewrite line-targeted so quoted package names,
 // comments, ordering, and any anchors supplied by the upstream template remain
 // intact.
-const updateWorkspaceCatalog = (content) => {
-  const replace = (line) => {
+const updateWorkspaceCatalog = (content: string): string => {
+  const replace = (line: string): string => {
     const match = line.match(
       /^(\s+(?:"([^"]+)"|'([^']+)'|([^:\s]+)): (?:&[A-Za-z0-9_-]+ )?)\S[^\r\n]*(\r?)$/,
     );
     if (match === null) return line;
 
-    const name = match[2] ?? match[3] ?? match[4];
+    const name = (match[2] ?? match[3] ?? match[4])!;
     const specifier =
       name === "nestia" || name.startsWith("@nestia/")
         ? `^${version}`
@@ -89,7 +101,10 @@ const updateWorkspaceCatalog = (content) => {
   return content.split("\n").map(replace).join("\n");
 };
 
-const trimTemplateDependencies = (parsed) => {
+const trimTemplateDependencies = (parsed: {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+}): void => {
   if (parsed.dependencies) {
     delete parsed.dependencies.commander;
     delete parsed.dependencies.inquirer;
@@ -101,7 +116,7 @@ const trimTemplateDependencies = (parsed) => {
   }
 };
 
-const normalizeScript = (script) =>
+const normalizeScript = (script: string): string =>
   script.replace(/(^|[^A-Za-z0-9_-])tsc(?=$|[^A-Za-z0-9_-])/g, "$1ttsc");
 
 const ARGUMENT_PARSER = `import { createInterface } from "node:readline/promises";
@@ -215,7 +230,7 @@ export namespace ArgumentParser {
 }
 `;
 
-const updateTsConfig = (content) => {
+const updateTsConfig = (content: string): string => {
   content = content.replace(
     /^\s*\{\s*"transform":\s*"typescript-transform-paths"\s*\},\r?\n/gm,
     "",
@@ -245,7 +260,13 @@ const bundle = async ({
   revision,
   exceptions,
   transform,
-}) => {
+}: {
+  mode: string;
+  repository: string;
+  revision: string;
+  exceptions?: readonly string[];
+  transform?: (key: string, value: string) => string;
+}): Promise<void> => {
   const root = `${__dirname}/../..`;
   const assets = `${root}/assets`;
   const template = `${assets}/${mode}`;
@@ -304,25 +325,27 @@ const bundle = async ({
       await fs.promises.rm(`${template}/${location}`, { recursive: true });
   };
 
-  const iterate = (collection) => async (location) => {
-    const directory = await fs.promises.readdir(location);
-    for (const file of directory) {
-      const absolute = location + "/" + file;
-      const stats = await fs.promises.stat(absolute);
-      if (stats.isDirectory()) await iterate(collection)(absolute);
-      else {
-        const content = await fs.promises.readFile(absolute, "utf-8");
-        collection[
-          (() => {
-            const str = absolute.replace(template, "");
-            return str[0] === "/" ? str.substring(1) : str;
-          })()
-        ] = content;
+  const iterate =
+    (collection: Record<string, string>) =>
+    async (location: string): Promise<void> => {
+      const directory = await fs.promises.readdir(location);
+      for (const file of directory) {
+        const absolute = location + "/" + file;
+        const stats = await fs.promises.stat(absolute);
+        if (stats.isDirectory()) await iterate(collection)(absolute);
+        else {
+          const content = await fs.promises.readFile(absolute, "utf-8");
+          collection[
+            (() => {
+              const str = absolute.replace(template, "");
+              return str[0] === "/" ? str.substring(1) : str;
+            })()
+          ] = content;
+        }
       }
-    }
-  };
+    };
 
-  const archive = async (collection) => {
+  const archive = async (collection: Record<string, string>): Promise<void> => {
     const name = `${mode.toUpperCase()}_TEMPLATE`;
     const body = JSON.stringify(collection, null, 2);
     const content = `export const ${name}: Record<string, string> = ${body}`;
@@ -337,7 +360,7 @@ const bundle = async ({
     );
   };
 
-  const collection = {};
+  const collection: Record<string, string> = {};
   await clone();
   await iterate(collection)(template);
   if (transform)
@@ -350,7 +373,11 @@ const bundle = async ({
   await archive(collection);
 };
 
-const writeTransformedAsset = async (template, key, value) => {
+const writeTransformedAsset = async (
+  template: string,
+  key: string,
+  value: string,
+): Promise<string> => {
   await fs.promises.writeFile(`${template}/${key}`, value, "utf8");
   return value;
 };

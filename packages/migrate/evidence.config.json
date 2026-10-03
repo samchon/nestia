@@ -6,7 +6,8 @@
       "type": "typescript",
       "files": [
         "src/**/*.ts",
-        "!src/**/*.d.ts"
+        "!src/**/*.d.ts",
+        "!src/executable/TemplateBundleCache.ts"
       ],
       "symbol": [
         "type",
@@ -24,9 +25,9 @@
     },
     {
       "name": "migration template bundle reuse",
-      "type": "javascript",
+      "type": "typescript",
       "files": [
-        "src/executable/TemplateBundleCache.js"
+        "src/executable/TemplateBundleCache.ts"
       ],
       "symbol": "function",
       "reference": {

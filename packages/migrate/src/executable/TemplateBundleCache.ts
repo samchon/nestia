@@ -1,5 +1,5 @@
-const crypto = require("node:crypto");
-const fs = require("node:fs");
+import crypto from "node:crypto";
+import fs from "node:fs";
 
 /**
  * Reuses a complete template generation only while its inputs and outputs
@@ -18,13 +18,23 @@ const fs = require("node:fs");
  * @evidence contracts/performance.md#bound-retention-and-release-resources Each output set owns one replaceable manifest, not per-run history. Synchronous reads and awaited writes close their file handles. The caller must serialize writers to the same paths.
  * @evidence contracts/portability.md#os-neutral-implementation Node fs consumes caller-owned native paths; identity hashes bytes and never assumes timestamp resolution, case folding or path separators.
  */
-const run = async ({ inputs, outputs, stampFile, generate }) => {
-  const digest = (content) =>
+export const run = async ({
+  inputs,
+  outputs,
+  stampFile,
+  generate,
+}: {
+  inputs: readonly unknown[];
+  outputs: readonly string[];
+  stampFile: string;
+  generate: () => Promise<void>;
+}): Promise<boolean> => {
+  const digest = (content: string | Buffer): string =>
     crypto.createHash("sha256").update(content).digest("hex");
   const input = digest(
     JSON.stringify([fs.readFileSync(__filename, "utf8"), inputs]),
   );
-  let stamp;
+  let stamp: { input?: string; outputs?: string[] } | undefined;
   if (fs.existsSync(stampFile)) {
     try {
       stamp = JSON.parse(fs.readFileSync(stampFile, "utf8"));
@@ -53,4 +63,3 @@ const run = async ({ inputs, outputs, stampFile, generate }) => {
   );
   return false;
 };
-exports.run = run;

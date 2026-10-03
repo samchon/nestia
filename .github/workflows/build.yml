@@ -34,7 +34,7 @@ jobs:
             ~/go/pkg/mod
             packages/migrate/assets/.bundle-cache.json
             packages/migrate/src/bundles
-          key: ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*', 'packages/migrate/src/executable/*.js', 'package.json') }}
+          key: ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*', 'packages/migrate/src/executable/*.ts', 'package.json') }}
           restore-keys: |
             ttsc-v2-test-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
             ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-

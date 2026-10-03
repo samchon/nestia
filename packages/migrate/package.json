@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "pnpm run bundle && rimraf lib && ttsc && rolldown -c",
-    "bundle": "node src/executable/bundle.js",
+    "bundle": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/executable/bundle.ts",
     "dev": "rimraf lib && ttsc --watch",
     "test": "node lib/test",
     "evidence": "evidence"
