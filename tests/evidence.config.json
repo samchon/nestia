@@ -32,12 +32,13 @@
       }
     },
     {
-      "name": "Authored direct Swagger input and readers",
+      "name": "Authored direct unit input and selection owners",
       "type": "typescript",
       "files": [
         "test-sdk/src/internal/SwaggerUnitRoute.ts",
         "test-sdk/src/internal/HandWrittenMetadata.ts",
-        "test-sdk/src/internal/SwaggerParameterReader.ts"
+        "test-sdk/src/internal/SwaggerParameterReader.ts",
+        "test-migrate/src/internal/selectMigrateScenarios.ts"
       ],
       "symbol": "function",
       "reference": {

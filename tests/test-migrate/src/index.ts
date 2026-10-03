@@ -18,6 +18,7 @@ import { test_migrate_api_accessor_collision } from "./features/test_migrate_api
 import { test_migrate_nest_named_examples } from "./features/test_migrate_nest_named_examples";
 import { EMPTY_PATHS_DOCUMENT } from "./features/test_migrate_sdk_empty_paths";
 import { compileMigrationPrograms } from "./internal/compileMigrationPrograms";
+import { selectMigrateScenarios } from "./internal/selectMigrateScenarios";
 import { test_migrate_generated_project_inputs } from "./internal/test_migrate_generated_project_inputs";
 import { test_migrate_installed_cli_resolution } from "./internal/test_migrate_installed_cli_resolution";
 import { test_migrate_simulate_throws } from "./internal/test_migrate_simulate_throws";
@@ -185,7 +186,10 @@ const execute = async (
  * output and all controller/DTO contents stay unchanged. Ordinary installed
  * packages serve the fixture and generated runtime through one directory link.
  *
- * @evidence contracts/common.md#principled-implementation Fresh caller-built tarballs and the migration owner's frozen dependency graph supply the real published CLI and runtimes. Copied original fixture sources retain generation inputs; tsconfig inheritance targets the same original base. Existing Swagger, archive, generated-project, invalid-input and simulator assertions remain in their original sequence.
+ * Generated-program selection rejects an empty result before cleanup or public
+ * installation. Fixture-only mode retains its independent real CLI boundary.
+ *
+ * @evidence contracts/common.md#principled-implementation Nonempty generated-program selection precedes cleanup and installation; fixture-only retains its independent real CLI gate. Fresh tarballs and the owner's frozen graph supply published runtimes. Copied fixture inputs and original Swagger, archive, generated-project, invalid-input and simulator assertions retain their sequence.
  * @evidence contracts/common.md#clear-and-simple-design One entry owns public preparation, original fixture generation and the combined generated program. The fixture-only command exits after the same real CLI gate; direct units have their separate runner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Node's ordinary installed export maps and a filesystem directory link supply dependencies. Plain CLI children clear inherited loader/search-path overrides; no package resolver, compiler output, metadata or fixture assertion is substituted.
  * @evidence contracts/common.md#meaningful-documentation The comment distinguishes copied input from the rebased native config path, identifies installed package ownership and explains diagnostic output retention and the unit boundary.
@@ -195,6 +199,10 @@ const execute = async (
  * @evidence contracts/performance.md#bound-retention-and-release-resources Synchronous owned CLI children settle before later phases. The entry retains one installation and generated root for diagnosis; the next invocation replaces only its generated root. No listener or worker is created by this entry, and fixture-only stops before variant generation.
  */
 export const main = async (): Promise<void> => {
+  const scenarios: IScenario[] = selectMigrateScenarios(
+    [{ name: "fixture", file: SWAGGER }],
+    process.argv.includes("--fixture-only") ? [] : process.argv,
+  );
   if (fs.existsSync(GENERATED))
     await fs.promises.rm(GENERATED, { recursive: true });
   await fs.promises.mkdir(OUTPUT, { recursive: true });
@@ -228,21 +236,7 @@ export const main = async (): Promise<void> => {
   await generateSwagger(cli);
   if (process.argv.includes("--fixture-only")) return;
 
-  const scenarios: IScenario[] = [
-    {
-      name: "fixture",
-      file: SWAGGER,
-    },
-  ];
-  const filter = (() => {
-    const only = process.argv.findIndex((str) => str === "--only");
-    if (only !== -1 && process.argv.length > only + 1)
-      return (str: string) => str.includes(process.argv[only + 1]!);
-    return () => true;
-  })();
-
   for (const scenario of scenarios) {
-    if (filter(scenario.name) === false) continue;
     const document: SwaggerDocument = await readDocument(scenario.file);
     assertFixtureSwagger(document);
     test_migrate_api_accessor_collision(document);
