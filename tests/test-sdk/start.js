@@ -2,7 +2,10 @@ const cp = require("child_process");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { discoverSdkFixtures } = require("./SdkFixtureDiscovery");
+const {
+  discoverSdkFixtures,
+  assertSdkFeaturesSelected,
+} = require("./SdkFixtureDiscovery");
 
 const ROOT = path.join(__dirname, "../..");
 const NODE = process.execPath;
@@ -1868,6 +1871,28 @@ const assertFreshBuilds = () => {
 const main = async () =>
   measure("\nTotal Elapsed Time")(async () => {
     const shard = featureShard();
+    const filter = featureFilter();
+    const names = planBatches(
+      discoverSdkFixtures(featureDirectory(), fixtureConfigurationName)
+        .filter((name) => !AGGREGATED_ERROR_FEATURES.has(name))
+        .filter((name) => !SDK_COHORT_FEATURES.has(name))
+        .filter(filter),
+    );
+    for (const cohort of SDK_ERROR_COHORTS)
+      if (filter(cohort.name) || cohort.members.some(filter))
+        names.push(cohort.name);
+    if (filter("swagger-watch")) names.push("swagger-watch");
+    if (filter("bundle-preserve")) names.push("bundle-preserve");
+    if (filter("cli-argument-diagnostics"))
+      names.push("cli-argument-diagnostics");
+    if (filter("cli-dependencies")) names.push("cli-dependencies");
+    if (filter("distribute-cwd-restore")) names.push("distribute-cwd-restore");
+    if (filter("output-directory-diagnostics"))
+      names.push("output-directory-diagnostics");
+    if (filter("reflection-error-ordering"))
+      names.push("reflection-error-ordering");
+    const selected = shard(names);
+    assertSdkFeaturesSelected(selected);
     if (process.env.TEST_SDK_SKIP_BUILD === "1") assertFreshBuilds();
     else
       await run(
@@ -1893,28 +1918,7 @@ const main = async () =>
       );
 
     await measure("Feature execution")(async () => {
-      const filter = featureFilter();
-      const names = planBatches(
-        discoverSdkFixtures(featureDirectory(), fixtureConfigurationName)
-          .filter((name) => !AGGREGATED_ERROR_FEATURES.has(name))
-          .filter((name) => !SDK_COHORT_FEATURES.has(name))
-          .filter(filter),
-      );
-      for (const cohort of SDK_ERROR_COHORTS)
-        if (filter(cohort.name) || cohort.members.some(filter))
-          names.push(cohort.name);
-      if (filter("swagger-watch")) names.push("swagger-watch");
-      if (filter("bundle-preserve")) names.push("bundle-preserve");
-      if (filter("cli-argument-diagnostics"))
-        names.push("cli-argument-diagnostics");
-      if (filter("cli-dependencies")) names.push("cli-dependencies");
-      if (filter("distribute-cwd-restore"))
-        names.push("distribute-cwd-restore");
-      if (filter("output-directory-diagnostics"))
-        names.push("output-directory-diagnostics");
-      if (filter("reflection-error-ordering"))
-        names.push("reflection-error-ordering");
-      await runFeatures(shard(names));
+      await runFeatures(selected);
     });
   });
 
