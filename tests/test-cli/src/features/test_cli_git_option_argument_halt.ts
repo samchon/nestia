@@ -11,6 +11,11 @@ import { CliTestHarness } from "../internal/CliTestHarness";
  * 1. Supply a dash-prefixed destination or repository to both scaffold engines.
  * 2. Assert the option-specific guidance is returned.
  * 3. Assert no command, directory change or cleanup has occurred.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Both scaffold engines reject all three authored dash-operand forms with exact guidance and no command, cwd or cleanup effects.
+ * @evidence contracts/testing.md#independent-expectations Git treats a leading dash as an option even in an argument vector; the authored operands must therefore be rejected.
+ * @evidence contracts/testing.md#distinguishing-cases Destination, repository value and repeated repository flag controls cover both engines and each side-effect list.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct unit through test-cli test:unit. Caller-built starter/template operations execute with the authored command context, not a native scaffold process.
  */
 export const test_cli_git_option_argument_halt = async (): Promise<void> => {
   for (const argv of [

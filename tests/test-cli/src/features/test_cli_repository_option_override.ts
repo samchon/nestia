@@ -14,6 +14,11 @@ import { CliTestHarness } from "../internal/CliTestHarness";
  * 2. Assert the clone command uses the fork URL instead of the default.
  * 3. Assert the destination directory is still parsed correctly.
  * 4. Assert a `--repository` flag without a value halts with guidance.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The supplied repository replaces the clone URL without changing destination/cwd; a missing option value returns guidance.
+ * @evidence contracts/testing.md#independent-expectations Literal fork URL and destination are separate authored operands, not output-derived expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Valid override and missing-value controls distinguish URL routing and argument completeness.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct unit through test-cli test:unit. Caller-built starter/template operations execute with the authored command context, not a native scaffold process.
  */
 export const test_cli_repository_option_override = async (): Promise<void> => {
   const url: string = "https://github.com/someone/nestia-start-fork";

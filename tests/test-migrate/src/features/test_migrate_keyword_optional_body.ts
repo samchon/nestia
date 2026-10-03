@@ -13,6 +13,11 @@ import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
  * 1. Migrate a document with an optional and a required JSON body.
  * 2. Assert keyword `Props` marks only the optional body `?`.
  * 3. Assert positional mode marks the same body `?`.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Keyword and positional output mark only the authored optional body optional.
+ * @evidence contracts/testing.md#independent-expectations requestBody.required false/true independently determines optionality for both calling conventions.
+ * @evidence contracts/testing.md#distinguishing-cases Two body-requiredness twins across two calling conventions expose a keyword-only optionality regression.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_keyword_optional_body = (): void => {
   const app: NestiaMigrateApplication =

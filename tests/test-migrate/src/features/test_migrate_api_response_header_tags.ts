@@ -18,6 +18,11 @@ import {
  *    `@assignHeaders` operation descriptions.
  * 2. Generate a keyword SDK from the migrate application.
  * 3. Assert the generated functions write the expected connection headers.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Three authored header tags generate response capture, header initialization, selected assignment and final return.
+ * @evidence contracts/testing.md#independent-expectations The handwritten tag descriptions name authorization.token/Authorization and authorization, supplying literal independent assignment expectations.
+ * @evidence contracts/testing.md#distinguishing-cases setHeader, setHeaders and assignHeaders branches are inspected separately; this is writer-output verification rather than HTTP execution.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_api_response_header_tags = (): void => {
   const app: NestiaMigrateApplication =

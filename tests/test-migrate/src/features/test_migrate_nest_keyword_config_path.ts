@@ -18,6 +18,11 @@ import {
  * 2. Assert `packages/backend/nestia.config.ts` carries `keyword: false`.
  * 3. Assert no root-level nestia.config.ts key exists.
  * 4. Generate with `keyword: true` and assert the config keeps its default.
+ *
+ * @evidence contracts/testing.md#behavioral-verification False/true keyword values update the backend config while no stray root config is generated.
+ * @evidence contracts/testing.md#independent-expectations The monorepo template owns packages/backend/nestia.config.ts and the caller selects the required calling convention.
+ * @evidence contracts/testing.md#distinguishing-cases False mutation, true default preservation and forbidden root output distinguish the option value from its destination.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_nest_keyword_config_path = (): void => {
   const app: NestiaMigrateApplication =

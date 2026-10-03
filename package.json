@@ -5,7 +5,7 @@
   "description": "Nestia station",
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
-    "evidence": "pnpm --filter=./packages/* --fail-if-no-match -r --no-bail --workspace-concurrency=1 run evidence",
+    "evidence": "node scripts/run-evidence.cjs",
     "format": "prettier --write \"packages/**/*.ts\" \"tests/**/*.ts\"",
     "format:check": "prettier --check \"packages/**/*.ts\" \"tests/**/*.ts\"",
     "test": "node scripts/run-tests.cjs",

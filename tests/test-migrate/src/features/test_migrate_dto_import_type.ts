@@ -20,6 +20,11 @@ import {
  * 2. Generate both the SDK and the NestJS projects from it.
  * 3. Assert every DTO import in every generated module is type-only, while runtime
  *    library imports such as `typia` stay value imports.
+ *
+ * @evidence contracts/testing.md#behavioral-verification SDK and Nest output use type-only clauses for every DTO import while retaining a real typia value import and nonzero DTO count.
+ * @evidence contracts/testing.md#independent-expectations The handwritten DTOs are type declarations, while generated assert/random calls need runtime typia.
+ * @evidence contracts/testing.md#distinguishing-cases Both output modes, nested DTO references, zero-count guard and runtime-import positive distinguish overbroad rewriting and a vacuous scan.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_dto_import_type = (): void => {
   const app: NestiaMigrateApplication =

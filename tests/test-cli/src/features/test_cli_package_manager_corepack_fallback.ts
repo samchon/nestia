@@ -14,6 +14,11 @@ import { CliTestHarness } from "../internal/CliTestHarness";
  *    successfully.
  * 2. Assert install/build/test commands are prefixed with `corepack pnpm`.
  * 3. Assert `COREPACK_ENABLE_DOWNLOAD_PROMPT` is set to `"0"`.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Failed pnpm probe followed by successful corepack chooses exact corepack pnpm lifecycle vectors and suppresses its download prompt.
+ * @evidence contracts/testing.md#independent-expectations The authored probe boundary admits only corepack; literal install/build/test vectors and prompt zero follow that fallback contract.
+ * @evidence contracts/testing.md#distinguishing-cases Probe order, all three command prefixes and prompt suppression detect independent fallback errors; finally restores the original environment.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct unit through test-cli test:unit. Caller-built starter/template operations execute with the authored command context, not a native scaffold process.
  */
 export const test_cli_package_manager_corepack_fallback =
   async (): Promise<void> => {

@@ -14,6 +14,11 @@ import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
  *    additional properties.
  * 2. Assert its DTO keeps the required `id`, the optional `name`, and the index
  *    signature.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Direct SDK composition preserves required id, optional name and boolean index signature together in IMixed.
+ * @evidence contracts/testing.md#independent-expectations The handwritten schema declares two properties beside boolean additionalProperties; each must survive representation.
+ * @evidence contracts/testing.md#distinguishing-cases Required/optional/index observations distinguish index-only output from the complete authored object.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_additional_properties = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

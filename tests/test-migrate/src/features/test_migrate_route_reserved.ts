@@ -20,6 +20,11 @@ import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
  *    parameters it names, and a neighbor does not.
  * 3. Assert no controller directory holds `:`, `*`, `?`, or a backslash.
  * 4. Assert the SDK's path functions write the URL unescaped.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Real path-to-regexp matches each generated Nest route only to its authored URL with exact params; safe directories and unescaped SDK URLs remain.
+ * @evidence contracts/testing.md#independent-expectations Literal URL/neighbor pairs and Nest-owned path-to-regexp provide an independent routing oracle rather than matching writer text alone.
+ * @evidence contracts/testing.md#distinguishing-cases Colon custom methods, parameter-plus-literal, parenthesis and star/plus/exclamation forms each have a rejected neighbor; filesystem and SDK representation are checked separately.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_route_reserved = (): void => {
   const { match } = createRequire(require.resolve("@nestjs/core"))(

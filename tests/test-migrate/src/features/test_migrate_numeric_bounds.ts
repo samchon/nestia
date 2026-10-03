@@ -15,6 +15,11 @@ import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
  * 1. Migrate a 3.1 and a 3.0 document holding exclusive bounds and integer
  *    formats.
  * 2. Assert each property's generated type.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generated DTO fields retain 3.1 numeric and 3.0 boolean-form exclusive bounds, default/int64/int32 integer widths.
+ * @evidence contracts/testing.md#independent-expectations Handwritten minimum/maximum values and integer formats establish literal independent TypeScript tag expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Zero exclusive minimum, paired ordinary/exclusive bounds and three integer-width forms distinguish lost bounds and narrowed integers.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_numeric_bounds = (): void => {
   expect(structure(DOCUMENT_3_1), [
