@@ -1,5 +1,7 @@
 import path from "path";
 
+import { EditorTestHarness } from "../../internal/EditorTestHarness";
+
 /**
  * Verifies that the uploader query flag overrides an explicit document URL.
  *
@@ -8,6 +10,11 @@ import path from "path";
  *
  * 1. Mount the application with both uploader and explicit URL query keys.
  * 2. Assert the uploader input appears without the iframe loading stage.
+ *
+ * @evidence contracts/testing.md#behavioral-verification A local DOM mount with uploader and explicit URL renders the package input and omits the loading stage.
+ * @evidence contracts/testing.md#independent-expectations Presence of the authored uploader flag requires the upload UI even when an explicit document URL is present.
+ * @evidence contracts/testing.md#distinguishing-cases Input presence and loading-text absence distinguish the two UI branches; finally unmounts, closes DOM and restores global descriptors.
+ * @evidence contracts/testing.md#execution-ownership The isolated editor browser unit entry discovers this case; caller-built React/editor artifacts execute against local JSDOM, with no installed consumer or product HTTP host.
  */
 export const test_editor_application_uploader_override =
   async (): Promise<void> => {
@@ -37,7 +44,7 @@ export const test_editor_application_uploader_override =
     );
     const { act } = React;
     const { NestiaEditorApplication } = require(
-      path.join(rootPath, "packages/editor/lib/NestiaEditorApplication.js"),
+      path.join(EditorTestHarness.LIB, "NestiaEditorApplication.js"),
     );
     const root = createRoot(dom.window.document.getElementById("root"));
     try {

@@ -1,5 +1,6 @@
-import { NestiaMigrateApplication } from "@nestia/migrate";
 import { OpenApiV3_1 } from "@typia/interface";
+
+import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
 
 /**
  * Verifies a migrated NestJS server routes every operation at the document's
@@ -16,6 +17,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 2. For every handler, join the controller path and the method decorator's path
  *    as NestJS's router does, and assert it is the document's path with each
  *    parameter under the key its `@TypedParam()` reads.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Controller-plus-method text reconstructs four authored routes and the normalized hyphenated parameter key.
+ * @evidence contracts/testing.md#independent-expectations Literal OpenAPI paths and Nest route concatenation establish the independent GET/POST/HEAD and item_id expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Plain response, JSON response, HEAD and hyphenated parameter forms distinguish routing branches without starting a server.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_nest_route_paths = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

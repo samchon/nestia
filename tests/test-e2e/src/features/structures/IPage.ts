@@ -1,5 +1,3 @@
-import { tags } from "typia";
-
 /**
  * Paged record set.
  *
@@ -23,7 +21,7 @@ export namespace IPage {
     page: number;
 
     /** Limit records per a page. */
-    limit: number & tags.Default<100>;
+    limit: number;
 
     /** Number of total records. */
     total_count: number;
@@ -35,7 +33,7 @@ export namespace IPage {
   /** Request info of page. */
   export interface IRequest {
     /** Target page number. */
-    page?: number & tags.Default<1>;
+    page?: number;
 
     /**
      * Limit per a page.

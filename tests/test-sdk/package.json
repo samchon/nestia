@@ -3,11 +3,15 @@
   "name": "@nestia/test-sdk",
   "version": "14.0.2",
   "scripts": {
-    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node start.js"
+    "test:unit": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts",
+    "start": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/integration/SdkRunner.ts",
+    "evidence": "evidence --config evidence.config.json",
+    "integration": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" TEST_SDK_SKIP_BUILD=1 ttsx --no-plugins src/integration/index.ts"
   },
   "dependencies": {
     "@fastify/multipart": "^8.1.0",
     "@modelcontextprotocol/sdk": "catalog:modelcontextprotocol",
+    "@nestia/benchmark": "workspace:^",
     "@nestia/core": "workspace:^",
     "@nestia/e2e": "workspace:^",
     "@nestia/fetcher": "workspace:^",
@@ -37,7 +41,8 @@
     "chalk": "4.1.2",
     "cross-env": "catalog:utils",
     "nestia": "workspace:^",
-    "ttsc": "catalog:typescript"
+    "ttsc": "catalog:typescript",
+    "yaml": "catalog:utils"
   },
   "packageManager": "pnpm@10.6.4"
 }

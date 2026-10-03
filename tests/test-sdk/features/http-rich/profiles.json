@@ -1,0 +1,414 @@
+[
+  {
+    "name": "keyword",
+    "expectedGeneratedCases": 39,
+    "expectedAuthoredCases": 1,
+    "controllers": ["clone/common", "clone/base", "clone/keyword"],
+    "clone": true,
+    "keyword": true,
+    "simulate": true,
+    "swagger": {
+      "beautify": true
+    }
+  },
+  {
+    "name": "propagate",
+    "expectedGeneratedCases": 39,
+    "expectedAuthoredCases": 3,
+    "controllers": ["clone/common", "clone/base", "clone/propagate"],
+    "clone": true,
+    "propagate": true,
+    "simulate": true,
+    "swagger": {
+      "beautify": true
+    }
+  },
+  {
+    "name": "combined",
+    "expectedGeneratedCases": 39,
+    "expectedAuthoredCases": 1,
+    "controllers": ["clone/common", "clone/combined", "clone/propagate"],
+    "clone": true,
+    "keyword": true,
+    "propagate": true,
+    "simulate": true,
+    "swagger": {
+      "beautify": true
+    }
+  },
+  {
+    "name": "implicit",
+    "controllers": ["clone/implicit"],
+    "clone": true,
+    "simulate": true,
+    "expectedGeneratedCases": 2,
+    "expectedAuthoredCases": 0,
+    "swagger": {
+      "beautify": true
+    }
+  },
+  {
+    "name": "native",
+    "controllers": ["clone/native"],
+    "clone": true,
+    "expectedGeneratedCases": 2,
+    "expectedAuthoredCases": 0,
+    "swagger": {
+      "beautify": true
+    }
+  },
+  {
+    "name": "tags",
+    "controllers": ["clone/tags"],
+    "clone": true,
+    "generateE2e": false,
+    "operationId": true,
+    "swagger": {
+      "security": {
+        "basic": {
+          "type": "http",
+          "scheme": "basic"
+        },
+        "bearer": {
+          "type": "http",
+          "scheme": "bearer"
+        },
+        "oauth2": {
+          "type": "oauth2",
+          "flows": {
+            "implicit": {
+              "authorizationUrl": "https://example.com/api/oauth/dialog",
+              "refreshUrl": "https://example.com/api/oauth/refresh",
+              "scopes": {
+                "read": "read authority",
+                "write": "write authority"
+              }
+            }
+          }
+        },
+        "custom": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "Authorization"
+        }
+      },
+      "beautify": true
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "propagation",
+    "controllers": ["options/propagation"],
+    "propagate": true,
+    "expectedGeneratedCases": 3,
+    "expectedAuthoredCases": 0
+  },
+  {
+    "name": "simulation",
+    "controllers": ["options/simulation"],
+    "simulate": true,
+    "expectedGeneratedCases": 12,
+    "expectedAuthoredCases": 5,
+    "execution": {
+      "simulate": true,
+      "functionPrefixes": [
+        "test_api_http_rich_options_simulation_",
+        "test_clone_simulate_"
+      ],
+      "requestPrefix": "/http_rich/options/simulation/",
+      "stateModule": "controllers/options/simulation/SimulationGlobal.js",
+      "stateExport": "SimulationGlobal",
+      "postcondition": "test_simulate_transport_unused"
+    }
+  },
+  {
+    "name": "alias",
+    "controllers": ["options/alias"],
+    "propagate": true,
+    "generateSwagger": false,
+    "expectedGeneratedCases": 2,
+    "expectedAuthoredCases": 0
+  },
+  {
+    "name": "exception_propagate",
+    "controllers": ["options/exception_propagate"],
+    "clone": true,
+    "propagate": true,
+    "primitive": true,
+    "json": false,
+    "generateE2e": false,
+    "swagger": {
+      "security": {
+        "bearer": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      }
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 8
+  },
+  {
+    "name": "query_false",
+    "controllers": ["options/query_false"],
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "decompose": false
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 9
+  },
+  {
+    "name": "query_false_v2",
+    "controllers": ["options/query_false"],
+    "generateSdk": false,
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "decompose": false,
+      "openapi": "2.0",
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 0
+  },
+  {
+    "name": "swagger_example",
+    "controllers": [
+      "options/swagger_example/common",
+      "options/swagger_example/multiline"
+    ],
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 4
+  },
+  {
+    "name": "swagger_example_v2",
+    "controllers": ["options/swagger_example/common"],
+    "generateSdk": false,
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "openapi": "2.0",
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 0
+  },
+  {
+    "name": "clone_shapes",
+    "controllers": ["options/clone_shapes"],
+    "clone": true,
+    "generateSwagger": false,
+    "generateE2e": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 4
+  },
+  {
+    "name": "clone_duplicate",
+    "controllers": ["options/clone_duplicate"],
+    "clone": true,
+    "primitive": true,
+    "json": false,
+    "simulate": false,
+    "propagate": false,
+    "generateE2e": false,
+    "swagger": {
+      "openapi": "3.0",
+      "decompose": true,
+      "info": {
+        "title": "nestia test template",
+        "description": "클론모드에서 발생하는 타입 중복 생성 문제 테스트"
+      },
+      "servers": [
+        {
+          "url": "http://localhost:4000",
+          "description": "Local Server"
+        }
+      ],
+      "security": {
+        "bearer": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      }
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "customized",
+    "controllers": ["options/customized"],
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "security": {
+        "bearer": {
+          "type": "apiKey"
+        }
+      }
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 13
+  },
+  {
+    "name": "parameter_order",
+    "controllers": ["options/parameter_order"],
+    "simulate": true,
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "propagate_only",
+    "controllers": ["options/propagate_only"],
+    "propagate": true,
+    "generateE2e": false,
+    "generateSwagger": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "validate_log",
+    "producer": "producer-validate-log",
+    "controllers": [""],
+    "generateE2e": false,
+    "swagger": {
+      "security": {
+        "bearer": {
+          "type": "apiKey"
+        }
+      }
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 2
+  },
+  {
+    "name": "method_key",
+    "controllers": ["options/method_key"],
+    "operationId": true,
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "field_parameters",
+    "controllers": ["options/field_parameters"],
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "security": {
+        "bearer": {
+          "type": "apiKey"
+        }
+      }
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 22
+  },
+  {
+    "name": "socket_types",
+    "controllers": ["options/socket_types"],
+    "generateE2e": false,
+    "generateSwagger": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 2
+  },
+  {
+    "name": "socket_calculator",
+    "controllers": [
+      "options/socket_calculator/default",
+      "options/socket_calculator/health"
+    ],
+    "generateE2e": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "socket_calculator_keyword",
+    "controllers": [
+      "options/socket_calculator/keyword",
+      "options/socket_calculator/health"
+    ],
+    "keyword": true,
+    "generateE2e": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "socket_calculator_clone",
+    "controllers": [
+      "options/socket_calculator/clone",
+      "options/socket_calculator/health"
+    ],
+    "clone": true,
+    "generateE2e": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "socket_rejection",
+    "controllers": ["options/socket_rejection"],
+    "generateE2e": false,
+    "swagger": {
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "stream_dot_paths",
+    "controllers": ["options/stream_dot_paths"],
+    "simulate": true,
+    "generateE2e": false,
+    "swagger": {
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 2
+  },
+  {
+    "name": "all_method",
+    "controllers": ["options/all_method"],
+    "swagger": {
+      "beautify": true
+    },
+    "expectedGeneratedCases": 3,
+    "expectedAuthoredCases": 2
+  },
+  {
+    "name": "request_validate",
+    "producer": "producer-validate",
+    "controllers": ["request"],
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 10
+  },
+  {
+    "name": "response_validate",
+    "producer": "producer-validate",
+    "controllers": ["response"],
+    "generateE2e": false,
+    "swagger": {
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  }
+]

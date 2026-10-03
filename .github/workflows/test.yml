@@ -3,26 +3,54 @@ on:
   pull_request:
 permissions:
   contents: read
+concurrency:
+  group: test-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      TTSC_GO_BINARY: go
+      TTSC_CACHE_DIR: ${{ github.workspace }}/node_modules/.cache/ttsc
+      GOCACHE: ${{ github.workspace }}/node_modules/.cache/ttsc/go-build
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24.x
       - uses: actions/setup-go@v5
+        id: go
         with:
           go-version-file: packages/core/native/go.mod
-          cache-dependency-path: packages/core/native/go.sum
+          cache: false
       - uses: pnpm/action-setup@v4
       - name: Install Dependencies
-        run: pnpm install
-      - name: Restore ttsc Plugin Cache
+        id: install
+        run: pnpm install --frozen-lockfile
+      - name: Cache Compiler Artifacts
         uses: actions/cache@v4
         with:
-          path: node_modules/.cache/ttsc
-          key: ttsc-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'packages/typia/native/**') }}
-          restore-keys: ttsc-cache-${{ runner.os }}-
-      - name: Run Tests
-        run: pnpm test
+          path: |
+            node_modules/.cache/ttsc
+            ~/go/pkg/mod
+            packages/migrate/assets/.bundle-cache.json
+            packages/migrate/src/bundles
+          key: ttsc-v2-test-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*', 'packages/migrate/src/executable/*.ts', 'package.json') }}
+          restore-keys: |
+            ttsc-v2-test-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
+            ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
+      - name: Build Packages
+        id: build
+        run: pnpm build
+      - name: Evidence
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: pnpm evidence
+      - name: Go Units
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: pnpm test:go
+      - name: JavaScript Units
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: pnpm test:unit
+      - name: SDK And Migration Integrations
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: pnpm test:e2e

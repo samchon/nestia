@@ -1,0 +1,472 @@
+import cp from "node:child_process";
+import fs from "node:fs";
+
+import { run as runCached } from "./TemplateBundleCache";
+
+const { version } = require("../../../../package.json");
+
+const ROOT = `${__dirname}/../..`;
+const ASSETS = `${ROOT}/assets`;
+const CATALOGS: Record<
+  string,
+  Record<string, { specifier: string }>
+> = require("js-yaml").load(
+  fs.readFileSync(`${__dirname}/../../../../pnpm-lock.yaml`, "utf8"),
+).catalogs;
+const TYPIA = CATALOGS.samchon!;
+const TYPESCRIPT = CATALOGS.typescript ?? {};
+
+const update = (
+  content: string,
+  options: { sdkAggregate?: boolean } = {},
+): string => {
+  const parsed = JSON.parse(content);
+  for (const record of [
+    parsed.dependencies ?? {},
+    parsed.devDependencies ?? {},
+  ])
+    for (const key of Object.keys(record)) {
+      const current = record[key];
+      // `catalog:` / `workspace:` specifiers already carry their versions
+      // through pnpm-workspace.yaml, which gets its own stamping pass.
+      if (
+        typeof current === "string" &&
+        (current.startsWith("catalog:") || current.startsWith("workspace:"))
+      )
+        continue;
+      if (key.startsWith("@nestia/") || key === "nestia")
+        record[key] = `^${version}`;
+      // Both catalogs, and in the same order updateWorkspaceCatalog resolves
+      // them. A template can pin a version two ways -- a `catalog:` reference
+      // its pnpm-workspace.yaml resolves, or a plain specifier here -- and a
+      // rule that reads only one catalog on this path leaves the toolchain
+      // frozen at whatever the upstream template last wrote. That is how a
+      // generated SDK project ended up with ttsc ^0.18.2 beside a `@nestia/core`
+      // stamped to this repository's version.
+      else {
+        const catalog = TYPIA[key] ?? TYPESCRIPT[key];
+        if (catalog) record[key] = catalog.specifier;
+      }
+    }
+  migratePackageJson(parsed);
+  if (options.sdkAggregate) {
+    parsed.devDependencies ??= {};
+    parsed.devDependencies["@nestia/core"] = `^${version}`;
+  }
+  return JSON.stringify(parsed, null, 2);
+};
+
+const migratePackageJson = (parsed: {
+  scripts?: Record<string, string>;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+}): void => {
+  if (parsed.scripts)
+    for (const [key, value] of Object.entries(parsed.scripts))
+      if (typeof value === "string")
+        parsed.scripts[key] = normalizeScript(value);
+
+  const devDependencies = parsed.devDependencies;
+  if (devDependencies) {
+    const usesTypeScript =
+      typeof devDependencies.typescript === "string" &&
+      devDependencies.typescript.startsWith("catalog:") === false;
+    delete devDependencies["typescript-transform-paths"];
+    // Single-package templates compiling with a direct typescript dependency
+    // need the ttsc compiler this repository currently builds against.
+    if (usesTypeScript && TYPESCRIPT.ttsc)
+      devDependencies.ttsc ??= TYPESCRIPT.ttsc.specifier;
+  }
+};
+
+// Stamp the template's pnpm-workspace.yaml catalogs with this repository's
+// current versions. Keep the rewrite line-targeted so quoted package names,
+// comments, ordering, and any anchors supplied by the upstream template remain
+// intact.
+const updateWorkspaceCatalog = (content: string): string => {
+  const replace = (line: string): string => {
+    const match = line.match(
+      /^(\s+(?:"([^"]+)"|'([^']+)'|([^:\s]+)): (?:&[A-Za-z0-9_-]+ )?)\S[^\r\n]*(\r?)$/,
+    );
+    if (match === null) return line;
+
+    const name = (match[2] ?? match[3] ?? match[4])!;
+    const specifier =
+      name === "nestia" || name.startsWith("@nestia/")
+        ? `^${version}`
+        : (TYPIA[name]?.specifier ?? TYPESCRIPT[name]?.specifier);
+    if (typeof specifier !== "string") return line;
+    return `${match[1]}${specifier}${match[5]}`;
+  };
+  return content.split("\n").map(replace).join("\n");
+};
+
+const trimTemplateDependencies = (parsed: {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+}): void => {
+  if (parsed.dependencies) {
+    delete parsed.dependencies.commander;
+    delete parsed.dependencies.inquirer;
+  }
+  if (parsed.devDependencies) {
+    delete parsed.devDependencies["@types/inquirer"];
+    delete parsed.devDependencies.commander;
+    delete parsed.devDependencies.inquirer;
+  }
+};
+
+const normalizeScript = (script: string): string =>
+  script.replace(/(^|[^A-Za-z0-9_-])tsc(?=$|[^A-Za-z0-9_-])/g, "$1ttsc");
+
+const ARGUMENT_PARSER = `import { createInterface } from "node:readline/promises";
+
+export namespace ArgumentParser {
+  export interface Command {
+    option: (flags: string, description?: string) => Command;
+  }
+
+  export interface Prompt {
+    select: (
+      name: string,
+    ) => (
+      message: string,
+    ) => <Choice extends string>(choices: Choice[]) => Promise<Choice>;
+    boolean: (name: string) => (message: string) => Promise<boolean>;
+    number: (name: string) => (message: string) => Promise<number>;
+  }
+
+  export const parse = async <T>(
+    inquiry: (
+      command: Command,
+      prompt: Prompt,
+      action: (closure: (options: Partial<T>) => Promise<T>) => Promise<T>,
+    ) => Promise<T>,
+  ): Promise<T> => {
+    const command: Command = {
+      option: (_flags: string, _description?: string): Command => command,
+    };
+    const action = (closure: (options: Partial<T>) => Promise<T>) =>
+      closure(parseArguments() as Partial<T>);
+    return inquiry(
+      command,
+      { select, boolean, number },
+      action,
+    );
+  };
+
+  const select =
+    (_name: string) =>
+    (message: string) =>
+    async <Choice extends string>(choices: Choice[]): Promise<Choice> => {
+      const answer: string = await ask(\`\${message} (\${choices.join("/")})\`);
+      return (choices.find((choice) => choice === answer) ?? choices[0])!;
+    };
+
+  const boolean = (_name: string) => async (message: string) =>
+    /^(true|t|yes|y|1)$/i.test(await ask(\`\${message} [y/N]\`));
+
+  const number = (_name: string) => async (message: string) =>
+    Number(await ask(message));
+
+  const ask = async (message: string): Promise<string> => {
+    const reader = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    try {
+      return (await reader.question(\`\${message}: \`)).trim();
+    } finally {
+      reader.close();
+    }
+  };
+
+  const parseArguments = (): Record<string, string | string[] | boolean> => {
+    const output: Record<string, string | string[] | boolean> = {};
+    const args: string[] = process.argv.slice(2);
+    for (let i = 0; i < args.length; ++i) {
+      const raw: string = args[i]!;
+      if (raw.startsWith("--") === false) continue;
+
+      const equal: number = raw.indexOf("=");
+      const name: string = toCamelCase(
+        raw.slice(2, equal === -1 ? undefined : equal),
+      );
+      if (equal !== -1) {
+        assign(output, name, raw.slice(equal + 1));
+        continue;
+      }
+
+      const values: string[] = [];
+      while (i + 1 < args.length && args[i + 1]!.startsWith("--") === false)
+        values.push(args[++i]!);
+      assign(
+        output,
+        name,
+        values.length === 0 ? true : values.length === 1 ? values[0]! : values,
+      );
+    }
+    return output;
+  };
+
+  const assign = (
+    output: Record<string, string | string[] | boolean>,
+    name: string,
+    value: string | string[] | boolean,
+  ): void => {
+    const current: string | string[] | boolean | undefined = output[name];
+    if (current === undefined) output[name] = value;
+    else
+      output[name] = [
+        ...(Array.isArray(current) ? current : [String(current)]),
+        ...(Array.isArray(value) ? value : [String(value)]),
+      ];
+  };
+
+  const toCamelCase = (str: string): string =>
+    str.replace(/-([a-z])/g, (_matched, letter: string) =>
+      letter.toUpperCase(),
+    );
+}
+`;
+
+const updateTsConfig = (content: string): string => {
+  content = content.replace(
+    /^\s*\{\s*"transform":\s*"typescript-transform-paths"\s*\},\r?\n/gm,
+    "",
+  );
+  content = content.replace(
+    /^\s*\{\s*"transform":\s*"typia\/lib\/transform"(?:,\s*"enabled":\s*false)?\s*\},?\r?\n/gm,
+    "",
+  );
+  content = content.replace(
+    /^\s*\{\s*"transform":\s*"@nestia\/core\/lib\/transform"\s*\},?\r?\n/gm,
+    "",
+  );
+  content = content.replace(
+    /^\s*\{\s*"transform":\s*"@nestia\/core\/native\/transform\.cjs"\s*\},?\r?\n/gm,
+    "",
+  );
+  content = content.replace(
+    /^\s*\{\s*"transform":\s*"@nestia\/sdk\/lib\/transform"\s*\},\r?\n/gm,
+    "",
+  );
+  return content;
+};
+
+const bundle = async ({
+  mode,
+  repository,
+  revision,
+  exceptions,
+  transform,
+}: {
+  mode: string;
+  repository: string;
+  revision: string;
+  exceptions?: readonly string[];
+  transform?: (key: string, value: string) => string;
+}): Promise<void> => {
+  const root = `${__dirname}/../..`;
+  const assets = `${root}/assets`;
+  const template = `${assets}/${mode}`;
+
+  const clone = async () => {
+    // CLONE REPOSITORY
+    if (fs.existsSync(template))
+      await fs.promises.rm(template, { recursive: true });
+    else
+      try {
+        await fs.promises.mkdir(ASSETS);
+      } catch {}
+
+    // Disable line-ending conversion so the bundled template is byte-identical
+    // on every platform: with core.autocrlf=true (the common Windows default)
+    // the checkout would rewrite LF to CRLF and break the line-targeted
+    // transforms below.
+    await fs.promises.mkdir(template, { recursive: true });
+    cp.execFileSync("git", ["init", "--quiet"], { cwd: template });
+    // The template repositories are live projects; an unpinned clone lets any
+    // upstream push break this build (samchon/nestia-start#632 did exactly
+    // that), so every bundle checks out a reviewed revision.
+    cp.execFileSync(
+      "git",
+      [
+        "fetch",
+        "--quiet",
+        "--depth=1",
+        // This checkout is consumed and removed immediately. Fetch's default
+        // auto-maintenance can detach a writer into .git/objects after fetch
+        // returns, racing the awaited removal below on a cold CI build.
+        "--no-auto-maintenance",
+        `https://github.com/samchon/${repository}`,
+        revision,
+      ],
+      { cwd: template },
+    );
+    cp.execFileSync(
+      "git",
+      [
+        "-c",
+        "core.autocrlf=false",
+        "checkout",
+        "--quiet",
+        "--detach",
+        revision,
+      ],
+      {
+        cwd: template,
+        stdio: "pipe",
+      },
+    );
+
+    // REMOVE VULNERABLE FILES
+    for (const location of exceptions ?? [])
+      await fs.promises.rm(`${template}/${location}`, { recursive: true });
+  };
+
+  const iterate =
+    (collection: Record<string, string>) =>
+    async (location: string): Promise<void> => {
+      const directory = await fs.promises.readdir(location);
+      for (const file of directory) {
+        const absolute = location + "/" + file;
+        const stats = await fs.promises.stat(absolute);
+        if (stats.isDirectory()) await iterate(collection)(absolute);
+        else {
+          const content = await fs.promises.readFile(absolute, "utf-8");
+          collection[
+            (() => {
+              const str = absolute.replace(template, "");
+              return str[0] === "/" ? str.substring(1) : str;
+            })()
+          ] = content;
+        }
+      }
+    };
+
+  const archive = async (collection: Record<string, string>): Promise<void> => {
+    const name = `${mode.toUpperCase()}_TEMPLATE`;
+    const body = JSON.stringify(collection, null, 2);
+    const content = `export const ${name}: Record<string, string> = ${body}`;
+
+    try {
+      await fs.promises.mkdir(`${ROOT}/src/bundles`);
+    } catch {}
+    await fs.promises.writeFile(
+      `${ROOT}/src/bundles/${name}.ts`,
+      content,
+      "utf8",
+    );
+  };
+
+  const collection: Record<string, string> = {};
+  await clone();
+  await iterate(collection)(template);
+  if (transform)
+    for (const [key, value] of Object.entries(collection))
+      collection[key] = await writeTransformedAsset(
+        template,
+        key,
+        transform(key, value),
+      );
+  await archive(collection);
+};
+
+const writeTransformedAsset = async (
+  template: string,
+  key: string,
+  value: string,
+): Promise<string> => {
+  await fs.promises.writeFile(`${template}/${key}`, value, "utf8");
+  return value;
+};
+
+/**
+ * Generates both pinned templates using the current release and catalog stamps.
+ *
+ * The complete script is a cache input because it contains the revisions,
+ * exclusions and every transformation rule. A hit still verifies output bytes.
+ */
+const generate = async () => {
+  await bundle({
+    mode: "nest",
+    repository: "nestia-start",
+    // Pin the reviewed pnpm monorepo template after its catalog, rolldown, and
+    // package self-reference migrations.
+    revision: "8188661cb1c1b0fb30e6184b06422764d64a5f68",
+    exceptions: [
+      ".git",
+      ".github/dependabot.yml",
+      ".github/workflows/dependabot-automerge.yml",
+      // The template's lockfile resolves the catalog versions that the
+      // stamping below rewrites; shipping it would only bloat NEST_TEMPLATE
+      // with 160 KB of immediately-stale data.
+      "pnpm-lock.yaml",
+      "packages/api/src/functional",
+      "packages/api/src/structures",
+      "packages/backend/src/MyModule.ts",
+      "packages/backend/src/controllers",
+      "packages/backend/src/providers",
+      "packages/backend/test/features",
+    ],
+    transform: (key, value) => {
+      if (key.endsWith("package.json")) {
+        const parsed = JSON.parse(update(value));
+        trimTemplateDependencies(parsed);
+        return JSON.stringify(parsed, null, 2);
+      }
+      if (key === "pnpm-workspace.yaml") return updateWorkspaceCatalog(value);
+      if (key === "packages/backend/test/helpers/ArgumentParser.ts")
+        return ARGUMENT_PARSER;
+      if (key.endsWith("tsconfig.json")) return updateTsConfig(value);
+      return value;
+    },
+  });
+  await bundle({
+    mode: "sdk",
+    repository: "nestia-sdk-template",
+    // Pin the reviewed pnpm-native SDK template.
+    revision: "37a019e2b8dea3d02237137aaec2f242f53dcd2d",
+    exceptions: [
+      ".git",
+      ".github/dependabot.yml",
+      ".github/workflows/build.yml",
+      ".github/workflows/dependabot-automerge.yml",
+      // update() stamps the current Nestia version into package.json. The
+      // template repository's lockfile resolves its own version, so let the
+      // first pnpm install create a lockfile that matches the migrated output.
+      "pnpm-lock.yaml",
+      "src/functional",
+      "src/structures",
+      "test/features",
+    ],
+    transform: (key, value) => {
+      if (key.endsWith("package.json")) {
+        const parsed = JSON.parse(
+          update(value, { sdkAggregate: key === "package.json" }),
+        );
+        trimTemplateDependencies(parsed);
+        return JSON.stringify(parsed, null, 2);
+      }
+      if (key === "test/utils/ArgumentParser.ts") return ARGUMENT_PARSER;
+      if (key.endsWith("tsconfig.json")) return updateTsConfig(value);
+      return value;
+    },
+  });
+};
+const main = async () => {
+  const reused = await runCached({
+    inputs: [version, CATALOGS, fs.readFileSync(__filename, "utf8")],
+    outputs: ["NEST_TEMPLATE", "SDK_TEMPLATE"].map(
+      (name) => `${ROOT}/src/bundles/${name}.ts`,
+    ),
+    stampFile: `${ASSETS}/.bundle-cache.json`,
+    generate,
+  });
+  if (reused) console.log("Reuse verified migration template bundles.");
+};
+main().catch((exp) => {
+  console.error(exp);
+  process.exit(-1);
+});

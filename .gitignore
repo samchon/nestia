@@ -28,6 +28,7 @@ package-lock.json
 /.cache/go-build/
 
 # Test runner scratch workspaces and generated consumer output
+/tests/.tmp-public-consumer/
 /tests/test-sdk/.tmp-*/
 /tests/test-sdk/features/.tmp-*/
 /tests/test-sdk/features/*/swagger.json

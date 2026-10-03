@@ -1,30 +1,25 @@
-import core from "@nestia/core";
 import { TestValidator } from "@nestia/e2e";
-import { HttpException } from "@nestjs/common";
 
 import api from "@api";
 
-import {
-  DomainError,
-  GoneError,
-  NotFoundError,
-  OtherError,
-} from "../../DomainErrors";
-
 /**
- * Verifies an error converts through the closure of its own class, never an
- * ancestor's, whatever order the classes were registered in.
+ * Verifies typed routes select each registered error converter's HTTP status.
  *
- * `ExceptionManager.insert()` sorted the registrations with a comparator that
- * answered "greater" for two unrelated classes in both directions. That is no
- * order, so a subclass registered after an unrelated class could stay behind
- * its superclass, and `route_error()`, which takes the first class an error is
- * an instance of, converted it with the superclass's closure (#1665).
+ * An unrelated registration separates the ancestor from its subclasses. The
+ * permutation assertions now execute in the core unit owner; these requests
+ * retain the actual route-to-converter-to-generated SDK connection.
  *
- * 1. Call routes throwing each registered class, registered with an unrelated
- *    class between `DomainError` and its subclasses, and assert each status.
- * 2. Register the four classes in every order and assert each class's first match
- *    is itself, restoring the server's registration afterwards.
+ * 1. Call the four original routes throwing their registered error classes.
+ * 2. Require HTTP 400, 409, 404 and 410 for their respective converters.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generated SDK calls reach the four typed routes and must reject with each converter's original 400/409/404/410 status, rather than a superclass or server fallback.
+ * @evidence contracts/testing.md#independent-expectations The authored registration assigns domain400, unrelated409, not-found404 and gone410. Those literal statuses independently define the transport results.
+ * @evidence contracts/testing.md#distinguishing-cases Ancestor, unrelated, subclass and nested-subclass errors distinguish converter selection. The core unit separately owns every registration permutation and first-match assertion.
+ * @evidence contracts/testing.md#execution-ownership The SDK fixture entry discovers this matching case after actual generation and runtime preparation. Direct core units own ordering without a compiler or host.
+ * @evidence contracts/e2e.md#necessary-boundary Actual typed-route error conversion and generated SDK rejection must agree on the registered status; direct insertion ordering cannot certify that HTTP connection.
+ * @evidence contracts/e2e.md#shared-execution Four requests share the existing generation, runtime and listener. Ordering needs no integration preparation and joins the canonical core units.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Backend registers its own four classes before listening and owns teardown. This case reads their request results without rewriting registrations during transport execution.
+ * @evidence contracts/e2e.md#preserved-coverage All four original HTTP expressions and statuses are unchanged. All 24 permutations, erase/insert sequence and first-match class assertions execute in the core unit owner; no public declaration cast exposes internal tuples.
  */
 export const test_exception_manager_order = async (
   connection: api.IConnection,
@@ -36,47 +31,4 @@ export const test_exception_manager_order = async (
     errors.notFound(connection),
   );
   await TestValidator.httpError("gone", 410, () => errors.gone(connection));
-
-  const classes = [DomainError, OtherError, NotFoundError, GoneError];
-  const statuses = new Map<Function, number>([
-    [DomainError, 400],
-    [OtherError, 409],
-    [NotFoundError, 404],
-    [GoneError, 410],
-  ]);
-  const permutations = (list: typeof classes): Array<typeof classes> =>
-    list.length <= 1
-      ? [list]
-      : list.flatMap((first, i) =>
-          permutations([...list.slice(0, i), ...list.slice(i + 1)]).map(
-            (rest) => [first, ...rest],
-          ),
-        );
-  try {
-    for (const order of permutations(classes)) {
-      for (const creator of classes) core.ExceptionManager.erase(creator);
-      for (const creator of order)
-        core.ExceptionManager.insert(
-          creator,
-          () => new HttpException("", statuses.get(creator)!),
-        );
-      for (const creator of classes) {
-        const matched = core.ExceptionManager.tuples.find(
-          ([registered]) => (new creator() as Error) instanceof registered,
-        );
-        TestValidator.equals(
-          `${order.map((c) => c.name).join(" -> ")}: ${creator.name}`,
-          matched?.[0]?.name,
-          creator.name,
-        );
-      }
-    }
-  } finally {
-    for (const creator of classes) core.ExceptionManager.erase(creator);
-    for (const creator of classes)
-      core.ExceptionManager.insert(
-        creator,
-        () => new HttpException("", statuses.get(creator)!),
-      );
-  }
 };

@@ -98,6 +98,9 @@ catalogs:
     uuid:
       specifier: ^13.0.0
       version: 13.0.2
+    yaml:
+      specifier: ^2.9.0
+      version: 2.9.0
 
 importers:
 
@@ -136,6 +139,9 @@ importers:
       typescript:
         specifier: catalog:typescript
         version: 7.0.2
+      yaml:
+        specifier: catalog:utils
+        version: 2.9.0
 
   benchmark:
     dependencies:
@@ -218,6 +224,9 @@ importers:
       '@ttsc/unplugin':
         specifier: catalog:typescript
         version: 0.28.1(ttsc@0.28.1)
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
       tinyglobby:
         specifier: ^0.2.16
         version: 0.2.16
@@ -572,46 +581,16 @@ importers:
       '@nestia/benchmark':
         specifier: workspace:^
         version: link:../../packages/benchmark
-      '@nestia/core':
-        specifier: workspace:^
-        version: link:../../packages/core
       '@nestia/e2e':
         specifier: workspace:^
         version: link:../../packages/e2e
-      '@nestia/fetcher':
-        specifier: workspace:^
-        version: link:../../packages/fetcher
-      '@nestjs/common':
-        specifier: catalog:nestjs
-        version: 11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/core':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/platform-express':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
-      typia:
-        specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.28.1)
-      uuid:
-        specifier: catalog:utils
-        version: 13.0.2
     devDependencies:
-      '@nestia/sdk':
-        specifier: workspace:^
-        version: link:../../packages/sdk
       '@types/node':
         specifier: catalog:utils
         version: 25.9.0
-      '@types/uuid':
-        specifier: catalog:utils
-        version: 11.0.0
       cross-env:
         specifier: catalog:utils
         version: 10.1.0
-      nestia:
-        specifier: workspace:^
-        version: link:../../packages/cli
       ttsc:
         specifier: catalog:typescript
         version: 0.28.1
@@ -640,12 +619,6 @@ importers:
       '@nestia/e2e':
         specifier: workspace:^
         version: link:../../packages/e2e
-      '@nestia/fetcher':
-        specifier: workspace:^
-        version: link:../../packages/fetcher
-      typia:
-        specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.28.1)
     devDependencies:
       '@types/node':
         specifier: catalog:utils
@@ -793,6 +766,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: catalog:modelcontextprotocol
         version: 1.29.0(zod@4.4.3)
+      '@nestia/benchmark':
+        specifier: workspace:^
+        version: link:../../packages/benchmark
       '@nestia/core':
         specifier: workspace:^
         version: link:../../packages/core
@@ -878,49 +854,9 @@ importers:
       ttsc:
         specifier: catalog:typescript
         version: 0.28.1
-
-  tests/test-transform-options:
-    dependencies:
-      '@nestia/core':
-        specifier: workspace:^
-        version: link:../../packages/core
-      '@nestia/sdk':
-        specifier: workspace:^
-        version: link:../../packages/sdk
-      '@nestjs/common':
-        specifier: catalog:nestjs
-        version: 11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/core':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/platform-express':
-        specifier: catalog:nestjs
-        version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
-      multer:
-        specifier: ^2.0.2
-        version: 2.1.1
-      rxjs:
-        specifier: catalog:nestjs
-        version: 7.8.2
-      typia:
-        specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.28.1)
-    devDependencies:
-      '@types/multer':
-        specifier: ^1.4.12
-        version: 1.4.13
-      '@types/node':
+      yaml:
         specifier: catalog:utils
-        version: 25.9.0
-      cross-env:
-        specifier: catalog:utils
-        version: 10.1.0
-      rimraf:
-        specifier: catalog:utils
-        version: 6.1.3
-      ttsc:
-        specifier: catalog:typescript
-        version: 0.28.1
+        version: 2.9.0
 
 packages:
 

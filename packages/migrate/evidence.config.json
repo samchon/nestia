@@ -6,7 +6,8 @@
       "type": "typescript",
       "files": [
         "src/**/*.ts",
-        "!src/**/*.d.ts"
+        "!src/**/*.d.ts",
+        "!src/executable/TemplateBundleCache.ts"
       ],
       "symbol": [
         "type",
@@ -17,6 +18,25 @@
         "root": "../../.agents/skills",
         "files": [
           "contracts/common.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "migration template bundle reuse",
+      "type": "typescript",
+      "files": [
+        "src/executable/TemplateBundleCache.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/portability.md",
+          "contracts/performance.md"
         ],
         "symbol": "h2",
         "checklist": true

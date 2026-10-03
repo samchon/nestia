@@ -1,66 +1,44 @@
-import cp from "child_process";
-import fs from "fs";
-import path from "path";
+import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
+import { NestiaMigrateInquirer } from "../../../../packages/migrate/lib/executable/NestiaMigrateInquirer";
 
 /**
- * Verifies the `nestia-migrate` CLI reads a boolean flag given alone as `true`
- * and one given a value as that value.
+ * Verifies migration flags preserve bare, true and false boolean values.
  *
- * The flags were compared with the string `"true"`, and commander gives a flag
- * alone the boolean `true`, so `--keyword` alone migrated with `keyword: false`
- * (#1744).
+ * Commander returns boolean true for a bare flag and text for an explicit
+ * value. Parsing each invocation independently also prevents a previous true
+ * value from masking a subsequent false value without starting another CLI.
  *
- * 1. Run the built CLI in NestJS mode with `--keyword`, `--keyword true`, and
- *    `--keyword false`.
- * 2. Assert the migrated `nestia.config.ts` has `keyword: true`, `true`, and
- *    `false`.
+ * 1. Parse all three keyword spellings through the built command's parser.
+ * 2. Pass each result to the actual Nest project writer and check its config.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The actual argument parser and Nest writer must preserve bare/true/false keyword values in nestia.config.ts, exposing the historical string-only flag defect.
+ * @evidence contracts/testing.md#independent-expectations Commander optional flags are true when bare and retain their textual value when supplied; literal true/true/false expectations establish the generated option contract.
+ * @evidence contracts/testing.md#distinguishing-cases A false keyword invocation follows two true invocations, while explicit false simulate/e2e controls must remain false on every invocation.
+ * @evidence contracts/testing.md#execution-ownership The migrate entry awaits this direct parser/writer unit against built package artifacts; it creates no child process, consumer installation or product compilation.
  */
-export const test_migrate_cli_boolean_flags = (): void => {
-  const generated: string = path.join(__dirname, "../../.generated");
-  fs.mkdirSync(generated, { recursive: true });
-  const root: string = fs.mkdtempSync(path.join(generated, "nestia-migrate-"));
-  try {
-    const input: string = path.join(root, "swagger.json");
-    fs.writeFileSync(
-      input,
-      JSON.stringify({
-        openapi: "3.1.0",
-        info: { title: "cli", version: "1.0.0" },
-        paths: {},
-      }),
-    );
-    const executable: string = path.join(
-      path.dirname(require.resolve("@nestia/migrate/package.json")),
-      "lib",
-      "executable",
-      "migrate.js",
-    );
-    for (const [flag, expected] of [
-      [["--keyword"], true],
-      [["--keyword", "true"], true],
-      [["--keyword", "false"], false],
-    ] as const) {
-      const output: string = path.join(root, `output-${flag.join("-")}`);
-      cp.execFileSync(
-        process.execPath,
-        [
-          executable,
-          ...["--mode", "nest", "--input", input, "--output", output],
-          ...flag,
-          ...["--simulate", "false", "--e2e", "false", "--package", "cli"],
-        ],
-        { stdio: "pipe" },
+export const test_migrate_cli_boolean_flags = async (): Promise<void> => {
+  for (const [flag, expected] of [
+    [["--keyword"], true],
+    [["--keyword", "true"], true],
+    [["--keyword", "false"], false],
+  ] as const) {
+    const options = await NestiaMigrateInquirer.parse([
+      process.execPath,
+      "nestia-migrate",
+      ...["--mode", "nest", "--input", "swagger.json", "--output", "output"],
+      ...flag,
+      ...["--simulate", "false", "--e2e", "false", "--package", "cli"],
+    ]);
+    if (options.keyword !== expected || options.simulate || options.e2e)
+      throw new Error(`${flag.join(" ")} parsed incorrect boolean flags.`);
+    const config = NestiaMigrateApplication.assert({
+      openapi: "3.1.0",
+      info: { title: "cli", version: "1.0.0" },
+      paths: {},
+    }).nest(options)["packages/backend/nestia.config.ts"];
+    if (config?.includes(`keyword: ${expected}`) !== true)
+      throw new Error(
+        `${flag.join(" ")} should migrate keyword: ${expected}:\n${config}`,
       );
-      const config: string = fs.readFileSync(
-        path.join(output, "packages", "backend", "nestia.config.ts"),
-        "utf8",
-      );
-      if (config.includes(`keyword: ${expected}`) === false)
-        throw new Error(
-          `${flag.join(" ")} should migrate keyword: ${expected}:\n${config}`,
-        );
-    }
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
   }
 };

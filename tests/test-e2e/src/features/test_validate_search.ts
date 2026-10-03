@@ -1,5 +1,4 @@
-import { TestValidator } from "@nestia/e2e";
-
+import { TestValidator } from "../../../../packages/e2e/lib";
 import { generate_random_articles } from "./internal/generate_random_articles";
 import { IBbsArticle } from "./structures/IBbsArticle";
 
@@ -13,6 +12,11 @@ import { IBbsArticle } from "./structures/IBbsArticle";
  * 1. Exercise the authored scenario and its controls.
  * 2. Assert single writer, single title and combined writer/title requests
  *    exercise independent field combinations; no network boundary is claimed.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls TestValidator.search against a local filtering callback for writer, title and combined field criteria.
+ * @evidence contracts/testing.md#independent-expectations The authored articles and exact field expectations are independent of the callback's substring filtering.
+ * @evidence contracts/testing.md#distinguishing-cases Single writer, single title and combined criteria are exercised on nonempty data; this case does not supply a deliberately incorrect callback.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e unit entry discovers this direct built-package utility case; it installs no consumer and starts no native compiler, product host or worker.
  */
 export async function test_validate_search(): Promise<void> {
   const { data } = generate_random_articles();

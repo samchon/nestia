@@ -1,8 +1,9 @@
+import { OpenApiV3_1 } from "@typia/interface";
+
 import {
   INestiaMigrateConfig,
   NestiaMigrateApplication,
-} from "@nestia/migrate";
-import { OpenApiV3_1 } from "@typia/interface";
+} from "../../../../packages/migrate/lib";
 
 /**
  * Verifies nest-mode controllers and e2e tests import DTOs by package name.
@@ -19,6 +20,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  *    `fixture-api` clause and keeps no relative structure imports.
  * 3. Assert the e2e feature imports the api default export and its DTO types from
  *    `fixture-api` without deep `lib/structures` paths.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Controller and E2E text use the API package name, one type-only controller clause and no relative/deep DTO imports.
+ * @evidence contracts/testing.md#independent-expectations The authored fixture slug and monorepo package split require fixture-api references, with pure DTOs kept type-only.
+ * @evidence contracts/testing.md#distinguishing-cases Named DTO presence, exact clause count, runtime default API import and forbidden deep paths detect separate module-contract errors.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_nest_dto_package_import = (): void => {
   const app: NestiaMigrateApplication =

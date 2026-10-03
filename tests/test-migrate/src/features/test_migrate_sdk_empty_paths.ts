@@ -1,8 +1,9 @@
+import { OpenApiV3_1 } from "@typia/interface";
+
 import {
   INestiaMigrateConfig,
   NestiaMigrateApplication,
-} from "@nestia/migrate";
-import { OpenApiV3_1 } from "@typia/interface";
+} from "../../../../packages/migrate/lib";
 
 /**
  * Verifies SDK migration emits a runnable starter for a valid empty Paths
@@ -14,6 +15,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  *
  * 1. Migrate a minimal OpenAPI 3.1 document whose paths object is empty.
  * 2. Assert its retained starter contains no route-specific imports or calls.
+ *
+ * @evidence contracts/testing.md#behavioral-verification An empty OpenAPI paths object still yields starter and functional barrel without connection or route-specific code.
+ * @evidence contracts/testing.md#independent-expectations The authored zero-operation document is valid; no operation exists to supply a route-specific starter request.
+ * @evidence contracts/testing.md#distinguishing-cases Required starter and functional-module presence plus forbidden TestGlobal/functional references distinguish missing files or spurious route output. This case does not assert nonempty contents or execute the starter.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_sdk_empty_paths = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

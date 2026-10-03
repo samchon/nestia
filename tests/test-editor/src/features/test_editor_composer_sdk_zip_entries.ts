@@ -13,6 +13,11 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
  * 1. Compose an sdk-mode project from a minimal OpenAPI 3.1 document.
  * 2. Pack the composed files and unzip the archive.
  * 3. Assert the project manifest and swagger document survive with content.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Direct SDK composition then zip packing retains nonempty package.json and swagger.json entries.
+ * @evidence contracts/testing.md#independent-expectations These two public project files must survive the editor download path; actual unzip output is checked independently of the archiver map.
+ * @evidence contracts/testing.md#distinguishing-cases Missing and zero-byte entries both fail; this pins file delivery, not compiler validity or every generated module.
+ * @evidence contracts/testing.md#execution-ownership The isolated editor SSR unit entry discovers this direct case and consumes caller-built operations through its ordinary artifact view. Composition/archive operations return in-memory results, not installed or compiled projects.
  */
 export const test_editor_composer_sdk_zip_entries = async (): Promise<void> => {
   const composer = EditorTestHarness.composer();

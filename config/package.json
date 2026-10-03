@@ -5,6 +5,10 @@
   "description": "Shared build configuration for nestia packages",
   "devDependencies": {
     "@ttsc/unplugin": "catalog:typescript",
-    "tinyglobby": "^0.2.16"
+    "tinyglobby": "^0.2.16",
+    "@types/node": "catalog:utils"
+  },
+  "scripts": {
+    "evidence": "evidence --config evidence.config.json"
   }
 }

@@ -1,5 +1,6 @@
-import { NestiaMigrateApplication } from "@nestia/migrate";
 import { OpenApiV3_1 } from "@typia/interface";
+
+import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
 
 /**
  * Verifies a migrated SDK's simulator validates the headers an operation
@@ -16,6 +17,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  *    `simulate` and `e2e` on, in SDK and NestJS modes.
  * 2. Assert the simulate function asserts `connection.headers` by a type.
  * 3. Assert the e2e test spreads random headers into the connection.
+ *
+ * @evidence contracts/testing.md#behavioral-verification SDK and Nest writer output validates connection headers against a declared type and adds typed random headers to generated E2E requests.
+ * @evidence contracts/testing.md#independent-expectations The authored required x-id UUID header defines the expected explicit header type and generated request payload.
+ * @evidence contracts/testing.md#distinguishing-cases Both modes and validation-versus-payload checks distinguish omitted validation, inference of optional connection types and omitted E2E headers.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_simulate_headers = (): void => {
   for (const mode of ["sdk", "nest"] as const) {

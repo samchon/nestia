@@ -3,26 +3,18 @@
   "name": "@nestia/test-benchmark",
   "version": "14.0.2",
   "scripts": {
+    "test:unit": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins -P tsconfig.unit.json src/unit.ts",
     "dev": "ttsc --watch",
-    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx -r @nestjs/platform-express src/index.ts"
+    "start": "pnpm test:unit",
+    "evidence": "evidence --config evidence.config.json"
   },
   "dependencies": {
     "@nestia/benchmark": "workspace:^",
-    "@nestia/core": "workspace:^",
-    "@nestia/e2e": "workspace:^",
-    "@nestia/fetcher": "workspace:^",
-    "@nestjs/common": "catalog:nestjs",
-    "@nestjs/core": "catalog:nestjs",
-    "@nestjs/platform-express": "catalog:nestjs",
-    "typia": "catalog:samchon",
-    "uuid": "catalog:utils"
+    "@nestia/e2e": "workspace:^"
   },
   "devDependencies": {
-    "@nestia/sdk": "workspace:^",
     "@types/node": "catalog:utils",
-    "@types/uuid": "catalog:utils",
     "cross-env": "catalog:utils",
-    "nestia": "workspace:^",
     "ttsc": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"

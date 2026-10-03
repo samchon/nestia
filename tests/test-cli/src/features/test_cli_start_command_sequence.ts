@@ -1,5 +1,4 @@
-import { TestValidator } from "@nestia/e2e";
-
+import { TestValidator } from "../../../../packages/e2e/lib";
 import { CliTestHarness } from "../internal/CliTestHarness";
 
 /**
@@ -15,6 +14,11 @@ import { CliTestHarness } from "../internal/CliTestHarness";
  * 1. Run the starter's `clone` against a fake context with pnpm available.
  * 2. Assert the executed commands are exactly clone → install → build → test.
  * 3. Assert `.git` and `.github/dependabot.yml` are removed afterwards.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Starter emits exact git clone, pnpm install/build/test vectors, cwd change and repository-file cleanup.
+ * @evidence contracts/testing.md#independent-expectations The public starter contract chooses nestia-start and its pnpm lifecycle; the literal authored command list pins that order.
+ * @evidence contracts/testing.md#distinguishing-cases Clone URL, package manager, ordering and cleanup are separate observations; the template sibling omits test.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct unit through test-cli test:unit. Caller-built starter/template operations execute with the authored command context, not a native scaffold process.
  */
 export const test_cli_start_command_sequence = async (): Promise<void> => {
   const fake: CliTestHarness.IFakeContext = CliTestHarness.createFakeContext();

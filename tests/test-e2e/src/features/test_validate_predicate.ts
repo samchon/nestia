@@ -1,4 +1,4 @@
-import { TestValidator } from "@nestia/e2e";
+import { TestValidator } from "../../../../packages/e2e/lib";
 
 /**
  * Verifies testValidator.predicate accepts true and rejects false consistently
@@ -10,6 +10,11 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Exercise the authored scenario and its controls.
  * 2. Assert scalar, closure and asynchronous forms exercise both truth values and
  *    verify that all three failures carry the same Error message.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls TestValidator.predicate with scalar, callback and asynchronous conditions and checks false results are Errors with the exact message.
+ * @evidence contracts/testing.md#independent-expectations Literal true and false values establish condition satisfaction, while ordinary error collection checks the failure type and message.
+ * @evidence contracts/testing.md#distinguishing-cases True conditions pass and false conditions fail in all three forms; asynchronous rejection must carry an Error rather than a string.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e unit entry discovers this direct built-package utility case; it installs no consumer and starts no native compiler, product host or worker.
  */
 export async function test_validate_predicate(): Promise<void> {
   // SCALAR

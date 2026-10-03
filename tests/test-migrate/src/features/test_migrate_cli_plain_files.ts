@@ -1,6 +1,7 @@
-import cp from "child_process";
 import fs from "fs";
 import path from "path";
+
+import { NestiaMigrateCommander } from "../../../../packages/migrate/lib/executable/NestiaMigrateCommander";
 
 /**
  * Verifies the `nestia-migrate` CLI writes its plain-text files as they are,
@@ -11,11 +12,16 @@ import path from "path";
  * node_modules / swagger.json;` and `API_PORT=37001` became `API_PORT = 37001;`
  * (#1742).
  *
- * 1. Run the built CLI in NestJS mode on an empty document.
+ * 1. Call the built command operation in NestJS mode on an empty document.
  * 2. Assert the api `.gitignore` and the backend `.env.local` are the template's
  *    lines, and a TypeScript file is still written.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The built command operation archives a real generated project; the first gitignore line and complete env value must remain literal text while MyModule TypeScript is still written.
+ * @evidence contracts/testing.md#independent-expectations The authored template contract spells lib/ and API_PORT=37001 as plain text, independently of Prettier's TypeScript interpretation.
+ * @evidence contracts/testing.md#distinguishing-cases Plain gitignore/env output is compared with the TypeScript module from the same invocation so omitting all writes cannot replace the archive path. CLI dispatch is a separate integration boundary.
+ * @evidence contracts/testing.md#execution-ownership The migrate entry awaits this direct command/parser/writer unit using temporary filesystem input and output and built artifacts; it launches no CLI child, compiler, installation or host.
  */
-export const test_migrate_cli_plain_files = (): void => {
+export const test_migrate_cli_plain_files = async (): Promise<void> => {
   const generated: string = path.join(__dirname, "../../.generated");
   fs.mkdirSync(generated, { recursive: true });
   const root: string = fs.mkdtempSync(path.join(generated, "nestia-migrate-"));
@@ -30,21 +36,13 @@ export const test_migrate_cli_plain_files = (): void => {
         paths: {},
       }),
     );
-    cp.execFileSync(
+    await NestiaMigrateCommander.main([
       process.execPath,
-      [
-        path.join(
-          path.dirname(require.resolve("@nestia/migrate/package.json")),
-          "lib",
-          "executable",
-          "migrate.js",
-        ),
-        ...["--mode", "nest", "--input", input, "--output", output],
-        ...["--keyword", "true", "--simulate", "false", "--e2e", "false"],
-        ...["--package", "cli"],
-      ],
-      { stdio: "pipe" },
-    );
+      "nestia-migrate",
+      ...["--mode", "nest", "--input", input, "--output", output],
+      ...["--keyword", "true", "--simulate", "false", "--e2e", "false"],
+      ...["--package", "cli"],
+    ]);
     const read = (file: string): string =>
       fs.readFileSync(path.join(output, file), "utf8");
     if (read("packages/api/.gitignore").split(/\r?\n/)[0] !== "lib/")

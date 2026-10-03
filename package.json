@@ -5,16 +5,20 @@
   "description": "Nestia station",
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
-    "evidence": "pnpm --filter=./packages/* --fail-if-no-match -r --no-bail --workspace-concurrency=1 run evidence",
+    "evidence": "pnpm --filter=./config --filter=./packages/* --filter=./tests/* -r --no-bail --workspace-concurrency=1 run evidence",
+    "evidence:tests": "pnpm --filter=./tests/* --fail-if-no-match -r --no-bail --workspace-concurrency=1 run evidence",
     "format": "prettier --write \"packages/**/*.ts\" \"tests/**/*.ts\"",
     "format:check": "prettier --check \"packages/**/*.ts\" \"tests/**/*.ts\"",
-    "test": "pnpm build && pnpm --filter=./packages/* -r --no-bail --if-present run test:go && pnpm --filter=./tests/* -r --no-bail run start",
+    "test": "pnpm build && pnpm evidence && pnpm test:go && pnpm test:unit && pnpm test:e2e",
     "package:prepare": "pnpm build && node deploy/copy-readme.cjs",
     "package:latest": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --tag latest",
     "package:next": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --tag next",
     "package:rc": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --tag rc",
     "package:tgz": "pnpm package:prepare && node deploy/tarballs",
-    "release": "rimraf packages/migrate/assets && bumpp -r"
+    "release": "rimraf packages/migrate/assets && bumpp -r",
+    "test:unit": "pnpm --filter=./packages/* --filter=./tests/* -r --no-bail --if-present run test:unit",
+    "test:go": "ttsx --no-plugins --tsconfig config/tsconfig.json config/testing/CompilerEnvironment.ts",
+    "test:e2e": "pnpm --filter=@nestia/test-sdk --fail-if-no-match integration"
   },
   "repository": {
     "type": "git",
@@ -37,7 +41,8 @@
     "rimraf": "catalog:utils",
     "sloc": "^0.3.0",
     "ttsc": "catalog:typescript",
-    "typescript": "catalog:typescript"
+    "typescript": "catalog:typescript",
+    "yaml": "catalog:utils"
   },
   "packageManager": "pnpm@10.6.4"
 }

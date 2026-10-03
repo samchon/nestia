@@ -41,7 +41,9 @@ export namespace NestiaMigrateCommander {
    *
    * It stops with an error when the output directory exists, when its parent
    * does not exist or is not a directory, when the input cannot be read or
-   * fetched, or when the document is invalid.
+   * fetched, or when the document is invalid. Explicit arguments follow Node's
+   * executable/script/flags layout; omitting them reads the current process
+   * arguments.
    *
    * Creation and writing use `fs.promises` through the injected archiver, so
    * the volume decides case policy and permissions, and the checks that precede
@@ -52,11 +54,11 @@ export namespace NestiaMigrateCommander {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The checks apply to every input, and a formatting failure keeps the original text.
    * @evidence contracts/common.md#meaningful-documentation The comment states the conditions under which it stops.
    */
-  export const main = async (): Promise<void> => {
+  export const main = async (argv?: string[]): Promise<void> => {
     const resolve = (str: string | undefined) =>
       str ? path.resolve(str).split("\\").join("/") : undefined;
     const options: NestiaMigrateInquirer.IOutput =
-      await NestiaMigrateInquirer.parse();
+      await NestiaMigrateInquirer.parse(argv);
 
     // VALIDATE OUTPUT DIRECTORY
     const parent: string = resolve(options.output + "/..")!;

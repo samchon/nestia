@@ -1,15 +1,10 @@
 name: format
-# Formatting has its own configuration and read-only check. All behavioral
-# tests and implementation-contract checks belong to the single test.yml job.
 on:
   pull_request:
     paths:
       - '.github/workflows/format.yml'
       - '.prettierignore'
       - 'prettier.config.js'
-      # `.gitattributes` decides the line endings a checkout gets, and
-      # Prettier's `endOfLine` compares against them, so it can turn this
-      # check red on its own without any `*.ts` file changing.
       - '.gitattributes'
       - 'packages/**/*.ts'
       - 'tests/**/*.ts'
@@ -33,8 +28,5 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      # One Prettier invocation over both globs. Chaining them would let an
-      # unmatched pattern exit 2 and drop every target after it, which is how
-      # `tests/**/*.ts` once went unformatted for the whole life of the script.
       - name: Check Formatting
         run: pnpm run format:check

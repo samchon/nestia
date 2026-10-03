@@ -1,4 +1,4 @@
-import { TestValidator } from "@nestia/e2e";
+import { TestValidator } from "../../../../packages/e2e/lib";
 
 /**
  * Verifies `TestValidator.error()` passes a task that throws or rejects, and
@@ -13,6 +13,11 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A throwing and a rejecting task pass.
  * 2. A returning task throws the validator's message, synchronously.
  * 3. A resolving task rejects with the validator's message.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls TestValidator.error with throwing and nonthrowing tasks and checks the exact failure messages using ordinary control flow.
+ * @evidence contracts/testing.md#independent-expectations The contract requires a thrown exception or rejection; literal messages and direct catch handling avoid using error itself as the sole oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Synchronous and asynchronous thrown errors pass, while their nonthrowing counterparts must reject with their own labels.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e unit entry discovers this direct built-package utility case; it installs no consumer and starts no native compiler, product host or worker.
  */
 
 export async function test_validate_error(): Promise<void> {

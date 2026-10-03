@@ -1,5 +1,4 @@
-import { TestValidator } from "@nestia/e2e";
-
+import { TestValidator } from "../../../../packages/e2e/lib";
 import { CliTestHarness } from "../internal/CliTestHarness";
 
 /**
@@ -12,6 +11,11 @@ import { CliTestHarness } from "../internal/CliTestHarness";
  * 1. Run `nestia start` with a fake context whose `exists` reports true.
  * 2. Assert it halts with "The target directory already exists.".
  * 3. Assert no command was executed at all.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Existing destination halts with the exact original message and zero commands.
+ * @evidence contracts/testing.md#independent-expectations The authored exists:true context makes cloning impermissible before native work.
+ * @evidence contracts/testing.md#distinguishing-cases The pre-clone halt distinguishes an existing destination from the normal lifecycle cases.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct unit through test-cli test:unit. Caller-built starter/template operations execute with the authored command context, not a native scaffold process.
  */
 export const test_cli_existing_directory_halt = async (): Promise<void> => {
   const fake: CliTestHarness.IFakeContext = CliTestHarness.createFakeContext({

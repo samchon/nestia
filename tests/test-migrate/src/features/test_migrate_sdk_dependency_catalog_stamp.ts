@@ -1,7 +1,8 @@
-import { NestiaMigrateApplication } from "@nestia/migrate";
 import { OpenApiV3_1 } from "@typia/interface";
 import fs from "fs";
 import path from "path";
+
+import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
 
 /**
  * Verifies SDK-mode migration stamps this repository's catalog versions into
@@ -24,6 +25,11 @@ import path from "path";
  * 1. Generate an SDK project from a minimal OpenAPI document.
  * 2. Assert every toolchain dependency the `typescript` catalog pins carries that
  *    pin.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generated SDK toolchain dependencies equal the tracked TypeScript catalog declarations for ttsc and unplugin.
+ * @evidence contracts/testing.md#independent-expectations The oracle reads the declared pnpm-workspace catalog rather than the bundler lock input or emitted manifest.
+ * @evidence contracts/testing.md#distinguishing-cases Two dependency names and required declaration presence distinguish partial stamping from absent catalog entries.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_sdk_dependency_catalog_stamp = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

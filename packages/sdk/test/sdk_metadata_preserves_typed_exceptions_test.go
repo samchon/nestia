@@ -5,9 +5,10 @@ import (
 	"testing"
 )
 
-// TestSDKMetadataPreservesTypedExceptions verifies native analysis records
-// the authored typed exceptions of a controller in the exceptions of its
-// operation metadata, and the @throws description beside them.
+// TestSDKMetadataPreservesTypedExceptions verifies exception associations,
+// synthetic guard schema fields, union members and throws text from one native
+// metadata emission. Two cases formerly loaded and transformed the same six
+// source files separately; all their assertions now inspect the same literals.
 //
 // The Swagger generator reads exceptions from this metadata, so an exception
 // type present only in a parameter or response would not reach it.
@@ -16,10 +17,11 @@ import (
 //  2. Decode the injected OperationMetadata literals.
 //  3. Assert the exceptions entries name the TypeGuardError and the three
 //     authored error types, and the throws tag keeps its text.
+//  4. Check the original synthetic schema fields, union members and named errors.
 //
-// @evidence contracts/testing.md#behavioral-verification SDK analysis must retain, within the decoded exceptions entries, TypeGuardError and all three authored named error types, and the throws description in the metadata, so a name that appears only outside the exceptions cannot satisfy it.
-// @evidence contracts/testing.md#independent-expectations The handwritten TypedException declarations and JSDoc specify the exception identities and 400 invalid request text independently of emitted JSON.
-// @evidence contracts/testing.md#distinguishing-cases This pins exception association in direct analysis; the in-process metadata case additionally checks union constituents and guard schema fields. Exact type order is required on the two four-decorator methods, and a JSDoc-only method must carry zero typed exceptions; numeric statuses belong to runtime decorator composition, not this native protocol.
+// @evidence contracts/testing.md#behavioral-verification One SDK metadata emission must retain exact typed-exception associations, synthetic TypeGuardError method/expected schema fields, named errors, union constituents and throws descriptions. The original whole-metadata literal checks remain beside the decoded association checks.
+// @evidence contracts/testing.md#independent-expectations The handwritten TypedException declarations, union members and JSDoc specify the expected identities and text independently of emitted JSON; the typia guard schema requires method and expected fields.
+// @evidence contracts/testing.md#distinguishing-cases Exact type order is required on two four-decorator methods and a JSDoc-only method must carry zero typed exceptions. The preserved whole-metadata checks cover synthetic guard schema fields, all three union members, BadRequestException and throws text; those substring checks do not establish every association. Numeric statuses belong to runtime decorator composition.
 // @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test; it loads authored fixture source and executes registered native analysis/emit operations in-process, with temporary files and program closure owned by the test. It neither builds a native artifact nor starts a consumer host; SDK CLI/runtime cohorts own that connection.
 func TestSDKMetadataPreservesTypedExceptions(t *testing.T) {
 	_, prog := loadFeatureProgram(t, "exception", []string{
@@ -70,6 +72,30 @@ func TestSDKMetadataPreservesTypedExceptions(t *testing.T) {
 	for _, expected := range []string{`"name":"throws"`, `"text":"400 invalid request"`} {
 		if !strings.Contains(meta, expected) {
 			t.Fatalf("OperationMetadata JSON is missing %q\n%s", expected, meta)
+		}
+	}
+	for _, expected := range []string{
+		// TypeGuardError synthetic schema cluster (nestiaSDKTypeGuardErrorSchemaPipe);
+		// property keys ride as string-constant schema values.
+		`"name":"TypeGuardErrorany"`,
+		`"value":"method"`,
+		`"value":"expected"`,
+		// The named exception structures collected across decorators.
+		`"name":"BadRequestException"`,
+		`"name":"INotFound"`,
+		`"name":"IUnprocessibleEntity"`,
+		`"name":"IInternalServerError"`,
+		// The union exception members (IExceptional.*) and union return members,
+		// which only appear once the union-order pass walks the union type node.
+		`IExceptional.Something`,
+		`IExceptional.Nothing`,
+		`IExceptional.Everything`,
+		// The @throws / @throw JSDoc tags survive into the metadata.
+		`"name":"throws"`,
+		`"text":"400 invalid request"`,
+	} {
+		if !strings.Contains(meta, expected) {
+			t.Fatalf("exception metadata is missing %q\n%s", expected, meta)
 		}
 	}
 }

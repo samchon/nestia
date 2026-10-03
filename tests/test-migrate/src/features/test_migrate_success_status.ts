@@ -1,5 +1,6 @@
-import { NestiaMigrateApplication } from "@nestia/migrate";
 import { OpenApiV3_1 } from "@typia/interface";
+
+import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
 
 /**
  * Verifies migration keeps the success status an operation declares, in the
@@ -15,6 +16,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 2. Assert each SDK function passes its status, and `null` for the range.
  * 3. Assert the controller writes `@HttpCode()` exactly where the status is not
  *    NestJS's default.
+ *
+ * @evidence contracts/testing.md#behavioral-verification SDK output passes literal 204/200/202/200/null statuses and Nest emits exactly the three nondefault HttpCodes.
+ * @evidence contracts/testing.md#independent-expectations Authored response statuses, 2XX range and Nest method defaults establish independent expected values.
+ * @evidence contracts/testing.md#distinguishing-cases Bodiless DELETE, nondefault POST/PUT, default GET and ranged PATCH distinguish success status and selective decorator branches.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_success_status = (): void => {
   const app: NestiaMigrateApplication =

@@ -1,0 +1,58 @@
+{
+  "severity": "error",
+  "claims": [
+    {
+      "name": "Direct TypeScript workspace unit assertions",
+      "type": "typescript",
+      "files": [
+        "src/features/test_*.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/testing.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Authored direct unit input and selection owners",
+      "type": "typescript",
+      "files": [
+        "src/internal/selectMigrateScenarios.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Shared installed Swagger, query and clone profile assertions",
+      "type": "typescript",
+      "files": [
+        "src/internal/test_migrate_installed_cli_resolution.ts",
+        "src/internal/test_migrate_entry_selection.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/testing.md",
+          "contracts/e2e.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    }
+  ]
+}
