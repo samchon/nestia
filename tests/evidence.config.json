@@ -74,6 +74,9 @@
         "test-sdk/features/configurations/src/test/features/test_swagger_customizer_per_document.ts",
         "test-migrate/src/internal/test_migrate_installed_cli_resolution.ts",
         "test-migrate/src/internal/test_migrate_entry_selection.ts",
+        "test-sdk/features/exception-manager-order/src/test/features/test_exception_manager_order.ts",
+        "test-sdk/features/swagger/src/test/features/swagger/test_swagger.ts",
+        "test-sdk/features/swagger-한글경로/src/test/features/swagger/test_swagger.ts",
         "test-sdk/features/http-rich/src/test/features/api/query_true/test_*.ts",
         "test-sdk/features/http-rich/src/test/features/profiles/*/test/features/**/test_*.ts",
         "test-sdk/features/http-rich/src/test/postconditions/test_*.ts"

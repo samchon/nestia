@@ -4,8 +4,23 @@ import path from "path";
 import { pathToFileURL } from "url";
 
 /**
- * Reads CLI-generated info and servers, comparing package version, configured
- * title/servers and the default generator description.
+ * Verifies generated Swagger info and servers against the current config.
+ *
+ * Source execution imports the TypeScript config; emitted execution imports its
+ * JavaScript counterpart through an ordinary file URL. The assertions retain
+ * the original package version, title, default description and server values.
+ *
+ * 1. Import the config beside this source or emitted entry and read the document.
+ * 2. Compare every original info and server assertion with its authored inputs.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The real generated document must match its package version, authored config title and servers, and the literal default nestia description. Config loading reaches the actual source or emitted module rather than substituting expected values.
+ * @evidence contracts/testing.md#independent-expectations Package and config inputs precede generation; their version/title/server values and the authored default-description literal independently define the expected document.
+ * @evidence contracts/testing.md#distinguishing-cases Source TypeScript and emitted JavaScript select corresponding config extensions; all four original info/server assertions remain. The separate Unicode fixture exercises a non-ASCII module address through the same file-URL boundary.
+ * @evidence contracts/testing.md#execution-ownership The SDK fixture entry discovers this matching export after actual generation. Plain emitted execution uses the already compiled config; direct units do not generate this document population.
+ * @evidence contracts/e2e.md#necessary-boundary Actual native controller metadata and SDK Swagger generation must preserve config/package values through ordinary artifact and module resolution. Authored composer inputs alone cannot prove that installed generation connection.
+ * @evidence contracts/e2e.md#shared-execution This case adds only ordinary module and document reads to caller-owned generation and runtime preparation, without installing or compiling another config.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The entry's own directory identifies its config/package/document and current source or emitted extension. It mutates no config, document or registry and retains no host.
+ * @evidence contracts/e2e.md#preserved-coverage Every original equality expression and expected value remains unchanged; only the config artifact address derives its extension from the executing entry.
  */
 export async function test_swagger(): Promise<void> {
   // `import()` takes a URL specifier, not a filesystem path. On POSIX the two
@@ -13,7 +28,12 @@ export async function test_swagger(): Promise<void> {
   // and Node's ESM loader reads `D:` as an unsupported protocol and refuses the
   // whole module. `fs` below takes paths, so only this line needs the URL.
   const { NESTIA_CONFIG } = await import(
-    pathToFileURL(path.join(__dirname, "../../../../nestia.config.ts")).href
+    pathToFileURL(
+      path.join(
+        __dirname,
+        `../../../../nestia.config${path.extname(__filename)}`,
+      ),
+    ).href
   );
   const pack = JSON.parse(
     await fs.promises.readFile(__dirname + "/../../../../package.json", "utf8"),
