@@ -3,6 +3,8 @@ const fs = require("node:fs/promises");
 const path = require("node:path");
 
 const { preparePublicConsumer } = require("./PublicConsumer");
+const { compilePublicProgram } = require("./PublicCompiler");
+const { test_public_user_global } = require("./test_public_user_global");
 const {
   test_public_typia_version_guard,
 } = require("./test_public_typia_version_guard");
@@ -19,10 +21,12 @@ const { test_public_legacy_plugins } = require("./test_public_legacy_plugins");
  * their generated random calls into transport assertions: those artifacts are
  * still generated and compiled, while authored cases exercise their required
  * connections. The installed compiler's version-rejection and legacy-plugin
- * boundaries are
- * reported separately; their assertion failures do not suppress executable HTTP
- * cases. The producer uses the explicit legacy SDK entry with its environment
- * activation off; the consumer uses modern entries and activation.
+ * boundaries are reported separately; their assertion failures do not suppress
+ * executable HTTP cases. A no-DOM user-global boundary shares this installation
+ * and cache; its conflicting library set requires a separate minimal program,
+ * while the native DOM twin reuses the existing consumer. The producer uses the
+ * explicit legacy SDK entry with its environment activation off; the consumer
+ * uses modern entries and activation.
  *
  * @evidence contracts/common.md#principled-implementation Public installed TtscCompiler emits the actual authored controller and consumer programs with their shared strict language configuration. Public Nest and SDK application-input APIs use one real application for generation and requests. DynamicExecutor retains all authored assertions and existing rich generated transport assertions; explicit scenario execution policy preserves a transferred input's original absence of automatic E2E execution without dropping its generation or compilation.
  * @evidence contracts/common.md#clear-and-simple-design Installation, independent compiler boundary cases, producer, generation, consumer compilation and request execution have visible results. Boundary failures are retained with their names while positive HTTP cases continue; their final result aggregates both populations. Explicit legacy SDK registration activates the producer, while environment activation serves the modern consumer; they do not activate the same program twice. One finally block owns application release, including initialization, generation and consumer failures.
@@ -110,6 +114,19 @@ async function runPublicHttp() {
     boundaryFailures.push({ name: "test_public_typia_version_guard", error });
     console.error(
       "Public compiler boundary: test_public_typia_version_guard failed",
+      error,
+    );
+  }
+  const provenanceStarted = Date.now();
+  try {
+    await test_public_user_global(consumer, cache);
+    console.log(
+      `Public compiler boundary: test_public_user_global passed; ${Date.now() - provenanceStarted} ms`,
+    );
+  } catch (error) {
+    boundaryFailures.push({ name: "test_public_user_global", error });
+    console.error(
+      "Public compiler boundary: test_public_user_global failed",
       error,
     );
   }
@@ -271,71 +288,6 @@ async function runPublicHttp() {
   } finally {
     await app.close();
   }
-}
-
-/**
- * Compiles one public program and publishes only its successful contained
- * output.
- *
- * Diagnostics retain their original first result. A missing output or path
- * outside the owned output directory fails before publishing that result.
- *
- * Principled implementation: The public compiler owns plugin discovery and
- * execution. Exception and diagnostic results fail; a successful nonempty
- * output map must be contained by the declared output root before files are
- * written. clear and simple design: One operation compiles, checks the complete
- * output set and writes it once, with a separate visible phase timing.
- * prohibited implementation shortcuts: The compiler receives the actual
- * authored configuration and returns unchanged output bytes. No compiler result
- * or generated JavaScript is substituted or replayed after failure. meaningful
- * documentation: The comment states first-result preservation and output
- * containment, and diagnostics include the owning phase. os neutral
- * implementation: path.resolve and path.relative validate native output paths
- * before recursive mkdir and UTF-8 writes; absolute and parent escapes are
- * rejected on Windows and POSIX.
- */
-async function compilePublicProgram(
-  TtscCompiler,
-  fixture,
-  tsconfig,
-  cache,
-  phase,
-  env,
-) {
-  const started = Date.now();
-  const result = new TtscCompiler({
-    cwd: fixture,
-    tsconfig,
-    cacheDir: cache,
-    env,
-  }).compile();
-  if (result.type === "exception") throw result.error;
-  if (result.type !== "success")
-    throw new Error(
-      `Public ${phase} diagnostics:\n${JSON.stringify(result.diagnostics, null, 2)}`,
-    );
-  const entries = Object.entries(result.output);
-  assert(entries.length, `Public ${phase} emitted no output.`);
-  const output = path.join(fixture, phase);
-  const files = entries.map(([file, text]) => {
-    const destination = path.resolve(fixture, file);
-    const relative = path.relative(output, destination);
-    assert(
-      relative &&
-        relative !== ".." &&
-        !relative.startsWith(".." + path.sep) &&
-        !path.isAbsolute(relative),
-      `Public ${phase} output escaped its root: ${file}`,
-    );
-    return [destination, text];
-  });
-  for (const [destination, text] of files) {
-    await fs.mkdir(path.dirname(destination), { recursive: true });
-    await fs.writeFile(destination, text);
-  }
-  console.log(
-    `Public HTTP ${phase}: ${entries.length} outputs; ${Date.now() - started} ms`,
-  );
 }
 
 module.exports = { runPublicHttp };

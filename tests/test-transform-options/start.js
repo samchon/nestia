@@ -155,60 +155,9 @@ const main = () => {
     );
   });
 
-  // Runtime-native identity, decided from the program's own default-library set
-  // rather than from a file name. `@nestia/core` hosts typia's transform, so it
-  // owes that analysis the classification typia's own host installs; without it
-  // the analysis falls back to a `lib.*.d.ts` base-name test and any file that
-  // matches the pattern is taken for a runtime authority.
-  //
-  // The consequence is not cosmetic. A type promoted to native identity loses
-  // its members to an `instanceof` check, so a purely user-authored global is
-  // validated by a constructor that need not exist at runtime -- a
-  // `ReferenceError` where the members would have been checked.
-  measure("user-authored global keeps its members", () => {
-    const user = loadRaw(
-      compile({
-        name: "native-global-user",
-        source: "native-global/user",
-        plugin: {},
-        // No DOM, no `@types`, so this program's only `Blob` is the one
-        // `lib.custom.d.ts` declares beside it.
-        compilerOptions: { lib: ["ESNext"], types: [] },
-        include: [
-          "../src/native-global/lib.custom.d.ts",
-          "../src/native-global/user.ts",
-        ],
-      }),
-    );
-    assert(
-      user.check({ blob: { customField: "x" } }) === true,
-      "a user-authored global Blob was not validated structurally",
-    );
-    assert(
-      user.check({ blob: {} }) === false,
-      "a user-authored global Blob accepted a value missing its member",
-    );
-
-    // The one-axis twin: same type name, same shape of use, real provenance.
-    // `Blob` from `lib.dom.d.ts` is a runtime authority, so it must keep
-    // native identity and reject a structural lookalike.
-    const runtime = loadRaw(
-      compile({
-        name: "native-global-runtime",
-        source: "native-global/runtime",
-        plugin: {},
-        compilerOptions: { lib: ["ESNext", "DOM"], types: [] },
-      }),
-    );
-    assert(
-      runtime.check({ blob: { customField: "x" } }) === false,
-      "a real DOM Blob lost its native identity to a structural check",
-    );
-    assert(
-      runtime.check({ blob: new Blob([]) }) === true,
-      "a real DOM Blob rejected an actual Blob instance",
-    );
-  });
+  // Core Go owns exact library provenance decisions. The shared installed
+  // HTTP runner executes the original no-DOM user global once, while its
+  // existing DOM consumer checks native lookalike rejection and Blob acceptance.
 
   // The shared installed producer uses the three v11 plugin entries.
   // test_public_legacy_plugins preserves its explicit assert arguments and
@@ -437,15 +386,6 @@ const load = (file) => {
     path.dirname(file),
   );
   return captured;
-};
-
-// `load`'s counterpart for a module that exports the transform's product
-// directly instead of feeding it to a decorator. Nothing needs stubbing: these
-// fixtures import only `typia`, whose runtime helpers the emitted code calls for
-// real, which is the point — the assertion is on behavior, not on text.
-const loadRaw = (file) => {
-  delete require.cache[file];
-  return require(file);
 };
 
 const first = (array) => array[0];
