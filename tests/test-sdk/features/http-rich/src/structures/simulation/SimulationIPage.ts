@@ -1,10 +1,10 @@
 import { tags } from "typia";
 
-export interface IPage<T> {
+export interface SimulationIPage<T> {
   data: T[];
-  pagination: IPage.IPagination;
+  pagination: SimulationIPage.IPagination;
 }
-export namespace IPage {
+export namespace SimulationIPage {
   /** Page request data */
   export interface IRequest {
     page?: (number & tags.Type<"uint32">) | null;

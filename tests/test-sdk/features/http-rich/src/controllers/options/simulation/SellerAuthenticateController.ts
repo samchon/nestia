@@ -2,10 +2,10 @@ import core from "@nestia/core";
 import * as nest from "@nestjs/common";
 import typia from "typia";
 
-import { ISeller } from "@api/lib/structures/ISeller";
+import { SimulationISeller } from "../../../structures/simulation/SimulationISeller";
 
-@nest.Controller("sellers/authenticate")
-export class SellerAuthenticateController {
+@nest.Controller("http_rich/options/simulation/sellers/authenticate")
+export class SimulationSellerAuthenticateController {
   /**
    * Join as a seller.
    *
@@ -15,10 +15,10 @@ export class SellerAuthenticateController {
    */
   @core.EncryptedRoute.Post("join")
   public async join(
-    @core.EncryptedBody() input: ISeller.IJoin,
-  ): Promise<ISeller.IAuthorized> {
+    @core.EncryptedBody() input: SimulationISeller.IJoin,
+  ): Promise<SimulationISeller.IAuthorized> {
     return {
-      ...typia.random<ISeller.IAuthorized>(),
+      ...typia.random<SimulationISeller.IAuthorized>(),
       email: input.email,
       name: input.name,
       mobile: input.mobile,
@@ -35,10 +35,10 @@ export class SellerAuthenticateController {
    */
   @core.EncryptedRoute.Post("login")
   public async login(
-    @core.EncryptedBody() input: ISeller.ILogin,
-  ): Promise<ISeller.IAuthorized> {
+    @core.EncryptedBody() input: SimulationISeller.ILogin,
+  ): Promise<SimulationISeller.IAuthorized> {
     return {
-      ...typia.random<ISeller.IAuthorized>(),
+      ...typia.random<SimulationISeller.IAuthorized>(),
       email: input.email,
     };
   }
@@ -51,7 +51,7 @@ export class SellerAuthenticateController {
    */
   @nest.Patch("password/change")
   public async change(
-    @core.EncryptedBody() input: ISeller.IChangePassword,
+    @core.EncryptedBody() input: SimulationISeller.IChangePassword,
   ): Promise<void> {
     input;
   }

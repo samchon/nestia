@@ -1,4 +1,4 @@
-export interface IBbsArticle extends IBbsArticle.IStore {
+export interface SimulationIBbsArticle extends SimulationIBbsArticle.IStore {
   /** @format uuid */
   id: string;
 
@@ -7,7 +7,7 @@ export interface IBbsArticle extends IBbsArticle.IStore {
   /** @format date-time */
   created_at: string;
 }
-export namespace IBbsArticle {
+export namespace SimulationIBbsArticle {
   export interface IStore {
     /**
      * @minLength 3

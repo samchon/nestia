@@ -3,13 +3,12 @@ import { Controller } from "@nestjs/common";
 import typia, { tags } from "typia";
 import { v4 } from "uuid";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
-import { IPage } from "@api/lib/structures/IPage";
+import { SimulationIBbsArticle } from "../../../structures/simulation/SimulationIBbsArticle";
+import { SimulationIPage } from "../../../structures/simulation/SimulationIPage";
+import { SimulationGlobal } from "./SimulationGlobal";
 
-import { Global } from "../Global";
-
-@Controller("bbs/:section/articles")
-export class BbsArticlesController {
+@Controller("http_rich/options/simulation/bbs/:section/articles")
+export class SimulationBbsArticlesController {
   /**
    * Paginate entire articles.
    *
@@ -20,12 +19,12 @@ export class BbsArticlesController {
   @core.TypedRoute.Patch()
   public async index(
     @core.TypedParam("section") section: string | null,
-    @core.TypedBody() input: IPage.IRequest,
-  ): Promise<IPage<IBbsArticle.ISummary>> {
-    Global.used = true;
+    @core.TypedBody() input: SimulationIPage.IRequest,
+  ): Promise<SimulationIPage<SimulationIBbsArticle.ISummary>> {
+    SimulationGlobal.used = true;
     section;
     input;
-    return typia.random<IPage<IBbsArticle.ISummary>>();
+    return typia.random<SimulationIPage<SimulationIBbsArticle.ISummary>>();
   }
 
   /**
@@ -38,12 +37,12 @@ export class BbsArticlesController {
   @core.TypedRoute.Get()
   public async query(
     @core.TypedParam("section") section: string | null,
-    @core.TypedQuery() input: IPage.IRequest,
-  ): Promise<IPage<IBbsArticle.ISummary>> {
-    Global.used = true;
+    @core.TypedQuery() input: SimulationIPage.IRequest,
+  ): Promise<SimulationIPage<SimulationIBbsArticle.ISummary>> {
+    SimulationGlobal.used = true;
     section;
     input;
-    return typia.random<IPage<IBbsArticle.ISummary>>();
+    return typia.random<SimulationIPage<SimulationIBbsArticle.ISummary>>();
   }
 
   /**
@@ -57,10 +56,10 @@ export class BbsArticlesController {
   public async at(
     @core.TypedParam("section") section: string,
     @core.TypedParam("id") id: (string & tags.Format<"uuid">) | null,
-  ): Promise<IBbsArticle> {
-    Global.used = true;
+  ): Promise<SimulationIBbsArticle> {
+    SimulationGlobal.used = true;
     return {
-      ...typia.random<IBbsArticle>(),
+      ...typia.random<SimulationIBbsArticle>(),
       id: id ?? v4(),
       section,
     };
@@ -77,11 +76,11 @@ export class BbsArticlesController {
   public async first(
     @core.TypedParam("section") section: string,
     @core.TypedParam("date") date: string & tags.Format<"date">,
-  ): Promise<IBbsArticle> {
-    Global.used = true;
+  ): Promise<SimulationIBbsArticle> {
+    SimulationGlobal.used = true;
     section;
     date;
-    return typia.random<IBbsArticle>();
+    return typia.random<SimulationIBbsArticle>();
   }
 
   /**
@@ -94,11 +93,11 @@ export class BbsArticlesController {
   @core.TypedRoute.Post()
   public async store(
     @core.TypedParam("section") section: string,
-    @core.TypedBody() input: IBbsArticle.IStore,
-  ): Promise<IBbsArticle> {
-    Global.used = true;
+    @core.TypedBody() input: SimulationIBbsArticle.IStore,
+  ): Promise<SimulationIBbsArticle> {
+    SimulationGlobal.used = true;
     return {
-      ...typia.random<IBbsArticle>(),
+      ...typia.random<SimulationIBbsArticle>(),
       section,
       ...input,
     };
@@ -116,11 +115,11 @@ export class BbsArticlesController {
   public async update(
     @core.TypedParam("section") section: string,
     @core.TypedParam("id") id: string & tags.Format<"uuid">,
-    @core.TypedBody() input: IBbsArticle.IStore,
-  ): Promise<IBbsArticle> {
-    Global.used = true;
+    @core.TypedBody() input: SimulationIBbsArticle.IStore,
+  ): Promise<SimulationIBbsArticle> {
+    SimulationGlobal.used = true;
     return {
-      ...typia.random<IBbsArticle>(),
+      ...typia.random<SimulationIBbsArticle>(),
       id,
       section,
       ...input,

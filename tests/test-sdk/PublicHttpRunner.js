@@ -37,7 +37,12 @@ const { test_public_legacy_plugins } = require("./test_public_legacy_plugins");
  * conflicting library set requires a separate minimal program, while the native
  * DOM twin reuses the existing consumer. The producer uses the explicit legacy
  * SDK entry with its environment activation off; the consumer uses modern
- * entries and activation.
+ * entries and activation. Simulation profiles declare their execution prefixes
+ * and retain their actual producer state. All their generated and authored
+ * cases receive simulate true; discovered postconditions run after feature
+ * settlement and require untouched state and zero actual requests.
+ * Postcondition failures join the same final aggregate, without resetting state
+ * or repeating preparation.
  *
  * @evidence contracts/common.md#principled-implementation Public installed TtscCompiler emits all actual authored controller and consumer inputs in two shared strict programs. Public non-listening Nest graphs select each generation profile while one real listener serves all requests. DynamicExecutor retains authored and originally enabled generated transport assertions; explicit policy preserves original document-only scenarios without dropping their generation or compilation.
  * @evidence contracts/common.md#clear-and-simple-design Installation, independent boundary cases, shared producer, distinct public generation profiles, shared consumer and requests have visible results. First boundary failures remain in the final aggregate while positive cases continue. Legacy SDK registration activates the producer and modern environment activation serves the consumer. The listener and each generation graph have explicit finally-owned release.
@@ -45,7 +50,7 @@ const { test_public_legacy_plugins } = require("./test_public_legacy_plugins");
  * @evidence contracts/common.md#meaningful-documentation The comment identifies each necessary boundary and its shared lifetime; phase timings, individual failures and discovered counts remain visible.
  * @evidence contracts/portability.md#os-neutral-implementation Native paths locate the assignment-owned fixture. Temporary removal verifies containment before recursive deletion, and the listener uses an OS-assigned loopback port. Public package imports use the consumer's normal Node resolution.
  * @evidence contracts/performance.md#efficient-algorithms Each authored input tree is copied once and the producer and consumer programs are each compiled once. Distinct generation options analyze their exact controller graphs; no profile or case repeats installation, native compilation or consumer compilation.
- * @evidence contracts/performance.md#reuse-equivalent-work Stateless controllers have separate scenario routes and common compiler/encryption settings. All profiles share the same compiled modules and listener, while different clone/keyword/propagate options and documented DTO inputs use separate generation outputs. Identical controller source is represented once; conflicting private DTO identities remain distinct.
+ * @evidence contracts/performance.md#reuse-equivalent-work Controllers have separate scenario routes and common compiler/encryption settings. All profiles share compiled modules and one listener while distinct generation options retain separate outputs. Simulation state is the actual producer namespace, remains unreset through execution, and is checked after all features together with a dedicated request counter; no other profile uses its routes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One private fixture, two result maps and one listener belong to the run. Emitted files stay in its ignored root; the listener closes in finally and generatePublicHttpProfile closes each non-listening graph immediately after its generation or failure.
  */
 async function runPublicHttp() {
@@ -67,6 +72,12 @@ async function runPublicHttp() {
   const documentOnlyPrefixes = execution.generatedCases
     .filter((policy) => policy.execute === false)
     .map((policy) => `test_api_${policy.accessorPrefix.join("_")}_`);
+  const simulationProfiles = profiles.filter(
+    (profile) => profile.execution?.simulate,
+  );
+  const simulationRequests = new Map(
+    simulationProfiles.map((profile) => [profile.name, 0]),
+  );
   for (const directory of ["controllers", "structures"])
     await fs.cp(
       path.join(source, directory),
@@ -82,6 +93,11 @@ async function runPublicHttp() {
         .split(path.sep)
         .every((component) => component !== "automated"),
   });
+  await fs.cp(
+    path.join(source, "test/postconditions"),
+    path.join(fixture, "src/test/postconditions"),
+    { recursive: true },
+  );
   const root = path.resolve(__dirname, "../..");
   await fs.cp(
     path.join(source, "benchmark"),
@@ -216,7 +232,13 @@ async function runPublicHttp() {
   );
   const traffic = { active: false, inFlight: 0, peak: 0 };
   try {
-    app.use((_request, response, next) => {
+    app.use((request, response, next) => {
+      for (const profile of simulationProfiles)
+        if (request.originalUrl.startsWith(profile.execution.requestPrefix))
+          simulationRequests.set(
+            profile.name,
+            simulationRequests.get(profile.name) + 1,
+          );
       if (!traffic.active) return next();
       traffic.peak = Math.max(traffic.peak, ++traffic.inFlight);
       response.once("close", () => --traffic.inFlight);
@@ -344,7 +366,11 @@ async function runPublicHttp() {
           { transform: "@nestia/core/native/transform.cjs" },
         ],
       },
-      include: ["src/test/features", "src/benchmark"],
+      include: [
+        "src/test/features",
+        "src/test/postconditions",
+        "src/benchmark",
+      ],
     };
     await fs.writeFile(
       path.join(fixture, "tsconfig.consumer.json"),
@@ -366,8 +392,18 @@ async function runPublicHttp() {
       simultaneous: 1,
       filter: (file) =>
         !documentOnlyPrefixes.some((prefix) => file.startsWith(prefix)),
-      parameters: () => [
-        { host, encryption: { key: "A".repeat(32), iv: "B".repeat(16) } },
+      parameters: (name) => [
+        {
+          host,
+          encryption: { key: "A".repeat(32), iv: "B".repeat(16) },
+          simulate: simulationProfiles.some((profile) =>
+            profile.execution.functionPrefixes.some((prefix) =>
+              name.startsWith(prefix),
+            ),
+          )
+            ? true
+            : undefined,
+        },
         traffic,
       ],
       onComplete: (execution) => {
@@ -383,6 +419,58 @@ async function runPublicHttp() {
       `Public HTTP runtime: ${report.executions.length} cases; ${report.time} ms`,
     );
     const failures = report.executions.filter((execution) => execution.error);
+    try {
+      const postconditions = await DynamicExecutor.validate({
+        location: path.join(fixture, "consumer/test/postconditions"),
+        prefix: "test",
+        extension: "js",
+        simultaneous: 1,
+        parameters: (name) => {
+          const profile = simulationProfiles.find(
+            (profile) => profile.execution.postcondition === name,
+          );
+          assert(profile, `Unknown HTTP postcondition: ${name}`);
+          const statePath = path.join(
+            fixture,
+            "producer",
+            profile.execution.stateModule,
+          );
+          const relative = path.relative(
+            path.join(fixture, "producer"),
+            statePath,
+          );
+          assert(
+            relative &&
+              relative !== ".." &&
+              !relative.startsWith(`..${path.sep}`) &&
+              !path.isAbsolute(relative),
+            "Simulation state must belong to the actual producer.",
+          );
+          return [
+            require(statePath)[profile.execution.stateExport],
+            simulationRequests.get(profile.name),
+          ];
+        },
+        onComplete: (execution) => {
+          console.log(
+            ` - HTTP postcondition ${execution.name}: ${execution.error ? "failed" : "passed"}`,
+          );
+          if (execution.error) console.error(execution.error);
+        },
+      });
+      assert.deepEqual(
+        postconditions.executions.map((execution) => execution.name).sort(),
+        simulationProfiles
+          .map((profile) => profile.execution.postcondition)
+          .sort(),
+        "Every simulation profile must execute its postcondition exactly once.",
+      );
+      failures.push(
+        ...postconditions.executions.filter((execution) => execution.error),
+      );
+    } catch (error) {
+      boundaryFailures.push({ name: "HTTP postconditions", error });
+    }
     try {
       validatePublicHttpProfiles(
         profiles,

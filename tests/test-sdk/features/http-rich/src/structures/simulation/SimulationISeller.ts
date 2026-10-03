@@ -3,7 +3,7 @@
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
-export interface ISeller {
+export interface SimulationISeller {
   /** Primary key. */
   id: number;
 
@@ -23,7 +23,7 @@ export interface ISeller {
   created_at: string;
 }
 
-export namespace ISeller {
+export namespace SimulationISeller {
   export interface ILogin {
     email: string;
     password: string;
@@ -42,7 +42,7 @@ export namespace ISeller {
     new_password: string;
   }
 
-  export interface IAuthorized extends ISeller {
+  export interface IAuthorized extends SimulationISeller {
     authorization: {
       token: string;
       expires_at: string;

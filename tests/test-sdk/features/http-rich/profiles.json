@@ -103,5 +103,23 @@
     "propagate": true,
     "expectedGeneratedCases": 3,
     "expectedAuthoredCases": 0
+  },
+  {
+    "name": "simulation",
+    "controllers": ["options/simulation"],
+    "simulate": true,
+    "expectedGeneratedCases": 12,
+    "expectedAuthoredCases": 5,
+    "execution": {
+      "simulate": true,
+      "functionPrefixes": [
+        "test_api_http_rich_options_simulation_",
+        "test_clone_simulate_"
+      ],
+      "requestPrefix": "/http_rich/options/simulation/",
+      "stateModule": "controllers/options/simulation/SimulationGlobal.js",
+      "stateExport": "SimulationGlobal",
+      "postcondition": "test_simulate_transport_unused"
+    }
   }
 ]

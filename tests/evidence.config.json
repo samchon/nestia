@@ -58,7 +58,8 @@
       "files": [
         "test-sdk/features/http-rich/src/test/features/test_rich_swagger_parameters_*.ts",
         "test-sdk/features/http-rich/src/test/features/api/query_true/test_*.ts",
-        "test-sdk/features/http-rich/src/test/features/profiles/*/test/features/**/test_*.ts"
+        "test-sdk/features/http-rich/src/test/features/profiles/*/test/features/**/test_*.ts",
+        "test-sdk/features/http-rich/src/test/postconditions/test_*.ts"
       ],
       "symbol": "function",
       "reference": {
