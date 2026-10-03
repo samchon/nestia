@@ -318,5 +318,13 @@
     },
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 22
+  },
+  {
+    "name": "socket_types",
+    "controllers": ["options/socket_types"],
+    "generateE2e": false,
+    "generateSwagger": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 2
   }
 ]

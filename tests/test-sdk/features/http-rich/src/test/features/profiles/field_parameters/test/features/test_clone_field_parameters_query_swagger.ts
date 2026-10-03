@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 
 /**
- * Verifies a generated composite query DTO has its omitted property shape.
+ * Verifies a generated composite query DTO is registered in Swagger schemas.
  *
  * The CLI metadata producer must register the derived DTO in its document.
  *

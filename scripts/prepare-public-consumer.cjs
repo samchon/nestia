@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 const { spawn } = require("node:child_process");
+const { createHash } = require("node:crypto");
 const fs = require("node:fs/promises");
 const { createRequire } = require("node:module");
 const path = require("node:path");
@@ -14,7 +15,7 @@ const preparations = new Map();
  * The owning integration command supplies its frozen-lock dependency owner
  * once before producer, generation,
  * runtime and worker connections share the same ordinary installed packages.
- * Each invocation of that command repacks and installs current inputs; no
+ * Each invocation packs current inputs at content-addressed file URLs; no
  * persistent success stamp can hide a changed package artifact.
  *
  * @evidence contracts/common.md#principled-implementation Published tarballs supply all eight package dependencies and overrides. Both published importer edges and registry snapshot edges supply exact parent/dependency overrides. The actual installed public-owner edges must match their caller resolutions, every registry version must belong to the frozen graph, and public entries must resolve inside the ordinary private install as JavaScript artifacts.
@@ -50,6 +51,10 @@ function preparePublicConsumer(owner) {
  * resolve normally; an offline-only install would reject an otherwise
  * provisioned CI.
  *
+ * Packed bytes determine each file dependency address so pnpm invalidates a
+ * changed artifact even when its package version is unchanged. After successful
+ * graph validation, obsolete owned tarballs are released; failed preparation
+ * retains its artifacts for diagnosis until a later successful preparation.
  * The preparation entry supplies the normalized, contained owner root.
  *
  * @evidence contracts/common.md#principled-implementation Exact importer versions and snapshot edges derive from the frozen caller lock; public file dependencies point at fresh built tarballs. Conflicting overrides reject, and actual public-owner edges/registry versions/runtime addresses are validated after installation.
@@ -57,9 +62,9 @@ function preparePublicConsumer(owner) {
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Node createRequire and pnpm's supported file dependencies/overrides own resolution. Neither workspace manifests nor foreign loaders nor emitted JavaScript are altered; failed installation is not retried into success.
  * @evidence contracts/common.md#meaningful-documentation The comment explains importer/snapshot ownership, alias and conflict handling, and prefer-offline provisioning. Preparation logs identify its package population and total duration separately from compiler/runtime phases.
  * @evidence contracts/portability.md#os-neutral-implementation Native paths identify inputs and installation roots; file dependency URLs use forward slashes. The caller's absolute pnpm JavaScript launcher runs through process.execPath with argument arrays and no shell.
- * @evidence contracts/performance.md#efficient-algorithms Override construction visits public-owner and registry edges once; installed validation uses map/set membership for edges, packages and public entries. pnpm owns content-addressed store reuse.
- * @evidence contracts/performance.md#reuse-equivalent-work All phases of this owner's integration use these same validated package artifacts. Each invocation repacks current built inputs and resolves the current frozen graph; no persistent success stamp suppresses changed inputs.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Awaited preparation children settle before exposing the installed root. Temporary manifest/edge maps are local to this operation; the caller retains its ordinary ignored consumer directory for subsequent phases and diagnosis.
+ * @evidence contracts/performance.md#efficient-algorithms Override construction visits public-owner and registry edges once; installed validation uses map/set membership for edges, packages and public entries. Each tarball is hashed once with at most one archive held in memory; pnpm owns content-addressed store reuse.
+ * @evidence contracts/performance.md#reuse-equivalent-work All phases use the same validated artifacts. SHA-256 addresses change with packed bytes, invalidating pnpm file dependencies without forcing unchanged registry or package installations. Each invocation resolves the current frozen graph.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Awaited children settle before exposing the root. After successful graph validation only current package archives remain in the owned tarball directory; failures retain artifacts for diagnosis until the next successful preparation. The ordinary pnpm store owns its own cache retention.
  */
 async function installPublicConsumer(ownerRoot) {
   const CONSUMER = path.join(ownerRoot, ".tmp-public-consumer");
@@ -90,27 +95,30 @@ async function installPublicConsumer(ownerRoot) {
   }
   const publicNames = [];
   const publicDependencies = new Map();
+  const currentTarballs = new Set();
+  const packageDirectories = new Set();
   for (const directory of await fs.readdir(path.join(ROOT, "packages"), {
     withFileTypes: true,
   })) {
     if (!directory.isDirectory()) continue;
+    packageDirectories.add(directory.name);
     const manifest = JSON.parse(
       await fs.readFile(
         path.join(ROOT, "packages", directory.name, "package.json"),
         "utf8",
       ),
     );
-    const tarball =
-      "file:" +
-      path
-        .join(CONSUMER, "tarballs", `${directory.name}.tgz`)
-        .split(path.sep)
-        .join("/");
+    const packed = path.join(CONSUMER, "tarballs", `${directory.name}.tgz`);
     await runConsumerChild(
       process.execPath,
-      [pnpm, "pack", "--out", path.join(CONSUMER, "tarballs", `${directory.name}.tgz`)],
+      [pnpm, "pack", "--out", packed],
       path.join(ROOT, "packages", directory.name),
     );
+    const filename = publicTarballName(directory.name, await fs.readFile(packed));
+    currentTarballs.add(filename);
+    const addressed = path.join(CONSUMER, "tarballs", filename);
+    await fs.rename(packed, addressed);
+    const tarball = "file:" + addressed.split(path.sep).join("/");
     dependencies[manifest.name] = tarball;
     overrides[manifest.name] = tarball;
     publicNames.push(manifest.name);
@@ -225,10 +233,39 @@ async function installPublicConsumer(ownerRoot) {
       `${name} did not select its published JavaScript entry: ${entry}`,
     );
   }
+  const tarballRoot = path.join(CONSUMER, "tarballs");
+  for (const entry of await fs.readdir(tarballRoot, { withFileTypes: true })) {
+    if (!entry.isFile() || currentTarballs.has(entry.name)) continue;
+    const name = entry.name.replace(/(?:-[a-f0-9]{64})?\.tgz$/, "");
+    if (name === entry.name || !packageDirectories.has(name)) continue;
+    const target = path.resolve(tarballRoot, entry.name);
+    assert.equal(path.dirname(target), tarballRoot, "Obsolete archive must remain inside its owned directory.");
+    await fs.rm(target);
+  }
   console.log(
     `Public consumer preparation: ${publicNames.length} installed package artifacts; ${Date.now() - started} ms`,
   );
   return { root: CONSUMER, requirePublic };
+}
+
+/**
+ * Names a public archive by its packed bytes, independently of package version.
+ *
+ * Pnpm can retain a file dependency when its address is unchanged. A SHA-256
+ * suffix makes changed built artifacts new dependencies while identical bytes
+ * retain their address. The caller supplies a package directory basename.
+ *
+ * @evidence contracts/common.md#principled-implementation SHA-256 over the complete packed byte sequence supplies the artifact identity used in the ordinary file dependency address; unchanged version fields cannot mask changed contents.
+ * @evidence contracts/common.md#clear-and-simple-design One pure operation combines the caller's basename and one byte digest; packing, native paths and archive lifetimes remain with installation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The address uses archive contents rather than package-specific exceptions, timestamps, a success stamp or forced invalidation of unchanged dependencies.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains pnpm address reuse, byte identity and the caller-owned basename premise.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This pure operation returns a basename containing an ASCII digest; the installer owns native path resolution and file URLs.
+ * @evidence contracts/performance.md#efficient-algorithms One SHA-256 scan costs linear time in archive bytes and constant digest state, with no filesystem read or additional archive copy in this operation.
+ * @evidence contracts/performance.md#reuse-equivalent-work Equal package basenames and byte sequences produce equal dependency addresses; any byte change changes the digest under the SHA-256 collision-resistance premise used by content-addressed stores.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This pure operation retains no archives or handles; the installer owns archive reclamation after successful validation.
+ */
+function publicTarballName(name, contents) {
+  return `${name}-${createHash("sha256").update(contents).digest("hex")}.tgz`;
 }
 
 /**
@@ -269,4 +306,4 @@ function runConsumerChild(executable, args, cwd) {
   });
 }
 
-module.exports = { preparePublicConsumer, installPublicConsumer, runConsumerChild };
+module.exports = { preparePublicConsumer, installPublicConsumer, publicTarballName, runConsumerChild };

@@ -2162,13 +2162,14 @@ func nestiaSDKIsConnectionHeader(typ *shimchecker.Type) bool {
 }
 
 // nestiaSDKWebSocketParameterType reflects an @WebSocketRoute.Acceptor() or
-// .Driver() parameter annotated through a type alias or an import type as the
+// .Driver() parameter as the
 // tgrid reference it spells, such as `WebSocketAcceptor<Header, Provider,
 // Listener>`, because the generated client needs those type arguments. Each
 // argument is reflected in the file that writes it, and one naming a type
 // parameter of a generic alias is replaced by what the annotation passes for
-// it. It returns nil for an annotation writing the tgrid reference itself as a
-// type reference, and an error for an alias using its type parameter inside an
+// it. Only argument imports belong to the client; the outer server wrapper
+// binding is not written there. It returns nil for an unrecognized wrapper,
+// and an error for an alias using its type parameter inside an
 // argument, such as `IRoom<P>`, which no written node spells.
 func nestiaSDKWebSocketParameterType(
 	context *nestiaSDKContext,
@@ -2181,9 +2182,7 @@ func nestiaSDKWebSocketParameterType(
 		return nil, nil, nil
 	}
 	chain, name := transform.NestiaCoreWebSocketTypeReference(context.prog, nestiaSDKParameterTypeNode(param))
-	// the annotation's own reflection serves a tgrid reference written as a
-	// plain type reference, but reflects an import type without its arguments
-	if len(chain) == 0 || (len(chain) == 1 && chain[0].Kind == shimast.KindTypeReference) {
+	if len(chain) == 0 {
 		return nil, nil, nil
 	}
 	args := []any{}
