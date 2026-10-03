@@ -93,7 +93,7 @@ async function runPublicHttp() {
   const simulationRequests = new Map(
     simulationProfiles.map((profile) => [profile.name, 0]),
   );
-  for (const directory of ["controllers", "structures"])
+  for (const directory of ["controllers", "structures", "providers"])
     await fs.cp(
       path.join(source, directory),
       path.join(fixture, "src", directory),

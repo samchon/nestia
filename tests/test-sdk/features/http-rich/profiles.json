@@ -326,5 +326,37 @@
     "generateSwagger": false,
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 2
+  },
+  {
+    "name": "socket_calculator",
+    "controllers": [
+      "options/socket_calculator/default",
+      "options/socket_calculator/health"
+    ],
+    "generateE2e": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "socket_calculator_keyword",
+    "controllers": [
+      "options/socket_calculator/keyword",
+      "options/socket_calculator/health"
+    ],
+    "keyword": true,
+    "generateE2e": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "socket_calculator_clone",
+    "controllers": [
+      "options/socket_calculator/clone",
+      "options/socket_calculator/health"
+    ],
+    "clone": true,
+    "generateE2e": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
   }
 ]
