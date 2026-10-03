@@ -1,5 +1,4 @@
-import { TestValidator } from "@nestia/e2e";
-
+import { TestValidator } from "../../../../packages/e2e/lib";
 import { CliTestHarness } from "../internal/CliTestHarness";
 
 /**

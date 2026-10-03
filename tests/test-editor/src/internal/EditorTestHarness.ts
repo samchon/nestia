@@ -3,15 +3,20 @@ import path from "path";
 /**
  * Local helpers for the `@nestia/editor` test suite.
  *
- * The suite exercises the built library artifacts under `packages/editor/lib`,
- * not the TypeScript sources: the archiver and the composer are internal
- * modules that the package's exports map does not expose, so they are loaded
- * through absolute-path `require()` calls.
+ * The suite loads an ordinary filesystem view of caller-built artifacts.
+ * Published resolution fields keep the composer's migrate dependency in built
+ * JavaScript instead of re-entering workspace TypeScript compilation.
  */
 export namespace EditorTestHarness {
   /** Ttsx relocates compiled sources, so anchor on the workspace cwd. */
   export const ROOT: string = path.resolve(process.cwd(), "..", "..");
-  export const LIB: string = path.join(ROOT, "packages", "editor", "lib");
+  export const LIB: string = path.join(
+    process.env.NESTIA_UNIT_ARTIFACT_ROOT!,
+    "node_modules",
+    "@nestia",
+    "editor",
+    "lib",
+  );
 
   export interface IArchiver {
     pack: (files: Record<string, string>) => Uint8Array;

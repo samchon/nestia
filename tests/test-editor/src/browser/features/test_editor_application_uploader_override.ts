@@ -1,5 +1,7 @@
 import path from "path";
 
+import { EditorTestHarness } from "../../internal/EditorTestHarness";
+
 /**
  * Verifies that the uploader query flag overrides an explicit document URL.
  *
@@ -37,7 +39,7 @@ export const test_editor_application_uploader_override =
     );
     const { act } = React;
     const { NestiaEditorApplication } = require(
-      path.join(rootPath, "packages/editor/lib/NestiaEditorApplication.js"),
+      path.join(EditorTestHarness.LIB, "NestiaEditorApplication.js"),
     );
     const root = createRoot(dom.window.document.getElementById("root"));
     try {
