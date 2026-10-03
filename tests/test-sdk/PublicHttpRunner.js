@@ -4,6 +4,7 @@ const path = require("node:path");
 
 const { preparePublicConsumer } = require("./PublicConsumer");
 const { compilePublicProgram } = require("./PublicCompiler");
+const { validatePublicHttpProfiles } = require("./PublicHttpProfileCoverage");
 const { test_public_user_global } = require("./test_public_user_global");
 const {
   test_public_transform_envelope,
@@ -22,29 +23,30 @@ const { test_public_legacy_plugins } = require("./test_public_legacy_plugins");
 /**
  * Runs authored and freshly generated HTTP cases through one installed program.
  *
- * One producer compiles the authored controllers. The actual application feeds
- * generation without another input compiler and then serves every consumer
- * request. One consumer compilation prepares the authored and generated cases;
- * plain JavaScript execution starts no TypeScript loader or native host.
- * Scenario execution policy retains document-only inputs without promoting
- * their generated random calls into transport assertions: those artifacts are
- * still generated and compiled, while authored cases exercise their required
- * connections. The installed compiler's version-rejection and legacy-plugin
- * boundaries are reported separately; their assertion failures do not suppress
- * executable HTTP cases. A no-DOM user-global boundary shares this installation
- * and cache; its conflicting library set requires a separate minimal program,
- * while the native DOM twin reuses the existing consumer. The producer uses the
- * explicit legacy SDK entry with its environment activation off; the consumer
- * uses modern entries and activation.
+ * One producer compiles the authored controllers. Non-listening applications
+ * select exact controller graphs for ordinary and clone option generation; one
+ * actual listener serves every profile's consumer request. One consumer
+ * compilation prepares all authored and generated cases; plain JavaScript
+ * execution starts no TypeScript loader or native host. Scenario execution
+ * policy retains document-only inputs without promoting their generated random
+ * calls into transport assertions: those artifacts are still generated and
+ * compiled, while authored cases exercise their required connections. The
+ * installed compiler's version-rejection and legacy-plugin boundaries are
+ * reported separately; their assertion failures do not suppress executable HTTP
+ * cases. A no-DOM user-global boundary shares this installation and cache; its
+ * conflicting library set requires a separate minimal program, while the native
+ * DOM twin reuses the existing consumer. The producer uses the explicit legacy
+ * SDK entry with its environment activation off; the consumer uses modern
+ * entries and activation.
  *
- * @evidence contracts/common.md#principled-implementation Public installed TtscCompiler emits the actual authored controller and consumer programs with their shared strict language configuration. Public Nest and SDK application-input APIs use one real application for generation and requests. DynamicExecutor retains all authored assertions and existing rich generated transport assertions; explicit scenario execution policy preserves a transferred input's original absence of automatic E2E execution without dropping its generation or compilation.
- * @evidence contracts/common.md#clear-and-simple-design Installation, independent compiler boundary cases, producer, generation, consumer compilation and request execution have visible results. Boundary failures are retained with their names while positive HTTP cases continue; their final result aggregates both populations. Explicit legacy SDK registration activates the producer, while environment activation serves the modern consumer; they do not activate the same program twice. One finally block owns application release, including initialization, generation and consumer failures.
+ * @evidence contracts/common.md#principled-implementation Public installed TtscCompiler emits all actual authored controller and consumer inputs in two shared strict programs. Public non-listening Nest graphs select each generation profile while one real listener serves all requests. DynamicExecutor retains authored and originally enabled generated transport assertions; explicit policy preserves original document-only scenarios without dropping their generation or compilation.
+ * @evidence contracts/common.md#clear-and-simple-design Installation, independent boundary cases, shared producer, distinct public generation profiles, shared consumer and requests have visible results. First boundary failures remain in the final aggregate while positive cases continue. Legacy SDK registration activates the producer and modern environment activation serves the consumer. The listener and each generation graph have explicit finally-owned release.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts All product operations resolve through the ordinary packed installation. The runner patches neither generated JavaScript nor foreign resolvers and copies no previously generated clients or automated cases as input.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies each necessary boundary and its shared lifetime; phase timings, individual failures and discovered counts remain visible.
  * @evidence contracts/portability.md#os-neutral-implementation Native paths locate the assignment-owned fixture. Temporary removal verifies containment before recursive deletion, and the listener uses an OS-assigned loopback port. Public package imports use the consumer's normal Node resolution.
- * @evidence contracts/performance.md#efficient-algorithms Each authored input tree is copied once, each producer and consumer program is compiled once, and generation analyzes the same actual application rather than per-case configurations.
- * @evidence contracts/performance.md#reuse-equivalent-work Stateless controllers have separate scenario routes and common compiler/encryption settings. Generation and requests share those exact compiled controllers and one application; newly generated consumer files are compiled together once.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One private fixture, two compilation result maps and one application belong to this run. Emitted files remain in the ignored assignment root; the real application closes in finally after success or any subsequent failure.
+ * @evidence contracts/performance.md#efficient-algorithms Each authored input tree is copied once and the producer and consumer programs are each compiled once. Distinct generation options analyze their exact controller graphs; no profile or case repeats installation, native compilation or consumer compilation.
+ * @evidence contracts/performance.md#reuse-equivalent-work Stateless controllers have separate scenario routes and common compiler/encryption settings. All profiles share the same compiled modules and listener, while different clone/keyword/propagate options and documented DTO inputs use separate generation outputs. Identical controller source is represented once; conflicting private DTO identities remain distinct.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One private fixture, two result maps and one listener belong to the run. Emitted files stay in its ignored root; the listener closes in finally and generatePublicHttpProfile closes each non-listening graph immediately after its generation or failure.
  */
 async function runPublicHttp() {
   const consumer = await preparePublicConsumer();
@@ -58,6 +60,9 @@ async function runPublicHttp() {
   const source = path.join(__dirname, "features/http-rich/src");
   const execution = JSON.parse(
     await fs.readFile(path.join(source, "../execution.json"), "utf8"),
+  );
+  const profiles = JSON.parse(
+    await fs.readFile(path.join(source, "../profiles.json"), "utf8"),
   );
   const documentOnlyPrefixes = execution.generatedCases
     .filter((policy) => policy.execute === false)
@@ -198,7 +203,6 @@ async function runPublicHttp() {
   }
   const core = consumer.requirePublic("@nestia/core");
   const { NestFactory } = consumer.requirePublic("@nestjs/core");
-  const { NestiaSdkApplication } = consumer.requirePublic("@nestia/sdk");
   const { DynamicExecutor } = consumer.requirePublic("@nestia/e2e");
   const app = await NestFactory.create(
     await core.EncryptedModule.dynamic(
@@ -220,59 +224,105 @@ async function runPublicHttp() {
     });
     await app.init();
     const generation = Date.now();
-    await new NestiaSdkApplication({
-      input: () => app,
-      output: path.join(fixture, "src/api"),
-      simulate: true,
-      e2e: path.join(fixture, "src/test"),
-      swagger: {
-        output: path.join(fixture, "swagger.json"),
-        security: {
-          basic: { type: "http", scheme: "basic" },
-          bearer: { type: "http", scheme: "bearer" },
-          custom: { type: "apiKey", in: "header", name: "Authorization" },
-          tagsOAuth2: {
-            type: "oauth2",
-            flows: {
-              implicit: {
-                authorizationUrl: "https://example.com/api/oauth/dialog",
-                refreshUrl: "https://example.com/api/oauth/refresh",
-                scopes: {
-                  read: "read authority",
-                  write: "write authority",
-                },
-              },
-            },
-          },
-          oauth2: {
-            type: "oauth2",
-            flows: {
-              implicit: {
-                authorizationUrl: "https://example.com/api/oauth/dialog",
-                refreshUrl: "https://example.com/api/oauth/refresh",
-                scopes: {
-                  "write:pets": "modify pets in your account",
-                  "read:pets": "read your pets",
-                },
-              },
-            },
-          },
+    await generatePublicHttpProfile(
+      consumer,
+      {
+        include: [path.join(fixture, "producer/controllers")],
+        exclude: [path.join(fixture, "producer/controllers/clone")],
+      },
+      {
+        output: path.join(fixture, "src/api"),
+        simulate: true,
+        e2e: path.join(fixture, "src/test"),
+        swagger: {
+          output: path.join(fixture, "swagger.json"),
           security: {
-            type: "oauth2",
-            flows: {
-              clientCredentials: {
-                tokenUrl: "https://example.com/api/oauth/dialog",
-                refreshUrl: "https://example.com/api/oauth/refresh",
-                scopes: { x1: "x1", x2: "x2" },
+            basic: { type: "http", scheme: "basic" },
+            bearer: { type: "http", scheme: "bearer" },
+            custom: { type: "apiKey", in: "header", name: "Authorization" },
+            tagsOAuth2: {
+              type: "oauth2",
+              flows: {
+                implicit: {
+                  authorizationUrl: "https://example.com/api/oauth/dialog",
+                  refreshUrl: "https://example.com/api/oauth/refresh",
+                  scopes: {
+                    read: "read authority",
+                    write: "write authority",
+                  },
+                },
               },
             },
+            oauth2: {
+              type: "oauth2",
+              flows: {
+                implicit: {
+                  authorizationUrl: "https://example.com/api/oauth/dialog",
+                  refreshUrl: "https://example.com/api/oauth/refresh",
+                  scopes: {
+                    "write:pets": "modify pets in your account",
+                    "read:pets": "read your pets",
+                  },
+                },
+              },
+            },
+            security: {
+              type: "oauth2",
+              flows: {
+                clientCredentials: {
+                  tokenUrl: "https://example.com/api/oauth/dialog",
+                  refreshUrl: "https://example.com/api/oauth/refresh",
+                  scopes: { x1: "x1", x2: "x2" },
+                },
+              },
+            },
+          },
+          decompose: true,
+          operationId: (props) => `${props.class}.${props.function}`,
+        },
+      },
+    );
+    console.log(`Public HTTP generation: ${Date.now() - generation} ms`);
+    for (const profile of profiles) {
+      const started = Date.now();
+      await generatePublicHttpProfile(
+        consumer,
+        profile.controllers.map((directory) =>
+          path.join(fixture, "producer/controllers", directory),
+        ),
+        {
+          output: path.join(
+            fixture,
+            "src/test/features/profiles",
+            profile.name,
+            "api",
+          ),
+          e2e: path.join(
+            fixture,
+            "src/test/features/profiles",
+            profile.name,
+            "test",
+          ),
+          clone: profile.clone,
+          keyword: profile.keyword,
+          propagate: profile.propagate,
+          simulate: true,
+          swagger: {
+            output: path.join(
+              fixture,
+              "profiles",
+              profile.name,
+              "swagger.json",
+            ),
+            security: { bearer: { type: "apiKey" } },
+            beautify: true,
           },
         },
-        decompose: true,
-        operationId: (props) => `${props.class}.${props.function}`,
-      },
-    }).all();
-    console.log(`Public HTTP generation: ${Date.now() - generation} ms`);
+      );
+      console.log(
+        `Public HTTP profile ${profile.name}: ${Date.now() - started} ms`,
+      );
+    }
     const runtimeConfig = {
       ...config,
       compilerOptions: {
@@ -311,7 +361,7 @@ async function runPublicHttp() {
       ],
       onComplete: (execution) => {
         console.log(
-          ` - ${execution.name}: ${execution.error ? "failed" : "passed"}`,
+          ` - ${path.relative(path.join(fixture, "consumer"), execution.location)}: ${execution.name}: ${execution.error ? "failed" : "passed"}`,
         );
         if (execution.error) console.error(execution.error);
       },
@@ -322,6 +372,15 @@ async function runPublicHttp() {
       `Public HTTP runtime: ${report.executions.length} cases; ${report.time} ms`,
     );
     const failures = report.executions.filter((execution) => execution.error);
+    try {
+      validatePublicHttpProfiles(
+        profiles,
+        path.join(fixture, "consumer/test/features/profiles"),
+        report.executions,
+      );
+    } catch (error) {
+      boundaryFailures.push({ name: "profile execution coverage", error });
+    }
     if (failures.length || boundaryFailures.length)
       throw new AggregateError(
         [
@@ -330,7 +389,9 @@ async function runPublicHttp() {
         ],
         `Public HTTP failed: ${[
           ...boundaryFailures.map((failure) => failure.name),
-          ...failures.map((execution) => execution.name),
+          ...failures.map(
+            (execution) => `${execution.location}: ${execution.name}`,
+          ),
         ].join(", ")}`,
       );
   } finally {
@@ -338,7 +399,42 @@ async function runPublicHttp() {
   }
 }
 
-module.exports = { runPublicHttp };
+/**
+ * Generates one distinct SDK profile from the shared compiled controllers.
+ *
+ * Clone-only private DTOs cannot enter the ordinary non-clone input graph.
+ * Public non-listening Nest applications select each exact controller graph;
+ * all profiles reuse one native producer, consumer and actual HTTP listener.
+ *
+ * @evidence contracts/common.md#principled-implementation Public EncryptedModule selection and Nest application input preserve each profile's compiled controller graph and generation options without compiling or altering source again.
+ * @evidence contracts/common.md#clear-and-simple-design One temporary application owns reflection for one distinct profile; the caller supplies controller paths and public generation options while the shared listener owns transport.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Ordinary installed public APIs create and analyze the actual application. No private container is filtered or patched, no generated output is rewritten and no dedicated SDK transform host is added.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains why controller input graphs differ despite shared programs, and why the temporary applications have no listening ports.
+ * @evidence contracts/portability.md#os-neutral-implementation The caller constructs native paths with node:path; public EncryptedModule owns platform-neutral controller discovery. This application never selects a port or launches a shell.
+ * @evidence contracts/performance.md#efficient-algorithms Each distinct profile requires one public analysis/generation pass over its selected controllers. All source compilation and consumer compilation remain shared across profiles.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each input graph reuses the exact already compiled classes from one installed artifact graph. Only changed clone/keyword/propagate options and genuinely different documented DTO/decorator inputs require separate generation outputs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources This function owns one non-listening application and closes it in finally after initialization or generation failure. It retains no profile state after returning; the caller owns output lifetime.
+ */
+async function generatePublicHttpProfile(consumer, controllers, options) {
+  const core = consumer.requirePublic("@nestia/core");
+  const { NestFactory } = consumer.requirePublic("@nestjs/core");
+  const { NestiaSdkApplication } = consumer.requirePublic("@nestia/sdk");
+  const app = await NestFactory.create(
+    await core.EncryptedModule.dynamic(controllers, {
+      key: "A".repeat(32),
+      iv: "B".repeat(16),
+    }),
+    { logger: false },
+  );
+  try {
+    await app.init();
+    await new NestiaSdkApplication({ ...options, input: () => app }).all();
+  } finally {
+    await app.close();
+  }
+}
+
+module.exports = { runPublicHttp, generatePublicHttpProfile };
 if (require.main === module)
   runPublicHttp().catch((error) => {
     console.error(error);

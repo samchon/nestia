@@ -1,0 +1,27 @@
+[
+  {
+    "name": "keyword",
+    "expectedGeneratedCases": 39,
+    "expectedAuthoredCases": 1,
+    "controllers": ["clone/common", "clone/base", "clone/keyword"],
+    "clone": true,
+    "keyword": true
+  },
+  {
+    "name": "propagate",
+    "expectedGeneratedCases": 39,
+    "expectedAuthoredCases": 3,
+    "controllers": ["clone/common", "clone/base", "clone/propagate"],
+    "clone": true,
+    "propagate": true
+  },
+  {
+    "name": "combined",
+    "expectedGeneratedCases": 39,
+    "expectedAuthoredCases": 1,
+    "controllers": ["clone/common", "clone/combined", "clone/propagate"],
+    "clone": true,
+    "keyword": true,
+    "propagate": true
+  }
+]
