@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 
 /**
- * Loads the three original compiled Blob/File schema and form-data calls.
+ * Verifies the three original compiled Blob/File factory calls execute.
  *
  * Unreferenced compile-only input can disappear when controller and consumer
  * programs are consolidated. Ordinary loading of its actual emitted module

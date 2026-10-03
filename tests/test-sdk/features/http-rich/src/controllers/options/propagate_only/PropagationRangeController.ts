@@ -1,13 +1,13 @@
 import core from "@nestia/core";
 import { Controller, NotFoundException } from "@nestjs/common";
 
-export interface IRangeError {
+export interface PropagationRangeError {
   message: string;
 }
 
-@Controller("range")
-export class RangeController {
-  @core.TypedException<IRangeError>("4XX")
+@Controller("http_rich/options/propagate_only/range")
+export class PropagationRangeController {
+  @core.TypedException<PropagationRangeError>("4XX")
   @core.TypedRoute.Get()
   public get(): string {
     throw new NotFoundException("missing");

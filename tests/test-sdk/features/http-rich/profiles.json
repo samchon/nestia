@@ -255,5 +255,26 @@
     },
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 13
+  },
+  {
+    "name": "parameter_order",
+    "controllers": ["options/parameter_order"],
+    "simulate": true,
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
+  },
+  {
+    "name": "propagate_only",
+    "controllers": ["options/propagate_only"],
+    "propagate": true,
+    "generateE2e": false,
+    "generateSwagger": false,
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
   }
 ]
