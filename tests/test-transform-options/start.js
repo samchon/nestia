@@ -31,24 +31,9 @@ const main = () => {
   // helper's acceptance, equality, clone and prune semantics.
   // Core Node units own descriptor version decisions; the shared public HTTP runner owns its single CLI rejection connection.
 
-  // Strict body/query/response schema decisions and their non-strict/valid
-  // twins run in TestSourceTransformLlmStrictDiagnosticCases. The following
-  // single wrapper connection still checks public --noEmit forwarding and
-  // diagnostics; TestBuildNoEmitWeakMapLlmDiagnostic owns all native entry paths.
-  measure("llm route no-emit diagnostics", () => {
-    compile({
-      name: "llm-route-no-emit",
-      source: "llm-route",
-      plugin: { llm: true },
-      noEmit: true,
-      fail: true,
-      expectedDiagnostics: [
-        "src/llm-route.ts:11:4 - error TS(nestia.core.TypedRoute): unsupported type detected",
-        "- IArticle.weak: WeakMap",
-        "- LLM schema does not support WeakMap type.",
-      ],
-    });
-  });
+  // Go owns strict schema rules and all native no-emit entry paths. The shared
+  // public compiler boundary retains the original CLI WeakMap diagnostic and
+  // adds a valid no-emit flag control without another Nest program.
 
   measure("disabled transform", () => {
     const file = compile({

@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const { spawnSync } = require("node:child_process");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 
@@ -76,4 +77,41 @@ async function compilePublicProgram(
   );
 }
 
-module.exports = { compilePublicProgram };
+/**
+ * Executes the installed compiler CLI and retains its completed first result.
+ *
+ * Callers own expected success or diagnostic failure. A launch failure or
+ * termination is never interchangeable with a compiler rejecting its input.
+ *
+ * @evidence contracts/common.md#principled-implementation The installed ttsc manifest supplies its actual binary entry, invoked through this Node executable. Launch errors, signals and absent numeric exit status reject before a caller interprets diagnostics.
+ * @evidence contracts/common.md#clear-and-simple-design One boundary resolves the installed binary, starts it and validates completion; each case owns arguments, diagnostics, output and fixture lifetime.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The actual installed CLI runs once with ordinary resolution and unchanged output. No resolver, compiler result or foreign method is replaced and failures are not retried.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains why completed compiler failure differs from inability to execute and identifies the caller's assertion ownership.
+ * @evidence contracts/portability.md#os-neutral-implementation Native paths resolve the installed JavaScript binary and cwd. Node receives an argument array without a shell or Windows command shim, and loader overrides are cleared for ordinary installed resolution.
+ * @evidence contracts/performance.md#efficient-algorithms One synchronous CLI invocation returns its first captured stdout, stderr and status; no additional project discovery or native preparation is requested here.
+ * @evidence contracts/performance.md#reuse-equivalent-work All callers supply the existing installed artifact graph and absolute compiler cache rather than installing or rebuilding toolchains per case.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The child settles before the result returns. Callers consume the bounded diagnostic result and release their own projects; this operation creates no host or retained worker.
+ */
+function runPublicCompilerCli(consumer, fixture, cache, args) {
+  const manifest = consumer.requirePublic.resolve("ttsc/package.json");
+  const pack = consumer.requirePublic("ttsc/package.json");
+  const bin = typeof pack.bin === "string" ? pack.bin : pack.bin.ttsc;
+  const result = spawnSync(
+    process.execPath,
+    [path.resolve(path.dirname(manifest), bin), "--cache-dir", cache, ...args],
+    {
+      cwd: fixture,
+      encoding: "utf8",
+      env: { ...process.env, NODE_PATH: "", NODE_OPTIONS: "" },
+    },
+  );
+  if (result.error) throw result.error;
+  assert.equal(result.signal, null, "The compiler was terminated by a signal.");
+  assert(
+    Number.isInteger(result.status),
+    "The compiler returned no exit status.",
+  );
+  return result;
+}
+
+module.exports = { compilePublicProgram, runPublicCompilerCli };

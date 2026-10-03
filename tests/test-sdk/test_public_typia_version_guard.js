@@ -1,8 +1,9 @@
 const assert = require("node:assert/strict");
-const { spawnSync } = require("node:child_process");
 const fs = require("node:fs");
 const { createRequire } = require("node:module");
 const path = require("node:path");
+
+const { runPublicCompilerCli } = require("./PublicCompiler");
 
 /**
  * Verifies the installed public compiler rejects a conflicting typia runtime
@@ -68,30 +69,10 @@ export class Controller {
         include: ["src"],
       }),
     );
-    const manifest = consumer.requirePublic.resolve("ttsc/package.json");
-    const pack = JSON.parse(fs.readFileSync(manifest, "utf8"));
-    const bin = typeof pack.bin === "string" ? pack.bin : pack.bin.ttsc;
-    const result = spawnSync(
-      process.execPath,
-      [
-        path.resolve(path.dirname(manifest), bin),
-        "--cache-dir",
-        cache,
-        "-p",
-        "tsconfig.json",
-      ],
-      {
-        cwd: fixture,
-        encoding: "utf8",
-        env: { ...process.env, NODE_PATH: "", NODE_OPTIONS: "" },
-      },
-    );
-    if (result.error) throw result.error;
-    assert.equal(
-      result.signal,
-      null,
-      "The compiler was terminated by a signal.",
-    );
+    const result = runPublicCompilerCli(consumer, fixture, cache, [
+      "-p",
+      "tsconfig.json",
+    ]);
     assert(Number.isInteger(result.status) && result.status !== 0);
     const diagnostics = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
     assert(

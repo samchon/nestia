@@ -6,6 +6,9 @@ const { preparePublicConsumer } = require("./PublicConsumer");
 const { compilePublicProgram } = require("./PublicCompiler");
 const { test_public_user_global } = require("./test_public_user_global");
 const {
+  test_public_no_emit_diagnostics,
+} = require("./test_public_no_emit_diagnostics");
+const {
   test_public_typia_version_guard,
 } = require("./test_public_typia_version_guard");
 const { test_public_legacy_plugins } = require("./test_public_legacy_plugins");
@@ -114,6 +117,19 @@ async function runPublicHttp() {
     boundaryFailures.push({ name: "test_public_typia_version_guard", error });
     console.error(
       "Public compiler boundary: test_public_typia_version_guard failed",
+      error,
+    );
+  }
+  const noEmitStarted = Date.now();
+  try {
+    test_public_no_emit_diagnostics(consumer, cache);
+    console.log(
+      `Public compiler boundary: test_public_no_emit_diagnostics passed; ${Date.now() - noEmitStarted} ms`,
+    );
+  } catch (error) {
+    boundaryFailures.push({ name: "test_public_no_emit_diagnostics", error });
+    console.error(
+      "Public compiler boundary: test_public_no_emit_diagnostics failed",
       error,
     );
   }
