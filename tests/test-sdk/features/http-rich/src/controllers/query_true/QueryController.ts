@@ -1,18 +1,22 @@
 import { TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller, Query } from "@nestjs/common";
 
-import { INestQuery } from "@api/lib/structures/INestQuery";
-import { IQuery } from "@api/lib/structures/IQuery";
+import { QueryTrueINestQuery } from "../../structures/query_true/QueryTrueINestQuery";
+import { QueryTrueIQuery } from "../../structures/query_true/QueryTrueIQuery";
 
-@Controller("query")
-export class QueryController {
+@Controller("http_rich/query_true")
+export class QueryTrueController {
   @TypedRoute.Get("typed")
-  public async typed(@TypedQuery() query: IQuery): Promise<IQuery> {
+  public async typed(
+    @TypedQuery() query: QueryTrueIQuery,
+  ): Promise<QueryTrueIQuery> {
     return query;
   }
 
   @TypedRoute.Get("nest")
-  public async nest(@Query() query: INestQuery): Promise<IQuery> {
+  public async nest(
+    @Query() query: QueryTrueINestQuery,
+  ): Promise<QueryTrueIQuery> {
     return {
       limit: query.limit !== undefined ? Number(query.limit) : undefined,
       enforce: query.enforce === "true",
@@ -29,8 +33,8 @@ export class QueryController {
   @TypedRoute.Get("composite")
   public async composite(
     @Query("atomic") atomic: string,
-    @TypedQuery() query: Omit<IQuery, "atomic">,
-  ): Promise<IQuery> {
+    @TypedQuery() query: Omit<QueryTrueIQuery, "atomic">,
+  ): Promise<QueryTrueIQuery> {
     return {
       ...query,
       atomic,

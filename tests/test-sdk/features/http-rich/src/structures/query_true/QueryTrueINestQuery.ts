@@ -1,4 +1,4 @@
-export interface INestQuery {
+export interface QueryTrueINestQuery {
   limit?: `${number}`;
   enforce: `${boolean}`;
   atomic: string;
