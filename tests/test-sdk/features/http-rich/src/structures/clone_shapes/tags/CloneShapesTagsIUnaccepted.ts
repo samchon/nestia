@@ -57,7 +57,7 @@ export type ExpressionKindData = tags.TagBase<{
  * Custom tags each expanding like a predefined tag given an argument that
  * predefined tag does not accept.
  */
-export interface IUnaccepted {
+export interface CloneShapesTagsIUnaccepted {
   nested: number[][] & NestedDefault;
   listed: string & ListedExamples;
   phone: string & PhoneFormat;

@@ -207,6 +207,6 @@
     "generateSwagger": false,
     "generateE2e": false,
     "expectedGeneratedCases": 0,
-    "expectedAuthoredCases": 3
+    "expectedAuthoredCases": 4
   }
 ]

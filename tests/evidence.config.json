@@ -104,6 +104,21 @@
         "symbol": "h2",
         "checklist": true
       }
+    },
+    {
+      "name": "Shared installed clone example reader",
+      "type": "typescript",
+      "files": [
+        "test-sdk/features/http-rich/src/test/features/internal/RichCloneTagExampleReader.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": ["contracts/common.md", "contracts/performance.md"],
+        "symbol": "h2",
+        "checklist": true
+      }
     }
   ]
 }

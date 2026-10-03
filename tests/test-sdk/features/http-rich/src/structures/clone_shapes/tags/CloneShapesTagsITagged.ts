@@ -14,7 +14,7 @@ export type MinimumOf<N extends number> = tags.TagBase<{
  * Every predefined typia tag, one custom tag named alike, a bound only a
  * non-finite value spells, and a JSDoc comment tag.
  */
-export interface ITagged {
+export interface CloneShapesTagsITagged {
   minimum: number & tags.Minimum<3>;
   negative: number & tags.Minimum<-1.5>;
   maximum: number & tags.Maximum<10>;
