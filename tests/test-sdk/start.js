@@ -2,6 +2,7 @@ const cp = require("child_process");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const { discoverSdkFixtures } = require("./SdkFixtureDiscovery");
 
 const ROOT = path.join(__dirname, "../..");
 const NODE = process.execPath;
@@ -477,10 +478,7 @@ const feature = async (name, port) => {
     );
 
   const cwd = featureDirectory(name);
-  const configFile =
-    name === "cli-config" || name === "cli-config-project"
-      ? "nestia.configuration.ts"
-      : "nestia.config.ts";
+  const configFile = fixtureConfigurationName(name);
   const generate = async (type, mustBeError = false) => {
     const args = [type, ...generationTail(name)];
     if (mustBeError) return runNestia(cwd, args);
@@ -572,6 +570,10 @@ const BATCH_EXCLUDED = new Set([
   "cli-project",
 ]);
 const BATCHES = new Map();
+const fixtureConfigurationName = (name) =>
+  name === "cli-config" || name === "cli-config-project"
+    ? "nestia.configuration.ts"
+    : "nestia.config.ts";
 const planBatches = (names) => {
   const groups = new Map();
   for (const name of names) {
@@ -1902,9 +1904,7 @@ const main = async () =>
     await measure("Feature execution")(async () => {
       const filter = featureFilter();
       const names = planBatches(
-        (await fs.promises.readdir(featureDirectory()))
-          .sort()
-          .filter((name) => !name.startsWith(".tmp-"))
+        discoverSdkFixtures(featureDirectory(), fixtureConfigurationName)
           .filter((name) => !AGGREGATED_ERROR_FEATURES.has(name))
           .filter((name) => !SDK_COHORT_FEATURES.has(name))
           .filter(filter),

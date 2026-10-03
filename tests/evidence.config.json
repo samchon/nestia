@@ -106,6 +106,19 @@
       }
     },
     {
+      "name": "Configured SDK fixture discovery",
+      "type": "javascript",
+      "files": ["test-sdk/SdkFixtureDiscovery.js"],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": ["contracts/common.md", "contracts/portability.md"],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
       "name": "Shared installed clone example reader",
       "type": "typescript",
       "files": [
