@@ -6,6 +6,7 @@
       "type": "typescript",
       "files": [
         "test-*/src/features/test_*.ts",
+        "test-benchmark/src/features/unit/test_*.ts",
         "test-editor/src/browser/features/test_*.ts"
       ],
       "symbol": "function",

@@ -18,7 +18,7 @@ import {
  *
  * @evidence contracts/testing.md#behavioral-verification An empty OpenAPI paths object still yields starter and functional barrel without connection or route-specific code.
  * @evidence contracts/testing.md#independent-expectations The authored zero-operation document is valid; no operation exists to supply a route-specific starter request.
- * @evidence contracts/testing.md#distinguishing-cases Required nonempty file families plus forbidden TestGlobal/functional references distinguish usable empty-project output from missing or spurious route output.
+ * @evidence contracts/testing.md#distinguishing-cases Required starter and functional-module presence plus forbidden TestGlobal/functional references distinguish missing files or spurious route output. This case does not assert nonempty contents or execute the starter.
  * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_sdk_empty_paths = (): void => {
