@@ -25,14 +25,17 @@ const {
 } = require("./test_public_multipart_schema_inputs");
 
 /**
- * Runs authored and freshly generated HTTP cases through one installed program.
+ * Runs authored and generated HTTP/WebSocket cases through installed programs.
  *
  * A shared producer compiles controllers with the default native options;
  * controllers requiring validate.log share one additional producer because
  * their malformed responses must log and send rather than assert and reject.
  * Non-listening applications
  * select exact controller graphs for ordinary and clone option generation; one
- * actual listener serves every profile's consumer request. One consumer
+ * actual listener serves every profile's consumer request. The public WebSocket
+ * adaptor upgrades that same HTTP server for the original parameter/query RPC
+ * connections; their separate generated drivers and local listener events
+ * retain their original connector teardown. One consumer
  * compilation prepares all authored and generated cases; plain JavaScript
  * execution starts no TypeScript loader or native host. Scenario execution
  * policy retains document-only inputs without promoting their generated random
@@ -468,6 +471,7 @@ async function runPublicHttp() {
       cache,
       "consumer",
     );
+    await core.WebSocketAdaptor.upgrade(app);
     await app.listen(0, "127.0.0.1");
     const host = await app.getUrl();
     const report = await DynamicExecutor.validate({

@@ -303,5 +303,20 @@
     },
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 1
+  },
+  {
+    "name": "field_parameters",
+    "controllers": ["options/field_parameters"],
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "security": {
+        "bearer": {
+          "type": "apiKey"
+        }
+      }
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 22
   }
 ]
