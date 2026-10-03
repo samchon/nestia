@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
+const { createRequire } = require("node:module");
 const { resolveTestEnvironment } = require("../../scripts/run-tests.cjs");
 
 const { preparePublicConsumer } = require("../../scripts/prepare-public-consumer.cjs");
@@ -26,6 +27,11 @@ const {
 
 /**
  * Runs authored and generated HTTP/WebSocket cases through installed programs.
+ *
+ * The canonical root may supply its freshly validated shared installation.
+ * Standalone execution prepares the SDK owner's current graph itself. The
+ * parent owns supplied artifact freshness and keeps that graph unchanged until
+ * this child settles; ordinary createRequire opens its JavaScript entries.
  *
  * A shared producer compiles controllers with the default native options.
  * Distinct request-validation or response-stringification modes each retain one
@@ -63,10 +69,10 @@ const {
  * @evidence contracts/performance.md#reuse-equivalent-work Controllers have private scenario routes and shared encryption settings. Default assert, validate and validate.log serialization and validate request reports require distinct producer programs because their malformed-input behavior differs. All cases with each setting reuse that program, installed graph, compiled consumer and listener. Simulation state remains the actual unreset producer namespace and is checked after features with a request counter.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One private fixture and one listener belong to the run. Each producer and consumer result map is released after publication. Emitted files stay in the ignored root; the listener closes in finally and generatePublicHttpProfile closes each non-listening graph immediately after its generation or failure.
  */
-async function runPublicHttp() {
+async function runPublicHttp(preparedConsumer) {
   const root = path.resolve(__dirname, "../..");
   Object.assign(process.env, resolveTestEnvironment(root, process.env));
-  const consumer = await preparePublicConsumer("tests/test-sdk");
+  const consumer = preparedConsumer ?? await preparePublicConsumer("tests/test-sdk");
   const fixture = path.join(consumer.root, "projects/http-rich");
   const relative = path.relative(consumer.root, fixture);
   assert(
@@ -631,8 +637,14 @@ async function generatePublicHttpProfile(consumer, controllers, options) {
 }
 
 module.exports = { runPublicHttp, generatePublicHttpProfile };
-if (require.main === module)
-  runPublicHttp().catch((error) => {
+if (require.main === module) {
+  const index = process.argv.indexOf("--consumer-root");
+  const root = index === -1 ? undefined : path.resolve(process.argv[index + 1]);
+  runPublicHttp(root === undefined ? undefined : {
+    root,
+    requirePublic: createRequire(path.join(root, "package.json")),
+  }).catch((error) => {
     console.error(error);
     process.exitCode = 1;
   });
+}

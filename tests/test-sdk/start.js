@@ -432,7 +432,7 @@ const runNestiaForError = (cwd, args) =>
 
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
-const feature = async (name, port) => {
+const feature = async (name, port, consumer) => {
   const cohort = SDK_ERROR_COHORTS.find((candidate) => candidate.name === name);
   if (cohort !== undefined) return runSdkErrorCohort(cohort);
   if (BATCHES.has(name)) return runBatch(name, port);
@@ -466,7 +466,7 @@ const feature = async (name, port) => {
     return runNode(
       __dirname,
       path.join(__dirname, "PublicHttpRunner.js"),
-      [],
+      consumer ? ["--consumer-root", consumer.root] : [],
       "inherit",
       { NODE_OPTIONS: "", NODE_PATH: "", NESTIA_SDK_TRANSFORM: "1" },
     );
@@ -1798,7 +1798,7 @@ const measure = (title) => async (task) => {
 const EXCLUSIVE_FEATURES = new Set(["swagger-watch"]);
 
 // Features whose e2e run failed before one passed, with each failure's reason.
-const runFeatures = async (names) => {
+const runFeatures = async (names, consumer) => {
   const pooled = names.filter((name) => !EXCLUSIVE_FEATURES.has(name));
   const exclusive = names.filter((name) => EXCLUSIVE_FEATURES.has(name));
   const parallel = concurrency(pooled.length);
@@ -1807,7 +1807,7 @@ const runFeatures = async (names) => {
   const failures = [];
   const runFeature = async (name, port) => {
     try {
-      await measure(`  - ${name}`)(() => feature(name, port));
+      await measure(`  - ${name}`)(() => feature(name, port, consumer));
     } catch (error) {
       failures.push({ name, error });
       console.error(`  - ${name}: failed`);
@@ -1868,7 +1868,25 @@ const assertFreshBuilds = () => {
     );
 };
 
-const main = async () =>
+/**
+ * Selects SDK integrations and runs them against current built artifacts.
+ *
+ * The shared root supplies its validated public graph to the plain-Node rich
+ * runtime child. Standalone invocation lets that child prepare the SDK owner.
+ * Empty selection rejects before preparation, and skip-build checks freshness.
+ * Legacy fixture, CLI and watch connections retain their existing boundaries
+ * during consolidation and report their first failures independently.
+ *
+ * @evidence contracts/common.md#principled-implementation The final nonempty selection preserves configured inputs and synthetic diagnostics. Skip-build validates package output freshness; selected features execute once, and runFeatures aggregates their original failures. A supplied public graph is transferred only to its ordinary installed runtime child.
+ * @evidence contracts/common.md#clear-and-simple-design Selection and build prerequisites precede feature execution. The optional shared context connects the root's installation to the existing plain-Node child; standalone preparation remains with that child.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No feature result or assertion is substituted or replayed. Supplied artifacts are freshly packed and graph-validated by the root before invocation; no persistent stamp is accepted. Existing workspace CLI hooks remain in legacy child connections pending their separate consolidation.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies selection, freshness, supplied-context ownership and remaining legacy boundaries; each feature exposes its elapsed first result.
+ * @evidence contracts/portability.md#os-neutral-implementation Existing native path operations identify features and child entries. The public runtime child receives its installation address as an argument array, with loader and search overrides cleared; existing build execution retains its Windows command-shim boundary.
+ * @evidence contracts/performance.md#efficient-algorithms One discovery and selection pass feeds bounded feature workers. Legacy batches still perform member analysis and backend work; the rich runtime shares its installed producer and consumer programs.
+ * @evidence contracts/performance.md#reuse-equivalent-work The root-supplied validated graph removes another public preparation in the rich child. Standalone commands observe current artifacts independently; source and build freshness remain checked before execution.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Awaited feature workers and the exclusive watch connection settle before this owner returns. Each feature owns its generated state, listeners and child teardown; the shared root retains the supplied installation until both owners settle.
+ */
+const main = async (consumer) =>
   measure("\nTotal Elapsed Time")(async () => {
     const shard = featureShard();
     const filter = featureFilter();
@@ -1918,11 +1936,13 @@ const main = async () =>
       );
 
     await measure("Feature execution")(async () => {
-      await runFeatures(selected);
+      await runFeatures(selected, consumer);
     });
   });
 
-main().catch((exp) => {
-  console.error(exp);
-  process.exit(-1);
-});
+module.exports = { main };
+if (require.main === module)
+  main().catch((exp) => {
+    console.error(exp);
+    process.exitCode = 1;
+  });

@@ -19,11 +19,12 @@ import { test_migrate_nest_named_examples } from "./features/test_migrate_nest_n
 import { EMPTY_PATHS_DOCUMENT } from "./features/test_migrate_sdk_empty_paths";
 import { compileMigrationPrograms } from "./internal/compileMigrationPrograms";
 import { selectMigrateScenarios } from "./internal/selectMigrateScenarios";
+import { test_migrate_entry_selection } from "./internal/test_migrate_entry_selection";
 import { test_migrate_generated_project_inputs } from "./internal/test_migrate_generated_project_inputs";
 import { test_migrate_installed_cli_resolution } from "./internal/test_migrate_installed_cli_resolution";
 import { test_migrate_simulate_throws } from "./internal/test_migrate_simulate_throws";
 
-const TEST_ROOT: string = process.cwd();
+const TEST_ROOT: string = path.resolve(__dirname, "..");
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
 const FIXTURE_SOURCE: string = path.join(TEST_ROOT, "fixture");
 const GENERATED: string = path.join(TEST_ROOT, ".generated");
@@ -181,6 +182,10 @@ const execute = async (
  * assertions, and compiles the generated NestJS and SDK projects in both
  * calling conventions. The generated files remain available for diagnosis.
  *
+ * The root command may supply its fresh shared public installation. Standalone
+ * execution prepares this workspace's graph itself. File-owned addresses make
+ * both invocation paths select the same fixture and generated-output owner.
+ *
  * The original fixture inputs are copied under the generated owner. Only its
  * inherited tsconfig pathname is rebased; the configuration's relative Swagger
  * output and all controller/DTO contents stay unchanged. Ordinary installed
@@ -198,20 +203,25 @@ const execute = async (
  * @evidence contracts/performance.md#reuse-equivalent-work The unchanged installed graph serves the real CLI, fixture compiler and generated runtime within this invocation. The fixture's original schemas feed both calling conventions; direct units do not repeat installation or generation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Synchronous owned CLI children settle before later phases. The entry retains one installation and generated root for diagnosis; the next invocation replaces only its generated root. No listener or worker is created by this entry, and fixture-only stops before variant generation.
  */
-export const main = async (): Promise<void> => {
+export const main = async (preparedConsumer?: {
+  root: string;
+  requirePublic: NodeRequire;
+}): Promise<void> => {
   const scenarios: IScenario[] = selectMigrateScenarios(
     [{ name: "fixture", file: SWAGGER }],
     process.argv.includes("--fixture-only") ? [] : process.argv,
   );
+  test_migrate_entry_selection();
   if (fs.existsSync(GENERATED))
     await fs.promises.rm(GENERATED, { recursive: true });
   await fs.promises.mkdir(OUTPUT, { recursive: true });
   await fs.promises.mkdir(path.dirname(SWAGGER), { recursive: true });
 
   const consumer =
-    await require("../../../scripts/prepare-public-consumer.cjs").preparePublicConsumer(
+    preparedConsumer ??
+    (await require("../../../scripts/prepare-public-consumer.cjs").preparePublicConsumer(
       "tests/test-migrate",
-    );
+    ));
   await fs.promises.symlink(
     path.join(consumer.root, "node_modules"),
     path.join(GENERATED, "node_modules"),
@@ -300,7 +310,8 @@ const METHODS: Set<string> = new Set([
   "trace",
 ]);
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (require.main === module || process.argv[1] === __filename)
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
