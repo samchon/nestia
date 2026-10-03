@@ -150,6 +150,21 @@
         "symbol": "h2",
         "checklist": true
       }
+    },
+    {
+      "name": "Shared decoded multipart blob assertions",
+      "type": "typescript",
+      "files": [
+        "test-sdk/features/http-rich/src/controllers/options/customized/validateMultipartBlob.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": ["contracts/common.md", "contracts/performance.md"],
+        "symbol": "h2",
+        "checklist": true
+      }
     }
   ]
 }

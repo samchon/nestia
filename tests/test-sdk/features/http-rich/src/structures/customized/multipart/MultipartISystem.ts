@@ -3,7 +3,7 @@
  *
  * @author Jeongho Nam
  */
-export interface ISystem {
+export interface MultipartISystem {
   /** Random Unique ID. */
   uid: number;
 
@@ -11,16 +11,16 @@ export interface ISystem {
   arguments: string[];
 
   /** Git commit info. */
-  commit: ISystem.ICommit;
+  commit: MultipartISystem.ICommit;
 
   /** `package.json` */
-  package: ISystem.IPackage;
+  package: MultipartISystem.IPackage;
 
   /** Creation time of this server. */
   created_at: string;
 }
 
-export namespace ISystem {
+export namespace MultipartISystem {
   /** Git commit info. */
   export interface ICommit {
     shortHash: string;

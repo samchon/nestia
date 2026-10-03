@@ -1,4 +1,4 @@
-export interface IMultipart {
+export interface CustomizedIMultipart {
   title: string;
   blob: Blob;
   blobs: Blob[];
@@ -8,7 +8,7 @@ export interface IMultipart {
   files: File[];
   notes?: string[];
 }
-export namespace IMultipart {
+export namespace CustomizedIMultipart {
   export interface IContent {
     title: string;
     description: null | string;
