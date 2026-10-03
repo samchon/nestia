@@ -148,5 +148,30 @@
     },
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 8
+  },
+  {
+    "name": "query_false",
+    "controllers": ["options/query_false"],
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "decompose": false
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 9
+  },
+  {
+    "name": "query_false_v2",
+    "controllers": ["options/query_false"],
+    "generateSdk": false,
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "decompose": false,
+      "openapi": "2.0",
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 0
   }
 ]

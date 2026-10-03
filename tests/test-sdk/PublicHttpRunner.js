@@ -315,12 +315,15 @@ async function runPublicHttp() {
           path.join(fixture, "producer/controllers", directory),
         ),
         {
-          output: path.join(
-            fixture,
-            "src/test/features/profiles",
-            profile.name,
-            "api",
-          ),
+          output:
+            profile.generateSdk === false
+              ? undefined
+              : path.join(
+                  fixture,
+                  "src/test/features/profiles",
+                  profile.name,
+                  "api",
+                ),
           e2e:
             profile.generateE2e === false
               ? undefined
@@ -350,6 +353,8 @@ async function runPublicHttp() {
                     bearer: { type: "apiKey" },
                   },
                   beautify: profile.swagger?.beautify,
+                  decompose: profile.swagger?.decompose,
+                  openapi: profile.swagger?.openapi,
                   operationId: profile.operationId
                     ? (props) => `${props.class}.${props.function}`
                     : undefined,

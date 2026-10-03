@@ -1,4 +1,4 @@
-export interface IQueryHeaders {
+export interface QueryFalseIQueryHeaders {
   "x-tenant": string;
   "x-page"?: number;
 }

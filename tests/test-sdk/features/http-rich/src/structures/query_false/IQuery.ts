@@ -1,4 +1,4 @@
-export interface IQuery {
+export interface QueryFalseIQuery {
   limit?: number;
   enforce: boolean;
   values: string[];

@@ -1,4 +1,4 @@
-export interface IIgnoredQuery {
+export interface QueryFalseIIgnoredQuery {
   keyword?: string;
   /** @ignore */
   tenant: string;
