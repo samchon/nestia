@@ -17,11 +17,17 @@ export class QueryTrueController {
   public async nest(
     @Query() query: QueryTrueINestQuery,
   ): Promise<QueryTrueIQuery> {
+    // Plain Nest Query preserves the parser's absent/scalar/repeated shapes.
+    const values = query.values as string | string[] | undefined;
     return {
       limit: query.limit !== undefined ? Number(query.limit) : undefined,
       enforce: query.enforce === "true",
       atomic: query.atomic === "null" ? null : query.atomic,
-      values: query.values,
+      values: Array.isArray(values)
+        ? values
+        : values === undefined
+          ? []
+          : [values],
     };
   }
 

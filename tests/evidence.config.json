@@ -56,7 +56,8 @@
       "name": "Shared installed Swagger parameter assertions",
       "type": "typescript",
       "files": [
-        "test-sdk/features/http-rich/src/test/features/test_rich_swagger_parameters_*.ts"
+        "test-sdk/features/http-rich/src/test/features/test_rich_swagger_parameters_*.ts",
+        "test-sdk/features/http-rich/src/test/features/api/query_true/test_*.ts"
       ],
       "symbol": "function",
       "reference": {

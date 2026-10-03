@@ -1,27 +1,23 @@
 {
   "generatedCases": [
     {
-      "accessorPrefix": [
-        "http_rich",
-        "tags"
-      ],
+      "accessorPrefix": ["http_rich", "tags"],
       "execute": false,
       "reason": "The original tags configuration requests SDK and Swagger only. Custom TagBase predicates provide no random generation rule; authored requests cover their valid and invalid inputs."
     },
     {
-      "accessorPrefix": [
-        "http_rich",
-        "exception_filter"
-      ],
+      "accessorPrefix": ["http_rich", "exception_filter"],
       "execute": false,
       "reason": "The original exception-filter configuration requests SDK and Swagger only. Seven authored cases retain its intentional failure responses and health/performance checks; no generated random requests were executed."
     },
     {
-      "accessorPrefix": [
-        "http_rich",
-        "swagger_parameters"
-      ],
+      "accessorPrefix": ["http_rich", "swagger_parameters"],
       "execute": false
+    },
+    {
+      "accessorPrefix": ["http_rich", "query_true"],
+      "execute": false,
+      "reason": "The original query-decompose-true configuration requests SDK and Swagger only. Its seven authored cases and the plain Nest query array boundary case execute explicitly; generated random requests were not part of the original suite."
     }
   ]
 }
