@@ -1,7 +1,7 @@
 import { Controller, Get, Header, StreamableFile } from "@nestjs/common";
 
-@Controller("stream")
-export class StreamController {
+@Controller("http_rich/options/stream_dot_paths/stream")
+export class StreamBytesController {
   @Header("Content-Type", "image/png")
   @Get("image")
   public image(): StreamableFile {

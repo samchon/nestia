@@ -368,5 +368,16 @@
     },
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 1
+  },
+  {
+    "name": "stream_dot_paths",
+    "controllers": ["options/stream_dot_paths"],
+    "simulate": true,
+    "generateE2e": false,
+    "swagger": {
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 2
   }
 ]
