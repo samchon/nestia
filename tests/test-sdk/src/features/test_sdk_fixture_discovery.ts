@@ -5,7 +5,7 @@ import path from "node:path";
 
 const {
   discoverSdkFixtures,
-} = require("../integration/internal/SdkFixtureDiscovery.js");
+} = require("../integration/internal/SdkFixtureDiscovery.ts");
 
 /**
  * Verifies fixture discovery requires its current execution configuration.

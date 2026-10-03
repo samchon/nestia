@@ -224,6 +224,9 @@ importers:
       '@ttsc/unplugin':
         specifier: catalog:typescript
         version: 0.28.1(ttsc@0.28.1)
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.9.0
       tinyglobby:
         specifier: ^0.2.16
         version: 0.2.16

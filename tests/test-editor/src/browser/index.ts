@@ -16,7 +16,7 @@ import { DynamicExecutor } from "../../../../packages/e2e/lib";
 export async function main(): Promise<void> {
   const {
     prepareUnitArtifacts,
-  } = require("../../../../scripts/UnitArtifacts.cjs");
+  } = require("../../../../config/testing/UnitArtifacts.ts");
   const owned = process.env.NESTIA_UNIT_ARTIFACT_ROOT
     ? undefined
     : prepareUnitArtifacts(["@nestia/editor"]);

@@ -1,0 +1,24 @@
+{
+  "severity": "error",
+  "claims": [
+    {
+      "name": "Shared test artifact and compiler configuration",
+      "type": "typescript",
+      "files": [
+        "testing/*.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/portability.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    }
+  ]
+}

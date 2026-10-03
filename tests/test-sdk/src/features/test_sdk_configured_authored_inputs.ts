@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 const {
   isAuthoredConfiguredInput,
-} = require("../integration/PublicConfiguredRunner.js");
+} = require("../integration/PublicConfiguredRunner.ts");
 
 /**
  * Verifies configured SDK inputs exclude generated remnants at every output

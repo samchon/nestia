@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 
 const {
   assertSdkFeaturesSelected,
-} = require("../integration/internal/SdkFixtureDiscovery.js");
+} = require("../integration/internal/SdkFixtureDiscovery.ts");
 
 /**
  * Verifies an empty SDK execution plan fails without changing valid plans.

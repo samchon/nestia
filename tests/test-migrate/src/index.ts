@@ -34,7 +34,7 @@ const OUTPUT: string = path.join(GENERATED, "output");
 const NODE: string = process.execPath;
 Object.assign(
   process.env,
-  require("../../../scripts/run-tests.cjs").resolveTestEnvironment(
+  require("../../../config/testing/CompilerEnvironment.ts").resolveTestEnvironment(
     ROOT,
     process.env,
   ),
@@ -219,7 +219,7 @@ export const main = async (preparedConsumer?: {
 
   const consumer =
     preparedConsumer ??
-    (await require("../../../scripts/prepare-public-consumer.cjs").preparePublicConsumer(
+    (await require("../../../config/testing/PublicConsumer.ts").preparePublicConsumer(
       "tests/test-migrate",
     ));
   await fs.promises.symlink(

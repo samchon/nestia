@@ -67,7 +67,8 @@
         "features/swagger-한글경로/src/test/features/swagger/test_swagger.ts",
         "features/http-rich/src/test/features/api/query_true/test_*.ts",
         "features/http-rich/src/test/features/profiles/*/test/features/**/test_*.ts",
-        "features/http-rich/src/test/postconditions/test_*.ts"
+        "features/http-rich/src/test/postconditions/test_*.ts",
+        "features/clone-exact-optional/src/test/features/test_clone_optional_assignability.ts"
       ],
       "symbol": "function",
       "reference": {
@@ -83,12 +84,9 @@
     },
     {
       "name": "Shared installed HTTP programs and generation graphs",
-      "type": "javascript",
+      "type": "typescript",
       "files": [
-        "src/integration/PublicHttpRunner.js",
-        "src/integration/PublicConfiguredRunner.js",
-        "src/integration/internal/PublicHttpProfileCoverage.js",
-        "src/integration/internal/PublicCompiler.js"
+        "src/integration/PublicHttpRunner.ts"
       ],
       "symbol": "function",
       "reference": {
@@ -122,9 +120,9 @@
     },
     {
       "name": "Configured SDK fixture discovery",
-      "type": "javascript",
+      "type": "typescript",
       "files": [
-        "src/integration/internal/SdkFixtureDiscovery.js"
+        "src/integration/internal/SdkFixtureDiscovery.ts"
       ],
       "symbol": "function",
       "reference": {
@@ -176,9 +174,9 @@
     },
     {
       "name": "Installed compiler connection assertions",
-      "type": "javascript",
+      "type": "typescript",
       "files": [
-        "src/integration/features/test_*.js"
+        "src/integration/features/test_*.ts"
       ],
       "symbol": "function",
       "reference": {
@@ -204,6 +202,47 @@
         "root": "../../.agents/skills",
         "files": [
           "contracts/common.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Shared integration prerequisite and owner continuation",
+      "type": "typescript",
+      "files": [
+        "src/integration/index.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/portability.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Shared installed program preparation",
+      "type": "typescript",
+      "files": [
+        "src/integration/PublicConfiguredRunner.ts",
+        "src/integration/internal/PublicHttpProfileCoverage.ts",
+        "src/integration/internal/PublicCompiler.ts",
+        "src/integration/SdkRunner.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/portability.md",
           "contracts/performance.md"
         ],
         "symbol": "h2",

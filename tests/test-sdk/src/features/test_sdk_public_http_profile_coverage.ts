@@ -3,7 +3,7 @@ import path from "node:path";
 
 const {
   validatePublicHttpProfiles,
-} = require("../integration/internal/PublicHttpProfileCoverage.js");
+} = require("../integration/internal/PublicHttpProfileCoverage.ts");
 
 /**
  * Verifies executor attribution rejects partial or duplicated SDK profiles.

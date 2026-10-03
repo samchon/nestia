@@ -31,7 +31,9 @@ export const test_editor_unit_artifact_graph = (): void => {
       names: string[],
       repository: string,
     ) => { root: string; dispose: () => void };
-  } = require(path.resolve(process.cwd(), "../../scripts/UnitArtifacts.cjs"));
+  } = require(
+    path.resolve(process.cwd(), "../../config/testing/UnitArtifacts.ts"),
+  );
   const parent = fs.realpathSync(os.tmpdir());
   const fixture = fs.mkdtempSync(path.join(parent, "nestia-unit-graph-"));
   const views: ReturnType<typeof prepareUnitArtifacts>[] = [];

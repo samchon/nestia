@@ -20,7 +20,7 @@ export const test_editor_unit_failure_aggregation = (): void => {
     runEditorUnitPhases,
   }: {
     runEditorUnitPhases: (run: (command: string) => number) => number;
-  } = require(path.resolve(process.cwd(), "start.js"));
+  } = require(path.resolve(__dirname, "../UnitRunner.ts"));
   for (const [ssr, browser, expected] of [
     [0, 0, 0],
     [1, 0, 1],
