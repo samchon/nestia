@@ -1,8 +1,8 @@
-export interface IForbidden {
+export interface PropagationIForbidden {
   status: 403;
   message: string;
 }
-export namespace IForbidden {
+export namespace PropagationIForbidden {
   export interface IExpired {
     status: 422;
     message: string;

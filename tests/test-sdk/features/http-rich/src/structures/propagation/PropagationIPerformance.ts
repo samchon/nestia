@@ -3,7 +3,7 @@
  *
  * @author Samchon
  */
-export interface IPerformance {
+export interface PropagationIPerformance {
   cpu: NodeJS.CpuUsage;
   memory: NodeJS.MemoryUsage;
   resource: NodeJS.ResourceUsage;

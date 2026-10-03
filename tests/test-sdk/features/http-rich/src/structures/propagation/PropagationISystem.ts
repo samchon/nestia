@@ -3,7 +3,7 @@
  *
  * @author Jeongho Nam
  */
-export interface ISystem {
+export interface PropagationISystem {
   /** Random Unique ID. */
   uid: number;
 
@@ -11,16 +11,16 @@ export interface ISystem {
   arguments: string[];
 
   /** Git commit info. */
-  commit: ISystem.ICommit;
+  commit: PropagationISystem.ICommit;
 
   /** `package.json` */
-  package: ISystem.IPackage;
+  package: PropagationISystem.IPackage;
 
   /** Creation time of this server. */
   created_at: string;
 }
 
-export namespace ISystem {
+export namespace PropagationISystem {
   /** Git commit info. */
   export interface ICommit {
     shortHash: string;

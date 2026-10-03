@@ -6,7 +6,10 @@
     "controllers": ["clone/common", "clone/base", "clone/keyword"],
     "clone": true,
     "keyword": true,
-    "simulate": true
+    "simulate": true,
+    "swagger": {
+      "beautify": true
+    }
   },
   {
     "name": "propagate",
@@ -15,7 +18,10 @@
     "controllers": ["clone/common", "clone/base", "clone/propagate"],
     "clone": true,
     "propagate": true,
-    "simulate": true
+    "simulate": true,
+    "swagger": {
+      "beautify": true
+    }
   },
   {
     "name": "combined",
@@ -25,7 +31,10 @@
     "clone": true,
     "keyword": true,
     "propagate": true,
-    "simulate": true
+    "simulate": true,
+    "swagger": {
+      "beautify": true
+    }
   },
   {
     "name": "implicit",
@@ -33,14 +42,20 @@
     "clone": true,
     "simulate": true,
     "expectedGeneratedCases": 2,
-    "expectedAuthoredCases": 0
+    "expectedAuthoredCases": 0,
+    "swagger": {
+      "beautify": true
+    }
   },
   {
     "name": "native",
     "controllers": ["clone/native"],
     "clone": true,
     "expectedGeneratedCases": 2,
-    "expectedAuthoredCases": 0
+    "expectedAuthoredCases": 0,
+    "swagger": {
+      "beautify": true
+    }
   },
   {
     "name": "tags",
@@ -76,9 +91,17 @@
           "in": "header",
           "name": "Authorization"
         }
-      }
+      },
+      "beautify": true
     },
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 1
+  },
+  {
+    "name": "propagation",
+    "controllers": ["options/propagation"],
+    "propagate": true,
+    "expectedGeneratedCases": 3,
+    "expectedAuthoredCases": 0
   }
 ]

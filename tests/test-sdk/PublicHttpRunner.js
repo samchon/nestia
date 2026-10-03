@@ -228,7 +228,10 @@ async function runPublicHttp() {
       consumer,
       {
         include: [path.join(fixture, "producer/controllers")],
-        exclude: [path.join(fixture, "producer/controllers/clone")],
+        exclude: [
+          path.join(fixture, "producer/controllers/clone"),
+          path.join(fixture, "producer/controllers/options"),
+        ],
       },
       {
         output: path.join(fixture, "src/api"),
@@ -320,7 +323,7 @@ async function runPublicHttp() {
             security: profile.swagger?.security ?? {
               bearer: { type: "apiKey" },
             },
-            beautify: true,
+            beautify: profile.swagger?.beautify,
             operationId: profile.operationId
               ? (props) => `${props.class}.${props.function}`
               : undefined,
