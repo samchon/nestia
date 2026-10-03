@@ -3,10 +3,10 @@ import { Controller } from "@nestjs/common";
 import { ApiBasicAuth, ApiBearerAuth, ApiOAuth2 } from "@nestjs/swagger";
 import typia from "typia";
 
-import { IToken } from "@api/lib/structures/IToken";
+import { IToken } from "../../structures/security/IToken";
 
-@Controller()
-export class SecurityController {
+@Controller("http_rich/security")
+export class RichSecurityController {
   @ApiBasicAuth()
   @core.TypedRoute.Get("basic")
   public basic(): IToken {
