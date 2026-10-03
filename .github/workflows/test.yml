@@ -26,8 +26,9 @@ jobs:
       - uses: pnpm/action-setup@v4
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
-      - name: Restore Build And Test Cache
-        uses: actions/cache@v4
+      - name: Restore Test Cache
+        id: test-cache
+        uses: actions/cache/restore@v4
         with:
           path: |
             node_modules/.cache/ttsc
@@ -37,7 +38,30 @@ jobs:
           key: ttsc-v2-test-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*', 'packages/migrate/src/executable/*.js', 'package.json') }}
           restore-keys: |
             ttsc-v2-test-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
-            ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*', 'packages/migrate/src/executable/*.js', 'package.json') }}
+      # A prior test cache includes native test hosts that a build cache lacks.
+      # Resolve that population first; a prefix match is useful even when
+      # cache-hit is false. Never overwrite it with an exact build-key match.
+      - name: Restore Build Cache On Test Cache Miss
+        if: steps.test-cache.outputs.cache-matched-key == ''
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules/.cache/ttsc
+            ~/go/pkg/mod
+            packages/migrate/assets/.bundle-cache.json
+            packages/migrate/src/bundles
+          key: ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*', 'packages/migrate/src/executable/*.js', 'package.json') }}
+          restore-keys: |
             ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
       - name: Run Tests
         run: pnpm test
+      - name: Save Test Cache
+        if: success() && steps.test-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules/.cache/ttsc
+            ~/go/pkg/mod
+            packages/migrate/assets/.bundle-cache.json
+            packages/migrate/src/bundles
+          key: ${{ steps.test-cache.outputs.cache-primary-key }}
