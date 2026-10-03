@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 
 @Catch(HttpException)
-export class HttpExceptionFilter implements ExceptionFilter {
+export class RichHttpExceptionFilter implements ExceptionFilter {
   public static MESSAGE = "Customized error message.";
 
   catch(exception: HttpException, host: ArgumentsHost) {
@@ -14,6 +14,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     http
       .getResponse()
       .status(exception.getStatus())
-      .json(HttpExceptionFilter.MESSAGE);
+      .json(RichHttpExceptionFilter.MESSAGE);
   }
 }

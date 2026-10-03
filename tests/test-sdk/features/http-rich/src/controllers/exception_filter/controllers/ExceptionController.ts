@@ -9,15 +9,19 @@ import {
 import { tags } from "typia";
 import { v4 } from "uuid";
 
-import { IAttachmentFile, IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import {
+  ExceptionFilterIAttachmentFile,
+  ExceptionFilterIBbsArticle,
+} from "../../../structures/exception_filter/IBbsArticle";
+import { RichHttpExceptionFilter } from "../filters/HttpExceptionFilter";
 
-import { HttpExceptionFilter } from "../filters/HttpExceptionFilter";
-
-@Controller("exception")
-export class ExceptionController {
-  @UseFilters(HttpExceptionFilter)
+@Controller("http_rich/exception_filter/exception")
+export class ExceptionFilterExceptionController {
+  @UseFilters(RichHttpExceptionFilter)
   @core.TypedRoute.Post("typedBody")
-  public typedBody(@core.TypedBody() input: IBbsArticle.IStore): IBbsArticle {
+  public typedBody(
+    @core.TypedBody() input: ExceptionFilterIBbsArticle.IStore,
+  ): ExceptionFilterIBbsArticle {
     return {
       ...input,
       id: v4(),
@@ -25,13 +29,13 @@ export class ExceptionController {
     };
   }
 
-  @UseFilters(HttpExceptionFilter)
+  @UseFilters(RichHttpExceptionFilter)
   @core.TypedRoute.Get("typedManual")
   public typedManual(): void {
     throw new UnprocessableEntityException("Unprocessable");
   }
 
-  @UseFilters(HttpExceptionFilter)
+  @UseFilters(RichHttpExceptionFilter)
   @core.TypedRoute.Get(":id/typedParam")
   public typedParam(
     @core.TypedParam("id") id: string & tags.Format<"uuid">,
@@ -39,13 +43,15 @@ export class ExceptionController {
     id;
   }
 
-  @UseFilters(HttpExceptionFilter)
+  @UseFilters(RichHttpExceptionFilter)
   @core.TypedRoute.Get("typedQuery")
-  public typedQuery(@core.TypedQuery() file: IAttachmentFile): IAttachmentFile {
+  public typedQuery(
+    @core.TypedQuery() file: ExceptionFilterIAttachmentFile,
+  ): ExceptionFilterIAttachmentFile {
     return file;
   }
 
-  @UseFilters(HttpExceptionFilter)
+  @UseFilters(RichHttpExceptionFilter)
   @Get("internal")
   public internal(): void {
     throw new InternalServerErrorException("Intended internal server error.");

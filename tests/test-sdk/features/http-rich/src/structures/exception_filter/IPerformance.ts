@@ -3,7 +3,7 @@
  *
  * @author Samchon
  */
-export interface IPerformance {
+export interface ExceptionFilterIPerformance {
   cpu: NodeJS.CpuUsage;
   memory: NodeJS.MemoryUsage;
   resource: NodeJS.ResourceUsage;
