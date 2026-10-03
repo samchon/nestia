@@ -7,14 +7,14 @@ import {
 import { BadRequestException, Controller } from "@nestjs/common";
 import typia, { TypeGuardError } from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
-import { IExceptional } from "@api/lib/structures/IExceptional";
-import { IInternalServerError } from "@api/lib/structures/IInternalServerError";
-import { INotFound } from "@api/lib/structures/INotFound";
-import { IUnprocessibleEntity } from "@api/lib/structures/IUnprocessibleEntity";
+import { ExceptionIBbsArticle } from "../../structures/exception/ExceptionIBbsArticle";
+import { ExceptionIExceptional } from "../../structures/exception/ExceptionIExceptional";
+import { ExceptionIInternalServerError } from "../../structures/exception/ExceptionIInternalServerError";
+import { ExceptionINotFound } from "../../structures/exception/ExceptionINotFound";
+import { ExceptionIUnprocessibleEntity } from "../../structures/exception/ExceptionIUnprocessibleEntity";
 
-@Controller("exception")
-export class ExceptionController {
+@Controller("http_rich/exception")
+export class RichExceptionController {
   @TypedRoute.Post(":section/typed")
   @TypedException<TypeGuardError>({
     status: 400,
@@ -54,27 +54,33 @@ export class ExceptionController {
       },
     },
   })
-  @TypedException<INotFound>(404, "unable to find the matched section")
-  @TypedException<IUnprocessibleEntity>(428)
-  @TypedException<IInternalServerError>("5XX", "internal server error")
+  @TypedException<ExceptionINotFound>(404, "unable to find the matched section")
+  @TypedException<ExceptionIUnprocessibleEntity>(428)
+  @TypedException<ExceptionIInternalServerError>("5XX", "internal server error")
   public async typed(
     @TypedParam("section") section: string,
-    @TypedBody() input: IBbsArticle.IStore,
-  ): Promise<IBbsArticle> {
+    @TypedBody() input: ExceptionIBbsArticle.IStore,
+  ): Promise<ExceptionIBbsArticle> {
     section;
     input;
-    return typia.random<IBbsArticle>();
+    return typia.random<ExceptionIBbsArticle>();
   }
 
   @TypedRoute.Get(":section/union")
   @TypedException<
-    IExceptional.Something | IExceptional.Nothing | IExceptional.Everything
+    | ExceptionIExceptional.Something
+    | ExceptionIExceptional.Nothing
+    | ExceptionIExceptional.Everything
   >(428, "unable to process the request")
   public async union(
     @TypedParam("section") section: string,
-  ): Promise<IBbsArticle | INotFound | IUnprocessibleEntity> {
+  ): Promise<
+    ExceptionIBbsArticle | ExceptionINotFound | ExceptionIUnprocessibleEntity
+  > {
     section;
-    return typia.random<IBbsArticle | INotFound | IUnprocessibleEntity>();
+    return typia.random<
+      ExceptionIBbsArticle | ExceptionINotFound | ExceptionIUnprocessibleEntity
+    >();
   }
 
   @TypedRoute.Get("nestjs-bad-request")
@@ -95,11 +101,11 @@ export class ExceptionController {
   @TypedRoute.Post(":section/tags")
   public async tags(
     @TypedParam("section") section: string,
-    @TypedBody() input: IBbsArticle.IStore,
-  ): Promise<IBbsArticle> {
+    @TypedBody() input: ExceptionIBbsArticle.IStore,
+  ): Promise<ExceptionIBbsArticle> {
     section;
     input;
-    return typia.random<IBbsArticle>();
+    return typia.random<ExceptionIBbsArticle>();
   }
 
   /**
@@ -110,15 +116,15 @@ export class ExceptionController {
    */
   @TypedRoute.Post(":section/composite")
   @TypedException<TypeGuardError>(400, "invalid request")
-  @TypedException<INotFound>(404)
-  @TypedException<IUnprocessibleEntity>(428)
-  @TypedException<IInternalServerError>("5XX")
+  @TypedException<ExceptionINotFound>(404)
+  @TypedException<ExceptionIUnprocessibleEntity>(428)
+  @TypedException<ExceptionIInternalServerError>("5XX")
   public async composite(
     @TypedParam("section") section: string,
-    @TypedBody() input: IBbsArticle.IStore,
-  ): Promise<IBbsArticle> {
+    @TypedBody() input: ExceptionIBbsArticle.IStore,
+  ): Promise<ExceptionIBbsArticle> {
     section;
     input;
-    return typia.random<IBbsArticle>();
+    return typia.random<ExceptionIBbsArticle>();
   }
 }

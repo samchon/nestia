@@ -1,11 +1,11 @@
-export interface IBbsArticle extends IBbsArticle.IStore {
+export interface ExceptionIBbsArticle extends ExceptionIBbsArticle.IStore {
   /** @format uuid */
   id: string;
 
   /** @format date-time */
   created_at: string;
 }
-export namespace IBbsArticle {
+export namespace ExceptionIBbsArticle {
   export interface IStore {
     /**
      * @minLength 3
@@ -13,11 +13,11 @@ export namespace IBbsArticle {
      */
     title: string;
     body: string;
-    files: IAttachmentFile[];
+    files: ExceptionIAttachmentFile[];
   }
 }
 
-export interface IAttachmentFile {
+export interface ExceptionIAttachmentFile {
   /**
    * @minLength 1
    * @maxLength 255

@@ -1,4 +1,4 @@
-export interface INotFound {
+export interface ExceptionINotFound {
   schema: string;
   table: string;
   id: string;

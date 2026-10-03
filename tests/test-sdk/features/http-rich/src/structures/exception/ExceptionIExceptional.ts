@@ -1,4 +1,4 @@
-export namespace IExceptional {
+export namespace ExceptionIExceptional {
   export interface Something {
     type: "something";
   }
