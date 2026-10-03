@@ -41,7 +41,8 @@
     "rimraf": "catalog:utils",
     "sloc": "^0.3.0",
     "ttsc": "catalog:typescript",
-    "typescript": "catalog:typescript"
+    "typescript": "catalog:typescript",
+    "yaml": "catalog:utils"
   },
   "packageManager": "pnpm@10.6.4"
 }

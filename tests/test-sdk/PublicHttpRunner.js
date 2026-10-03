@@ -3,7 +3,7 @@ const fs = require("node:fs/promises");
 const path = require("node:path");
 const { resolveTestEnvironment } = require("../../scripts/run-tests.cjs");
 
-const { preparePublicConsumer } = require("./PublicConsumer");
+const { preparePublicConsumer } = require("../../scripts/prepare-public-consumer.cjs");
 const { compilePublicProgram } = require("./PublicCompiler");
 const { validatePublicHttpProfiles } = require("./PublicHttpProfileCoverage");
 const { test_public_user_global } = require("./test_public_user_global");
@@ -57,7 +57,7 @@ const { test_public_legacy_plugins } = require("./test_public_legacy_plugins");
 async function runPublicHttp() {
   const root = path.resolve(__dirname, "../..");
   Object.assign(process.env, resolveTestEnvironment(root, process.env));
-  const consumer = await preparePublicConsumer();
+  const consumer = await preparePublicConsumer("tests/test-sdk");
   const fixture = path.join(consumer.root, "projects/http-rich");
   const relative = path.relative(consumer.root, fixture);
   assert(

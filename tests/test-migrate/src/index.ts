@@ -19,13 +19,15 @@ import { test_migrate_nest_named_examples } from "./features/test_migrate_nest_n
 import { EMPTY_PATHS_DOCUMENT } from "./features/test_migrate_sdk_empty_paths";
 import { compileMigrationPrograms } from "./internal/compileMigrationPrograms";
 import { test_migrate_generated_project_inputs } from "./internal/test_migrate_generated_project_inputs";
+import { test_migrate_installed_cli_resolution } from "./internal/test_migrate_installed_cli_resolution";
 import { test_migrate_simulate_throws } from "./internal/test_migrate_simulate_throws";
 
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
-const FIXTURE: string = path.join(TEST_ROOT, "fixture");
+const FIXTURE_SOURCE: string = path.join(TEST_ROOT, "fixture");
 const GENERATED: string = path.join(TEST_ROOT, ".generated");
-const SWAGGER: string = path.join(GENERATED, "swagger.json");
+const FIXTURE: string = path.join(GENERATED, "fixture");
+const SWAGGER: string = path.join(GENERATED, ".generated", "swagger.json");
 const OUTPUT: string = path.join(GENERATED, "output");
 const NODE: string = process.execPath;
 Object.assign(
@@ -65,19 +67,15 @@ const spawn = (cwd: string, args: string[]): void => {
     env: {
       ...process.env,
       TTSC_CACHE_DIR,
+      NODE_OPTIONS: "",
+      NODE_PATH: "",
     },
   });
 };
 
-const generateSwagger = (): Promise<number> =>
+const generateSwagger = (cli: string): Promise<number> =>
   measure("fixture-swagger")(() => {
-    spawn(FIXTURE, [
-      NODE,
-      path.join(ROOT, "packages", "cli", "bin", "index.js"),
-      "swagger",
-      "--project",
-      "tsconfig.json",
-    ]);
+    spawn(FIXTURE, [NODE, cli, "swagger", "--project", "tsconfig.json"]);
     return Promise.resolve();
   });
 
@@ -181,13 +179,54 @@ const execute = async (
  * Generates the controller fixture's Swagger document, exercises migration
  * assertions, and compiles the generated NestJS and SDK projects in both
  * calling conventions. The generated files remain available for diagnosis.
+ *
+ * The original fixture inputs are copied under the generated owner. Only its
+ * inherited tsconfig pathname is rebased; the configuration's relative Swagger
+ * output and all controller/DTO contents stay unchanged. Ordinary installed
+ * packages serve the fixture and generated runtime through one directory link.
+ *
+ * @evidence contracts/common.md#principled-implementation Fresh caller-built tarballs and the migration owner's frozen dependency graph supply the real published CLI and runtimes. Copied original fixture sources retain generation inputs; tsconfig inheritance targets the same original base. Existing Swagger, archive, generated-project, invalid-input and simulator assertions remain in their original sequence.
+ * @evidence contracts/common.md#clear-and-simple-design One entry owns public preparation, original fixture generation and the combined generated program. The fixture-only command exits after the same real CLI gate; direct units have their separate runner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Node's ordinary installed export maps and a filesystem directory link supply dependencies. Plain CLI children clear inherited loader/search-path overrides; no package resolver, compiler output, metadata or fixture assertion is substituted.
+ * @evidence contracts/common.md#meaningful-documentation The comment distinguishes copied input from the rebased native config path, identifies installed package ownership and explains diagnostic output retention and the unit boundary.
+ * @evidence contracts/portability.md#os-neutral-implementation Native path operations establish the generated root, copied fixture, output parent and tsconfig base. Node junction/symlink support connects the actual dependency directory on Windows and POSIX; executable/argument arrays launch the installed CLI without a shell.
+ * @evidence contracts/performance.md#efficient-algorithms One fixture copy and one Swagger generation feed all migration variants. Their combined compiler still checks the original selected source union once; no per-variant native compilation or backend is added.
+ * @evidence contracts/performance.md#reuse-equivalent-work The unchanged installed graph serves the real CLI, fixture compiler and generated runtime within this invocation. The fixture's original schemas feed both calling conventions; direct units do not repeat installation or generation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Synchronous owned CLI children settle before later phases. The entry retains one installation and generated root for diagnosis; the next invocation replaces only its generated root. No listener or worker is created by this entry, and fixture-only stops before variant generation.
  */
 export const main = async (): Promise<void> => {
   if (fs.existsSync(GENERATED))
     await fs.promises.rm(GENERATED, { recursive: true });
   await fs.promises.mkdir(OUTPUT, { recursive: true });
+  await fs.promises.mkdir(path.dirname(SWAGGER), { recursive: true });
 
-  await generateSwagger();
+  const consumer =
+    await require("../../../scripts/prepare-public-consumer.cjs").preparePublicConsumer(
+      "tests/test-migrate",
+    );
+  await fs.promises.symlink(
+    path.join(consumer.root, "node_modules"),
+    path.join(GENERATED, "node_modules"),
+    "junction",
+  );
+  await fs.promises.cp(FIXTURE_SOURCE, FIXTURE, {
+    recursive: true,
+    filter: (file) => path.basename(file) !== "node_modules",
+  });
+  const project = JSON.parse(
+    await fs.promises.readFile(path.join(FIXTURE, "tsconfig.json"), "utf8"),
+  );
+  project.extends = path.join(TEST_ROOT, "tsconfig.json");
+  await fs.promises.writeFile(
+    path.join(FIXTURE, "tsconfig.json"),
+    JSON.stringify(project, null, 2),
+  );
+  const cli = test_migrate_installed_cli_resolution(
+    consumer.root,
+    consumer.requirePublic,
+  );
+  await generateSwagger(cli);
+  if (process.argv.includes("--fixture-only")) return;
 
   const scenarios: IScenario[] = [
     {

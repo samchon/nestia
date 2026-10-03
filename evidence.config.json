@@ -6,6 +6,7 @@
       "type": "javascript",
       "files": [
         "scripts/UnitArtifacts.cjs",
+        "scripts/prepare-public-consumer.cjs",
         "scripts/run-tests.cjs",
         "scripts/run-unit.cjs",
         "scripts/run-integration.cjs",

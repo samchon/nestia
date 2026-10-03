@@ -5,29 +5,34 @@ const { createRequire } = require("node:module");
 const path = require("node:path");
 const yaml = require("yaml");
 
-const ROOT = path.resolve(__dirname, "../..");
-const CONSUMER = path.join(__dirname, ".tmp-public-consumer");
-let preparation;
+const ROOT = path.resolve(__dirname, "..");
+const preparations = new Map();
 
 /**
  * Installs one public consumer from the caller's built tarballs and lock graph.
  *
- * The owning integration command calls this once before producer, generation,
+ * The owning integration command supplies its frozen-lock dependency owner
+ * once before producer, generation,
  * runtime and worker connections share the same ordinary installed packages.
  * Each invocation of that command repacks and installs current inputs; no
  * persistent success stamp can hide a changed package artifact.
  *
  * @evidence contracts/common.md#principled-implementation Published tarballs supply all eight package dependencies and overrides. Both published importer edges and registry snapshot edges supply exact parent/dependency overrides. The actual installed public-owner edges must match their caller resolutions, every registry version must belong to the frozen graph, and public entries must resolve inside the ordinary private install as JavaScript artifacts.
- * @evidence contracts/common.md#clear-and-simple-design One command-scoped promise owns packing and installation, while callers receive the installed root and its normal require function. Compiler, generators and hosts retain their own lifetimes.
+ * @evidence contracts/common.md#clear-and-simple-design One command-scoped promise per normalized dependency owner owns packing and installation, while callers receive the installed root and its normal require function. Compiler, generators and hosts retain their own lifetimes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Supported pnpm file dependencies and overrides replace no foreign resolver or module export. The installer does not rewrite a lockfile, build source packages or modify emitted JavaScript to resolve public imports.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies caller-built inputs, shared installation scope and the absence of a persistent skip stamp; preparation phases and failures remain visible.
  * @evidence contracts/portability.md#os-neutral-implementation Native filesystem paths identify the repository and private root. File dependency URLs use forward slashes, and the caller's pnpm JavaScript entry is launched through process.execPath with argument arrays instead of platform shell quoting. Inherited NODE_PATH and NODE_OPTIONS are cleared only in owned plain-Node children.
- * @evidence contracts/performance.md#efficient-algorithms Override construction visits each published-owner and registry dependency edge once. Installed-result validation visits each public-owner edge and registry package once using map/set membership; ordinary pnpm owns installation and content-addressed store reuse.
- * @evidence contracts/performance.md#reuse-equivalent-work The promise shares one preparation only inside this integration process against its unchanged caller-built snapshot. Every new process repacks and invokes pnpm so changed tarballs and lock inputs are observed.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The process retains one promise, the private installation path and its require function. Each child is awaited and rejected on failure; no listener or worker is retained by installation. Generated consumers live in the ignored assignment root.
+ * @evidence contracts/performance.md#efficient-algorithms One normalized owner lookup in a Map avoids repeating its install request. The delegated installer owns linear lock-edge construction and installed-graph validation.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each promise shares preparation only for the same dependency owner inside this integration process against unchanged caller-built inputs. Every new process repacks and installs so changed tarballs and lock inputs are observed; different importers retain their exact dependencies.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The process retains one promise and ordinary require function per requested owner. Current independent SDK and migration commands each request one owner; no historical snapshots survive a process. Awaited preparation retains no listener or worker.
  */
-function preparePublicConsumer() {
-  return (preparation ??= installPublicConsumer());
+function preparePublicConsumer(owner) {
+  const ownerRoot = path.resolve(ROOT, owner);
+  const relative = path.relative(ROOT, ownerRoot);
+  assert(relative && relative !== ".." && !relative.startsWith(".." + path.sep) && !path.isAbsolute(relative), "Public consumer dependency owner must be inside the repository.");
+  if (!preparations.has(ownerRoot))
+    preparations.set(ownerRoot, installPublicConsumer(ownerRoot));
+  return preparations.get(ownerRoot);
 }
 
 /**
@@ -45,29 +50,35 @@ function preparePublicConsumer() {
  * resolve normally; an offline-only install would reject an otherwise
  * provisioned CI.
  *
- * Principled implementation: Exact importer versions and snapshot dependency
- * edges derive from the frozen caller lock; file dependencies point at freshly
- * packed artifacts. Conflicting overrides reject instead of guessing which
- * peer-context relationship is correct. clear and simple design: The operation
- * constructs one manifest, packs once, installs once and validates ordinary
- * package resolution before exposing the consumer. prohibited implementation
- * shortcuts: All package resolution occurs through Node createRequire rooted at
- * the private manifest. No workspace manifest or foreign loader is altered and
- * installation failure is not retried into a pass. meaningful documentation:
- * The comment explains dependency ownership, alias handling and the
- * conflicting-edge failure; logs distinguish packing and installation from
- * later compiler and runtime phases.
+ * The preparation entry supplies the normalized, contained owner root.
+ *
+ * @evidence contracts/common.md#principled-implementation Exact importer versions and snapshot edges derive from the frozen caller lock; public file dependencies point at fresh built tarballs. Conflicting overrides reject, and actual public-owner edges/registry versions/runtime addresses are validated after installation.
+ * @evidence contracts/common.md#clear-and-simple-design One owner supplies one manifest, packing phase, installation and validation. The result contains only the ordinary private root and its require function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Node createRequire and pnpm's supported file dependencies/overrides own resolution. Neither workspace manifests nor foreign loaders nor emitted JavaScript are altered; failed installation is not retried into success.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains importer/snapshot ownership, alias and conflict handling, and prefer-offline provisioning. Preparation logs identify its package population and total duration separately from compiler/runtime phases.
+ * @evidence contracts/portability.md#os-neutral-implementation Native paths identify inputs and installation roots; file dependency URLs use forward slashes. The caller's absolute pnpm JavaScript launcher runs through process.execPath with argument arrays and no shell.
+ * @evidence contracts/performance.md#efficient-algorithms Override construction visits public-owner and registry edges once; installed validation uses map/set membership for edges, packages and public entries. pnpm owns content-addressed store reuse.
+ * @evidence contracts/performance.md#reuse-equivalent-work All phases of this owner's integration use these same validated package artifacts. Each invocation repacks current built inputs and resolves the current frozen graph; no persistent success stamp suppresses changed inputs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Awaited preparation children settle before exposing the installed root. Temporary manifest/edge maps are local to this operation; the caller retains its ordinary ignored consumer directory for subsequent phases and diagnosis.
  */
-async function installPublicConsumer() {
+async function installPublicConsumer(ownerRoot) {
+  const CONSUMER = path.join(ownerRoot, ".tmp-public-consumer");
   const started = Date.now();
+  const pnpm = process.env.npm_execpath;
+  assert(
+    pnpm && path.isAbsolute(pnpm),
+    "Run the owning integration command through pnpm so its installed manager can prepare the consumer.",
+  );
+  await fs.mkdir(path.join(CONSUMER, "tarballs"), { recursive: true });
   const rootManifest = JSON.parse(
     await fs.readFile(path.join(ROOT, "package.json"), "utf8"),
   );
   const lock = yaml.parse(
     await fs.readFile(path.join(ROOT, "pnpm-lock.yaml"), "utf8"),
   );
-  const importer = lock.importers["tests/test-sdk"];
-  assert(importer, "The SDK dependency owner is absent from the caller lock.");
+  const importerName = path.relative(ROOT, ownerRoot).split(path.sep).join("/");
+  const importer = lock.importers[importerName];
+  assert(importer, `The integration dependency owner is absent from the caller lock: ${importerName}`);
   const dependencies = {};
   const overrides = {};
   for (const [name, record] of Object.entries({
@@ -92,9 +103,14 @@ async function installPublicConsumer() {
     const tarball =
       "file:" +
       path
-        .join(ROOT, "deploy/tarballs", `${directory.name}.tgz`)
+        .join(CONSUMER, "tarballs", `${directory.name}.tgz`)
         .split(path.sep)
         .join("/");
+    await runConsumerChild(
+      process.execPath,
+      [pnpm, "pack", "--out", path.join(CONSUMER, "tarballs", `${directory.name}.tgz`)],
+      path.join(ROOT, "packages", directory.name),
+    );
     dependencies[manifest.name] = tarball;
     overrides[manifest.name] = tarball;
     publicNames.push(manifest.name);
@@ -139,11 +155,6 @@ async function installPublicConsumer() {
       overrides[selector] = value;
     }
   }
-  await runConsumerChild(
-    process.execPath,
-    [path.join(ROOT, "deploy/tarballs/index.js")],
-    ROOT,
-  );
   await fs.mkdir(CONSUMER, { recursive: true });
   await fs.writeFile(
     path.join(CONSUMER, "package.json"),
@@ -159,11 +170,6 @@ async function installPublicConsumer() {
       null,
       2,
     ),
-  );
-  const pnpm = process.env.npm_execpath;
-  assert(
-    pnpm && path.isAbsolute(pnpm),
-    "Run the owning integration command through pnpm so its installed manager can prepare the consumer.",
   );
   await runConsumerChild(
     process.execPath,
@@ -232,18 +238,16 @@ async function installPublicConsumer() {
  * resolution. Other caller settings, including absolute compiler caches and the
  * selected Go toolchain, remain inherited.
  *
- * Principled implementation: An argument-array child inherits ordinary
- * environment settings except workspace loader/search-path overrides, streams
- * diagnostics and rejects nonzero exit or process-start failure. clear and
- * simple design: One promise observes launch and exit for one child, without
- * retry or diagnostic replay. prohibited implementation shortcuts: The child
- * runs the actual command with inherited standard settings; clearing loader
- * variables removes workspace resolver contamination rather than changing a
- * public module operation. meaningful documentation: The comment identifies the
- * removed loader settings, inherited cache/toolchain inputs and first-failure
- * ownership. os neutral implementation: spawn receives an executable and
- * argument array without a shell, with cwd represented by a native absolute
- * path; process.execPath launches the same Node on Windows and POSIX.
+ * Preparation supplies the actual executable, argument array and native working directory.
+ *
+ * @evidence contracts/common.md#principled-implementation The actual command inherits caller settings except workspace loader/search-path overrides; launch errors, nonzero exit and signals reject instead of certifying partial preparation.
+ * @evidence contracts/common.md#clear-and-simple-design One promise observes launch and settlement of one child with inherited diagnostics and no retry or replay.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts spawn executes the real command; clearing loader variables removes workspace resolver contamination without replacing a foreign module operation or compiler.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies cleared loader settings, inherited cache/toolchain inputs and first-failure ownership. Failure diagnostics include executable, arguments, exit and signal.
+ * @evidence contracts/portability.md#os-neutral-implementation Argument-array spawn uses a native absolute cwd and no shell; process.execPath launches the caller's same Node on Windows and POSIX.
+ * @evidence contracts/performance.md#efficient-algorithms One spawn and constant-size event registration observe one command without output buffering or a polling loop; inherited standard streams carry diagnostics directly.
+ * @evidence contracts/performance.md#reuse-equivalent-work The owning preparation promise shares each invocation; this process boundary runs each requested packing/install command exactly once and does not substitute a prior result.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The promise settles at launch failure or child exit, and installation awaits settlement before its next phase. It retains no output buffers or worker; command cancellation is owned by the invoking integration process tree.
  */
 function runConsumerChild(executable, args, cwd) {
   return new Promise((resolve, reject) => {
@@ -265,4 +269,4 @@ function runConsumerChild(executable, args, cwd) {
   });
 }
 
-module.exports = { preparePublicConsumer };
+module.exports = { preparePublicConsumer, installPublicConsumer, runConsumerChild };

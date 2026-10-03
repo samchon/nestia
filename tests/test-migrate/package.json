@@ -5,7 +5,7 @@
   "scripts": {
     "test:unit": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/unit.ts",
     "dev": "ttsc --watch",
-    "fixture": "node -e \"require('fs').mkdirSync('.generated',{recursive:true})\" && cd fixture && cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node ../../../packages/cli/bin/index.js swagger --project tsconfig.json",
+    "fixture": "pnpm start --fixture-only",
     "start": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts"
   },
   "dependencies": {
