@@ -5,10 +5,10 @@ import fs from "fs";
  * Verifies an undecomposed typed query is one required form/explode object
  * parameter.
  *
- * CLI route and DTO analysis must preserve object-query wire encoding in
- * OpenAPI metadata.
+ * Public generation from compiled controller metadata must preserve
+ * object-query wire encoding in OpenAPI metadata.
  *
- * 1. Execute the authored fixture inputs through the owning route.
+ * 1. Read the document generated from the shared authored controller inputs.
  * 2. Assert the authored expected query parameter is named query with the
  *    QueryFalseIQuery reference, required true, form style and explode true.
  *
