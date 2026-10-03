@@ -1,11 +1,11 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
-const sdk = path.resolve(__dirname, "../../packages/sdk");
+const sdk = path.resolve(__dirname, "../../../../packages/sdk");
 const { parse } = require(require.resolve("@babel/parser", { paths: [sdk] }));
 const {
   SdkWebSocketCloneProgrammer,
-} = require("../../packages/sdk/lib/generates/internal/SdkWebSocketCloneProgrammer");
+} = require("../../../../packages/sdk/lib/generates/internal/SdkWebSocketCloneProgrammer");
 
 /**
  * Verifies cloned WebSocket declarations retain unique, resolvable imports.
@@ -18,10 +18,15 @@ const {
  * 1. Write mixed named, default and namespace imports in an ignored fixture.
  * 2. Invoke the actual declaration writer and parse its emitted imports.
  * 3. Assert unique bindings, retained type modifiers and resolved identities.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The actual declaration writer retains all original unique import bindings, type modifiers and realpath identities for named, default and namespace imports.
+ * @evidence contracts/testing.md#independent-expectations Authored source files and their literal bindings define the independent expected imports; the normal filesystem resolves their identity.
+ * @evidence contracts/testing.md#distinguishing-cases Mixed cloneable type and retained value bindings, default and namespace imports retain every original emitted-import comparison.
+ * @evidence contracts/testing.md#execution-ownership The SDK unit entry discovers this matching JavaScript file and exported function in the same language-preparation process as TypeScript units. It calls caller-built product operations with authored input, without installation, native compilation, a host or a child process.
  */
-const main = async () => {
+async function test_sdk_websocket_clone_mixed_imports() {
   const directory = await fs.mkdtemp(
-    path.join(__dirname, ".tmp-clone-imports-"),
+    path.join(require("node:os").tmpdir(), "nestia-sdk-clone-imports-"),
   );
   const source = path.join(directory, "src");
   const output = path.join(directory, "api");
@@ -105,8 +110,5 @@ const main = async () => {
   } finally {
     await fs.rm(directory, { recursive: true, force: true });
   }
-};
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+}
+module.exports = { test_sdk_websocket_clone_mixed_imports };

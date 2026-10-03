@@ -2,6 +2,19 @@
   "severity": "error",
   "claims": [
     {
+      "name": "Direct JavaScript SDK unit assertions",
+      "type": "javascript",
+      "files": ["test-sdk/src/features/test_*.js"],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": ["contracts/testing.md"],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
       "name": "Direct TypeScript workspace unit assertions",
       "type": "typescript",
       "files": [

@@ -459,15 +459,6 @@ const feature = async (name, port) => {
       [],
       "inherit",
     );
-  if (
-    name === "swagger-description-nonempty-text" ||
-    name === "websocket-header-reflection" ||
-    name === "sdk-propagation-exception-wire-type" ||
-    name === "http-malformed-path-reflection" ||
-    name === "websocket-clone-mixed-imports"
-  )
-    return runNode(ROOT, path.join(__dirname, `${name}.js`), [], "inherit");
-
   if (name === "http-rich")
     return runNode(
       __dirname,
@@ -1923,14 +1914,6 @@ const main = async () =>
         names.push("output-directory-diagnostics");
       if (filter("reflection-error-ordering"))
         names.push("reflection-error-ordering");
-      for (const name of [
-        "swagger-description-nonempty-text",
-        "websocket-header-reflection",
-        "sdk-propagation-exception-wire-type",
-        "http-malformed-path-reflection",
-        "websocket-clone-mixed-imports",
-      ])
-        if (filter(name)) names.push(name);
       await runFeatures(shard(names));
     });
   });
