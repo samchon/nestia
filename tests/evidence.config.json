@@ -152,6 +152,19 @@
       }
     },
     {
+      "name": "Actual compiled multipart schema connection",
+      "type": "javascript",
+      "files": ["test-sdk/test_public_multipart_schema_inputs.js"],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../.agents/skills",
+        "files": ["contracts/testing.md", "contracts/e2e.md"],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
       "name": "Shared decoded multipart blob assertions",
       "type": "typescript",
       "files": [

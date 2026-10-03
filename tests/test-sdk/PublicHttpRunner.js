@@ -20,6 +20,9 @@ const {
   test_public_typia_version_guard,
 } = require("./test_public_typia_version_guard");
 const { test_public_legacy_plugins } = require("./test_public_legacy_plugins");
+const {
+  test_public_multipart_schema_inputs,
+} = require("./test_public_multipart_schema_inputs");
 
 /**
  * Runs authored and freshly generated HTTP cases through one installed program.
@@ -102,6 +105,11 @@ async function runPublicHttp() {
     { recursive: true },
   );
   await fs.cp(
+    path.join(source, "test/compile"),
+    path.join(fixture, "src/test/compile"),
+    { recursive: true },
+  );
+  await fs.cp(
     path.join(source, "benchmark"),
     path.join(fixture, "src/benchmark"),
     {
@@ -124,7 +132,7 @@ async function runPublicHttp() {
         { transform: "@nestia/sdk/lib/transform" },
       ],
     },
-    include: ["src/controllers"],
+    include: ["src/controllers", "src/test/compile"],
   };
   await fs.writeFile(
     path.join(fixture, "tsconfig.json"),
@@ -206,6 +214,18 @@ async function runPublicHttp() {
     "producer",
     { NESTIA_SDK_TRANSFORM: "" },
   );
+  try {
+    test_public_multipart_schema_inputs(consumer, fixture);
+    console.log(
+      "Public compiler boundary: test_public_multipart_schema_inputs passed",
+    );
+  } catch (error) {
+    boundaryFailures.push({ name: "test_public_multipart_schema_inputs", error });
+    console.error(
+      "Public compiler boundary: test_public_multipart_schema_inputs failed",
+      error,
+    );
+  }
   try {
     test_public_legacy_plugins(fixture);
     console.log("Public compiler boundary: test_public_legacy_plugins passed");
