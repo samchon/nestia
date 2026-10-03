@@ -355,6 +355,8 @@ async function runPublicHttp() {
                   beautify: profile.swagger?.beautify,
                   decompose: profile.swagger?.decompose,
                   openapi: profile.swagger?.openapi,
+                  info: profile.swagger?.info,
+                  servers: profile.swagger?.servers,
                   operationId: profile.operationId
                     ? (props) => `${props.class}.${props.function}`
                     : undefined,

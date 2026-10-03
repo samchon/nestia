@@ -208,5 +208,37 @@
     "generateE2e": false,
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 4
+  },
+  {
+    "name": "clone_duplicate",
+    "controllers": ["options/clone_duplicate"],
+    "clone": true,
+    "primitive": true,
+    "json": false,
+    "simulate": false,
+    "propagate": false,
+    "generateE2e": false,
+    "swagger": {
+      "openapi": "3.0",
+      "decompose": true,
+      "info": {
+        "title": "nestia test template",
+        "description": "클론모드에서 발생하는 타입 중복 생성 문제 테스트"
+      },
+      "servers": [
+        {
+          "url": "http://localhost:4000",
+          "description": "Local Server"
+        }
+      ],
+      "security": {
+        "bearer": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      }
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
   }
 ]
