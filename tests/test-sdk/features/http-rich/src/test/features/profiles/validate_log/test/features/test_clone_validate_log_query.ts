@@ -15,7 +15,7 @@ import api from "../../api";
  * 3. Assert exactly one log entry names the method, path, and the error.
  *
  * @evidence contracts/testing.md#behavioral-verification The original malformed UUID response must still answer200 with exact querified text and one log naming GET, its route and $input.id.
- * @evidence contracts/testing.md#independent-expectations Original authored malformed controller values and literal public error-log fields define the exact response and log expectations; typia independently rejects the malformed JSON response.
+ * @evidence contracts/testing.md#independent-expectations The authored controller returns wrong-data for a UUID and count3. These inputs define the exact querified response; the public log contract defines the literal GET, route and $input.id error expectations independently of generated code.
  * @evidence contracts/testing.md#distinguishing-cases Malformed JSON date-time and querified UUID outputs distinguish log-and-send from default assert rejection; exact log count and fields reject missing, duplicate or incorrect log entries.
  * @evidence contracts/testing.md#execution-ownership The shared compiled consumer discovers this matching file and export; requests reach the separately compiled validate.log producer on the same actual listener.
  * @evidence contracts/e2e.md#necessary-boundary Installed native validate.log querification, actual HTTP content and the actual shared TypedRoute logger must agree; default assert serialization would answer500 instead of the authored200.

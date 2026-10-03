@@ -291,5 +291,17 @@
     },
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 2
+  },
+  {
+    "name": "method_key",
+    "controllers": ["options/method_key"],
+    "operationId": true,
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
   }
 ]

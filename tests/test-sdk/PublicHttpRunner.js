@@ -588,7 +588,8 @@ async function runPublicHttp() {
  *
  * Clone-only private DTOs cannot enter the ordinary non-clone input graph.
  * Public non-listening Nest applications select each exact controller graph;
- * all profiles reuse one native producer, consumer and actual HTTP listener.
+ * Profiles reuse the compiled producer for their native options, one consumer
+ * and one actual HTTP listener.
  *
  * @evidence contracts/common.md#principled-implementation Public EncryptedModule selection and Nest application input preserve each profile's compiled controller graph and generation options without compiling or altering source again.
  * @evidence contracts/common.md#clear-and-simple-design One temporary application owns reflection for one distinct profile; the caller supplies controller paths and public generation options while the shared listener owns transport.

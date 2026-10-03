@@ -1,8 +1,8 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
-@Controller("articles")
-export class ArticleController {
+@Controller("http_rich/options/method_key/articles")
+export class MethodKeyArticleController {
   @core.SwaggerCustomizer((props) => {
     props.route.summary = "customized";
   })
