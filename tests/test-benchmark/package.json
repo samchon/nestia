@@ -9,8 +9,7 @@
   },
   "dependencies": {
     "@nestia/benchmark": "workspace:^",
-    "@nestia/e2e": "workspace:^",
-    "@nestia/fetcher": "workspace:^"
+    "@nestia/e2e": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:utils",

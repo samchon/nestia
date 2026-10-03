@@ -578,9 +578,6 @@ importers:
       '@nestia/e2e':
         specifier: workspace:^
         version: link:../../packages/e2e
-      '@nestia/fetcher':
-        specifier: workspace:^
-        version: link:../../packages/fetcher
     devDependencies:
       '@types/node':
         specifier: catalog:utils
