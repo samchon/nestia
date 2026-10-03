@@ -1,11 +1,11 @@
 import core from "@nestia/core";
 import { Controller, Headers, Query } from "@nestjs/common";
 
-import { IDecomposeHeaders } from "@api/lib/structures/IDecomposeHeaders";
-import { IDecomposeQuery } from "@api/lib/structures/IDecomposeQuery";
+import { IDecomposeHeaders } from "../../structures/swagger_parameters/IDecomposeHeaders";
+import { IDecomposeQuery } from "../../structures/swagger_parameters/IDecomposeQuery";
 
-@Controller("decompose")
-export class DecomposeController {
+@Controller("http_rich/swagger_parameters/decompose")
+export class RichSwaggerDecomposeController {
   @core.TypedRoute.Get("typed-query")
   public typedQuery(@core.TypedQuery() input: IDecomposeQuery): void {
     input;

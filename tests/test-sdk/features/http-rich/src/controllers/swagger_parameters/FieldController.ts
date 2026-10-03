@@ -2,11 +2,11 @@ import core from "@nestia/core";
 import { Controller, Headers, Param, Query } from "@nestjs/common";
 import { tags } from "typia";
 
-import { IAbsentFields } from "@api/lib/structures/IAbsentFields";
-import { IExampleHeaders } from "@api/lib/structures/IExampleHeaders";
+import { IAbsentFields } from "../../structures/swagger_parameters/IAbsentFields";
+import { IExampleHeaders } from "../../structures/swagger_parameters/IExampleHeaders";
 
-@Controller("field")
-export class FieldController {
+@Controller("http_rich/swagger_parameters/field")
+export class RichSwaggerFieldController {
   @core.TypedRoute.Get(":id")
   public fields(
     @core.TypedParam("id") id: string & tags.Format<"uuid">,

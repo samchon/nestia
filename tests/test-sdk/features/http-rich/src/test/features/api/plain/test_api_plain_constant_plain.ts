@@ -3,9 +3,11 @@ import { TestValidator } from "@nestia/e2e";
 import api from "../../../../api";
 
 /**
- * Verifies permitted plain-text literals echo and an invalid literal is rejected.
+ * Verifies permitted plain-text literals echo and an invalid literal is
+ * rejected.
  *
- * Every permitted literal is preserved, with the one-axis out-of-domain D negative retained.
+ * Every permitted literal is preserved, with the one-axis out-of-domain D
+ * negative retained.
  *
  * 1. Execute the preserved requests or read newly generated artifacts.
  * 2. Check the original value, shape, rejection or generation assertions.
@@ -23,7 +25,10 @@ export const test_api_plain_constant_plain = async (
   connection: api.IConnection,
 ): Promise<void> => {
   for (const x of ["A", "B", "C"] as const) {
-    const y = await api.functional.http_rich.plain.plain.constant(connection, x);
+    const y = await api.functional.http_rich.plain.plain.constant(
+      connection,
+      x,
+    );
     TestValidator.equals<string>("constant", x, y);
   }
   await TestValidator.httpError("invalid literal", 400, () =>

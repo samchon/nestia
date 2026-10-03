@@ -1,6 +1,5 @@
 /**
- * Operation metadata written by hand, for tests that compose Swagger at runtime
- * with `NestiaSwaggerComposer` while compiled without the SDK transform.
+ * Operation metadata written by hand for direct Swagger composition units.
  *
  * It describes one `@Query()` object parameter, `IFallbackQuery`, whose members
  * are all `number`; `visible` has no tag, and every other member carries the
@@ -9,6 +8,14 @@
  * bakes, where `visible` has a `minimum` the atomic fallback cannot produce.
  */
 export namespace HandWrittenMetadata {
+  /**
+   * Authors a fresh query-object and optional-void operation input.
+   *
+   * @evidence contracts/common.md#principled-implementation Explicit number properties, supplied omission tags, optional void success and the authored baked minimum one form input metadata. Every call creates fresh arrays, property records and components.
+   * @evidence contracts/common.md#clear-and-simple-design One authored operation factory uses neutral scalar/constant/empty-schema factories; the baked flag controls only presence of the property schema under test.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts These literal records are case input, never expected output or captured compiler artifacts. Actual SDK analyses and generation consume them unchanged.
+   * @evidence contracts/common.md#meaningful-documentation The comment identifies visible versus omission-tagged members and the exact baked/unbaked distinction. Cases retain their own literal schema expectations.
+   */
   export const operation = (props: { baked: boolean; members: string[] }) => ({
     parameters: [
       {

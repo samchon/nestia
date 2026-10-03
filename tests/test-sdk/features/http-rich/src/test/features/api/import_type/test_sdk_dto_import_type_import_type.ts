@@ -4,7 +4,8 @@ import path from "path";
 /**
  * Verifies generated DTO imports are type-only across all three binding forms.
  *
- * The original three binding-presence assertions and every structures-import rejection remain, with runtime imports as the opposite-kind control.
+ * The original three binding-presence assertions and every structures-import
+ * rejection remain, with runtime imports as the opposite-kind control.
  *
  * 1. Execute the preserved requests or read newly generated artifacts.
  * 2. Check the original value, shape, rejection or generation assertions.
@@ -20,8 +21,30 @@ import path from "path";
  */
 export const test_sdk_dto_import_type_import_type = (): void => {
   const roots: string[] = [
-    path.resolve(__dirname, "..", "..", "..", "..", "..", "src", "api", "functional"),
-    path.resolve(__dirname, "..", "..", "..", "..", "..", "src", "test", "features", "api", "automated"),
+    path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "..",
+      "..",
+      "src",
+      "api",
+      "functional",
+    ),
+    path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "..",
+      "..",
+      "src",
+      "test",
+      "features",
+      "api",
+      "automated",
+    ),
   ];
   const violations: string[] = [];
   let named: boolean = false;

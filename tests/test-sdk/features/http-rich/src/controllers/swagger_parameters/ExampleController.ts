@@ -1,11 +1,11 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
-import { IExampleHeaders } from "@api/lib/structures/IExampleHeaders";
-import { IExampleQuery } from "@api/lib/structures/IExampleQuery";
+import { IExampleHeaders } from "../../structures/swagger_parameters/IExampleHeaders";
+import { IExampleQuery } from "../../structures/swagger_parameters/IExampleQuery";
 
-@Controller("example")
-export class ExampleController {
+@Controller("http_rich/swagger_parameters/example")
+export class RichSwaggerExampleController {
   @core.TypedRoute.Get("query")
   public query(
     @core.SwaggerExample.Parameter({ keyword: "nestia", page: 3 })

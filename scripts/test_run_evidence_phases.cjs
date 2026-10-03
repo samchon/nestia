@@ -24,7 +24,15 @@ function test_run_evidence_phases() {
   ];
   const commands = [
     ["exec", "evidence", "--config", "evidence.config.json"],
-    ["--filter=./packages/*", "--fail-if-no-match", "-r", "--no-bail", "--workspace-concurrency=1", "run", "evidence"],
+    [
+      "--filter=./packages/*",
+      "--fail-if-no-match",
+      "-r",
+      "--no-bail",
+      "--workspace-concurrency=1",
+      "run",
+      "evidence",
+    ],
     ["exec", "evidence", "--config", "tests/evidence.config.json"],
   ];
   for (const statuses of [

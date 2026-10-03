@@ -7,7 +7,8 @@ import { StatusIBbsArticle } from "../../../../structures/status/StatusIBbsArtic
 /**
  * Verifies the generated SDK retains status 300 and the exact article shape.
  *
- * Swagger and actual SDK/runtime assert the same authored nondefault status independently; the ordinary200/201 routes remain adjacent shared controls.
+ * Swagger and actual SDK/runtime assert the same authored nondefault status
+ * independently; the ordinary200/201 routes remain adjacent shared controls.
  *
  * 1. Execute the preserved requests or read newly generated artifacts.
  * 2. Check the original value, shape, rejection or generation assertions.
@@ -30,6 +31,7 @@ export const test_api_status_status = async (
     api.functional.http_rich.status.status.random.METADATA.status!,
   );
 
-  const article: StatusIBbsArticle = await api.functional.http_rich.status.status.random(connection);
+  const article: StatusIBbsArticle =
+    await api.functional.http_rich.status.status.random(connection);
   typia.assertEquals(article);
 };

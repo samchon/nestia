@@ -6,7 +6,8 @@ import { IPerformance } from "../../../../structures/method/IPerformance";
 /**
  * Verifies the method scenario's performance response has its authored shape.
  *
- * This retains the original successful dynamic response shape check and does not claim an artificially malformed performance endpoint.
+ * This retains the original successful dynamic response shape check and does
+ * not claim an artificially malformed performance endpoint.
  *
  * 1. Execute the preserved requests or read newly generated artifacts.
  * 2. Check the original value, shape, rejection or generation assertions.

@@ -5,7 +5,8 @@ import api from "../../../../api";
 /**
  * Verifies the generated HEAD client returns no response body.
  *
- * This retains the original body-absence assertion; OPTIONS and ordinary method connections are freshly generated cases of the same shared input.
+ * This retains the original body-absence assertion; OPTIONS and ordinary method
+ * connections are freshly generated cases of the same shared input.
  *
  * 1. Execute the preserved requests or read newly generated artifacts.
  * 2. Check the original value, shape, rejection or generation assertions.

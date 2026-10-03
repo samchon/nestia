@@ -1,14 +1,27 @@
 {
   "generatedCases": [
     {
-      "accessorPrefix": ["http_rich", "tags"],
+      "accessorPrefix": [
+        "http_rich",
+        "tags"
+      ],
       "execute": false,
       "reason": "The original tags configuration requests SDK and Swagger only. Custom TagBase predicates provide no random generation rule; authored requests cover their valid and invalid inputs."
     },
     {
-      "accessorPrefix": ["http_rich", "exception_filter"],
+      "accessorPrefix": [
+        "http_rich",
+        "exception_filter"
+      ],
       "execute": false,
       "reason": "The original exception-filter configuration requests SDK and Swagger only. Seven authored cases retain its intentional failure responses and health/performance checks; no generated random requests were executed."
+    },
+    {
+      "accessorPrefix": [
+        "http_rich",
+        "swagger_parameters"
+      ],
+      "execute": false
     }
   ]
 }

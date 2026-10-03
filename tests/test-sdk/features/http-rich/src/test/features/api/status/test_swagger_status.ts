@@ -2,9 +2,11 @@ import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
 
 /**
- * Verifies fresh Swagger associates response 300 with the authored article schema.
+ * Verifies fresh Swagger associates response 300 with the authored article
+ * schema.
  *
- * Swagger and actual SDK/runtime assert the same authored nondefault status independently; the ordinary200/201 routes remain adjacent shared controls.
+ * Swagger and actual SDK/runtime assert the same authored nondefault status
+ * independently; the ordinary200/201 routes remain adjacent shared controls.
  *
  * 1. Execute the preserved requests or read newly generated artifacts.
  * 2. Check the original value, shape, rejection or generation assertions.
@@ -20,7 +22,10 @@ import fs from "fs";
  */
 export const test_swagger_status = async () => {
   const content = JSON.parse(
-    await fs.promises.readFile(__dirname + "/../../../../../swagger.json", "utf8"),
+    await fs.promises.readFile(
+      __dirname + "/../../../../../swagger.json",
+      "utf8",
+    ),
   );
   const route = content.paths["/http_rich/status/status/random"].get;
 

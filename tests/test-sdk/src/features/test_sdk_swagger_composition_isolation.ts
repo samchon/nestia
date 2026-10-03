@@ -1,12 +1,15 @@
-import core, { SwaggerCustomizer, SwaggerExample } from "@nestia/core";
 import { TestValidator } from "@nestia/e2e";
-import { INestiaConfig, NestiaSwaggerComposer } from "@nestia/sdk";
-import { Controller, INestApplication, Module, Query } from "@nestjs/common";
-import { NestFactory } from "@nestjs/core";
+import { Controller, Query } from "@nestjs/common";
 import { ApiExtension } from "@nestjs/swagger";
 import { OpenApi } from "typia";
 
+import core, {
+  SwaggerCustomizer,
+  SwaggerExample,
+} from "../../../../packages/core/lib";
+import { INestiaConfig } from "../../../../packages/sdk/lib";
 import { HandWrittenMetadata } from "../internal/HandWrittenMetadata";
+import { SwaggerMetadataComposer } from "../internal/SwaggerMetadataComposer";
 import { SwaggerParameterReader } from "../internal/SwaggerParameterReader";
 
 @Controller("customized")
@@ -32,16 +35,13 @@ class CustomizedController {
     ).description += "!";
   })
   @ApiExtension("x-shared", { count: 0 })
-  @core.TypedRoute.Get()
+  @core.TypedRoute.Get("", { type: "stringify", stringify: JSON.stringify })
   public get(
     @SwaggerExample.Parameter({ visible: 1 }) @Query() query: object,
   ): void {
     query;
   }
 }
-
-@Module({ controllers: [CustomizedController] })
-class CustomizedModule {}
 
 /**
  * Verifies composing a document never changes what the next composition starts
@@ -61,31 +61,37 @@ class CustomizedModule {}
  * 2. Assert the three documents are equal, and each carries every edit once.
  * 3. Assert the config is unchanged.
  * 4. Edit a composed document directly and assert the next one is unaffected.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Three repeated non-idempotent customizations and a later caller edit retain the original literal edits once, unchanged configuration and an independent fresh document.
+ * @evidence contracts/testing.md#independent-expectations Original hand-authored operation metadata and literal expected edits, property names and schemas are independent inputs and expectations. No compiler-produced output supplies either.
+ * @evidence contracts/testing.md#distinguishing-cases Three repeated non-idempotent customizations and a later caller edit retain the original literal edits once, unchanged configuration and an independent fresh document.
+ * @evidence contracts/testing.md#execution-ownership Canonical SDK direct units discover this matching export with plugins off. Actual built reflection, typed-route and Swagger operations consume authored metadata directly, without compilation, installation, application creation or child processes.
  */
-export const test_swagger_composition_isolation = async (): Promise<void> => {
-  Reflect.defineMetadata(
-    "nestia/OperationMetadata",
-    HandWrittenMetadata.operation({ baked: true, members: [] }),
-    CustomizedController.prototype,
-    "get",
-  );
-  const config: Omit<INestiaConfig.ISwaggerConfig, "output"> = {
-    decompose: false,
-    servers: [{ url: "https://example.com", description: "Server" }],
-    info: { title: "Isolation", license: { name: "MIT" } },
-    tags: [{ name: "shared", description: "Tag" }],
-    security: {
-      bearer: { type: "http", scheme: "bearer", description: "Bearer" },
-    },
-  };
-  const snapshot: string = SwaggerParameterReader.canonical(config);
+export const test_sdk_swagger_composition_isolation =
+  async (): Promise<void> => {
+    Reflect.defineMetadata(
+      "nestia/OperationMetadata",
+      HandWrittenMetadata.operation({ baked: true, members: [] }),
+      CustomizedController.prototype,
+      "get",
+    );
+    const config: Omit<INestiaConfig.ISwaggerConfig, "output"> = {
+      decompose: false,
+      servers: [{ url: "https://example.com", description: "Server" }],
+      info: { title: "Isolation", license: { name: "MIT" } },
+      tags: [{ name: "shared", description: "Tag" }],
+      security: {
+        bearer: { type: "http", scheme: "bearer", description: "Bearer" },
+      },
+    };
+    const snapshot: string = SwaggerParameterReader.canonical(config);
 
-  const app: INestApplication = await NestFactory.create(CustomizedModule, {
-    logger: false,
-  });
-  try {
     const compose = async (): Promise<OpenApi.IDocument> =>
-      (await NestiaSwaggerComposer.document(app, config)) as OpenApi.IDocument;
+      (await SwaggerMetadataComposer(
+        CustomizedController,
+        ["get"],
+        config,
+      )) as OpenApi.IDocument;
     const documents: OpenApi.IDocument[] = [
       await compose(),
       await compose(),
@@ -140,7 +146,4 @@ export const test_swagger_composition_isolation = async (): Promise<void> => {
       (await compose()).components.schemas!["IFallbackQuery"]!.title,
       undefined,
     );
-  } finally {
-    await app.close();
-  }
-};
+  };

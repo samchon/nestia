@@ -10,7 +10,8 @@ import fs from "fs";
 /**
  * Verifies human-only routes stay documented and are excluded from LLM tools.
  *
- * Raw document presence and tool-list absence distinguish removal from classification; ordinary tool routes remain in the shared document.
+ * Raw document presence and tool-list absence distinguish removal from
+ * classification; ordinary tool routes remain in the shared document.
  *
  * 1. Execute the preserved requests or read newly generated artifacts.
  * 2. Check the original value, shape, rejection or generation assertions.
@@ -30,7 +31,9 @@ export const test_human_route_route_human = async (): Promise<void> => {
   );
   TestValidator.equals(
     "human",
-    document.paths?.["/http_rich/route_human/performance"]?.get?.["x-samchon-human"],
+    document.paths?.["/http_rich/route_human/performance"]?.get?.[
+      "x-samchon-human"
+    ],
     true,
   );
 
@@ -38,7 +41,9 @@ export const test_human_route_route_human = async (): Promise<void> => {
     document,
   });
   const func: IHttpLlmFunction | undefined = application.functions.find(
-    (func) => func.method === "get" && func.path === "/http_rich/route_human/performance",
+    (func) =>
+      func.method === "get" &&
+      func.path === "/http_rich/route_human/performance",
   );
   TestValidator.equals("excluded", func, undefined);
 };

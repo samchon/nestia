@@ -5,7 +5,8 @@ import api from "../../../../api";
 /**
  * Verifies plain-text template validation accepts and rejects adjacent inputs.
  *
- * The original valid template and unrelated text rejection retain both transformation and parser distinctions.
+ * The original valid template and unrelated text rejection retain both
+ * transformation and parser distinctions.
  *
  * 1. Execute the preserved requests or read newly generated artifacts.
  * 2. Check the original value, shape, rejection or generation assertions.
@@ -23,7 +24,10 @@ export const test_api_plain_template_plain = async (
   connection: api.IConnection,
 ): Promise<void> => {
   const x = "something_123_interesting_abc_is_not_true_it?";
-  const y: string = await api.functional.http_rich.plain.plain.template(connection, x);
+  const y: string = await api.functional.http_rich.plain.plain.template(
+    connection,
+    x,
+  );
 
   TestValidator.equals("template", x as string, y);
   await TestValidator.httpError("invalid template", 400, () =>

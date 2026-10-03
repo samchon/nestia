@@ -7,7 +7,9 @@ import { IHeaders } from "../../../../structures/headers/IHeaders";
 /**
  * Verifies mixed-case headers and their array validation over HTTP.
  *
- * The numeric array and otherwise identical string-array request form a valid/rejected pair, with exact output equality covering normalization and decoding.
+ * The numeric array and otherwise identical string-array request form a
+ * valid/rejected pair, with exact output equality covering normalization and
+ * decoding.
  *
  * 1. Execute the preserved requests or read newly generated artifacts.
  * 2. Check the original value, shape, rejection or generation assertions.
@@ -30,13 +32,14 @@ export const test_api_headers_headers = async (
     "x-fLags": [true, false, true],
     "X-Descriptions": ["a", "b", "c"],
   };
-  const output: IHeaders = await api.functional.http_rich.headers.headers.emplace(
-    {
-      ...connection,
-      headers,
-    },
-    "something",
-  );
+  const output: IHeaders =
+    await api.functional.http_rich.headers.headers.emplace(
+      {
+        ...connection,
+        headers,
+      },
+      "something",
+    );
   typia.assertEquals(output);
   TestValidator.equals("headers", headers, output as Required<IHeaders>);
 

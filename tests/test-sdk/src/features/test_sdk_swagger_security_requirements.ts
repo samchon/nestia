@@ -16,8 +16,8 @@ import { SwaggerUnitRoute } from "../internal/SwaggerUnitRoute";
  * array changes OpenAPI inheritance or authentication semantics.
  *
  * OpenAPI security requirement rules:
- * https://spec.openapis.org/oas/v3.0.3.html#security-requirement-object
- * and https://spec.openapis.org/oas/v3.1.2.html#security-requirement-object.
+ * https://spec.openapis.org/oas/v3.0.3.html#security-requirement-object and
+ * https://spec.openapis.org/oas/v3.1.2.html#security-requirement-object.
  *
  * 1. Compose decorated-equivalent and JSDoc basic, bearer and OAuth2 requirements.
  * 2. Compare exact scope alternatives, anonymous access and absent security.

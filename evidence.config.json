@@ -26,16 +26,12 @@
     {
       "name": "Root orchestration unit assertions",
       "type": "javascript",
-      "files": [
-        "scripts/test_*.cjs"
-      ],
+      "files": ["scripts/test_*.cjs"],
       "symbol": "function",
       "reference": {
         "type": "markdown",
         "root": ".agents/skills",
-        "files": [
-          "contracts/testing.md"
-        ],
+        "files": ["contracts/testing.md"],
         "symbol": "h2",
         "checklist": true
       }
