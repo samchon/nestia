@@ -1,9 +1,10 @@
-import core from "@nestia/core";
-import { TestValidator } from "@nestia/e2e";
 import fs from "fs";
+import os from "os";
 import path from "path";
 
-import { SourceFinder } from "../../../../../../../packages/sdk/src/utils/SourceFinder";
+import core from "../../../../packages/core/lib";
+import { TestValidator } from "../../../../packages/e2e/lib";
+import { SourceFinder } from "../../../../packages/sdk/lib/utils/SourceFinder";
 
 /**
  * Verifies controller discovery takes a literal directory literally and a glob
@@ -23,27 +24,30 @@ import { SourceFinder } from "../../../../../../../packages/sdk/src/utils/Source
  *    glob, and assert one controller each time; an `exclude` naming the file
  *    mounts none.
  * 3. Assert `@nestia/sdk`'s finder expands the same inputs.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Actual DynamicModule.mount and SourceFinder.expand must retain the seven original literal-directory, native/forward-slash glob and exclusion assertions for an authored bracketed-directory module.
+ * @evidence contracts/testing.md#independent-expectations One authored ProbeController in app [v2]/controllers defines expected count1 and its exact file identity; explicitly excluding that file defines count0 independently of the finders.
+ * @evidence contracts/testing.md#distinguishing-cases Literal directories with spaces/brackets contrast with native and forward-slash glob patterns; an explicit file exclusion must remove the otherwise discovered controller. SDK expansion distinguishes literal directory identity from expanded glob file identity.
+ * @evidence contracts/testing.md#execution-ownership The canonical SDK unit entry discovers this matching TypeScript file/export and calls caller-built core and SDK finders with a unique authored filesystem input. Mounting module metadata creates no Nest application, compiler, installation or listener.
  */
-export const test_dynamic_module_paths = async (): Promise<void> => {
-  const root: string = path.resolve(
-    __dirname,
-    "../../../node_modules/.tmp-dynamic-module-paths",
+export const test_sdk_dynamic_module_paths = async (): Promise<void> => {
+  const root: string = fs.mkdtempSync(
+    path.join(os.tmpdir(), "nestia-sdk-dynamic-paths-"),
   );
   const directory: string = path.join(root, "app [v2]", "controllers");
   const file: string = path.join(directory, "ProbeController.js");
-  fs.rmSync(root, { recursive: true, force: true });
-  fs.mkdirSync(directory, { recursive: true });
-  fs.writeFileSync(
-    file,
-    [
-      `const { Controller } = require("@nestjs/common");`,
-      `class ProbeController {}`,
-      `Controller("probe")(ProbeController);`,
-      `exports.ProbeController = ProbeController;`,
-    ].join("\n"),
-    "utf8",
-  );
   try {
+    fs.mkdirSync(directory, { recursive: true });
+    fs.writeFileSync(
+      file,
+      [
+        `const { Controller } = require(${JSON.stringify(require.resolve("@nestjs/common"))});`,
+        `class ProbeController {}`,
+        `Controller("probe")(ProbeController);`,
+        `exports.ProbeController = ProbeController;`,
+      ].join("\n"),
+      "utf8",
+    );
     const count = async (
       input: Parameters<typeof core.DynamicModule.mount>[0],
     ): Promise<number> =>
