@@ -72,31 +72,13 @@ function runPnpmPlan(plan) {
 function runTestPhases(run) {
   const build = run("build", ["run", "build"]);
   const evidence = run("Evidence", ["run", "evidence"]);
-  const go = run("Go units", [
-    "--filter=./packages/*",
-    "-r",
-    "--no-bail",
-    "--if-present",
-    "run",
-    "test:go",
-  ]);
+  const go = run("Go units", ["run", "test:go"]);
   let runner = 0;
   let units = 0;
   let workspaces = 0;
   if (build === 0) {
     units = run("JavaScript units", ["run", "test:unit"]);
-    workspaces = run(
-      "test workspaces",
-      [
-        "--filter=./tests/test-sdk",
-        "--filter=./tests/test-migrate",
-        "-r",
-        "--no-bail",
-        "run",
-        "start",
-      ],
-      { TEST_SDK_SKIP_BUILD: "1" },
-    );
+    workspaces = run("test workspaces", ["run", "test:e2e"]);
   } else {
     runner = run("runner units", [
       "exec",

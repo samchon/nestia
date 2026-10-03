@@ -6,6 +6,7 @@
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
     "evidence": "node scripts/run-evidence.cjs",
+    "evidence:tests": "evidence --config tests/evidence.config.json",
     "format": "prettier --write \"packages/**/*.ts\" \"tests/**/*.ts\"",
     "format:check": "prettier --check \"packages/**/*.ts\" \"tests/**/*.ts\"",
     "test": "node scripts/run-tests.cjs",
@@ -15,7 +16,9 @@
     "package:rc": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --tag rc",
     "package:tgz": "pnpm package:prepare && node deploy/tarballs",
     "release": "rimraf packages/migrate/assets && bumpp -r",
-    "test:unit": "node scripts/run-unit.cjs"
+    "test:unit": "node scripts/run-unit.cjs",
+    "test:go": "pnpm --filter=@nestia/core --filter=@nestia/sdk -r --no-bail run test:go",
+    "test:e2e": "node scripts/run-integration.cjs"
   },
   "repository": {
     "type": "git",

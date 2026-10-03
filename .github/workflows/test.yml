@@ -25,6 +25,7 @@ jobs:
           cache: false
       - uses: pnpm/action-setup@v4
       - name: Install Dependencies
+        id: install
         run: pnpm install --frozen-lockfile
       - name: Restore Test Cache
         id: test-cache
@@ -53,8 +54,24 @@ jobs:
           key: ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*', 'packages/migrate/src/executable/*.js', 'package.json') }}
           restore-keys: |
             ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
-      - name: Run Tests
-        run: pnpm test
+      - name: Build Packages
+        id: build
+        run: pnpm build
+      - name: Evidence
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: pnpm evidence
+      - name: Go Units
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: pnpm test:go
+      - name: JavaScript Units
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: pnpm test:unit
+      - name: Runner Units After Build Failure
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.build.outcome == 'failure' }}
+        run: pnpm exec node --test scripts/test_*.cjs
+      - name: SDK And Migration Integrations
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: pnpm test:e2e
       - name: Save Test Cache
         if: success() && steps.test-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4

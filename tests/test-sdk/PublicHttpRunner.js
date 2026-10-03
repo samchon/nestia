@@ -335,21 +335,24 @@ async function runPublicHttp() {
           keyword: profile.keyword,
           propagate: profile.propagate,
           simulate: profile.simulate,
-          swagger: {
-            output: path.join(
-              fixture,
-              "profiles",
-              profile.name,
-              "swagger.json",
-            ),
-            security: profile.swagger?.security ?? {
-              bearer: { type: "apiKey" },
-            },
-            beautify: profile.swagger?.beautify,
-            operationId: profile.operationId
-              ? (props) => `${props.class}.${props.function}`
-              : undefined,
-          },
+          swagger:
+            profile.generateSwagger === false
+              ? undefined
+              : {
+                  output: path.join(
+                    fixture,
+                    "profiles",
+                    profile.name,
+                    "swagger.json",
+                  ),
+                  security: profile.swagger?.security ?? {
+                    bearer: { type: "apiKey" },
+                  },
+                  beautify: profile.swagger?.beautify,
+                  operationId: profile.operationId
+                    ? (props) => `${props.class}.${props.function}`
+                    : undefined,
+                },
         },
       );
       console.log(

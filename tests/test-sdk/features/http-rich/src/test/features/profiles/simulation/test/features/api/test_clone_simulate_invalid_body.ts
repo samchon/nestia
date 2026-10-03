@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import typia, { Primitive } from "typia";
 
-import api from "../../../api";
 import type { SimulationIBbsArticle } from "../../../../../../../structures/simulation/SimulationIBbsArticle";
+import api from "../../../api";
 
 /**
  * Verifies calls the generated store simulator with a numeric title and

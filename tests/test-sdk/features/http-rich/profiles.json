@@ -121,5 +121,13 @@
       "stateExport": "SimulationGlobal",
       "postcondition": "test_simulate_transport_unused"
     }
+  },
+  {
+    "name": "alias",
+    "controllers": ["options/alias"],
+    "propagate": true,
+    "generateSwagger": false,
+    "expectedGeneratedCases": 2,
+    "expectedAuthoredCases": 0
   }
 ]

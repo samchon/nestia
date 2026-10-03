@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 const { test } = require("node:test");
 const { runTestPhases } = require("./run-tests.cjs");
+const { runIntegrationPhases } = require("./run-integration.cjs");
 
 /**
  * Verifies independent test failures remain visible without using stale builds.
@@ -13,9 +14,9 @@ const { runTestPhases } = require("./run-tests.cjs");
  * 2. Verify failures do not suppress independent phases and remain in the result.
  * 3. Fail the build and require artifact consumers to be explicitly blocked.
  *
- * @evidence contracts/testing.md#behavioral-verification Actual runTestPhases invokes a recording execution boundary under success, Evidence/Go/package-unit failures, build failure and workspace failure. Observed calls and final statuses distinguish continuation from premature short circuit or false success.
+ * @evidence contracts/testing.md#behavioral-verification Actual runTestPhases invokes a recording execution boundary under success, Evidence/Go/package-unit failures, build failure and workspace failure. Canonical Go and integration commands remain selected. The real integration plan forwards no-bail, skip-build and every first status through one boundary call, distinguishing continuation from premature short circuit, retry or false success.
  * @evidence contracts/testing.md#independent-expectations Independent populations must execute after test failures; only a failed build invalidates its artifact consumers. Literal phase counts and statuses follow those prerequisites, not current source text or repository file arrangement.
- * @evidence contracts/testing.md#distinguishing-cases All-success returns zero, multiple independent failures retain exit two while later workspace execution continues, build failure still executes Evidence/Go/runner units but blocks both artifact populations, and a final workspace failure returns one. Skip-build reaches consumers only after successful build.
+ * @evidence contracts/testing.md#distinguishing-cases All-success returns zero, multiple independent failures retain exit two while later integration execution continues, build failure still executes Evidence/Go/runner units but blocks artifact populations, and a final integration failure returns one. The canonical integration plan preserves statuses zero/one/two, no-bail and skip-build; the full plan invokes it only after its successful build.
  * @evidence contracts/testing.md#execution-ownership The matching exported case runs through Node test in the canonical root runner-unit phase. It directly exercises portable orchestration with an authored process-result boundary and creates no consumer, compiler, child process or server.
  */
 function test_run_test_phases() {
@@ -44,13 +45,30 @@ function test_run_test_phases() {
     const status = runTestPhases((name, args, env) => {
       calls.push(name);
       assert(args.length > 0, `${name}: no command`);
+      assert.equal(env, undefined);
       if (name === "test workspaces")
-        assert.deepEqual(env, { TEST_SDK_SKIP_BUILD: "1" });
-      else assert.equal(env, undefined);
+        assert.deepEqual(args, ["run", "test:e2e"]);
+      if (name === "Go units") assert.deepEqual(args, ["run", "test:go"]);
       return scenario.statuses[name] ?? 0;
     });
     assert.deepEqual(calls, scenario.expected);
     assert.equal(status, scenario.result);
+  }
+  for (const status of [0, 1, 2]) {
+    let calls = 0;
+    assert.equal(
+      runIntegrationPhases((_name, args, env) => {
+        ++calls;
+        assert(
+          args.includes("--no-bail"),
+          "independent integrations must continue",
+        );
+        assert.deepEqual(env, { TEST_SDK_SKIP_BUILD: "1" });
+        return status;
+      }),
+      status,
+    );
+    assert.equal(calls, 1, "integration preparation is never retried");
   }
 }
 

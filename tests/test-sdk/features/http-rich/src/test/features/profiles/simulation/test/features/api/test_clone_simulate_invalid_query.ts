@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import typia, { Primitive } from "typia";
 
-import api from "../../../api";
 import { SimulationIPage } from "../../../../../../../structures/simulation/SimulationIPage";
+import api from "../../../api";
 
 /**
  * Verifies calls the generated query simulator with page set to one and
