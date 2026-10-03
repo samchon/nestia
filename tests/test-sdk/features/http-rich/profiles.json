@@ -391,8 +391,8 @@
   },
   {
     "name": "request_validate",
-    "producer": "producer-validate-request",
-    "controllers": [""],
+    "producer": "producer-validate",
+    "controllers": ["request"],
     "generateE2e": false,
     "swagger": {
       "beautify": true
@@ -402,8 +402,8 @@
   },
   {
     "name": "response_validate",
-    "producer": "producer-validate-response",
-    "controllers": [""],
+    "producer": "producer-validate",
+    "controllers": ["response"],
     "generateE2e": false,
     "swagger": {
       "security": {}

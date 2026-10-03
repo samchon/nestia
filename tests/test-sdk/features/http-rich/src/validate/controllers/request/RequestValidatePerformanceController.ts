@@ -1,7 +1,7 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
-import { IRequestValidatePerformance } from "../structures/IRequestValidatePerformance";
+import { IRequestValidatePerformance } from "../../structures/IRequestValidatePerformance";
 
 @Controller("http_rich/options/request_validate/performance")
 export class RequestValidatePerformanceController {

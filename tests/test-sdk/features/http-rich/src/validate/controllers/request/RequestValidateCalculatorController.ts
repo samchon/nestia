@@ -3,9 +3,9 @@ import { Controller } from "@nestjs/common";
 import { Driver, WebSocketAcceptor } from "tgrid";
 import { tags } from "typia";
 
-import { IRequestValidateCalculator } from "../structures/IRequestValidateCalculator";
-import { IRequestValidateListener } from "../structures/IRequestValidateListener";
-import { IRequestValidatePrecision } from "../structures/IRequestValidatePrecision";
+import { IRequestValidateCalculator } from "../../structures/IRequestValidateCalculator";
+import { IRequestValidateListener } from "../../structures/IRequestValidateListener";
+import { IRequestValidatePrecision } from "../../structures/IRequestValidatePrecision";
 
 @Controller("http_rich/options/request_validate/calculate")
 export class RequestValidateCalculatorController {

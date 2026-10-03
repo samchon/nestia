@@ -4,7 +4,9 @@ const path = require("node:path");
 const { createRequire } = require("node:module");
 const { resolveTestEnvironment } = require("../../scripts/run-tests.cjs");
 
-const { preparePublicConsumer } = require("../../scripts/prepare-public-consumer.cjs");
+const {
+  preparePublicConsumer,
+} = require("../../scripts/prepare-public-consumer.cjs");
 const { compilePublicProgram } = require("./PublicCompiler");
 const { validatePublicHttpProfiles } = require("./PublicHttpProfileCoverage");
 const { test_public_user_global } = require("./test_public_user_global");
@@ -34,31 +36,33 @@ const {
  * this child settles; ordinary createRequire opens its JavaScript entries.
  *
  * A shared producer compiles controllers with the default native options.
- * Distinct request-validation or response-stringification modes each retain one
- * producer because their malformed-request reports and response behavior differ.
- * Non-listening applications
- * select exact controller graphs for ordinary and clone option generation; one
- * actual listener serves every profile's consumer request. The public WebSocket
- * adaptor upgrades that same HTTP server for the original parameter/query RPC
- * connections; their separate generated drivers and local listener events
- * retain their original connector teardown. One consumer
- * compilation prepares all authored and generated cases; plain JavaScript
- * execution starts no TypeScript loader or native host. Scenario execution
- * policy retains document-only inputs without promoting their generated random
- * calls into transport assertions: those artifacts are still generated and
- * compiled, while authored cases exercise their required connections. The
- * installed compiler's version-rejection and legacy-plugin boundaries are
- * reported separately; their assertion failures do not suppress executable HTTP
- * cases. A no-DOM user-global boundary shares this installation and cache; its
- * conflicting library set requires a separate minimal program, while the native
- * DOM twin reuses the existing consumer. The producer uses the explicit legacy
- * SDK entry with its environment activation off; the consumer uses modern
- * entries and activation. Simulation profiles declare their execution prefixes
- * and retain their actual producer state. All their generated and authored
- * cases receive simulate true; discovered postconditions run after feature
- * settlement and require untouched state and zero actual requests.
- * Postcondition failures join the same final aggregate, without resetting state
- * or repeating preparation.
+ * Independent native option selection belongs to the Go units. Runtime
+ * connections use the default assert program, one validate.log response program
+ * and one combined validate/validate request-and-response program. The combined
+ * program preserves the malformed-request reports and invalid-response checks
+ * without separate request-only and response-only compiler preparation.
+ * Non-listening applications select exact controller graphs for ordinary and
+ * clone option generation; one actual listener serves every profile's consumer
+ * request. The public WebSocket adaptor upgrades that same HTTP server for the
+ * original parameter/query RPC connections; their separate generated drivers
+ * and local listener events retain their original connector teardown. One
+ * consumer compilation prepares all authored and generated cases; plain
+ * JavaScript execution starts no TypeScript loader or native host. Scenario
+ * execution policy retains document-only inputs without promoting their
+ * generated random calls into transport assertions: those artifacts are still
+ * generated and compiled, while authored cases exercise their required
+ * connections. The installed compiler's version-rejection and legacy-plugin
+ * boundaries are reported separately; their assertion failures do not suppress
+ * executable HTTP cases. A no-DOM user-global boundary shares this installation
+ * and cache; its conflicting library set requires a separate minimal program,
+ * while the native DOM twin reuses the existing consumer. The producer uses the
+ * explicit legacy SDK entry with its environment activation off; the consumer
+ * uses modern entries and activation. Simulation profiles declare their
+ * execution prefixes and retain their actual producer state. All their
+ * generated and authored cases receive simulate true; discovered postconditions
+ * run after feature settlement and require untouched state and zero actual
+ * requests. Postcondition failures join the same final aggregate, without
+ * resetting state or repeating preparation.
  *
  * @evidence contracts/common.md#principled-implementation Public installed TtscCompiler emits actual authored controllers in shared strict programs for distinct native serialization options, followed by one shared consumer. Public non-listening Nest graphs select each generation profile while one real listener serves all requests. DynamicExecutor retains authored and originally enabled generated transport assertions; explicit policy preserves original document-only scenarios without dropping their generation or compilation.
  * @evidence contracts/common.md#clear-and-simple-design Installation, independent boundary cases, shared producer, distinct public generation profiles, shared consumer and requests have visible results. First boundary failures remain in the final aggregate while positive cases continue. Legacy SDK registration activates the producer and modern environment activation serves the consumer. The listener and each generation graph have explicit finally-owned release.
@@ -66,13 +70,14 @@ const {
  * @evidence contracts/common.md#meaningful-documentation The comment identifies each necessary boundary and its shared lifetime; phase timings, individual failures and discovered counts remain visible.
  * @evidence contracts/portability.md#os-neutral-implementation Native paths locate the assignment-owned fixture. Temporary removal verifies containment before recursive deletion, and the listener uses an OS-assigned loopback port. Public package imports use the consumer's normal Node resolution.
  * @evidence contracts/performance.md#efficient-algorithms Each authored input tree is copied once. Controllers sharing native options compile once per producer program, and all profiles compile in one consumer program. Distinct generation options analyze their exact controller graphs; no individual case repeats installation, native preparation, consumer compilation or listening.
- * @evidence contracts/performance.md#reuse-equivalent-work Controllers have private scenario routes and shared encryption settings. Default assert, validate and validate.log serialization and validate request reports require distinct producer programs because their malformed-input behavior differs. All cases with each setting reuse that program, installed graph, compiled consumer and listener. Simulation state remains the actual unreset producer namespace and is checked after features with a request counter.
+ * @evidence contracts/performance.md#reuse-equivalent-work Controllers have private scenario routes and shared encryption settings. Default assert/assert, validate.log responses and combined validate/validate connections reuse three producer programs. Independent request and response selection remains in Go units; all original report, valid-response and malformed-response assertions execute with the combined program. All profiles share the installed graph, consumer and listener. Simulation state remains the actual unreset producer namespace and is checked after features with a request counter.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One private fixture and one listener belong to the run. Each producer and consumer result map is released after publication. Emitted files stay in the ignored root; the listener closes in finally and generatePublicHttpProfile closes each non-listening graph immediately after its generation or failure.
  */
 async function runPublicHttp(preparedConsumer) {
   const root = path.resolve(__dirname, "../..");
   Object.assign(process.env, resolveTestEnvironment(root, process.env));
-  const consumer = preparedConsumer ?? await preparePublicConsumer("tests/test-sdk");
+  const consumer =
+    preparedConsumer ?? (await preparePublicConsumer("tests/test-sdk"));
   const fixture = path.join(consumer.root, "projects/http-rich");
   const relative = path.relative(consumer.root, fixture);
   assert(
@@ -285,7 +290,10 @@ async function runPublicHttp(preparedConsumer) {
       "Public compiler boundary: test_public_multipart_schema_inputs passed",
     );
   } catch (error) {
-    boundaryFailures.push({ name: "test_public_multipart_schema_inputs", error });
+    boundaryFailures.push({
+      name: "test_public_multipart_schema_inputs",
+      error,
+    });
     console.error(
       "Public compiler boundary: test_public_multipart_schema_inputs failed",
       error,
@@ -402,7 +410,12 @@ async function runPublicHttp(preparedConsumer) {
       await generatePublicHttpProfile(
         consumer,
         profile.controllers.map((directory) =>
-          path.join(fixture, profile.producer ?? "producer", "controllers", directory),
+          path.join(
+            fixture,
+            profile.producer ?? "producer",
+            "controllers",
+            directory,
+          ),
         ),
         {
           output:
@@ -640,10 +653,14 @@ module.exports = { runPublicHttp, generatePublicHttpProfile };
 if (require.main === module) {
   const index = process.argv.indexOf("--consumer-root");
   const root = index === -1 ? undefined : path.resolve(process.argv[index + 1]);
-  runPublicHttp(root === undefined ? undefined : {
-    root,
-    requirePublic: createRequire(path.join(root, "package.json")),
-  }).catch((error) => {
+  runPublicHttp(
+    root === undefined
+      ? undefined
+      : {
+          root,
+          requirePublic: createRequire(path.join(root, "package.json")),
+        },
+  ).catch((error) => {
     console.error(error);
     process.exitCode = 1;
   });
