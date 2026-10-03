@@ -240,5 +240,20 @@
     },
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 1
+  },
+  {
+    "name": "customized",
+    "controllers": ["options/customized"],
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "security": {
+        "bearer": {
+          "type": "apiKey"
+        }
+      }
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 9
   }
 ]
