@@ -20,7 +20,6 @@ import { EMPTY_PATHS_DOCUMENT } from "./features/test_migrate_sdk_empty_paths";
 import { compileMigrationPrograms } from "./internal/compileMigrationPrograms";
 import { test_migrate_generated_project_inputs } from "./internal/test_migrate_generated_project_inputs";
 import { test_migrate_simulate_throws } from "./internal/test_migrate_simulate_throws";
-import { main as runUnits } from "./unit";
 
 const TEST_ROOT: string = process.cwd();
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
@@ -185,7 +184,6 @@ export const main = async (): Promise<void> => {
     await fs.promises.rm(GENERATED, { recursive: true });
   await fs.promises.mkdir(OUTPUT, { recursive: true });
 
-  await runUnits();
   await generateSwagger();
 
   const scenarios: IScenario[] = [

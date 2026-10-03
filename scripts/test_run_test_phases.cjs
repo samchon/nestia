@@ -23,18 +23,21 @@ function test_run_test_phases() {
     "build",
     "Evidence",
     "Go units",
-    "runner units",
-    "package JavaScript units",
+    "JavaScript units",
     "test workspaces",
   ];
   for (const scenario of [
     { statuses: {}, result: 0, expected: phases },
     {
-      statuses: { Evidence: 2, "Go units": 1, "package JavaScript units": 1 },
+      statuses: { Evidence: 2, "Go units": 1, "JavaScript units": 1 },
       result: 2,
       expected: phases,
     },
-    { statuses: { build: 1 }, result: 1, expected: phases.slice(0, 4) },
+    {
+      statuses: { build: 1 },
+      result: 1,
+      expected: [...phases.slice(0, 3), "runner units"],
+    },
     { statuses: { "test workspaces": 1 }, result: 1, expected: phases },
   ]) {
     const calls = [];

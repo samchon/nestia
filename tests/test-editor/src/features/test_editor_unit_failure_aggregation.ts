@@ -30,9 +30,9 @@ export const test_editor_unit_failure_aggregation = (): void => {
     const commands: string[] = [];
     const result = runEditorUnitPhases((command) => {
       commands.push(command);
-      return command === "test:unit" ? ssr! : browser!;
+      return command === "test:unit:ssr" ? ssr! : browser!;
     });
-    assert.deepEqual(commands, ["test:unit", "test:unit:browser"]);
+    assert.deepEqual(commands, ["test:unit:ssr", "test:unit:browser"]);
     assert.equal(result, expected);
   }
 };

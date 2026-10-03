@@ -1899,13 +1899,6 @@ const main = async () =>
         },
       );
 
-    await measure("SDK unit execution")(async () => {
-      await run(NODE, [TTSX_BIN, "--no-plugins", "src/index.ts"], {
-        cwd: __dirname,
-        stdio: "inherit",
-      });
-    });
-
     await measure("Feature execution")(async () => {
       const filter = featureFilter();
       const names = planBatches(

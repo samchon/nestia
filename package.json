@@ -14,7 +14,8 @@
     "package:next": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --tag next",
     "package:rc": "pnpm package:prepare && pnpm --filter=./packages/* -r publish --tag rc",
     "package:tgz": "pnpm package:prepare && node deploy/tarballs",
-    "release": "rimraf packages/migrate/assets && bumpp -r"
+    "release": "rimraf packages/migrate/assets && bumpp -r",
+    "test:unit": "node scripts/run-unit.cjs"
   },
   "repository": {
     "type": "git",

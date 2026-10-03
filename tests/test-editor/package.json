@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "ttsc --watch",
     "start": "node start.js",
-    "test:unit": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts",
-    "test:unit:browser": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/browser/index.ts"
+    "test:unit": "node start.js",
+    "test:unit:browser": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/browser/index.ts",
+    "test:unit:ssr": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts"
   },
   "dependencies": {
     "@nestia/e2e": "workspace:^"

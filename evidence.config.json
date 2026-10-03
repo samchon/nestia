@@ -2,11 +2,10 @@
   "severity": "error",
   "claims": [
     {
-      "name": "Evidence runner native process and resource ownership",
+      "name": "Test runner native execution and artifact ownership",
       "type": "javascript",
       "files": [
-        "scripts/check-evidence.cjs",
-        "scripts/run-e2e.cjs",
+        "scripts/UnitArtifacts.cjs",
         "scripts/run-tests.cjs",
         "scripts/run-unit.cjs"
       ],
@@ -18,6 +17,23 @@
           "contracts/common.md",
           "contracts/portability.md",
           "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Root orchestration unit assertions",
+      "type": "javascript",
+      "files": [
+        "scripts/test_*.cjs"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": ".agents/skills",
+        "files": [
+          "contracts/testing.md"
         ],
         "symbol": "h2",
         "checklist": true

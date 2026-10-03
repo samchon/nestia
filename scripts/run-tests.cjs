@@ -3,22 +3,22 @@ const cp = require("node:child_process");
 const path = require("node:path");
 
 /**
- * Builds caller artifacts once and retains every independent test result.
+ * Executes a test population plan through the pinned pnpm process boundary.
  *
- * Native units and declaration checks can run after a failed build. JavaScript
- * populations require its artifacts and are explicitly blocked in that state;
- * an earlier test failure never blocks a later independent population.
+ * The supplied plan owns prerequisites and population selection. This boundary
+ * resolves one compiler cache, streams every child result and normalizes launch
+ * failures without throwing away the plan's remaining independent work.
  *
- * @evidence contracts/common.md#principled-implementation The installed pnpm manager runs the canonical build, Evidence, Go, package units and test-workspace commands. Each process result contributes to the final exit code; only the artifact prerequisite suppresses JavaScript populations.
- * @evidence contracts/common.md#clear-and-simple-design One entry records each phase's first result and timing, with one build prerequisite and a final maximum nonzero status. Process failure does not short circuit independent phases.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Ordinary pnpm commands execute actual workspaces without resolver changes, status substitution or retries. Skip-build reaches SDK only after the same run's successful build.
- * @evidence contracts/common.md#meaningful-documentation The comment states prerequisites and continued execution; phase output distinguishes failed, blocked and completed work.
+ * @evidence contracts/common.md#principled-implementation The installed pnpm manager executes the caller plan's ordinary commands and returns actual statuses, including launch failures and signals. The plan owns prerequisite decisions and final aggregation.
+ * @evidence contracts/common.md#clear-and-simple-design One native boundary records each phase's first result and timing; population plans separately own command selection and aggregation. Process failure returns status two so later independent work can continue.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Ordinary pnpm commands execute the supplied population without resolver changes, success substitution or retries. The boundary inherits the caller environment and only resolves its cache location.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies the split between native execution and prerequisite selection; output names every first result and elapsed time.
  * @evidence contracts/portability.md#os-neutral-implementation Node launches the absolute installed pnpm JavaScript entry with an argument array and no shell. Native paths resolve the repository and cache once before changing workspace directories.
  * @evidence contracts/performance.md#efficient-algorithms A fixed sequence starts each canonical population once, records constant-size status and timing data, and streams child output without buffering entire logs.
- * @evidence contracts/performance.md#reuse-equivalent-work Successful package artifacts belong to this run and serve package units and workspace starts; SDK receives the existing freshness-checked skip-build contract. All children inherit the same absolute compiler cache and any caller-selected Go executable.
+ * @evidence contracts/performance.md#reuse-equivalent-work All children inherit the same absolute compiler cache and caller-selected Go executable. Population plans and suites own artifact identity, prerequisite decisions and any reuse of built package outputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Synchronous child completion releases each process before the next phase. The entry retains only scalar statuses, does not delete caller caches, and owns no background host or generated fixture lifetime.
  */
-function runTests() {
+function runPnpmPlan(plan) {
   const root = path.resolve(__dirname, "..");
   const pnpm = process.env.npm_execpath;
   assert(
@@ -50,21 +50,21 @@ function runTests() {
     );
     return status;
   };
-  return runTestPhases(run);
+  return plan(run);
 }
 
 /**
  * Executes the fixed test population plan through its process boundary.
  *
  * Build success permits artifact consumers; other first results remain
- * independent. The boundary supplied by runTests owns native process
+ * independent. The boundary supplied by runPnpmPlan owns native process
  * execution.
  *
  * @evidence contracts/common.md#principled-implementation Each canonical population executes once and contributes its result. Build status alone decides whether package artifact consumers may execute; Evidence, Go and orchestration units do not require that build.
  * @evidence contracts/common.md#clear-and-simple-design The ordered plan separates prerequisite selection and status aggregation from native command execution, so the process boundary and portable failure decisions have distinct owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The supplied boundary receives ordinary commands and returns actual statuses; this plan does not substitute outputs, retry failed work or alter product behavior.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies the build prerequisite and boundary responsibility; blocked consumers are reported explicitly.
- * @evidenceExclude contracts/portability.md#os-neutral-implementation This plan selects command argument arrays and statuses; runTests owns native executable/path/environment resolution and process launch.
+ * @evidenceExclude contracts/portability.md#os-neutral-implementation This plan selects command argument arrays and statuses; runPnpmPlan owns native executable/path/environment resolution and process launch.
  * @evidence contracts/performance.md#efficient-algorithms A constant-size ordered plan invokes each population once and aggregates scalar statuses; command execution owns the cost of each population.
  * @evidence contracts/performance.md#reuse-equivalent-work Only this plan's successful build permits caller-artifact consumers and the SDK freshness-checked skip-build flag. Test failures leave those artifacts valid for later independent consumers.
  * @evidence contracts/performance.md#bound-retention-and-release-resources This plan retains scalar phase statuses for one invocation and acquires no handles or background resources; the execution boundary owns its child lifetimes.
@@ -80,34 +80,37 @@ function runTestPhases(run) {
     "run",
     "test:go",
   ]);
-  const runner = run("runner units", [
-    "exec",
-    "node",
-    "--test",
-    "scripts/test_run_test_phases.cjs",
-  ]);
+  let runner = 0;
   let units = 0;
   let workspaces = 0;
   if (build === 0) {
-    units = run("package JavaScript units", [
-      "--filter=./packages/*",
-      "-r",
-      "--no-bail",
-      "--if-present",
-      "run",
-      "test:unit",
-    ]);
+    units = run("JavaScript units", ["run", "test:unit"]);
     workspaces = run(
       "test workspaces",
-      ["--filter=./tests/*", "-r", "--no-bail", "run", "start"],
+      [
+        "--filter=./tests/test-sdk",
+        "--filter=./tests/test-migrate",
+        "--filter=./tests/test-transform-options",
+        "-r",
+        "--no-bail",
+        "run",
+        "start",
+      ],
       { TEST_SDK_SKIP_BUILD: "1" },
     );
-  } else
+  } else {
+    runner = run("runner units", [
+      "exec",
+      "node",
+      "--test",
+      "scripts/test_*.cjs",
+    ]);
     console.error(
       "Blocked JavaScript populations: this run's package build failed.",
     );
+  }
   return Math.max(build, evidence, go, runner, units, workspaces);
 }
 
-module.exports = { runTests, runTestPhases };
-if (require.main === module) process.exitCode = runTests();
+module.exports = { runPnpmPlan, runTestPhases };
+if (require.main === module) process.exitCode = runPnpmPlan(runTestPhases);

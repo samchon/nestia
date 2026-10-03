@@ -64,7 +64,7 @@ function runEditorUnits() {
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only two scalar statuses survive the synchronous boundary calls; no resource is acquired by this plan.
  */
 function runEditorUnitPhases(run) {
-  const ssr = run("test:unit");
+  const ssr = run("test:unit:ssr");
   const browser = run("test:unit:browser");
   return Math.max(ssr, browser);
 }
