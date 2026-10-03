@@ -1,4 +1,4 @@
-export namespace ErrorCode {
+export namespace PropagationErrorCode {
   export namespace Permission {
     export type Required = "REQUIRED_PERMISSION";
     export type Insufficient = "INSUFFICIENT_PERMISSION";

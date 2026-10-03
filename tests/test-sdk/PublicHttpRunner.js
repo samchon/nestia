@@ -333,6 +333,8 @@ async function runPublicHttp() {
           clone: profile.clone,
           keyword: profile.keyword,
           propagate: profile.propagate,
+          primitive: profile.primitive,
+          json: profile.json,
           simulate: profile.simulate,
           swagger:
             profile.generateSwagger === false

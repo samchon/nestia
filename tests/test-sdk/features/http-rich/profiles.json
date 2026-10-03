@@ -129,5 +129,24 @@
     "generateSwagger": false,
     "expectedGeneratedCases": 2,
     "expectedAuthoredCases": 0
+  },
+  {
+    "name": "exception_propagate",
+    "controllers": ["options/exception_propagate"],
+    "clone": true,
+    "propagate": true,
+    "primitive": true,
+    "json": false,
+    "generateE2e": false,
+    "swagger": {
+      "security": {
+        "bearer": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      }
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 8
   }
 ]
