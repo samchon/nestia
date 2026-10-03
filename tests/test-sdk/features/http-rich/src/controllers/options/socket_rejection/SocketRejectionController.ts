@@ -3,17 +3,21 @@ import { Controller, ForbiddenException } from "@nestjs/common";
 import { WebSocketAcceptor } from "tgrid";
 import { tags } from "typia";
 
-import { IRejection } from "@api/lib/structures/IRejection";
+import { ISocketRejection } from "../../../structures/options/socket_rejection/ISocketRejection";
 
-@Controller("rejection")
-export class RejectionController {
+@Controller("http_rich/options/socket_rejection")
+export class SocketRejectionController {
   @core.WebSocketRoute("validate/:id")
   public async validate(
     @core.WebSocketRoute.Param("id") id: string & tags.Format<"uuid">,
-    @core.WebSocketRoute.Header() header: IRejection.IHeader,
-    @core.WebSocketRoute.Query() query: IRejection.IQuery,
+    @core.WebSocketRoute.Header() header: ISocketRejection.IHeader,
+    @core.WebSocketRoute.Query() query: ISocketRejection.IQuery,
     @core.WebSocketRoute.Acceptor()
-    acceptor: WebSocketAcceptor<IRejection.IHeader, IRejection.IProvider, null>,
+    acceptor: WebSocketAcceptor<
+      ISocketRejection.IHeader,
+      ISocketRejection.IProvider,
+      null
+    >,
   ): Promise<void> {
     await acceptor.accept({
       echo: (value) => `${id}:${header.name}:${query.count}:${value}`,
@@ -25,7 +29,7 @@ export class RejectionController {
   @core.WebSocketRoute("before")
   public async before(
     @core.WebSocketRoute.Acceptor()
-    _acceptor: WebSocketAcceptor<undefined, IRejection.IProvider, null>,
+    _acceptor: WebSocketAcceptor<undefined, ISocketRejection.IProvider, null>,
   ): Promise<void> {
     throw new Error("thrown before accept");
   }
@@ -33,7 +37,7 @@ export class RejectionController {
   @core.WebSocketRoute("forbidden")
   public async forbidden(
     @core.WebSocketRoute.Acceptor()
-    _acceptor: WebSocketAcceptor<undefined, IRejection.IProvider, null>,
+    _acceptor: WebSocketAcceptor<undefined, ISocketRejection.IProvider, null>,
   ): Promise<void> {
     throw new ForbiddenException("no entry");
   }
@@ -41,7 +45,7 @@ export class RejectionController {
   @core.WebSocketRoute("oversized")
   public async oversized(
     @core.WebSocketRoute.Acceptor()
-    _acceptor: WebSocketAcceptor<undefined, IRejection.IProvider, null>,
+    _acceptor: WebSocketAcceptor<undefined, ISocketRejection.IProvider, null>,
   ): Promise<void> {
     throw new Error(OVERSIZED);
   }
@@ -49,7 +53,7 @@ export class RejectionController {
   @core.WebSocketRoute("after")
   public async after(
     @core.WebSocketRoute.Acceptor()
-    acceptor: WebSocketAcceptor<undefined, IRejection.IProvider, null>,
+    acceptor: WebSocketAcceptor<undefined, ISocketRejection.IProvider, null>,
   ): Promise<void> {
     let trigger!: () => void;
     const triggered: Promise<void> = new Promise((resolve) => {

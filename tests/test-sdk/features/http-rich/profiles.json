@@ -358,5 +358,15 @@
     "generateE2e": false,
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 1
+  },
+  {
+    "name": "socket_rejection",
+    "controllers": ["options/socket_rejection"],
+    "generateE2e": false,
+    "swagger": {
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
   }
 ]

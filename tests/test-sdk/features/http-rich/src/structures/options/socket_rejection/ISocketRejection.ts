@@ -1,4 +1,4 @@
-export namespace IRejection {
+export namespace ISocketRejection {
   export interface IHeader {
     name: string;
   }

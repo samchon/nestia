@@ -6,12 +6,19 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from "@nestjs/platform-fastify";
+import path from "node:path";
 import { WebSocketConnector, WebSocketError } from "tgrid";
 
-import api from "@api";
-import { IRejection } from "@api/lib/structures/IRejection";
+import { ISocketRejection } from "../../../../../../structures/options/socket_rejection/ISocketRejection";
+import api from "../../api";
 
-import { OVERSIZED } from "../../controllers/RejectionController";
+const CONTROLLERS = path.join(
+  __dirname,
+  "../../../../../../../producer/controllers/options/socket_rejection",
+);
+const { OVERSIZED } = require(
+  path.join(CONTROLLERS, "SocketRejectionController.js"),
+) as { OVERSIZED: string };
 
 /**
  * Verifies every failing WebSocket request ends promptly with a close code and
@@ -29,19 +36,28 @@ import { OVERSIZED } from "../../controllers/RejectionController";
  * 2. Assert each settles within the deadline with its code and its reason, cut to
  *    123 bytes at a character boundary.
  * 3. Assert a valid handshake still serves, and the SDK sees the same rejection.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Every original handshake rejection, before/after-accept exception, UTF-8 close-reason limit, pending RPC, valid echo and SDK rejection is asserted on both actual Express and Fastify listeners with the original deadline.
+ * @evidence contracts/testing.md#independent-expectations Authored close codes, literal messages and the 123-byte WebSocket reason limit define the expected results independently of adaptor output; the valid UUID/header/query fixes the positive echo expectation.
+ * @evidence contracts/testing.md#distinguishing-cases Invalid UUID/header/query, nonexistent route, ordinary and HTTP exceptions before acceptance, a multibyte oversized reason and pending RPC after acceptance contrast with the valid handshake on each HTTP adapter.
+ * @evidence contracts/testing.md#execution-ownership The matching shared consumer file/export executes current native producer routes through actual raw connectors and generated SDK; the canonical SDK integration discovers it after shared generation and compilation.
+ * @evidence contracts/e2e.md#necessary-boundary Native validation, WebSocket handshake/error transport, pending RPC and generated SDK must agree on both Express and Fastify. Direct rule units cannot prove settlement, close reason or adapter assembly.
+ * @evidence contracts/e2e.md#shared-execution The case reuses the installed graph, default producer, shared consumer and Express listener; one Fastify listener is necessary for its distinct adapter. Both mount the same already emitted controller without recompilation.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Private route/type identities isolate the stateless rejection graph. Each connector retains its original close or deadline termination; the Fastify listener closes in finally even if upgrade or listen fails, and runner teardown owns Express.
+ * @evidence contracts/e2e.md#preserved-coverage Both original inputs and the whole case/helper assertions remain. Only private identities, generated import bindings and emitted producer addresses change; original SDK/Swagger settings retain no automatic E2E generation.
  */
-export const test_websocket_rejection = async (
+export const test_clone_socket_rejection = async (
   connection: api.IConnection,
 ): Promise<void> => {
   const fastify: NestFastifyApplication =
     await NestFactory.create<NestFastifyApplication>(
-      await core.DynamicModule.mount(`${__dirname}/../../controllers`),
+      await core.DynamicModule.mount(CONTROLLERS),
       new FastifyAdapter(),
       { logger: false },
     );
-  await core.WebSocketAdaptor.upgrade(fastify);
-  await fastify.listen(0, "127.0.0.1");
   try {
+    await core.WebSocketAdaptor.upgrade(fastify);
+    await fastify.listen(0, "127.0.0.1");
     for (const [adapter, host] of [
       ["express", connection.host.replace("http", "ws")],
       ["fastify", (await url(fastify)).replace("http", "ws")],
@@ -53,7 +69,7 @@ export const test_websocket_rejection = async (
 };
 
 const validate = async (adapter: string, host: string): Promise<void> => {
-  const header: IRejection.IHeader = { name: "nestia" };
+  const header: ISocketRejection.IHeader = { name: "nestia" };
   const expect = async (
     title: string,
     props: {
@@ -94,43 +110,43 @@ const validate = async (adapter: string, host: string): Promise<void> => {
 
   const uuid: string = "7a1c7b36-0f6e-4c55-9b1e-1f2d3c4b5a69";
   await expect("param", {
-    path: `/rejection/validate/not-a-uuid?count=1`,
+    path: `/http_rich/options/socket_rejection/validate/not-a-uuid?count=1`,
     header,
     status: 1003,
     reason: (reason) => reason.length !== 0,
   });
   await expect("header", {
-    path: `/rejection/validate/${uuid}?count=1`,
+    path: `/http_rich/options/socket_rejection/validate/${uuid}?count=1`,
     header: { name: 3 },
     status: 1003,
     reason: (reason) => reason.includes("$input.name"),
   });
   await expect("query", {
-    path: `/rejection/validate/${uuid}?count=abc`,
+    path: `/http_rich/options/socket_rejection/validate/${uuid}?count=abc`,
     header,
     status: 1003,
     reason: (reason) => reason.includes("count"),
   });
   await expect("no route", {
-    path: `/rejection/nowhere`,
+    path: `/http_rich/options/socket_rejection/nowhere`,
     header: undefined,
     status: 1002,
     reason: "WebSocket API not found",
   });
   await expect("before accept", {
-    path: `/rejection/before`,
+    path: `/http_rich/options/socket_rejection/before`,
     header: undefined,
     status: 1008,
     reason: "thrown before accept",
   });
   await expect("http exception", {
-    path: `/rejection/forbidden`,
+    path: `/http_rich/options/socket_rejection/forbidden`,
     header: undefined,
     status: 1008,
     reason: "no entry",
   });
   await expect("oversized", {
-    path: `/rejection/oversized`,
+    path: `/http_rich/options/socket_rejection/oversized`,
     header: undefined,
     status: 1008,
     reason: OVERSIZED.slice(0, 41), // "a" and 40 of the 3-byte "가": 121 bytes
@@ -140,9 +156,9 @@ const validate = async (adapter: string, host: string): Promise<void> => {
   const connector = new WebSocketConnector<
     undefined,
     null,
-    IRejection.IProvider
+    ISocketRejection.IProvider
   >(undefined, null);
-  await connector.connect(`${host}/rejection/after`);
+  await connector.connect(`${host}/http_rich/options/socket_rejection/after`);
   const pending: Promise<void> = connector.getDriver().hang();
   await connector.getDriver().trigger();
   const closed: WebSocketError = await failure(
@@ -159,11 +175,13 @@ const validate = async (adapter: string, host: string): Promise<void> => {
 
   // a valid handshake still serves
   const valid = new WebSocketConnector<
-    IRejection.IHeader,
+    ISocketRejection.IHeader,
     null,
-    IRejection.IProvider
+    ISocketRejection.IProvider
   >(header, null);
-  await valid.connect(`${host}/rejection/validate/${uuid}?count=2`);
+  await valid.connect(
+    `${host}/http_rich/options/socket_rejection/validate/${uuid}?count=2`,
+  );
   try {
     TestValidator.equals(
       `${adapter} valid`,
@@ -176,7 +194,10 @@ const validate = async (adapter: string, host: string): Promise<void> => {
 
   // and the SDK sees the same rejection
   const sdk: WebSocketError = await failure(`${adapter} sdk`, null, () =>
-    api.functional.rejection.before({ host: host.replace("ws", "http") }, null),
+    api.functional.http_rich.options.socket_rejection.before(
+      { host: host.replace("ws", "http") },
+      null,
+    ),
   );
   TestValidator.equals(`${adapter} sdk status`, sdk.status, 1008);
   TestValidator.equals(
