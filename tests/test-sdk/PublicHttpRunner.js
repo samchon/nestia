@@ -297,16 +297,19 @@ async function runPublicHttp() {
             profile.name,
             "api",
           ),
-          e2e: path.join(
-            fixture,
-            "src/test/features/profiles",
-            profile.name,
-            "test",
-          ),
+          e2e:
+            profile.generateE2e === false
+              ? undefined
+              : path.join(
+                  fixture,
+                  "src/test/features/profiles",
+                  profile.name,
+                  "test",
+                ),
           clone: profile.clone,
           keyword: profile.keyword,
           propagate: profile.propagate,
-          simulate: true,
+          simulate: profile.simulate,
           swagger: {
             output: path.join(
               fixture,
@@ -314,8 +317,13 @@ async function runPublicHttp() {
               profile.name,
               "swagger.json",
             ),
-            security: { bearer: { type: "apiKey" } },
+            security: profile.swagger?.security ?? {
+              bearer: { type: "apiKey" },
+            },
             beautify: true,
+            operationId: profile.operationId
+              ? (props) => `${props.class}.${props.function}`
+              : undefined,
           },
         },
       );

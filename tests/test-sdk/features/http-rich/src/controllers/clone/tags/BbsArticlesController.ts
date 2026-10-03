@@ -4,8 +4,8 @@ import { ApiSecurity, ApiTags } from "@nestjs/swagger";
 import typia, { tags } from "typia";
 
 @ApiTags("bbs")
-@Controller("bbs/articles/:section")
-export class BbsArticlesController {
+@Controller("http_rich/clone/tags/bbs/articles/:section")
+export class CloneTagsBbsArticlesController {
   /**
    * Would be shown without any mark.
    *
@@ -21,10 +21,10 @@ export class BbsArticlesController {
   @TypedRoute.Post()
   public async store(
     @TypedParam("section") section: string,
-    @TypedBody() input: IBbsArticle.IStore,
-  ): Promise<IBbsArticle> {
+    @TypedBody() input: CloneTagsIBbsArticle.IStore,
+  ): Promise<CloneTagsIBbsArticle> {
     return {
-      ...typia.random<IBbsArticle>(),
+      ...typia.random<CloneTagsIBbsArticle>(),
       ...input,
       section,
     };
@@ -52,10 +52,10 @@ export class BbsArticlesController {
   public async update(
     @TypedParam("section") section: string,
     @TypedParam("id") id: string & tags.Format<"uuid">,
-    @TypedBody() input: IBbsArticle.IStore,
-  ): Promise<IBbsArticle> {
+    @TypedBody() input: CloneTagsIBbsArticle.IStore,
+  ): Promise<CloneTagsIBbsArticle> {
     return {
-      ...typia.random<IBbsArticle>(),
+      ...typia.random<CloneTagsIBbsArticle>(),
       ...input,
       id,
       section,
@@ -78,21 +78,21 @@ export class BbsArticlesController {
   }
 }
 
-interface IBbsArticle extends IBbsArticle.IStore {
+interface CloneTagsIBbsArticle extends CloneTagsIBbsArticle.IStore {
   id: string & tags.Format<"uuid">;
   created_at: string & tags.Format<"date-time">;
 }
-namespace IBbsArticle {
+namespace CloneTagsIBbsArticle {
   export interface IStore {
     section: string;
     title: string & tags.MinLength<3> & tags.MaxLength<50>;
     body: string;
-    files: IAttachmentFile[];
+    files: CloneTagsIAttachmentFile[];
   }
   export type IUpdate = Partial<IStore>;
 }
 
-interface IAttachmentFile {
+interface CloneTagsIAttachmentFile {
   /**
    * @minLength 1
    * @maxLength 255

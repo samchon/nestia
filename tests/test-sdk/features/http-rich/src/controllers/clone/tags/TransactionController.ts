@@ -21,8 +21,8 @@ export type PubkeyInput = string &
   RegexPattern<"/^[0-9a-fA-F]+$/"> &
   LengthDivisibleBy<2>;
 
-@Controller("v0/transaction")
-export class TransactionController {
+@Controller("http_rich/clone/tags/v0/transaction")
+export class CloneTagsTransactionController {
   constructor() {}
 
   @TypedRoute.Get("user/:pubkey")

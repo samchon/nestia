@@ -3,8 +3,8 @@ import { Controller, Request } from "@nestjs/common";
 import { tags } from "typia";
 import { v4 } from "uuid";
 
-@Controller("body")
-export class TypedBodyControlleer {
+@Controller("http_rich/clone/implicit/body")
+export class CloneImplicitTypedBodyControlleer {
   /**
    * Store an article.
    *

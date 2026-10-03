@@ -5,7 +5,8 @@
     "expectedAuthoredCases": 1,
     "controllers": ["clone/common", "clone/base", "clone/keyword"],
     "clone": true,
-    "keyword": true
+    "keyword": true,
+    "simulate": true
   },
   {
     "name": "propagate",
@@ -13,7 +14,8 @@
     "expectedAuthoredCases": 3,
     "controllers": ["clone/common", "clone/base", "clone/propagate"],
     "clone": true,
-    "propagate": true
+    "propagate": true,
+    "simulate": true
   },
   {
     "name": "combined",
@@ -22,6 +24,61 @@
     "controllers": ["clone/common", "clone/combined", "clone/propagate"],
     "clone": true,
     "keyword": true,
-    "propagate": true
+    "propagate": true,
+    "simulate": true
+  },
+  {
+    "name": "implicit",
+    "controllers": ["clone/implicit"],
+    "clone": true,
+    "simulate": true,
+    "expectedGeneratedCases": 2,
+    "expectedAuthoredCases": 0
+  },
+  {
+    "name": "native",
+    "controllers": ["clone/native"],
+    "clone": true,
+    "expectedGeneratedCases": 2,
+    "expectedAuthoredCases": 0
+  },
+  {
+    "name": "tags",
+    "controllers": ["clone/tags"],
+    "clone": true,
+    "generateE2e": false,
+    "operationId": true,
+    "swagger": {
+      "security": {
+        "basic": {
+          "type": "http",
+          "scheme": "basic"
+        },
+        "bearer": {
+          "type": "http",
+          "scheme": "bearer"
+        },
+        "oauth2": {
+          "type": "oauth2",
+          "flows": {
+            "implicit": {
+              "authorizationUrl": "https://example.com/api/oauth/dialog",
+              "refreshUrl": "https://example.com/api/oauth/refresh",
+              "scopes": {
+                "read": "read authority",
+                "write": "write authority"
+              }
+            }
+          }
+        },
+        "custom": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "Authorization"
+        }
+      }
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 1
   }
 ]
