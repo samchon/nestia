@@ -1,7 +1,7 @@
 import { tags } from "typia";
 
 /** Form of an upload. */
-export interface IUploadForm {
+export interface SwaggerExampleIUploadForm {
   title: string;
   memo?: string;
   attachments: File[];
@@ -14,6 +14,6 @@ export interface IUploadForm {
 }
 
 /** Form whose fields are all optional. */
-export interface IOptionalForm {
+export interface SwaggerExampleIOptionalForm {
   memo?: string;
 }

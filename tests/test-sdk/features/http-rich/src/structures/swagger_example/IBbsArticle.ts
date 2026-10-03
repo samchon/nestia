@@ -1,11 +1,12 @@
-export interface IBbsArticle extends IBbsArticle.ICreate {
+export interface SwaggerExampleIBbsArticle
+  extends SwaggerExampleIBbsArticle.ICreate {
   /** @format uuid */
   id: string;
 
   /** @format date-time */
   created_at: string;
 }
-export namespace IBbsArticle {
+export namespace SwaggerExampleIBbsArticle {
   export interface ICreate {
     /**
      * @minLength 3

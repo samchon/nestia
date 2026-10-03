@@ -173,5 +173,31 @@
     },
     "expectedGeneratedCases": 0,
     "expectedAuthoredCases": 0
+  },
+  {
+    "name": "swagger_example",
+    "controllers": [
+      "options/swagger_example/common",
+      "options/swagger_example/multiline"
+    ],
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 4
+  },
+  {
+    "name": "swagger_example_v2",
+    "controllers": ["options/swagger_example/common"],
+    "generateSdk": false,
+    "generateE2e": false,
+    "swagger": {
+      "beautify": true,
+      "openapi": "2.0",
+      "security": {}
+    },
+    "expectedGeneratedCases": 0,
+    "expectedAuthoredCases": 0
   }
 ]

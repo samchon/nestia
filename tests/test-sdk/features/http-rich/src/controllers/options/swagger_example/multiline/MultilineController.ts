@@ -2,10 +2,10 @@ import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import typia from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { SwaggerExampleIBbsArticle } from "../../../../structures/swagger_example/IBbsArticle";
 
-@Controller("multiline")
-export class MultilineController {
+@Controller("http_rich/options/swagger_example/multiline")
+export class SwaggerExampleMultilineController {
   /**
    * Read with tags whose text runs over lines.
    *
@@ -25,7 +25,7 @@ export class MultilineController {
    *   and a note after it
    */
   @core.TypedRoute.Get()
-  public read(): IBbsArticle.ICreate {
-    return typia.random<IBbsArticle.ICreate>();
+  public read(): SwaggerExampleIBbsArticle.ICreate {
+    return typia.random<SwaggerExampleIBbsArticle.ICreate>();
   }
 }

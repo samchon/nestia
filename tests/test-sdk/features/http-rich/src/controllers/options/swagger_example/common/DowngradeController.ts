@@ -3,8 +3,11 @@ import { Controller } from "@nestjs/common";
 import Multer from "multer";
 import typia from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
-import { IOptionalForm, IUploadForm } from "@api/lib/structures/IUploadForm";
+import { SwaggerExampleIBbsArticle } from "../../../../structures/swagger_example/IBbsArticle";
+import {
+  SwaggerExampleIOptionalForm,
+  SwaggerExampleIUploadForm,
+} from "../../../../structures/swagger_example/IUploadForm";
 
 /**
  * Routes whose request bodies or responses carry what Swagger 2.0 has no place
@@ -13,16 +16,16 @@ import { IOptionalForm, IUploadForm } from "@api/lib/structures/IUploadForm";
  * taking several files or null, a form body required while its fields are
  * optional, and named exception examples.
  */
-@Controller("downgrade")
-export class DowngradeController {
-  @core.TypedException<IBbsArticle.ICreate>({
+@Controller("http_rich/options/swagger_example/downgrade")
+export class SwaggerExampleDowngradeController {
+  @core.TypedException<SwaggerExampleIBbsArticle.ICreate>({
     status: 404,
     description: "not found",
   })
   @core.EncryptedRoute.Post("encrypted")
   public encrypted(
-    @core.EncryptedBody() input: IBbsArticle.ICreate,
-  ): IBbsArticle.ICreate {
+    @core.EncryptedBody() input: SwaggerExampleIBbsArticle.ICreate,
+  ): SwaggerExampleIBbsArticle.ICreate {
     return input;
   }
 
@@ -33,25 +36,25 @@ export class DowngradeController {
    */
   @core.TypedRoute.Post("form")
   public form(
-    @core.TypedFormData.Body(() => Multer()) input: IUploadForm,
+    @core.TypedFormData.Body(() => Multer()) input: SwaggerExampleIUploadForm,
   ): void {
     input;
   }
 
   @core.TypedRoute.Post("optional-form")
   public optionalForm(
-    @core.TypedFormData.Body(() => Multer()) input: IOptionalForm,
-  ): IOptionalForm {
+    @core.TypedFormData.Body(() => Multer()) input: SwaggerExampleIOptionalForm,
+  ): SwaggerExampleIOptionalForm {
     return input;
   }
 
-  @core.TypedException<IBbsArticle.ICreate>({
+  @core.TypedException<SwaggerExampleIBbsArticle.ICreate>({
     status: 404,
     description: "not found",
     examples: {
       missing: {
         summary: "missing",
-        value: typia.random<IBbsArticle.ICreate>(),
+        value: typia.random<SwaggerExampleIBbsArticle.ICreate>(),
       },
     },
   })
