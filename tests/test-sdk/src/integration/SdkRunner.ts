@@ -424,13 +424,23 @@ const runNestia = (
   cwd: string,
   args: readonly string[],
   stdio: cp.StdioOptions = "ignore",
-) => run(NODE, [...CLI, ...args], { cwd, stdio });
+) =>
+  run(NODE, [...CLI, ...args], {
+    cwd,
+    stdio,
+    env: { NODE_OPTIONS: "", NODE_PATH: "", TTSX_RUNTIME_MANIFEST: undefined },
+  });
 
 const runNestiaForError = (cwd: string, args: readonly string[]) =>
   new Promise<string>((resolve, reject) => {
     const child = cp.spawn(NODE, [...CLI, ...args], {
       cwd,
-      env: process.env,
+      env: {
+        ...process.env,
+        NODE_OPTIONS: "",
+        NODE_PATH: "",
+        TTSX_RUNTIME_MANIFEST: undefined,
+      },
       stdio: ["ignore", "pipe", "pipe"],
     });
     const chunks: Buffer[] = [];
@@ -1106,7 +1116,12 @@ const runCliArgumentDiagnosticsFeature = async () => {
       new Promise<string>((resolve, reject) => {
         const child = cp.spawn(NODE, [...CLI, ...args], {
           cwd,
-          env: { ...process.env },
+          env: {
+            ...process.env,
+            NODE_OPTIONS: "",
+            NODE_PATH: "",
+            TTSX_RUNTIME_MANIFEST: undefined,
+          },
           stdio: ["ignore", "pipe", "pipe"],
         });
         let output = "";
@@ -1175,7 +1190,11 @@ const runCliDependenciesFeature = async () => {
     await run(
       NODE,
       [...CLI, "dependencies", "--manager", `node ${JSON.stringify(manager)}`],
-      { cwd, stdio: "ignore" },
+      {
+        cwd,
+        stdio: "ignore",
+        env: { NODE_OPTIONS: "", NODE_PATH: "", TTSX_RUNTIME_MANIFEST: undefined },
+      },
     );
 
     const expected = JSON.parse(
@@ -1214,7 +1233,12 @@ const runSwaggerWatchFeature = async () => {
 
   const child = cp.spawn(NODE, [...CLI, "swagger", "--watch"], {
     cwd,
-    env: { ...process.env },
+    env: {
+      ...process.env,
+      NODE_OPTIONS: "",
+      NODE_PATH: "",
+      TTSX_RUNTIME_MANIFEST: undefined,
+    },
     stdio: ["ignore", "pipe", "pipe"],
   });
   let output = "";
@@ -1232,9 +1256,16 @@ const runSwaggerWatchFeature = async () => {
     const swagger = path.join(cwd, "swagger.json");
     await waitUntil(
       "initial swagger watch generation",
-      () => swaggerHasPath(swagger, "/health"),
+      () => swaggerHasPath(swagger, "/health") && output.includes("Watching "),
       () => exit,
       () => output,
+    );
+    // Allow the watcher's debounce to settle before making the one authored
+    // change. Generation's own temporary files must not enqueue another build.
+    await delay(1_000);
+    assert(
+      !output.includes("Change detected"),
+      `Swagger generation must not trigger its own watcher.\n${output}`,
     );
 
     const controller = path.join(cwd, "src/controllers/HealthController.ts");

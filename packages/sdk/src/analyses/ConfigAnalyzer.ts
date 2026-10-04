@@ -178,26 +178,27 @@ class RuntimeCompiler {
       "runtime",
     );
     const outDir: string = TemporaryDirectory.create(runtimeRoot, "run-");
-    const project: string = path.join(
-      cwd,
-      `.nestia.runtime.${process.pid}.${Date.now()}.json`,
-    );
-    const relative = (file: string): string =>
-      path.relative(cwd, file).split("\\").join("/");
+    // Compiler materializations belong below node_modules with their emitted
+    // output. A project file in cwd is itself a watched JSON input and would
+    // schedule another generation when this compilation creates/removes it.
+    const project: string = path.join(outDir, "tsconfig.json");
     await fs.promises.writeFile(
       project,
       JSON.stringify(
         {
-          extends: normalizeProjectPath(process.env.NESTIA_PROJECT),
+          extends: path.resolve(
+            cwd,
+            process.env.NESTIA_PROJECT ?? "tsconfig.json",
+          ),
           compilerOptions: {
             noEmit: false,
             noUnusedLocals: false,
             noUnusedParameters: false,
             outDir,
             plugins: await runtimePlugins(cwd),
-            rootDir: ".",
+            rootDir: cwd,
           },
-          include: sources.map(relative),
+          include: sources.map((file) => path.resolve(cwd, file)),
         },
         null,
         2,
