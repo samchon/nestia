@@ -1,5 +1,6 @@
-import { NestiaMigrateApplication } from "@nestia/migrate";
 import { OpenApiV3_1 } from "@typia/interface";
+
+import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
 
 /**
  * Verifies SDK-mode migration emits a pnpm-native project template.
@@ -12,6 +13,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 1. Generate an SDK project from a minimal OpenAPI document.
  * 2. Assert its package metadata and user-facing commands select pnpm.
  * 3. Assert pnpm's lockfile is neither pre-bundled nor ignored.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Manifest/scripts/help/README consistently select pnpm, with no prebundled or ignored pnpm lockfile.
+ * @evidence contracts/testing.md#independent-expectations The standalone template contract uses one package manager and creates a fresh lock after version stamping.
+ * @evidence contracts/testing.md#distinguishing-cases Required pnpm commands, forbidden alternative commands and both lockfile conditions distinguish missing metadata and stale lock reuse.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_sdk_pnpm_template = (): void => {
   const files: Record<string, string> = NestiaMigrateApplication.assert(

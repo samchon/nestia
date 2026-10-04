@@ -1,8 +1,9 @@
+import { OpenApiV3_1 } from "@typia/interface";
+
 import {
   INestiaMigrateConfig,
   NestiaMigrateApplication,
-} from "@nestia/migrate";
-import { OpenApiV3_1 } from "@typia/interface";
+} from "../../../../packages/migrate/lib";
 
 /**
  * Verifies migrated NestJS projects follow the pnpm monorepo template layout.
@@ -20,6 +21,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 3. Assert the DTO barrel re-exports every generated structure file.
  * 4. Assert no generated key uses the legacy single-package `src/` or `test/`
  *    roots.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Direct Nest output contains every literal controller/module/DTO/barrel/functional/E2E path and no legacy source/test roots.
+ * @evidence contracts/testing.md#independent-expectations The handwritten operation/DTO references plus monorepo package contract establish the expected file families independently of emitted keys.
+ * @evidence contracts/testing.md#distinguishing-cases Both DTO barrel members and all required file families prevent empty-layout success; forbidden roots catch old placement.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_nest_monorepo_layout = (): void => {
   const app: NestiaMigrateApplication =

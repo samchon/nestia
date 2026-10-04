@@ -1,6 +1,7 @@
-import { DynamicExecutor, TestValidator } from "@nestia/e2e";
 import fs from "fs";
 import path from "path";
+
+import { DynamicExecutor, TestValidator } from "../../../../packages/e2e/lib";
 
 /**
  * Verifies discovery matches the whole extension, not a fixed-width slice.
@@ -16,6 +17,11 @@ import path from "path";
  * 1. Write sibling fixtures that differ only in extension into a temp directory.
  * 2. Discover with each extension in turn.
  * 3. Assert each run finds exactly its own file and none of the others.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls DynamicExecutor.validate for distinct extension widths and checks each exact discovered export list.
+ * @evidence contracts/testing.md#independent-expectations Authored files with distinct names and extensions establish which single export each suffix admits.
+ * @evidence contracts/testing.md#distinguishing-cases One-, two- and three-character extensions each admit their own file and exclude the others; an absent extension discovers nothing.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e unit entry discovers this direct built-package executor case; fixture files exercise the resolver without product compilation, consumer installation or a host.
  */
 
 export async function test_dynamic_executor_extension_width(): Promise<void> {

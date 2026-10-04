@@ -15,6 +15,11 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
  * 2. Unzip the produced archive with fflate.
  * 3. Assert every entry round-trips byte-identically and the archive name drops
  *    the npm scope marker.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Nested and Unicode content round-trip through real zip bytes; empty input and archive-name boundaries retain exact results.
+ * @evidence contracts/testing.md#independent-expectations Handwritten file-map bytes and literal sanitized/fallback filenames establish the oracle independently of archiver output.
+ * @evidence contracts/testing.md#distinguishing-cases Empty archive, unusable names, valid leading-dot name and scoped name distinguish payload and naming boundaries.
+ * @evidence contracts/testing.md#execution-ownership The isolated editor SSR unit entry discovers this direct case and consumes caller-built operations through its ordinary artifact view. Composition/archive operations return in-memory results, not installed or compiled projects.
  */
 export const test_editor_archiver_zip_roundtrip = (): void => {
   const archiver = EditorTestHarness.archiver();

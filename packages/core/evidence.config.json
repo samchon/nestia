@@ -2,6 +2,23 @@
   "severity": "error",
   "claims": [
     {
+      "name": "direct descriptor unit tests",
+      "type": "typescript",
+      "files": [
+        "test/unit/test_*.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/testing.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
       "name": "maintained TypeScript production declarations",
       "type": "typescript",
       "files": [

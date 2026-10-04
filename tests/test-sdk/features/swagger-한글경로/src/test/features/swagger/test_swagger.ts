@@ -3,14 +3,37 @@ import fs from "fs";
 import path from "path";
 import { pathToFileURL } from "url";
 
-/** Checks generated info and servers from a fixture in a non-ASCII directory. */
+/**
+ * Verifies generated Swagger info and servers through a non-ASCII config path.
+ *
+ * Ordinary file URLs preserve the Unicode directory on Windows and POSIX.
+ * Source and emitted entries select their corresponding config module without
+ * repeating native compilation to read the authored generation settings.
+ *
+ * 1. Import the adjacent config and read its package and generated document.
+ * 2. Require the original version, title, default description and server values.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Actual generated info and servers must match the package/config and literal default description. Ordinary dynamic import loads the config inside the Unicode fixture through its file URL.
+ * @evidence contracts/testing.md#independent-expectations The authored package version and config title/server inputs precede generation; the default-description literal independently defines the fourth expectation.
+ * @evidence contracts/testing.md#distinguishing-cases The Unicode address contrasts the separate ASCII fixture. Source TypeScript and emitted JavaScript must select corresponding config artifacts without treating a Windows drive letter as a URL scheme; every original document equality remains.
+ * @evidence contracts/testing.md#execution-ownership The SDK fixture entry discovers this matching export after actual generation. Emitted plain Node imports its already compiled config and direct units do not execute this generation population.
+ * @evidence contracts/e2e.md#necessary-boundary Actual controller metadata and Swagger generation must preserve authored settings while the installed runtime and Node module loader resolve a Unicode artifact path; direct composer inputs cannot certify those connections.
+ * @evidence contracts/e2e.md#shared-execution Ordinary config and JSON reads use the caller's generation and compiled artifacts without another installation, native request or host.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Own-directory paths identify the Unicode config/package/document; the executing filename supplies only its source or emitted extension. No document/config state is changed and no resource outlives this case.
+ * @evidence contracts/e2e.md#preserved-coverage All four original assertions and literal expectations remain unchanged. Only the adjacent config artifact address follows the executing entry's extension.
+ */
 export async function test_swagger(): Promise<void> {
   // `import()` takes a URL specifier, not a filesystem path. On POSIX the two
   // coincide for an absolute path; on Windows one starts with a drive letter,
   // and Node's ESM loader reads `D:` as an unsupported protocol and refuses the
   // whole module. `fs` below takes paths, so only this line needs the URL.
   const { NESTIA_CONFIG } = await import(
-    pathToFileURL(path.join(__dirname, "../../../../nestia.config.ts")).href
+    pathToFileURL(
+      path.join(
+        __dirname,
+        `../../../../nestia.config${path.extname(__filename)}`,
+      ),
+    ).href
   );
   const pack = JSON.parse(
     await fs.promises.readFile(__dirname + "/../../../../package.json", "utf8"),

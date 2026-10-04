@@ -3,9 +3,11 @@
   "name": "@nestia/test-migrate",
   "version": "14.0.2",
   "scripts": {
+    "test:unit": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/unit.ts",
     "dev": "ttsc --watch",
-    "fixture": "node -e \"require('fs').mkdirSync('.generated',{recursive:true})\" && cd fixture && cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" node ../../../packages/cli/bin/index.js swagger --project tsconfig.json",
-    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx src/index.ts"
+    "fixture": "pnpm start --fixture-only",
+    "start": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts",
+    "evidence": "evidence --config evidence.config.json"
   },
   "dependencies": {
     "@nestia/benchmark": "workspace:^",

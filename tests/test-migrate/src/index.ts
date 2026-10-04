@@ -1,9 +1,4 @@
 import {
-  INestiaMigrateConfig,
-  NestiaMigrateApplication,
-  NestiaMigrateFileArchiver,
-} from "@nestia/migrate";
-import {
   OpenApiV3,
   OpenApiV3_1,
   OpenApiV3_2,
@@ -14,57 +9,37 @@ import fs from "fs";
 import path from "path";
 import type { IValidation } from "typia";
 
-import { test_migrate_additional_properties } from "./features/test_migrate_additional_properties";
-import { test_migrate_api_accessor_collision } from "./features/test_migrate_api_accessor_collision";
-import { test_migrate_api_response_header_tags } from "./features/test_migrate_api_response_header_tags";
-import { test_migrate_cli_boolean_flags } from "./features/test_migrate_cli_boolean_flags";
-import { test_migrate_cli_plain_files } from "./features/test_migrate_cli_plain_files";
-import { test_migrate_dto_import_type } from "./features/test_migrate_dto_import_type";
-import { test_migrate_keyword_optional_body } from "./features/test_migrate_keyword_optional_body";
-import { test_migrate_nest_dto_package_import } from "./features/test_migrate_nest_dto_package_import";
-import { test_migrate_nest_keyword_config_path } from "./features/test_migrate_nest_keyword_config_path";
-import { test_migrate_nest_monorepo_layout } from "./features/test_migrate_nest_monorepo_layout";
-import { test_migrate_nest_named_examples } from "./features/test_migrate_nest_named_examples";
-import { test_migrate_nest_route_paths } from "./features/test_migrate_nest_route_paths";
-import { test_migrate_nest_workspace_catalog_stamp } from "./features/test_migrate_nest_workspace_catalog_stamp";
-import { test_migrate_numeric_bounds } from "./features/test_migrate_numeric_bounds";
-import { test_migrate_path_segments } from "./features/test_migrate_path_segments";
-import { test_migrate_route_reserved } from "./features/test_migrate_route_reserved";
-import { test_migrate_sdk_dependency_catalog_stamp } from "./features/test_migrate_sdk_dependency_catalog_stamp";
 import {
-  EMPTY_PATHS_DOCUMENT,
-  test_migrate_sdk_empty_paths,
-} from "./features/test_migrate_sdk_empty_paths";
-import { test_migrate_sdk_pnpm_template } from "./features/test_migrate_sdk_pnpm_template";
-import { test_migrate_simulate_headers } from "./features/test_migrate_simulate_headers";
-import { test_migrate_simulate_throws } from "./features/test_migrate_simulate_throws";
-import { test_migrate_success_status } from "./features/test_migrate_success_status";
-import { test_migrate_tuple_rest } from "./features/test_migrate_tuple_rest";
+  INestiaMigrateConfig,
+  NestiaMigrateApplication,
+  NestiaMigrateFileArchiver,
+} from "../../../packages/migrate/lib";
+import { test_migrate_api_accessor_collision } from "./features/test_migrate_api_accessor_collision";
+import { test_migrate_nest_named_examples } from "./features/test_migrate_nest_named_examples";
+import { EMPTY_PATHS_DOCUMENT } from "./features/test_migrate_sdk_empty_paths";
+import { compileMigrationPrograms } from "./internal/compileMigrationPrograms";
+import { selectMigrateScenarios } from "./internal/selectMigrateScenarios";
+import { test_migrate_entry_selection } from "./internal/test_migrate_entry_selection";
+import { test_migrate_generated_project_inputs } from "./internal/test_migrate_generated_project_inputs";
+import { test_migrate_installed_cli_resolution } from "./internal/test_migrate_installed_cli_resolution";
+import { test_migrate_simulate_throws } from "./internal/test_migrate_simulate_throws";
 
-const TEST_ROOT: string = process.cwd();
+const TEST_ROOT: string = path.resolve(__dirname, "..");
 const ROOT: string = path.resolve(TEST_ROOT, "../..");
-const FIXTURE: string = path.join(TEST_ROOT, "fixture");
+const FIXTURE_SOURCE: string = path.join(TEST_ROOT, "fixture");
 const GENERATED: string = path.join(TEST_ROOT, ".generated");
-const SWAGGER: string = path.join(GENERATED, "swagger.json");
+const FIXTURE: string = path.join(GENERATED, "fixture");
+const SWAGGER: string = path.join(GENERATED, ".generated", "swagger.json");
 const OUTPUT: string = path.join(GENERATED, "output");
 const NODE: string = process.execPath;
-// Launch the ttsc compiler through its JS entrypoint instead of `pnpm ttsc`:
-// spawning the `pnpm.cmd` shim without a shell raises EINVAL on Windows
-// (Node's CVE-2024-27980 mitigation), while the node launcher runs the same
-// pinned ttsc everywhere.
-const TTSC_BIN: string = path.join(
-  TEST_ROOT,
-  "node_modules",
-  "ttsc",
-  "lib",
-  "launcher",
-  "ttsc.js",
+Object.assign(
+  process.env,
+  require("../../../config/testing/CompilerEnvironment.ts").resolveTestEnvironment(
+    ROOT,
+    process.env,
+  ),
 );
-const TTSC_CACHE_DIR: string = path.resolve(
-  TEST_ROOT,
-  process.env.TTSC_CACHE_DIR ??
-    path.join(ROOT, "node_modules", ".cache", "ttsc"),
-);
+const TTSC_CACHE_DIR: string = process.env.TTSC_CACHE_DIR!;
 
 type SwaggerDocument =
   | SwaggerV2.IDocument
@@ -94,19 +69,15 @@ const spawn = (cwd: string, args: string[]): void => {
     env: {
       ...process.env,
       TTSC_CACHE_DIR,
+      NODE_OPTIONS: "",
+      NODE_PATH: "",
     },
   });
 };
 
-const generateSwagger = (): Promise<number> =>
+const generateSwagger = (cli: string): Promise<number> =>
   measure("fixture-swagger")(() => {
-    spawn(FIXTURE, [
-      NODE,
-      path.join(ROOT, "packages", "cli", "bin", "index.js"),
-      "swagger",
-      "--project",
-      "tsconfig.json",
-    ]);
+    spawn(FIXTURE, [NODE, cli, "swagger", "--project", "tsconfig.json"]);
     return Promise.resolve();
   });
 
@@ -151,17 +122,17 @@ const assertFixtureSwagger = (document: SwaggerDocument): void => {
     throw new Error(`Invalid fixture swagger:\n${errors.join("\n")}`);
 };
 
-const execute = (
+const execute = async (
   mode: "nest" | "sdk",
   config: INestiaMigrateConfig,
   scenario: IScenario,
   document: SwaggerDocument,
-): Promise<number> => {
+): Promise<string> => {
   const title: string = `${scenario.name}-${mode}-${
     config.keyword ? "keyword" : "positional"
   }`;
-  return measure(title)(async () => {
-    const directory = path.join(OUTPUT, title);
+  const directory = path.join(OUTPUT, title);
+  await measure(title)(async () => {
     const result: IValidation<NestiaMigrateApplication> =
       await NestiaMigrateApplication.validate(document);
     if (result.success === false)
@@ -174,11 +145,11 @@ const execute = (
       mode === "nest"
         ? app.nest({
             ...config,
-            package: scenario.name,
+            package: title,
           })
         : app.sdk({
             ...config,
-            package: scenario.name,
+            package: title,
           });
     const invalidPaths: string[] = Object.keys(files).filter(
       (key) =>
@@ -202,103 +173,99 @@ const execute = (
       root: directory,
       files,
     });
-
-    const ttsc = (project?: string): void => {
-      spawn(directory, [
-        NODE,
-        TTSC_BIN,
-        "--cache-dir",
-        TTSC_CACHE_DIR,
-        ...(project !== undefined ? ["-p", project] : []),
-      ]);
-    };
-    if (mode === "nest") {
-      // The monorepo template's backend consumes the api workspace package
-      // by name (`<slug>-api`). The generated archive is compiled without a
-      // `pnpm install`, so emulate the workspace link with a junction/symlink
-      // that node module resolution can walk into.
-      const nodeModules: string = path.join(directory, "node_modules");
-      await fs.promises.mkdir(nodeModules, { recursive: true });
-      try {
-        fs.symlinkSync(
-          path.join(directory, "packages", "api"),
-          path.join(nodeModules, `${scenario.name}-api`),
-          "junction",
-        );
-      } catch {}
-      ttsc(path.join("packages", "api", "tsconfig.json"));
-      ttsc(path.join("packages", "backend", "tsconfig.json"));
-      ttsc(path.join("packages", "backend", "test", "tsconfig.json"));
-    } else {
-      ttsc();
-      ttsc("test/tsconfig.json");
-    }
   });
+  return directory;
 };
 
 /**
  * Generates the controller fixture's Swagger document, exercises migration
  * assertions, and compiles the generated NestJS and SDK projects in both
  * calling conventions. The generated files remain available for diagnosis.
+ *
+ * The root command may supply its fresh shared public installation. Standalone
+ * execution prepares this workspace's graph itself. File-owned addresses make
+ * both invocation paths select the same fixture and generated-output owner.
+ *
+ * The original fixture inputs are copied under the generated owner. Only its
+ * inherited tsconfig pathname is rebased; the configuration's relative Swagger
+ * output and all controller/DTO contents stay unchanged. Ordinary installed
+ * packages serve the fixture and generated runtime through one directory link.
+ *
+ * Generated-program selection rejects an empty result before cleanup or public
+ * installation. Fixture-only mode retains its independent real CLI boundary.
+ *
+ * @evidence contracts/common.md#principled-implementation Nonempty generated-program selection precedes cleanup and installation; fixture-only retains its independent real CLI gate. Fresh tarballs and the owner's frozen graph supply published runtimes. Copied fixture inputs and original Swagger, archive, generated-project, invalid-input and simulator assertions retain their sequence.
+ * @evidence contracts/common.md#clear-and-simple-design One entry owns public preparation, original fixture generation and the combined generated program. The fixture-only command exits after the same real CLI gate; direct units have their separate runner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Node's ordinary installed export maps and a filesystem directory link supply dependencies. Plain CLI children clear inherited loader/search-path overrides; no package resolver, compiler output, metadata or fixture assertion is substituted.
+ * @evidence contracts/common.md#meaningful-documentation The comment distinguishes copied input from the rebased native config path, identifies installed package ownership and explains diagnostic output retention and the unit boundary.
+ * @evidence contracts/portability.md#os-neutral-implementation Native path operations establish the generated root, copied fixture, output parent and tsconfig base. Node junction/symlink support connects the actual dependency directory on Windows and POSIX; executable/argument arrays launch the installed CLI without a shell.
+ * @evidence contracts/performance.md#efficient-algorithms One fixture copy and one Swagger generation feed all migration variants. Their combined compiler still checks the original selected source union once; no per-variant native compilation or backend is added.
+ * @evidence contracts/performance.md#reuse-equivalent-work The unchanged installed graph serves the real CLI, fixture compiler and generated runtime within this invocation. The fixture's original schemas feed both calling conventions; direct units do not repeat installation or generation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Synchronous owned CLI children settle before later phases. The entry retains one installation and generated root for diagnosis; the next invocation replaces only its generated root. No listener or worker is created by this entry, and fixture-only stops before variant generation.
  */
-export const main = async (): Promise<void> => {
+export const main = async (preparedConsumer?: {
+  root: string;
+  requirePublic: NodeRequire;
+}): Promise<void> => {
+  const scenarios: IScenario[] = selectMigrateScenarios(
+    [{ name: "fixture", file: SWAGGER }],
+    process.argv.includes("--fixture-only") ? [] : process.argv,
+  );
+  test_migrate_entry_selection();
   if (fs.existsSync(GENERATED))
     await fs.promises.rm(GENERATED, { recursive: true });
   await fs.promises.mkdir(OUTPUT, { recursive: true });
+  await fs.promises.mkdir(path.dirname(SWAGGER), { recursive: true });
 
-  await generateSwagger();
-
-  const scenarios: IScenario[] = [
-    {
-      name: "fixture",
-      file: SWAGGER,
-    },
-  ];
-  const filter = (() => {
-    const only = process.argv.findIndex((str) => str === "--only");
-    if (only !== -1 && process.argv.length > only + 1)
-      return (str: string) => str.includes(process.argv[only + 1]!);
-    return () => true;
-  })();
+  const consumer =
+    preparedConsumer ??
+    (await require("../../../config/testing/PublicConsumer.ts").preparePublicConsumer(
+      "tests/test-migrate",
+    ));
+  await fs.promises.symlink(
+    path.join(consumer.root, "node_modules"),
+    path.join(GENERATED, "node_modules"),
+    "junction",
+  );
+  await fs.promises.cp(FIXTURE_SOURCE, FIXTURE, {
+    recursive: true,
+    filter: (file) => path.basename(file) !== "node_modules",
+  });
+  const project = JSON.parse(
+    await fs.promises.readFile(path.join(FIXTURE, "tsconfig.json"), "utf8"),
+  );
+  project.extends = path.join(TEST_ROOT, "tsconfig.json");
+  await fs.promises.writeFile(
+    path.join(FIXTURE, "tsconfig.json"),
+    JSON.stringify(project, null, 2),
+  );
+  const cli = test_migrate_installed_cli_resolution(
+    consumer.root,
+    consumer.requirePublic,
+  );
+  await generateSwagger(cli);
+  if (process.argv.includes("--fixture-only")) return;
 
   for (const scenario of scenarios) {
-    if (filter(scenario.name) === false) continue;
     const document: SwaggerDocument = await readDocument(scenario.file);
     assertFixtureSwagger(document);
     test_migrate_api_accessor_collision(document);
-    test_migrate_api_response_header_tags();
-    test_migrate_dto_import_type();
-    test_migrate_nest_monorepo_layout();
     test_migrate_nest_named_examples(document);
-    test_migrate_nest_route_paths();
-    test_migrate_numeric_bounds();
-    test_migrate_path_segments();
-    test_migrate_route_reserved();
-    test_migrate_simulate_headers();
-    test_migrate_success_status();
-    test_migrate_keyword_optional_body();
-    test_migrate_additional_properties();
-    test_migrate_tuple_rest();
-    test_migrate_cli_boolean_flags();
-    test_migrate_cli_plain_files();
-    test_migrate_nest_dto_package_import();
-    test_migrate_nest_workspace_catalog_stamp();
-    test_migrate_nest_keyword_config_path();
-    test_migrate_sdk_empty_paths();
-    test_migrate_sdk_pnpm_template();
-    test_migrate_sdk_dependency_catalog_stamp();
-    await execute(
-      "sdk",
-      {
-        keyword: true,
-        simulate: true,
-        e2e: true,
-      },
-      {
-        name: "empty-paths",
-        file: "",
-      },
-      EMPTY_PATHS_DOCUMENT,
+    const programs: string[] = [];
+    programs.push(
+      await execute(
+        "sdk",
+        {
+          keyword: true,
+          simulate: true,
+          e2e: true,
+        },
+        {
+          name: "empty-paths",
+          file: "",
+        },
+        EMPTY_PATHS_DOCUMENT,
+      ),
     );
     for (const [mode, keyword] of [
       ["nest", true],
@@ -306,18 +273,28 @@ export const main = async (): Promise<void> => {
       ["sdk", true],
       ["sdk", false],
     ] as const)
-      await execute(
-        mode,
-        {
-          keyword,
-          simulate: true,
-          e2e: true,
-        },
-        scenario,
-        document,
+      programs.push(
+        await execute(
+          mode,
+          {
+            keyword,
+            simulate: true,
+            e2e: true,
+          },
+          scenario,
+          document,
+        ),
       );
-    await test_migrate_simulate_throws(
+    let compiled: string = "";
+    await test_migrate_generated_project_inputs(
       path.join(OUTPUT, `${scenario.name}-sdk-positional`),
+      TTSC_CACHE_DIR,
+    );
+    await measure("combined-generated-program")(async () => {
+      compiled = await compileMigrationPrograms(programs, TTSC_CACHE_DIR);
+    });
+    await test_migrate_simulate_throws(
+      path.join(compiled, `${scenario.name}-sdk-positional`, "src"),
     );
   }
 };
@@ -333,7 +310,8 @@ const METHODS: Set<string> = new Set([
   "trace",
 ]);
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (require.main === module || process.argv[1] === __filename)
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });

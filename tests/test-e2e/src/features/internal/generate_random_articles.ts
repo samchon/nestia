@@ -1,5 +1,4 @@
-import { RandomGenerator } from "@nestia/e2e";
-
+import { RandomGenerator } from "../../../../../packages/e2e/lib";
 import { IBbsArticle } from "../structures/IBbsArticle";
 import { IPage } from "../structures/IPage";
 

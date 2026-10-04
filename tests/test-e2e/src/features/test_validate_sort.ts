@@ -1,5 +1,4 @@
-import { GaffComparator, TestValidator } from "@nestia/e2e";
-
+import { GaffComparator, TestValidator } from "../../../../packages/e2e/lib";
 import { generate_random_articles } from "./internal/generate_random_articles";
 import { IBbsArticle } from "./structures/IBbsArticle";
 import { IPage } from "./structures/IPage";
@@ -13,6 +12,11 @@ import { IPage } from "./structures/IPage";
  * 1. Exercise the authored scenario and its controls.
  * 2. Assert created and updated timestamps, title, writer and compound
  *    writer/title are checked in both directions.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls TestValidator.sort for timestamp, text and compound-key orderings through a local fixture callback.
+ * @evidence contracts/testing.md#independent-expectations The callback uses native timestamp arithmetic and localeCompare, while the validator receives the separate comparator closures.
+ * @evidence contracts/testing.md#distinguishing-cases Created and updated timestamps, title, writer and compound writer/title are checked ascending and descending; no incorrect callback is supplied.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e unit entry discovers this direct built-package utility case; it installs no consumer and starts no native compiler, product host or worker.
  */
 export async function test_validate_sort(): Promise<void> {
   const validator = TestValidator.sort<

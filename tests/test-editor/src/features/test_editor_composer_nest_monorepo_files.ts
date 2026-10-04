@@ -13,6 +13,11 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
  * 2. Assert monorepo markers exist: pnpm-workspace.yaml and
  *    packages/backend/nestia.config.ts.
  * 3. Assert no legacy `src/api/...` keys remain.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Direct Nest composition emits workspace/backend/API markers and no legacy src/api keys.
+ * @evidence contracts/testing.md#independent-expectations The monorepo template contract places backend and API files in separate workspace packages, expressed by literal marker paths.
+ * @evidence contracts/testing.md#distinguishing-cases Required API source presence and forbidden legacy paths distinguish a real populated monorepo from an empty or old layout.
+ * @evidence contracts/testing.md#execution-ownership The isolated editor SSR unit entry discovers this direct case and consumes caller-built operations through its ordinary artifact view. Composition/archive operations return in-memory results, not installed or compiled projects.
  */
 export const test_editor_composer_nest_monorepo_files =
   async (): Promise<void> => {

@@ -1,5 +1,6 @@
-import { NestiaMigrateApplication } from "@nestia/migrate";
 import { OpenApiV3_1 } from "@typia/interface";
+
+import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
 
 /**
  * Verifies migrated SDK functions and NestJS routes place each path parameter
@@ -17,6 +18,11 @@ import { OpenApiV3_1 } from "@typia/interface";
  * 2. Assert each SDK path function fills its parameters in where they stand.
  * 3. Assert each NestJS route, controller and method paths joined, reads each
  *    parameter under the key its `@TypedParam()` uses.
+ *
+ * @evidence contracts/testing.md#behavioral-verification SDK and Nest text place parameters beside literal suffixes/separators and normalize hyphenated keys; Nest joined routes match all originals.
+ * @evidence contracts/testing.md#independent-expectations Braces delimit the authored parameter names in three literal templates, independently of generated route parsing.
+ * @evidence contracts/testing.md#distinguishing-cases Suffix .json, two parameters in one segment and hyphenated names exercise separate tokenization boundaries in both modes.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_path_segments = (): void => {
   const expected: string[] = [

@@ -1,6 +1,7 @@
-import { DynamicExecutor, TestValidator } from "@nestia/e2e";
 import fs from "fs";
 import path from "path";
+
+import { DynamicExecutor, TestValidator } from "../../../../packages/e2e/lib";
 
 /**
  * Verifies discovery loads from an absolute location outside the package tree.
@@ -21,6 +22,11 @@ import path from "path";
  * 1. Write a fixture into a fresh directory under the ignored workspace cache.
  * 2. Discover it through `DynamicExecutor` by absolute path.
  * 3. Assert the function was found and actually executed.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls DynamicExecutor.validate on an absolute fixture path and checks the discovered export, return value and absence of an error.
+ * @evidence contracts/testing.md#independent-expectations The authored JavaScript export has a literal name and result, independently of the executor discovery algorithm.
+ * @evidence contracts/testing.md#distinguishing-cases An absolute directory outside the package resolves on the current volume; this case does not exercise a different Windows volume.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e unit entry discovers this direct built-package executor case; fixture files exercise the resolver without product compilation, consumer installation or a host.
  */
 
 export async function test_dynamic_executor_absolute_location(): Promise<void> {

@@ -15,7 +15,7 @@ import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
 /**
  * Reflects a `@WebSocketRoute` method into an operation.
  *
- * @evidence contracts/common.md#principled-implementation The parameter decorators give each parameter's category, the acceptor and driver type arguments are checked, the path parameters of the route are matched against the param decorators, and the tgrid declarations are not imported into the SDK.
+ * @evidence contracts/common.md#principled-implementation Parameter decorators establish each category, wrapper argument counts and route fields are checked, and native metadata supplies imports for the argument types actually written by the client, including tgrid types used inside those arguments.
  * @evidence contracts/common.md#clear-and-simple-design One public function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The rules follow the decorator contract.
  * @evidence contracts/common.md#meaningful-documentation The comment states its purpose.
@@ -122,16 +122,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
           );
 
         // COMPLETE COMPOSITION
-        imports.push(
-          ...matched.imports.filter(
-            (i) =>
-              !(
-                i.file.includes("tgrid/lib") &&
-                (i.file.endsWith("Driver.d.ts") ||
-                  i.file.endsWith("WebSocketAcceptor.d.ts"))
-              ),
-          ),
-        );
+        imports.push(...matched.imports);
         if (
           p.category === "acceptor" ||
           p.category === "driver" ||

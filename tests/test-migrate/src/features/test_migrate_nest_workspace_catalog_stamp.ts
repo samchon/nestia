@@ -1,10 +1,11 @@
-import {
-  INestiaMigrateConfig,
-  NestiaMigrateApplication,
-} from "@nestia/migrate";
 import { OpenApiV3_1 } from "@typia/interface";
 import { createRequire } from "node:module";
 import path from "path";
+
+import {
+  INestiaMigrateConfig,
+  NestiaMigrateApplication,
+} from "../../../../packages/migrate/lib";
 
 /**
  * Verifies nest projects stamp nestia versions into the workspace catalogs.
@@ -24,6 +25,11 @@ import path from "path";
  * 3. Assert the TypeScript catalog entries keep caret versions, and the typia
  *    entry pins exactly the release @nestia/migrate resolves.
  * 4. Assert package.json dependencies keep their `catalog:` indirections.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generated catalogs use actual Nestia package version, exact resolved typia pin and caret compiler versions while backend dependencies retain catalog/workspace references.
+ * @evidence contracts/testing.md#independent-expectations Installed package versions and the template catalog contract independently establish stamps; expected values are not read from the generated YAML.
+ * @evidence contracts/testing.md#distinguishing-cases All six Nestia entries, exact typia versus caret tools, and preserved dependency indirection distinguish stale stamps and overbroad substitution.
+ * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_nest_workspace_catalog_stamp = (): void => {
   const app: NestiaMigrateApplication =

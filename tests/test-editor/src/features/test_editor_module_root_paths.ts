@@ -10,6 +10,11 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
  *
  * 1. Register the editor with empty, slash-only, and nonempty prefixes.
  * 2. Check page, document, asset, and redirect paths recorded by the adapter.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Authored adapters record page, document, asset and redirect routes for empty/slash-only/nonempty prefixes without double slashes.
+ * @evidence contracts/testing.md#independent-expectations Literal prefix normalization and a single root redirect follow the route-registration contract independently of recorded output.
+ * @evidence contracts/testing.md#distinguishing-cases Empty and slash-only variants require exactly one root route; nonempty registration separately requires its prefix redirect.
+ * @evidence contracts/testing.md#execution-ownership The isolated editor SSR unit entry discovers this direct case and consumes caller-built operations through its ordinary artifact view. Composition/archive operations return in-memory results, not installed or compiled projects.
  */
 export const test_editor_module_root_paths = async (): Promise<void> => {
   const { NestiaEditorModule } = require(

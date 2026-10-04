@@ -11,6 +11,11 @@ import { EditorTestHarness } from "../internal/EditorTestHarness";
  * 1. Compose a document with a convertible and an unconvertible operation.
  * 2. Assert the output names the skipped one with migrate's message.
  * 3. Assert a document without such operations reports none.
+ *
+ * @evidence contracts/testing.md#behavioral-verification SDK and Nest composition report the single authored binary GET omission with path/method/messages; the clean twin reports none.
+ * @evidence contracts/testing.md#independent-expectations The literal binary /files/{id} operation is unsupported while the JSON /items operation is convertible.
+ * @evidence contracts/testing.md#distinguishing-cases Both modes and mixed-versus-clean documents distinguish omission reporting from silent omission or spurious warnings.
+ * @evidence contracts/testing.md#execution-ownership The isolated editor SSR unit entry discovers this direct case and consumes caller-built operations through its ordinary artifact view. Composition/archive operations return in-memory results, not installed or compiled projects.
  */
 export const test_editor_composer_skipped_operations =
   async (): Promise<void> => {

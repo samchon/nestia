@@ -1,0 +1,254 @@
+{
+  "severity": "error",
+  "claims": [
+    {
+      "name": "Direct TypeScript workspace unit assertions",
+      "type": "typescript",
+      "files": [
+        "src/features/test_*.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/testing.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Authored direct unit input and selection owners",
+      "type": "typescript",
+      "files": [
+        "src/internal/SwaggerUnitRoute.ts",
+        "src/internal/HandWrittenMetadata.ts",
+        "src/internal/SwaggerParameterReader.ts",
+        "src/internal/SdkBundlePreservation.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Direct Swagger analysis and output lifetime",
+      "type": "typescript",
+      "files": [
+        "src/internal/SwaggerMetadataComposer.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/portability.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Shared installed Swagger, query and clone profile assertions",
+      "type": "typescript",
+      "files": [
+        "features/http-rich/src/test/features/test_rich_swagger_parameters_*.ts",
+        "features/configurations/src/test/features/test_swagger_customizer_per_document.ts",
+        "features/exception-manager-order/src/test/features/test_exception_manager_order.ts",
+        "features/swagger/src/test/features/swagger/test_swagger.ts",
+        "features/swagger-한글경로/src/test/features/swagger/test_swagger.ts",
+        "features/http-rich/src/test/features/api/query_true/test_*.ts",
+        "features/http-rich/src/test/features/profiles/*/test/features/**/test_*.ts",
+        "features/http-rich/src/test/postconditions/test_*.ts",
+        "features/clone-exact-optional/src/test/features/test_clone_optional_assignability.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/testing.md",
+          "contracts/e2e.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Shared installed HTTP programs and generation graphs",
+      "type": "typescript",
+      "files": [
+        "src/integration/PublicHttpRunner.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/portability.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Shared installed Swagger scenario reader",
+      "type": "typescript",
+      "files": [
+        "features/http-rich/src/test/features/internal/RichSwaggerParameterReader.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Configured SDK fixture discovery",
+      "type": "typescript",
+      "files": [
+        "src/integration/internal/SdkFixtureDiscovery.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/portability.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Shared installed clone example reader",
+      "type": "typescript",
+      "files": [
+        "features/http-rich/src/test/features/internal/RichCloneTagExampleReader.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Shared customized route and readonly schema helpers",
+      "type": "typescript",
+      "files": [
+        "features/http-rich/src/controllers/options/customized/RichSelectorParam.ts",
+        "features/http-rich/src/test/features/internal/RichReadonlyArraySchema.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Installed compiler connection assertions",
+      "type": "typescript",
+      "files": [
+        "src/integration/features/test_*.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/testing.md",
+          "contracts/e2e.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Shared decoded multipart blob assertions",
+      "type": "typescript",
+      "files": [
+        "features/http-rich/src/controllers/options/customized/validateMultipartBlob.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Shared integration prerequisite and owner continuation",
+      "type": "typescript",
+      "files": [
+        "src/integration/index.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/portability.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    },
+    {
+      "name": "Shared installed program preparation",
+      "type": "typescript",
+      "files": [
+        "src/integration/PublicConfiguredRunner.ts",
+        "src/integration/internal/PublicHttpProfileCoverage.ts",
+        "src/integration/internal/PublicCompiler.ts",
+        "src/integration/SdkRunner.ts"
+      ],
+      "symbol": "function",
+      "reference": {
+        "type": "markdown",
+        "root": "../../.agents/skills",
+        "files": [
+          "contracts/common.md",
+          "contracts/portability.md",
+          "contracts/performance.md"
+        ],
+        "symbol": "h2",
+        "checklist": true
+      }
+    }
+  ]
+}

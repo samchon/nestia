@@ -4,12 +4,12 @@
   "version": "14.0.2",
   "scripts": {
     "dev": "ttsc --watch",
-    "start": "cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsc --noEmit && cross-env TTSC_GO_BINARY=go TTSC_CACHE_DIR=../../node_modules/.cache/ttsc NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx src/index.ts"
+    "test:unit": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" ttsx --no-plugins src/index.ts",
+    "start": "pnpm test:unit",
+    "evidence": "evidence --config evidence.config.json"
   },
   "dependencies": {
-    "@nestia/e2e": "workspace:^",
-    "@nestia/fetcher": "workspace:^",
-    "typia": "catalog:samchon"
+    "@nestia/e2e": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:utils",

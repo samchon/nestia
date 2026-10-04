@@ -1,4 +1,4 @@
-import { TestValidator } from "@nestia/e2e";
+import { TestValidator } from "../../../../packages/e2e/lib";
 
 /**
  * Verifies `null` is compared as a value instead of being walked into.
@@ -14,9 +14,13 @@ import { TestValidator } from "@nestia/e2e";
  * already behaved correctly and must keep doing so.
  *
  * 1. Compare an object against `null`, at the top level and nested under a key.
- * 2. Assert each reports a difference rather than throwing, and that `notEquals`
- *    accepts the same pair.
+ * 2. Assert each rejects equality, and that `notEquals` accepts the same pair.
  * 3. Re-assert the neighboring spellings that were already correct.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls equals and notEquals on null, undefined, primitive and object values, including nesting and excluded keys.
+ * @evidence contracts/testing.md#independent-expectations Authored null and object values establish whether the left comparison projection has a known difference.
+ * @evidence contracts/testing.md#distinguishing-cases Null equality, mismatches in both directions, arrays and excluded keys are exercised; mismatch rejection does not distinguish the error class.
+ * @evidence contracts/testing.md#execution-ownership The test-e2e unit entry discovers this direct built-package utility case; it installs no consumer and starts no native compiler, product host or worker.
  */
 
 export function test_validate_equals_null(): void {
