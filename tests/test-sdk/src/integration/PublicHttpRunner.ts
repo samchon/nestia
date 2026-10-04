@@ -5,6 +5,7 @@ import { createRequire } from "node:module";
 import path from "node:path";
 
 import type { INestiaConfig } from "../../../../packages/sdk/lib/INestiaConfig";
+import { SdkBundlePreservation } from "../internal/SdkBundlePreservation";
 import { test_public_disabled_transform } from "./features/test_public_disabled_transform";
 import { test_public_legacy_plugins } from "./features/test_public_legacy_plugins";
 import { test_public_multipart_schema_inputs } from "./features/test_public_multipart_schema_inputs";
@@ -42,7 +43,8 @@ const {
  * request. The public WebSocket adaptor upgrades that same HTTP server for the
  * original parameter/query RPC connections; their separate generated drivers
  * and local listener events retain their original connector teardown. One
- * consumer compilation prepares all authored and generated cases; plain
+ * consumer compilation prepares all authored and generated cases, including
+ * customized SDK scaffold barrels checked through the installed writer; plain
  * JavaScript cases reuse that emitted output without another fixture loader or
  * native host; the TypeScript runner itself has plugins disabled. Scenario
  * execution policy retains document-only inputs without promoting their
@@ -501,6 +503,24 @@ export async function runPublicHttp(preparedConsumer?: {
       console.log(
         `Public HTTP profile ${profile.name}: ${Date.now() - started} ms`,
       );
+    }
+    // Preserve custom scaffold bytes through the installed writer, then include
+    // the actual resulting modules in the already required consumer program.
+    const sdkRoot = path.dirname(
+      consumer.requirePublic.resolve("@nestia/sdk/package.json"),
+    );
+    const { SdkGenerator } = consumer.requirePublic(
+      path.join(sdkRoot, "lib/generates/SdkGenerator.js"),
+    );
+    try {
+      await SdkBundlePreservation(
+        SdkGenerator.generate,
+        path.join(sdkRoot, "assets/bundle/api"),
+        path.join(fixture, "src/test/features/bundle-preserve/api"),
+      );
+    } catch (error) {
+      console.error(error);
+      boundaryFailures.push({ name: "bundle-preserve", error });
     }
     const runtimeConfig = {
       ...config,

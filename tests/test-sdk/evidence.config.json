@@ -24,7 +24,8 @@
       "files": [
         "src/internal/SwaggerUnitRoute.ts",
         "src/internal/HandWrittenMetadata.ts",
-        "src/internal/SwaggerParameterReader.ts"
+        "src/internal/SwaggerParameterReader.ts",
+        "src/internal/SdkBundlePreservation.ts"
       ],
       "symbol": "function",
       "reference": {
