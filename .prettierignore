@@ -20,6 +20,5 @@ packages/migrate/src/bundles/
 # sources stay in the formatter population.
 tests/test-e2e/.tmp-*/
 
-# Legacy migration output retained on disk while the assertion migration finishes.
-# Its owning .gitignore excludes this regenerated tree; authored inputs remain.
-tests/test-migrate-e2e/.generated/
+# Migration integration output is regenerated; authored inputs remain formatted.
+tests/test-migrate/.generated/
