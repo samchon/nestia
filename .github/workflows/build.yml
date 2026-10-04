@@ -13,6 +13,7 @@ jobs:
       TTSC_GO_BINARY: go
       TTSC_CACHE_DIR: ${{ github.workspace }}/node_modules/.cache/ttsc
       GOCACHE: ${{ github.workspace }}/node_modules/.cache/ttsc/go-build
+      GOMODCACHE: ${{ github.workspace }}/node_modules/.cache/ttsc/go-mod
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,15 +30,11 @@ jobs:
       - name: Cache Compiler Artifacts
         uses: actions/cache@v4
         with:
-          path: |
-            node_modules/.cache/ttsc
-            ~/go/pkg/mod
-            packages/migrate/assets/.bundle-cache.json
-            packages/migrate/src/bundles
-          key: ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*', 'packages/migrate/src/executable/*.ts', 'package.json') }}
+          path: node_modules/.cache/ttsc
+          key: ttsc-${{ runner.os }}-${{ steps.go.outputs.go-version }}-${{ github.workflow }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*') }}
           restore-keys: |
-            ttsc-v2-test-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
-            ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
+            ttsc-${{ runner.os }}-${{ steps.go.outputs.go-version }}-test-
+            ttsc-${{ runner.os }}-${{ steps.go.outputs.go-version }}-build-
       - name: Check Evidence
         run: pnpm evidence
       - name: Build Packages

@@ -13,6 +13,7 @@ jobs:
       TTSC_GO_BINARY: go
       TTSC_CACHE_DIR: ${{ github.workspace }}/node_modules/.cache/ttsc
       GOCACHE: ${{ github.workspace }}/node_modules/.cache/ttsc/go-build
+      GOMODCACHE: ${{ github.workspace }}/node_modules/.cache/ttsc/go-mod
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,32 +26,22 @@ jobs:
           cache: false
       - uses: pnpm/action-setup@v4
       - name: Install Dependencies
-        id: install
         run: pnpm install --frozen-lockfile
       - name: Cache Compiler Artifacts
         uses: actions/cache@v4
         with:
-          path: |
-            node_modules/.cache/ttsc
-            ~/go/pkg/mod
-            packages/migrate/assets/.bundle-cache.json
-            packages/migrate/src/bundles
-          key: ttsc-v2-test-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*', 'packages/migrate/src/executable/*.ts', 'package.json') }}
+          path: node_modules/.cache/ttsc
+          key: ttsc-${{ runner.os }}-${{ steps.go.outputs.go-version }}-${{ github.workflow }}-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*') }}
           restore-keys: |
-            ttsc-v2-test-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
-            ttsc-v2-build-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-
+            ttsc-${{ runner.os }}-${{ steps.go.outputs.go-version }}-test-
+            ttsc-${{ runner.os }}-${{ steps.go.outputs.go-version }}-build-
       - name: Build Packages
-        id: build
         run: pnpm build
       - name: Evidence
-        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm evidence
       - name: Go Units
-        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm test:go
-      - name: JavaScript Units
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+      - name: TypeScript Units
         run: pnpm test:unit
       - name: SDK And Migration Integrations
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: pnpm test:e2e
