@@ -1193,7 +1193,11 @@ const runCliDependenciesFeature = async () => {
       {
         cwd,
         stdio: "ignore",
-        env: { NODE_OPTIONS: "", NODE_PATH: "", TTSX_RUNTIME_MANIFEST: undefined },
+        env: {
+          NODE_OPTIONS: "",
+          NODE_PATH: "",
+          TTSX_RUNTIME_MANIFEST: undefined,
+        },
       },
     );
 
