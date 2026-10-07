@@ -5,7 +5,7 @@ import {
   PayloadTooLargeException,
   createParamDecorator,
 } from "@nestjs/common";
-import type { HttpArgumentsHost } from "@nestjs/common/interfaces";
+import type { HttpArgumentsHost } from "@nestjs/common/interfaces/index.js";
 import type express from "express";
 import fs from "fs";
 import type ExpressMulter from "multer";

@@ -1,4 +1,7 @@
-import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
+import {
+  VERSION_NEUTRAL,
+  VersionValue,
+} from "@nestjs/common/interfaces/index.js";
 
 /**
  * Resolves the URI versions of a controller method the way NestJS does.

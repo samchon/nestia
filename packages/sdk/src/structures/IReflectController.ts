@@ -1,4 +1,4 @@
-import type { VERSION_NEUTRAL } from "@nestjs/common/interfaces";
+import type { VERSION_NEUTRAL } from "@nestjs/common/interfaces/index.js";
 
 import { IReflectHttpOperation } from "./IReflectHttpOperation";
 import { IReflectMcpOperation } from "./IReflectMcpOperation";

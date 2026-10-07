@@ -12,7 +12,7 @@ import {
   UseInterceptors,
   applyDecorators,
 } from "@nestjs/common";
-import { HttpArgumentsHost } from "@nestjs/common/interfaces";
+import { HttpArgumentsHost } from "@nestjs/common/interfaces/index.js";
 import express from "express";
 import { catchError, map } from "rxjs/operators";
 import typia from "typia";

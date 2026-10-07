@@ -11,7 +11,7 @@ import {
   UseInterceptors,
   applyDecorators,
 } from "@nestjs/common";
-import { HttpArgumentsHost } from "@nestjs/common/interfaces";
+import { HttpArgumentsHost } from "@nestjs/common/interfaces/index.js";
 import type express from "express";
 import { catchError, map } from "rxjs/operators";
 import typia, { IValidation } from "typia";
