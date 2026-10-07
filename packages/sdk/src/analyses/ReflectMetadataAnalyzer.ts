@@ -1,6 +1,6 @@
 import { VERSION_NEUTRAL } from "@nestjs/common";
 import { PATH_METADATA, VERSION_METADATA } from "@nestjs/common/constants";
-import { VersionValue } from "@nestjs/common/interfaces";
+import { VersionValue } from "@nestjs/common/interfaces/index.js";
 
 import { SecurityAnalyzer } from "./SecurityAnalyzer";
 

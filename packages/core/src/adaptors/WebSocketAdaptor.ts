@@ -11,7 +11,10 @@ import {
   SCOPE_OPTIONS_METADATA,
   VERSION_METADATA,
 } from "@nestjs/common/constants";
-import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
+import {
+  VERSION_NEUTRAL,
+  VersionValue,
+} from "@nestjs/common/interfaces/index.js";
 import { NestContainer } from "@nestjs/core";
 import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
 import { Module } from "@nestjs/core/injector/module";

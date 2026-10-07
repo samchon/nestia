@@ -1,4 +1,4 @@
-import { VERSION_NEUTRAL } from "@nestjs/common/interfaces";
+import { VERSION_NEUTRAL } from "@nestjs/common/interfaces/index.js";
 import { IJsDocTagInfo } from "typia";
 
 import { IReflectHttpOperationException } from "./IReflectHttpOperationException";

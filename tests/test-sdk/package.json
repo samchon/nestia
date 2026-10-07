@@ -9,7 +9,7 @@
     "integration": "cross-env NODE_OPTIONS=\"--no-experimental-strip-types --no-experimental-detect-module\" TEST_SDK_SKIP_BUILD=1 ttsx --no-plugins src/integration/index.ts"
   },
   "dependencies": {
-    "@fastify/multipart": "^8.1.0",
+    "@fastify/multipart": "catalog:nestjs",
     "@modelcontextprotocol/sdk": "catalog:modelcontextprotocol",
     "@nestia/benchmark": "workspace:^",
     "@nestia/core": "workspace:^",
@@ -19,7 +19,7 @@
     "@nestjs/core": "catalog:nestjs",
     "@nestjs/platform-express": "catalog:nestjs",
     "@nestjs/platform-fastify": "catalog:nestjs",
-    "@nestjs/swagger": "^11.2.6",
+    "@nestjs/swagger": "catalog:nestjs",
     "@typia/interface": "catalog:samchon",
     "@typia/utils": "catalog:samchon",
     "express": "^4.21.1",

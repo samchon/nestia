@@ -1,5 +1,5 @@
 import { RequestMethod } from "@nestjs/common";
-import { VersionValue } from "@nestjs/common/interfaces";
+import { VersionValue } from "@nestjs/common/interfaces/index.js";
 
 /**
  * The analyzed input: the controllers, the global prefix with its exclusions,

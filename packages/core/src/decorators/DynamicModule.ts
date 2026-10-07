@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { ModuleMetadata } from "@nestjs/common/interfaces";
+import { ModuleMetadata } from "@nestjs/common/interfaces/index.js";
 
 import { Creator } from "../typings/Creator";
 import { load_controllers } from "./internal/load_controller";

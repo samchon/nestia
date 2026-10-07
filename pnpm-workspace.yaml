@@ -6,11 +6,12 @@ packages:
 
 catalogs:
   nestjs:
-    '@nestjs/common': &nestjs ^11.1.6
+    '@fastify/multipart': ^10.1.2
+    '@nestjs/common': &nestjs ^12.1.2
     '@nestjs/core': *nestjs
     '@nestjs/platform-express': *nestjs
     '@nestjs/platform-fastify': *nestjs
-    '@nestjs/swagger': ^11.2.6
+    '@nestjs/swagger': ^12.0.2
     reflect-metadata: ^0.2.2
     # the router NestJS 11 routes with, through Express 5
     path-to-regexp: ^8.4.2

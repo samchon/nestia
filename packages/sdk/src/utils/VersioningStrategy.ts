@@ -1,4 +1,7 @@
-import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
+import {
+  VERSION_NEUTRAL,
+  VersionValue,
+} from "@nestjs/common/interfaces/index.js";
 
 import { INestiaProject } from "../structures/INestiaProject";
 
