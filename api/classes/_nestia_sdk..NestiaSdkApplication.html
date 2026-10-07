@@ -1,0 +1,213 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>NestiaSdkApplication | Documentation</title><meta name="description" content="Documentation for Documentation"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">Documentation</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_nestia_sdk.html">@nestia/sdk</a></li>
+<li><a href="../modules/_nestia_sdk..html"></a></li>
+<li><a href="" aria-current="page">NestiaSdkApplication</a></li></ul>
+<h1>Class NestiaSdkApplication</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Runs the generators of <code>@nestia/sdk</code> over one configuration.</p>
+<p>Each method validates the configuration for the output it needs, analyzes the
+controllers and the TypeScript metadata, reports every error at once, and
+then generates.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence">Evidence<a href="#evidence" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#principled-implementation The shared pipeline reflects controllers, types routes from transform metadata, assigns accessors and rejects collected analysis errors before writing. SDK-specific representability checks are attached by sdk and SDK-producing all; e2e currently invokes the SDK writer without that additional validation callback.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-1">Evidence<a href="#evidence-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#clear-and-simple-design One class with four public generators over one private pipeline; directory assertion, title, and error report are module-private helpers.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-2">Evidence<a href="#evidence-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#prohibited-implementation-shortcuts No controller or route name is special-cased; the same pipeline serves the CLI and programmatic callers.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-3">Evidence<a href="#evidence-3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#meaningful-documentation The comment states the four generators and that the errors of an analysis are reported together.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-4">Evidence<a href="#evidence-4" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/portability.md#os-neutral-implementation Output checks and diagnostic locations use Node fs.stat and path operations; controller compilation and output writes remain owned by ConfigAnalyzer and the generators. Filesystem errors distinguish missing/non-directory locations from other native failures.</p>
+</div></div></section><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/nestia/blob/d3627e8a0ac52382b1db18a399a0597f2dfb74f2/packages/sdk/src/NestiaSdkApplication.ts#L41">NestiaSdkApplication.ts:41</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="constructors">Constructors<a href="#constructors" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#constructor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Constructor"><use href="../assets/icons.svg#icon-512"></use></svg><span>constructor</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="methods">Methods<a href="#methods" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#all" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>all</span></a>
+<a href="#e2e" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>e2e</span></a>
+<a href="#sdk" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>sdk</span></a>
+<a href="#swagger" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>swagger</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Constructors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="constructors-1">Constructors<a href="#constructors-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="constructor"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="constructornestiasdkapplication"><span class="tsd-signature-keyword">new</span> <span class="tsd-kind-constructor-signature">NestiaSdkApplication</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">config</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_nestia_sdk..INestiaConfig.html" class="tsd-signature-type tsd-kind-interface">INestiaConfig</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="" class="tsd-signature-type tsd-kind-class">NestiaSdkApplication</a><a href="#constructornestiasdkapplication" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">config</span>: <a href="../interfaces/_nestia_sdk..INestiaConfig.html" class="tsd-signature-type tsd-kind-interface">INestiaConfig</a></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="" class="tsd-signature-type tsd-kind-class">NestiaSdkApplication</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/nestia/blob/d3627e8a0ac52382b1db18a399a0597f2dfb74f2/packages/sdk/src/NestiaSdkApplication.ts#L42">NestiaSdkApplication.ts:42</a></li></ul></aside></div></li></ul></section></section></details>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="methods-1">Methods<a href="#methods-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="all"><span>all</span><a href="#all" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="all-1"><span class="tsd-kind-call-signature">all</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#all-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Generates everything the configuration asks for: the SDK and its e2e tests
+when <code>output</code> is set, and the Swagger document when <code>swagger</code> is set.</p>
+<p>It throws when neither <code>output</code> nor <code>swagger.output</code> is configured.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-5">Evidence<a href="#evidence-5" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#principled-implementation The SDK validation is attached only when an SDK is generated, so a Swagger-only run does not fail on SDK rules, and the e2e tests are generated after the SDK they import.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-6">Evidence<a href="#evidence-6" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#clear-and-simple-design One method that composes the generators inside the shared pipeline.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-7">Evidence<a href="#evidence-7" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#prohibited-implementation-shortcuts The error names the properties a caller can configure; none is stale.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-8">Evidence<a href="#evidence-8" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#meaningful-documentation The comment states what is generated and the failure.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-9">Evidence<a href="#evidence-9" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/portability.md#os-neutral-implementation all delegates configured output creation to the native writers and does not apply the explicit parent-directory checks used by sdk/e2e/swagger. Diagnostic source paths are rendered relative to the current native working directory.</p>
+</div></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/nestia/blob/d3627e8a0ac52382b1db18a399a0597f2dfb74f2/packages/sdk/src/NestiaSdkApplication.ts#L56">NestiaSdkApplication.ts:56</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="e2e"><span>e2e</span><a href="#e2e" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="e2e-1"><span class="tsd-kind-call-signature">e2e</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#e2e-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Generates the SDK and the automatic e2e test functions.</p>
+<p>It throws when <code>output</code> or <code>e2e</code> is missing, or when the parent directory
+of either does not exist.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-10">Evidence<a href="#evidence-10" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#principled-implementation The e2e functions import the generated SDK, so the SDK is generated first, and both parent directories are asserted before any analysis runs.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-11">Evidence<a href="#evidence-11" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#clear-and-simple-design One method over the shared pipeline.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-12">Evidence<a href="#evidence-12" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#prohibited-implementation-shortcuts The directory check follows the configuration and no path is special-cased.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-13">Evidence<a href="#evidence-13" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#meaningful-documentation The comment states the requirements and the failures.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-14">Evidence<a href="#evidence-14" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/portability.md#os-neutral-implementation path.resolve obtains each native parent and fs.stat follows symlinks to verify a directory before analysis. ENOENT/ENOTDIR become configuration diagnostics; permission and other filesystem errors propagate without a platform-specific shell fallback.</p>
+</div></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/nestia/blob/d3627e8a0ac52382b1db18a399a0597f2dfb74f2/packages/sdk/src/NestiaSdkApplication.ts#L91">NestiaSdkApplication.ts:91</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="sdk"><span>sdk</span><a href="#sdk" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="sdk-1"><span class="tsd-kind-call-signature">sdk</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#sdk-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Generates the SDK library.</p>
+<p>It throws when <code>output</code> is missing or its parent directory does not exist.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-15">Evidence<a href="#evidence-15" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#principled-implementation The SDK validation runs after route typing and before the generator, so a route the SDK cannot express is reported instead of written.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-16">Evidence<a href="#evidence-16" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#clear-and-simple-design One method over the shared pipeline.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-17">Evidence<a href="#evidence-17" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#prohibited-implementation-shortcuts The directory check follows the configuration.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-18">Evidence<a href="#evidence-18" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#meaningful-documentation The comment states the requirement and the failures.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-19">Evidence<a href="#evidence-19" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/portability.md#os-neutral-implementation The configured output parent is resolved through Node path and verified by fs.stat, including linked directories. Generator writes use their own native boundaries; this entry does not infer case identity from an OS name.</p>
+</div></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/nestia/blob/d3627e8a0ac52382b1db18a399a0597f2dfb74f2/packages/sdk/src/NestiaSdkApplication.ts#L134">NestiaSdkApplication.ts:134</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="swagger"><span>swagger</span><a href="#swagger" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="swagger-1"><span class="tsd-kind-call-signature">swagger</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#swagger-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Generates the Swagger document.</p>
+<p>It throws when <code>swagger.output</code> is missing or the directory that will hold
+the document does not exist; the output may be a file or a directory.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-20">Evidence<a href="#evidence-20" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#principled-implementation The directory to check is the parent of a file path with an extension and the path itself otherwise, which is how the generator decides where to write.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-21">Evidence<a href="#evidence-21" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#clear-and-simple-design One method over the shared pipeline.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-22">Evidence<a href="#evidence-22" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#prohibited-implementation-shortcuts The rule is the generator's own output rule.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-23">Evidence<a href="#evidence-23" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/common.md#meaningful-documentation The comment states the requirement and the two output forms.</p>
+</div>
+<div class="tsd-tag-evidence">
+<h4 class="tsd-anchor-link" id="evidence-24">Evidence<a href="#evidence-24" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>contracts/portability.md#os-neutral-implementation path.parse/resolve decide the native containing directory from whether the output has an extension, matching SwaggerGenerator's destination rule. The common directory check distinguishes missing paths from non-directory entries and propagates other filesystem errors.</p>
+</div></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/nestia/blob/d3627e8a0ac52382b1db18a399a0597f2dfb74f2/packages/sdk/src/NestiaSdkApplication.ts#L166">NestiaSdkApplication.ts:166</a></li></ul></aside></div></li></ul></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Constructors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Constructors</summary>
+<div><a href="#constructor"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Constructor"><use href="../assets/icons.svg#icon-512"></use></svg><span>constructor</span></a></div></details>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Methods</summary>
+<div><a href="#all"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>all</span></a><a href="#e2e"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>e2e</span></a><a href="#sdk"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>sdk</span></a><a href="#swagger"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>swagger</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../modules.html">Documentation</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>
