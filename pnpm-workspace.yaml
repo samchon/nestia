@@ -58,6 +58,6 @@ catalogs:
     prettier-plugin-jsdoc: ^1.8.0
     typescript: ^7.0.2
   modelcontextprotocol:
-    '@modelcontextprotocol/sdk': ^1.18.0
+    '@modelcontextprotocol/sdk': ^1.31.0
   rolldown:
     rolldown: ^1.1.5
