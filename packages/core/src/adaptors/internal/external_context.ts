@@ -1,12 +1,18 @@
 import { ContextId, ContextIdFactory, NestContainer } from "@nestjs/core";
 import { ExternalExceptionFilterContext } from "@nestjs/core/exceptions/external-exception-filter-context";
-import { GuardsConsumer, GuardsContextCreator } from "@nestjs/core/guards";
+import {
+  GuardsConsumer,
+  GuardsContextCreator,
+} from "@nestjs/core/guards/index.js";
 import { ExternalContextCreator } from "@nestjs/core/helpers/external-context-creator";
 import {
   InterceptorsConsumer,
   InterceptorsContextCreator,
-} from "@nestjs/core/interceptors";
-import { PipesConsumer, PipesContextCreator } from "@nestjs/core/pipes";
+} from "@nestjs/core/interceptors/index.js";
+import {
+  PipesConsumer,
+  PipesContextCreator,
+} from "@nestjs/core/pipes/index.js";
 import { REQUEST_CONTEXT_ID } from "@nestjs/core/router/request/request-constants";
 
 /**
