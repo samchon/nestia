@@ -113,7 +113,13 @@ export async function installPublicConsumer(owners: readonly string[]) {
     );
     return lock.importers[name];
   });
-  const expectedDependencies = publicConsumerDependencies(importers);
+  // File versions in the frozen caller lock are relative to ROOT, not CONSUMER.
+  const expectedDependencies = Object.fromEntries(
+    Object.entries(publicConsumerDependencies(importers)).map(([name, version]) => [
+      name,
+      publicFileIdentity(version, ROOT),
+    ]),
+  );
   const dependencies: Record<string, string> = { ...expectedDependencies };
   const overrides: Record<string, string> = {};
   const publicNames = [];
@@ -187,7 +193,17 @@ export async function installPublicConsumer(owners: readonly string[]) {
       ...record.optionalDependencies,
     })) {
       const version = resolution.split("(")[0]!;
-      if (version.startsWith("link:") || version.startsWith("file:")) continue;
+      if (version.startsWith("link:")) continue;
+      if (version.startsWith("file:")) {
+        // Preserve candidate transitive tarballs as well as direct dependencies.
+        const candidate = publicFileIdentity(version, ROOT);
+        assert(
+          overrides[name] === undefined || overrides[name] === candidate,
+          `Conflicting caller file dependency: ${name}`,
+        );
+        overrides[name] = candidate;
+        continue;
+      }
       const selector = `${parent}>${name}`;
       const value = /^\d/.test(version) ? version : `npm:${version}`;
       assert(
@@ -229,7 +245,7 @@ export async function installPublicConsumer(owners: readonly string[]) {
   );
   for (const [name, expected] of Object.entries(expectedDependencies))
     assert.equal(
-      installedLock.importers["."].dependencies[name]?.version.split("(")[0],
+      publicFileIdentity(installedLock.importers["."].dependencies[name]?.version.split("(")[0] ?? "", CONSUMER),
       expected,
       `Installed integration dependency changed: ${name}`,
     );
@@ -250,10 +266,13 @@ export async function installPublicConsumer(owners: readonly string[]) {
       );
     }
   }
+  const frozenPackages = new Set(
+    Object.keys(lock.packages).map((name) => publicFileIdentity(name, ROOT)),
+  );
   for (const dependency of Object.keys(installedLock.packages)) {
     if (artifacts.has(dependency)) continue;
     assert(
-      Object.hasOwn(lock.packages, dependency),
+      frozenPackages.has(publicFileIdentity(dependency, CONSUMER)),
       `Public installation resolved outside the frozen caller graph: ${dependency}`,
     );
   }
@@ -332,6 +351,21 @@ export function publicConsumerDependencies(
       dependencies[name] = version;
     }
   return dependencies;
+}
+
+/** Preserves a frozen file dependency's original address when copied to a new lock root. */
+function publicFileIdentity(value: string, root: string): string {
+  const offset = value.startsWith("file:") ? 0 : value.indexOf("@file:") + 1;
+  if (offset === 0 && !value.startsWith("file:")) return value;
+  const peer = value.indexOf("(");
+  if (peer !== -1 && peer < offset) return value;
+  const end = peer === -1 ? value.length : peer;
+  return (
+    value.slice(0, offset) +
+    "file:" +
+    path.resolve(root, value.slice(offset + 5, end)).split(path.sep).join("/") +
+    value.slice(end)
+  );
 }
 
 /**
