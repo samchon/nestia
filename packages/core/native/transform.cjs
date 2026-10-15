@@ -1,3 +1,4 @@
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -17,12 +18,19 @@ const path = require("node:path");
 //     never evaluated, so the SDK contributor is never linked either.
 function createTtscPlugin(context) {
   const typia = assertTypiaVersion(context);
+  const proven = typia.filter((manifest) => manifest.realpath !== null);
   const plugin = {
     name: "@nestia/core",
     source: path.resolve(__dirname, "cmd", "ttsc-nestia"),
     composes: ["typia/lib/transform"],
     // a typia upgrade must evaluate the version check again
-    hostInputs: typia,
+    hostInputs: typia.map((manifest) => manifest.file),
+    hostInputHashes: Object.fromEntries(
+      proven.map((manifest) => [manifest.file, manifest.hash]),
+    ),
+    hostInputRealpaths: Object.fromEntries(
+      proven.map((manifest) => [manifest.file, manifest.realpath]),
+    ),
   };
   const sdk = resolveSdkContributorSource(context);
   if (sdk !== null) plugin.contributors = [{ name: "sdk", source: sdk }];
@@ -37,7 +45,7 @@ function createTtscPlugin(context) {
 // versions. The version nestia is built for is the typia @nestia/core itself
 // resolves, which its exact dependency holds at the Go pin's release.
 //
-// Returns the typia manifests read, for ttsc to watch.
+// Returns the typia manifests read, with their evaluation-time proofs for ttsc.
 function assertTypiaVersion(context) {
   const expected = resolveTypiaManifest([__dirname]);
   const actual =
@@ -57,19 +65,32 @@ function assertTypiaVersion(context) {
       ].join(" "),
     );
   return [
-    ...new Set(
+    ...new Map(
       [expected, actual]
         .filter((manifest) => manifest !== null)
-        .map((manifest) => manifest.file),
-    ),
+        .map((manifest) => [manifest.file, manifest]),
+    ).values(),
   ];
 }
 
 function resolveTypiaManifest(paths) {
   try {
     const file = require.resolve("typia/package.json", { paths });
-    const version = JSON.parse(fs.readFileSync(file, "utf8")).version;
-    return typeof version === "string" ? { file, version } : null;
+    const contents = fs.readFileSync(file);
+    const version = JSON.parse(contents.toString("utf8")).version;
+    if (typeof version !== "string") return null;
+    let realpath = null;
+    try {
+      realpath = fs.realpathSync.native(file);
+    } catch {
+      // Keep the version guard, but leave an unprovable input unhashed.
+    }
+    return {
+      file,
+      version,
+      hash: crypto.createHash("sha256").update(contents).digest("hex"),
+      realpath,
+    };
   } catch {
     return null;
   }
