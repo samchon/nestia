@@ -1,4 +1,5 @@
 import { OpenApiV3_1 } from "@typia/interface";
+import fs from "fs";
 import { createRequire } from "node:module";
 import path from "path";
 
@@ -22,13 +23,14 @@ import {
  *
  * 1. Generate a nest project from a synthetic OpenAPI document.
  * 2. Assert every Nestia catalog entry pins the current version explicitly.
- * 3. Assert the TypeScript catalog entries keep caret versions, and the typia
- *    entry pins exactly the release @nestia/migrate resolves.
+ * 3. Assert the ttsc entry matches this repository's declared catalog version,
+ *    TypeScript keeps a caret version, and typia pins the release
+ *    @nestia/migrate resolves.
  * 4. Assert package.json dependencies keep their `catalog:` indirections.
  *
- * @evidence contracts/testing.md#behavioral-verification Generated catalogs use actual Nestia package version, exact resolved typia pin and caret compiler versions while backend dependencies retain catalog/workspace references.
- * @evidence contracts/testing.md#independent-expectations Installed package versions and the template catalog contract independently establish stamps; expected values are not read from the generated YAML.
- * @evidence contracts/testing.md#distinguishing-cases All six Nestia entries, exact typia versus caret tools, and preserved dependency indirection distinguish stale stamps and overbroad substitution.
+ * @evidence contracts/testing.md#behavioral-verification Generated catalogs use the actual Nestia package version, the declared ttsc version, the exact resolved typia pin, and a caret TypeScript version while backend dependencies retain catalog/workspace references.
+ * @evidence contracts/testing.md#independent-expectations Installed package versions and the tracked workspace catalog independently establish stamps; expected values are not read from the generated YAML.
+ * @evidence contracts/testing.md#distinguishing-cases All six Nestia entries, the declared ttsc version, exact typia versus caret TypeScript, and preserved dependency indirection distinguish stale stamps and overbroad substitution.
  * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_nest_workspace_catalog_stamp = (): void => {
@@ -62,8 +64,20 @@ export const test_migrate_nest_workspace_catalog_stamp = (): void => {
         `pnpm-workspace.yaml must stamp \`${key}: ^${version}\`.`,
       );
   }
-  if (/^\s+ttsc: \^\d/m.test(workspace) === false)
-    throw new Error("The ttsc catalog entry must keep a caret version.");
+  const declared: string = fs.readFileSync(
+    path.resolve(process.cwd(), "../../pnpm-workspace.yaml"),
+    "utf8",
+  );
+  const ttsc: string | undefined = declared.match(
+    /^ {4}ttsc: (?:&[A-Za-z0-9_-]+ )?(\S+)$/m,
+  )?.[1];
+  if (ttsc === undefined)
+    throw new Error("Missing ttsc version in the workspace catalog.");
+  if (
+    workspace.split(/\r?\n/).some((line) => line.trim() === `ttsc: ${ttsc}`) ===
+    false
+  )
+    throw new Error(`The ttsc catalog entry must match ${ttsc}.`);
   if (/^\s+typescript: \^\d/m.test(workspace) === false)
     throw new Error("The typescript catalog entry must keep a caret version.");
   const typia: string = (
