@@ -40,11 +40,11 @@ catalogs:
       version: 1.1.5
   samchon:
     '@typia/interface':
-      specifier: ^15.0.0
-      version: 15.0.0
+      specifier: 15.1.1-next.0
+      version: 15.1.1-next.0
     '@typia/utils':
-      specifier: ^15.0.0
-      version: 15.0.0
+      specifier: 15.1.1-next.0
+      version: 15.1.1-next.0
     '@wrtnlabs/evidence':
       specifier: ^0.2.1
       version: 0.2.1
@@ -55,8 +55,8 @@ catalogs:
       specifier: ^3.0.0
       version: 3.0.0
     typia:
-      specifier: 15.0.0
-      version: 15.0.0
+      specifier: 15.1.1-next.0
+      version: 15.1.1-next.0
   typescript:
     '@babel/parser':
       specifier: ^7.29.8
@@ -201,7 +201,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.33.0-next.1)
+        version: 15.1.1-next.0(ttsc@0.33.0-next.1)
     devDependencies:
       '@types/autocannon':
         specifier: ^7.9.0
@@ -278,10 +278,10 @@ importers:
         version: link:../fetcher
       '@typia/interface':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
       get-function-location:
         specifier: ^2.0.0
         version: 2.0.0
@@ -305,7 +305,7 @@ importers:
         version: 1.2.1
       typia:
         specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.33.0-next.1)
+        version: 15.1.1-next.0(ttsc@0.33.0-next.1)
       ws:
         specifier: ^7.5.3
         version: 7.5.10
@@ -366,7 +366,7 @@ importers:
         version: link:../migrate
       '@typia/interface':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
       fflate:
         specifier: ^0.8.2
         version: 0.8.3
@@ -381,7 +381,7 @@ importers:
         version: 0.5.2(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/icons-material@5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(prop-types@15.8.1)
       typia:
         specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.33.0-next.1)
+        version: 15.1.1-next.0(ttsc@0.33.0-next.1)
     devDependencies:
       '@eslint/js':
         specifier: ^9.13.0
@@ -448,10 +448,10 @@ importers:
     dependencies:
       '@typia/interface':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
     devDependencies:
       '@types/node':
         specifier: catalog:utils
@@ -473,10 +473,10 @@ importers:
         version: 0.33.0-next.1
       '@typia/interface':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
       commander:
         specifier: 10.0.0
         version: 10.0.0
@@ -494,7 +494,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.28.1)
+        version: 15.1.1-next.0(ttsc@0.33.0-next.1)
     devDependencies:
       '@types/inquirer':
         specifier: ^9.0.7
@@ -531,10 +531,10 @@ importers:
         version: 0.33.0-next.1
       '@typia/interface':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
       get-function-location:
         specifier: ^2.0.0
         version: 2.0.0
@@ -558,7 +558,7 @@ importers:
         version: 0.33.0-next.1
       typia:
         specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.33.0-next.1)
+        version: 15.1.1-next.0(ttsc@0.33.0-next.1)
     devDependencies:
       '@modelcontextprotocol/sdk':
         specifier: catalog:modelcontextprotocol
@@ -698,7 +698,7 @@ importers:
         version: 4.1.8
       '@typia/interface':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
       chalk:
         specifier: 4.1.2
         version: 4.1.2
@@ -734,7 +734,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.33.0-next.1)
+        version: 15.1.1-next.0(ttsc@0.33.0-next.1)
     devDependencies:
       '@nestia/sdk':
         specifier: workspace:^
@@ -801,10 +801,10 @@ importers:
         version: 12.0.2(@nestjs/common@12.1.2(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.1.2)(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(typescript@7.0.2)
       '@typia/interface':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 15.0.0
+        version: 15.1.1-next.0
       express:
         specifier: ^4.21.1
         version: 4.22.2
@@ -828,7 +828,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 15.0.0(ttsc@0.33.0-next.1)
+        version: 15.1.1-next.0(ttsc@0.33.0-next.1)
       uuid:
         specifier: catalog:utils
         version: 13.0.2
@@ -1836,14 +1836,9 @@ packages:
       '@vue/compiler-sfc':
         optional: true
 
-  '@ttsc/darwin-arm64@0.28.1':
-    resolution: {integrity: sha512-DNEcf5b/Z4RwFqfeHiN29+9aW/A/2XG+CUNLNBLftGCR24wbr6mlK+vgeurWEVyT3cVB4uVYfVpQo25VKvJ/gA==}
+  '@ttsc/darwin-arm64@0.33.0-next.1':
+    resolution: {integrity: sha512-bLUk2U8oQ1MNb+iHDdIoUkO8T/yjWU3IH0kTxF8bU2Oyp1mqIJ42h2FQsihFlsitf/CddGY9gDJFeBN38QXGaA==}
     cpu: [arm64]
-    os: [darwin]
-
-  '@ttsc/darwin-x64@0.28.1':
-    resolution: {integrity: sha512-MCecQQ9d9GaSE+7n4I0xK6Z/UsB/NaWYcB35ZN7rVJ8WSb8o8WB1tvS+WTuYNXAuK4KVsnv6YVNwY8kyROfClw==}
-    cpu: [x64]
     os: [darwin]
 
   '@ttsc/darwin-x64@0.33.0-next.1':
@@ -1854,24 +1849,14 @@ packages:
   '@ttsc/factory@0.33.0-next.1':
     resolution: {integrity: sha512-CnakCGP6ckFZk0qyAk10Sc17/9rrN8Jp3FvbUPJSHblozRWX2a5O/BoBQEjnKdpdnr6+RwR3MzoqDO8ihvM1nA==}
 
-  '@ttsc/linux-arm64@0.28.1':
-    resolution: {integrity: sha512-pXAAJhdobYuEXQ7oKLMQ2y8RP8YDWFIrvayWPpPJQJdo4DViyX2iGC6rgUUYwpAkDXonxJ9Tk6qZtRZGBHNwSw==}
+  '@ttsc/linux-arm64@0.33.0-next.1':
+    resolution: {integrity: sha512-M7uYPg8T8V6ThM2KAHr9xCeBJMwUcKYA7ylVcaB3NfT+26Wvl4sVdL1dhIbrlkIHHcco/nqpKMl3Eumwio6nug==}
     cpu: [arm64]
-    os: [linux]
-
-  '@ttsc/linux-arm@0.28.1':
-    resolution: {integrity: sha512-8x2SyV7FC4r/IphhxJxS09BwrXHnKN3vQMj2gUwTDoZXKnXL7sJO1M0Ulm5N05F6tKvKkil9HPGu4Srhar5eoQ==}
-    cpu: [arm]
     os: [linux]
 
   '@ttsc/linux-arm@0.33.0-next.1':
     resolution: {integrity: sha512-KXCNosFIEZEI3ZTemjQbb5Ppq1KcHj/p2GC7FDbAi24MZuPqqNnrMXn2sV2eBI9wYprDc6Ej1CVXqhl+Z0/ALQ==}
     cpu: [arm]
-    os: [linux]
-
-  '@ttsc/linux-x64@0.28.1':
-    resolution: {integrity: sha512-2deTIhHV3Z9G1hbEzs4YsPTqxKXflnKkkKdup6LUD62ZEa/KQbNGZnsnIoFw41R8uaux+225kCMi8H77KAPocQ==}
-    cpu: [x64]
     os: [linux]
 
   '@ttsc/linux-x64@0.33.0-next.1':
@@ -1884,14 +1869,9 @@ packages:
     peerDependencies:
       ttsc: ^0.33.0-next.1
 
-  '@ttsc/win32-arm64@0.28.1':
-    resolution: {integrity: sha512-JjHCOFYCQLyB9je0T+90RMn1NZY8BavMQHyJZi91qugiLbQLO6JzZMVISG8qQRuEPHpXNE8wqb8+B68NnGER/g==}
+  '@ttsc/win32-arm64@0.33.0-next.1':
+    resolution: {integrity: sha512-GJ6poIX39pRVw70dhoBofR0w5T0jwX4ooRrBNzWpBFyk6vRpCyf/oemthx6hdN9r5L54xrWLMGL4AKNtyRGiGg==}
     cpu: [arm64]
-    os: [win32]
-
-  '@ttsc/win32-x64@0.28.1':
-    resolution: {integrity: sha512-dqvfvb0hXNHRm9eJEMt/YVkHfLd327/AFrZH1sNCemYEbLaCT543Zdv2qMMT4RyJiAGTo0TeXhyHBRaga63/BQ==}
-    cpu: [x64]
     os: [win32]
 
   '@ttsc/win32-x64@0.33.0-next.1':
@@ -2255,14 +2235,14 @@ packages:
   '@typia/interface@14.0.6':
     resolution: {integrity: sha512-Ct4cW8vt1OfZNFlRBrVFeWZZrM/KvNUg4bmeIU4amXgYYp1sZkY71h+6GdrL+ApdF0KNnRxZ92hrrlbDodsjNg==}
 
-  '@typia/interface@15.0.0':
-    resolution: {integrity: sha512-iLl1Xtawi+GkdIILJdRyEKi1CZxj/ZRoz5jZ636GLGX83xWy95CZEo/WMJEcjJfdc3UhVK6xbh881d9iuZ+3uA==}
+  '@typia/interface@15.1.1-next.0':
+    resolution: {integrity: sha512-CFkhyRaB6uQuka03bzBLVdJG0E4Q2Gtd7OHv4sbnqi4WtuSpRDa085n55zAB5kpUBCYZ9II6vMzEWSRIl5n8yw==}
 
   '@typia/utils@14.0.6':
     resolution: {integrity: sha512-g1LLQiOdPNyFR6dEQKsaa8HQnpZAAW+XAG0tVQ3/fVCARR5n4Yn59jBSI1UcNEv4F9DaM7vzHZi0b4iS+liajw==}
 
-  '@typia/utils@15.0.0':
-    resolution: {integrity: sha512-8gELqfowtStO/3gEc1ABRbFB8rKhabBJ7pNuhQ+7DV9aPKJGDfni6nxkRR0BCV7nuKZ5ev9DGjo8uAgnQ3vq+g==}
+  '@typia/utils@15.1.1-next.0':
+    resolution: {integrity: sha512-V4lTFAHTSAPx4sTE6/6f0nXrLq0meW3LLupGtofGDKK1QWKBAkxIkTTSbTBmaYuRQuP/mbssZLjDVC7u5YJfJA==}
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -4233,11 +4213,6 @@ packages:
   tstl@3.0.0:
     resolution: {integrity: sha512-pR83y6/tbJx6jeGRqGJXk2t/eCUynaHEE6zsOLB0Zga8ej61LXtPfoeiROdhezpoCT15+1QMbqKB1Um5kasSKg==}
 
-  ttsc@0.28.1:
-    resolution: {integrity: sha512-OCUun5oRR+AjqOgcC3znvwd7DGyHxsueiwg5lI3H2EjUEP+VkY2Ix3ccQYLbX3vMUITYuuM4mir4r6ClkWHWLQ==}
-    engines: {node: '>=22.15.0'}
-    hasBin: true
-
   ttsc@0.33.0-next.1:
     resolution: {integrity: sha512-Um1lMcjtQ6wAhr96ShQMJhW3xixyMOlYxL+BkAgjeZJ50sXoMx6mBvnc9q1Vv+fhQBMgnyzLqLpb2cWLx2QpKg==}
     engines: {node: '>=22.15.0'}
@@ -4279,10 +4254,10 @@ packages:
       ttsc:
         optional: true
 
-  typia@15.0.0:
-    resolution: {integrity: sha512-ZP+58aI7G4CK/NKIfgY4zoMDwtJvtEc9bzb3E3QKnAJs/PeGFJEFbjXLiMq0qYapX6z6BGbDi3NLxetmREhwFg==}
+  typia@15.1.1-next.0:
+    resolution: {integrity: sha512-e8JdcLOFfX4MtQ9O/1nZeJ6zV1i0moQlGFQLoX1xV4tqWdn9PygyduAYdS8BhueL80B2bzrdYB/dhSVU+eN4NQ==}
     peerDependencies:
-      ttsc: '>=0.19.2'
+      ttsc: '>=0.19.2 || 0.33.0-next.1'
     peerDependenciesMeta:
       ttsc:
         optional: true
@@ -5411,10 +5386,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@ttsc/darwin-arm64@0.28.1':
-    optional: true
-
-  '@ttsc/darwin-x64@0.28.1':
+  '@ttsc/darwin-arm64@0.33.0-next.1':
     optional: true
 
   '@ttsc/darwin-x64@0.33.0-next.1':
@@ -5422,16 +5394,10 @@ snapshots:
 
   '@ttsc/factory@0.33.0-next.1': {}
 
-  '@ttsc/linux-arm64@0.28.1':
-    optional: true
-
-  '@ttsc/linux-arm@0.28.1':
+  '@ttsc/linux-arm64@0.33.0-next.1':
     optional: true
 
   '@ttsc/linux-arm@0.33.0-next.1':
-    optional: true
-
-  '@ttsc/linux-x64@0.28.1':
     optional: true
 
   '@ttsc/linux-x64@0.33.0-next.1':
@@ -5444,10 +5410,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  '@ttsc/win32-arm64@0.28.1':
-    optional: true
-
-  '@ttsc/win32-x64@0.28.1':
+  '@ttsc/win32-arm64@0.33.0-next.1':
     optional: true
 
   '@ttsc/win32-x64@0.33.0-next.1':
@@ -5802,15 +5765,15 @@ snapshots:
 
   '@typia/interface@14.0.6': {}
 
-  '@typia/interface@15.0.0': {}
+  '@typia/interface@15.1.1-next.0': {}
 
   '@typia/utils@14.0.6':
     dependencies:
       '@typia/interface': 14.0.6
 
-  '@typia/utils@15.0.0':
+  '@typia/utils@15.1.1-next.0':
     dependencies:
-      '@typia/interface': 15.0.0
+      '@typia/interface': 15.1.1-next.0
 
   '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@25.9.0)(terser@5.47.1))':
     dependencies:
@@ -8104,25 +8067,17 @@ snapshots:
 
   tstl@3.0.0: {}
 
-  ttsc@0.28.1:
-    optionalDependencies:
-      '@ttsc/darwin-arm64': 0.28.1
-      '@ttsc/darwin-x64': 0.28.1
-      '@ttsc/linux-arm': 0.28.1
-      '@ttsc/linux-arm64': 0.28.1
-      '@ttsc/linux-x64': 0.28.1
-      '@ttsc/win32-arm64': 0.28.1
-      '@ttsc/win32-x64': 0.28.1
-    optional: true
-
   ttsc@0.33.0-next.1:
     dependencies:
       acorn: 8.16.0
       cjs-module-lexer: 2.2.1
     optionalDependencies:
+      '@ttsc/darwin-arm64': 0.33.0-next.1
       '@ttsc/darwin-x64': 0.33.0-next.1
       '@ttsc/linux-arm': 0.33.0-next.1
+      '@ttsc/linux-arm64': 0.33.0-next.1
       '@ttsc/linux-x64': 0.33.0-next.1
+      '@ttsc/win32-arm64': 0.33.0-next.1
       '@ttsc/win32-x64': 0.33.0-next.1
       fsevents: 2.3.3
 
@@ -8178,18 +8133,10 @@ snapshots:
     optionalDependencies:
       ttsc: 0.33.0-next.1
 
-  typia@15.0.0(ttsc@0.28.1):
+  typia@15.1.1-next.0(ttsc@0.33.0-next.1):
     dependencies:
-      '@typia/interface': 15.0.0
-      '@typia/utils': 15.0.0
-      randexp: 0.5.3
-    optionalDependencies:
-      ttsc: 0.28.1
-
-  typia@15.0.0(ttsc@0.33.0-next.1):
-    dependencies:
-      '@typia/interface': 15.0.0
-      '@typia/utils': 15.0.0
+      '@typia/interface': 15.1.1-next.0
+      '@typia/utils': 15.1.1-next.0
       randexp: 0.5.3
     optionalDependencies:
       ttsc: 0.33.0-next.1

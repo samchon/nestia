@@ -8,7 +8,7 @@ require (
 	github.com/samchon/nestia/packages/core/native v0.0.0
 	github.com/samchon/nestia/packages/sdk/native v0.0.0
 	github.com/samchon/ttsc/packages/ttsc v0.0.0
-	github.com/samchon/typia/packages/typia/native v0.0.0-20260926142025-755176823ba3
+	github.com/samchon/typia/packages/typia/native v0.0.0-20261015055039-1b425753abc6
 )
 
 require (

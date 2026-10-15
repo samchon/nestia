@@ -38,8 +38,8 @@ github.com/samchon/ttsc/packages/ttsc/shim/vfs/cachedvfs v0.0.0-20261015045259-d
 github.com/samchon/ttsc/packages/ttsc/shim/vfs/cachedvfs v0.0.0-20261015045259-d63eaf503908/go.mod h1:SYQUI9BSzalrbM7ZrPKx3UYCOQQPtkcmQE97q4sQ8hQ=
 github.com/samchon/ttsc/packages/ttsc/shim/vfs/osvfs v0.0.0-20261015045259-d63eaf503908 h1:vB6U46uCA4/S9De6/onWKRkdkLs+9dGJNh47kNs78yU=
 github.com/samchon/ttsc/packages/ttsc/shim/vfs/osvfs v0.0.0-20261015045259-d63eaf503908/go.mod h1:TpBUHCZULKr3Xrp00h5QyjMsX7EO+V/yspoXuPKWsPg=
-github.com/samchon/typia/packages/typia/native v0.0.0-20260926142025-755176823ba3 h1:XtRIf6wvDuSHLsphMXiB3lm6p0/2sxHMfc6FMjI5LLA=
-github.com/samchon/typia/packages/typia/native v0.0.0-20260926142025-755176823ba3/go.mod h1:pUTSG5IZxw8Hohle//RsDXnE+8ZhAus7mPDKFqzvZnk=
+github.com/samchon/typia/packages/typia/native v0.0.0-20261015055039-1b425753abc6 h1:H8D0RsaR9bwM7Zn83/DJKb324emzo3RZr52BVvI7UCo=
+github.com/samchon/typia/packages/typia/native v0.0.0-20261015055039-1b425753abc6/go.mod h1:pUTSG5IZxw8Hohle//RsDXnE+8ZhAus7mPDKFqzvZnk=
 github.com/zeebo/assert v1.3.0 h1:g7C04CbJuIDKNPFHmsk4hwZDO5O+kntRxzaUoNXj+IQ=
 github.com/zeebo/assert v1.3.0/go.mod h1:Pq9JiuJQpG8JLJdtkwrJESF0Foym2/D9XMU5ciN/wJ0=
 github.com/zeebo/xxh3 v1.1.0 h1:s7DLGDK45Dyfg7++yxI0khrfwq9661w9EN78eP/UZVs=
