@@ -66,7 +66,7 @@
     "@nestjs/core": ">=11.0.0",
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=7.1.0",
-    "ttsc": ">=0.19.2",
+    "ttsc": ">=0.19.2 || >=0.33.0-next.1",
     "typia": "catalog:samchon"
   },
   "peerDependenciesMeta": {
