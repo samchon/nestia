@@ -132,7 +132,7 @@ func NestiaCoreWebSocketTypeReference(prog *driver.Program, node *shimast.Node) 
 		}
 		chain = append(chain, node)
 		symbol := prog.Checker.GetSymbolAtLocation(name)
-		if symbol != nil && symbol.Flags&shimast.SymbolFlagsAlias != 0 {
+		if symbol != nil && shimast.SymbolFlagsOf(symbol)&shimast.SymbolFlagsAlias != 0 {
 			if aliased := shimchecker.Checker_getAliasedSymbol(prog.Checker, symbol); aliased != nil {
 				symbol = aliased
 			}
@@ -140,14 +140,14 @@ func NestiaCoreWebSocketTypeReference(prog *driver.Program, node *shimast.Node) 
 		if symbol == nil {
 			return nil, ""
 		}
-		if nestiaCoreIsTgridDeclarations(prog, symbol.Declarations) {
-			return chain, symbol.Name
+		if nestiaCoreIsTgridDeclarations(prog, shimast.SymbolDeclarationsOf(symbol)) {
+			return chain, shimast.SymbolNameOf(symbol)
 		}
-		if symbol.Flags&shimast.SymbolFlagsTypeAlias == 0 {
+		if shimast.SymbolFlagsOf(symbol)&shimast.SymbolFlagsTypeAlias == 0 {
 			return nil, ""
 		}
 		var alias *shimast.Node
-		for _, declaration := range symbol.Declarations {
+		for _, declaration := range shimast.SymbolDeclarationsOf(symbol) {
 			if declaration != nil && declaration.Kind == shimast.KindTypeAliasDeclaration {
 				alias = declaration
 				break
@@ -192,7 +192,7 @@ func nestiaCoreWebSocketDiagnostic(file *shimast.SourceFile, node *shimast.Node,
 	filePath := ""
 	line, column := 0, 0
 	if file != nil {
-		filePath = file.FileName()
+		filePath = string(file.FileName())
 		if node != nil {
 			// the first token's position: Pos() starts at the leading trivia,
 			// the previous line's end and any JSDoc

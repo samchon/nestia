@@ -10,6 +10,7 @@ import (
 	"time"
 
 	shimcompiler "github.com/microsoft/typescript-go/shim/compiler"
+	shimtspath "github.com/microsoft/typescript-go/shim/tspath"
 	"github.com/samchon/nestia/packages/core/native/plugin"
 	"github.com/samchon/nestia/packages/core/native/transform/buildoutput"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
@@ -161,9 +162,9 @@ func runBuild(args []string) int {
 	}
 	transforms := append([]driver.PluginTransform{typiaTransform, coreTransform}, contributorTransforms...)
 
-	writeFile := shimcompiler.WriteFile(func(fileName, text string, data *shimcompiler.WriteFileData) error {
+	writeFile := shimcompiler.WriteFile(func(fileName shimtspath.RootedFilePath, text string, data *shimcompiler.WriteFileData) error {
 		_ = data
-		publication.Write(fileName, text)
+		publication.Write(string(fileName), text)
 		return nil
 	})
 

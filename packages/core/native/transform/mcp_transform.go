@@ -65,7 +65,7 @@ func nestiaCoreMcpRouteConfigNode(
 	doc nestiaCoreMcpRouteDoc,
 	ec *shimprinter.EmitContext,
 ) *shimast.Node {
-	f := nativecontext.EmitFactoryOf(nestiaCoreFactory, ec)
+	f := nativecontext.NodeFactoryOf(ec)
 	properties := []*shimast.Node{}
 	if input.Kind == shimast.KindStringLiteral {
 		properties = append(properties, nestiaCoreProperty("name", f.NewStringLiteral(input.Text(), shimast.TokenFlagsNone), ec))

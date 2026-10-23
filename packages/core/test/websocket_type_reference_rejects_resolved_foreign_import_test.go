@@ -75,19 +75,19 @@ func TestWebSocketTypeReferenceRejectsResolvedForeignImport(t *testing.T) {
 					t.Fatalf("%s acceptor is not the authored import type", method)
 				}
 				typ := prog.Checker.GetTypeFromTypeNode(typeNode)
-				if typ == nil || typ.Flags()&shimchecker.TypeFlagsAny != 0 || typ.Symbol() == nil || len(typ.Symbol().Declarations) == 0 {
+				if typ == nil || typ.Flags()&shimchecker.TypeFlagsAny != 0 || typ.Symbol() == nil || len(shimast.SymbolDeclarationsOf(typ.Symbol())) == 0 {
 					t.Fatalf("%s acceptor did not resolve to a declared non-any type", method)
 				}
-				declaration := shimast.GetSourceFileOfNode(typ.Symbol().Declarations[0])
-				if declaration == nil || typ.Symbol().Name != "WebSocketAcceptor" {
+				declaration := shimast.GetSourceFileOfNode(shimast.SymbolDeclarationsOf(typ.Symbol())[0])
+				if declaration == nil || shimast.SymbolNameOf(typ.Symbol()) != "WebSocketAcceptor" {
 					t.Fatalf("%s did not resolve the authored acceptor declaration", method)
 				}
 				owner := transform.SourceFilePackageName(prog, declaration)
 				if accepted && owner != "tgrid" {
 					t.Fatalf("genuine acceptor owner = %q", owner)
 				}
-				if !accepted && (owner == "tgrid" || !strings.HasSuffix(filepath.ToSlash(declaration.FileName()), "/src/structures/LocalAcceptor.ts")) {
-					t.Fatalf("foreign acceptor resolved to an unrelated declaration: %s, owner %q", declaration.FileName(), owner)
+				if !accepted && (owner == "tgrid" || !strings.HasSuffix(filepath.ToSlash(string(declaration.FileName())), "/src/structures/LocalAcceptor.ts")) {
+					t.Fatalf("foreign acceptor resolved to an unrelated declaration: %s, owner %q", string(declaration.FileName()), owner)
 				}
 				chain, name := transform.NestiaCoreWebSocketTypeReference(prog, typeNode)
 				if accepted && (len(chain) == 0 || name != "WebSocketAcceptor") {

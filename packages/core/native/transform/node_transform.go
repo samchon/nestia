@@ -288,7 +288,7 @@ func nestiaCoreOriginalNode(ec *shimprinter.EmitContext, node *shimast.Node) *sh
 // nestiaCoreReplaceArgumentNodes rebuilds a decorator call with the generated
 // nodes replacing every original argument.
 func nestiaCoreReplaceArgumentNodes(call *shimast.CallExpression, replacements []*shimast.Node, ec *shimprinter.EmitContext) *shimast.CallExpression {
-	f := nativecontext.EmitFactoryOf(nestiaCoreFactory, ec)
+	f := nativecontext.NodeFactoryOf(ec)
 	updated := f.NewCallExpression(
 		call.Expression,
 		call.QuestionDotToken,
@@ -302,7 +302,7 @@ func nestiaCoreReplaceArgumentNodes(call *shimast.CallExpression, replacements [
 // nestiaCoreAppendArgumentNodes rebuilds a decorator call with the generated
 // validator nodes appended after its original arguments.
 func nestiaCoreAppendArgumentNodes(call *shimast.CallExpression, appended []*shimast.Node, ec *shimprinter.EmitContext) *shimast.CallExpression {
-	f := nativecontext.EmitFactoryOf(nestiaCoreFactory, ec)
+	f := nativecontext.NodeFactoryOf(ec)
 	existing := []*shimast.Node{}
 	if call.Arguments != nil {
 		existing = append(existing, call.Arguments.Nodes...)
@@ -327,7 +327,7 @@ func nestiaCoreInjectImports(file *shimast.SourceFile, imports []*shimast.Node, 
 	if file == nil || len(imports) == 0 {
 		return file
 	}
-	f := nativecontext.EmitFactoryOf(nestiaCoreFactory, ec)
+	f := nativecontext.NodeFactoryOf(ec)
 	index := 0
 	for ; index < len(file.Statements.Nodes); index++ {
 		stmt := file.Statements.Nodes[index]
@@ -356,7 +356,7 @@ func nestiaCoreInjectImports(file *shimast.SourceFile, imports []*shimast.Node, 
 func nestiaCoreSiteFor(file *shimast.SourceFile, call *shimast.CallExpression, kind string, segments []string) nestiaCoreSite {
 	return nestiaCoreSite{
 		File:     file,
-		FilePath: file.FileName(),
+		FilePath: string(file.FileName()),
 		Call:     call,
 		Kind:     kind,
 		Segments: segments,

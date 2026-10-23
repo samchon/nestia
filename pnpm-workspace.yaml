@@ -19,8 +19,8 @@ catalogs:
   samchon:
     # Exact: the Go plugins link this release's transform, while the code it
     # emits calls the installed runtime (#1663).
-    typia: 15.0.0
-    '@typia/interface': &typia ^15.0.0
+    typia: 15.2.0
+    '@typia/interface': &typia ^15.2.0
     '@typia/utils': *typia
     tgrid: ^1.2.1
     tstl: ^3.0.0
@@ -50,7 +50,7 @@ catalogs:
     '@types/cli-progress': ^3.11.6
   typescript:
     '@babel/parser': ^7.29.8
-    ttsc: &ttsc ^0.28.1
+    ttsc: &ttsc ^0.34.1
     '@ttsc/factory': *ttsc
     '@ttsc/unplugin': *ttsc
     '@trivago/prettier-plugin-sort-imports': ^4.3.0

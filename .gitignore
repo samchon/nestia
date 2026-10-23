@@ -6,6 +6,7 @@ node_modules/
 .codex/
 .discussions/
 .ttsc-cache/
+.ttsc/
 .wiki/
 
 packages/openapi

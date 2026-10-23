@@ -10,6 +10,7 @@ import (
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimcore "github.com/microsoft/typescript-go/shim/core"
 	shimparser "github.com/microsoft/typescript-go/shim/parser"
+	shimtspath "github.com/microsoft/typescript-go/shim/tspath"
 	"github.com/samchon/nestia/packages/core/native/transform"
 )
 
@@ -85,7 +86,7 @@ export class Controller {
 				if code != 0 {
 					t.Fatalf("composed source transform exited %d: %s", code, stderr)
 				}
-				parsed := shimparser.ParseSourceFile(shimast.SourceFileParseOptions{FileName: filepath.ToSlash(filepath.Join(root, "emitted.ts"))}, out, shimcore.ScriptKindTS)
+				parsed := shimparser.ParseSourceFile(shimast.SourceFileParseOptions{FileName: shimtspath.RootedFilePath(filepath.ToSlash(filepath.Join(root, "emitted.ts")))}, out, shimcore.ScriptKindTS)
 				seen, arrows, factories, reports := map[string]int{}, 0, 0, map[shimast.Kind]int{}
 				var visit func(*shimast.Node)
 				visit = func(node *shimast.Node) {

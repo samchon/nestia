@@ -1,10 +1,13 @@
 name: test
 on:
   pull_request:
+  push:
+    branches:
+      - master
 permissions:
   contents: read
 concurrency:
-  group: test-${{ github.event.pull_request.number }}
+  group: test-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
   test:
@@ -41,6 +44,70 @@ jobs:
         run: pnpm evidence
       - name: Go Units
         run: pnpm test:go
+      - name: Concurrent Emit Race Regression
+        run: pnpm test:go:race
+        env:
+          CGO_ENABLED: "1"
+      - name: Prove Shared Factory Regression Sensitivity
+        env:
+          CGO_ENABLED: "1"
+        run: |
+          source=packages/core/native/transform/core_querify.go
+          cp "$source" "$RUNNER_TEMP/core_querify.go"
+          trap 'cp "$RUNNER_TEMP/core_querify.go" "$source"' EXIT
+          node -e "const fs = require('node:fs'); const file = 'packages/core/native/transform/core_querify.go'; let text = fs.readFileSync(file, 'utf8'); text = text.replace('func nestiaCoreHttpQuerifyProgrammer', 'var concurrentEmitMutationFactory = shimast.NewNodeFactory(shimast.NodeFactoryHooks{})\n\nfunc nestiaCoreHttpQuerifyProgrammer').replaceAll('f := nativecontext.NodeFactoryOf(ec)', 'f := concurrentEmitMutationFactory'); fs.writeFileSync(file, text);"
+          if pnpm test:go:race > "$RUNNER_TEMP/concurrent-emit-mutation.log" 2>&1; then
+            cat "$RUNNER_TEMP/concurrent-emit-mutation.log"
+            echo "Shared factory mutation unexpectedly passed"
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/concurrent-emit-mutation.log"
+          grep -q 'WARNING: DATA RACE' "$RUNNER_TEMP/concurrent-emit-mutation.log"
+      - name: TypeScript Units
+        run: pnpm test:unit
+      - name: SDK And Migration Integrations
+        run: pnpm test:e2e
+  typescript-7-1:
+    runs-on: ubuntu-latest
+    env:
+      TTSC_GO_BINARY: go
+      TTSC_CACHE_DIR: ${{ github.workspace }}/node_modules/.cache/ttsc
+      GOCACHE: ${{ github.workspace }}/node_modules/.cache/ttsc/go-build
+      GOMODCACHE: ${{ github.workspace }}/node_modules/.cache/ttsc/go-mod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      - uses: actions/setup-go@v5
+        id: go
+        with:
+          go-version-file: packages/core/native/go.mod
+          cache: false
+      - uses: pnpm/action-setup@v4
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Select TypeScript 7.1 Nightly
+        run: |
+          node -e "const fs = require('node:fs'); const file = 'pnpm-workspace.yaml'; const source = fs.readFileSync(file, 'utf8'); const target = source.replace(/^    typescript: .*$/m, '    typescript: 7.1.0-dev.20261020.3'); if (target === source) throw new Error('TypeScript catalog entry not found'); fs.writeFileSync(file, target);"
+          pnpm install --no-frozen-lockfile
+      - name: Cache Compiler Artifacts
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/ttsc
+          key: ttsc-${{ runner.os }}-${{ steps.go.outputs.go-version }}-test-7.1-${{ hashFiles('pnpm-lock.yaml', 'packages/core/native/**', 'packages/sdk/native/**', 'packages/*/test/go.*') }}
+          restore-keys: |
+            ttsc-${{ runner.os }}-${{ steps.go.outputs.go-version }}-test-7.1-
+      - name: Build Packages
+        run: pnpm build
+      - name: Evidence
+        run: pnpm evidence
+      - name: Go Units On TypeScript 7.1
+        run: pnpm test:go:7.1
+      - name: Concurrent Emit Race Regression On TypeScript 7.1
+        run: pnpm test:go --typescript-7-1 --race
+        env:
+          CGO_ENABLED: "1"
       - name: TypeScript Units
         run: pnpm test:unit
       - name: SDK And Migration Integrations

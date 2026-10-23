@@ -115,7 +115,7 @@ func EmitTransform(prog *driver.Program) (driver.PluginTransform, []transform.Di
 		if sf == nil {
 			return sf
 		}
-		fileSites := byFile[filepath.ToSlash(sf.FileName())]
+		fileSites := byFile[filepath.ToSlash(string(sf.FileName()))]
 		if len(fileSites) == 0 {
 			return sf
 		}

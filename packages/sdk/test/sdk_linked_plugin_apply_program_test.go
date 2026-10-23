@@ -77,7 +77,7 @@ func findSourceFile(t *testing.T, files []*shimast.SourceFile, base string) *shi
 		if f == nil {
 			continue
 		}
-		if filepath.Base(f.FileName()) == base {
+		if filepath.Base(string(f.FileName())) == base {
 			return f
 		}
 	}

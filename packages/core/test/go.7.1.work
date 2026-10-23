@@ -1,0 +1,46 @@
+go 1.27
+
+use (
+	.
+	../native
+)
+
+replace (
+	github.com/samchon/ttsc/packages/ttsc => github.com/samchon/ttsc/packages/ttsc v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/ast => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/ast v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/ast => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/ast v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/astnav => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/astnav v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/astnav => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/astnav v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/bundled => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/bundled v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/bundled => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/bundled v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/checker => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/checker v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/checker => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/checker v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/compiler => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/compiler v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/compiler => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/compiler v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/core => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/core v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/core => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/core v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/diagnosticwriter => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/diagnosticwriter v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/diagnosticwriter => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/diagnosticwriter v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/lsp => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/lsp v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/lsp => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/lsp v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/parser => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/parser v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/parser => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/parser v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/printer => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/printer v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/printer => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/printer v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/scanner => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/scanner v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/scanner => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/scanner v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/stringutil => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/stringutil v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/stringutil => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/stringutil v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/transformers => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/transformers v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/transformers => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/transformers v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/tsoptions => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/tsoptions v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/tsoptions => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/tsoptions v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/tspath => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/tspath v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/tspath => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/tspath v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/vfs => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/vfs v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/vfs => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/vfs v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/vfs/cachedvfs => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/vfs/cachedvfs v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/vfs/cachedvfs => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/vfs/cachedvfs v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/typescript-go/shim/vfs/osvfs => github.com/samchon/ttsc/packages/ttsc/targets/7.1/facade/vfs/osvfs v0.0.0-20261022210737-6c732c27442a
+	github.com/microsoft/TypeScript/tsc/shim/vfs/osvfs => github.com/samchon/ttsc/packages/ttsc/targets/7.1/bridge/vfs/osvfs v0.0.0-20261022210737-6c732c27442a
+)

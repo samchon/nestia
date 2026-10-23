@@ -18,6 +18,8 @@
     "release": "rimraf packages/migrate/assets && bumpp -r",
     "test:unit": "pnpm --filter=./packages/* --filter=./tests/* -r --no-bail --if-present run test:unit",
     "test:go": "ttsx --no-plugins --tsconfig config/tsconfig.json config/testing/CompilerEnvironment.ts",
+    "test:go:7.1": "pnpm test:go --typescript-7-1",
+    "test:go:race": "pnpm test:go --race",
     "test:e2e": "pnpm --filter=@nestia/test-sdk --fail-if-no-match integration"
   },
   "repository": {

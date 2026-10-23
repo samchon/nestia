@@ -10,9 +10,10 @@ import (
 // JavaScript's `JSON.stringify` does, and constant and type tag values keep
 // them, and bigints, exactly.
 //
-// typia hands over NaN and ±Infinity wherever a type or a comment spells one:
-// a JSDoc `@x-` extension whose text parses as a float (`NaN`, `Infinity`,
-// `-Infinity`, `inf`), a numeric literal type or enum member such as `1e999`,
+// typia hands over nonfinite values from numeric literal types and tags, while
+// JSDoc `@x-` extensions accept only finite JavaScript numeric spellings.
+// NaN, Infinity and Go-only spellings stay strings in those extensions.
+// A numeric literal type or enum member such as `1e999`,
 // and a type tag argument such as `tags.Minimum<1e999>`. The SDK serializes
 // its metadata with encoding/json, which refuses those values, so a single one
 // anywhere in the types a route reaches used to fail `nestia sdk` and
@@ -41,8 +42,8 @@ import (
 //     the finite and string ones as they are.
 //
 // @evidence contracts/testing.md#behavioral-verification Metadata and baked schemas must preserve nonfinite/bigint identities using the defined JSON encoding while retaining finite numbers and ordinary strings exactly.
-// @evidence contracts/testing.md#independent-expectations JSON cannot encode Infinity, NaN or bigint directly; schema values follow null conversion while metadata carries number/bigint string encodings. Authored literals and tags establish exact expected values.
-// @evidence contracts/testing.md#distinguishing-cases Both decomposed and component schemas compare explicit expected values for nonfinite constants, enum/union, extensions and tags. Finite 1.5/3, string Infinity/digits and bigint range/sequence controls detect indiscriminate stringification or null substitution.
+// @evidence contracts/testing.md#independent-expectations JSON cannot encode Infinity, NaN or bigint directly; literal/type-tag schema values follow null conversion while metadata carries number/bigint string encodings. JSDoc extensions parse only finite JavaScript Number spellings, preserving other text, as typia's documented NumberUtil and schema writer specify. Authored literals establish the expected values.
+// @evidence contracts/testing.md#distinguishing-cases Both decomposed and component schemas compare nonfinite constants, enum/union, extensions and tags. Decimal, hex/binary/octal, signed zero and underflow are finite controls; nonfinite, overflow, separators and Go hexadecimal floats stay strings. Finite 1.5/3, string Infinity/digits and bigint range/sequence detect indiscriminate conversion.
 // @evidence contracts/testing.md#execution-ownership The SDK Go runner discovers this unit Test. Its authored TypeScript program is loaded and analyzed in-process by EmitTransform with a temporary project and a closed program, without building a native artifact or starting an installed host; CLI/runtime cohorts separately own consumer assembly.
 func TestSyntheticMetadataValuesJsonCannotHold(t *testing.T) {
 	const controller = `import core from "@nestia/core";
@@ -64,6 +65,22 @@ export interface INonFinite {
   short: string;
   /** @x-finite 1.5 */
   finite: string;
+  /** @x-hex 0x10 */
+  hex: string;
+  /** @x-binary 0b11 */
+  binary: string;
+  /** @x-octal 0o10 */
+  octal: string;
+  /** @x-zero -0 */
+  zero: string;
+  /** @x-underflow 1e-400 */
+  underflow: string;
+  /** @x-overflow 1e400 */
+  overflow: string;
+  /** @x-separator 1_000 */
+  separator: string;
+  /** @x-hexfloat 0x1p4 */
+  hexfloat: string;
   literal: 1e999;
   union: -1e999 | 1;
   level: Level;
@@ -91,20 +108,28 @@ export class SyntheticController {
 	parameter := syntheticField(t, metadata, "parameters").([]any)[0]
 
 	expected := map[string]string{
-		"nan":      `{"type":"string","x-nan":null}`,
-		"inf":      `{"type":"string","x-inf":null}`,
-		"neg":      `{"type":"string","x-neg":null}`,
-		"short":    `{"type":"string","x-short":null}`,
-		"finite":   `{"type":"string","x-finite":1.5}`,
-		"literal":  `{"const":null}`,
-		"union":    `{"oneOf":[{"const":null},{"const":1}]}`,
-		"level":    `{"oneOf":[{"const":null},{"const":1}]}`,
-		"minimum":  `{"minimum":null,"type":"number"}`,
-		"fallback": `{"default":null,"type":"number"}`,
-		"sample":   `{"example":null,"type":"number"}`,
-		"samples":  `{"examples":{"big":null,"small":1},"type":"number"}`,
-		"plugin":   `{"type":"number","x-plugin":null}`,
-		"bounded":  `{"minimum":3,"type":"number"}`,
+		"nan":       `{"type":"string","x-nan":"NaN"}`,
+		"inf":       `{"type":"string","x-inf":"Infinity"}`,
+		"neg":       `{"type":"string","x-neg":"-Infinity"}`,
+		"short":     `{"type":"string","x-short":"inf"}`,
+		"finite":    `{"type":"string","x-finite":1.5}`,
+		"hex":       `{"type":"string","x-hex":16}`,
+		"binary":    `{"type":"string","x-binary":3}`,
+		"octal":     `{"type":"string","x-octal":8}`,
+		"zero":      `{"type":"string","x-zero":0}`,
+		"underflow": `{"type":"string","x-underflow":0}`,
+		"overflow":  `{"type":"string","x-overflow":"1e400"}`,
+		"separator": `{"type":"string","x-separator":"1_000"}`,
+		"hexfloat":  `{"type":"string","x-hexfloat":"0x1p4"}`,
+		"literal":   `{"const":null}`,
+		"union":     `{"oneOf":[{"const":null},{"const":1}]}`,
+		"level":     `{"oneOf":[{"const":null},{"const":1}]}`,
+		"minimum":   `{"minimum":null,"type":"number"}`,
+		"fallback":  `{"default":null,"type":"number"}`,
+		"sample":    `{"example":null,"type":"number"}`,
+		"samples":   `{"examples":{"big":null,"small":1},"type":"number"}`,
+		"plugin":    `{"type":"number","x-plugin":null}`,
+		"bounded":   `{"minimum":3,"type":"number"}`,
 	}
 	baked := syntheticJsonSchema(t, parameter, "resolved")
 	component := syntheticField(t, syntheticField(t, syntheticField(t, baked, "components"), "schemas"), "INonFinite")
@@ -114,7 +139,7 @@ export class SyntheticController {
 	} {
 		for key, schema := range expected {
 			if actual := canonicalJSON(t, syntheticField(t, properties, key)); actual != schema {
-				t.Fatalf("%s property %q is %s, expected %s", label, key, actual, schema)
+				t.Errorf("%s property %q is %s, expected %s", label, key, actual, schema)
 			}
 		}
 	}
@@ -151,7 +176,7 @@ export class SyntheticController {
 		"big":     `["12345678901234567890"]`,
 	} {
 		if values[key] != value {
-			t.Fatalf("metadata constant %q values are %s, expected %s", key, values[key], value)
+			t.Errorf("metadata constant %q values are %s, expected %s", key, values[key], value)
 		}
 	}
 	for key, tag := range map[string]string{
@@ -166,7 +191,7 @@ export class SyntheticController {
 		"digits":    `{"schema":{"example":"12345678901234567890"},"value":"12345678901234567890"}`,
 	} {
 		if tags[key] != tag {
-			t.Fatalf("metadata type tag of %q is %s, expected %s", key, tags[key], tag)
+			t.Errorf("metadata type tag of %q is %s, expected %s", key, tags[key], tag)
 		}
 	}
 }

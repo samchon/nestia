@@ -92,7 +92,7 @@ func TestSourceFilePackageNameStopsAtDependencyScope(t *testing.T) {
 						t.Fatal("authored dependency call did not resolve")
 					}
 					source := shimast.GetSourceFileOfNode(signature.Declaration())
-					if source == nil || filepath.Clean(source.FileName()) != filepath.Clean(declarationPath) {
+					if source == nil || filepath.Clean(string(source.FileName())) != filepath.Clean(declarationPath) {
 						t.Fatal("call did not resolve to the authored nested dependency")
 					}
 					if got := transform.SourceFilePackageName(prog, source); got != item.owner {
