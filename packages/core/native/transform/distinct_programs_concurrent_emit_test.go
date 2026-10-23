@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -31,15 +32,15 @@ import (
 // @evidence contracts/testing.md#distinguishing-cases Assert, is, validate and plain query serialization plus null exercise mode selection. Optional nullable scalars, optional nullable arrays, nested body objects and foreign decorator controls cover branch boundaries. Distinct markers reject cross-Program contamination; the serial control separates semantic failures from concurrency failures.
 // @evidence contracts/testing.md#execution-ownership The canonical Go runner explicitly includes this same-package native test because private transform constructors are required. It loads Programs in-process without building a host or running JavaScript. Each worker owns one Program; cleanup closes Programs before removing fixture roots.
 func TestDistinctProgramsConcurrentEmit(t *testing.T) {
+	parent, err := filepath.Abs(filepath.Join("..", "..", "node_modules"))
+	if err != nil {
+		t.Fatal(err)
+	}
 	for _, mode := range []string{"assert", "is", "validate", "stringify", "null"} {
 		t.Run(mode, func(t *testing.T) {
 			programs := make([]*driver.Program, 2)
 			for index := range programs {
-				root, err := os.MkdirTemp(filepath.Join("..", "..", "node_modules"), "nestia-concurrent-")
-				if err != nil {
-					t.Fatal(err)
-				}
-				root, err = filepath.Abs(root)
+				root, err := os.MkdirTemp(parent, "nestia-concurrent-")
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -131,6 +132,9 @@ export class Controller {
 				}
 				if strings.Contains(output, "const output = new URLSearchParams") != (mode != "null") || strings.Contains(output, "TypedQuery.Get(null)") != (mode == "null") {
 					return "", fmt.Errorf("wrong query serialization for %s:\n%s", mode, output)
+				}
+				if !regexp.MustCompile(`\bTypedBody\)?\(\s*\{`).MatchString(output) {
+					return "", fmt.Errorf("body validator was not injected:\n%s", output)
 				}
 				if strings.Contains(output, fmt.Sprintf("program-%d", 1-index)) {
 					return "", fmt.Errorf("foreign Program marker")

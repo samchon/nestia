@@ -19,8 +19,8 @@ export interface CloneShapesLiteralILiteralValues {
   bounded: number & tags.Minimum<1e999>;
   low: number & tags.ExclusiveMinimum<-1e999>;
   finite: number & tags.Minimum<3>;
-  /** @maximum Infinity */
-  upper: number;
+  /** A nonfinite type-tag bound; numeric comment tags require finite values. */
+  upper: number & tags.Maximum<1e999>;
   /** Tag values whose type is not the tagged one. */
   sequenced: bigint & tags.Sequence<1>;
   named: number & tags.Example<"Infinity">;

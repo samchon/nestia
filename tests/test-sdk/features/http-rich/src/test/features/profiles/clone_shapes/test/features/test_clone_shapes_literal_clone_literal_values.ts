@@ -32,12 +32,12 @@ type TagValue<T extends { "typia.tag"?: { value: unknown } }> = NonNullable<
  *
  * @evidence contracts/testing.md#behavioral-verification Actual cloned SDK generation and consumer compilation feed the original transport or clone/source equality assertions.
  * @evidence contracts/testing.md#independent-expectations The authored source DTO and literal type, status and boundary expectations establish equivalence independently of emitted clone text.
- * @evidence contracts/testing.md#distinguishing-cases The original five literal type equalities, three tag-value equalities and six number/bigint boundary verdict comparisons retain bigint precision, infinities and enum NaN bounds.
+ * @evidence contracts/testing.md#distinguishing-cases Five literal type equalities, four tag-value equalities and six number/bigint boundary verdict comparisons retain bigint precision, infinities and enum NaN bounds. The upper type tag preserves an infinite maximum independently of the rejected nonfinite comment-tag spelling covered by SDK HTTP-rule units.
  * @evidence contracts/testing.md#execution-ownership The matching exported original case is discovered in the shared installed clone_shapes consumer profile.
  * @evidence contracts/e2e.md#necessary-boundary The installed native metadata and public clone generator must emit TypeScript that compiles and preserves source meaning; the HTTP case also executes its generated connection.
  * @evidence contracts/e2e.md#shared-execution Three original fixtures have identical clone-only generation options and combine into one actual SDK generation graph; they share installation, producer, consumer and listener.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity Unique route, controller and DTO identities isolate each original source graph; immutable generated clones and stateless handlers remain valid across all three cases.
- * @evidence contracts/e2e.md#preserved-coverage The complete original assertion body and source graph remain after reversible imports, type identities, routes and discovery names; no additional generated random calls or Swagger outputs are introduced.
+ * @evidence contracts/e2e.md#preserved-coverage Every original literal equality, tag-value equality and boundary verdict comparison remains. The infinite upper bound uses its supported type-tag representation and adds an explicit cloned/source tag-value equality; SDK HTTP-rule units retain the rejected comment spelling and its finite twin.
  */
 export const test_clone_shapes_literal_clone_literal_values = (): void => {
   const literals: [
@@ -52,7 +52,8 @@ export const test_clone_shapes_literal_clone_literal_values = (): void => {
     Equal<TagValue<Cloned["sequenced"]>, TagValue<Source["sequenced"]>>,
     Equal<TagValue<Cloned["named"]>, TagValue<Source["named"]>>,
     Equal<TagValue<Cloned["digits"]>, TagValue<Source["digits"]>>,
-  ] = [true, true, true];
+    Equal<TagValue<Cloned["upper"]>, TagValue<Source["upper"]>>,
+  ] = [true, true, true, true];
   tagged;
 
   const verdicts = (validate: (input: unknown) => boolean, values: unknown[]) =>

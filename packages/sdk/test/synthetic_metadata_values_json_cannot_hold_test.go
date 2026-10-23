@@ -13,8 +13,9 @@ import (
 // typia hands over nonfinite values from numeric literal types and tags, while
 // JSDoc `@x-` extensions accept only finite JavaScript numeric spellings.
 // NaN, Infinity and Go-only spellings stay strings in those extensions.
-// A numeric literal type or enum member such as `1e999`,
-// and a type tag argument such as `tags.Minimum<1e999>`. The SDK serializes
+// Numeric literal types and enum members such as `1e999`, and type tag
+// arguments such as `tags.Minimum<1e999>`, still carry nonfinite numbers.
+// The SDK serializes
 // its metadata with encoding/json, which refuses those values, so a single one
 // anywhere in the types a route reaches used to fail `nestia sdk` and
 // `nestia swagger` for the whole project with "json: unsupported value".
@@ -34,8 +35,8 @@ import (
 //
 //  1. Author a query object carrying every non-finite source next to finite
 //     twins, and run the SDK metadata pass over it in-process.
-//  2. Assert the component and the decomposed property schemas write each
-//     non-finite value as a present null and keep the finite ones.
+//  2. Assert component and decomposed schemas preserve extension text, parse
+//     finite JavaScript numbers, and write nonfinite literal/tag values as null.
 //  3. Assert the metadata literal writes the non-finite constant and type tag
 //     values by name, the bigint ones as digits, each encoded tag value with
 //     the type it stands for, and each tag's schema as a JSON schema, keeping

@@ -204,14 +204,12 @@ func nestiaSDKMetadataLiteralText(metadata map[string]any) (string, error) {
 // nestiaSDKFiniteLiteral copies a metadata value for encoding/json, writing
 // every non-finite number as null, the way JavaScript's `JSON.stringify` does.
 //
-// typia hands over NaN and positive or negative Infinity wherever a type or a comment spells one: a
-// numeric literal type such as `1e999`, a type tag argument such as
-// `tags.Minimum<1e999>`, and a JSDoc `@x-` extension whose text parses as
-// a float, which `NaN`, `Infinity`, and `inf` all do. encoding/json
-// refuses those values, so one of them anywhere in the types a route reaches
-// used to abort the whole metadata pass. The metadata is marshaled only here,
-// so walking it here gives every value, baked schema and metadata literal
-// alike, the same rule.
+// typia can supply nonfinite numbers from numeric literal types such as
+// `1e999` and type tag arguments such as `tags.Minimum<1e999>`. encoding/json
+// refuses those values, so a single one used to abort the whole metadata pass.
+// This serialization boundary handles baked schemas and metadata literals
+// alike. JSDoc vendor extensions preserve nonfinite numeric text as strings
+// before reaching this walk.
 //
 // The walk rebuilds maps, slices, and typia's ordered objects, whose
 // MarshalJSON would otherwise marshal a non-finite member itself. A null is

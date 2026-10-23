@@ -6,6 +6,7 @@ import {
   INestiaMigrateConfig,
   NestiaMigrateApplication,
 } from "../../../../packages/migrate/lib";
+import { readTypeScriptCatalog } from "../internal/readTypeScriptCatalog";
 
 /**
  * Verifies nest projects stamp nestia versions into the workspace catalogs.
@@ -22,13 +23,13 @@ import {
  *
  * 1. Generate a nest project from a synthetic OpenAPI document.
  * 2. Assert every Nestia catalog entry pins the current version explicitly.
- * 3. Assert the TypeScript catalog entries keep caret versions, and the typia
- *    entry pins exactly the release @nestia/migrate resolves.
+ * 3. Assert the TypeScript catalog entries preserve their declared specifiers, and
+ *    the typia entry pins exactly the release @nestia/migrate resolves.
  * 4. Assert package.json dependencies keep their `catalog:` indirections.
  *
- * @evidence contracts/testing.md#behavioral-verification Generated catalogs use actual Nestia package version, exact resolved typia pin and caret compiler versions while backend dependencies retain catalog/workspace references.
- * @evidence contracts/testing.md#independent-expectations Installed package versions and the template catalog contract independently establish stamps; expected values are not read from the generated YAML.
- * @evidence contracts/testing.md#distinguishing-cases All six Nestia entries, exact typia versus caret tools, and preserved dependency indirection distinguish stale stamps and overbroad substitution.
+ * @evidence contracts/testing.md#behavioral-verification Generated catalogs use actual Nestia package version, exact resolved typia pin and declared compiler specifiers, including exact nightly pins while backend dependencies retain catalog/workspace references.
+ * @evidence contracts/testing.md#independent-expectations Installed package versions and the repository catalog declarations independently establish stamps; the bundler reads its lockfile, while expected toolchain specifiers come from the authored workspace declaration rather than generated YAML.
+ * @evidence contracts/testing.md#distinguishing-cases All six Nestia entries, exact typia versus caller-declared toolchain ranges or pins, and preserved dependency indirection distinguish stale stamps and overbroad substitution.
  * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_nest_workspace_catalog_stamp = (): void => {
@@ -62,10 +63,19 @@ export const test_migrate_nest_workspace_catalog_stamp = (): void => {
         `pnpm-workspace.yaml must stamp \`${key}: ^${version}\`.`,
       );
   }
-  if (/^\s+ttsc: \^\d/m.test(workspace) === false)
-    throw new Error("The ttsc catalog entry must keep a caret version.");
-  if (/^\s+typescript: \^\d/m.test(workspace) === false)
-    throw new Error("The typescript catalog entry must keep a caret version.");
+  const catalog = readTypeScriptCatalog();
+  for (const name of ["ttsc", "typescript"]) {
+    const expected = catalog[name];
+    if (!expected)
+      throw new Error(`Missing declared ${name} toolchain specifier.`);
+    const actual = workspace.match(
+      new RegExp(`^\\s+${name}: (?:&\\S+ )?(\\S+)`, "m"),
+    )?.[1];
+    if (actual !== expected)
+      throw new Error(
+        `Generated ${name} catalog entry must preserve ${expected}, got ${actual}.`,
+      );
+  }
   const typia: string = (
     createRequire(
       createRequire(path.join(process.cwd(), "package.json")).resolve(
