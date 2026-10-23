@@ -8,6 +8,7 @@ import (
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimcore "github.com/microsoft/typescript-go/shim/core"
 	shimparser "github.com/microsoft/typescript-go/shim/parser"
+	shimtspath "github.com/microsoft/typescript-go/shim/tspath"
 	"github.com/samchon/nestia/packages/core/native/transform"
 )
 
@@ -59,8 +60,8 @@ func (f functionText) Text() string { return f() }
 // @evidence contracts/testing.md#execution-ownership The core Go runner discovers this direct operation test and uses the existing parser on authored text. There is no driver program, emission, product build, binary, installation or child process.
 func TestExportsSourceFileText(t *testing.T) {
 	source := "const a = 1;"
-	parsed := shimparser.ParseSourceFile(shimast.SourceFileParseOptions{FileName: filepath.ToSlash(filepath.Join(t.TempDir(), "source.ts"))}, source, shimcore.ScriptKindTS)
-	emptyParsed := shimparser.ParseSourceFile(shimast.SourceFileParseOptions{FileName: filepath.ToSlash(filepath.Join(t.TempDir(), "empty.ts"))}, "", shimcore.ScriptKindTS)
+	parsed := shimparser.ParseSourceFile(shimast.SourceFileParseOptions{FileName: shimtspath.RootedFilePath(filepath.ToSlash(filepath.Join(t.TempDir(), "source.ts")))}, source, shimcore.ScriptKindTS)
+	emptyParsed := shimparser.ParseSourceFile(shimast.SourceFileParseOptions{FileName: shimtspath.RootedFilePath(filepath.ToSlash(filepath.Join(t.TempDir(), "empty.ts")))}, "", shimcore.ScriptKindTS)
 	var missing *shimast.SourceFile
 	var safe *nilSafeText
 	for _, item := range []struct {

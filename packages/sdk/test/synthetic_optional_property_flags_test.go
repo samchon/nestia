@@ -71,7 +71,7 @@ func TestSyntheticOptionalPropertyFlags(t *testing.T) {
 				node.ForEachChild(func(child *shimast.Node) bool { walk(child); return false })
 			}
 			for _, file := range prog.SourceFiles() {
-				if filepath.Base(file.FileName()) == "SyntheticController.ts" {
+				if filepath.Base(string(file.FileName())) == "SyntheticController.ts" {
 					walk(file.AsNode())
 				}
 			}

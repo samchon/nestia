@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"sort"
-	"strconv"
 	"strings"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
@@ -24,6 +23,7 @@ import (
 	nativeiterate "github.com/samchon/typia/packages/typia/native/core/programmers/iterate"
 	nativejson "github.com/samchon/typia/packages/typia/native/core/programmers/json"
 	schemametadata "github.com/samchon/typia/packages/typia/native/core/schemas/metadata"
+	nativeutils "github.com/samchon/typia/packages/typia/native/core/utils"
 )
 
 type nestiaSDKSite struct {
@@ -72,7 +72,7 @@ func (ctx *nestiaSDKContext) imports(file *shimast.SourceFile) []nestiaSDKImport
 	if file == nil {
 		return nil
 	}
-	name := filepath.ToSlash(file.FileName())
+	name := filepath.ToSlash(string(file.FileName()))
 	if imports, ok := ctx.importsByFile[name]; ok {
 		return imports
 	}
@@ -124,7 +124,7 @@ func visitNestiaSDKNode(
 				metadata, err := nestiaSDKMetadataText(context, file, node)
 				site := nestiaSDKSite{
 					File:       file,
-					FilePath:   file.FileName(),
+					FilePath:   string(file.FileName()),
 					ClassName:  className,
 					MethodName: methodName,
 					Method:     node,
@@ -204,14 +204,12 @@ func nestiaSDKMetadataLiteralText(metadata map[string]any) (string, error) {
 // nestiaSDKFiniteLiteral copies a metadata value for encoding/json, writing
 // every non-finite number as null, the way JavaScript's `JSON.stringify` does.
 //
-// typia hands over NaN and positive or negative Infinity wherever a type or a comment spells one: a
-// numeric literal type such as `1e999`, a type tag argument such as
-// `tags.Minimum<1e999>`, and a JSDoc `@x-` extension whose text parses as
-// a float, which `NaN`, `Infinity`, and `inf` all do. encoding/json
-// refuses those values, so one of them anywhere in the types a route reaches
-// used to abort the whole metadata pass. The metadata is marshaled only here,
-// so walking it here gives every value, baked schema and metadata literal
-// alike, the same rule.
+// typia can supply nonfinite numbers from numeric literal types such as
+// `1e999` and type tag arguments such as `tags.Minimum<1e999>`. encoding/json
+// refuses those values, so a single one used to abort the whole metadata pass.
+// This serialization boundary handles baked schemas and metadata literals
+// alike. JSDoc vendor extensions preserve nonfinite numeric text as strings
+// before reaching this walk.
 //
 // The walk rebuilds maps, slices, and typia's ordered objects, whose
 // MarshalJSON would otherwise marshal a non-finite member itself. A null is
@@ -670,7 +668,7 @@ func nestiaSDKAnalyzeImports(file *shimast.SourceFile) []nestiaSDKImportInfo {
 			continue
 		}
 		info := nestiaSDKImportInfo{
-			File:     nestiaSDKNormalizeImportPath(file.FileName(), decl.ModuleSpecifier.Text()),
+			File:     nestiaSDKNormalizeImportPath(string(file.FileName()), decl.ModuleSpecifier.Text()),
 			Elements: []nestiaSDKImportElement{},
 		}
 		if name := clause.Name(); name != nil {
@@ -740,7 +738,7 @@ func nestiaSDKReflectImports(prog *driver.Program, node *shimast.Node, imports [
 		}
 		if prog != nil && prog.Checker != nil {
 			symbol := prog.Checker.GetSymbolAtLocation(root)
-			if symbol != nil && symbol.Flags&shimast.SymbolFlagsAlias != 0 {
+			if symbol != nil && shimast.SymbolFlagsOf(symbol)&shimast.SymbolFlagsAlias != 0 {
 				prefixes := map[string]bool{prefix: true}
 				for _, imp := range imports {
 					if nestiaSDKImportMatches(prefixes, imp) {
@@ -1050,8 +1048,9 @@ func nestiaSDKPropertySchemas(
 
 // nestiaSDKJsDocExtensions writes a property's `x-` JSDoc tags into its schema
 // the way typia's object writer does (`json_schema_jsDocTags`, unexported):
-// the first text part, trimmed, read as a boolean, a number, null, or else a
-// string.
+// the first text part, trimmed, read as a boolean, a finite JavaScript number,
+// null, or else a string. Nonfinite and Go-only numeric spellings remain text
+// in both component schemas and decomposed parameter schemas.
 func nestiaSDKJsDocExtensions(schema nativeiterate.JsonSchema, tags []schemametadata.IJsDocTagInfo) {
 	for _, tag := range tags {
 		if strings.HasPrefix(tag.Name, "x-") == false {
@@ -1064,8 +1063,8 @@ func nestiaSDKJsDocExtensions(schema nativeiterate.JsonSchema, tags []schemameta
 			value := strings.ReplaceAll(strings.TrimSpace(text.Text), "\r\n", "\n")
 			if value == "true" || value == "false" {
 				schema[tag.Name] = value == "true"
-			} else if number, err := strconv.ParseFloat(value, 64); err == nil {
-				schema[tag.Name] = number
+			} else if reading := nativeutils.NumberUtil.Read(value); reading.Numeric && reading.Finite {
+				schema[tag.Name] = reading.Value
 			} else if value == "null" {
 				schema[tag.Name] = nil
 			} else {
@@ -1558,15 +1557,15 @@ func nestiaSDKIsTypeGuardError(prog *driver.Program, typ *shimchecker.Type, type
 	if symbol == nil {
 		return false
 	}
-	if symbol.Flags&shimast.SymbolFlagsAlias != 0 {
+	if shimast.SymbolFlagsOf(symbol)&shimast.SymbolFlagsAlias != 0 {
 		if aliased := shimchecker.Checker_getAliasedSymbol(prog.Checker, symbol); aliased != nil {
 			symbol = aliased
 		}
 	}
-	if symbol.Name != "TypeGuardError" {
+	if shimast.SymbolNameOf(symbol) != "TypeGuardError" {
 		return false
 	}
-	for _, declaration := range symbol.Declarations {
+	for _, declaration := range shimast.SymbolDeclarationsOf(symbol) {
 		source := shimast.GetSourceFileOfNode(declaration)
 		if source == nil {
 			continue
@@ -1783,7 +1782,7 @@ func nestiaSDKReflectAsyncAlias(
 		if current == nil || current.Symbol() == nil {
 			return false
 		}
-		for _, declaration := range current.Symbol().Declarations {
+		for _, declaration := range shimast.SymbolDeclarationsOf(current.Symbol()) {
 			if declaration != nil && declaration.Name() != nil && transform.NestiaCoreIsAsyncReturnWrapperReference(prog, declaration.Name()) {
 				return true
 			}
@@ -1825,7 +1824,7 @@ func nestiaSDKReflectAsyncAlias(
 			return
 		}
 		symbol := symbols[root]
-		if symbol == nil || symbol.Flags&shimast.SymbolFlagsTypeParameter != 0 {
+		if symbol == nil || shimast.SymbolFlagsOf(symbol)&shimast.SymbolFlagsTypeParameter != 0 {
 			return
 		}
 		prefixes := map[string]bool{root.Text(): true}
@@ -1839,11 +1838,11 @@ func nestiaSDKReflectAsyncAlias(
 		if matched {
 			return
 		}
-		for _, declaration := range symbol.Declarations {
+		for _, declaration := range shimast.SymbolDeclarationsOf(symbol) {
 			source := shimast.GetSourceFileOfNode(declaration)
 			if source != nil && (prog.TSProgram == nil || !prog.TSProgram.IsLibFile(source)) {
 				refs = append(refs, map[string]any{
-					"file": filepath.ToSlash(source.FileName()), "asterisk": nestiaSDKLiteralNull,
+					"file": filepath.ToSlash(string(source.FileName())), "asterisk": nestiaSDKLiteralNull,
 					"default": nestiaSDKLiteralNull, "elements": []string{root.Text()},
 				})
 				return
@@ -1967,10 +1966,10 @@ func nestiaSDKReflectTypeReferenceSymbolImport(prog *driver.Program, node *shima
 			symbol = typ.Symbol()
 		}
 	}
-	if symbol == nil || symbol.Flags&shimast.SymbolFlagsTypeParameter != 0 || len(symbol.Declarations) == 0 {
+	if symbol == nil || shimast.SymbolFlagsOf(symbol)&shimast.SymbolFlagsTypeParameter != 0 || len(shimast.SymbolDeclarationsOf(symbol)) == 0 {
 		return nil
 	}
-	sourceFile := shimast.GetSourceFileOfNode(symbol.Declarations[0])
+	sourceFile := shimast.GetSourceFileOfNode(shimast.SymbolDeclarationsOf(symbol)[0])
 	if sourceFile == nil {
 		return nil
 	}
@@ -1978,7 +1977,7 @@ func nestiaSDKReflectTypeReferenceSymbolImport(prog *driver.Program, node *shima
 	if prog.TSProgram != nil && prog.TSProgram.IsLibFile(sourceFile) {
 		return nil
 	}
-	file := filepath.ToSlash(sourceFile.FileName())
+	file := filepath.ToSlash(string(sourceFile.FileName()))
 	return []any{
 		map[string]any{
 			"file":     file,
@@ -2278,11 +2277,11 @@ func nestiaSDKTypeParameterIndex(prog *driver.Program, parameters *shimast.NodeL
 		return -1
 	}
 	symbol := prog.Checker.GetSymbolAtLocation(node.AsTypeReferenceNode().TypeName)
-	if symbol == nil || symbol.Flags&shimast.SymbolFlagsTypeParameter == 0 {
+	if symbol == nil || shimast.SymbolFlagsOf(symbol)&shimast.SymbolFlagsTypeParameter == 0 {
 		return -1
 	}
 	for index, parameter := range parameters.Nodes {
-		for _, declaration := range symbol.Declarations {
+		for _, declaration := range shimast.SymbolDeclarationsOf(symbol) {
 			if declaration == parameter {
 				return index
 			}
@@ -2299,8 +2298,8 @@ func nestiaSDKUsesAliasTypeParameter(prog *driver.Program, node *shimast.Node) b
 	}
 	if node.Kind == shimast.KindTypeReference {
 		symbol := prog.Checker.GetSymbolAtLocation(node.AsTypeReferenceNode().TypeName)
-		if symbol != nil && symbol.Flags&shimast.SymbolFlagsTypeParameter != 0 {
-			for _, declaration := range symbol.Declarations {
+		if symbol != nil && shimast.SymbolFlagsOf(symbol)&shimast.SymbolFlagsTypeParameter != 0 {
+			for _, declaration := range shimast.SymbolDeclarationsOf(symbol) {
 				if declaration != nil && declaration.Parent != nil && declaration.Parent.Kind == shimast.KindTypeAliasDeclaration {
 					return true
 				}

@@ -182,7 +182,7 @@ func runTransformProject(
 		if sf.IsDeclarationFile {
 			continue
 		}
-		key := driver.TransformOutputKey(cwd, sf.FileName())
+		key := driver.TransformOutputKey(cwd, string(sf.FileName()))
 		if filepath.IsAbs(key) || key == ".." || strings.HasPrefix(key, "../") {
 			continue
 		}

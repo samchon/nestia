@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
+	shimtspath "github.com/microsoft/typescript-go/shim/tspath"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 )
 
@@ -30,11 +31,11 @@ func SourceFilePackageName(prog *driver.Program, source *shimast.SourceFile) str
 	if prog == nil || prog.FS == nil || source == nil {
 		return ""
 	}
-	for directory := filepath.Dir(source.FileName()); ; {
+	for directory := filepath.Dir(string(source.FileName())); ; {
 		if filepath.Base(directory) == "node_modules" {
 			return ""
 		}
-		manifest := filepath.Join(directory, "package.json")
+		manifest := shimtspath.ToRootedFilePath(filepath.ToSlash(filepath.Join(directory, "package.json")), prog.TSProgram.GetCurrentDirectory())
 		if contents, ok := prog.FS.ReadFile(manifest); ok {
 			var pack struct {
 				Name string `json:"name"`

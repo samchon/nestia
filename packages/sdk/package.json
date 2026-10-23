@@ -22,6 +22,7 @@
     "build": "rimraf lib && ttsc",
     "dev": "ttsc --watch",
     "test:go": "cd test && go test -count=1 ./...",
+    "test:go:7.1": "ttsx --no-plugins --tsconfig ../../config/tsconfig.json ../../config/testing/CompilerEnvironment.ts --package=sdk --typescript-7-1",
     "evidence": "evidence"
   },
   "repository": {

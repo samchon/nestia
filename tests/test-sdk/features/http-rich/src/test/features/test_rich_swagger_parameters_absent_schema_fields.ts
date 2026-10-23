@@ -13,25 +13,25 @@ import { RichSwaggerParameterReader } from "./internal/RichSwaggerParameterReade
  * inside instance data or a vendor extension is the negative twin: it is the
  * value the user declared, so it must stay. `tags.Example<null>` is one; the
  * typia linked before #1646 dropped it entirely. A JSDoc `@x-nothing null` is
- * another, and typia still writes that one as a bare nil. So is an `@x-` value
- * that reads as a non-finite number, which JSON can only write as null
- * (#1655).
+ * another, and typia still writes that one as a bare nil. Nonfinite numeric
+ * text in vendor extensions remains a string under typia 15.2 and must not add
+ * null members.
  *
  * 1. Read the generated Swagger document.
  * 2. Walk every member and collect the ones that are null.
  * 3. Assert the only nulls are the declared `example`, `examples`, `x-empty`, and
- *    `x-nothing` values, and the non-finite `x-level` ones.
+ *    `x-nothing` values.
  * 4. Assert `any` becomes an empty schema, in the component and in a decomposed
  *    parameter.
  *
  * @evidence contracts/testing.md#behavioral-verification The complete scenario schema/path projection permits only the original literal null members, while both component and decomposed any schemas remain empty objects.
  * @evidence contracts/testing.md#independent-expectations The original authored DTO/decorator input and literal schema/example values establish expected constraints. Existing component-to-parameter comparisons retain their original relationship oracle and literal cells rather than treating compile success as correctness.
- * @evidence contracts/testing.md#distinguishing-cases The complete scenario schema/path projection permits only the original literal null members, while both component and decomposed any schemas remain empty objects.
+ * @evidence contracts/testing.md#distinguishing-cases The complete scenario schema/path projection permits the four authored null members while excluding nonfinite extension strings from nulls; both component and decomposed any schemas remain empty objects.
  * @evidence contracts/testing.md#execution-ownership The shared public HTTP entry compiles one authored producer and one generated consumer, and discovers this matching case through DynamicExecutor. It reads the actual generated Swagger document; no independent feature compiler or host is started.
  * @evidence contracts/e2e.md#necessary-boundary Ordinary installed public compiler, Nest application and SDK generation produce the document under test; no resolver hook or patched emitted output supplies it.
  * @evidence contracts/e2e.md#shared-execution One installed producer and generated consumer supply this case's document together with every compatible rich case; the shared entry retains its individual failure.
  * @evidence contracts/e2e.md#state-isolation-and-reuse-validity The reader scopes actual paths and schemas to this unchanged authored scenario, keeping unrelated shared scenarios out of its whole-document null oracle. Assertions do not mutate the shared file; each read owns its parsed document, and the runner owns fixture teardown.
- * @evidence contracts/e2e.md#preserved-coverage The complete scenario schema/path projection permits only the original literal null members, while both component and decomposed any schemas remain empty objects. Original document-only preparation remains generated and compiled without adding random transport requests. The three authored-metadata isolation/fallback cases now have direct unit owners.
+ * @evidence contracts/e2e.md#preserved-coverage The full schema/path null census and both empty-any assertions remain. Typia 15.2 preserves nonfinite extension text, whose exact string assertions remain in the companion extension case. Original document-only preparation remains generated and compiled without adding random transport requests. The three authored-metadata isolation/fallback cases have direct unit owners.
  */
 export const test_rich_swagger_parameters_absent_schema_fields =
   async (): Promise<void> => {
@@ -47,7 +47,6 @@ export const test_rich_swagger_parameters_absent_schema_fields =
           else visit(member, `${path}.${key}`);
     };
     visit(document, "$");
-    const nonFinite: string[] = ["nan", "infinity", "negative", "short"];
     TestValidator.equals(
       "null members",
       nulls.sort(),
@@ -56,14 +55,6 @@ export const test_rich_swagger_parameters_absent_schema_fields =
         "$.components.schemas.IAbsentFields.properties.named.examples.none",
         "$.components.schemas.IAbsentFields.properties.plugin.x-empty",
         "$.components.schemas.IAbsentFields.properties.single.example",
-        ...nonFinite.map(
-          (key) =>
-            `$.components.schemas.INonFiniteExtensions.properties.${key}.x-level`,
-        ),
-        ...nonFinite.map(
-          (_key, i) =>
-            `$.paths./http_rich/swagger_parameters/extension/non-finite.get.parameters[${i}].schema.x-level`,
-        ),
       ].sort(),
     );
 

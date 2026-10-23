@@ -29,15 +29,16 @@ func newPathsRewriter(prog *driver.Program) *pathsRewriter {
 		return out
 	}
 	options := prog.ParsedConfig.ParsedConfig.CompilerOptions
-	out.basePath = filepath.Clean(options.GetPathsBasePath(prog.Host.GetCurrentDirectory()))
-	out.outDir = optionalPath(options.OutDir, prog.Host.GetCurrentDirectory())
-	out.rootDir = optionalPath(options.RootDir, prog.Host.GetCurrentDirectory())
+	cwd := prog.TSProgram.GetCurrentDirectory()
+	out.basePath = filepath.Clean(string(options.GetPathsBasePath(cwd)))
+	out.outDir = optionalPath(string(options.OutDir), string(cwd))
+	out.rootDir = optionalPath(string(options.RootDir), string(cwd))
 	files := prog.SourceFiles()
 	if out.rootDir == "" {
 		out.rootDir = commonSourceDir(files)
 	}
 	for _, file := range files {
-		name := normalizePath(file.FileName())
+		name := normalizePath(string(file.FileName()))
 		out.sourceFiles[name] = name
 		out.sourceFiles[stripKnownSourceExtension(name)] = name
 	}
@@ -73,7 +74,7 @@ func (r *pathsRewriter) apply(file *shimast.SourceFile) {
 			return
 		}
 		spec := lit.Text()
-		rewritten, ok := r.rewrite(file.FileName(), spec)
+		rewritten, ok := r.rewrite(string(file.FileName()), spec)
 		if ok && rewritten != spec {
 			lit.AsStringLiteral().Text = rewritten
 			lit.Flags |= shimast.NodeFlagsSynthesized
@@ -245,9 +246,9 @@ func commonSourceDir(files []*shimast.SourceFile) string {
 	if len(files) == 0 {
 		return ""
 	}
-	common := normalizePath(filepath.Dir(files[0].FileName()))
+	common := normalizePath(filepath.Dir(string(files[0].FileName())))
 	for _, file := range files[1:] {
-		dir := normalizePath(filepath.Dir(file.FileName()))
+		dir := normalizePath(filepath.Dir(string(file.FileName())))
 		for common != "" && !strings.HasPrefix(dir+"/", common+"/") {
 			next := filepath.Dir(common)
 			if next == common {

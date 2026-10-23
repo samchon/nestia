@@ -44,7 +44,9 @@ bun add -d nestia
 `@nestia/sdk` is a runtime dependency. The generated SDK and runtime Swagger
 composition both resolve it while the Nestia transform attaches route metadata.
 
-`ttsc` must be 0.19.2 or newer. `ttsc` compiles the Nestia transform from Go source on first use, and that source reports the compiled project's reference graph through an API older releases do not have, so an older `ttsc` fails the plugin build instead of silently producing a transform without it. `@nestia/core` declares the floor as an optional peer dependency.
+Nestia supports TypeScript 7.0 and 7.1 with `ttsc` 0.34.1 or newer. `ttsc` compiles the Nestia transform from Go source on first use with Go 1.27, using the compiler target selected by the installed TypeScript version. The native transform uses version-neutral Symbol and path APIs; an older `ttsc` cannot build it. `@nestia/core` declares this floor as an optional peer dependency. Distinct compiler Programs may emit concurrently; each Program must have its own worker.
+
+TypeScript 7.1 content mappers require explicit permission to execute external code: pass `--runExternalCode` to `ttsc`, for example `ttsc --runExternalCode --emit`. The Nestia host inherits this permission from the launcher.
 
 `typia` must be the exact release your `@nestia/core` is built for. The Nestia transform is compiled from that typia release's Go source, while the code it emits calls the `typia` package installed in your project, so another version would mix two releases. `@nestia/core` depends on and peers that exact version, so npm refuses a different one at install, and when another is resolved anyway the build stops with an error naming both versions. `npm view @nestia/core dependencies.typia` prints the version to install.
 
@@ -209,6 +211,6 @@ A persistent bundler cache stays correct across builds without any extra configu
   `emitDecoratorMetadata`; NestJS still needs them for constructor injection.
 - **Bundler output skips validation**: add the matching `@ttsc/unplugin`
   adapter to the bundler config.
-- **Plugin build fails on an unknown Go symbol**: `ttsc` is older than 0.19.2.
+- **Plugin build fails on an unknown Go symbol**: `ttsc` is older than 0.34.1.
   Upgrade it; the version floor is listed under [Install](#install).
 - **`multiple compiler native backends cannot share one emit pass`**: the plugin list names a second native host, such as nestia v11's `@nestia/core/lib/transform` on a release before it resolved to the native descriptor. Remove `compilerOptions.plugins`, or list only the disabled `typia` entry and `@nestia/core/native/transform.cjs` as shown above.

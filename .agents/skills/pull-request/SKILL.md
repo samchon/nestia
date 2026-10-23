@@ -45,7 +45,7 @@ Before any issue-campaign push or pull request, complete the applicable steps of
 
 After each ordinary push, including every Post-Campaign Cleanup push, monitor the pull-request checks until every check settles. Only CI-suspended campaign implementation waves skip this loop. On failure, fetch the relevant job log, diagnose the real cause, fix it in place, push a new commit, and resume monitoring. Do not treat a green unrelated job as acceptance for a failed required surface.
 
-The single `test.yml` job checks Evidence, Go, unit and E2E populations after shared preparation. Check every test step; a successful unit step does not establish SDK generation, installed-consumer behavior or declaration acknowledgments. Do not split tests into a workflow matrix or separate test workflows. Record the actual job duration against the eight-minute target.
+Each complete compiler-line `test.yml` job checks Evidence, Go, race, unit and E2E populations after shared preparation. Check every test step; a successful unit step does not establish SDK generation, installed-consumer behavior or declaration acknowledgments. Do not split tests into a workflow matrix or separate test workflows. Record the actual job duration against the eight-minute target.
 
 ## Merge On Explicit Request Or Standing Autonomous Mandate
 

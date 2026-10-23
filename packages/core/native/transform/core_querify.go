@@ -13,6 +13,7 @@ import (
 )
 
 func nestiaCoreHttpQuerifyProgrammer(prog *driver.Program, ec *shimprinter.EmitContext, typ *shimchecker.Type) *shimast.Node {
+	f := nativecontext.NodeFactoryOf(ec)
 	collection := schemametadata.NewMetadataCollection()
 	result := nativefactories.MetadataFactory.Analyze(nativefactories.MetadataFactory_IProps{
 		Checker: prog.Checker,
@@ -53,12 +54,12 @@ func nestiaCoreHttpQuerifyProgrammer(prog *driver.Program, ec *shimprinter.EmitC
 	statements := []*shimast.Node{
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name: "output",
-			Value: nestiaCoreFactory.NewNewExpression(
-				nestiaCoreFactory.NewIdentifier("URLSearchParams"),
+			Value: f.NewNewExpression(
+				f.NewIdentifier("URLSearchParams"),
 				nil,
-				nestiaCoreFactory.NewNodeList([]*shimast.Node{}),
+				f.NewNodeList([]*shimast.Node{}),
 			),
-		}),
+		}, ec),
 	}
 	if result.Data != nil && len(result.Data.Objects) != 0 && result.Data.Objects[0] != nil && result.Data.Objects[0].Type != nil {
 		for _, property := range result.Data.Objects[0].Type.Properties {
@@ -69,24 +70,25 @@ func nestiaCoreHttpQuerifyProgrammer(prog *driver.Program, ec *shimprinter.EmitC
 			statements = append(statements, nestiaCoreHttpQuerifyDecode(key, property.Value, ec))
 		}
 	}
-	statements = append(statements, nestiaCoreFactory.NewReturnStatement(nestiaCoreFactory.NewIdentifier("output")))
-	return nestiaCoreFactory.NewArrowFunction(
+	statements = append(statements, f.NewReturnStatement(f.NewIdentifier("output")))
+	return f.NewArrowFunction(
 		nil,
 		nil,
-		nestiaCoreFactory.NewNodeList([]*shimast.Node{
-			nativefactories.IdentifierFactory.Parameter("input", nil, nil),
+		f.NewNodeList([]*shimast.Node{
+			nativefactories.IdentifierFactory.Parameter("input", nil, nil, ec),
 		}),
 		nil,
 		nil,
-		nestiaCoreFactory.NewToken(shimast.KindEqualsGreaterThanToken),
-		nestiaCoreFactory.NewBlock(nestiaCoreFactory.NewNodeList(statements), true),
+		f.NewToken(shimast.KindEqualsGreaterThanToken),
+		f.NewBlock(f.NewNodeList(statements), true),
 	)
 }
 
 func nestiaCoreHttpAssertQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+	f := nativecontext.NodeFactoryOf(ec)
 	context := nestiaCoreTypiaContext(prog, importer, ec, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
-	return nestiaCoreQueryWrapperArrow([]*shimast.Node{
+	return nestiaCoreQueryWrapperArrow(ec, []*shimast.Node{
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name: "assert",
 			Value: nativeprogrammers.AssertProgrammer.Write(nativeprogrammers.AssertProgrammer_IProps{
@@ -96,19 +98,20 @@ func nestiaCoreHttpAssertQuerifyProgrammer(prog *driver.Program, importer *nativ
 				Name:    name,
 				Config:  nativeprogrammers.AssertProgrammer_IConfig{Equals: false, Guard: false},
 			}),
-		}),
+		}, ec),
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name:  "stringify",
 			Value: nestiaCoreHttpQuerifyProgrammer(prog, ec, typ),
-		}),
-		nestiaCoreFactory.NewReturnStatement(nestiaCoreCall("stringify", nestiaCoreCall("assert", nestiaCoreFactory.NewIdentifier("input")))),
+		}, ec),
+		f.NewReturnStatement(nestiaCoreCall(ec, "stringify", nestiaCoreCall(ec, "assert", f.NewIdentifier("input")))),
 	})
 }
 
 func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+	f := nativecontext.NodeFactoryOf(ec)
 	context := nestiaCoreTypiaContext(prog, importer, ec, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
-	return nestiaCoreQueryWrapperArrow([]*shimast.Node{
+	return nestiaCoreQueryWrapperArrow(ec, []*shimast.Node{
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name: "is",
 			Value: nativeprogrammers.IsProgrammer.Write(nativeprogrammers.IsProgrammer_IProps{
@@ -118,25 +121,26 @@ func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, importer *nativecon
 				Name:    name,
 				Config:  nativeprogrammers.IsProgrammer_IConfig{Equals: false},
 			}),
-		}),
+		}, ec),
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name:  "stringify",
 			Value: nestiaCoreHttpQuerifyProgrammer(prog, ec, typ),
-		}),
-		nestiaCoreFactory.NewReturnStatement(nestiaCoreFactory.NewConditionalExpression(
-			nestiaCoreCall("is", nestiaCoreFactory.NewIdentifier("input")),
+		}, ec),
+		f.NewReturnStatement(f.NewConditionalExpression(
+			nestiaCoreCall(ec, "is", f.NewIdentifier("input")),
 			nil,
-			nestiaCoreCall("stringify", nestiaCoreFactory.NewIdentifier("input")),
+			nestiaCoreCall(ec, "stringify", f.NewIdentifier("input")),
 			nil,
-			nestiaCoreFactory.NewKeywordExpression(shimast.KindNullKeyword),
+			f.NewKeywordExpression(shimast.KindNullKeyword),
 		)),
 	})
 }
 
 func nestiaCoreHttpValidateQuerifyProgrammer(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+	f := nativecontext.NodeFactoryOf(ec)
 	context := nestiaCoreTypiaContext(prog, importer, ec, true, false, false)
 	name := nestiaCoreTypeName(prog, typ)
-	return nestiaCoreQueryWrapperArrow([]*shimast.Node{
+	return nestiaCoreQueryWrapperArrow(ec, []*shimast.Node{
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name: "validate",
 			Value: nativeprogrammers.ValidateProgrammer.Write(nativeprogrammers.ValidateProgrammer_IProps{
@@ -146,49 +150,50 @@ func nestiaCoreHttpValidateQuerifyProgrammer(prog *driver.Program, importer *nat
 				Name:    name,
 				Config:  nativeprogrammers.ValidateProgrammer_IConfig{Equals: false},
 			}),
-		}),
+		}, ec),
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name:  "query",
 			Value: nestiaCoreHttpQuerifyProgrammer(prog, ec, typ),
-		}),
+		}, ec),
 		// the object is validated, then querified: validating the
 		// URLSearchParams against the object type found every property absent
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
 			Name:  "result",
-			Value: nestiaCoreCall("validate", nestiaCoreFactory.NewIdentifier("input")),
-		}),
-		nestiaCoreFactory.NewReturnStatement(nestiaCoreFactory.NewAsExpression(
-			nestiaCoreFactory.NewConditionalExpression(
-				nestiaCoreFactory.NewPropertyAccessExpression(
-					nestiaCoreFactory.NewIdentifier("result"),
+			Value: nestiaCoreCall(ec, "validate", f.NewIdentifier("input")),
+		}, ec),
+		f.NewReturnStatement(f.NewAsExpression(
+			f.NewConditionalExpression(
+				f.NewPropertyAccessExpression(
+					f.NewIdentifier("result"),
 					nil,
-					nestiaCoreFactory.NewIdentifier("success"),
+					f.NewIdentifier("success"),
 					shimast.NodeFlagsNone,
 				),
 				nil,
-				nestiaCoreFactory.NewObjectLiteralExpression(nestiaCoreFactory.NewNodeList([]*shimast.Node{
-					nestiaCoreProperty("success", nestiaCoreFactory.NewKeywordExpression(shimast.KindTrueKeyword), ec),
-					nestiaCoreProperty("data", nestiaCoreCall("query", nestiaCoreFactory.NewIdentifier("input")), ec),
+				f.NewObjectLiteralExpression(f.NewNodeList([]*shimast.Node{
+					nestiaCoreProperty("success", f.NewKeywordExpression(shimast.KindTrueKeyword), ec),
+					nestiaCoreProperty("data", nestiaCoreCall(ec, "query", f.NewIdentifier("input")), ec),
 				}), false),
 				nil,
-				nestiaCoreFactory.NewIdentifier("result"),
+				f.NewIdentifier("result"),
 			),
-			nativefactories.TypeFactory.Keyword("any"),
+			nativefactories.TypeFactory.Keyword("any", ec),
 		)),
 	})
 }
 
-func nestiaCoreQueryWrapperArrow(statements []*shimast.Node) *shimast.Node {
-	return nestiaCoreFactory.NewArrowFunction(
+func nestiaCoreQueryWrapperArrow(ec *shimprinter.EmitContext, statements []*shimast.Node) *shimast.Node {
+	f := nativecontext.NodeFactoryOf(ec)
+	return f.NewArrowFunction(
 		nil,
 		nil,
-		nestiaCoreFactory.NewNodeList([]*shimast.Node{
-			nativefactories.IdentifierFactory.Parameter("input", nil, nil),
+		f.NewNodeList([]*shimast.Node{
+			nativefactories.IdentifierFactory.Parameter("input", nil, nil, ec),
 		}),
 		nil,
 		nil,
-		nestiaCoreFactory.NewToken(shimast.KindEqualsGreaterThanToken),
-		nestiaCoreFactory.NewBlock(nestiaCoreFactory.NewNodeList(statements), true),
+		f.NewToken(shimast.KindEqualsGreaterThanToken),
+		f.NewBlock(f.NewNodeList(statements), true),
 	)
 }
 
@@ -198,7 +203,8 @@ func nestiaCoreQueryWrapperArrow(statements []*shimast.Node) *shimast.Node {
 // request decoder reads back as undefined and null; a nullable scalar still
 // writes its "null" marker.
 func nestiaCoreHttpQuerifyDecode(key string, value *schemametadata.MetadataSchema, ec *shimprinter.EmitContext) *shimast.Node {
-	statement := nestiaCoreFactory.NewExpressionStatement(nestiaCoreHttpQuerifyWrite(key, value, ec))
+	f := nativecontext.NodeFactoryOf(ec)
+	statement := f.NewExpressionStatement(nestiaCoreHttpQuerifyWrite(key, value, ec))
 	absent := []shimast.Kind{}
 	if value.IsRequired() == false {
 		absent = append(absent, shimast.KindUndefinedKeyword)
@@ -209,16 +215,16 @@ func nestiaCoreHttpQuerifyDecode(key string, value *schemametadata.MetadataSchem
 	for i := len(absent) - 1; i >= 0; i-- {
 		var marker *shimast.Node
 		if absent[i] == shimast.KindUndefinedKeyword {
-			marker = nestiaCoreFactory.NewIdentifier("undefined")
+			marker = f.NewIdentifier("undefined")
 		} else {
-			marker = nestiaCoreFactory.NewKeywordExpression(absent[i])
+			marker = f.NewKeywordExpression(absent[i])
 		}
-		statement = nestiaCoreFactory.NewIfStatement(
-			nestiaCoreFactory.NewBinaryExpression(
+		statement = f.NewIfStatement(
+			f.NewBinaryExpression(
 				nil,
-				nativefactories.IdentifierFactory.Access(ec, nestiaCoreFactory.NewIdentifier("input"), key),
+				nativefactories.IdentifierFactory.Access(ec, f.NewIdentifier("input"), key),
 				nil,
-				nestiaCoreFactory.NewToken(shimast.KindExclamationEqualsEqualsToken),
+				f.NewToken(shimast.KindExclamationEqualsEqualsToken),
 				marker,
 			),
 			statement,
@@ -229,26 +235,27 @@ func nestiaCoreHttpQuerifyDecode(key string, value *schemametadata.MetadataSchem
 }
 
 func nestiaCoreHttpQuerifyWrite(key string, value *schemametadata.MetadataSchema, ec *shimprinter.EmitContext) *shimast.Node {
+	f := nativecontext.NodeFactoryOf(ec)
 	if len(value.Arrays) != 0 {
-		return nestiaCoreFactory.NewCallExpression(
+		return f.NewCallExpression(
 			nativefactories.IdentifierFactory.Access(
 				ec,
-				nativefactories.IdentifierFactory.Access(ec, nestiaCoreFactory.NewIdentifier("input"), key),
+				nativefactories.IdentifierFactory.Access(ec, f.NewIdentifier("input"), key),
 				"forEach",
 			),
 			nil,
 			nil,
-			nestiaCoreFactory.NewNodeList([]*shimast.Node{
-				nestiaCoreFactory.NewArrowFunction(
+			f.NewNodeList([]*shimast.Node{
+				f.NewArrowFunction(
 					nil,
 					nil,
-					nestiaCoreFactory.NewNodeList([]*shimast.Node{
-						nativefactories.IdentifierFactory.Parameter("elem", nil, nil),
+					f.NewNodeList([]*shimast.Node{
+						nativefactories.IdentifierFactory.Parameter("elem", nil, nil, ec),
 					}),
 					nil,
 					nil,
-					nestiaCoreFactory.NewToken(shimast.KindEqualsGreaterThanToken),
-					nestiaCoreHttpQuerifyAppend(key, nestiaCoreFactory.NewIdentifier("elem"), ec),
+					f.NewToken(shimast.KindEqualsGreaterThanToken),
+					nestiaCoreHttpQuerifyAppend(key, f.NewIdentifier("elem"), ec),
 				),
 			}),
 			shimast.NodeFlagsNone,
@@ -256,30 +263,32 @@ func nestiaCoreHttpQuerifyWrite(key string, value *schemametadata.MetadataSchema
 	}
 	return nestiaCoreHttpQuerifyAppend(
 		key,
-		nativefactories.IdentifierFactory.Access(ec, nestiaCoreFactory.NewIdentifier("input"), key),
+		nativefactories.IdentifierFactory.Access(ec, f.NewIdentifier("input"), key),
 		ec,
 	)
 }
 
 func nestiaCoreHttpQuerifyAppend(key string, elem *shimast.Node, ec *shimprinter.EmitContext) *shimast.Node {
-	return nestiaCoreFactory.NewCallExpression(
-		nativefactories.IdentifierFactory.Access(ec, nestiaCoreFactory.NewIdentifier("output"), "append"),
+	f := nativecontext.NodeFactoryOf(ec)
+	return f.NewCallExpression(
+		nativefactories.IdentifierFactory.Access(ec, f.NewIdentifier("output"), "append"),
 		nil,
 		nil,
-		nestiaCoreFactory.NewNodeList([]*shimast.Node{
-			nestiaCoreFactory.NewStringLiteral(key, shimast.TokenFlagsNone),
+		f.NewNodeList([]*shimast.Node{
+			f.NewStringLiteral(key, shimast.TokenFlagsNone),
 			elem,
 		}),
 		shimast.NodeFlagsNone,
 	)
 }
 
-func nestiaCoreCall(name string, args ...*shimast.Node) *shimast.Node {
-	return nestiaCoreFactory.NewCallExpression(
-		nestiaCoreFactory.NewIdentifier(name),
+func nestiaCoreCall(ec *shimprinter.EmitContext, name string, args ...*shimast.Node) *shimast.Node {
+	f := nativecontext.NodeFactoryOf(ec)
+	return f.NewCallExpression(
+		f.NewIdentifier(name),
 		nil,
 		nil,
-		nestiaCoreFactory.NewNodeList(args),
+		f.NewNodeList(args),
 		shimast.NodeFlagsNone,
 	)
 }

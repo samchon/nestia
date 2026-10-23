@@ -84,8 +84,6 @@ func newNestiaCoreTransformState(prog *driver.Program, options nestiaCoreOptions
 	}
 }
 
-var nestiaCoreFactory = shimast.NewNodeFactory(shimast.NodeFactoryHooks{})
-
 const NestiaCoreKindDecorator = shimast.KindDecorator
 
 type nestiaCoreFileContext struct {
@@ -446,7 +444,7 @@ func nestiaCoreParameterArgumentNodes(
 	}
 	output := []*shimast.Node{}
 	if kind == "TypedFormDataBody" && argCount == 0 {
-		output = append(output, nestiaCoreFactory.NewKeywordExpression(shimast.KindUndefinedKeyword))
+		output = append(output, nativecontext.NodeFactoryOf(ec).NewKeywordExpression(shimast.KindUndefinedKeyword))
 	}
 	output = append(output, node)
 	// TypedParam takes a third `validate?: boolean` argument (see
@@ -455,7 +453,7 @@ func nestiaCoreParameterArgumentNodes(
 	// returns the detailed report shape instead of the single-error shape.
 	// The legacy TypedParamProgrammer applied the same conditional.
 	if kind == "TypedParam" && strings.HasPrefix(options.Validate, "validate") {
-		output = append(output, nestiaCoreFactory.NewKeywordExpression(shimast.KindTrueKeyword))
+		output = append(output, nativecontext.NodeFactoryOf(ec).NewKeywordExpression(shimast.KindTrueKeyword))
 	}
 	return output, true, nil
 }
@@ -583,7 +581,7 @@ func nestiaCoreGenerateTypedFormDataBody(prog *driver.Program, importer *nativec
 		key = "validate"
 		validator = nativehttp.HttpValidateFormDataProgrammer.Write(nativecontext.IProgrammerProps{Context: context, Modulo: modulo, Type: typ, Name: name})
 	}
-	f := nativecontext.EmitFactoryOf(nestiaCoreFactory, ec)
+	f := nativecontext.NodeFactoryOf(ec)
 	return f.NewObjectLiteralExpression(f.NewNodeList([]*shimast.Node{
 		nestiaCoreProperty("files", nestiaCoreFormDataFilesExpression(files, ec), ec),
 		nestiaCoreProperty("validator", nestiaCoreValidatorObject("type", key, validator, ec), ec),
@@ -696,7 +694,7 @@ func nestiaCorePropertyStringKey(property *schemametadata.MetadataProperty) (str
 }
 
 func nestiaCoreFormDataFilesExpression(files []nestiaCoreFormDataFile, ec *shimprinter.EmitContext) *shimast.Node {
-	f := nativecontext.EmitFactoryOf(nestiaCoreFactory, ec)
+	f := nativecontext.NodeFactoryOf(ec)
 	elements := make([]*shimast.Node, 0, len(files))
 	for _, file := range files {
 		limit := f.NewKeywordExpression(shimast.KindNullKeyword)
@@ -725,7 +723,7 @@ func nestiaCoreGeneratePlainBody(prog *driver.Program, importer *nativecontext.I
 func nestiaCoreGenerateTypedRoute(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	nestiaCoreValidateTypedRoute(prog, options, typ)
 	if options.StringifyNull {
-		return nestiaCoreFactory.NewKeywordExpression(shimast.KindNullKeyword)
+		return nativecontext.NodeFactoryOf(ec).NewKeywordExpression(shimast.KindNullKeyword)
 	}
 	context := nestiaCoreTypiaContext(prog, importer, ec, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
@@ -746,7 +744,7 @@ func nestiaCoreGenerateTypedRoute(prog *driver.Program, importer *nativecontext.
 func nestiaCoreGenerateTypedQueryRoute(prog *driver.Program, importer *nativecontext.ImportProgrammer, ec *shimprinter.EmitContext, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	nestiaCoreValidateTypedQueryRoute(prog, options, typ)
 	if options.StringifyNull {
-		return nestiaCoreFactory.NewKeywordExpression(shimast.KindNullKeyword)
+		return nativecontext.NodeFactoryOf(ec).NewKeywordExpression(shimast.KindNullKeyword)
 	}
 	switch options.Stringify {
 	case "is":
@@ -787,7 +785,7 @@ func nestiaCoreTypiaContext(prog *driver.Program, importer *nativecontext.Import
 		},
 		Importer: importer,
 		// Seed the emit context so typia's per-programmer factories
-		// (EmitFactoryOf(..., Context.Emit)) build emit-tracked nodes; without it
+		// (NodeFactoryOf(Context.Emit)) build emit-tracked nodes; without it
 		// the generated validator/stringifier nodes have no original link and
 		// tsgo's MarkLinkedReferences pass nil-panics during emit.
 		Emit: ec,
@@ -1051,7 +1049,7 @@ func nestiaCoreValidatorObject(typeKey string, key string, validator *shimast.No
 }
 
 func nestiaCoreValidatorObjectWithKey(typeKey string, typeValue string, validatorKey string, validator *shimast.Node, ec *shimprinter.EmitContext) *shimast.Node {
-	f := nativecontext.EmitFactoryOf(nestiaCoreFactory, ec)
+	f := nativecontext.NodeFactoryOf(ec)
 	return f.NewObjectLiteralExpression(f.NewNodeList([]*shimast.Node{
 		nestiaCoreProperty(typeKey, f.NewStringLiteral(typeValue, shimast.TokenFlagsNone), ec),
 		nestiaCoreProperty(validatorKey, validator, ec),
@@ -1059,10 +1057,10 @@ func nestiaCoreValidatorObjectWithKey(typeKey string, typeValue string, validato
 }
 
 func nestiaCoreProperty(name string, initializer *shimast.Node, ec *shimprinter.EmitContext) *shimast.Node {
-	f := nativecontext.EmitFactoryOf(nestiaCoreFactory, ec)
+	f := nativecontext.NodeFactoryOf(ec)
 	return f.NewPropertyAssignment(
 		nil,
-		nativefactories.IdentifierFactory.Identifier(name),
+		nativefactories.IdentifierFactory.Identifier(name, ec),
 		nil,
 		nil,
 		initializer,
@@ -1115,7 +1113,7 @@ func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimc
 	}
 	symbol := typ.Symbol()
 	if symbol != nil &&
-		nestiaCoreIsAsyncReturnWrapperSymbol(prog, symbol.Name, symbol.Declarations) {
+		nestiaCoreIsAsyncReturnWrapperSymbol(prog, shimast.SymbolNameOf(symbol), shimast.SymbolDeclarationsOf(symbol)) {
 		args := prog.Checker.GetTypeArguments(typ)
 		if len(args) == 1 {
 			return args[0]
@@ -1169,12 +1167,12 @@ func NestiaCoreIsAsyncReturnWrapperReference(
 		return false
 	}
 	symbol := prog.Checker.GetSymbolAtLocation(node)
-	if symbol != nil && symbol.Flags&shimast.SymbolFlagsAlias != 0 {
+	if symbol != nil && shimast.SymbolFlagsOf(symbol)&shimast.SymbolFlagsAlias != 0 {
 		if aliased := shimchecker.Checker_getAliasedSymbol(prog.Checker, symbol); aliased != nil {
 			symbol = aliased
 		}
 	}
-	return symbol != nil && nestiaCoreIsAsyncReturnWrapperSymbol(prog, symbol.Name, symbol.Declarations)
+	return symbol != nil && nestiaCoreIsAsyncReturnWrapperSymbol(prog, shimast.SymbolNameOf(symbol), shimast.SymbolDeclarationsOf(symbol))
 }
 
 func nestiaCoreIsAsyncReturnWrapperSymbol(

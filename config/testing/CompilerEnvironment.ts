@@ -37,29 +37,59 @@ export function resolveTestEnvironment(
 }
 
 if (require.main === module || process.argv[1] === __filename) {
-  const pnpm = process.env.npm_execpath;
-  if (!pnpm || !path.isAbsolute(pnpm))
-    throw new Error("Run Go units through the installed pnpm manager.");
-  const result = cp.spawnSync(
-    process.execPath,
-    [
-      pnpm,
-      "--filter=@nestia/core",
-      "--filter=@nestia/sdk",
-      "-r",
-      "--no-bail",
-      "run",
-      "test:go",
-    ],
-    {
-      cwd: path.resolve(__dirname, "../.."),
-      env: resolveTestEnvironment(
-        path.resolve(__dirname, "../.."),
-        process.env,
-      ),
-      stdio: "inherit",
-    },
-  );
-  if (result.error) console.error(result.error);
-  process.exitCode = Number.isInteger(result.status) ? result.status : 2;
+  const root = path.resolve(__dirname, "../..");
+  const target71 = process.argv.includes("--typescript-7-1");
+  const race = process.argv.includes("--race");
+  const selected = process.argv
+    .find((arg) => arg.startsWith("--package="))
+    ?.slice(10);
+  if (selected && selected !== "core" && selected !== "sdk")
+    throw new Error(`Unknown Go test package: ${selected}`);
+  let status = 0;
+  for (const owner of selected ? [selected] : ["core", "sdk"]) {
+    const environment = resolveTestEnvironment(root, process.env);
+    if (target71) {
+      environment.GOWORK = path.join(
+        root,
+        "packages",
+        owner,
+        "test",
+        "go.7.1.work",
+      );
+      environment.GOFLAGS = [environment.GOFLAGS, "-tags=ttsc_typescript_7_1"]
+        .filter(Boolean)
+        .join(" ");
+    }
+    // Private per-file transformer access requires one same-package test.
+    // Keep the ordinary external units and this exception in canonical runs.
+    const modules = race
+      ? owner === "core"
+        ? ["native"]
+        : []
+      : owner === "core"
+        ? ["test", "native"]
+        : ["test"];
+    for (const module of modules) {
+      const args = [
+        "test",
+        "-count=1",
+        ...(race
+          ? ["-race", "-run", "^TestDistinctProgramsConcurrentEmit$"]
+          : []),
+        module === "native" ? "./transform" : "./...",
+      ];
+      console.log(
+        `Go ${target71 ? "7.1" : "7.0"} ${owner}/${module}: go ${args.join(" ")}`,
+      );
+      const result = cp.spawnSync("go", args, {
+        cwd: path.join(root, "packages", owner, module),
+        env: environment,
+        stdio: "inherit",
+      });
+      if (result.error) console.error(result.error);
+      if (result.status !== 0)
+        status = Number.isInteger(result.status) ? result.status! : 2;
+    }
+  }
+  process.exitCode = status;
 }
