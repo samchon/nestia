@@ -24,7 +24,10 @@ const TTSX_BIN = packageBin("ttsc", "ttsx");
 // Below the ephemeral range Linux hands outgoing connections (32768-60999), so
 // no client socket holds a port a feature is about to listen on.
 const BASE_PORT = 20_000;
-const WATCH_TIMEOUT = 90_000;
+// Each generation loads configuration and controllers through source plugins.
+// Discovery, filesystem observation and a cold Go build are part of that work;
+// allow ten minutes per phase, including on Windows with an empty binary cache.
+const WATCH_TIMEOUT = 600_000;
 
 process.env.NODE_OPTIONS = [
   process.env.NODE_OPTIONS ?? "",
