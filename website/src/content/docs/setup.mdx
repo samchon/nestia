@@ -44,7 +44,9 @@ bun add -d nestia
 `@nestia/sdk` is a runtime dependency. The generated SDK and runtime Swagger
 composition both resolve it while the Nestia transform attaches route metadata.
 
-Nestia supports TypeScript 7.0 and 7.1 with `ttsc` 0.36.2 or newer. `ttsc` compiles the Nestia transform from Go source on first use with Go 1.27, using the compiler target selected by the installed TypeScript version. `@nestia/core` declares this floor as an optional peer dependency. The aggregate host publishes compiler, integrated typia and linked SDK input observations and output provenance so `ttsx` can reuse completed emits when every selected producer supplies complete, unchanged proof. Missing or conflicting input proof keeps fresh compilation. Distinct compiler Programs may emit concurrently; each Program must have its own worker.
+Nestia supports TypeScript 7.0 and 7.1 with `ttsc` 0.36.2 or newer. `ttsc` compiles the Nestia transform from Go source on first use with Go 1.27, using the compiler target selected by the installed TypeScript version. `@nestia/core` declares this floor as an optional peer dependency. Distinct compiler Programs may emit concurrently; each Program must have its own worker.
+
+The aggregate host publishes compiler, integrated typia and linked SDK input observations and output provenance so `ttsx` can reuse completed emits when every selected producer supplies complete, unchanged proof. Missing or conflicting input proof keeps fresh compilation.
 
 TypeScript 7.1 content mappers require explicit permission to execute external code: pass `--runExternalCode` to `ttsc`, for example `ttsc --runExternalCode --emit`. The Nestia host inherits this permission from the launcher.
 

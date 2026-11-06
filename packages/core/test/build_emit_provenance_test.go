@@ -21,7 +21,7 @@ import (
 //
 // @evidence contracts/testing.md#behavioral-verification Actual build dispatch produces script-only physical provenance for successful final writes and empty objects for rejected, discarded and blocked output. Metadata write failures change the command status.
 // @evidence contracts/testing.md#independent-expectations Authored source paths and native realpath establish the only script owner, while noEmit and diagnosed rejection independently prohibit artifact publication.
-// @evidence contracts/testing.md#distinguishing-cases Successful declaration/map emission, transform and semantic rejection, noEmit, blocked output, relative paths and unwritable metadata each own a distinct expected status and provenance shape.
+// @evidence contracts/testing.md#distinguishing-cases Successful declaration/map emission, transform and semantic rejection, noEmit, blocked output, relative paths and unwritable metadata each own a distinct expected status and provenance shape. A second script blocked after the first is published retains only the first script's provenance.
 // @evidence contracts/testing.md#execution-ownership The canonical core Go runner invokes the dispatcher in-process with temporary fixture files. It launches no compiler binary or installed application.
 func TestBuildEmitProvenance(t *testing.T) {
 	for _, scenario := range []string{"emit", "transform-failure", "semantic-failure", "noEmit", "write-failure", "partial-write-failure"} {

@@ -34,8 +34,15 @@ func (emitObservationPlugin) ApplyProgram(_ *driver.Program, ctx driver.PluginCo
 	case "incomplete":
 		ctx.ReportObservationIncomplete()
 	case "conflict":
-		other := "different-consumed-content"
+		otherBytes := sha256.Sum256([]byte("different-consumed-content"))
+		other := hex.EncodeToString(otherBytes[:])
 		ctx.ReportHostInputHash(file, &other)
+	case "physical-conflict":
+		other, err := filepath.EvalSymlinks(file + ".other")
+		if err != nil {
+			return err
+		}
+		ctx.ReportHostInputRealpath(file, &other)
 	case "unknown":
 		ctx.ReportHostInput(file + ".unknown")
 	}
@@ -54,16 +61,17 @@ func (emitObservationPlugin) ApplyProgram(_ *driver.Program, ctx driver.PluginCo
 //
 // @evidence contracts/testing.md#behavioral-verification Actual native build dispatch executes a registered ProgramPlugin and publishes its external input name, consumed hash and physical identity. Explicit incompleteness, conflicting hashes and unknown inputs must remain non-authoritative.
 // @evidence contracts/testing.md#independent-expectations Authored external bytes establish SHA-256 and native realpath; the hook deliberately supplies distinct conflicting facts or explicit incomplete status rather than deriving expected values from the result.
-// @evidence contracts/testing.md#distinguishing-cases Complete proof is the positive control; incomplete retains known facts but denies the population, conflict withdraws the hash, and unknown retains an unproved name. Every case still runs an otherwise successful aggregate build.
+// @evidence contracts/testing.md#distinguishing-cases Complete proof is the positive control; incomplete retains known facts but denies the population, conflicting valid hashes withdraw content proof, differing physical identities withdraw path proof even for identical bytes, and unknown retains an unproved name. Every case still runs an otherwise successful aggregate build.
 // @evidence contracts/testing.md#execution-ownership Canonical core Go tests call build in-process. One registration remains inert outside the scoped LinkedPluginsEnv payload, restored by t.Setenv; temporary projects own inputs and result files, without a separately compiled host.
 func TestBuildEmitExternalObservations(t *testing.T) {
 	driver.RegisterPlugin(emitObservationPlugin{})
-	for _, mode := range []string{"complete", "incomplete", "conflict", "unknown"} {
+	for _, mode := range []string{"complete", "incomplete", "conflict", "physical-conflict", "unknown"} {
 		t.Run(mode, func(t *testing.T) {
 			p := writeLlmRouteBuildProject(t, llmRouteBuildProjectOptions{Valid: true})
 			file := filepath.Join(t.TempDir(), "external.txt")
 			text := "external-transform-input"
 			writeFile(t, file, text)
+			writeFile(t, file+".other", text)
 			payload, err := json.Marshal([]driver.PluginEntry{{Name: "observation-fixture", Stage: "transform", Config: map[string]any{"file": file, "mode": mode}}})
 			if err != nil {
 				t.Fatal(err)
@@ -91,8 +99,15 @@ func TestBuildEmitExternalObservations(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if !slices.Contains(result.Inputs, file) || result.Realpaths[file] == nil || *result.Realpaths[file] != physical {
+			if !slices.Contains(result.Inputs, file) {
 				t.Fatalf("external input lost: %#v", result)
+			}
+			if mode == "physical-conflict" {
+				if result.Realpaths[file] != nil {
+					t.Fatal("physical identity conflict repaired")
+				}
+			} else if result.Realpaths[file] == nil || *result.Realpaths[file] != physical {
+				t.Fatal("external physical identity lost")
 			}
 			hash := sha256.Sum256([]byte(text))
 			if mode == "conflict" {

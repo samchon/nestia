@@ -22,11 +22,11 @@ import path from "node:path";
  *
  * @evidence contracts/testing.md#behavioral-verification Independent installed ttsx processes must execute real transformed validators and preserve __filename. Cold and invalidated runs start native producers; an unchanged warm run starts neither lint nor aggregate emission. Failed diagnostics cannot execute a stale successful entry.
  * @evidence contracts/testing.md#independent-expectations Authored string/number shapes establish literal validator results. The compiler's opt-in process trace records actual private observation arguments; output equality alone is never the warm-hit oracle.
- * @evidence contracts/testing.md#distinguishing-cases Nestia-only and explicit composed typia configurations contrast cold/warm execution, including a linked source package. Source, type-only declaration, config, package, plugin configuration and external lint configuration mutations, damaged cache and semantic failure retain separate assertions. SDK-disabled cold/warm execution must omit metadata, and standalone unsupported typia must keep lint running.
+ * @evidence contracts/testing.md#distinguishing-cases Nestia-only and explicit composed typia configurations contrast cold/warm execution for the entry and a linked source package. Their shared type-only DTO and the linked source itself change actual validator/value results. Source, config, package, plugin and external lint mutations, damaged cache and semantic failure retain separate assertions. SDK-disabled reuse omits metadata; unsupported standalone typia and an independently selected unobserved-input transform keep the entry fresh.
  * @evidence contracts/testing.md#execution-ownership The SDK public integration owner calls this case once with its shared ordinary packed installation and compiler cache. Actual ttsx processes establish the producer-negotiation and runtime-cache boundary.
  * @evidence contracts/e2e.md#necessary-boundary Only the installed descriptor, native host, lint host and ttsx runtime together can prove negotiation skips whole-program analysis and emit while still running transformed application code.
  * @evidence contracts/e2e.md#shared-execution Both plugin spellings and all invalidation cases share one installed graph, native binary cache and authored project. The private config workspace supplies the explicitly selected installed lint tool without adding auto-discovery dependencies to other consumers. A linked source package shares the same installation and requires its own runtime ownership connection. Only new input states require additional runtime launches; no package is installed or packed here.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity One contained project and one assigned temporary trace directory own mutable inputs. Stable trace environment preserves cache equivalence; completed children precede mutation and cleanup. Only runtime documents whose snapshot names this project may be corrupted.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity One contained project and one assigned temporary trace directory own mutable inputs. A per-invocation source generation requires actual cold entry/dependency emission. Stable trace environment preserves warm equivalence; per-project counts cannot substitute a linked rebuild for entry invalidation. A successful launcher cleanup event and absence of trace integrity failure qualify zero-start claims. Corruption targets only newly created documents with this invocation's source provenance; completed children precede mutation and cleanup.
  * @evidence contracts/e2e.md#preserved-coverage This adds checked runtime reuse and invalidation assertions; existing public compiler, SDK generation, adapter and native unit cases retain their own connection and semantic assertions.
  */
 export function test_public_emit_reuse(
@@ -55,26 +55,29 @@ export function test_public_emit_reuse(
   });
   const linkedRoot = path.join(fixture, "node_modules/nestia-emit-linked");
   const linkedSource = path.join(linkedRoot, "index.ts");
+  let linkedValue = 17;
   const generation = crypto.randomUUID();
   const documents = path.join(cache, "runtime-builds");
   const previousDocuments = new Set(
     fs.existsSync(documents) ? fs.readdirSync(documents) : [],
   );
   const failures: unknown[] = [];
+  let executable = false;
   const check = (label: string, action: () => void) => {
     try {
       action();
     } catch (error) {
       failures.push({ label, error });
+      console.error(`Public emit reuse case failed: ${label}`, error);
     }
   };
-  const program = `import "reflect-metadata";
+  const program = `import "@nestjs/core";
 import { TypedRoute } from "@nestia/core";
 import typia from "typia";
 import type { Shape } from "./shape";
-import { linked, linkedFile } from "nestia-emit-linked";
+import { linked, linkedFile, linkedValid } from "nestia-emit-linked";
 export class Controller { @TypedRoute.Get() get(): Shape { throw new Error("unused"); } }
-console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filename, marker: 1, sdk: Reflect.hasMetadata("nestia/OperationMetadata", Controller.prototype, "get"), linked, linkedFile}));
+console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filename, marker: 1, sdk: Reflect.hasMetadata("nestia/OperationMetadata", Controller.prototype, "get"), linked, linkedFile, linkedValid}));
 // Authored generation ${generation}
 `;
   const config = {
@@ -96,7 +99,7 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
     },
     files: ["main.ts", "shape.ts"],
   };
-  const attempts = () =>
+  const traceEvents = () =>
     fs
       .readdirSync(trace)
       .filter((name) => name.endsWith(".jsonl"))
@@ -107,27 +110,42 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
           .split("\n")
           .filter(Boolean)
           .map((row) => JSON.parse(row)),
-      )
-      .filter(
-        (row) =>
-          row.event === "process-attempt" &&
-          Array.isArray(row.argv) &&
-          row.argv.some(
-            (arg: string) =>
-              arg.startsWith("--emit-observations-json=") ||
-              arg.startsWith("--check-observations-json="),
-          ),
       );
+  const starts = (project: string) => {
+    const rows = traceEvents().filter(
+      (row) =>
+        row.event === "process-attempt" &&
+        row.cwd === project &&
+        Array.isArray(row.argv),
+    );
+    return {
+      emit: rows.filter((row) =>
+        row.argv.some((arg: string) =>
+          arg.startsWith("--emit-observations-json="),
+        ),
+      ).length,
+      check: rows.filter((row) =>
+        row.argv.some((arg: string) =>
+          arg.startsWith("--check-observations-json="),
+        ),
+      ).length,
+    };
+  };
   const launch = (
     label: string,
     fresh: boolean,
     expectedValid = true,
     expectedMarker = 1,
-    sdk = true,
-    minimumStarts = 2,
+    options: {
+      sdk?: boolean;
+      unsupported?: boolean;
+      linkedFresh?: boolean;
+    } = {},
   ) =>
     check(label, () => {
-      const before = attempts().length;
+      const sdk = options.sdk ?? true;
+      const before = starts(fixture);
+      const linkedBefore = starts(linkedRoot);
       const result = spawnSync(
         process.execPath,
         [launcher, "--cache-dir", cache, "--tsconfig", configPath, source],
@@ -147,6 +165,21 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
       if (result.error) throw result.error;
       assert.equal(result.signal, null, label);
       assert.equal(result.status, 0, `${label}: ${result.stderr}`);
+      executable = true;
+      const events = traceEvents();
+      assert(
+        !events.some((row) => row.event === "integrity-failure"),
+        `${label}: trace integrity failed`,
+      );
+      assert(
+        events.some(
+          (row) =>
+            row.writerPid === result.pid &&
+            row.event === "runtime-cleanup" &&
+            row.data?.phase === "completed",
+        ),
+        `${label}: launcher trace did not complete`,
+      );
       const rows = result.stdout
         .trim()
         .split(/\r?\n/)
@@ -163,17 +196,42 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
           file: source,
           marker: expectedMarker,
           sdk,
-          linked: 17,
+          linked: linkedValue,
           linkedFile: linkedSource,
+          linkedValid: expectedValid,
         },
         label,
       );
-      const count = attempts().length - before;
+      const after = starts(fixture);
+      const count = {
+        emit: after.emit - before.emit,
+        check: after.check - before.check,
+      };
       assert(
-        fresh ? count >= minimumStarts : count === 0,
-        `${label}: expected ${fresh ? `at least ${minimumStarts} producer starts` : "no producer starts"}, got ${count}`,
+        fresh
+          ? count.check >= 1 && (options.unsupported || count.emit >= 1)
+          : count.check === 0 && count.emit === 0,
+        `${label}: incorrect entry producer starts: ${JSON.stringify(count)}`,
       );
-      console.log(`Public emit reuse: ${label}; ${count} producer starts`);
+      const linkedAfter = starts(linkedRoot);
+      const linkedCount = {
+        emit: linkedAfter.emit - linkedBefore.emit,
+        check: linkedAfter.check - linkedBefore.check,
+      };
+      if (options.linkedFresh === true)
+        assert(
+          linkedCount.emit >= 1 && linkedCount.check >= 1,
+          `${label}: linked input change did not rebuild its program: ${JSON.stringify(linkedCount)}`,
+        );
+      if (options.linkedFresh === false || !fresh)
+        assert.equal(
+          linkedCount.emit + linkedCount.check,
+          0,
+          `${label}: linked program was not reused`,
+        );
+      console.log(
+        `Public emit reuse: ${label}; entry ${JSON.stringify(count)}; linked ${JSON.stringify(linkedCount)}`,
+      );
     });
   try {
     fs.writeFileSync(source, program);
@@ -199,13 +257,18 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
     );
     fs.writeFileSync(
       linkedSource,
-      `export const linked = 17; export const linkedFile = __filename; // ${generation}`,
+      `import typia from "typia"; import type { Shape } from "../../shape"; export const linked = 17; export const linkedFile = __filename; export const linkedValid = typia.is<Shape>({value: "ok"}); // ${generation}`,
     );
     fs.writeFileSync(
       path.join(linkedRoot, "tsconfig.json"),
       JSON.stringify({ ...config, files: ["index.ts"] }),
     );
-    launch("nestia-only cold", true);
+    launch("nestia-only cold", true, true, 1, { linkedFresh: true });
+    if (!executable)
+      throw new AggregateError(
+        failures,
+        "Runtime fixture preparation failed; dependent reuse cases cannot execute.",
+      );
     launch("nestia-only warm", false);
     config.compilerOptions.plugins.push({ transform: "typia/lib/transform" });
     fs.writeFileSync(configPath, JSON.stringify(config));
@@ -214,7 +277,15 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
     fs.writeFileSync(source, program.replace("marker: 1", "marker: 2"));
     launch("source change", true, true, 2);
     fs.writeFileSync(shape, "export interface Shape { value: number }");
-    launch("type-only change", true, false, 2);
+    launch("shared type-only change", true, false, 2, { linkedFresh: true });
+    fs.writeFileSync(
+      linkedSource,
+      fs
+        .readFileSync(linkedSource, "utf8")
+        .replace("linked = 17", "linked = 18"),
+    );
+    linkedValue = 18;
+    launch("linked source change", true, false, 2, { linkedFresh: true });
     config.compilerOptions.strict = false;
     fs.writeFileSync(configPath, JSON.stringify(config));
     launch("config change", true, false, 2);
@@ -226,8 +297,8 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
     fs.appendFileSync(lintPath, "\n");
     launch("external lint config change", true, false, 2);
     launch("changed state warm", false, false, 2);
-    launch("SDK-disabled cold", true, false, 2, false);
-    launch("SDK-disabled warm", false, false, 2, false);
+    launch("SDK-disabled cold", true, false, 2, { sdk: false });
+    launch("SDK-disabled warm", false, false, 2, { sdk: false });
     launch("SDK-enabled restored", false, false, 2);
     check("damage owned cache", () => {
       let damaged = 0;
@@ -295,17 +366,63 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
     fs.writeFileSync(configPath, JSON.stringify(config));
     fs.writeFileSync(
       source,
-      `import typia from "typia"; import type { Shape } from "./shape"; import { linked, linkedFile } from "nestia-emit-linked"; console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filename, marker: 2, sdk: false, linked, linkedFile}));`,
+      `import typia from "typia"; import type { Shape } from "./shape"; import { linked, linkedFile, linkedValid } from "nestia-emit-linked"; console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filename, marker: 2, sdk: false, linked, linkedFile, linkedValid}));`,
     );
-    launch("standalone unsupported typia cold", true, false, 2, false, 1);
-    launch(
-      "standalone unsupported typia fresh again",
-      true,
-      false,
-      2,
-      false,
-      1,
-    );
+    launch("standalone unsupported typia cold", true, false, 2, {
+      sdk: false,
+      unsupported: true,
+    });
+    launch("standalone unsupported typia fresh again", true, false, 2, {
+      sdk: false,
+      unsupported: true,
+    });
+    const external = path.join(fixture, "unsupported-input.txt");
+    fs.writeFileSync(external, "allow");
+    config.compilerOptions.plugins = [
+      { transform: lint, configFile: lintPath },
+      { transform: "@nestia/core/native/transform.cjs" },
+      {
+        transform: path.resolve(
+          __dirname,
+          "../../../fixtures/emit-unsupported/descriptor.cjs",
+        ),
+        external,
+      },
+    ];
+    fs.writeFileSync(configPath, JSON.stringify(config));
+    fs.writeFileSync(source, program.replace("marker: 1", "marker: 2"));
+    launch("independent unsupported transform cold", true, false, 2);
+    launch("independent unsupported transform fresh again", true, false, 2);
+    check("unobserved external input failure", () => {
+      fs.writeFileSync(external, "reject");
+      const failed = spawnSync(
+        process.execPath,
+        [launcher, "--cache-dir", cache, "--tsconfig", configPath, source],
+        {
+          cwd: fixture,
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            NODE_PATH: "",
+            NODE_OPTIONS: "",
+            TTSC_E2E_TRACE: trace,
+            NESTIA_SDK_TRANSFORM: "1",
+          },
+        },
+      );
+      if (failed.error) throw failed.error;
+      assert.equal(failed.signal, null);
+      assert.notEqual(
+        failed.status,
+        0,
+        "Unsupported external input replayed stale success.",
+      );
+      assert.match(
+        failed.stderr,
+        /unsupported contributor rejected external input/,
+      );
+      assert(!failed.stdout.includes('"marker"'));
+    });
     if (failures.length)
       throw new AggregateError(failures, "Public emit reuse cases failed.");
   } finally {
