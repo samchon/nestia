@@ -7,6 +7,7 @@ import path from "node:path";
 import type { INestiaConfig } from "../../../../packages/sdk/lib/INestiaConfig";
 import { SdkBundlePreservation } from "../internal/SdkBundlePreservation";
 import { test_public_disabled_transform } from "./features/test_public_disabled_transform";
+import { test_public_emit_reuse } from "./features/test_public_emit_reuse";
 import { test_public_legacy_plugins } from "./features/test_public_legacy_plugins";
 import { test_public_multipart_schema_inputs } from "./features/test_public_multipart_schema_inputs";
 import { test_public_no_emit_diagnostics } from "./features/test_public_no_emit_diagnostics";
@@ -206,6 +207,12 @@ export async function runPublicHttp(preparedConsumer?: {
   const cache = process.env.TTSC_CACHE_DIR;
   assert(cache, "Resolve the compiler cache before compiling.");
   const boundaryFailures = [];
+  try {
+    test_public_emit_reuse(consumer, cache);
+  } catch (error) {
+    boundaryFailures.push({ name: "test_public_emit_reuse", error });
+    console.error("Public compiler boundary: test_public_emit_reuse failed", error);
+  }
   const boundaryStarted = Date.now();
   try {
     test_public_typia_version_guard(consumer, cache);

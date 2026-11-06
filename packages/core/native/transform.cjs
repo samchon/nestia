@@ -23,6 +23,7 @@ function createTtscPlugin(context) {
     name: "@nestia/core",
     source: path.resolve(__dirname, "cmd", "ttsc-nestia"),
     composes: ["typia/lib/transform"],
+    capabilities: { emitObservations: true, emitProvenance: true },
     // a typia upgrade must evaluate the version check again
     hostInputs: typia.map((manifest) => manifest.file),
     hostInputHashes: Object.fromEntries(
