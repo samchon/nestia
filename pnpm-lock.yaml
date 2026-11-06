@@ -230,6 +230,9 @@ importers:
 
   config:
     devDependencies:
+      '@ttsc/lint':
+        specifier: catalog:typescript
+        version: 0.36.2(ttsc@0.36.2(typescript@7.0.2))
       '@ttsc/unplugin':
         specifier: catalog:typescript
         version: 0.36.2(ttsc@0.36.2(typescript@7.0.2))
@@ -839,9 +842,6 @@ importers:
       '@nestia/sdk':
         specifier: workspace:^
         version: link:../../packages/sdk
-      '@ttsc/lint':
-        specifier: catalog:typescript
-        version: 0.36.2(ttsc@0.36.2(typescript@7.0.2))
       '@types/express':
         specifier: ^4.17.17
         version: 4.17.25

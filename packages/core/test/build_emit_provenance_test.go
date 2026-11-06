@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -23,7 +24,7 @@ import (
 // @evidence contracts/testing.md#distinguishing-cases Successful declaration/map emission, transform and semantic rejection, noEmit, blocked output, relative paths and unwritable metadata each own a distinct expected status and provenance shape.
 // @evidence contracts/testing.md#execution-ownership The canonical core Go runner invokes the dispatcher in-process with temporary fixture files. It launches no compiler binary or installed application.
 func TestBuildEmitProvenance(t *testing.T) {
-	for _, scenario := range []string{"emit", "transform-failure", "semantic-failure", "noEmit", "write-failure"} {
+	for _, scenario := range []string{"emit", "transform-failure", "semantic-failure", "noEmit", "write-failure", "partial-write-failure"} {
 		t.Run(scenario, func(t *testing.T) {
 			p := writeLlmRouteBuildProject(t, llmRouteBuildProjectOptions{Valid: scenario != "transform-failure"})
 			if scenario == "semantic-failure" {
@@ -32,6 +33,18 @@ func TestBuildEmitProvenance(t *testing.T) {
 			if scenario == "write-failure" {
 				writeFile(t, p.OutDir, "blocks output directory")
 			}
+			if scenario == "partial-write-failure" {
+				writeFile(t, filepath.Join(p.Root, "src/second.ts"), "export const second = 2;")
+				configPath := filepath.Join(p.Root, "tsconfig.json")
+				config, err := os.ReadFile(configPath)
+				if err != nil {
+					t.Fatal(err)
+				}
+				writeFile(t, configPath, strings.Replace(string(config), `"src/main.ts"`, `"src/main.ts", "src/second.ts"`, 1))
+				if err := os.MkdirAll(filepath.Join(p.OutDir, "second.js"), 0o755); err != nil {
+					t.Fatal(err)
+				}
+			}
 			resultPath := filepath.Join(p.Root, "provenance.json")
 			args := []string{"build", "--cwd", p.Root, "--plugins-json", p.PluginsJSON, "--emit-provenance-json", resultPath}
 			if scenario == "noEmit" {
@@ -39,7 +52,7 @@ func TestBuildEmitProvenance(t *testing.T) {
 			}
 			_, errors, code := runCoreNative(args)
 			expectedCode := 0
-			if scenario == "transform-failure" || scenario == "write-failure" {
+			if scenario == "transform-failure" || scenario == "write-failure" || scenario == "partial-write-failure" {
 				expectedCode = 3
 			}
 			if scenario == "semantic-failure" {
@@ -57,7 +70,7 @@ func TestBuildEmitProvenance(t *testing.T) {
 				t.Fatal(err)
 			}
 			expected := map[string][]string{}
-			if scenario == "emit" {
+			if scenario == "emit" || scenario == "partial-write-failure" {
 				source, err := filepath.EvalSymlinks(filepath.Join(p.Root, "src/main.ts"))
 				if err != nil {
 					t.Fatal(err)

@@ -4,6 +4,7 @@
   "version": "14.1.0",
   "description": "Shared build configuration for nestia packages",
   "devDependencies": {
+    "@ttsc/lint": "catalog:typescript",
     "@ttsc/unplugin": "catalog:typescript",
     "tinyglobby": "^0.2.16",
     "@types/node": "catalog:utils"

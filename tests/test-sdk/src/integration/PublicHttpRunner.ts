@@ -211,7 +211,10 @@ export async function runPublicHttp(preparedConsumer?: {
     test_public_emit_reuse(consumer, cache);
   } catch (error) {
     boundaryFailures.push({ name: "test_public_emit_reuse", error });
-    console.error("Public compiler boundary: test_public_emit_reuse failed", error);
+    console.error(
+      "Public compiler boundary: test_public_emit_reuse failed",
+      error,
+    );
   }
   const boundaryStarted = Date.now();
   try {
