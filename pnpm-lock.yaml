@@ -65,13 +65,13 @@ catalogs:
       specifier: ^4.3.0
       version: 4.3.0
     '@ttsc/factory':
-      specifier: ^0.36.0
+      specifier: ^0.36.3
       version: 0.36.3
     '@ttsc/lint':
-      specifier: ^0.36.0
+      specifier: ^0.36.3
       version: 0.36.3
     '@ttsc/unplugin':
-      specifier: ^0.36.0
+      specifier: ^0.36.3
       version: 0.36.3
     prettier:
       specifier: ^3.8.1
@@ -80,7 +80,7 @@ catalogs:
       specifier: ^1.8.0
       version: 1.8.0
     ttsc:
-      specifier: ^0.36.0
+      specifier: ^0.36.3
       version: 0.36.3
     typescript:
       specifier: ^7.0.2

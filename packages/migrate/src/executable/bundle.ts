@@ -9,12 +9,20 @@ const ROOT = `${__dirname}/../..`;
 const ASSETS = `${ROOT}/assets`;
 const CATALOGS: Record<
   string,
-  Record<string, { specifier: string }>
+  Record<string, { specifier: string; version: string }>
 > = require("js-yaml").load(
   fs.readFileSync(`${__dirname}/../../../../pnpm-lock.yaml`, "utf8"),
 ).catalogs;
 const TYPIA = CATALOGS.samchon!;
 const TYPESCRIPT = CATALOGS.typescript ?? {};
+
+// Generated projects must use the runtime this build validated against the Go
+// transform, even when the repository itself admits upgrades through a range.
+// Compiler tools retain their declared ranges or exact nightly specifiers.
+const catalogSpecifier = (name: string): string | undefined =>
+  name === "typia"
+    ? TYPIA[name]?.version
+    : (TYPIA[name]?.specifier ?? TYPESCRIPT[name]?.specifier);
 
 const update = (
   content: string,
@@ -44,8 +52,8 @@ const update = (
       // generated SDK project ended up with ttsc ^0.18.2 beside a `@nestia/core`
       // stamped to this repository's version.
       else {
-        const catalog = TYPIA[key] ?? TYPESCRIPT[key];
-        if (catalog) record[key] = catalog.specifier;
+        const specifier = catalogSpecifier(key);
+        if (specifier) record[key] = specifier;
       }
     }
   migratePackageJson(parsed);
@@ -94,7 +102,7 @@ const updateWorkspaceCatalog = (content: string): string => {
     const specifier =
       name === "nestia" || name.startsWith("@nestia/")
         ? `^${version}`
-        : (TYPIA[name]?.specifier ?? TYPESCRIPT[name]?.specifier);
+        : catalogSpecifier(name);
     if (typeof specifier !== "string") return line;
     return `${match[1]}${specifier}${match[5]}`;
   };

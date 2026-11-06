@@ -44,7 +44,7 @@ bun add -d nestia
 `@nestia/sdk` is a runtime dependency. The generated SDK and runtime Swagger
 composition both resolve it while the Nestia transform attaches route metadata.
 
-Nestia supports TypeScript 7.0 and 7.1 with `ttsc` 0.36.0 or newer. `ttsc` compiles the Nestia transform from Go source on first use with Go 1.27, using the compiler target selected by the installed TypeScript version. `@nestia/core` declares this floor as an optional peer dependency. Distinct compiler Programs may emit concurrently; each Program must have its own worker.
+Nestia supports TypeScript 7.0 and 7.1 with `ttsc` 0.36.3 or newer. `ttsc` compiles the Nestia transform from Go source on first use with Go 1.27, using the compiler target selected by the installed TypeScript version. `@nestia/core` declares this floor as an optional peer dependency. Distinct compiler Programs may emit concurrently; each Program must have its own worker.
 
 The aggregate host publishes compiler, integrated typia and linked SDK input observations and output provenance so `ttsx` can reuse completed emits when every selected producer supplies complete, unchanged proof. Missing or conflicting input proof keeps fresh compilation.
 
@@ -213,6 +213,6 @@ A persistent bundler cache stays correct across builds without any extra configu
   `emitDecoratorMetadata`; NestJS still needs them for constructor injection.
 - **Bundler output skips validation**: add the matching `@ttsc/unplugin`
   adapter to the bundler config.
-- **Plugin build fails on an unknown Go symbol**: update `ttsc` to 0.36.0 or newer.
+- **Plugin build fails on an unknown Go symbol**: update `ttsc` to 0.36.3 or newer.
   Upgrade it; the version floor is listed under [Install](#install).
 - **`multiple compiler native backends cannot share one emit pass`**: the plugin list names a second native host, such as nestia v11's `@nestia/core/lib/transform` on a release before it resolved to the native descriptor. Remove `compilerOptions.plugins`, or list only the disabled `typia` entry and `@nestia/core/native/transform.cjs` as shown above.

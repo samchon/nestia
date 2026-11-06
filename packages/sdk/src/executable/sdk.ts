@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import cp from "child_process";
 import fs from "fs";
-import path from "path";
 import process from "process";
 
 import { CommandParser } from "./internal/CommandParser";
 import type { NestiaSdkCommand } from "./internal/NestiaSdkCommand";
+import { getLinkedTypiaVersion } from "./internal/getLinkedTypiaVersion";
 
 const USAGE = `Wrong command has been detected. Use like below:
 
@@ -37,28 +37,12 @@ function dependencies(argv: string[]): void {
   for (const lib of [
     "@nestia/e2e",
     "@nestia/fetcher",
-    `typia@${linkedTypiaVersion()} -E`,
+    `typia@${getLinkedTypiaVersion(require.resolve("@nestia/core/package.json"))} -E`,
   ]) {
     const command: string = `${prefix} ${lib}`;
     console.log(`\n$ ${command}`);
     cp.execSync(command, { stdio: "inherit" });
   }
-}
-
-/**
- * The typia release the Nestia transform links: the one `@nestia/core`
- * resolves, which its exact dependency holds at that release.
- */
-function linkedTypiaVersion(): string {
-  const core: string = path.dirname(
-    require.resolve("@nestia/core/package.json"),
-  );
-  return JSON.parse(
-    fs.readFileSync(
-      require.resolve("typia/package.json", { paths: [core] }),
-      "utf8",
-    ),
-  ).version;
 }
 
 async function initialize(): Promise<void> {

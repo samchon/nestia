@@ -34,6 +34,7 @@ export function test_typia_version_guard(): void {
   });
   const linkedContents = fs.readFileSync(linkedFile);
   const expected = JSON.parse(linkedContents.toString("utf8")).version;
+  assert.equal(descriptor.typiaVersion, expected);
   const other = `${expected.split(".")[0]}.99.0`;
   const temporary = path.resolve(os.tmpdir());
   const root = fs.mkdtempSync(path.join(temporary, "nestia-core-typia-unit-"));

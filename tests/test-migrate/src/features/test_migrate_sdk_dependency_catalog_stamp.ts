@@ -1,4 +1,6 @@
 import { OpenApiV3_1 } from "@typia/interface";
+import { createRequire } from "node:module";
+import path from "node:path";
 
 import { NestiaMigrateApplication } from "../../../../packages/migrate/lib";
 import { readTypeScriptCatalog } from "../internal/readTypeScriptCatalog";
@@ -23,11 +25,12 @@ import { readTypeScriptCatalog } from "../internal/readTypeScriptCatalog";
  *
  * 1. Generate an SDK project from a minimal OpenAPI document.
  * 2. Assert every toolchain dependency the `typescript` catalog pins carries that
- *    pin.
+ *    pin, while typia uses the exact installed release validated by this
+ *    build.
  *
- * @evidence contracts/testing.md#behavioral-verification Generated SDK toolchain dependencies equal the tracked TypeScript catalog declarations for ttsc and unplugin.
- * @evidence contracts/testing.md#independent-expectations The oracle reads the declared pnpm-workspace catalog rather than the bundler lock input or emitted manifest.
- * @evidence contracts/testing.md#distinguishing-cases Two dependency names and required declaration presence distinguish partial stamping from absent catalog entries.
+ * @evidence contracts/testing.md#behavioral-verification Generated SDK toolchain dependencies equal the tracked TypeScript catalog declarations for ttsc and unplugin; typia equals the installed runtime's exact version even when the workspace declares a range.
+ * @evidence contracts/testing.md#independent-expectations The oracle reads the declared pnpm-workspace toolchain catalog and the installed migration runtime manifest rather than the bundler lock input or emitted manifest.
+ * @evidence contracts/testing.md#distinguishing-cases Compiler ranges or nightly pins contrast with the exact typia release required by native transform compatibility; multiple dependency names and declaration presence distinguish partial stamping from absent catalog entries.
  * @evidence contracts/testing.md#execution-ownership DynamicExecutor discovers this direct migrate unit through test:unit. The caller-built migration operation consumes authored OpenAPI data and returns project text without consumer installation, native compilation or a backend.
  */
 export const test_migrate_sdk_dependency_catalog_stamp = (): void => {
@@ -59,6 +62,17 @@ export const test_migrate_sdk_dependency_catalog_stamp = (): void => {
         `Generated SDK package.json must pin ${name} at ${expected}, got ${declared[name]}.`,
       );
   }
+  const requireMigrate = createRequire(
+    createRequire(path.join(process.cwd(), "package.json")).resolve(
+      "@nestia/migrate/package.json",
+    ),
+  );
+  const typia = (requireMigrate("typia/package.json") as { version: string })
+    .version;
+  if (declared.typia !== typia)
+    throw new Error(
+      `Generated SDK package.json must pin typia exactly at ${typia}, got ${declared.typia}.`,
+    );
 };
 
 const DOCUMENT = {

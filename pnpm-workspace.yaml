@@ -18,8 +18,8 @@ catalogs:
     rxjs: ^7.1.0
   samchon:
     # Keep the native Go transform aligned with the resolved runtime (#1663).
-    typia: &typia ^15.3.0
-    '@typia/interface': *typia
+    typia: ^15.3.0
+    '@typia/interface': &typia ^15.3.0
     '@typia/utils': *typia
     tgrid: ^1.2.1
     tstl: ^3.0.0
@@ -49,7 +49,7 @@ catalogs:
     '@types/cli-progress': ^3.11.6
   typescript:
     '@babel/parser': ^7.29.8
-    ttsc: &ttsc ^0.36.0
+    ttsc: &ttsc ^0.36.3
     '@ttsc/lint': *ttsc
     '@ttsc/factory': *ttsc
     '@ttsc/unplugin': *ttsc

@@ -115,4 +115,5 @@ function resolveSdkContributorSource(context) {
 }
 
 module.exports = createTtscPlugin;
+module.exports.typiaVersion = TYPIA_TRANSFORM_VERSION;
 module.exports.createTtscPlugin = createTtscPlugin;
