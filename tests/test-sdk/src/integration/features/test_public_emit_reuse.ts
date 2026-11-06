@@ -62,6 +62,16 @@ export function test_public_emit_reuse(
     fs.existsSync(documents) ? fs.readdirSync(documents) : [],
   );
   const failures: unknown[] = [];
+  // Language preparation by an outer ttsx supplies its own compiler locator.
+  // These independent launches must resolve the compiler installed beside the
+  // public consumer, whose package authority permits completed emit reuse.
+  const runtimeEnvironment = {
+    ...process.env,
+    NODE_PATH: "",
+    NODE_OPTIONS: "",
+    TTSC_TSGO_BINARY: undefined,
+    TTSC_E2E_TRACE: trace,
+  };
   let executable = false;
   const check = (label: string, action: () => void) => {
     try {
@@ -86,6 +96,7 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
       module: "NodeNext",
       moduleResolution: "NodeNext",
       strict: true,
+      noUnusedLocals: false,
       skipLibCheck: true,
       experimentalDecorators: true,
       types: ["node"],
@@ -154,10 +165,7 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
           encoding: "utf8",
           maxBuffer: 16 * 1024 * 1024,
           env: {
-            ...process.env,
-            NODE_PATH: "",
-            NODE_OPTIONS: "",
-            TTSC_E2E_TRACE: trace,
+            ...runtimeEnvironment,
             NESTIA_SDK_TRANSFORM: sdk ? "1" : "",
           },
         },
@@ -286,7 +294,7 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
     );
     linkedValue = 18;
     launch("linked source change", true, false, 2, { linkedFresh: true });
-    config.compilerOptions.strict = false;
+    config.compilerOptions.noUnusedLocals = true;
     fs.writeFileSync(configPath, JSON.stringify(config));
     launch("config change", true, false, 2);
     fs.appendFileSync(packagePath, "\n");
@@ -337,10 +345,7 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
           cwd: fixture,
           encoding: "utf8",
           env: {
-            ...process.env,
-            NODE_PATH: "",
-            NODE_OPTIONS: "",
-            TTSC_E2E_TRACE: trace,
+            ...runtimeEnvironment,
             NESTIA_SDK_TRANSFORM: "1",
           },
         },
@@ -402,10 +407,7 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
           cwd: fixture,
           encoding: "utf8",
           env: {
-            ...process.env,
-            NODE_PATH: "",
-            NODE_OPTIONS: "",
-            TTSC_E2E_TRACE: trace,
+            ...runtimeEnvironment,
             NESTIA_SDK_TRANSFORM: "1",
           },
         },
