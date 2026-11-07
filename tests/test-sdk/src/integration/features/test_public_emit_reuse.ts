@@ -25,8 +25,8 @@ import path from "node:path";
  * @evidence contracts/testing.md#distinguishing-cases Nestia-only and explicit composed typia configurations contrast cold/warm execution for the entry and a linked source package. Their shared type-only DTO and the linked source itself change actual validator/value results. Source, config, package, plugin and external lint mutations, damaged cache and semantic failure retain separate assertions. SDK-disabled and supported standalone typia reuse omit metadata; an independently selected unobserved-input transform keeps the entry fresh.
  * @evidence contracts/testing.md#execution-ownership The SDK public integration owner calls this case once with its shared ordinary packed installation and compiler cache. Actual ttsx processes establish the producer-negotiation and runtime-cache boundary.
  * @evidence contracts/e2e.md#necessary-boundary Only the installed descriptor, native host, lint host and ttsx runtime together can prove negotiation skips whole-program analysis and emit while still running transformed application code.
- * @evidence contracts/e2e.md#shared-execution Both plugin spellings and all invalidation cases share one installed graph, native binary cache and authored project. The private config workspace supplies the explicitly selected installed lint tool without adding auto-discovery dependencies to other consumers. A linked source package shares the same installation and requires its own runtime ownership connection. Only new input states require additional runtime launches; no package is installed or packed here.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity One contained project and one assigned temporary trace directory own mutable inputs. A per-invocation source generation requires actual cold entry/dependency emission. Stable trace environment preserves warm equivalence; per-project counts cannot substitute a linked rebuild for entry invalidation. A successful launcher cleanup event and absence of trace integrity failure qualify zero-start claims. Corruption targets only newly created documents with this invocation's source provenance; completed children precede mutation and cleanup.
+ * @evidence contracts/e2e.md#shared-execution Both plugin spellings and all invalidation cases share one installed graph, native binary cache and authored project. The private config workspace supplies the frozen installed lint package, copied unchanged once into the owned fixture so its peer resolves through the same consumer; it adds no auto-discovery dependency to other consumers. A linked source package shares the same installation and requires its own runtime ownership connection. Only new input states require additional runtime launches; no package manager or packing command runs here.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity One contained project and one assigned temporary trace directory own mutable inputs. The selected lint tool uses private copied files rather than mutable store hardlinks. A per-invocation source generation requires actual cold entry/dependency emission. Stable trace environment preserves warm equivalence; per-project counts cannot substitute a linked rebuild for entry invalidation. A successful launcher cleanup event and absence of trace integrity failure qualify zero-start claims. Corruption targets only newly created documents with this invocation's source provenance; completed children precede mutation and cleanup.
  * @evidence contracts/e2e.md#preserved-coverage This adds checked runtime reuse and invalidation assertions; existing public compiler, SDK generation, adapter and native unit cases retain their own connection and semantic assertions.
  */
 export function test_public_emit_reuse(
@@ -50,8 +50,18 @@ export function test_public_emit_reuse(
   const configPath = path.join(fixture, "tsconfig.json");
   const packagePath = path.join(fixture, "package.json");
   const lintPath = path.join(fixture, "lint.config.json");
+  const lintRoot = path.join(fixture, "node_modules/@ttsc/lint");
+  fs.cpSync(
+    path.dirname(
+      require.resolve("@ttsc/lint/package.json", {
+        paths: [path.resolve(__dirname, "../../../../../config")],
+      }),
+    ),
+    lintRoot,
+    { recursive: true, force: false, errorOnExist: true },
+  );
   const lint = require.resolve("@ttsc/lint", {
-    paths: [path.resolve(__dirname, "../../../../../config")],
+    paths: [fixture],
   });
   const linkedRoot = path.join(fixture, "node_modules/nestia-emit-linked");
   const linkedSource = path.join(linkedRoot, "index.ts");
