@@ -7,6 +7,7 @@ import path from "node:path";
 
 import { isAuthoredConfiguredInput } from "./PublicConfiguredRunner";
 import { compilePublicProgram } from "./internal/PublicCompiler";
+import { withPublicPackageRegistry } from "./internal/PublicPackageRegistry";
 import {
   assertSdkFeaturesSelected,
   discoverSdkFixtures,
@@ -609,8 +610,10 @@ const feature = async (
 
   await removePaths(cwd, generatedPaths(name));
 
-  if (name.includes("distribute")) return runDistributeFeature(cwd, name);
-  else if (name === "all") {
+  if (name.includes("distribute")) {
+    assert(consumer, "Distribution requires the shared public installation.");
+    return runDistributeFeature(cwd, name, consumer.root);
+  } else if (name === "all") {
     const config = fs.readFileSync(path.join(cwd, configFile), "utf8");
     {
       const lines = config.split("\r\n").join("\n").split("\n");
@@ -1008,18 +1011,28 @@ const CLI_ARGUMENT_DIAGNOSTIC_CASES = [
 // `nestia sdk` stages the distribution package and installs what it needs;
 // the staged package must then compile, emitting `lib/` (#1676). Each run
 // starts from a fresh stage, as the composer leaves a configured one alone.
-const runDistributeFeature = async (cwd: string, name: string) => {
+const runDistributeFeature = async (
+  cwd: string,
+  name: string,
+  consumerRoot: string,
+) => {
   const config = fs.readFileSync(path.join(cwd, "nestia.config.ts"), "utf8");
   const distribute = config.match(/distribute:\s*"([^"]+)"/)?.[1];
   if (distribute === undefined)
     throw new Error(`${name} configures no distribute location.`);
   const stage = path.join(cwd, distribute);
   await fs.promises.rm(stage, { force: true, recursive: true });
+  // A scoped registry serves the already packed fetcher before publication.
+  // npm still performs both real installations; the product sees no test hook.
   // Each command exposes its first outcome without rerunning side effects.
   const visibly = async (task: (stdio: cp.StdioOptions) => Promise<void>) =>
     task("inherit");
-  await visibly((stdio) =>
-    runNestia(cwd, ["sdk", ...generationTail(name)], stdio),
+  await withPublicPackageRegistry(
+    { consumerRoot, directory: stage, name: "@nestia/fetcher" },
+    () =>
+      visibly((stdio) =>
+        runNestia(cwd, ["sdk", ...generationTail(name)], stdio),
+      ),
   );
   await visibly((stdio) =>
     run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "compile"], {
@@ -1044,14 +1057,14 @@ const runDistributeFeature = async (cwd: string, name: string) => {
       `${name}: the staged SDK package imports ${undeclared.join(", ")} without declaring it in its dependencies.`,
     );
 
-  // The stage installs exactly the packages the project resolves: typia,
+  // The stage installs exactly the packages the project resolves: fetcher, typia,
   // ttsc, and TypeScript, and the tgrid and MCP SDK its WebSocket and MCP
   // functions import, whether or not a package exports its package.json.
   for (const dependency of Object.keys({
     ...staged.dependencies,
     ...staged.devDependencies,
   })) {
-    if (dependency === "rimraf" || dependency === "@nestia/fetcher") continue;
+    if (dependency === "rimraf") continue;
     const expected = projectVersion(cwd, dependency);
     const actual = read(
       path.join(stage, "node_modules", dependency, "package.json"),
