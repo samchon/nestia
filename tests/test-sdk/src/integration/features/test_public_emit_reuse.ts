@@ -26,7 +26,7 @@ import path from "node:path";
  * @evidence contracts/testing.md#execution-ownership The SDK public integration owner calls this case once with its shared ordinary packed installation and compiler cache. Actual ttsx processes establish the producer-negotiation and runtime-cache boundary.
  * @evidence contracts/e2e.md#necessary-boundary Only the installed descriptor, native host, lint host and ttsx runtime together can prove negotiation skips whole-program analysis and emit while still running transformed application code.
  * @evidence contracts/e2e.md#shared-execution Both plugin spellings and all invalidation cases share one installed graph, native binary cache and authored project. The private config workspace supplies the frozen installed lint package, copied unchanged once into the owned fixture so its peer resolves through the same consumer; it adds no auto-discovery dependency to other consumers. A linked source package shares the same installation and requires its own runtime ownership connection. Only new input states require additional runtime launches; no package manager or packing command runs here.
- * @evidence contracts/e2e.md#state-isolation-and-reuse-validity One contained project and one assigned temporary trace directory own mutable inputs. The selected lint tool uses private copied files rather than mutable store hardlinks. A per-invocation source generation requires actual cold entry/dependency emission. Stable trace environment preserves warm equivalence; per-project counts cannot substitute a linked rebuild for entry invalidation. A successful launcher cleanup event and absence of trace integrity failure qualify zero-start claims. Corruption targets only newly created documents with this invocation's source provenance; completed children precede mutation and cleanup.
+ * @evidence contracts/e2e.md#state-isolation-and-reuse-validity One contained project and one assigned temporary trace directory own mutable inputs. The selected lint tool uses private copied files rather than mutable store hardlinks. A per-invocation source generation requires actual cold entry/dependency emission. Stable trace environment preserves warm equivalence; per-project counts cannot substitute a linked rebuild for entry invalidation. A successful launcher cleanup event and absence of trace integrity failure qualify zero-start claims. Corruption targets only newly created documents with this invocation's source provenance; completed children precede mutation and cleanup. The trace is acquired before fixture preparation; all later acquisitions share cleanup that attempts both owned roots and retains preparation and cleanup failures.
  * @evidence contracts/e2e.md#preserved-coverage This adds checked runtime reuse and invalidation assertions; existing public compiler, SDK generation, adapter and native unit cases retain their own connection and semantic assertions.
  */
 export function test_public_emit_reuse(
@@ -36,62 +36,65 @@ export function test_public_emit_reuse(
   const fixture = path.join(consumer.root, "projects/emit-reuse");
   const relative = path.relative(consumer.root, fixture);
   assert(relative && !relative.startsWith("..") && !path.isAbsolute(relative));
-  fs.rmSync(fixture, { recursive: true, force: true });
-  fs.mkdirSync(fixture, { recursive: true });
   const trace = fs.mkdtempSync(path.join(os.tmpdir(), "nestia-emit-trace-"));
-  const manifest = consumer.requirePublic("ttsc/package.json");
-  console.log(`Public emit reuse: ttsc ${manifest.version}`);
-  const launcher = path.resolve(
-    path.dirname(consumer.requirePublic.resolve("ttsc/package.json")),
-    manifest.bin.ttsx,
-  );
-  const source = path.join(fixture, "main.ts");
-  const shape = path.join(fixture, "shape.ts");
-  const configPath = path.join(fixture, "tsconfig.json");
-  const packagePath = path.join(fixture, "package.json");
-  const lintPath = path.join(fixture, "lint.config.json");
-  const lintRoot = path.join(fixture, "node_modules/@ttsc/lint");
-  fs.cpSync(
-    path.dirname(
-      require.resolve("@ttsc/lint/package.json", {
-        paths: [path.resolve(__dirname, "../../../../../config")],
-      }),
-    ),
-    lintRoot,
-    { recursive: true, force: false, errorOnExist: true },
-  );
-  const lint = require.resolve("@ttsc/lint", {
-    paths: [fixture],
-  });
-  const linkedRoot = path.join(fixture, "node_modules/nestia-emit-linked");
-  const linkedSource = path.join(linkedRoot, "index.ts");
-  let linkedValue = 17;
-  const generation = crypto.randomUUID();
-  const documents = path.join(cache, "runtime-builds");
-  const previousDocuments = new Set(
-    fs.existsSync(documents) ? fs.readdirSync(documents) : [],
-  );
-  const failures: unknown[] = [];
-  // Language preparation by an outer ttsx supplies its own compiler locator.
-  // These independent launches must resolve the compiler installed beside the
-  // public consumer, whose package authority permits completed emit reuse.
-  const runtimeEnvironment = {
-    ...process.env,
-    NODE_PATH: "",
-    NODE_OPTIONS: "",
-    TTSC_TSGO_BINARY: undefined,
-    TTSC_E2E_TRACE: trace,
-  };
-  let executable = false;
-  const check = (label: string, action: () => void) => {
-    try {
-      action();
-    } catch (error) {
-      failures.push({ label, error });
-      console.error(`Public emit reuse case failed: ${label}`, error);
-    }
-  };
-  const program = `import "@nestjs/core";
+  let failure: { error: unknown } | undefined;
+  const cleanupFailures: unknown[] = [];
+  try {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.mkdirSync(fixture, { recursive: true });
+    const manifest = consumer.requirePublic("ttsc/package.json");
+    console.log(`Public emit reuse: ttsc ${manifest.version}`);
+    const launcher = path.resolve(
+      path.dirname(consumer.requirePublic.resolve("ttsc/package.json")),
+      manifest.bin.ttsx,
+    );
+    const source = path.join(fixture, "main.ts");
+    const shape = path.join(fixture, "shape.ts");
+    const configPath = path.join(fixture, "tsconfig.json");
+    const packagePath = path.join(fixture, "package.json");
+    const lintPath = path.join(fixture, "lint.config.json");
+    const lintRoot = path.join(fixture, "node_modules/@ttsc/lint");
+    fs.cpSync(
+      path.dirname(
+        require.resolve("@ttsc/lint/package.json", {
+          paths: [path.resolve(__dirname, "../../../../../config")],
+        }),
+      ),
+      lintRoot,
+      { recursive: true, force: false, errorOnExist: true },
+    );
+    const lint = require.resolve("@ttsc/lint", {
+      paths: [fixture],
+    });
+    const linkedRoot = path.join(fixture, "node_modules/nestia-emit-linked");
+    const linkedSource = path.join(linkedRoot, "index.ts");
+    let linkedValue = 17;
+    const generation = crypto.randomUUID();
+    const documents = path.join(cache, "runtime-builds");
+    const previousDocuments = new Set(
+      fs.existsSync(documents) ? fs.readdirSync(documents) : [],
+    );
+    const failures: unknown[] = [];
+    // Language preparation by an outer ttsx supplies its own compiler locator.
+    // These independent launches must resolve the compiler installed beside the
+    // public consumer, whose package authority permits completed emit reuse.
+    const runtimeEnvironment = {
+      ...process.env,
+      NODE_PATH: "",
+      NODE_OPTIONS: "",
+      TTSC_TSGO_BINARY: undefined,
+      TTSC_E2E_TRACE: trace,
+    };
+    let executable = false;
+    const check = (label: string, action: () => void) => {
+      try {
+        action();
+      } catch (error) {
+        failures.push({ label, error });
+        console.error(`Public emit reuse case failed: ${label}`, error);
+      }
+    };
+    const program = `import "@nestjs/core";
 import { TypedRoute } from "@nestia/core";
 import typia from "typia";
 import type { Shape } from "./shape";
@@ -100,157 +103,156 @@ export class Controller { @TypedRoute.Get() get(): Shape { throw new Error("unus
 console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filename, marker: 1, sdk: Reflect.hasMetadata("nestia/OperationMetadata", Controller.prototype, "get"), linked, linkedFile, linkedValid}));
 // Authored generation ${generation}
 `;
-  const config = {
-    compilerOptions: {
-      target: "ES2022",
-      module: "NodeNext",
-      moduleResolution: "NodeNext",
-      strict: true,
-      noUnusedLocals: false,
-      skipLibCheck: true,
-      experimentalDecorators: true,
-      types: ["node"],
-      ignoreDeprecations: "6.0",
-      outDir: "out",
-      noEmit: true,
-      plugins: [
-        { transform: lint, configFile: lintPath },
-        { transform: "@nestia/core/native/transform.cjs" },
-      ] as Record<string, unknown>[],
-    },
-    files: ["main.ts", "shape.ts"],
-  };
-  const traceEvents = () =>
-    fs
-      .readdirSync(trace)
-      .filter((name) => name.endsWith(".jsonl"))
-      .flatMap((name) =>
-        fs
-          .readFileSync(path.join(trace, name), "utf8")
-          .trim()
-          .split("\n")
-          .filter(Boolean)
-          .map((row) => JSON.parse(row)),
-      );
-  const starts = (project: string) => {
-    const rows = traceEvents().filter(
-      (row) =>
-        row.event === "process-attempt" &&
-        row.cwd === project &&
-        Array.isArray(row.argv),
-    );
-    return {
-      emit: rows.filter((row) =>
-        row.argv.some((arg: string) =>
-          arg.startsWith("--emit-observations-json="),
-        ),
-      ).length,
-      check: rows.filter((row) =>
-        row.argv.some((arg: string) =>
-          arg.startsWith("--check-observations-json="),
-        ),
-      ).length,
+    const config = {
+      compilerOptions: {
+        target: "ES2022",
+        module: "NodeNext",
+        moduleResolution: "NodeNext",
+        strict: true,
+        noUnusedLocals: false,
+        skipLibCheck: true,
+        experimentalDecorators: true,
+        types: ["node"],
+        ignoreDeprecations: "6.0",
+        outDir: "out",
+        noEmit: true,
+        plugins: [
+          { transform: lint, configFile: lintPath },
+          { transform: "@nestia/core/native/transform.cjs" },
+        ] as Record<string, unknown>[],
+      },
+      files: ["main.ts", "shape.ts"],
     };
-  };
-  const launch = (
-    label: string,
-    fresh: boolean,
-    expectedValid = true,
-    expectedMarker = 1,
-    options: {
-      sdk?: boolean;
-      linkedFresh?: boolean;
-    } = {},
-  ) =>
-    check(label, () => {
-      const sdk = options.sdk ?? true;
-      const before = starts(fixture);
-      const linkedBefore = starts(linkedRoot);
-      const result = spawnSync(
-        process.execPath,
-        [launcher, "--cache-dir", cache, "--tsconfig", configPath, source],
-        {
-          cwd: fixture,
-          encoding: "utf8",
-          maxBuffer: 16 * 1024 * 1024,
-          env: {
-            ...runtimeEnvironment,
-            NESTIA_SDK_TRANSFORM: sdk ? "1" : "",
+    const traceEvents = () =>
+      fs
+        .readdirSync(trace)
+        .filter((name) => name.endsWith(".jsonl"))
+        .flatMap((name) =>
+          fs
+            .readFileSync(path.join(trace, name), "utf8")
+            .trim()
+            .split("\n")
+            .filter(Boolean)
+            .map((row) => JSON.parse(row)),
+        );
+    const starts = (project: string) => {
+      const rows = traceEvents().filter(
+        (row) =>
+          row.event === "process-attempt" &&
+          row.cwd === project &&
+          Array.isArray(row.argv),
+      );
+      return {
+        emit: rows.filter((row) =>
+          row.argv.some((arg: string) =>
+            arg.startsWith("--emit-observations-json="),
+          ),
+        ).length,
+        check: rows.filter((row) =>
+          row.argv.some((arg: string) =>
+            arg.startsWith("--check-observations-json="),
+          ),
+        ).length,
+      };
+    };
+    const launch = (
+      label: string,
+      fresh: boolean,
+      expectedValid = true,
+      expectedMarker = 1,
+      options: {
+        sdk?: boolean;
+        linkedFresh?: boolean;
+      } = {},
+    ) =>
+      check(label, () => {
+        const sdk = options.sdk ?? true;
+        const before = starts(fixture);
+        const linkedBefore = starts(linkedRoot);
+        const result = spawnSync(
+          process.execPath,
+          [launcher, "--cache-dir", cache, "--tsconfig", configPath, source],
+          {
+            cwd: fixture,
+            encoding: "utf8",
+            maxBuffer: 16 * 1024 * 1024,
+            env: {
+              ...runtimeEnvironment,
+              NESTIA_SDK_TRANSFORM: sdk ? "1" : "",
+            },
           },
-        },
-      );
-      if (result.error) throw result.error;
-      assert.equal(result.signal, null, label);
-      assert.equal(result.status, 0, `${label}: ${result.stderr}`);
-      executable = true;
-      const events = traceEvents();
-      assert(
-        !events.some((row) => row.event === "integrity-failure"),
-        `${label}: trace integrity failed`,
-      );
-      assert(
-        events.some(
-          (row) =>
-            row.writerPid === result.pid &&
-            row.event === "runtime-cleanup" &&
-            row.data?.phase === "completed",
-        ),
-        `${label}: launcher trace did not complete`,
-      );
-      const rows = result.stdout
-        .trim()
-        .split(/\r?\n/)
-        .filter((row) => row.startsWith("{"));
-      assert(
-        rows.length,
-        `${label}: missing application output: ${result.stdout}`,
-      );
-      const output = JSON.parse(rows[rows.length - 1]!);
-      assert.deepEqual(
-        output,
-        {
-          valid: expectedValid,
-          file: source,
-          marker: expectedMarker,
-          sdk,
-          linked: linkedValue,
-          linkedFile: linkedSource,
-          linkedValid: expectedValid,
-        },
-        label,
-      );
-      const after = starts(fixture);
-      const count = {
-        emit: after.emit - before.emit,
-        check: after.check - before.check,
-      };
-      assert(
-        fresh
-          ? count.check >= 1 && count.emit >= 1
-          : count.check === 0 && count.emit === 0,
-        `${label}: incorrect entry producer starts: ${JSON.stringify(count)}`,
-      );
-      const linkedAfter = starts(linkedRoot);
-      const linkedCount = {
-        emit: linkedAfter.emit - linkedBefore.emit,
-        check: linkedAfter.check - linkedBefore.check,
-      };
-      if (options.linkedFresh === true)
+        );
+        if (result.error) throw result.error;
+        assert.equal(result.signal, null, label);
+        assert.equal(result.status, 0, `${label}: ${result.stderr}`);
+        executable = true;
+        const events = traceEvents();
         assert(
-          linkedCount.emit >= 1 && linkedCount.check >= 1,
-          `${label}: linked input change did not rebuild its program: ${JSON.stringify(linkedCount)}`,
+          !events.some((row) => row.event === "integrity-failure"),
+          `${label}: trace integrity failed`,
         );
-      if (options.linkedFresh === false || !fresh)
-        assert.equal(
-          linkedCount.emit + linkedCount.check,
-          0,
-          `${label}: linked program was not reused`,
+        assert(
+          events.some(
+            (row) =>
+              row.writerPid === result.pid &&
+              row.event === "runtime-cleanup" &&
+              row.data?.phase === "completed",
+          ),
+          `${label}: launcher trace did not complete`,
         );
-      console.log(
-        `Public emit reuse: ${label}; entry ${JSON.stringify(count)}; linked ${JSON.stringify(linkedCount)}`,
-      );
-    });
-  try {
+        const rows = result.stdout
+          .trim()
+          .split(/\r?\n/)
+          .filter((row) => row.startsWith("{"));
+        assert(
+          rows.length,
+          `${label}: missing application output: ${result.stdout}`,
+        );
+        const output = JSON.parse(rows[rows.length - 1]!);
+        assert.deepEqual(
+          output,
+          {
+            valid: expectedValid,
+            file: source,
+            marker: expectedMarker,
+            sdk,
+            linked: linkedValue,
+            linkedFile: linkedSource,
+            linkedValid: expectedValid,
+          },
+          label,
+        );
+        const after = starts(fixture);
+        const count = {
+          emit: after.emit - before.emit,
+          check: after.check - before.check,
+        };
+        assert(
+          fresh
+            ? count.check >= 1 && count.emit >= 1
+            : count.check === 0 && count.emit === 0,
+          `${label}: incorrect entry producer starts: ${JSON.stringify(count)}`,
+        );
+        const linkedAfter = starts(linkedRoot);
+        const linkedCount = {
+          emit: linkedAfter.emit - linkedBefore.emit,
+          check: linkedAfter.check - linkedBefore.check,
+        };
+        if (options.linkedFresh === true)
+          assert(
+            linkedCount.emit >= 1 && linkedCount.check >= 1,
+            `${label}: linked input change did not rebuild its program: ${JSON.stringify(linkedCount)}`,
+          );
+        if (options.linkedFresh === false || !fresh)
+          assert.equal(
+            linkedCount.emit + linkedCount.check,
+            0,
+            `${label}: linked program was not reused`,
+          );
+        console.log(
+          `Public emit reuse: ${label}; entry ${JSON.stringify(count)}; linked ${JSON.stringify(linkedCount)}`,
+        );
+      });
     fs.writeFileSync(source, program);
     fs.writeFileSync(shape, "export interface Shape { value: string }");
     fs.writeFileSync(
@@ -434,8 +436,20 @@ console.log(JSON.stringify({valid: typia.is<Shape>({value: "ok"}), file: __filen
     });
     if (failures.length)
       throw new AggregateError(failures, "Public emit reuse cases failed.");
+  } catch (error) {
+    failure = { error };
   } finally {
-    fs.rmSync(fixture, { recursive: true, force: true });
-    fs.rmSync(trace, { recursive: true, force: true });
+    for (const directory of [fixture, trace])
+      try {
+        fs.rmSync(directory, { recursive: true, force: true });
+      } catch (error) {
+        cleanupFailures.push(error);
+      }
   }
+  if (cleanupFailures.length)
+    throw new AggregateError(
+      failure ? [failure.error, ...cleanupFailures] : cleanupFailures,
+      "Public emit reuse cleanup failed.",
+    );
+  if (failure) throw failure.error;
 }
