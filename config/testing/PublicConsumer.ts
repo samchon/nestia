@@ -78,14 +78,21 @@ export function preparePublicConsumer(owner: string | readonly string[]) {
  * retains its artifacts for diagnosis until a later successful preparation. The
  * preparation entry supplies normalized, contained dependency-owner roots.
  *
- * @evidence contracts/common.md#principled-implementation Exact importer versions and snapshot edges derive from the frozen caller lock; public file dependencies point at fresh built tarballs. Conflicting overrides reject, and actual public-owner edges/registry versions/runtime addresses are validated after installation.
+ * Copied package files keep other installations from changing their physical
+ * metadata through shared store hardlinks. Existing multi-link files require
+ * one forced reimport; zero virtual-store cache age releases obsolete artifact
+ * directories. Before exposing the graph, a version-only compiler invocation
+ * completes native executable first-use metadata changes without preparing any
+ * authored program or runtime result.
+ *
+ * @evidence contracts/common.md#principled-implementation Exact importer versions and snapshot edges derive from the frozen caller lock; public file dependencies point at fresh built tarballs. Conflicting overrides reject, and actual public-owner edges/registry versions/runtime addresses are validated after installation. Supported copy imports and post-install link inspection establish private physical files; the public compiler's version command completes executable readiness before runtime snapshot capture.
  * @evidence contracts/common.md#clear-and-simple-design The owner set supplies one compatible dependency union, manifest, packing phase, installation and validation. A standalone command owns its workspace root; the canonical joint command owns the root integration consumer. The result contains only its ordinary private root and require function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Node createRequire and pnpm's supported file dependencies/overrides own resolution. Neither workspace manifests nor foreign loaders nor emitted JavaScript are altered; failed installation is not retried into success.
- * @evidence contracts/common.md#meaningful-documentation The comment explains importer/snapshot ownership, alias and conflict handling, and prefer-offline provisioning. Preparation logs identify its package population and total duration separately from compiler/runtime phases.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains importer/snapshot ownership, alias and conflict handling, prefer-offline provisioning, physical file isolation and version-only readiness. Preparation logs identify its package population and total duration separately from compiler/runtime phases.
  * @evidence contracts/portability.md#os-neutral-implementation Native paths identify inputs and installation roots; file dependency URLs use forward slashes. The caller's absolute pnpm JavaScript launcher runs through process.execPath with argument arrays and no shell.
- * @evidence contracts/performance.md#efficient-algorithms Override construction visits public-owner and registry edges once; installed validation uses map/set membership for edges, packages and public entries. Each tarball is hashed once with at most one archive held in memory; pnpm owns content-addressed store reuse.
- * @evidence contracts/performance.md#reuse-equivalent-work All phases use the same validated artifacts. SHA-256 addresses change with packed bytes, invalidating pnpm file dependencies without forcing unchanged registry or package installations. Each invocation resolves the current frozen graph.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Awaited children settle before exposing the root. After successful graph validation only current package archives remain in the owned tarball directory; failures retain artifacts for diagnosis until the next successful preparation. The ordinary pnpm store owns its own cache retention.
+ * @evidence contracts/performance.md#efficient-algorithms Override construction visits public-owner and registry edges once; installed validation uses map/set membership for edges, packages and public entries. Each tarball is hashed once with at most one archive held in memory. Two metadata walks inspect existing migration needs and the mutated installation's final ownership; only a shared-file migration forces reimport. One version-only process prepares the command-scoped compiler, without a Program or emit.
+ * @evidence contracts/performance.md#reuse-equivalent-work All phases use the same validated artifacts. SHA-256 addresses change with packed bytes; private physical files prevent store alias changes from invalidating otherwise equivalent runtime inputs. An existing private installation retains ordinary pnpm reuse; every invocation rereads ownership and the current frozen graph.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Awaited children settle before exposing the root. Zero-age virtual-store pruning releases unused artifact directories through pnpm without pruning the shared store. After successful validation only current package archives remain in the owned tarball directory; failures retain artifacts for diagnosis until the next successful preparation.
  */
 export async function installPublicConsumer(owners: readonly string[]) {
   const CONSUMER =
@@ -115,10 +122,9 @@ export async function installPublicConsumer(owners: readonly string[]) {
   });
   // File versions in the frozen caller lock are relative to ROOT, not CONSUMER.
   const expectedDependencies = Object.fromEntries(
-    Object.entries(publicConsumerDependencies(importers)).map(([name, version]) => [
-      name,
-      publicFileIdentity(version, ROOT),
-    ]),
+    Object.entries(publicConsumerDependencies(importers)).map(
+      ([name, version]) => [name, publicFileIdentity(version, ROOT)],
+    ),
   );
   const dependencies: Record<string, string> = { ...expectedDependencies };
   const overrides: Record<string, string> = {};
@@ -237,6 +243,13 @@ export async function installPublicConsumer(owners: readonly string[]) {
       "--ignore-workspace",
       "--prefer-offline",
       "--no-frozen-lockfile",
+      "--package-import-method=copy",
+      "--config.modules-cache-max-age=0",
+      ...((await publicConsumerHasSharedFiles(
+        path.join(CONSUMER, "node_modules"),
+      ))
+        ? ["--force"]
+        : []),
     ],
     CONSUMER,
   );
@@ -245,7 +258,12 @@ export async function installPublicConsumer(owners: readonly string[]) {
   );
   for (const [name, expected] of Object.entries(expectedDependencies))
     assert.equal(
-      publicFileIdentity(installedLock.importers["."].dependencies[name]?.version.split("(")[0] ?? "", CONSUMER),
+      publicFileIdentity(
+        installedLock.importers["."].dependencies[name]?.version.split(
+          "(",
+        )[0] ?? "",
+        CONSUMER,
+      ),
       expected,
       `Installed integration dependency changed: ${name}`,
     );
@@ -292,6 +310,28 @@ export async function installPublicConsumer(owners: readonly string[]) {
       `${name} did not select its published JavaScript entry: ${entry}`,
     );
   }
+  assert(
+    !(await publicConsumerHasSharedFiles(path.join(CONSUMER, "node_modules"))),
+    "Public consumer installation must own its physical package files.",
+  );
+  const compiler = requirePublic("typescript/package.json");
+  const compilerBin =
+    typeof compiler.bin === "string" ? compiler.bin : compiler.bin?.tsc;
+  assert(
+    typeof compilerBin === "string",
+    "Installed TypeScript has no tsc CLI.",
+  );
+  await runConsumerChild(
+    process.execPath,
+    [
+      path.resolve(
+        path.dirname(requirePublic.resolve("typescript/package.json")),
+        compilerBin,
+      ),
+      "--version",
+    ],
+    CONSUMER,
+  );
   const tarballRoot = path.join(CONSUMER, "tarballs");
   for (const entry of await fs.readdir(tarballRoot, { withFileTypes: true })) {
     if (!entry.isFile() || currentTarballs.has(entry.name)) continue;
@@ -309,6 +349,51 @@ export async function installPublicConsumer(owners: readonly string[]) {
     `Public consumer preparation: ${owners.length} dependency owners; ${publicNames.length} installed package artifacts; ${Date.now() - started} ms`,
   );
   return { root: CONSUMER, requirePublic };
+}
+
+/**
+ * Detects regular files whose physical identity has more than one name.
+ *
+ * The installer calls this only while its owned package tree is quiescent.
+ * Missing roots need no migration. A root link is rejected; nested links are
+ * skipped so ordinary pnpm dependency links never traverse external targets.
+ * Filesystem errors reject rather than certify an unreadable tree as private.
+ *
+ * @evidence contracts/common.md#principled-implementation A regular file's native link count greater than one identifies shared physical metadata. Fresh lstat observations inspect owned entries without following observed links; only an absent root means an uninstalled tree. The caller owns a quiescent directory during inspection.
+ * @evidence contracts/common.md#clear-and-simple-design One iterative walk returns at the first shared file and leaves installation and migration policy with its caller.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Native link counts replace no compiler identity or cache guard. No success marker or package-specific exception substitutes for current filesystem ownership.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains the quiescent ownership premise, absent-root result, link handling and error propagation.
+ * @evidence contracts/portability.md#os-neutral-implementation Node lstat and native paths represent actual regular files, hardlink counts and directory links on Windows and POSIX without inferring filesystem behavior from an OS name.
+ * @evidence contracts/performance.md#efficient-algorithms One metadata observation per visited entry and one listing per directory cost linear time in the tree, with early return for shared files. Pending native paths bound temporary space by the unvisited entries.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call observes a current tree; installation changes its identities, so the before and after inspections cannot share a completed answer.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Awaited lstat and readdir operations retain no open handle between entries. The local pending list is released on return or failure; no tree history survives the call.
+ */
+export async function publicConsumerHasSharedFiles(
+  directory: string,
+): Promise<boolean> {
+  const pending = [directory];
+  while (pending.length) {
+    const current = pending.pop()!;
+    const metadata = await fs
+      .lstat(current)
+      .catch((error: NodeJS.ErrnoException) => {
+        if (current === directory && error.code === "ENOENT") return undefined;
+        throw error;
+      });
+    if (metadata === undefined) return false;
+    if (current === directory)
+      assert(
+        metadata.isDirectory() && !metadata.isSymbolicLink(),
+        "Public consumer file inspection requires a real directory.",
+      );
+    if (metadata.isSymbolicLink()) continue;
+    if (metadata.isFile()) {
+      if (metadata.nlink > 1) return true;
+    } else if (metadata.isDirectory())
+      for (const name of await fs.readdir(current))
+        pending.push(path.join(current, name));
+  }
+  return false;
 }
 
 /**
@@ -353,7 +438,10 @@ export function publicConsumerDependencies(
   return dependencies;
 }
 
-/** Preserves a frozen file dependency's original address when copied to a new lock root. */
+/**
+ * Preserves a frozen file dependency's original address when copied to a new
+ * lock root.
+ */
 function publicFileIdentity(value: string, root: string): string {
   const offset = value.startsWith("file:") ? 0 : value.indexOf("@file:") + 1;
   if (offset === 0 && !value.startsWith("file:")) return value;
@@ -363,7 +451,10 @@ function publicFileIdentity(value: string, root: string): string {
   return (
     value.slice(0, offset) +
     "file:" +
-    path.resolve(root, value.slice(offset + 5, end)).split(path.sep).join("/") +
+    path
+      .resolve(root, value.slice(offset + 5, end))
+      .split(path.sep)
+      .join("/") +
     value.slice(end)
   );
 }

@@ -2,6 +2,10 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 
+// Runtime counterpart of the typia Go release pinned in native/go.mod.
+// A dependency range can deduplicate both resolutions to a later runtime.
+const TYPIA_TRANSFORM_VERSION = "15.3.0";
+
 // `@nestia/core` ttsc plugin descriptor.
 //
 // `source` is the Go command package of the executable transform host
@@ -23,6 +27,7 @@ function createTtscPlugin(context) {
     name: "@nestia/core",
     source: path.resolve(__dirname, "cmd", "ttsc-nestia"),
     composes: ["typia/lib/transform"],
+    capabilities: { emitObservations: true, emitProvenance: true },
     // a typia upgrade must evaluate the version check again
     hostInputs: typia.map((manifest) => manifest.file),
     hostInputHashes: Object.fromEntries(
@@ -42,8 +47,8 @@ function createTtscPlugin(context) {
 // while the code it emits calls that installed package's runtime. A project
 // resolving another typia version would run mismatched code with no error until
 // a call reaches the difference (#1663), so the build stops and names both
-// versions. The version nestia is built for is the typia @nestia/core itself
-// resolves, which its exact dependency holds at the Go pin's release.
+// versions. Compare both installed resolutions to the pinned transform release:
+// matching each other is insufficient when a dependency range admits an upgrade.
 //
 // Returns the typia manifests read, with their evaluation-time proofs for ttsc.
 function assertTypiaVersion(context) {
@@ -52,16 +57,16 @@ function assertTypiaVersion(context) {
     context && typeof context.projectRoot === "string"
       ? resolveTypiaManifest([context.projectRoot])
       : null;
-  if (
-    expected !== null &&
-    actual !== null &&
-    expected.version !== actual.version
-  )
+  const mismatch = [expected, actual].find(
+    (manifest) =>
+      manifest !== null && manifest.version !== TYPIA_TRANSFORM_VERSION,
+  );
+  if (mismatch !== undefined)
     throw new Error(
       [
-        `@nestia/core runs the typia ${expected.version} transform, but this project resolves typia ${actual.version} (${actual.file}).`,
-        `The generated code would call typia ${actual.version}'s runtime with typia ${expected.version}'s output.`,
-        `Install typia@${expected.version}, or a @nestia/core release built for typia ${actual.version}.`,
+        `@nestia/core runs the typia ${TYPIA_TRANSFORM_VERSION} transform, but this installation resolves typia ${mismatch.version} (${mismatch.file}).`,
+        `The generated code would call typia ${mismatch.version}'s runtime with typia ${TYPIA_TRANSFORM_VERSION}'s output.`,
+        `Install typia@${TYPIA_TRANSFORM_VERSION}, or a @nestia/core release built for typia ${mismatch.version}.`,
       ].join(" "),
     );
   return [
@@ -110,4 +115,5 @@ function resolveSdkContributorSource(context) {
 }
 
 module.exports = createTtscPlugin;
+module.exports.typiaVersion = TYPIA_TRANSFORM_VERSION;
 module.exports.createTtscPlugin = createTtscPlugin;

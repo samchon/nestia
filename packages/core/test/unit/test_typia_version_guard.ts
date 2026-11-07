@@ -8,8 +8,8 @@ const descriptor = require("../../native/transform.cjs");
 
 /**
  * Verifies the native descriptor fingerprints compatible typia manifests and
- * rejects a conflicting project version through ordinary Node package
- * resolution.
+ * rejects runtime conflicts with its pinned Go transform through ordinary Node
+ * package resolution, including a deduplicated upgrade.
  *
  * The decision belongs to the JavaScript descriptor, before any Go host exists.
  * An exports-blocked package ensures the unresolved control cannot accidentally
@@ -19,13 +19,14 @@ const descriptor = require("../../native/transform.cjs");
  * 1. Author matching, exports-blocked and conflicting typia package manifests.
  * 2. Call the real descriptor and check watched paths, their byte hashes and
  *    physical paths, including a same-version manifest edit.
- * 3. Reject a conflicting project version with the existing guard diagnostic.
+ * 3. Reject project-only, core-only and deduplicated runtime upgrades with both
+ *    versions in the guard diagnostic.
  * 4. Release every authored fixture without compiling or installing a product.
  *
  * @evidence contracts/testing.md#behavioral-verification The real core descriptor returns a SHA-256 proof of each resolved manifest's authored bytes and its native realpath, changes the hash after a same-version edit, omits an exports-blocked manifest after genuine Node resolution failure, and rejects a differing version with both versions in its error.
  * @evidence contracts/testing.md#independent-expectations Authored manifest bytes determine the SHA-256 expectation, and native realpath gives the physical identity. The linked version comes from typia resolved beside the descriptor; literal fixtures declare that version or a different minor version, while package exports deny package.json in the unresolved control.
- * @evidence contracts/testing.md#distinguishing-cases Matching, same-version edited, unresolvable and mismatched project manifests have separate assertions. The unresolved case first requires ERR_PACKAGE_PATH_NOT_EXPORTED, so ancestor resolution cannot turn it into another matching case. The public CLI mismatch connection is owned separately by integration.
- * @evidence contracts/testing.md#execution-ownership The package test:unit entry explicitly registers this matching exported case with Node test. The exported case calls the descriptor directly with caller-authored filesystem inputs, without consumer installation, native build, compiler process or application. One assigned temporary root owns and releases all three inputs.
+ * @evidence contracts/testing.md#distinguishing-cases Matching, same-version edited, unresolvable, project-only, core-only and deduplicated mismatched manifests have separate assertions. A copied real descriptor first accepts the pinned runtime, then rejects an upgrade shared by both resolutions and a core-only upgrade. The unresolved case first requires ERR_PACKAGE_PATH_NOT_EXPORTED, so ancestor resolution cannot turn it into another matching case. The public CLI mismatch connection is owned separately by integration.
+ * @evidence contracts/testing.md#execution-ownership The package test:unit entry explicitly registers this matching exported case with Node test. The exported case calls the descriptor directly with caller-authored filesystem inputs, without consumer installation, native build, compiler process or application. One assigned temporary root owns and releases all authored inputs.
  */
 export function test_typia_version_guard(): void {
   const linkedFile = require.resolve("typia/package.json", {
@@ -33,6 +34,7 @@ export function test_typia_version_guard(): void {
   });
   const linkedContents = fs.readFileSync(linkedFile);
   const expected = JSON.parse(linkedContents.toString("utf8")).version;
+  assert.equal(descriptor.typiaVersion, expected);
   const other = `${expected.split(".")[0]}.99.0`;
   const temporary = path.resolve(os.tmpdir());
   const root = fs.mkdtempSync(path.join(temporary, "nestia-core-typia-unit-"));
@@ -117,6 +119,34 @@ export function test_typia_version_guard(): void {
         error.message.includes(`typia ${expected} transform`) &&
         error.message.includes(`typia ${other}`),
     );
+
+    const installation = project("deduplicated", { version: expected });
+    const copied = path.join(
+      installation.directory,
+      "node_modules/@nestia/core/native/transform.cjs",
+    );
+    fs.mkdirSync(path.dirname(copied), { recursive: true });
+    fs.copyFileSync(
+      path.resolve(__dirname, "../../native/transform.cjs"),
+      copied,
+    );
+    const isolated = require(copied);
+    assert.doesNotThrow(() =>
+      isolated({ projectRoot: installation.directory }),
+    );
+    fs.writeFileSync(
+      installation.file,
+      JSON.stringify({ name: "typia", version: other }),
+    );
+    for (const projectRoot of [installation.directory, matching.directory])
+      assert.throws(
+        () => isolated({ projectRoot }),
+        (error: unknown) =>
+          error instanceof Error &&
+          error.message.includes(`typia ${expected} transform`) &&
+          error.message.includes(`typia ${other}`) &&
+          error.message.includes(installation.file),
+      );
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
