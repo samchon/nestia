@@ -1257,6 +1257,7 @@ func nestiaSDKMarkReadonlySchemaType(prog *driver.Program, typ *shimchecker.Type
  if visiting[key] { return }
  visiting[key] = true
  if typ.Flags() & (shimchecker.TypeFlagsUnion | shimchecker.TypeFlagsIntersection) != 0 {
+  if typ.Flags() & shimchecker.TypeFlagsUnion != 0 && nestiaSDKReadonlyScalarUnion(target) { return }
   for _, child := range typ.AsUnionOrIntersectionType().Types() {
    matched := false
    if typ.Flags() & shimchecker.TypeFlagsUnion != 0 {
@@ -1337,6 +1338,51 @@ func nestiaSDKMarkReadonlySchemaType(prog *driver.Program, typ *shimchecker.Type
  for _, index := range prog.Checker.GetIndexInfosOfType(typ) {
   nestiaSDKMarkReadonlySchemaType(prog, index.ValueType(), nestiaSDKSchemaMap(target["additionalProperties"]), components, registry, escape, visiting, false)
  }
+}
+
+// nestiaSDKReadonlyScalarUnion reports whether a union schema has only
+// terminal scalar branches, so no constituent can own a readonly array marker.
+//
+// Readonly markers attach to array and tuple positions. A branch whose type is
+// string, number, integer, boolean or null and which carries no reference,
+// composition, object or array keyword contains no such position, so pairing
+// its constituent through MetadataFactory.Analyze cannot change the document.
+// A branch without an explicit scalar type, and every other shape, keeps the
+// constituent probe.
+func nestiaSDKReadonlyScalarUnion(schema map[string]any) bool {
+ if !nestiaSDKReadonlyScalarShape(schema, true) { return false }
+ found := false
+ for _, keyword := range []string{"oneOf", "anyOf"} {
+  if _, exists := schema[keyword]; !exists { continue }
+  branches := nestiaSDKSchemaList(schema[keyword])
+  if len(branches) == 0 { return false }
+  found = true
+  for _, branch := range branches {
+   if !nestiaSDKReadonlyScalarShape(nestiaSDKSchemaMap(branch), false) { return false }
+  }
+ }
+ return found
+}
+
+// nestiaSDKReadonlyScalarShape reports whether one schema has no position that
+// could hold a readonly array marker. allowUnion admits the oneOf/anyOf parent
+// whose branches nestiaSDKReadonlyScalarUnion checks separately.
+func nestiaSDKReadonlyScalarShape(schema map[string]any, allowUnion bool) bool {
+ if schema == nil { return false }
+ if value, exists := schema["type"]; exists {
+  switch value {
+  case "string", "number", "integer", "boolean", "null":
+  default: return false
+  }
+ } else if !allowUnion { return false }
+ for _, key := range []string{"$ref", "$dynamicRef", "$recursiveRef", "allOf", "not", "if", "then", "else", "properties", "patternProperties", "additionalProperties", "unevaluatedProperties", "dependentSchemas", "propertyNames", "items", "prefixItems", "additionalItems", "contains", "unevaluatedItems", "$defs", "definitions"} {
+  if _, exists := schema[key]; exists { return false }
+ }
+ if !allowUnion {
+  if _, exists := schema["oneOf"]; exists { return false }
+  if _, exists := schema["anyOf"]; exists { return false }
+ }
+ return true
 }
 
 // nestiaSDKReadonlySchemaEquivalent compares the native writer's branch shape,
