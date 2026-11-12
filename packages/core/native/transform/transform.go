@@ -42,6 +42,13 @@ type transformProjectOutput struct {
 	// additive: an omission costs nothing, and narrowing would require the
 	// separate `dependenciesComplete` declaration this envelope does not make.
 	Dependencies map[string][]string `json:"dependencies,omitempty"`
+	// EnvironmentInputs maps each environment variable the host and its linked
+	// contributors read through the program's Env to the value read, null when
+	// unset, as ttsc's own transform host publishes it. A persistent consumer
+	// such as `@ttsc/unplugin` withdraws a transform whose recorded value
+	// changed: NESTIA_SDK_TRANSFORM decides whether the SDK metadata pass ran.
+	// Omitted when nothing was read.
+	EnvironmentInputs map[string]*string `json:"environmentInputs,omitempty"`
 }
 
 type transformCompilerDiagnostic struct {
@@ -191,6 +198,9 @@ func runTransformProject(
 		collector.End()
 	}
 	output.Dependencies = collector.ToJSON()
+	// Contributor collection and every emit above have run, so the ledger holds
+	// each read that could have shaped this envelope.
+	output.EnvironmentInputs = prog.PluginEnvironmentInputs()
 	for _, diag := range *transformDiags {
 		output.Diagnostics = append(output.Diagnostics, transformDiagnosticToCompilerDiagnostic(diag))
 	}

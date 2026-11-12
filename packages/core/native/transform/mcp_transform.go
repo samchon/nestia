@@ -36,7 +36,7 @@ func nestiaCoreMcpRouteArgumentNode(
 	call *shimast.CallExpression,
 	returnType *shimchecker.Type,
 ) (*shimast.Node, error) {
-	return safeNestiaCoreGenerateNode(func() (*shimast.Node, error) {
+	return safeNestiaCoreGenerateNode(prog, func() (*shimast.Node, error) {
 		if nestiaCoreArgumentCount(call) != 1 {
 			return nil, fmt.Errorf("@McpRoute() requires one string literal tool name")
 		}
