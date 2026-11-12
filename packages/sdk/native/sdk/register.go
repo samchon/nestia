@@ -2,7 +2,6 @@ package sdk
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -172,13 +171,20 @@ func collectSDKEmitTransform(
 	prog *driver.Program,
 	_ plugin.Plan,
 ) (driver.PluginTransform, []transform.Diagnostic) {
-	if shouldRunSDKContributorTransform() == false {
+	if shouldRunSDKContributorTransform(prog) == false {
 		return nil, nil
 	}
 	return EmitTransform(prog)
 }
-func shouldRunSDKContributorTransform() bool {
-	return os.Getenv("NESTIA_SDK_TRANSFORM") == "1"
+
+// shouldRunSDKContributorTransform reads the NESTIA_SDK_TRANSFORM opt-in through
+// the program, which records the read as an input of this generation. A ttsc
+// host that reuses this output across launches therefore sees the value change;
+// os.Getenv was recorded by nothing, and a disabled SDK run served the
+// decorated emit of an enabled one (samchon/ttsc#1852).
+func shouldRunSDKContributorTransform(prog *driver.Program) bool {
+	value, _ := prog.Env("NESTIA_SDK_TRANSFORM")
+	return value == "1"
 }
 
 func synthesized(node *shimast.Node) *shimast.Node {

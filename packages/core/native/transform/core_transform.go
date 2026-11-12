@@ -2,7 +2,6 @@ package transform
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"runtime/debug"
 	"strings"
@@ -187,7 +186,7 @@ func nestiaCoreMethodArgumentNode(
 	kind string,
 	typ *shimchecker.Type,
 ) (*shimast.Node, error) {
-	return safeNestiaCoreGenerateNode(func() (*shimast.Node, error) {
+	return safeNestiaCoreGenerateNode(prog, func() (*shimast.Node, error) {
 		switch kind {
 		case "TypedQueryRoute":
 			return nestiaCoreGenerateTypedQueryRoute(prog, importer, ec, options, modulo, typ), nil
@@ -417,7 +416,7 @@ func nestiaCoreParameterArgumentNodes(
 			return nil, false, nil
 		}
 	}
-	node, err := safeNestiaCoreGenerateNode(func() (*shimast.Node, error) {
+	node, err := safeNestiaCoreGenerateNode(prog, func() (*shimast.Node, error) {
 		switch kind {
 		case "TypedBody":
 			return nestiaCoreGenerateTypedBody(prog, importer, ec, options, modulo, typ), nil
@@ -1072,10 +1071,13 @@ func nestiaCoreProperty(name string, initializer *shimast.Node, ec *shimprinter.
 // error so the caller can surface a diagnostic instead of crashing the emit.
 // It is the node-emit twin of safeNestiaCoreGenerate, which additionally prints
 // the node to text for the legacy splice path.
-func safeNestiaCoreGenerateNode(generator func() (*shimast.Node, error)) (node *shimast.Node, err error) {
+//
+// NESTIA_NATIVE_DEBUG_STACK appends the stack to that diagnostic, so it is read
+// through the program, which records the read as an input of the generation.
+func safeNestiaCoreGenerateNode(prog *driver.Program, generator func() (*shimast.Node, error)) (node *shimast.Node, err error) {
 	defer func() {
 		if exp := recover(); exp != nil {
-			if os.Getenv("NESTIA_NATIVE_DEBUG_STACK") != "" {
+			if value, _ := prog.Env("NESTIA_NATIVE_DEBUG_STACK"); value != "" {
 				err = fmt.Errorf("%v\n%s", exp, debug.Stack())
 			} else {
 				err = fmt.Errorf("%v", exp)
