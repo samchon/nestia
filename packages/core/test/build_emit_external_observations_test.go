@@ -12,6 +12,11 @@ import (
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 )
 
+// The driver pairs LinkedPluginsEnv entries with registrations by position, so
+// every linked test plugin registers once, from init, in file-name order: this
+// one answers entry 0 whichever tests run.
+func init() { driver.RegisterPlugin(emitObservationPlugin{}) }
+
 type emitObservationPlugin struct{}
 
 // ApplyProgram reports an authored external read through the supported linked
@@ -62,9 +67,8 @@ func (emitObservationPlugin) ApplyProgram(_ *driver.Program, ctx driver.PluginCo
 // @evidence contracts/testing.md#behavioral-verification Actual native build dispatch executes a registered ProgramPlugin and publishes its external input name, consumed hash and physical identity. Explicit incompleteness, conflicting hashes and unknown inputs must remain non-authoritative.
 // @evidence contracts/testing.md#independent-expectations Authored external bytes establish SHA-256 and native realpath; the hook deliberately supplies distinct conflicting facts or explicit incomplete status rather than deriving expected values from the result.
 // @evidence contracts/testing.md#distinguishing-cases Complete proof is the positive control; incomplete retains known facts but denies the population, conflicting valid hashes withdraw content proof, differing physical identities withdraw path proof even for identical bytes, and unknown retains an unproved name. Every case still runs an otherwise successful aggregate build.
-// @evidence contracts/testing.md#execution-ownership Canonical core Go tests call build in-process. One registration remains inert outside the scoped LinkedPluginsEnv payload, restored by t.Setenv; temporary projects own inputs and result files, without a separately compiled host.
+// @evidence contracts/testing.md#execution-ownership Canonical core Go tests call build in-process. One init registration remains inert outside the scoped LinkedPluginsEnv payload, restored by t.Setenv; temporary projects own inputs and result files, without a separately compiled host.
 func TestBuildEmitExternalObservations(t *testing.T) {
-	driver.RegisterPlugin(emitObservationPlugin{})
 	for _, mode := range []string{"complete", "incomplete", "conflict", "physical-conflict", "unknown"} {
 		t.Run(mode, func(t *testing.T) {
 			p := writeLlmRouteBuildProject(t, llmRouteBuildProjectOptions{Valid: true})

@@ -15,10 +15,21 @@ import (
 // dropped struct tag would keep a producer-typed decode green while the real
 // consumer, `@ttsc/unplugin`, could no longer read the expected JSON fields.
 type projectTransformEnvelope struct {
-	Diagnostics  []map[string]any       `json:"diagnostics"`
-	TypeScript   map[string]string      `json:"typescript"`
-	Graph        *projectTransformGraph `json:"graph"`
-	Dependencies map[string][]string    `json:"dependencies"`
+	Diagnostics  []map[string]any               `json:"diagnostics"`
+	TypeScript   map[string]string              `json:"typescript"`
+	SourceMaps   map[string]projectTransformMap `json:"sourceMaps"`
+	Graph        *projectTransformGraph         `json:"graph"`
+	Dependencies map[string][]string            `json:"dependencies"`
+}
+
+// projectTransformMap is the version 3 source map shape `@ttsc/unplugin`
+// reads from the envelope's `sourceMaps` section.
+type projectTransformMap struct {
+	Version        int       `json:"version"`
+	File           string    `json:"file"`
+	Sources        []string  `json:"sources"`
+	SourcesContent []*string `json:"sourcesContent"`
+	Mappings       string    `json:"mappings"`
 }
 
 // projectTransformGraph mirrors ttsc's `ITtscCompilerTransformation.IReferenceGraph`.
@@ -39,6 +50,13 @@ type projectTransformGraph struct {
 // a caller's assertions stay about the envelope's content.
 func runProjectTransformEnvelope(t *testing.T, feature string) projectTransformEnvelope {
 	t.Helper()
+	return runProjectTransformEnvelopeWithPlugins(t, feature, coreNativePlugins("validate", "assert"))
+}
+
+// runProjectTransformEnvelopeWithPlugins is runProjectTransformEnvelope with an
+// explicit plugin manifest, used when a test adds a contributor sentinel.
+func runProjectTransformEnvelopeWithPlugins(t *testing.T, feature, pluginsJSON string) projectTransformEnvelope {
+	t.Helper()
 	cwd := featureRootForCore(t, feature)
 	out := &bytes.Buffer{}
 	errOut := &bytes.Buffer{}
@@ -46,7 +64,7 @@ func runProjectTransformEnvelope(t *testing.T, feature string) projectTransformE
 		"transform",
 		"--cwd", cwd,
 		"--tsconfig", "tsconfig.json",
-		"--plugins-json", coreNativePlugins("validate", "assert"),
+		"--plugins-json", pluginsJSON,
 	}, out, errOut)
 	if code != 0 {
 		t.Fatalf("project-mode transform of %q exited %d\n%s", feature, code, errOut.String())

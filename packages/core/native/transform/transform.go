@@ -20,6 +20,11 @@ import (
 type transformProjectOutput struct {
 	Diagnostics []transformCompilerDiagnostic `json:"diagnostics,omitempty"`
 	TypeScript  map[string]string             `json:"typescript"`
+	// SourceMaps maps each printed TypeScript key whose text differs from the
+	// authored text to a version 3 map back to that text, keyed like TypeScript.
+	// A file published as its authored text has no entry. `@ttsc/unplugin` hands
+	// the map to the bundler only when its `sourcesContent` is the text it read.
+	SourceMaps map[string]json.RawMessage `json:"sourceMaps,omitempty"`
 	// Graph is the host-owned reference graph of the loaded program produced by
 	// the ttsc driver SDK (driver.NewTransformGraph): direct resolved reference
 	// edges, ambient global-scope files, the tsconfig extends chain, and the
@@ -103,7 +108,7 @@ func runTransform(args []string) int {
 
 	// AST-integration source-to-source: typia's, core's, and any linked
 	// contributor's per-file node transformers run inside one shared EmitContext
-	// and the result SourceFile is printed back as TypeScript (no JS script
+	// and a changed SourceFile is printed back as TypeScript (no JS script
 	// transformers), mirroring typia's `transform` subcommand. Injected namespace
 	// imports stay as ES imports the caller can type-strip per file.
 	transformDiags := []Diagnostic{}
@@ -118,13 +123,18 @@ func runTransform(args []string) int {
 		return 3
 	}
 	transforms := append([]driver.PluginTransform{typiaTransform, coreTransform}, contributorTransforms...)
+	// typia's and core's transformers report a change by returning a new
+	// SourceFile. A contributor may edit the tree in place and return the one it
+	// was given, as @nestia/sdk's metadata pass does, so with one active an
+	// unchanged pointer proves nothing.
+	rebuilding := len(contributorTransforms) == 0
 
 	if *file == "" {
 		if *out != "" {
 			fmt.Fprintln(stderr, "ttsc-nestia transform: --out requires --file")
 			return 2
 		}
-		return runTransformProject(prog, cwd, transforms, &transformDiags)
+		return runTransformProject(prog, cwd, transforms, rebuilding, &transformDiags)
 	}
 
 	absFile := *file
@@ -137,7 +147,7 @@ func runTransform(args []string) int {
 		fmt.Fprintf(stderr, "ttsc-nestia transform: source file is not in program: %s\n", absFile)
 		return 2
 	}
-	text := transformFileToTypeScript(prog, transforms, target)
+	text, _ := transformFileToTypeScript(prog, transforms, rebuilding, target)
 	if len(transformDiags) > 0 {
 		WriteTypiaTransformDiagnostics(stderr, transformDiags, cwd)
 		return 3
@@ -149,6 +159,7 @@ func runTransformProject(
 	prog *driver.Program,
 	cwd string,
 	transforms []driver.PluginTransform,
+	rebuilding bool,
 	transformDiags *[]Diagnostic,
 ) int {
 	output := transformProjectOutput{
@@ -194,7 +205,14 @@ func runTransformProject(
 			continue
 		}
 		collector.Begin(key)
-		output.TypeScript[key] = transformFileToTypeScript(prog, transforms, sf)
+		text, sourceMap := transformFileToTypeScript(prog, transforms, rebuilding, sf)
+		output.TypeScript[key] = text
+		if sourceMap != "" {
+			if output.SourceMaps == nil {
+				output.SourceMaps = map[string]json.RawMessage{}
+			}
+			output.SourceMaps[key] = json.RawMessage(sourceMap)
+		}
 		collector.End()
 	}
 	output.Dependencies = collector.ToJSON()
@@ -215,15 +233,35 @@ func runTransformProject(
 }
 
 // transformFileToTypeScript runs nestia's node transformers on one source file
-// in a fresh EmitContext and prints the result as TypeScript. It deliberately
-// skips the JS script transformers (type-erase, module-transform): the caller
-// wants TS, so the namespace imports the transformers inject stay as ES imports.
+// in a fresh EmitContext and returns the file's TypeScript with a source map
+// back to the authored text. It deliberately skips the JS script transformers
+// (type-erase, module-transform): the caller wants TS, so the namespace imports
+// the transformers inject stay as ES imports.
+//
+// A file no transformer changed comes back as the parsed text itself, with no
+// map. Printing it anyway would hand the consumer the author's code in the
+// printer's formatting, which a bundler then takes as a changed module and
+// serves with lines that no longer match the file on disk; a host that ignores
+// input maps, such as Bun's `onLoad`, loses breakpoints in every module.
+//
+// The original SourceFile coming back proves nothing changed only when every
+// transformer rebuilds what it replaces, as rebuilding states, and nothing
+// else rewrote the file. A linked ProgramPlugin edits the tree in place, and a
+// linked source preamble is inserted into the parsed text, so under either the
+// file is printed like a changed one.
+//
+// A printed file carries a version 3 map back to the authored text, with that
+// text as `sourcesContent`, so the consumer can check the map against the text
+// it was handed before composing it. The driver moves a preamble-bearing map
+// off the preamble; a map it cannot correct is dropped rather than published
+// pointing at the wrong lines, and a printed text equal to the authored text
+// needs no map.
 func transformFileToTypeScript(
 	prog *driver.Program,
 	transforms []driver.PluginTransform,
+	rebuilding bool,
 	sf *shimast.SourceFile,
-) string {
-	options := prog.TSProgram.Options()
+) (string, string) {
 	ec := shimprinter.NewEmitContext()
 	result := sf
 	for _, t := range transforms {
@@ -234,11 +272,21 @@ func transformFileToTypeScript(
 			result = next
 		}
 	}
+	if result == sf && rebuilding && prog.SourcePreamble == "" && !prog.HasLinkedProgramPlugins() {
+		return sf.Text(), ""
+	}
 	shimast.SetParentInChildrenUnset(result.AsNode())
-	writer := shimprinter.NewTextWriter(options.NewLine.GetNewLineCharacter(), 0)
-	printer := shimprinter.NewPrinter(shimprinter.PrinterOptions{NewLine: options.NewLine}, shimprinter.PrintHandlers{}, ec)
-	printer.Write(result.AsNode(), result, writer, nil)
-	return writer.String()
+	text, sourceMap := shimprinter.EmitSourceFileWithSourceMap(
+		shimprinter.PrinterOptions{NewLine: prog.TSProgram.Options().NewLine, InlineSources: true},
+		shimprinter.PrintHandlers{},
+		ec,
+		result,
+	)
+	authored, corrected, ok := prog.AuthoredSourceMap(sf, sourceMap)
+	if !ok || text == authored {
+		return text, ""
+	}
+	return text, corrected
 }
 
 func writeSingleOutput(text, outPath string) int {
