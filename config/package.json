@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/config",
-  "version": "14.3.0",
+  "version": "14.3.1",
   "description": "Shared build configuration for nestia packages",
   "devDependencies": {
     "@ttsc/lint": "catalog:typescript",
