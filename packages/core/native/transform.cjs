@@ -4,7 +4,7 @@ const path = require("node:path");
 
 // Runtime counterpart of the typia Go release pinned in native/go.mod.
 // A dependency range can deduplicate both resolutions to a later runtime.
-const TYPIA_TRANSFORM_VERSION = "15.4.0";
+const TYPIA_TRANSFORM_VERSION = "15.5.0";
 
 // `@nestia/core` ttsc plugin descriptor.
 //
