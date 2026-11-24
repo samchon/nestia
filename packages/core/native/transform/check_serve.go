@@ -76,6 +76,12 @@ type checkServeState struct {
 	session  *driver.Session
 	loads    int
 	updates  int
+
+	// answer is the response for the resident generation. A cycle that applies
+	// no change, such as one that only names declared external inputs, returns
+	// it, so the checker that already served the transforms' type queries
+	// never answers a second diagnostic request.
+	answer *checkServeResponse
 }
 
 // runCheckServe is the resident analysis check for `ttsc --noEmit --watch`
@@ -143,6 +149,7 @@ func (s *checkServeState) close() {
 		_ = s.session.Close()
 		s.session = nil
 	}
+	s.answer = nil
 }
 
 // handle answers one request line. A panic drops the resident Program and is
@@ -210,6 +217,7 @@ func (s *checkServeState) apply(req checkServeRequest) bool {
 			s.close()
 			return false
 		}
+		s.answer = nil
 		if s.session.Apply(resolved, string(content)) {
 			s.updates++
 		} else {
@@ -226,6 +234,13 @@ func (s *checkServeState) apply(req checkServeRequest) bool {
 // cycle so the answer travels in the response rather than on the protocol
 // stream.
 func (s *checkServeState) check(reused bool) (response checkServeResponse) {
+	if s.session != nil && s.answer != nil {
+		// Nothing the resident generation was built from changed, so a cold
+		// check of the same files gives the same answer.
+		cached := *s.answer
+		cached.Telemetry.Reused = true
+		return cached
+	}
 	var out, errOut bytes.Buffer
 	previousOut, previousErr := stdout, stderr
 	stdout, stderr = &out, &errOut
@@ -233,6 +248,12 @@ func (s *checkServeState) check(reused bool) (response checkServeResponse) {
 		stdout, stderr = previousOut, previousErr
 		response.Stdout = out.String()
 		response.Stderr = errOut.String()
+		// Only a Program that stays resident keeps its answer; a contributor
+		// run or a linked ProgramPlugin has already dropped it.
+		if s.session != nil {
+			answer := response
+			s.answer = &answer
+		}
 	}()
 
 	var prog *driver.Program

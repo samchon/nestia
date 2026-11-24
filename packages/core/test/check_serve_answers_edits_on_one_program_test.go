@@ -22,15 +22,17 @@ import (
 //  1. Start check-serve on a valid TypedRoute project and answer the first
 //     request with one load.
 //  2. Save a type error, then a tuple the LLM schema rejects, then the valid
-//     source again, sending the saved path each time.
-//  3. Require one load and one more update per save, the Program's files with a
-//     bundled default library, and the TypeScript acknowledgment on every reply.
+//     source again, sending the saved path each time; then change a declared
+//     external input outside the Program.
+//  3. Require one load and one more update per save and none for the external
+//     input, the Program's files with a bundled default library, and the
+//     TypeScript acknowledgment on every reply.
 //  4. Rewrite each state and require the cold check's status, stdout and
 //     stderr to equal the resident reply.
 //
 // @evidence contracts/testing.md#behavioral-verification The check-serve dispatcher runs four scripted cycles through RunWithIO; each JSON reply's status, streams, telemetry and file list are asserted, and every reply is compared with the check subcommand on the same file state.
 // @evidence contracts/testing.md#independent-expectations TypeScript assignability rejects a number for a string property, the LLM schema has no tuple form, and the ttsc protocol defines programLoads, programUpdates, reused, programFiles and the acknowledgment; the cold check is the separately executed reference for each answer.
-// @evidence contracts/testing.md#distinguishing-cases A clean state, a TypeScript failure (status 2), a transform failure (status 3) and recovery are distinct answers over one Program; reload triggers are owned by TestCheckServeReloadsWhenItCannotUpdate and contributor mutation by TestCheckServeReloadsAfterAContributorTransform.
+// @evidence contracts/testing.md#distinguishing-cases A clean state, a TypeScript failure (status 2), a transform failure (status 3), recovery and an external-only cycle that applies no update are distinct answers over one Program; reload triggers are owned by TestCheckServeReloadsWhenItCannotUpdate and contributor mutation by TestCheckServeReloadsAfterAContributorTransform.
 // @evidence contracts/testing.md#execution-ownership Go discovers this case in the core test module; the session and the cold checks run in-process through RunWithIO and RunWithOutput over a t.TempDir project, with no native binary or ttsc launcher.
 func TestCheckServeAnswersEditsOnOneProgram(t *testing.T) {
 	project := writeLlmRouteBuildProject(t, llmRouteBuildProjectOptions{Valid: true})
@@ -45,11 +47,15 @@ func TestCheckServeAnswersEditsOnOneProgram(t *testing.T) {
 	if typeError == valid || tuple == valid {
 		t.Fatal("fixture source no longer holds the edited text")
 	}
-	states := []string{valid, typeError, tuple, valid}
+	states := []string{valid, typeError, tuple, valid, valid}
 	save := func(source string) func() {
 		return func() { writeFile(t, main, source) }
 	}
 	request := `{"changed":["` + filepath.ToSlash(main) + `"]}`
+	// A declared external input outside the Program changes nothing the
+	// Program was built from, so its cycle applies no update.
+	external := filepath.ToSlash(filepath.Join(project.Root, "swagger.json"))
+	externalOnly := `{"changed":["` + external + `"],"external":["` + external + `"]}`
 	args := []string{"--cwd", project.Root, "--tsconfig", "tsconfig.json", "--plugins-json", project.PluginsJSON}
 
 	replies := runCheckServeSession(t, args, []checkServeStep{
@@ -57,13 +63,15 @@ func TestCheckServeAnswersEditsOnOneProgram(t *testing.T) {
 		{Before: save(typeError), Request: request},
 		{Before: save(tuple), Request: request},
 		{Before: save(valid), Request: request},
+		{Before: func() { writeFile(t, external, `{"openapi":"3.1.0"}`) }, Request: externalOnly},
 	})
-	wantStatus := []int{0, 2, 3, 0}
+	wantStatus := []int{0, 2, 3, 0, 0}
+	wantUpdates := []int{0, 1, 2, 3, 3}
 	for index, reply := range replies {
 		if reply.Status != wantStatus[index] {
 			t.Fatalf("reply %d status %d, want %d\nstderr=%s", index, reply.Status, wantStatus[index], reply.Stderr)
 		}
-		mustReplyTelemetry(t, index, reply, 1, index, index != 0)
+		mustReplyTelemetry(t, index, reply, 1, wantUpdates[index], index != 0)
 		mustListProgram(t, index, reply, main)
 		if reply.TypeScriptDiagnosticsReported == nil || !*reply.TypeScriptDiagnosticsReported {
 			t.Fatalf("reply %d does not acknowledge its TypeScript diagnostics", index)
