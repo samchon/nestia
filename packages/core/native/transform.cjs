@@ -30,10 +30,13 @@ function createTtscPlugin(context) {
     // Every variable outside ttsc's own namespace that can change the host's
     // output is read through the program's recorded Env, so ttsc keys its
     // outputs by those reads; only a crash's stderr stack reads one directly.
+    // `residentCheck`: the host answers `check-serve`, so a no-emit watch keeps
+    // one Program across saves instead of starting `check` cold each time.
     capabilities: {
       emitObservations: true,
       emitProvenance: true,
       environmentInputs: true,
+      residentCheck: true,
     },
     // a typia upgrade must evaluate the version check again
     hostInputs: typia.map((manifest) => manifest.file),

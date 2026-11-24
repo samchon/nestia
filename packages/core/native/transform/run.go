@@ -8,6 +8,7 @@ import (
 )
 
 var (
+	stdin  io.Reader = os.Stdin
 	stdout io.Writer = os.Stdout
 	stderr io.Writer = os.Stderr
 )
@@ -68,7 +69,7 @@ func Run(args []string) (code int) {
 // they opt into t.Parallel.
 //
 // @evidence contracts/common.md#principled-implementation The two package writers are replaced for the duration of one call and restored by a `defer`, so a caller can observe the JSON envelope of the project-mode transform, which an exit code alone cannot show; a nil writer leaves its stream unchanged.
-// @evidence contracts/common.md#clear-and-simple-design One function that swaps the writers, calls `Run`, and restores them.
+// @evidence contracts/common.md#clear-and-simple-design A delegation to RunWithIO with stdin left on the process, so one function owns the stream swap.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts This is a test seam kept as an exported function because the external test module cannot reach the private writers; it changes no behavior of the command, but it mutates package state and is therefore not safe for concurrent calls, as its comment says, and it is used only by the Go test modules.
 // @evidence contracts/common.md#meaningful-documentation The comment explains why the seam exists, its restore behavior, and the concurrency limit.
 // @evidence contracts/portability.md#os-neutral-implementation Streams use caller supplied io.Writer values, with native file and process boundaries handled by Run and its dispatcher.
@@ -76,10 +77,33 @@ func Run(args []string) (code int) {
 // @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; its result is derived from the supplied value or the current command and compiler program.
 // @evidence contracts/performance.md#bound-retention-and-release-resources The call borrows writers and restores previous references on return or panic; it neither closes caller writers nor supports concurrent calls.
 func RunWithOutput(args []string, out io.Writer, errOut io.Writer) int {
-	previousOut, previousErr := stdout, stderr
+	return RunWithIO(args, nil, out, errOut)
+}
+
+// RunWithIO is RunWithOutput with the host's stdin redirected as well.
+//
+// `check-serve` reads its newline-delimited requests from stdin and answers each
+// on stdout, so an external test module needs both ends of the stream to drive
+// a resident session in-process. The same scoping rules apply: a nil stream is
+// left on the process, every stream is restored on return or panic, and the
+// package-level streams make concurrent calls unsafe.
+//
+// @evidence contracts/common.md#principled-implementation The three package streams are replaced for one call and restored by a `defer`, so a caller can feed `check-serve` requests and read its responses; a nil stream keeps the process stream.
+// @evidence contracts/common.md#clear-and-simple-design One function swaps the streams, calls `Run`, and restores them; RunWithOutput delegates here instead of keeping a second swap.
+// @evidence contracts/common.md#prohibited-implementation-shortcuts This is the exported test seam for the external modules, which cannot reach the private streams; it changes no command behavior but mutates package state and is therefore not safe for concurrent calls.
+// @evidence contracts/common.md#meaningful-documentation The comment explains why stdin joins the seam, its restore behavior, and the concurrency limit.
+// @evidence contracts/portability.md#os-neutral-implementation Streams are caller supplied io.Reader and io.Writer values; native file and process boundaries stay with Run and its commands.
+// @evidence contracts/performance.md#efficient-algorithms Swapping three stream references is constant work; the dispatched command determines the cost.
+// @evidenceExclude contracts/performance.md#reuse-equivalent-work This operation does not coordinate equivalent requests; the dispatched command owns any reuse.
+// @evidence contracts/performance.md#bound-retention-and-release-resources The call borrows the streams and restores the previous references on return or panic; it neither closes them nor supports concurrent calls.
+func RunWithIO(args []string, in io.Reader, out io.Writer, errOut io.Writer) int {
+	previousIn, previousOut, previousErr := stdin, stdout, stderr
 	defer func() {
-		stdout, stderr = previousOut, previousErr
+		stdin, stdout, stderr = previousIn, previousOut, previousErr
 	}()
+	if in != nil {
+		stdin = in
+	}
 	if out != nil {
 		stdout = out
 	}
@@ -100,6 +124,8 @@ func run(args []string) int {
 		return runBuild(rest)
 	case "check":
 		return runCheck(rest)
+	case "check-serve":
+		return runCheckServe(rest)
 	case "transform":
 		return runTransform(rest)
 	case "version":
@@ -115,6 +141,6 @@ func run(args []string) int {
 
 func runHelp(args []string) int {
 	_ = args
-	fmt.Fprintln(stdout, "usage: ttsc-nestia <build|check|transform|version>")
+	fmt.Fprintln(stdout, "usage: ttsc-nestia <build|check|check-serve|transform|version>")
 	return 0
 }

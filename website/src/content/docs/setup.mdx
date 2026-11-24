@@ -48,6 +48,8 @@ Nestia supports TypeScript 7.0 and 7.1 with `ttsc` 0.37.0 or newer. `ttsc` compi
 
 The aggregate host publishes compiler, integrated typia and linked SDK input observations and output provenance so `ttsx` can reuse completed emits when every selected producer supplies complete, unchanged proof. Missing or conflicting input proof keeps fresh compilation.
 
+A no-emit watch such as `ttsc --noEmit --watch` keeps one Nestia host process and one compiler Program across saves, and applies each saved file to that Program instead of loading the project again. The answers equal a fresh `ttsc --noEmit`. A cycle in which the SDK metadata pass runs (`NESTIA_SDK_TRANSFORM=1`), or a project that still lists `@nestia/sdk` as a plugin, loads a fresh Program instead, because that pass edits the parsed sources it runs on.
+
 TypeScript 7.1 content mappers require explicit permission to execute external code: pass `--runExternalCode` to `ttsc`, for example `ttsc --runExternalCode --emit`. The Nestia host inherits this permission from the launcher.
 
 `typia` must be the exact release your `@nestia/core` is built for. The Nestia transform is compiled from that typia release's Go source, while the code it emits calls the `typia` package installed in your project, so another version would mix two releases. `@nestia/core` depends on and peers that exact version, so npm refuses a different one at install, and when another is resolved anyway the build stops with an error naming both versions. `npm view @nestia/core dependencies.typia` prints the version to install.
