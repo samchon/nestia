@@ -13,7 +13,7 @@ import (
 //
 // The check route first loads the program with ForceNoEmit and fails when either
 // config diagnostics or type diagnostics are present; only a TypeScript-clean
-// program proceeds to its private transform traversal. We synthesize a one-line
+// program proceeds to its analysis transform traversal. We synthesize a one-line
 // type error in a temp source file (no tracked fixture) and assert check rejects
 // it before transformation.
 //
