@@ -49,7 +49,7 @@ catalogs:
     '@types/cli-progress': ^3.11.6
   typescript:
     '@babel/parser': ^7.29.8
-    ttsc: &ttsc ^0.38.0
+    ttsc: &ttsc ^0.38.1
     '@ttsc/lint': *ttsc
     '@ttsc/factory': *ttsc
     '@ttsc/unplugin': *ttsc
