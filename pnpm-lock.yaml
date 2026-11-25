@@ -1842,6 +1842,11 @@ packages:
       '@vue/compiler-sfc':
         optional: true
 
+  '@ttsc/darwin-arm64@0.38.1':
+    resolution: {integrity: sha512-usyiM7zaanL/I+nKB1tb9xV4rAQ/qFsvBNsLOX1h0C03kV1aOg0wSkMYrSEqPS+zzxwsp6R6CkmkKgehCNSJAA==}
+    cpu: [arm64]
+    os: [darwin]
+
   '@ttsc/darwin-x64@0.38.1':
     resolution: {integrity: sha512-F0Y25413CWKZuV5y1POEyU/HaOOhURWAuo5CY2LzZSU5J0FYlVUex+Sh7PUFAHTZOqdm4IshaN6rH6Pm/giuPg==}
     cpu: [x64]
@@ -5394,6 +5399,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@ttsc/darwin-arm64@0.38.1':
+    optional: true
+
   '@ttsc/darwin-x64@0.38.1':
     optional: true
 
@@ -8082,6 +8090,7 @@ snapshots:
       cjs-module-lexer: 2.2.1
       typescript: 7.0.2
     optionalDependencies:
+      '@ttsc/darwin-arm64': 0.38.1
       '@ttsc/darwin-x64': 0.38.1
       '@ttsc/linux-arm': 0.38.1
       '@ttsc/linux-arm64': 0.38.1
