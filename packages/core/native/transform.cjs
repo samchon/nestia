@@ -4,7 +4,7 @@ const path = require("node:path");
 
 // Runtime counterpart of the typia Go release pinned in native/go.mod.
 // A dependency range can deduplicate both resolutions to a later runtime.
-const TYPIA_TRANSFORM_VERSION = "15.4.0";
+const TYPIA_TRANSFORM_VERSION = "15.5.0";
 
 // `@nestia/core` ttsc plugin descriptor.
 //
@@ -30,10 +30,13 @@ function createTtscPlugin(context) {
     // Every variable outside ttsc's own namespace that can change the host's
     // output is read through the program's recorded Env, so ttsc keys its
     // outputs by those reads; only a crash's stderr stack reads one directly.
+    // `residentCheck`: the host answers `check-serve`, so a no-emit watch keeps
+    // one Program across saves instead of starting `check` cold each time.
     capabilities: {
       emitObservations: true,
       emitProvenance: true,
       environmentInputs: true,
+      residentCheck: true,
     },
     // a typia upgrade must evaluate the version check again
     hostInputs: typia.map((manifest) => manifest.file),

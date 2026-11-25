@@ -33,7 +33,7 @@ type Options struct {
 	// Core, SDK and Typia are the resolved composing-plugin flags.
 	Core, SDK, Typia bool
 
-	// Emit is the original compiler policy, before any private analysis traversal.
+	// Emit is the compiler policy; an analysis-only run publishes nothing.
 	Emit bool
 
 	// Quiet suppresses both initial and successful-publication summaries.
@@ -65,7 +65,7 @@ type artifact struct{ fileName, text string }
 
 // New begins one output session and writes its initial summary when requested.
 //
-// @evidence contracts/common.md#principled-implementation The initial summary reports the original Emit policy before transforms run, so a verbose analysis-only build reports emit=false even when its private transformer traversal emits into a discarded buffer.
+// @evidence contracts/common.md#principled-implementation The initial summary reports the Emit policy before transforms run, so a verbose analysis-only build reports emit=false while its transforms run without printing.
 // @evidence contracts/common.md#clear-and-simple-design Construction stores policy and actual output boundaries, then writes one conditional summary.
 // @evidence contracts/common.md#prohibited-implementation-shortcuts The actual command supplies paths, plugin flags and writers; no expected diagnostic or artifact is fabricated.
 // @evidence contracts/common.md#meaningful-documentation The comment distinguishes the initial summary from successful publication reporting.

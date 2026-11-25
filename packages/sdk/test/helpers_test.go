@@ -30,6 +30,20 @@ const coreOnlyPlugins = `[{"name":"@nestia/core","stage":"transform","config":{"
 // dir holding the tsconfig.
 func writeFeatureTsconfig(t *testing.T, root, feature string, files []string) string {
 	t.Helper()
+	return writeFeatureTsconfigExtending(t, root, feature, files, filepath.Join(root, "packages/sdk/test/fixtures", feature, "tsconfig.json"))
+}
+
+// writeCheckedFeatureTsconfig is writeFeatureTsconfig extending the shared
+// strict base instead of the fixture's own tsconfig, whose `baseUrl` TypeScript 7
+// reports as removed (TS5102). Use it where the command under test reports the
+// Program's diagnostics, as `check` does, so the project is diagnostic-free.
+func writeCheckedFeatureTsconfig(t *testing.T, root, feature string, files []string) string {
+	t.Helper()
+	return writeFeatureTsconfigExtending(t, root, feature, files, filepath.Join(root, "tests/config/tsconfig.json"))
+}
+
+func writeFeatureTsconfigExtending(t *testing.T, root, feature string, files []string, extends string) string {
+	t.Helper()
 	temp := t.TempDir()
 	featureRoot := filepath.Join(root, "packages/sdk/test/fixtures", feature)
 	sourceRoot := filepath.Join(featureRoot, "src")
@@ -40,7 +54,7 @@ func writeFeatureTsconfig(t *testing.T, root, feature string, files []string) st
 		abs[i] = `"` + filepath.ToSlash(filepath.Join(sourceRoot, f)) + `"`
 	}
 	body := `{
-  "extends": "` + filepath.ToSlash(filepath.Join(featureRoot, "tsconfig.json")) + `",
+  "extends": "` + filepath.ToSlash(extends) + `",
   "compilerOptions": {
     "rootDir": "` + filepath.ToSlash(root) + `",
     "types": ["node"],
